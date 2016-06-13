@@ -39,6 +39,14 @@ def test_from_sklearn():
     assert from_sklearn(clf2)._name != d._name
 
 
+def test_constructor():
+    d = Estimator(LogisticRegression(C=1000))
+    assert d._name == from_sklearn(clf1)._name
+
+    with pytest.raises(ValueError):
+        Estimator(clf1, name='foo')
+
+
 def test_get_params():
     d = from_sklearn(clf1)
     assert d.get_params() == clf1.get_params()

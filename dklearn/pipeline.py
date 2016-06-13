@@ -8,10 +8,10 @@ from .core import DaskBaseEstimator, from_sklearn
 
 class Pipeline(DaskBaseEstimator):
 
-    def __init__(self, steps, est):
-        self.steps = steps
+    def __init__(self, steps):
+        self.steps = [(k, from_sklearn(v)) for k, v in steps]
+        self._est = pipeline.Pipeline([(n, s._est) for n, s in self.steps])
         self._name = 'pipeline-' + tokenize('Pipeline', steps)
-        self._est = est
 
     @staticmethod
     def _finalize(res):
@@ -37,8 +37,9 @@ class Pipeline(DaskBaseEstimator):
 
     @classmethod
     def from_sklearn(cls, est):
-        steps = [(k, from_sklearn(v)) for k, v in est.steps]
-        return cls(steps, est)
+        if not isinstance(est, pipeline.Pipeline):
+            raise TypeError("est must be a sklearn Pipeline")
+        return cls(est.steps)
 
     @property
     def named_steps(self):
@@ -71,7 +72,7 @@ class Pipeline(DaskBaseEstimator):
         fit = self._final_estimator.fit(Xt, y, **params)
         fit_steps.append(fit)
         new_steps = [(old[0], s) for old, s in zip(self.steps, fit_steps)]
-        return Pipeline(new_steps, self._est)
+        return Pipeline(new_steps)
 
     def transform(self, X):
         for name, transform in self.steps:
@@ -93,7 +94,7 @@ class Pipeline(DaskBaseEstimator):
         fit, Xt = self._final_estimator._fit_transform(X, y, **params)
         fit_steps.append(fit)
         new_steps = [(old[0], s) for old, s in zip(self.steps, fit_steps)]
-        return Pipeline(new_steps, self._est), Xt
+        return Pipeline(new_steps), Xt
 
 
 from_sklearn.dispatch.register(pipeline.Pipeline, Pipeline.from_sklearn)

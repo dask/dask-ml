@@ -4,7 +4,8 @@ import pytest
 import numpy as np
 from dask.base import tokenize
 from dask.delayed import Delayed
-from sklearn import clone, pipeline
+from sklearn import pipeline
+from sklearn.base import clone, BaseEstimator
 from sklearn.datasets import load_digits
 from sklearn.decomposition import PCA
 from sklearn.exceptions import NotFittedError
@@ -18,10 +19,15 @@ digits = load_digits()
 X_digits = digits.data
 y_digits = digits.target
 
-pipe1 = pipeline.Pipeline(steps=[('pca', PCA()),
-                                 ('logistic', LogisticRegression(C=1000))])
+steps = [('pca', PCA()), ('logistic', LogisticRegression(C=1000))]
 
+pipe1 = pipeline.Pipeline(steps=steps)
 pipe2 = clone(pipe1).set_params(pca__n_components=20, logistic__C=100)
+
+
+class MissingMethods(BaseEstimator):
+    """Small class to test pipeline constructor."""
+    pass
 
 
 def test_tokenize_sklearn_pipeline():
@@ -43,6 +49,17 @@ def test_pipeline():
 
     # dask graph is cached on attribute access
     assert d.dask is d.dask
+
+
+def test_constructor():
+    d = Pipeline(steps)
+    assert d._name == from_sklearn(pipe1)._name
+
+    with pytest.raises(TypeError):
+        Pipeline([MissingMethods(), LogisticRegression()])
+
+    with pytest.raises(TypeError):
+        Pipeline([PCA(), MissingMethods()])
 
 
 def test_get_params():

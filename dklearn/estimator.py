@@ -44,7 +44,12 @@ class Estimator(DaskBaseEstimator):
     lazily (if applicable). Calling `compute` results in the wrapped estimator.
     """
 
-    def __init__(self, dask, name, est):
+    def __init__(self, est, dask=None, name=None):
+        if dask is None and name is None:
+            name = 'from_sklearn-' + tokenize(est)
+            dask = {name: est}
+        elif dask is None or name is None:
+            raise ValueError("Must provide both dask and name")
         self.dask = dask
         self._name = name
         self._est = est
@@ -59,15 +64,14 @@ class Estimator(DaskBaseEstimator):
     @classmethod
     def from_sklearn(cls, est):
         """Wrap a scikit-learn estimator"""
-        name = 'from_sklearn-' + tokenize(est)
-        return cls({name: est}, name, est)
+        return cls(est)
 
     def fit(self, X, y, **kwargs):
         name = 'fit-' + tokenize(self, X, y, kwargs)
         X, y, dsk = unpack_arguments(X, y)
         dsk.update(self.dask)
         dsk[name] = (_fit, self._name, X, y, kwargs)
-        return Estimator(dsk, name, self._est)
+        return Estimator(self._est, dsk, name)
 
     def predict(self, X):
         name = 'predict-' + tokenize(self, X)
@@ -96,7 +100,7 @@ class Estimator(DaskBaseEstimator):
         dsk[fit_tr_name] = (_fit_transform, self._name, X, y, kwargs)
         dsk1 = merge({fit_name: (getitem, fit_tr_name, 0)}, dsk, self.dask)
         dsk2 = merge({tr_name: (getitem, fit_tr_name, 1)}, dsk, self.dask)
-        return Estimator(dsk1, fit_name, self._est), Delayed(tr_name, [dsk2])
+        return Estimator(self._est, dsk1, fit_name), Delayed(tr_name, [dsk2])
 
 
 from_sklearn.dispatch.register(BaseEstimator, Estimator.from_sklearn)
