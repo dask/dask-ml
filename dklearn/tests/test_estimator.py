@@ -5,13 +5,12 @@ import numpy as np
 from dask.base import tokenize
 from dask.delayed import Delayed
 from sklearn.base import clone
-from sklearn.datasets import load_iris, load_digits
-from sklearn.decomposition import PCA
+from sklearn.datasets import load_iris
 from sklearn.exceptions import NotFittedError
 from sklearn.linear_model import LogisticRegression
-from sklearn import pipeline
 
-from dklearn.wrappers import from_sklearn, Estimator, Pipeline
+from dklearn import from_sklearn
+from dklearn.estimator import Estimator
 
 
 clf1 = LogisticRegression(C=1000)
@@ -20,13 +19,6 @@ clf2 = LogisticRegression(C=5000)
 iris = load_iris()
 X_iris = iris.data[:, :2]
 y_iris = iris.target
-
-digits = load_digits()
-X_digits = digits.data
-y_digits = digits.target
-
-pipe = pipeline.Pipeline(steps=[('pca', PCA()),
-                                ('logistic', LogisticRegression())])
 
 
 def test_tokenize_BaseEstimator():
@@ -97,26 +89,3 @@ def test_score():
     will_error = d.score(X_iris, y_iris)
     with pytest.raises(NotFittedError):
         will_error.compute()
-
-
-def test_pipeline():
-    d = from_sklearn(pipe)
-    assert isinstance(d, Pipeline)
-    assert d._name == from_sklearn(pipe)._name
-    pipe2 = clone(pipe).set_params(logistic__C=10)
-    assert d._name != from_sklearn(pipe2)._name
-
-    # dask graph is cached on attribute access
-    assert d.dask is d.dask
-
-
-def test_pipeline_fit():
-    d = from_sklearn(pipe)
-    fit = d.fit(X_digits, y_digits)
-    assert fit is not d
-    assert isinstance(fit, Pipeline)
-
-    res = fit.compute()
-    assert isinstance(res, pipeline.Pipeline)
-    assert hasattr(res, 'classes_')
-    assert not hasattr(pipe, 'classes_')
