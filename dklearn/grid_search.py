@@ -83,19 +83,20 @@ class BaseSearchCV(BaseEstimator):
     """Base class for hyper parameter search with cross-validation."""
 
     def __init__(self, estimator, scoring=None, fit_params=None, iid=True,
-                 refit=True, cv=None):
+                 refit=True, cv=None, get=None):
         self.scoring = scoring
         self.estimator = from_sklearn(estimator)
         self.fit_params = fit_params if fit_params is not None else {}
         self.iid = iid
         self.refit = refit
         self.cv = cv
+        self.get = get
 
     @property
     def _estimator_type(self):
         return self.estimator._estimator_type
 
-    def _fit(self, X, y, parameter_iterable, get=None):
+    def _fit(self, X, y, parameter_iterable):
         estimator = self.estimator
         self.scorer_ = check_scoring(estimator, scoring=self.scoring)
         cv = check_cv(self.cv, y, classifier=is_classifier(estimator))
@@ -128,7 +129,7 @@ class BaseSearchCV(BaseEstimator):
                 parameters.append(params)
 
         # Compute results
-        get = get or _globals[get] or threaded.get
+        get = self.get or _globals['get'] or threaded.get
         scores = get(dsk, score_keys)
 
         # Extract grid_scores and best parameters
@@ -151,32 +152,32 @@ class BaseSearchCV(BaseEstimator):
 
 class GridSearchCV(BaseSearchCV):
     def __init__(self, estimator, param_grid, scoring=None, fit_params=None,
-                 iid=True, refit=True, cv=None):
+                 iid=True, refit=True, cv=None, get=None):
 
         super(GridSearchCV, self).__init__(
                 estimator=estimator, scoring=scoring, fit_params=fit_params,
-                iid=iid, refit=refit, cv=cv)
-        self.param_grid = param_grid
+                iid=iid, refit=refit, cv=cv, get=get)
         _check_param_grid(param_grid)
+        self.param_grid = param_grid
 
-    def fit(self, X, y=None, get=None):
-        return self._fit(X, y, ParameterGrid(self.param_grid), get=get)
+    def fit(self, X, y=None):
+        return self._fit(X, y, ParameterGrid(self.param_grid))
 
 
 class RandomizedSearchCV(BaseSearchCV):
     def __init__(self, estimator, param_distributions, n_iter=10, scoring=None,
                  fit_params=None, iid=True, refit=True, cv=None,
-                 random_state=None):
+                 random_state=None, get=None):
 
         super(RandomizedSearchCV, self).__init__(
                 estimator=estimator, scoring=scoring, fit_params=fit_params,
-                iid=iid, refit=refit, cv=cv)
+                iid=iid, refit=refit, cv=cv, get=get)
         self.param_distributions = param_distributions
         self.n_iter = n_iter
         self.random_state = random_state
 
-    def fit(self, X, y=None, get=None):
+    def fit(self, X, y=None):
         sampled_params = ParameterSampler(self.param_distributions,
                                           self.n_iter,
                                           random_state=self.random_state)
-        return self._fit(X, y, sampled_params, get=get)
+        return self._fit(X, y, sampled_params)
