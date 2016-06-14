@@ -47,6 +47,11 @@ def test_constructor():
         Estimator(clf1, name='foo')
 
 
+def test__estimator_type():
+    d = Estimator(clf1)
+    assert d._estimator_type == clf1._estimator_type
+
+
 def test_get_params():
     d = from_sklearn(clf1)
     assert d.get_params() == clf1.get_params()

@@ -66,6 +66,10 @@ class Estimator(DaskBaseEstimator):
         """Wrap a scikit-learn estimator"""
         return cls(est)
 
+    @property
+    def _estimator_type(self):
+        return self._est._estimator_type
+
     def fit(self, X, y, **kwargs):
         name = 'fit-' + tokenize(self, X, y, kwargs)
         X, y, dsk = unpack_arguments(X, y)

@@ -62,6 +62,11 @@ def test_constructor():
         Pipeline([PCA(), MissingMethods()])
 
 
+def test__estimator_type():
+    d = Pipeline(steps)
+    assert d._estimator_type == pipe1._estimator_type
+
+
 def test_get_params():
     d = from_sklearn(pipe1)
     assert d.get_params() == pipe1.get_params()
