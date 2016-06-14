@@ -46,6 +46,39 @@ def _fit_and_score(estimator, X_name, y_name, scorer, train, test,
     return n_samples, score_name, dsk
 
 
+def get_grid_scores(scores, parameters, n_samples, n_folds, iid):
+    score_params_len = list(zip(scores, parameters, n_samples))
+    n_fits = len(score_params_len)
+
+    scores = list()
+    grid_scores = list()
+    for grid_start in range(0, n_fits, n_folds):
+        n_test_samples = 0
+        score = 0
+        all_scores = []
+        for this_score, parameters, this_n_test_samples in \
+                score_params_len[grid_start:grid_start + n_folds]:
+            all_scores.append(this_score)
+            if iid:
+                this_score *= this_n_test_samples
+                n_test_samples += this_n_test_samples
+            score += this_score
+        if iid:
+            score /= float(n_test_samples)
+        else:
+            score /= float(n_folds)
+        scores.append((score, parameters))
+        grid_scores.append(_CVScoreTuple(parameters, score,
+                                         np.array(all_scores)))
+    return grid_scores
+
+
+def get_best(grid_scores):
+    best = sorted(grid_scores, key=lambda x: x.mean_validation_score,
+                  reverse=True)[0]
+    return best
+
+
 class BaseSearchCV(BaseEstimator):
     """Base class for hyper parameter search with cross-validation."""
 
@@ -81,58 +114,38 @@ class BaseSearchCV(BaseEstimator):
         y_name = 'y-' + tokenize(y)
         dsk = {X_name: X, y_name: y}
 
-        parameters = list(parameter_iterable)
-        n_samples = []
         score_keys = []
-        for params in parameters:
+        n_samples = []
+        parameters = []
+        for params in parameter_iterable:
             for train, test in cv:
                 n, score_key, dsk2 = _fit_and_score(estimator, X_name, y_name,
                                                     self.scorer_, train, test,
                                                     params, self.fit_params)
-                n_samples.append(n)
-                score_keys.append(score_key)
                 dsk.update(dsk2)
+                score_keys.append(score_key)
+                n_samples.append(n)
+                parameters.append(params)
 
         # Compute results
         get = get or _globals[get] or threaded.get
         scores = get(dsk, score_keys)
 
         # Extract grid_scores and best parameters
-        score_params_len = list(zip(scores, parameters, n_samples))
-        n_fits = len(score_params_len)
+        grid_scores = get_grid_scores(scores, parameters, n_samples,
+                                      n_folds, self.iid)
+        best = get_best(grid_scores)
 
-        scores = list()
-        grid_scores = list()
-        for grid_start in range(0, n_fits, n_folds):
-            n_test_samples = 0
-            score = 0
-            all_scores = []
-            for this_score, parameters, this_n_test_samples in \
-                    score_params_len[grid_start:grid_start + n_folds]:
-                all_scores.append(this_score)
-                if self.iid:
-                    this_score *= this_n_test_samples
-                    n_test_samples += this_n_test_samples
-                score += this_score
-            if self.iid:
-                score /= float(n_test_samples)
-            else:
-                score /= float(n_folds)
-            scores.append((score, parameters))
-            grid_scores.append(_CVScoreTuple(parameters, score,
-                                             np.array(all_scores)))
-        best = sorted(grid_scores, key=lambda x: x.mean_validation_score,
-                      reverse=True)[0]
-
+        # Update attributes
+        self.grid_scores_ = grid_scores
         self.best_params_ = best.parameters
         self.best_score_ = best.mean_validation_score
 
+        # Refit if needed
         if self.refit:
-            # fit the best estimator using the entire dataset
-            best_estimator = (estimator.set_params(**best.parameters)
-                                       .fit(X, y, **self.fit_params)
-                                       .compute(get=get))
-            self.best_estimator_ = best_estimator
+            self.best_estimator_ = (estimator.set_params(**best.parameters)
+                                             .fit(X, y, **self.fit_params)
+                                             .compute(get=get))
         return self
 
 
