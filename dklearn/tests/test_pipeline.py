@@ -57,6 +57,9 @@ def test_pipeline():
     # dask graph is cached on attribute access
     assert d.dask is d.dask
 
+    with pytest.raises(TypeError):
+        Pipeline.from_sklearn("not an estimator")
+
 
 def test_Pipeline__init__():
     d = Pipeline(steps)
@@ -111,6 +114,25 @@ def test_set_params():
     assert d2.compute().get_params()['logistic__C'] == 100
     assert d.get_params()['logistic__C'] == 1000
     assert d.compute().get_params()['logistic__C'] == 1000
+
+    # Changing steps with set_params works
+    d2 = d.set_params(steps=steps)
+    assert d2._name == d._name
+    lr1 = d.named_steps['logistic']
+    lr2 = d2.named_steps['logistic']
+    assert lr1.get_params() == lr2.get_params()
+    assert isinstance(lr2, Estimator)
+
+    # Fast return
+    d2 = d.set_params()
+    assert d2 is d
+
+    # ambiguous change
+    with pytest.raises(ValueError):
+        d.set_params(steps=steps, logistic__C=10)
+
+    with pytest.raises(ValueError):
+        d.set_params(not_a_real_param='foo')
 
 
 def test_named_steps():

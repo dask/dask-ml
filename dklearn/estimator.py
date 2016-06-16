@@ -48,10 +48,6 @@ class ClassProxy(object):
     def __call__(self, *args, **kwargs):
         return Estimator(self.cls(*args, **kwargs))
 
-    @property
-    def __mro__(self):
-        return self.cls.__mro__
-
 
 class Estimator(DaskBaseEstimator, BaseEstimator):
     """A class for wrapping a scikit-learn estimator.
