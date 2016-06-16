@@ -38,10 +38,10 @@ def _fit_and_score(estimator, X_name, y_name, scorer, train, test,
                         Delayed(y_train_name, [dsk]),
                         **fit_params)
     # Score
-    score_name = 'score-' + tokenize(scorer, fit, X_test_name, y_test_name)
-    fit_key, dsk2 = unpack_arguments(fit)
-    dsk.update(dsk2)
-    dsk[score_name] = (scorer, fit_key, X_test_name, y_test_name)
+    sk_fit = fit.to_sklearn(compute=False)
+    score_name = 'score-' + tokenize(scorer, sk_fit, X_test_name, y_test_name)
+    dsk.update(sk_fit.dask)
+    dsk[score_name] = (scorer, sk_fit.key, X_test_name, y_test_name)
 
     return n_samples, score_name, dsk
 
@@ -99,7 +99,7 @@ class BaseSearchCV(BaseEstimator):
     def _fit(self, X, y, parameter_iterable):
         estimator = self.estimator
         self.scorer_ = check_scoring(estimator, scoring=self.scoring)
-        cv = check_cv(self.cv, y, classifier=is_classifier(estimator))
+        cv = check_cv(self.cv, X, y, classifier=is_classifier(estimator))
 
         n_folds = len(cv)
         X, y = indexable(X, y)
