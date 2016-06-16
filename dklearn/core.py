@@ -7,7 +7,7 @@ from dask.delayed import Delayed
 from dask.optimize import fuse
 from dask.threaded import get as threaded_get
 from dask.utils import concrete, Dispatch
-from sklearn.base import clone, BaseEstimator
+from sklearn.base import BaseEstimator
 from toolz import merge, identity
 
 
@@ -19,13 +19,6 @@ class DaskBaseEstimator(Base):
     def _optimize(dsk, keys, **kwargs):
         dsk2, deps = fuse(dsk, keys)
         return dsk2
-
-    def get_params(self, deep=True):
-        return self._est.get_params(deep=deep)
-
-    def set_params(self, **params):
-        est = clone(self._est).set_params(**params)
-        return type(self).from_sklearn(est)
 
 
 @partial(normalize_token.register, BaseEstimator)

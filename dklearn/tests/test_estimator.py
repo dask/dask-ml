@@ -11,6 +11,11 @@ from sklearn.linear_model import LogisticRegression
 from dklearn import from_sklearn
 from dklearn.estimator import Estimator
 
+# Not fit estimators raise NotFittedError, but old versions of scikit-learn
+# include two definitions of this error, which makes it hard to catch
+# appropriately. Since it subclasses from `AttributeError`, this is good
+# enough for the tests.
+NotFittedError = AttributeError
 
 clf1 = LogisticRegression(C=1000)
 clf2 = LogisticRegression(C=5000)
@@ -141,10 +146,7 @@ def test_predict():
     res = pred.compute()
     assert isinstance(res, np.ndarray)
     will_error = d.predict(X_iris)
-    # Raises NotFittedError, but old versions of scikit-learn include two
-    # definitions of this error, which makes it hard to catch appropriately.
-    # Since it subclasses from `AttributeError`, this is good enough.
-    with pytest.raises(AttributeError):
+    with pytest.raises(NotFittedError):
         will_error.compute()
 
 
@@ -156,5 +158,5 @@ def test_score():
     res = s.compute()
     assert isinstance(res, float)
     will_error = d.score(X_iris, y_iris)
-    with pytest.raises(AttributeError):
+    with pytest.raises(NotFittedError):
         will_error.compute()

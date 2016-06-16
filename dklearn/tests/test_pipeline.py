@@ -8,8 +8,8 @@ from sklearn import pipeline
 from sklearn.base import clone, BaseEstimator
 from sklearn.datasets import load_digits
 from sklearn.decomposition import PCA
-from sklearn.exceptions import NotFittedError
 from sklearn.linear_model import LogisticRegression
+from toolz import dissoc
 
 from dklearn import from_sklearn
 from dklearn.estimator import Estimator
@@ -23,6 +23,13 @@ steps = [('pca', PCA()), ('logistic', LogisticRegression(C=1000))]
 
 pipe1 = pipeline.Pipeline(steps=steps)
 pipe2 = clone(pipe1).set_params(pca__n_components=20, logistic__C=100)
+
+
+# Not fit estimators raise NotFittedError, but old versions of scikit-learn
+# include two definitions of this error, which makes it hard to catch
+# appropriately. Since it subclasses from `AttributeError`, this is good
+# enough for the tests.
+NotFittedError = AttributeError
 
 
 class MissingMethods(BaseEstimator):
@@ -51,7 +58,7 @@ def test_pipeline():
     assert d.dask is d.dask
 
 
-def test_constructor():
+def test_Pipeline__init__():
     d = Pipeline(steps)
     assert d._name == from_sklearn(pipe1)._name
 
@@ -62,6 +69,18 @@ def test_constructor():
         Pipeline([PCA(), MissingMethods()])
 
 
+def test_clone():
+    d = Pipeline(steps)
+    d2 = clone(d)
+    assert d is not d2
+    assert d._name == d2._name
+    lr1 = d.named_steps['logistic']
+    lr2 = d2.named_steps['logistic']
+    assert lr1 is not lr2
+    assert lr1.get_params() == lr2.get_params()
+    assert isinstance(lr2, Estimator)
+
+
 def test__estimator_type():
     d = Pipeline(steps)
     assert d._estimator_type == pipe1._estimator_type
@@ -69,8 +88,17 @@ def test__estimator_type():
 
 def test_get_params():
     d = from_sklearn(pipe1)
-    assert d.get_params() == pipe1.get_params()
-    assert d.get_params(deep=False) == pipe1.get_params(deep=False)
+    params1 = d.get_params()
+    params2 = pipe1.get_params()
+    assert (dissoc(params1, 'steps', 'logistic', 'pca') ==
+            dissoc(params2, 'steps', 'logistic', 'pca'))
+    params1 = d.get_params(deep=False)
+    params2 = pipe1.get_params(deep=False)
+    for dkstep, skstep in zip(params1['steps'], params2['steps']):
+        # names are equivalent
+        assert dkstep[0] == skstep[0]
+        # ests have same params
+        assert dkstep[1].get_params() == skstep[1].get_params()
 
 
 def test_set_params():
@@ -90,6 +118,12 @@ def test_named_steps():
     steps = d.named_steps
     assert isinstance(steps['pca'], Estimator)
     assert isinstance(steps['logistic'], Estimator)
+
+
+def test_setattr():
+    d = from_sklearn(pipe1)
+    with pytest.raises(AttributeError):
+        d.C = 10
 
 
 def test_fit():
@@ -126,3 +160,24 @@ def test_score():
     will_error = d.score(X_digits, y_digits)
     with pytest.raises(NotFittedError):
         will_error.compute()
+
+
+def test_to_sklearn():
+    d = from_sklearn(pipe1)
+    res = d.to_sklearn()
+    assert isinstance(res, pipeline.Pipeline)
+    assert isinstance(res.named_steps['logistic'], LogisticRegression)
+
+    res = d.to_sklearn(compute=False)
+    assert isinstance(res, Delayed)
+    assert isinstance(res.compute(), pipeline.Pipeline)
+
+    # After fitting
+    fit = d.fit(X_digits, y_digits)
+    res = fit.to_sklearn()
+    assert isinstance(res, pipeline.Pipeline)
+    assert isinstance(res.named_steps['logistic'], LogisticRegression)
+
+    res = d.to_sklearn(compute=False)
+    assert isinstance(res, Delayed)
+    assert isinstance(res.compute(), pipeline.Pipeline)

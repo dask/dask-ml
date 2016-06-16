@@ -1,21 +1,21 @@
 from __future__ import absolute_import, print_function, division
 
 from dask.base import tokenize
+from dask.delayed import delayed
 from sklearn import pipeline
 
 from .core import DaskBaseEstimator, from_sklearn
 
 
-class Pipeline(DaskBaseEstimator):
+class Pipeline(DaskBaseEstimator, pipeline.Pipeline):
+    _finalize = staticmethod(lambda res: Pipeline(res[0]))
 
     def __init__(self, steps):
-        self.steps = [(k, from_sklearn(v)) for k, v in steps]
-        self._est = pipeline.Pipeline([(n, s._est) for n, s in self.steps])
-        self._name = 'pipeline-' + tokenize('Pipeline', steps)
-
-    @staticmethod
-    def _finalize(res):
-        return pipeline.Pipeline(res[0])
+        # Run the sklearn init to validate the pipeline steps
+        steps = pipeline.Pipeline(steps).steps
+        steps = [(k, from_sklearn(v)) for k, v in steps]
+        object.__setattr__(self, 'steps', steps)
+        self._name = 'pipeline-' + tokenize(self.steps)
 
     @property
     def dask(self):
@@ -41,17 +41,46 @@ class Pipeline(DaskBaseEstimator):
             raise TypeError("est must be a sklearn Pipeline")
         return cls(est.steps)
 
-    @property
-    def named_steps(self):
-        return dict(self.steps)
+    def to_sklearn(self, compute=True):
+        steps = [(n, s.to_sklearn(compute=False)) for n, s in self.steps]
+        pipe = delayed(pipeline.Pipeline, pure=True)
+        res = pipe(steps, dask_key_name='to_sklearn-' + self._name)
+        if compute:
+            return res.compute()
+        return res
 
-    @property
-    def _final_estimator(self):
-        return self.steps[-1][1]
+    def set_params(self, **params):
+        if not params:
+            # Simple optimisation to gain speed (inspect is slow)
+            return self
+        if 'steps' in params:
+            if len(params) == 1:
+                return Pipeline(params['steps'])
+            raise ValueError("Setting params with both `'steps'` and nested "
+                             "parameters is ambiguous due to order of "
+                             "operations. To change both steps and "
+                             "sub-parameters create a new `Pipeline`.")
+        # All params should be nested, or error
+        sub_params = dict((n, {}) for n in self.named_steps)
+        for key, value in params.items():
+            split = key.split('__', 1)
+            if len(split) > 1 and split[0] in sub_params and len(split) == 2:
+                # nested objects case
+                sub_params[split[0]][split[1]] = value
+            else:
+                raise ValueError('Invalid parameter %s for estimator %s. '
+                                 'Check the list of available parameters '
+                                 'with `estimator.get_params().keys()`.' %
+                                 (key, self.__class__.__name__))
+        steps = [(n, e.set_params(**sub_params[n])) for n, e in self.steps]
+        return Pipeline(steps)
 
-    @property
-    def _estimator_type(self):
-        return self._final_estimator._estimator_type
+    def __setattr__(self, k, v):
+        if k in ('_name', '_dask'):
+            object.__setattr__(self, k, v)
+        else:
+            raise AttributeError("Attribute setting not permitted. "
+                                 "Use `set_params` to change parameters")
 
     def _pre_transform(self, Xt, y=None, **fit_params):
         # Separate out parameters
@@ -91,7 +120,7 @@ class Pipeline(DaskBaseEstimator):
 
     def _fit_transform(self, X, y=None, **fit_params):
         fit_steps, Xt, params = self._pre_transform(X, y, **fit_params)
-        fit, Xt = self._final_estimator._fit_transform(X, y, **params)
+        fit, Xt = self._final_estimator._fit_transform(Xt, y, **params)
         fit_steps.append(fit)
         new_steps = [(old[0], s) for old, s in zip(self.steps, fit_steps)]
         return Pipeline(new_steps), Xt
