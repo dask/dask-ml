@@ -6,7 +6,6 @@ from dask.base import tokenize
 from dask.delayed import Delayed
 from sklearn.base import clone
 from sklearn.datasets import load_iris
-from sklearn.exceptions import NotFittedError
 from sklearn.linear_model import LogisticRegression
 
 from dklearn import from_sklearn
@@ -34,17 +33,26 @@ def test_tokenize_BaseEstimator():
 
 def test_from_sklearn():
     d = from_sklearn(clf1)
-    assert d.compute() is clf1
     assert from_sklearn(clf1)._name == d._name
     assert from_sklearn(clf2)._name != d._name
 
 
-def test_constructor():
+def test_Estimator__init__():
     d = Estimator(LogisticRegression(C=1000))
     assert d._name == from_sklearn(clf1)._name
 
     with pytest.raises(ValueError):
         Estimator(clf1, name='foo')
+
+    with pytest.raises(TypeError):
+        Estimator("not an estimator")
+
+
+def test_clone():
+    d = Estimator(clf1)
+    d2 = clone(d)
+    assert d.get_params() == d2.get_params()
+    assert d._est is not d2._est
 
 
 def test__estimator_type():
@@ -69,6 +77,50 @@ def test_set_params():
     assert d.compute().C == 1000
 
 
+def test_setattr():
+    d = Estimator(clf1)
+    with pytest.raises(AttributeError):
+        d.C = 10
+
+
+def test_getattr():
+    d = Estimator(clf1)
+    assert d.C == clf1.C
+    with pytest.raises(AttributeError):
+        d.not_a_real_parameter
+
+
+def test_dir():
+    d = Estimator(clf1)
+    attrs = dir(d)
+    assert 'C' in attrs
+
+
+def test_repr():
+    d = Estimator(clf1)
+    res = repr(d)
+    assert res.startswith('Dask')
+
+
+def test_to_sklearn():
+    d = Estimator(clf1)
+    res = d.to_sklearn()
+    assert isinstance(res, LogisticRegression)
+
+    res = d.to_sklearn(compute=False)
+    assert isinstance(res, Delayed)
+    assert isinstance(res.compute(), LogisticRegression)
+
+    # After fitting
+    fit = d.fit(X_iris, y_iris)
+    res = fit.to_sklearn()
+    assert isinstance(res, LogisticRegression)
+
+    res = fit.to_sklearn(compute=False)
+    assert isinstance(res, Delayed)
+    assert isinstance(res.compute(), LogisticRegression)
+
+
 def test_fit():
     d = from_sklearn(clf1)
     fit = d.fit(X_iris, y_iris)
@@ -78,6 +130,7 @@ def test_fit():
     res = fit.compute()
     assert hasattr(res, 'coef_')
     assert not hasattr(clf1, 'coef_')
+    assert isinstance(res, Estimator)
 
 
 def test_predict():
@@ -88,7 +141,10 @@ def test_predict():
     res = pred.compute()
     assert isinstance(res, np.ndarray)
     will_error = d.predict(X_iris)
-    with pytest.raises(NotFittedError):
+    # Raises NotFittedError, but old versions of scikit-learn include two
+    # definitions of this error, which makes it hard to catch appropriately.
+    # Since it subclasses from `AttributeError`, this is good enough.
+    with pytest.raises(AttributeError):
         will_error.compute()
 
 
@@ -100,5 +156,5 @@ def test_score():
     res = s.compute()
     assert isinstance(res, float)
     will_error = d.score(X_iris, y_iris)
-    with pytest.raises(NotFittedError):
+    with pytest.raises(AttributeError):
         will_error.compute()
