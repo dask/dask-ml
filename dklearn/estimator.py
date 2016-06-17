@@ -2,12 +2,13 @@ from __future__ import absolute_import, print_function, division
 
 from operator import getitem
 
-from sklearn.base import clone, BaseEstimator
 from dask.base import tokenize
 from dask.delayed import Delayed
+from sklearn.base import clone, BaseEstimator
 from toolz import merge
 
-from .core import DaskBaseEstimator, unpack_arguments, from_sklearn
+from .core import DaskBaseEstimator, from_sklearn
+from .utils import unpack_arguments
 
 
 def _fit(est, X, y, kwargs):
@@ -62,7 +63,7 @@ class Estimator(DaskBaseEstimator, BaseEstimator):
             raise TypeError("Expected instance of BaseEstimator, "
                             "got {0}".format(type(est).__name__))
         if dask is None and name is None:
-            name = 'from_sklearn-' + tokenize(est)
+            name = 'estimator-' + tokenize(est)
             dask = {name: est}
         elif dask is None or name is None:
             raise ValueError("Must provide both dask and name")
@@ -70,12 +71,11 @@ class Estimator(DaskBaseEstimator, BaseEstimator):
         self._name = name
         self._est = est
 
-    def _keys(self):
-        return [self._name]
-
     @classmethod
     def from_sklearn(cls, est):
         """Wrap a scikit-learn estimator"""
+        if isinstance(est, cls):
+            return est
         return cls(est)
 
     def to_sklearn(self, compute=True):

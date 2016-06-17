@@ -155,7 +155,7 @@ def test_fit():
     assert isinstance(fit, Pipeline)
 
     res = fit.compute()
-    assert isinstance(res, pipeline.Pipeline)
+    assert isinstance(res, Pipeline)
     assert hasattr(res, 'classes_')
     assert not hasattr(pipe1, 'classes_')
 

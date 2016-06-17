@@ -2,6 +2,7 @@ from __future__ import print_function, absolute_import, division
 
 import pytest
 import numpy as np
+import dask.array as da
 from dask.base import tokenize
 from dask.delayed import Delayed
 from sklearn.base import clone
@@ -145,6 +146,13 @@ def test_predict():
     assert isinstance(pred, Delayed)
     res = pred.compute()
     assert isinstance(res, np.ndarray)
+
+    dX_iris = da.from_array(X_iris, chunks=4)
+    pred = fit.predict(dX_iris)
+    assert isinstance(pred, Delayed)
+    res = pred.compute()
+    assert isinstance(res, np.ndarray)
+
     will_error = d.predict(X_iris)
     with pytest.raises(NotFittedError):
         will_error.compute()
@@ -157,6 +165,14 @@ def test_score():
     assert isinstance(s, Delayed)
     res = s.compute()
     assert isinstance(res, float)
+
+    dX_iris = da.from_array(X_iris, chunks=4)
+    dy_iris = da.from_array(y_iris, chunks=4)
+    s = fit.score(dX_iris, dy_iris)
+    assert isinstance(s, Delayed)
+    res = s.compute()
+    assert isinstance(res, float)
+
     will_error = d.score(X_iris, y_iris)
     with pytest.raises(NotFittedError):
         will_error.compute()

@@ -32,9 +32,6 @@ class Pipeline(DaskBaseEstimator, pipeline.Pipeline):
         self._dask = dsk
         return dsk
 
-    def _keys(self):
-        return [self._name]
-
     @classmethod
     def from_sklearn(cls, est):
         if not isinstance(est, pipeline.Pipeline):
@@ -51,7 +48,6 @@ class Pipeline(DaskBaseEstimator, pipeline.Pipeline):
 
     def set_params(self, **params):
         if not params:
-            # Simple optimisation to gain speed (inspect is slow)
             return self
         if 'steps' in params:
             if len(params) == 1:
@@ -64,7 +60,7 @@ class Pipeline(DaskBaseEstimator, pipeline.Pipeline):
         sub_params = dict((n, {}) for n in self.named_steps)
         for key, value in params.items():
             split = key.split('__', 1)
-            if len(split) > 1 and split[0] in sub_params and len(split) == 2:
+            if len(split) > 1 and split[0] in sub_params:
                 # nested objects case
                 sub_params[split[0]][split[1]] = value
             else:
