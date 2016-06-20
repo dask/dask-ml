@@ -4,8 +4,8 @@ import numpy as np
 from dask.base import tokenize
 from dask.delayed import delayed
 from sklearn.base import clone, BaseEstimator, is_classifier
-from scipy import sparse
 
+from . import matrix as dm
 from .core import DaskBaseEstimator
 from .estimator import Estimator
 from .utils import unpack_arguments, unpack_as_lists_of_keys, check_X_y
@@ -19,25 +19,8 @@ def _unique_merge(x):
     return np.unique(np.concatenate(x))
 
 
-def _maybe_stack(x):
-    """Given a list of arrays, maybe stack them along their first axis.k
-
-    Works with both sparse and dense arrays."""
-    if isinstance(x, (tuple, list)):
-        # optimization to avoid copies if unneeded
-        if len(x) == 1:
-            return x[0]
-        if isinstance(x[0], np.ndarray):
-            return np.concatenate(x)
-        elif sparse.issparse(x[0]):
-            return sparse.vstack(x)
-    return x
-
-
 def _partial_fit(est, X, y, classes, kwargs):
     # XXX: this mutates est!
-    X = _maybe_stack(X)
-    y = _maybe_stack(y)
     if classes is None:
         return est.partial_fit(X, y, **kwargs)
     return est.partial_fit(X, y, classes=classes, **kwargs)
@@ -106,8 +89,8 @@ class Chained(DaskBaseEstimator, BaseEstimator):
 
     def fit(self, X, y, **kwargs):
         X, y = check_X_y(X, y)
-        x_parts, y_parts, dsk = unpack_as_lists_of_keys(X, y)
         name = 'partial_fit-' + tokenize(self, X, y, **kwargs)
+        x_parts, y_parts, dsk = unpack_as_lists_of_keys(X, y)
 
         # Extract classes if applicable
         if is_classifier(self):

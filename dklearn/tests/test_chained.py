@@ -11,6 +11,7 @@ from sklearn.datasets import load_iris
 from sklearn.linear_model import LogisticRegression, SGDClassifier
 from toolz import keymap, dissoc
 
+import dklearn.matrix as dm
 from dklearn.estimator import Estimator
 from dklearn.chained import Chained
 
@@ -140,9 +141,11 @@ def test_fit_dask_array():
     fit_test(c, X, y)
 
 
-def test_fit_dask_bag():
-    X = db.from_sequence([X_iris[0:20], X_iris[20:40], X_iris[40:]])
-    y = db.from_sequence([y_iris[0:20], y_iris[20:40], y_iris[40:]])
+def test_fit_dask_matrix():
+    X_bag = db.from_sequence([X_iris[0:20], X_iris[20:40], X_iris[40:]])
+    y_bag = db.from_sequence([y_iris[0:20], y_iris[20:40], y_iris[40:]])
+    X = dm.from_bag(X_bag)
+    y = dm.from_bag(y_bag)
 
     c = Chained(sgd1)
     fit_test(c, X, y)

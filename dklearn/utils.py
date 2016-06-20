@@ -7,6 +7,7 @@ from dask.delayed import Delayed
 from dask.utils import concrete
 from toolz import merge, concat
 
+from . import matrix as dm
 from .core import DaskBaseEstimator
 
 
@@ -76,7 +77,7 @@ def _unpack_keys_dask(x):
         else:
             keys = x._keys()
         dsk = x.dask
-    elif isinstance(x, db.Bag):
+    elif isinstance(x, (db.Bag, dm.Matrix)):
         keys = x._keys()
         dsk = x.dask
     else:
