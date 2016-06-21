@@ -50,7 +50,57 @@ class ClassProxy(object):
         return Estimator(self.cls(*args, **kwargs))
 
 
-class Estimator(DaskBaseEstimator, BaseEstimator):
+class WrapperMixin(DaskBaseEstimator):
+    """Mixin class for dask estimators that wrap sklearn estimators"""
+    @property
+    def __class__(self):
+        return ClassProxy(type(self._est))
+
+    @classmethod
+    def _finalize(cls, res):
+        return cls.from_sklearn(res[0])
+
+    @property
+    def _estimator_type(self):
+        return self._est._estimator_type
+
+    def get_params(self, deep=True):
+        return self._est.get_params(deep=deep)
+
+    def set_params(self, **params):
+        est = clone(self._est).set_params(**params)
+        return type(self).from_sklearn(est)
+
+    def __getattr__(self, attr):
+        if hasattr(self._est, attr):
+            return getattr(self._est, attr)
+        else:
+            raise AttributeError("Attribute {0} either missing, or not "
+                                 "computed yet. Try calling `.compute()`, "
+                                 "and check again.".format(attr))
+
+    def __setattr__(self, k, v):
+        if k in ('_name', 'dask', '_est'):
+            object.__setattr__(self, k, v)
+        else:
+            raise AttributeError("Attribute setting not permitted. "
+                                 "Use `set_params` to change parameters")
+
+    def __dir__(self):
+        o = set(dir(type(self)))
+        o.update(self.__dict__)
+        o.update(self._est._get_param_names())
+        o.update(i for i in dir(self._est) if i.endswith('_'))
+        return list(o)
+
+    def to_sklearn(self, compute=True):
+        res = Delayed(self._name, [self.dask])
+        if compute:
+            return res.compute()
+        return res
+
+
+class Estimator(WrapperMixin, BaseEstimator):
     """A class for wrapping a scikit-learn estimator.
 
     All operations done on this estimator are pure (no mutation), and are done
@@ -77,49 +127,6 @@ class Estimator(DaskBaseEstimator, BaseEstimator):
         if isinstance(est, cls):
             return est
         return cls(est)
-
-    def to_sklearn(self, compute=True):
-        res = Delayed(self._name, [self.dask])
-        if compute:
-            return res.compute()
-        return res
-
-    @property
-    def __class__(self):
-        return ClassProxy(type(self._est))
-
-    @property
-    def _estimator_type(self):
-        return self._est._estimator_type
-
-    def get_params(self, deep=True):
-        return self._est.get_params(deep=deep)
-
-    def set_params(self, **params):
-        est = clone(self._est).set_params(**params)
-        return Estimator.from_sklearn(est)
-
-    def __getattr__(self, attr):
-        if hasattr(self._est, attr):
-            return getattr(self._est, attr)
-        else:
-            raise AttributeError("Attribute {0} either missing, or not "
-                                 "computed yet. Try calling `.compute()`, "
-                                 "and check again.".format(attr))
-
-    def __setattr__(self, k, v):
-        if k in ('_name', 'dask', '_est'):
-            object.__setattr__(self, k, v)
-        else:
-            raise AttributeError("Attribute setting not permitted. "
-                                 "Use `set_params` to change parameters")
-
-    def __dir__(self):
-        o = set(dir(type(self)))
-        o.update(self.__dict__)
-        o.update(self._est._get_param_names())
-        o.update(i for i in dir(self._est) if i.endswith('_'))
-        return list(o)
 
     def fit(self, X, y, **kwargs):
         name = 'fit-' + tokenize(self, X, y, kwargs)
