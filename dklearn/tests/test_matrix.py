@@ -8,8 +8,6 @@ from dask.base import normalize_token
 from scipy import sparse
 
 import dklearn.matrix as dm
-import dask
-dask.set_options(get=dask.get)
 
 
 sp_mats = [sparse.csr_matrix([[1], [2], [3]]),

@@ -63,6 +63,13 @@ def check_X_y(X, y=False):
             raise ValueError("X and y must share first dimension")
         elif X.chunks[0] != y.chunks[0]:
             raise ValueError("X and y chunks must be aligned")
+    if y is not None and y is not False:
+        X_is_dask = isinstance(X, Base)
+        if X_is_dask != isinstance(y, Base):
+            raise TypeError("X and y may not be mix of "
+                            "non-dask and dask objects.""")
+        if X_is_dask and type(X) != type(y):
+            raise TypeError("Dask type of X and y must match")
     if y is False:
         return X
     return X, y
