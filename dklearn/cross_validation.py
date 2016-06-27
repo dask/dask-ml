@@ -1,21 +1,100 @@
 from __future__ import division, print_function, absolute_import
 
+from numbers import Integral
 from random import Random
 from operator import add
 
 import numpy as np
 import dask.array as da
 import dask.bag as db
+from dask import delayed
 from dask.base import tokenize
 from dask.utils import different_seeds
+from sklearn import cross_validation
 from sklearn.utils.validation import check_random_state
+from sklearn.utils import safe_indexing
 from toolz import merge, concat, sliding_window, accumulate
 
 from . import matrix as dm
-from .utils import check_X_y
+from .utils import check_X_y, is_dask_collection
 
 
-__all__ = ['RandomSplit']
+__all__ = ['RandomSplit', 'KFold', 'check_cv']
+
+
+class DaskBaseCV(object):
+    """Base class for dask CV objects."""
+    pass
+
+
+_safe_indexing = delayed(safe_indexing, pure=True)
+
+
+class _DaskCVWrapper(DaskBaseCV):
+    """A simple wrapper class for sklearn cv iterators to present the same
+    interface as dask cv iterators"""
+    def __init__(self, cv):
+        self.cv = cv
+
+    def split(self, X, y=None):
+        X, y = check_X_y(X, y)
+        if is_dask_collection(X) or is_dask_collection(y):
+            raise TypeError("Expected X and y to be array-like or "
+                            "dask.Delayed, got {0}, "
+                            "{1}".format(type(X).__name__, type(y).__name__))
+        # Avoid repeated hashing by preconverting to `Delayed` objects
+        dX = delayed(X, pure=True)
+        dy = delayed(y, pure=True)
+        for train, test in self.cv:
+            X_train = _safe_indexing(dX, train)
+            X_test = _safe_indexing(dX, test)
+            if y is not None:
+                y_train = _safe_indexing(dy, train)
+                y_test = _safe_indexing(dy, test)
+            else:
+                y_train = y_test = None
+            yield X_train, y_train, X_test, y_test
+
+    def __len__(self):
+        return len(self.cv)
+
+
+def check_cv(cv, X=None, y=None, classifier=False):
+    """Input checker utility for building a CV in a user friendly way.
+
+    Parameters
+    ----------
+    cv : int, cross-validation generator or an iterable, optional
+        Determines the cross-validation splitting strategy.
+        Possible inputs for cv are:
+
+        - None, to use the default 3-fold cross-validation,
+        - integer, to specify the number of folds.
+        - An object to be used as a cross-validation generator.
+        - An iterable yielding train/test splits.
+
+        For integer/None inputs, if classifier is True, ``X`` and ``y`` aren't
+        dask collections,  and ``y`` is binary or multiclass,
+        ``StratifiedKFold`` used. In all other cases, ``KFold`` is used.
+
+    X : array-like
+        The data the cross-val object will be applied on.
+
+    y : array-like
+        The target variable for a supervised learning problem.
+
+    classifier : boolean optional
+        Whether the task is a classification task.
+    """
+    if is_dask_collection(X) or is_dask_collection(y):
+        if cv is None:
+            return KFold(n_folds=3)
+        elif isinstance(cv, Integral):
+            return KFold(n_folds=cv)
+        elif not isinstance(cv, DaskBaseCV):
+            raise TypeError("Unexpected cv type {0}".format(type(cv).__name__))
+    cv = cross_validation.check_cv(cv, X=X, y=y, classifier=classifier)
+    return _DaskCVWrapper(cv)
 
 
 def _as_tall_skinny_and_keys(x):
@@ -109,7 +188,7 @@ def random_split(x, p_test=0.1, random_state=None):
     return train, test
 
 
-class RandomSplit(object):
+class RandomSplit(DaskBaseCV):
     """Random splitting cross-validation iterator for dask objects.
 
     Note: contrary to other cross-validation strategies, random splits
@@ -162,6 +241,9 @@ class RandomSplit(object):
                 y_train, y_test = random_split(y, self.test_size, seed)
             yield X_train, y_train, X_test, y_test
 
+    def __len__(self):
+        return self.n_iter
+
 
 def _part_split(x, parts, prefix):
     name = '{0}-{1}'.format(prefix, tokenize(x, parts))
@@ -177,7 +259,7 @@ def _part_split(x, parts, prefix):
                      dtype=x.dtype, shape=shape)
 
 
-class KFold(object):
+class KFold(DaskBaseCV):
     """K-Folds cross validation iterator for dask collections.
 
     Split dataset into k consecutive folds. Each fold is then used as a
@@ -265,3 +347,6 @@ class KFold(object):
                 else:
                     y_train = y_test = None
                 yield X_train, y_train, X_test, y_test
+
+    def __len__(self):
+        return self.n_folds

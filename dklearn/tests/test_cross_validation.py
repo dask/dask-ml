@@ -7,9 +7,11 @@ import dask.array as da
 import dask.bag as db
 from scipy import sparse
 from toolz import first
+from sklearn.cross_validation import LeavePOut, StratifiedKFold
 
 import dklearn.matrix as dm
-from dklearn.cross_validation import random_split, RandomSplit, KFold
+from dklearn.cross_validation import (random_split, RandomSplit, KFold,
+                                      _DaskCVWrapper, check_cv)
 
 
 def test_random_split_errors():
@@ -222,3 +224,53 @@ def test_KFold():
 
     with pytest.raises(TypeError):
         list(KFold().split("not a dask collection"))
+
+
+def test_DaskCVWrapper():
+    X = np.arange(9)[:, None]
+    y = np.arange(9)
+    dcv = _DaskCVWrapper(LeavePOut(9, 3))
+    sets = list(dcv.split(X, y))
+    sets2 = list(dcv.split(X, y))
+    assert len(sets) == len(dcv)
+    for p1, p2 in zip(sets, sets2):
+        for i, j in zip(p1, p2):
+            assert i.key == j.key
+    X_train, y_train, X_test, y_test = sets[0]
+    train_c, test_c = dask.compute(X_train, X_test)
+    assert set(train_c.flat) | set(test_c.flat) == set(range(9))
+    dcv2 = _DaskCVWrapper(LeavePOut(9, 4))
+    assert list(dcv2.split(X, y))[0][0].key != X_train.key
+
+    sets = list(dcv2.split(X))
+    assert sets[0][1] is None and sets[0][3] is None
+
+    dX = da.from_array(X, chunks=3)
+    with pytest.raises(TypeError):
+        list(dcv2.split(dX))
+
+
+def test_check_cv():
+    X = np.arange(9)[:, None]
+    y = np.arange(9)
+    dX = da.from_array(X, chunks=3)
+    dy = da.from_array(y, chunks=3)
+
+    cv = check_cv(None, dX, dy)
+    assert isinstance(cv, KFold)
+    assert cv.n_folds == 3
+
+    cv = check_cv(2, dX, dy)
+    assert isinstance(cv, KFold)
+    assert cv.n_folds == 2
+
+    cv = check_cv(None, X, y, True)
+    assert isinstance(cv, _DaskCVWrapper)
+    assert isinstance(cv.cv, StratifiedKFold)
+
+    cv = check_cv(LeavePOut(3, 9), X, y)
+    assert isinstance(cv, _DaskCVWrapper)
+    assert isinstance(cv.cv, LeavePOut)
+
+    with pytest.raises(TypeError):
+        check_cv("not a cv instance", dX, dy)
