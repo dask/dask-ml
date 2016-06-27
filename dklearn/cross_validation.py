@@ -1,6 +1,7 @@
 from __future__ import division, print_function, absolute_import
 
 from random import Random
+from operator import add
 
 import numpy as np
 import dask.array as da
@@ -8,7 +9,7 @@ import dask.bag as db
 from dask.base import tokenize
 from dask.utils import different_seeds
 from sklearn.utils.validation import check_random_state
-from toolz import merge, concat
+from toolz import merge, concat, sliding_window, accumulate
 
 from . import matrix as dm
 from .utils import check_X_y
@@ -117,14 +118,14 @@ class RandomSplit(object):
 
     Parameters
     ----------
-    n_iter : int (default 10)
-        Number of splitting iterations.
+    n_iter : int, optional
+        Number of splitting iterations. Default is 10.
 
-    test_size : float (default 0.1)
+    test_size : float, optional
         Should be between 0.0 and 1.0 and represent the proportion of the
-        dataset to include in the test split.
+        dataset to include in the test split. Default is 0.1.
 
-    random_state : int or RandomState
+    random_state : int or RandomState, optional
         Pseudo-random number generator state used for random sampling.
     """
     def __init__(self, n_iter=10, test_size=0.1, random_state=None):
@@ -138,8 +139,8 @@ class RandomSplit(object):
         Parameters
         ----------
         X : dask object
-            Training data, where n_samples is the number of samples
-            and n_features is the number of features.
+            Training data. May be a ``da.Array``, ``db.Bag``, or
+            ``dklearn.Matrix``.
 
         y : dask object, optional
             The target variable for supervised learning problems.
@@ -148,15 +149,119 @@ class RandomSplit(object):
         -------
         X_train, y_train, X_test, y_test : dask objects
             The split training and testing data, returned as the same type as
-            the input. If y is not provided, only yields ``X_train`` and
-            ``X_test``.
+            the input. If y is not provided, ``y_train`` and ``y_test`` will be
+            ``None``.
         """
         X, y = check_X_y(X, y)
         seeds = different_seeds(self.n_iter, random_state=self.random_state)
         for seed in seeds:
             X_train, X_test = random_split(X, self.test_size, seed)
             if y is None:
-                yield X_train, X_test
+                y_train = y_test = None
             else:
                 y_train, y_test = random_split(y, self.test_size, seed)
+            yield X_train, y_train, X_test, y_test
+
+
+def _part_split(x, parts, prefix):
+    name = '{0}-{1}'.format(prefix, tokenize(x, parts))
+    dsk = dict(((name, i), (x.name, j))
+               for i, j in enumerate(parts))
+    if isinstance(x, db.Bag):
+        return db.Bag(merge(dsk, x.dask), name, len(parts))
+    if x.ndim is not None:
+        shape = (None,) if x.ndim == 1 else (None, x.shape[1])
+    else:
+        shape = None
+    return dm.Matrix(merge(dsk, x.dask), name, len(parts),
+                     dtype=x.dtype, shape=shape)
+
+
+class KFold(object):
+    """K-Folds cross validation iterator for dask collections.
+
+    Split dataset into k consecutive folds. Each fold is then used as a
+    validation set once while the k - 1 remaining fold(s) form the training
+    set.
+
+    Parameters
+    ----------
+    n_folds : int, optional
+        Number of folds. Must be at least 2.
+
+    Notes
+    -----
+    If the inputs are instances of ``da.Array``, they are split into
+    approximately equal sized folds, with the first n % n_folds having size n
+    // n_folds + 1, and the remainder having size n // n_folds.
+
+    Otherwise the inputs are split into approximately equal number of
+    partitions, with no guarantees on the size of each partition.
+    """
+    def __init__(self, n_folds=3):
+        self.n_folds = n_folds
+
+    def split(self, X, y=None):
+        """Iterate tuples of data split into training and test sets.
+
+        Parameters
+        ----------
+        X : dask object
+            Training data. May be a ``da.Array``, ``db.Bag``, or
+            ``dklearn.Matrix``.
+
+        y : dask object, optional
+            The target variable for supervised learning problems.
+
+        Yields
+        -------
+        X_train, y_train, X_test, y_test : dask objects
+            The split training and testing data, returned as the same type as
+            the input. If y is not provided, ``y_train`` and ``y_test`` will be
+            ``None``.
+        """
+        if self.n_folds < 2:
+            raise ValueError("n_folds must be >= 2")
+        X, y = check_X_y(X, y)
+        if isinstance(X, da.Array):
+            n = len(X)
+            if n < self.n_folds:
+                raise ValueError("n_folds must be <= n_samples")
+        elif isinstance(X, (dm.Matrix, db.Bag)):
+            n = X.npartitions
+            if n < self.n_folds:
+                raise ValueError("n_folds must be <= npartitions for Bag or "
+                                 "Matrix objects")
+        else:
+            raise TypeError("Expected an instance of ``da.Array``, "
+                            "``db.Bag``, or ``dm.Matrix`` - got "
+                            "{0}".format(type(X).__name__))
+        fold_sizes = (n // self.n_folds) * np.ones(self.n_folds, dtype=np.int)
+        fold_sizes[:n % self.n_folds] += 1
+        folds = list(sliding_window(2, accumulate(add, fold_sizes, 0)))
+        if isinstance(X, da.Array):
+            x_parts = [X[start:stop] for start, stop in folds]
+            if y is not None:
+                y_parts = [y[start:stop] for start, stop in folds]
+            for i in range(len(x_parts)):
+                X_train = da.concatenate(x_parts[:i] + x_parts[i + 1:])
+                X_test = x_parts[i]
+                if y is not None:
+                    y_train = da.concatenate(y_parts[:i] + y_parts[i + 1:])
+                    y_test = y_parts[i]
+                else:
+                    y_train = y_test = None
+                yield X_train, y_train, X_test, y_test
+        else:
+            parts = list(range(n))
+            for start, stop in folds:
+                test = parts[start:stop]
+                train = parts[:start] + parts[stop:]
+                X_train = _part_split(X, train, 'X_train')
+                X_test = _part_split(X, test, 'X_test')
+                if y is not None:
+                    y_train = _part_split(y, train, 'y_train')
+                    y_test = _part_split(y, test, 'y_test')
+                else:
+                    y_train = y_test = None
                 yield X_train, y_train, X_test, y_test

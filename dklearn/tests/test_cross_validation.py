@@ -6,9 +6,10 @@ import dask
 import dask.array as da
 import dask.bag as db
 from scipy import sparse
+from toolz import first
 
 import dklearn.matrix as dm
-from dklearn.cross_validation import random_split, RandomSplit
+from dklearn.cross_validation import random_split, RandomSplit, KFold
 
 
 def test_random_split_errors():
@@ -127,6 +128,97 @@ def test_RandomSplit():
             assert a1.name == a2.name
 
     sets3 = list(rs2.split(dX))
-    assert len(sets3[0]) == 2
-    X_train, X_test = sets3[0]
+    X_train, y_train, X_test, y_test = sets3[0]
     assert len(X_train) + len(X_test) == len(X)
+    assert y_train is None and y_test is None
+
+
+def test_KFold_bag():
+    X = db.range(1000, npartitions=10)
+    y = db.range(1000, npartitions=10)
+    cv = list(KFold(4).split(X, y))
+
+    for x_train, y_train, x_test, y_test in cv:
+        train, test = dask.compute(x_train, x_test)
+        assert len(train) + len(test) == 1000
+        assert set(train) | set(test) == set(range(1000))
+
+    assert (first(KFold(3).split(X, y))[0].name ==
+            first(KFold(3).split(X, y))[0].name)
+    assert (first(KFold(4).split(X, y))[0].name !=
+            first(KFold(3).split(X, y))[0].name)
+
+    with pytest.raises(ValueError):
+        list(KFold(11).split(X, y))
+
+
+def test_Kfold_matrix():
+    a = np.arange(1000)
+    X = dm.from_array(da.from_array(a[:, None], chunks=100))
+    y = dm.from_array(da.from_array(a.astype('f8'), chunks=100))
+    cv = list(KFold(4).split(X, y))
+
+    for x_train, y_train, x_test, y_test in cv:
+        assert x_train.dtype == x_test.dtype == X.dtype
+        assert x_train.shape == x_test.shape == (None, 1)
+        assert x_train.ndim == x_test.ndim == 2
+        assert y_train.dtype == y_test.dtype == y.dtype
+        assert y_train.shape == y_test.shape == (None,)
+        assert y_train.ndim == y_test.ndim == 1
+
+        train, test = dask.compute(x_train, x_test)
+        assert len(train) + len(test) == 1000
+        assert set(train.flat) | set(test.flat) == set(range(1000))
+
+    assert (first(KFold(3).split(X, y))[0].name ==
+            first(KFold(3).split(X, y))[0].name)
+    assert (first(KFold(4).split(X, y))[0].name !=
+            first(KFold(3).split(X, y))[0].name)
+
+    # Sparse
+    X = X.map_partitions(sparse.csr_matrix, shape=X.shape, dtype=X.dtype)
+    cv = list(KFold(4).split(X, None))
+    x_train, y_train, x_test, y_test = cv[0]
+    assert y_train is None and y_test is None
+    train, test = dask.compute(x_train, x_test)
+    assert train.shape[0] + test.shape[0] == 1000
+    assert sparse.issparse(train) and sparse.issparse(test)
+
+    with pytest.raises(ValueError):
+        list(KFold(101).split(X, y))
+
+
+def test_KFold():
+    a = np.arange(1000)
+    X = da.from_array(a[:, None], chunks=100)
+    y = da.from_array(a, chunks=100)
+    cv = list(KFold(4).split(X, y))
+    assert len(cv) == 4
+    cv2 = list(KFold(4).split(X, y))
+    for p1, p2 in zip(cv, cv2):
+        for i, j in zip(p1, p2):
+            assert i.name == j.name
+            assert i.dtype == j.dtype == a.dtype
+        assert len(p1) == len(p2) == 4
+        assert len(p1[0]) == len(p2[0]) == len(p1[1]) == len(p2[1]) == 750
+        assert len(p1[2]) == len(p2[2]) == len(p1[3]) == len(p2[3]) == 250
+        train_c, test_c = dask.compute(p1[0], p1[2])
+        assert set(train_c.flat) | set(test_c.flat) == set(range(1000))
+    assert cv[0][0].name != cv[1][0].name
+
+    assert (first(KFold(4).split(X, y))[0].name !=
+            first(KFold(3).split(X, y))[0].name)
+
+    sets3 = list(KFold(4).split(X))
+    X_train, y_train, X_test, y_test = sets3[0]
+    assert len(X_train) + len(X_test) == 1000
+    assert y_train is None and y_test is None
+
+    with pytest.raises(ValueError):
+        list(KFold(1001).split(X, y))
+
+    with pytest.raises(ValueError):
+        list(KFold(1).split(X, y))
+
+    with pytest.raises(TypeError):
+        list(KFold().split("not a dask collection"))
