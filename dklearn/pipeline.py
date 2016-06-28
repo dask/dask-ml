@@ -1,7 +1,6 @@
 from __future__ import absolute_import, print_function, division
 
 from dask.base import tokenize
-from dask.delayed import delayed
 from sklearn import pipeline
 
 from .core import DaskBaseEstimator, from_sklearn

@@ -9,7 +9,7 @@ from dask.delayed import Delayed
 from sklearn.base import clone
 from sklearn.datasets import load_iris
 from sklearn.linear_model import LogisticRegression, SGDClassifier
-from toolz import keymap, dissoc
+from toolz import dissoc
 
 import dklearn.matrix as dm
 from dklearn.estimator import Estimator
@@ -35,7 +35,6 @@ def test_Chained__init__():
 
     assert c1._name != c2._name
     assert Chained(sgd1)._name == c1._name
-    assert isinstance(c1.estimator, Estimator)
 
     with pytest.raises(TypeError):
         Chained("not an estimator")
@@ -57,7 +56,7 @@ def test_tokenize_Chained():
     c2 = Chained(sgd2)
     assert tokenize(c1) == tokenize(c1)
     assert tokenize(c1) != tokenize(c2)
-    assert tokenize(c1) != tokenize(c1.estimator)
+    assert tokenize(c1) != tokenize(Estimator(sgd1))
 
 
 def test_clone():
@@ -66,8 +65,7 @@ def test_clone():
     assert (dissoc(c.get_params(), 'estimator') ==
             dissoc(c2.get_params(), 'estimator'))
     assert c._name == c2._name
-    assert c.estimator is not c2.estimator
-    assert c.estimator._est is not c2.estimator._est
+    assert c._est is not c2._est
 
 
 def test__estimator_type():
@@ -77,40 +75,21 @@ def test__estimator_type():
 
 def test_get_params():
     c = Chained(sgd1)
-    c_params = c.get_params()
-    assert c_params['estimator'] == c.estimator
-    del c_params['estimator']
-    assert c_params == keymap(lambda k: 'estimator__' + k, sgd1.get_params())
-    assert c.get_params(deep=False) == {'estimator': c.estimator}
+    assert c.get_params() == sgd1.get_params()
+    assert c.get_params(deep=False) == sgd1.get_params(deep=False)
 
 
 def test_set_params():
     c = Chained(sgd1)
-    c2 = c.set_params(estimator__penalty='l2')
+    c2 = c.set_params(penalty='l2')
     assert isinstance(c2, Chained)
     c3 = Chained(sgd2)
     assert c2._name == c3._name  # set_params name equivalent to init
     # Check no mutation
-    assert c2.get_params()['estimator__penalty'] == 'l2'
+    assert c2.get_params()['penalty'] == 'l2'
     assert c2.compute().penalty == 'l2'
-    assert c.get_params()['estimator__penalty'] == 'l1'
+    assert c.get_params()['penalty'] == 'l1'
     assert c.compute().penalty == 'l1'
-
-    # Changing estimator works
-    c2 = c.set_params(estimator=sgd2)
-    assert c2._name == c3._name
-    assert isinstance(c2.estimator, Estimator)
-
-    # Fast return
-    c2 = c.set_params()
-    assert c2 is c
-
-    # ambiguous change
-    with pytest.raises(ValueError):
-        c.set_params(estimator=sgd2, estimator__penalty='l2')
-
-    with pytest.raises(ValueError):
-        c.set_params(not_a_real_param='foo')
 
 
 def test_setattr():
@@ -119,17 +98,29 @@ def test_setattr():
         c.estimator = sgd2
 
 
+def test_getattr():
+    c = Chained(sgd1)
+    assert c.penalty == sgd1.penalty
+    with pytest.raises(AttributeError):
+        c.not_a_real_parameter
+
+
+def test_dir():
+    c = Chained(sgd1)
+    attrs = dir(c)
+    assert 'penalty' in attrs
+
+
 def fit_test(c, X, y):
     fit = c.fit(X, y)
     assert fit is not c
-    assert fit.estimator is not c.estimator
     assert isinstance(fit, Chained)
 
     res = fit.compute()
     assert isinstance(res, SGDClassifier)
     assert res.coef_ is not None
-    assert fit.estimator.coef_ is None
-    assert c.estimator.coef_ is None
+    assert fit.coef_ is None
+    assert c.coef_ is None
 
 
 def test_fit_dask_array():
