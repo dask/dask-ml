@@ -94,7 +94,7 @@ def test_grid_search_dask_inputs_dk_est():
     X, y = make_classification(n_samples=1000, n_features=100, random_state=0)
     dX = da.from_array(X, chunks=100)
     dy = da.from_array(y, chunks=100)
-    grid = {'alpha': [0.01, 0.001, 0.0001]}
+    grid = {'alpha': [0.1, 0.01, 0.0001]}
 
     clf = SGDClassifier()
     d_clf = Chained(SGDClassifier())
