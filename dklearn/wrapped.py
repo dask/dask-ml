@@ -6,6 +6,7 @@ from dask.base import tokenize
 from dask.delayed import Delayed
 from sklearn.base import clone, BaseEstimator
 from toolz import merge
+from textwrap import wrap
 
 from .core import DaskBaseEstimator, from_sklearn
 from .utils import unpack_arguments
@@ -39,23 +40,20 @@ def _fit_transform(est, X, y, kwargs):
 
 
 class ClassProxy(object):
-    def __init__(self, cls):
+    def __init__(self, wrap, cls):
+        self.wrap = wrap
         self.cls = cls
 
     @property
     def __name__(self):
-        return 'Dask' + self.cls.__name__
+        return self.wrap.__name__
 
     def __call__(self, *args, **kwargs):
-        return Estimator(self.cls(*args, **kwargs))
+        return self.wrap(self.cls(*args, **kwargs))
 
 
 class WrapperMixin(DaskBaseEstimator):
     """Mixin class for dask estimators that wrap sklearn estimators"""
-    @property
-    def __class__(self):
-        return ClassProxy(type(self._est))
-
     @classmethod
     def _finalize(cls, res):
         return res[0]
@@ -94,7 +92,7 @@ class WrapperMixin(DaskBaseEstimator):
         return list(o)
 
 
-class Estimator(WrapperMixin, BaseEstimator):
+class Wrapped(WrapperMixin, BaseEstimator):
     """A class for wrapping a scikit-learn estimator.
 
     All operations done on this estimator are pure (no mutation), and are done
@@ -114,6 +112,16 @@ class Estimator(WrapperMixin, BaseEstimator):
         self._name = name
         self._est = est
 
+    @property
+    def __class__(self):
+        return ClassProxy(type(self), type(self._est))
+
+    def __repr__(self):
+        class_name = type(self).__name__
+        est = ''.join(map(str.strip, repr(self._est).splitlines()))
+        return '\n'.join(wrap('{0}({1})'.format(class_name, est),
+                              subsequent_indent=" "*10))
+
     @classmethod
     def from_sklearn(cls, est):
         """Wrap a scikit-learn estimator"""
@@ -126,7 +134,7 @@ class Estimator(WrapperMixin, BaseEstimator):
         X, y, dsk = unpack_arguments(X, y)
         dsk.update(self.dask)
         dsk[name] = (_fit, self._name, X, y, kwargs)
-        return Estimator(self._est, dsk, name)
+        return Wrapped(self._est, dsk, name)
 
     def predict(self, X):
         name = 'predict-' + tokenize(self, X)
@@ -155,7 +163,7 @@ class Estimator(WrapperMixin, BaseEstimator):
         dsk[fit_tr_name] = (_fit_transform, self._name, X, y, kwargs)
         dsk1 = merge({fit_name: (getitem, fit_tr_name, 0)}, dsk, self.dask)
         dsk2 = merge({tr_name: (getitem, fit_tr_name, 1)}, dsk, self.dask)
-        return Estimator(self._est, dsk1, fit_name), Delayed(tr_name, [dsk2])
+        return Wrapped(self._est, dsk1, fit_name), Delayed(tr_name, [dsk2])
 
 
-from_sklearn.dispatch.register(BaseEstimator, Estimator.from_sklearn)
+from_sklearn.dispatch.register(BaseEstimator, Wrapped.from_sklearn)

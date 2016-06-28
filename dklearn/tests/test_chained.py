@@ -12,7 +12,7 @@ from sklearn.linear_model import LogisticRegression, SGDClassifier
 from toolz import dissoc
 
 import dklearn.matrix as dm
-from dklearn.estimator import Estimator
+from dklearn.wrapped import Wrapped
 from dklearn.chained import Chained
 
 # Not fit estimators raise NotFittedError, but old versions of scikit-learn
@@ -56,14 +56,13 @@ def test_tokenize_Chained():
     c2 = Chained(sgd2)
     assert tokenize(c1) == tokenize(c1)
     assert tokenize(c1) != tokenize(c2)
-    assert tokenize(c1) != tokenize(Estimator(sgd1))
+    assert tokenize(c1) != tokenize(Wrapped(sgd1))
 
 
 def test_clone():
     c = Chained(sgd1)
     c2 = clone(c)
-    assert (dissoc(c.get_params(), 'estimator') ==
-            dissoc(c2.get_params(), 'estimator'))
+    assert isinstance(c2, Chained)
     assert c._name == c2._name
     assert c._est is not c2._est
 
@@ -95,7 +94,7 @@ def test_set_params():
 def test_setattr():
     c = Chained(sgd1)
     with pytest.raises(AttributeError):
-        c.estimator = sgd2
+        c.penalty = 'l2'
 
 
 def test_getattr():
@@ -109,6 +108,12 @@ def test_dir():
     c = Chained(sgd1)
     attrs = dir(c)
     assert 'penalty' in attrs
+
+
+def test_repr():
+    c = Chained(sgd1)
+    res = repr(c)
+    assert res.startswith('Chained')
 
 
 def fit_test(c, X, y):

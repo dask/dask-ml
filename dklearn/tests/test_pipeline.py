@@ -12,7 +12,7 @@ from sklearn.linear_model import LogisticRegression
 from toolz import dissoc
 
 from dklearn import from_sklearn
-from dklearn.estimator import Estimator
+from dklearn.wrapped import Wrapped
 from dklearn.pipeline import Pipeline
 
 digits = load_digits()
@@ -81,7 +81,7 @@ def test_clone():
     lr2 = d2.named_steps['logistic']
     assert lr1 is not lr2
     assert lr1.get_params() == lr2.get_params()
-    assert isinstance(lr2, Estimator)
+    assert isinstance(lr2, Wrapped)
 
 
 def test__estimator_type():
@@ -121,7 +121,7 @@ def test_set_params():
     lr1 = d.named_steps['logistic']
     lr2 = d2.named_steps['logistic']
     assert lr1.get_params() == lr2.get_params()
-    assert isinstance(lr2, Estimator)
+    assert isinstance(lr2, Wrapped)
 
     # Fast return
     d2 = d.set_params()
@@ -138,8 +138,8 @@ def test_set_params():
 def test_named_steps():
     d = from_sklearn(pipe1)
     steps = d.named_steps
-    assert isinstance(steps['pca'], Estimator)
-    assert isinstance(steps['logistic'], Estimator)
+    assert isinstance(steps['pca'], Wrapped)
+    assert isinstance(steps['logistic'], Wrapped)
 
 
 def test_setattr():

@@ -8,7 +8,7 @@ from sklearn.base import BaseEstimator
 
 from . import matrix as dm
 from .core import from_sklearn
-from .estimator import _transform, WrapperMixin
+from .wrapped import _transform, WrapperMixin
 from .utils import unpack_arguments
 
 

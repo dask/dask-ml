@@ -5,7 +5,7 @@ from dask.base import tokenize
 from dask.delayed import delayed
 from sklearn.base import clone, is_classifier
 
-from .estimator import Estimator
+from .wrapped import Wrapped
 from .utils import unpack_arguments, unpack_as_lists_of_keys, check_X_y
 
 
@@ -24,9 +24,7 @@ def _partial_fit(est, X, y, classes, kwargs):
     return est.partial_fit(X, y, classes=classes, **kwargs)
 
 
-class Chained(Estimator):
-    _finalize = staticmethod(lambda res: res[0])
-
+class Chained(Wrapped):
     def __init__(self, est, dask=None, name=None):
         super(Chained, self).__init__(est, dask=dask, name=name)
         if not hasattr(est, 'partial_fit'):

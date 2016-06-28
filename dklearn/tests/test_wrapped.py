@@ -10,7 +10,7 @@ from sklearn.datasets import load_iris
 from sklearn.linear_model import LogisticRegression
 
 from dklearn import from_sklearn
-from dklearn.estimator import Estimator
+from dklearn.wrapped import Wrapped
 
 # Not fit estimators raise NotFittedError, but old versions of scikit-learn
 # include two definitions of this error, which makes it hard to catch
@@ -44,25 +44,25 @@ def test_from_sklearn():
 
 
 def test_Estimator__init__():
-    d = Estimator(LogisticRegression(C=1000))
+    d = Wrapped(LogisticRegression(C=1000))
     assert d._name == from_sklearn(clf1)._name
 
     with pytest.raises(ValueError):
-        Estimator(clf1, name='foo')
+        Wrapped(clf1, name='foo')
 
     with pytest.raises(TypeError):
-        Estimator("not an estimator")
+        Wrapped("not an estimator")
 
 
 def test_clone():
-    d = Estimator(clf1)
+    d = Wrapped(clf1)
     d2 = clone(d)
     assert d.get_params() == d2.get_params()
     assert d._est is not d2._est
 
 
 def test__estimator_type():
-    d = Estimator(clf1)
+    d = Wrapped(clf1)
     assert d._estimator_type == clf1._estimator_type
 
 
@@ -75,7 +75,7 @@ def test_get_params():
 def test_set_params():
     d = from_sklearn(clf1)
     d2 = d.set_params(C=5)
-    assert isinstance(d2, Estimator)
+    assert isinstance(d2, Wrapped)
     # Check no mutation
     assert d2.get_params()['C'] == 5
     assert d2.compute().C == 5
@@ -84,35 +84,35 @@ def test_set_params():
 
 
 def test_setattr():
-    d = Estimator(clf1)
+    d = Wrapped(clf1)
     with pytest.raises(AttributeError):
         d.C = 10
 
 
 def test_getattr():
-    d = Estimator(clf1)
+    d = Wrapped(clf1)
     assert d.C == clf1.C
     with pytest.raises(AttributeError):
         d.not_a_real_parameter
 
 
 def test_dir():
-    d = Estimator(clf1)
+    d = Wrapped(clf1)
     attrs = dir(d)
     assert 'C' in attrs
 
 
 def test_repr():
-    d = Estimator(clf1)
+    d = Wrapped(clf1)
     res = repr(d)
-    assert res.startswith('Dask')
+    assert res.startswith('Wrapped')
 
 
 def test_fit():
     d = from_sklearn(clf1)
     fit = d.fit(X_iris, y_iris)
     assert fit is not d
-    assert isinstance(fit, Estimator)
+    assert isinstance(fit, Wrapped)
 
     res = fit.compute()
     assert hasattr(res, 'coef_')

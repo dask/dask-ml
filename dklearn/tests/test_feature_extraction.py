@@ -80,8 +80,7 @@ class WrapperHarness(object):
 
     def test_repr(self):
         d = from_sklearn(self.sk)
-        res = repr(d)
-        assert res.startswith('Dask')
+        assert repr(d) == repr(self.sk)
 
     def test_fit(self):
         d = from_sklearn(self.sk)

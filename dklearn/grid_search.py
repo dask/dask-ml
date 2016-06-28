@@ -60,7 +60,7 @@ class BaseSearchCV(BaseEstimator):
     def __init__(self, estimator, scoring=None, fit_params=None, iid=True,
                  refit=True, cv=None, get=None):
         self.scoring = scoring
-        self.estimator = from_sklearn(estimator)
+        self.estimator = estimator
         self.fit_params = fit_params if fit_params is not None else {}
         self.iid = iid
         self.refit = refit
@@ -72,7 +72,7 @@ class BaseSearchCV(BaseEstimator):
         return self.estimator._estimator_type
 
     def _fit(self, X, y, parameter_iterable):
-        estimator = self.estimator
+        estimator = from_sklearn(self.estimator)
         self.scorer_ = check_scoring(estimator, scoring=self.scoring)
         cv = check_cv(self.cv, X, y, classifier=is_classifier(estimator))
         n_folds = len(cv)
