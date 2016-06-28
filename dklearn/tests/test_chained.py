@@ -92,9 +92,9 @@ def test_set_params():
     assert c2._name == c3._name  # set_params name equivalent to init
     # Check no mutation
     assert c2.get_params()['estimator__penalty'] == 'l2'
-    assert c2.compute().estimator.penalty == 'l2'
+    assert c2.compute().penalty == 'l2'
     assert c.get_params()['estimator__penalty'] == 'l1'
-    assert c.compute().estimator.penalty == 'l1'
+    assert c.compute().penalty == 'l1'
 
     # Changing estimator works
     c2 = c.set_params(estimator=sgd2)
@@ -126,9 +126,8 @@ def fit_test(c, X, y):
     assert isinstance(fit, Chained)
 
     res = fit.compute()
-    assert isinstance(res, Chained)
-    assert isinstance(res.estimator, Estimator)
-    assert res.estimator.coef_ is not None
+    assert isinstance(res, SGDClassifier)
+    assert res.coef_ is not None
     assert fit.estimator.coef_ is None
     assert c.estimator.coef_ is None
 
@@ -193,27 +192,3 @@ def test_score():
     will_error = c.score(X_iris, y_iris)
     with pytest.raises(NotFittedError):
         will_error.compute()
-
-
-def test_to_sklearn():
-    c = Chained(sgd1)
-    res = c.to_sklearn()
-    assert isinstance(res, SGDClassifier)
-
-    res = c.to_sklearn(compute=False)
-    assert isinstance(res, Delayed)
-    assert isinstance(res.compute(), SGDClassifier)
-
-    # After fitting
-    X = da.from_array(X_iris, chunks=4)
-    y = da.from_array(y_iris, chunks=4)
-    fit = c.fit(X, y)
-    res = fit.to_sklearn()
-    assert isinstance(res, SGDClassifier)
-    assert res.coef_ is not None
-    assert fit.estimator.coef_ is None
-
-    res = c.to_sklearn(compute=False)
-    assert isinstance(res, Delayed)
-    assert isinstance(res.compute(), SGDClassifier)
-    assert res.coef_ is not None

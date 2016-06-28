@@ -27,7 +27,7 @@ def _partial_fit(est, X, y, classes, kwargs):
 
 
 class Chained(DaskBaseEstimator, BaseEstimator):
-    _finalize = staticmethod(lambda res: Chained(res[0]))
+    _finalize = staticmethod(lambda res: res[0])
 
     def __init__(self, estimator):
         if not isinstance(estimator, (BaseEstimator, Estimator)):
@@ -83,9 +83,6 @@ class Chained(DaskBaseEstimator, BaseEstimator):
         if isinstance(est, cls):
             return est
         return cls(est)
-
-    def to_sklearn(self, compute=True):
-        return self.estimator.to_sklearn(compute=compute)
 
     def fit(self, X, y, **kwargs):
         X, y = check_X_y(X, y)

@@ -8,7 +8,7 @@ from .core import DaskBaseEstimator, from_sklearn
 
 
 class Pipeline(DaskBaseEstimator, pipeline.Pipeline):
-    _finalize = staticmethod(lambda res: Pipeline(res[0]))
+    _finalize = staticmethod(lambda res: pipeline.Pipeline(res[0]))
 
     def __init__(self, steps):
         # Run the sklearn init to validate the pipeline steps
@@ -37,14 +37,6 @@ class Pipeline(DaskBaseEstimator, pipeline.Pipeline):
         if not isinstance(est, pipeline.Pipeline):
             raise TypeError("est must be a sklearn Pipeline")
         return cls(est.steps)
-
-    def to_sklearn(self, compute=True):
-        steps = [(n, s.to_sklearn(compute=False)) for n, s in self.steps]
-        pipe = delayed(pipeline.Pipeline, pure=True)
-        res = pipe(steps, dask_key_name='to_sklearn-' + self._name)
-        if compute:
-            return res.compute()
-        return res
 
     def set_params(self, **params):
         if not params:

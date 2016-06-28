@@ -58,7 +58,7 @@ class WrapperMixin(DaskBaseEstimator):
 
     @classmethod
     def _finalize(cls, res):
-        return cls.from_sklearn(res[0])
+        return res[0]
 
     @property
     def _estimator_type(self):
@@ -93,12 +93,6 @@ class WrapperMixin(DaskBaseEstimator):
         o.update(i for i in dir(self._est) if i.endswith('_'))
         return list(o)
 
-    def to_sklearn(self, compute=True):
-        res = Delayed(self._name, [self.dask])
-        if compute:
-            return res.compute()
-        return res
-
 
 class Estimator(WrapperMixin, BaseEstimator):
     """A class for wrapping a scikit-learn estimator.
@@ -106,7 +100,6 @@ class Estimator(WrapperMixin, BaseEstimator):
     All operations done on this estimator are pure (no mutation), and are done
     lazily (if applicable). Calling `compute` results in the wrapped estimator.
     """
-    _finalize = staticmethod(lambda res: Estimator(res[0]))
 
     def __init__(self, est, dask=None, name=None):
         if not isinstance(est, BaseEstimator):

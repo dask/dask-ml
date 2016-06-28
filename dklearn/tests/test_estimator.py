@@ -108,25 +108,6 @@ def test_repr():
     assert res.startswith('Dask')
 
 
-def test_to_sklearn():
-    d = Estimator(clf1)
-    res = d.to_sklearn()
-    assert isinstance(res, LogisticRegression)
-
-    res = d.to_sklearn(compute=False)
-    assert isinstance(res, Delayed)
-    assert isinstance(res.compute(), LogisticRegression)
-
-    # After fitting
-    fit = d.fit(X_iris, y_iris)
-    res = fit.to_sklearn()
-    assert isinstance(res, LogisticRegression)
-
-    res = fit.to_sklearn(compute=False)
-    assert isinstance(res, Delayed)
-    assert isinstance(res.compute(), LogisticRegression)
-
-
 def test_fit():
     d = from_sklearn(clf1)
     fit = d.fit(X_iris, y_iris)
@@ -136,7 +117,7 @@ def test_fit():
     res = fit.compute()
     assert hasattr(res, 'coef_')
     assert not hasattr(clf1, 'coef_')
-    assert isinstance(res, Estimator)
+    assert isinstance(res, LogisticRegression)
 
 
 def test_predict():

@@ -155,7 +155,8 @@ def test_fit():
     assert isinstance(fit, Pipeline)
 
     res = fit.compute()
-    assert isinstance(res, Pipeline)
+    assert isinstance(res, pipeline.Pipeline)
+    assert isinstance(res.named_steps['logistic'], LogisticRegression)
     assert hasattr(res, 'classes_')
     assert not hasattr(pipe1, 'classes_')
 
@@ -182,24 +183,3 @@ def test_score():
     will_error = d.score(X_digits, y_digits)
     with pytest.raises(NotFittedError):
         will_error.compute()
-
-
-def test_to_sklearn():
-    d = from_sklearn(pipe1)
-    res = d.to_sklearn()
-    assert isinstance(res, pipeline.Pipeline)
-    assert isinstance(res.named_steps['logistic'], LogisticRegression)
-
-    res = d.to_sklearn(compute=False)
-    assert isinstance(res, Delayed)
-    assert isinstance(res.compute(), pipeline.Pipeline)
-
-    # After fitting
-    fit = d.fit(X_digits, y_digits)
-    res = fit.to_sklearn()
-    assert isinstance(res, pipeline.Pipeline)
-    assert isinstance(res.named_steps['logistic'], LogisticRegression)
-
-    res = d.to_sklearn(compute=False)
-    assert isinstance(res, Delayed)
-    assert isinstance(res.compute(), pipeline.Pipeline)

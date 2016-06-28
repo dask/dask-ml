@@ -83,15 +83,6 @@ class WrapperHarness(object):
         res = repr(d)
         assert res.startswith('Dask')
 
-    def test_to_sklearn(self):
-        d = from_sklearn(self.sk)
-        res = d.to_sklearn()
-        assert isinstance(res, type(self.sk))
-
-        res = d.to_sklearn(compute=False)
-        assert isinstance(res, Delayed)
-        assert isinstance(res.compute(), type(self.sk))
-
     def test_fit(self):
         d = from_sklearn(self.sk)
         b = db.from_sequence(self.raw_X)
