@@ -5,6 +5,7 @@ import numpy as np
 import dask.array as da
 import dask.bag as db
 from dask.base import normalize_token
+from dask.delayed import delayed
 from scipy import sparse
 
 import dklearn.matrix as dm
@@ -56,6 +57,46 @@ def test_from_bag():
     assert mat.shape == sp_sol.shape
     assert mat.ndim == 2
     assert eq(mat.compute(), sp_sol)
+
+
+def test_from_delayed():
+    darange = delayed(np.arange)
+    x1 = darange(10)
+    x2 = darange(10, 15)
+    x3 = darange(15, 30)
+
+    mat = dm.from_delayed([x1, x2, x3])
+
+    assert mat.name == dm.from_delayed([x1, x2, x3]).name
+    assert mat.name != dm.from_delayed([x2, x1, x3]).name
+
+    assert mat.dtype is None
+    assert mat.shape is None
+    assert mat.ndim is None
+    assert eq(mat.compute(), np.arange(30))
+
+    mat = dm.from_delayed([x1, x2, x3], dtype='i8', shape=(None,))
+    assert mat.dtype == np.dtype('i8')
+    assert mat.shape == (None,)
+    assert mat.ndim == 1
+    assert eq(mat.compute(), np.arange(30))
+
+    mat = dm.from_delayed(x1)
+    assert eq(mat.compute(), x1.compute())
+
+
+def test_from_series():
+    dd = pytest.importorskip('dask.dataframe')
+    import pandas as pd
+
+    x = np.arange(30)
+    s = pd.Series(x)
+    ds = dd.from_pandas(s, npartitions=3)
+
+    mat = dm.from_series(ds)
+    assert mat.dtype == s.dtype
+    assert mat.shape == (None,)
+    assert eq(mat.compute(), x)
 
 
 @pytest.mark.parametrize(('mats', 'sol'), [(sp_mats, sp_sol),

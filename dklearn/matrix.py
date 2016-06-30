@@ -2,11 +2,12 @@ from __future__ import division, print_function, absolute_import
 
 import numpy as np
 from dask.base import Base, tokenize, normalize_token
+from dask.delayed import Delayed
 from dask.compatibility import apply
 from dask.threaded import get as threaded_get
 from dask.utils import funcname
 from scipy import sparse
-from toolz import concat
+from toolz import concat, merge
 
 
 def _vstack(mats):
@@ -67,6 +68,22 @@ def from_bag(bag, dtype=None, shape=None):
     dsk = dict(((name, i), (_vstack, k)) for i, k in enumerate(bag._keys()))
     dsk.update(bag.dask)
     return Matrix(dsk, name, bag.npartitions, dtype, shape)
+
+
+def from_delayed(values, dtype=None, shape=None):
+    if isinstance(values, Delayed):
+        values = [values]
+    name = 'matrix-from-delayed-' + tokenize(*values)
+    dsk = merge(v.dask for v in values)
+    dsk.update(((name, i), v.key) for i, v in enumerate(values))
+    return Matrix(dsk, name, len(values), dtype, shape)
+
+
+def from_series(s):
+    name = 'matrix-from-series-' + tokenize(s)
+    dsk = dict(((name, i), k) for i, k in enumerate(s._keys()))
+    dsk.update(s.dask)
+    return Matrix(dsk, name, s.npartitions, s.dtype, (None,))
 
 
 def from_array(arr):
