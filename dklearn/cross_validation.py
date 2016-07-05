@@ -93,6 +93,10 @@ def check_cv(cv, X=None, y=None, classifier=False):
             return KFold(n_folds=cv)
         elif not isinstance(cv, DaskBaseCV):
             raise TypeError("Unexpected cv type {0}".format(type(cv).__name__))
+        else:
+            return cv
+    if isinstance(cv, DaskBaseCV) and not isinstance(cv, _DaskCVWrapper):
+        raise ValueError("Can't use dask cv object with non-dask X and y")
     cv = cross_validation.check_cv(cv, X=X, y=y, classifier=classifier)
     return _DaskCVWrapper(cv)
 

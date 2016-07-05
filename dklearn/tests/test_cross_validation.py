@@ -272,5 +272,12 @@ def test_check_cv():
     assert isinstance(cv, _DaskCVWrapper)
     assert isinstance(cv.cv, LeavePOut)
 
+    rsplit = RandomSplit()
+    cv = check_cv(rsplit, dX, dy)
+    assert cv is rsplit
+
+    with pytest.raises(ValueError):
+        check_cv(rsplit, X, y)
+
     with pytest.raises(TypeError):
         check_cv("not a cv instance", dX, dy)
