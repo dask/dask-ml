@@ -45,8 +45,8 @@ def test_random_split_matrix():
     m = dm.from_array(da.from_array(a, chunks=100))
     train, test = random_split(m, 0.2, 123)
     assert train.dtype == test.dtype == m.dtype
-    assert train.ndim == test.ndim == 2
-    assert train.shape == test.shape == (None, 1)
+    assert train.ndim == test.ndim == 1
+    assert train.shape == test.shape == (None,)
 
     assert random_split(m, 0.2, 123)[0].name == train.name
     assert random_split(m, 0.3, 123)[0].name != train.name
@@ -55,7 +55,7 @@ def test_random_split_matrix():
     train_c, test_c = dask.compute(train, test)
     assert 0.75 < len(train_c) / 1000 < 0.85
     assert len(train_c) + len(test_c) == 1000
-    assert set(train_c.flat) | set(test_c.flat) == set(range(1000))
+    assert set(train_c) | set(test_c) == set(range(1000))
 
     # 2D
     a = np.arange(1000).reshape((1000, 1))
@@ -93,7 +93,7 @@ def test_random_split_array():
     assert test_c.shape == test.shape
     assert 0.75 < len(train_c) / 1000 < 0.85
     assert len(train_c) + len(test_c) == 1000
-    assert set(train_c.flat) | set(test_c.flat) == set(range(1000))
+    assert set(train_c) | set(test_c) == set(range(1000))
 
     # 2D
     a = np.arange(1000).reshape((1000, 1))
@@ -165,8 +165,8 @@ def test_Kfold_matrix():
         assert x_train.shape == x_test.shape == (None, 1)
         assert x_train.ndim == x_test.ndim == 2
         assert y_train.dtype == y_test.dtype == y.dtype
-        assert y_train.shape == y_test.shape == (None, 1)
-        assert y_train.ndim == y_test.ndim == 2
+        assert y_train.shape == y_test.shape == (None,)
+        assert y_train.ndim == y_test.ndim == 1
 
         train, test = dask.compute(x_train, x_test)
         assert len(train) + len(test) == 1000

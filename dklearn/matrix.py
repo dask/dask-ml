@@ -6,29 +6,16 @@ from dask.delayed import Delayed
 from dask.compatibility import apply
 from dask.threaded import get as threaded_get
 from dask.utils import funcname
-from scipy import sparse as sp_sparse
+from scipy import sparse
 from toolz import concat, merge
 
 
 def _vstack(mats):
     if len(mats) == 1:
         return mats[0]
-    if sp_sparse.issparse(mats[0]):
-        return sp_sparse.vstack(mats)
+    if sparse.issparse(mats[0]):
+        return sparse.vstack(mats)
     return np.concatenate(mats)
-
-
-def as_2d_array(x):
-    x = np.asarray(x)
-    if x.ndim == 1:
-        return np.atleast_2d(x).T
-    return x
-
-
-def as_2d_sparse(x):
-    if x.ndim == 1:
-        x = np.atleast_2d(x).T
-    return sp_sparse.csr_matrix(x)
 
 
 class Matrix(Base):
@@ -38,25 +25,28 @@ class Matrix(Base):
 
     _optimize = staticmethod(lambda d, k, **kws: d)
     _default_get = staticmethod(threaded_get)
-    _finalize = staticmethod(_vstack)
 
     def __init__(self, dask, name, npartitions, dtype=None, shape=None):
         self.dask = dask
         self.name = name
         self.npartitions = npartitions
         self.dtype = None if dtype is None else np.dtype(dtype)
-        if shape is None:
-            shape = (None, None)
-        elif len(shape) != 2:
-            raise ValueError("Matrices must be 2 dimensional")
         self.shape = shape
 
     def _keys(self):
         return [(self.name, i) for i in range(self.npartitions)]
 
+    @staticmethod
+    def _finalize(res):
+        if len(res) == 1:
+            return res[0]
+        if sparse.issparse(res[0]):
+            return sparse.vstack(res)
+        return np.concatenate(res)
+
     @property
     def ndim(self):
-        return 2
+        return len(self.shape) if self.shape is not None else None
 
     def map_partitions(self, func, *args, **kwargs):
         dtype = kwargs.pop('dtype', None)
@@ -89,30 +79,26 @@ def from_delayed(values, dtype=None, shape=None):
     return Matrix(dsk, name, len(values), dtype, shape)
 
 
-def from_series(s, sparse=False):
-    name = 'matrix-from-series-' + tokenize(s, sparse)
-    f = as_2d_sparse if sparse else as_2d_array
-    dsk = dict(((name, i), (f, k)) for i, k in enumerate(s._keys()))
+def from_series(s):
+    name = 'matrix-from-series-' + tokenize(s)
+    dsk = dict(((name, i), (np.asarray, k)) for i, k in enumerate(s._keys()))
     dsk.update(s.dask)
-    return Matrix(dsk, name, s.npartitions, s.dtype, (None, 1))
+    return Matrix(dsk, name, s.npartitions, s.dtype, (None,))
 
 
-def from_array(arr, sparse=False):
-    name = 'matrix-from-array-' + tokenize(arr, sparse)
+def from_array(arr):
+    name = 'matrix-from-array-' + tokenize(arr)
     if arr.ndim == 2:
         if len(arr.chunks[1]) != 1:
             arr = arr.rechunk((arr.chunks[0], arr.shape[1]))
         keys = list(concat(arr._keys()))
-        shape = arr.shape
     elif arr.ndim == 1:
         keys = arr._keys()
-        shape = (arr.shape[0], 1)
     else:
         raise ValueError("array must be 1 or 2 dimensional")
-    f = as_2d_sparse if sparse else as_2d_array
-    dsk = dict(((name, i), (f, k)) for i, k in enumerate(keys))
+    dsk = dict(((name, i), k) for i, k in enumerate(keys))
     dsk.update(arr.dask)
-    return Matrix(dsk, name, len(keys), arr.dtype, shape)
+    return Matrix(dsk, name, len(keys), arr.dtype, arr.shape)
 
 
 normalize_token.register(Matrix, lambda mat: mat.name)

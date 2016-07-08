@@ -173,7 +173,10 @@ def random_split(x, p_test=0.1, random_state=None):
                 for name, b in zip(names, [True, False])]
 
         if isinstance(x, dm.Matrix):
-            shape = (None, x.shape[1])
+            if x.ndim is not None:
+                shape = (None,) if x.ndim == 1 else (None, x.shape[1])
+            else:
+                shape = None
             test = dm.Matrix(merge(dsks[0], x.dask), names[0],
                              x.npartitions, dtype=x.dtype, shape=shape)
             train = dm.Matrix(merge(dsks[1], x.dask), names[1],
@@ -252,8 +255,12 @@ def _part_split(x, parts, prefix):
                for i, j in enumerate(parts))
     if isinstance(x, db.Bag):
         return db.Bag(merge(dsk, x.dask), name, len(parts))
+    if x.ndim is not None:
+        shape = (None,) if x.ndim == 1 else (None, x.shape[1])
+    else:
+        shape = None
     return dm.Matrix(merge(dsk, x.dask), name, len(parts),
-                     dtype=x.dtype, shape=(None, x.shape[1]))
+                     dtype=x.dtype, shape=shape)
 
 
 class KFold(DaskBaseCV):

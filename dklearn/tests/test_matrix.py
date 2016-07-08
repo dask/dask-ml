@@ -10,8 +10,6 @@ from scipy import sparse
 
 import dklearn.matrix as dm
 
-import dask
-dask.set_options(get=dask.get)
 
 sp_mats = [sparse.csr_matrix([[1], [2], [3]]),
            sparse.csr_matrix([[4], [5], [6], [7]]),
@@ -52,7 +50,7 @@ def test_from_bag():
     b = db.from_sequence(sp_mats)
     mat = dm.from_bag(b)
     assert eq(mat.compute(), sp_sol)
-    assert mat.ndim == 2
+    assert mat.ndim is None
 
     mat = dm.from_bag(b, dtype='i8', shape=sp_sol.shape)
     assert mat.dtype == np.dtype('i8')
@@ -73,14 +71,14 @@ def test_from_delayed():
     assert mat.name != dm.from_delayed([x2, x1, x3]).name
 
     assert mat.dtype is None
-    assert mat.shape == (None, None)
-    assert mat.ndim == 2
+    assert mat.shape is None
+    assert mat.ndim is None
     assert eq(mat.compute(), np.arange(30))
 
-    mat = dm.from_delayed([x1, x2, x3], dtype='i8', shape=(None, 1))
+    mat = dm.from_delayed([x1, x2, x3], dtype='i8', shape=(None,))
     assert mat.dtype == np.dtype('i8')
-    assert mat.shape == (None, 1)
-    assert mat.ndim == 2
+    assert mat.shape == (None,)
+    assert mat.ndim == 1
     assert eq(mat.compute(), np.arange(30))
 
     mat = dm.from_delayed(x1)
@@ -97,14 +95,10 @@ def test_from_series():
 
     mat = dm.from_series(ds)
     assert mat.dtype == s.dtype
-    assert mat.shape == (None, 1)
-    assert eq(mat.compute(), x[None, :].T)
+    assert mat.shape == (None,)
+    assert eq(mat.compute(), x)
     # Check that partition isn't a series
     assert isinstance(mat._get(mat.dask, mat._keys()[0]), np.ndarray)
-
-    mat2 = dm.from_series(ds, sparse=True)
-    assert mat2.name != mat.name
-    assert sparse.issparse(mat2.compute())
 
 
 @pytest.mark.parametrize(('mats', 'sol'), [(sp_mats, sp_sol),
@@ -120,19 +114,12 @@ def test_from_bag_multiple_in_partitions(mats, sol):
 def test_from_array(arr):
     a = da.from_array(arr, chunks=3)
     mat = dm.from_array(a)
-    if arr.ndim == 1:
-        arr = arr[None, :].T
     assert mat.name == dm.from_array(a).name
     assert mat.name != dm.from_array(a + 1).name
     assert mat.dtype == arr.dtype
     assert mat.shape == arr.shape
-    assert mat.ndim == 2
+    assert mat.ndim == arr.ndim
     assert eq(mat.compute(), arr)
-
-    mat2 = dm.from_array(a, sparse=True)
-    assert mat2.name != mat.name
-    res = mat2.compute()
-    assert sparse.issparse(res)
 
 
 def test_from_array_wide():
@@ -143,12 +130,8 @@ def test_from_array_wide():
     assert mat.name != dm.from_array(a + 1).name
     assert mat.dtype == x.dtype
     assert mat.shape == x.shape
-    assert mat.ndim == 2
+    assert mat.ndim == x.ndim
     assert eq(mat.compute(), x)
-
-    mat2 = dm.from_array(a, sparse=True)
-    assert mat2.name != mat.name
-    assert sparse.issparse(mat2.compute())
 
 
 def test_from_array_3d_errors():
@@ -177,9 +160,9 @@ def test_map_partitions():
     assert res.name != mat.map_partitions(foo, 2, b=2).name
     assert eq(res.compute(), np_sol + 1 + 2)
 
-    res2 = mat.map_partitions(foo, 1, b=2, dtype='i8', shape=(10, 1))
+    res2 = mat.map_partitions(foo, 1, b=2, dtype='i8', shape=(10,))
     assert res2.name != res.name
-    assert res2.ndim == 2
-    assert res2.shape == (10, 1)
+    assert res2.ndim == 1
+    assert res2.shape == (10,)
     assert res2.dtype == np.dtype('i8')
     assert eq(res2.compute(), np_sol + 1 + 2)
