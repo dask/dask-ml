@@ -91,6 +91,25 @@ def check_X_y(X, y=False):
     return X, y
 
 
+def check_aligned_partitions(*arrays):
+    if not arrays:
+        return ()
+    first = arrays[0]
+    if isinstance(first, da.Array):
+        if not all(isinstance(a, da.Array) for a in arrays):
+            raise ValueError("Can't mix arrays and non-arrays")
+        for a in arrays:
+            if a.chunks[0] != first.chunks[0]:
+                raise ValueError("All arguments must have chunks aligned")
+    elif isinstance(first, (dm.Matrix, db.Bag)):
+        for a in arrays:
+            if a.npartitions != first.npartitions:
+                raise ValueError("All arguments must have same npartitions")
+    else:
+        raise TypeError("Expected an instance of ``da.Array``, ``db.Bag``, or "
+                        "``dm.Matrix`` - got {0}".format(type(first).__name__))
+
+
 def _unpack_keys_dask(x):
     if isinstance(x, da.Array):
         if x.ndim == 2:

@@ -11,7 +11,8 @@ from sklearn.cross_validation import LeavePOut, StratifiedKFold
 
 import dklearn.matrix as dm
 from dklearn.cross_validation import (random_split, RandomSplit, KFold,
-                                      _DaskCVWrapper, check_cv)
+                                      _DaskCVWrapper, check_cv,
+                                      train_test_split)
 
 
 def test_random_split_errors():
@@ -281,3 +282,42 @@ def test_check_cv():
 
     with pytest.raises(TypeError):
         check_cv("not a cv instance", dX, dy)
+
+
+def test_train_test_split():
+    x = np.arange(1000)
+    a = da.from_array(x, chunks=100)
+    m = dm.from_array(a)
+    b = db.range(1000, npartitions=10)
+
+    train_a, test_a = train_test_split(a, test_size=0.2, random_state=123)
+
+    train_a2, test_a2, train, test = train_test_split(a, a + 10, test_size=0.2,
+                                                      random_state=123)
+    assert train_a2.name == train_a.name
+    assert test_a2.name == test_a.name
+    assert train_a2.name != train.name
+    assert train_a.chunks == train.chunks
+    assert test_a.chunks == test.chunks
+
+    train_b, test_b, train_m, test_m = train_test_split(b, m, random_state=123)
+
+    parts_b = train_b._get(train_b.dask, train_b._keys())
+    parts_m = train_m._get(train_m.dask, train_m._keys())
+    for p_b, p_m in zip(parts_b, parts_m):
+        assert set(p_b) == set(p_m)
+
+    with pytest.raises(ValueError):
+        train_test_split(a, invalid_option=1)  # invalid kwargs
+
+    with pytest.raises(ValueError):
+        train_test_split(test_size=0.2)  # no arrays
+
+    with pytest.raises(ValueError):
+        train_test_split(a, b)  # not all da.Array
+
+    with pytest.raises(ValueError):
+        train_test_split(a, da.from_array(x, chunks=10))  # Not aligned
+
+    with pytest.raises(ValueError):
+        train_test_split(m, db.range(1000, npartitions=12))  # Not aligned

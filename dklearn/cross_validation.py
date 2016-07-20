@@ -1,7 +1,6 @@
 from __future__ import division, print_function, absolute_import
 
 from numbers import Integral
-from random import Random
 from operator import add
 
 import numpy as np
@@ -16,10 +15,10 @@ from sklearn.utils import safe_indexing
 from toolz import merge, concat, sliding_window, accumulate
 
 from . import matrix as dm
-from .utils import check_X_y, is_dask_collection
+from .utils import check_X_y, is_dask_collection, check_aligned_partitions
 
 
-__all__ = ['RandomSplit', 'KFold', 'check_cv']
+__all__ = ['RandomSplit', 'KFold', 'check_cv', 'train_test_split']
 
 
 class DaskBaseCV(object):
@@ -124,10 +123,12 @@ def mat_split(x, p_split, left=True, seed=None):
 
 
 def bag_split(x, p_split, left=True, seed=None):
-    random_state = Random(seed)
-    if left:
-        return filter(lambda _: random_state.random() < p_split, x)
-    return filter(lambda _: random_state.random() >= p_split, x)
+    x = list(x)
+    n_split = np.random.RandomState(seed).binomial(len(x), p_split)
+    inds = np.random.RandomState(seed).permutation(len(x))
+    inds = inds[:n_split] if left else inds[n_split:]
+    inds.sort()
+    return list(np.array(x, dtype=object)[inds])
 
 
 def random_split(x, p_test=0.1, random_state=None):
@@ -354,3 +355,48 @@ class KFold(DaskBaseCV):
 
     def __len__(self):
         return self.n_folds
+
+
+def train_test_split(*arrays, **options):
+    """Split dask collections into random train and test subsets.
+
+    Quick utility that wraps input validation and calls to train/test splitting
+    with ``RandomSplit`` into a single call for splitting data in a oneliner.
+
+    Parameters
+    ----------
+    *arrays : sequence of dask collections with same length and partitions
+
+        Allowed inputs are ``db.Bag``, ``da.Array``, or ``dm.Matrix``. All
+        inputs must share the same length and partitions.
+
+    test_size : float, optional
+        Should be between 0.0 and 1.0 and represent the proportion of the
+        dataset to include in the test split. Default is 0.25.
+
+    random_state : int or RandomState
+        Pseudo-random number generator state used for random sampling.
+
+    Returns
+    -------
+    splitting : list, length = 2 * len(arrays),
+        List containing train-test split of inputs.
+
+    Examples
+    --------
+    >>> X_train, X_test, y_train, y_test = train_test_split(  # doctest: +SKIP
+    ...     X, y, test_size=0.20, random_state=42)
+    """
+    n_arrays = len(arrays)
+    if n_arrays == 0:
+        raise ValueError("At least one array required as input")
+    check_aligned_partitions(*arrays)
+
+    test_size = options.pop('test_size', 0.25)
+    random_state = options.pop('random_state', None)
+
+    if options:
+        raise ValueError("Invalid parameters passed: %s" % str(options))
+
+    seed = different_seeds(1, random_state=random_state)[0]
+    return list(concat(random_split(a, test_size, seed) for a in arrays))
