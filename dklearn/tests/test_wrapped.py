@@ -9,6 +9,7 @@ from sklearn.base import clone
 from sklearn.datasets import load_iris
 from sklearn.linear_model import LogisticRegression
 
+import dklearn.matrix as dm
 from dklearn import from_sklearn
 from dklearn.wrapped import Wrapped
 
@@ -130,7 +131,13 @@ def test_predict():
 
     dX_iris = da.from_array(X_iris, chunks=4)
     pred = fit.predict(dX_iris)
-    assert isinstance(pred, Delayed)
+    assert isinstance(pred, da.Array)
+    res = pred.compute()
+    assert isinstance(res, np.ndarray)
+
+    dX_iris = dm.from_array(dX_iris)
+    pred = fit.predict(dX_iris)
+    assert isinstance(pred, dm.Matrix)
     res = pred.compute()
     assert isinstance(res, np.ndarray)
 

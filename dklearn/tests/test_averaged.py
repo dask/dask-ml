@@ -207,7 +207,7 @@ def test_predict():
     assert isinstance(res, np.ndarray)
 
     pred = fit.predict(dX)
-    assert isinstance(pred, Delayed)
+    assert isinstance(pred, da.Array)
     res = pred.compute()
     assert isinstance(res, np.ndarray)
 
