@@ -35,6 +35,12 @@ def eq(a, b):
     return (a == b).all()
 
 
+def test_matrix_repr():
+    dsk = dict((('test', i), m) for i, m in enumerate(np_mats))
+    mat = dm.Matrix(dsk, 'test', 3, dtype='i8')
+    assert repr(mat) == "dklearn.matrix<test, npartitions=3, dtype=int64>"
+
+
 @pytest.mark.parametrize(('mats', 'sol'), [(sp_mats, sp_sol),
                                            (np_mats, np_sol),
                                            (np2d_mats, np2d_sol)])

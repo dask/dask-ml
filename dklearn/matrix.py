@@ -44,6 +44,11 @@ class Matrix(Base):
             return sparse.vstack(res)
         return np.concatenate(res)
 
+    def __repr__(self):
+        name = self.name if len(self.name) < 10 else self.name[:7] + '...'
+        return ("dklearn.matrix<%s, npartitions=%s, dtype=%s>" %
+                (name, self.npartitions, self.dtype))
+
     @property
     def ndim(self):
         return len(self.shape) if self.shape is not None else None
