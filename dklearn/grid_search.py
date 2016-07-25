@@ -80,10 +80,11 @@ class BaseSearchCV(BaseEstimator):
 
         tups = []
         parameters = []
+        train_test_sets = list(cv.split(X, y))
         for params in parameter_iterable:
-            for X_train, y_train, X_test, y_test in cv.split(X, y):
-                fit = (estimator.set_params(**params)
-                                .fit(X_train, y_train, **self.fit_params))
+            est = estimator.set_params(**params)
+            for X_train, y_train, X_test, y_test in train_test_sets:
+                fit = est.fit(X_train, y_train, **self.fit_params)
                 tups.append(score_and_n(self.scorer_, fit, X_test, y_test))
                 parameters.append(params)
 
