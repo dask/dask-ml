@@ -32,7 +32,7 @@ class MockClassifier(BaseEstimator):
         return self
 
     def predict(self, T):
-        return T.shape[0]
+        return T.sum(axis=1)
 
     predict_proba = predict
     decision_function = predict
@@ -88,6 +88,14 @@ def test_grid_search_dask_inputs():
 
     for i, foo_i in enumerate([1, 2, 3]):
         assert grid_search.grid_scores_[i][0] == {'foo_param': foo_i}
+
+    y_pred = grid_search.predict(dX)
+    assert isinstance(y_pred, da.Array)
+    tm.assert_array_equal(y_pred, X.sum(axis=1))
+
+    y_pred = grid_search.predict(X)
+    assert isinstance(y_pred, np.ndarray)
+    tm.assert_array_equal(y_pred, X.sum(axis=1))
 
 
 def test_grid_search_dask_inputs_dk_est():
@@ -175,12 +183,15 @@ def test_grid_search_sparse():
 
     cv = GridSearchCV(LinearSVC(), {'C': [0.1, 1.0]})
     cv.fit(X[:180], y[:180])
+    y_pred = cv.predict(X[180:])
     C = cv.best_estimator_.C
 
     X = sparse.csr_matrix(X)
     cv.fit(X[:180], y[:180])
+    y_pred2 = cv.predict(X[180:])
     C2 = cv.best_estimator_.C
 
+    assert np.mean(y_pred == y_pred2) >= .9
     assert C == C2
 
 

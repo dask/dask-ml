@@ -109,6 +109,13 @@ class BaseSearchCV(BaseEstimator):
                                              .compute(get=get))
         return self
 
+    def predict(self, X):
+        if not hasattr(self, 'best_estimator_'):
+            raise ValueError("Need to refit estimator before calling predict")
+        if hasattr(X, 'dask'):
+            return from_sklearn(self.best_estimator_).predict(X)
+        return self.best_estimator_.predict(X)
+
 
 class GridSearchCV(BaseSearchCV):
     def __init__(self, estimator, param_grid, scoring=None, fit_params=None,
