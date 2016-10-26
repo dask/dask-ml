@@ -8,9 +8,8 @@ import dask.array as da
 import dask.bag as db
 from dask import delayed
 from dask.base import tokenize
-from dask.utils import different_seeds
+from dask.utils import random_state_data
 from sklearn import cross_validation
-from sklearn.utils.validation import check_random_state
 from sklearn.utils import safe_indexing
 from toolz import merge, concat, sliding_window, accumulate
 
@@ -19,6 +18,21 @@ from .utils import check_X_y, is_dask_collection, check_aligned_partitions
 
 
 __all__ = ['RandomSplit', 'KFold', 'check_cv', 'train_test_split']
+
+
+def _check_random_state(seed):
+    # https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/utils/validation.py
+    # Workaround for
+    if seed is None or seed is np.random:
+        return np.random.mtrand._rand
+    if isinstance(seed, (Integral, np.integer)):
+        return np.random.RandomState(seed)
+    if isinstance(seed, np.random.RandomState):
+        return seed
+    elif hasattr(seed, '__len__') and len(seed) == 624:
+        return np.random.RandomState(seed)
+    raise ValueError('%r cannot be used to seed a numpy.random.RandomState'
+                     ' instance' % seed)
 
 
 class DaskBaseCV(object):
@@ -146,7 +160,7 @@ def random_split(x, p_test=0.1, random_state=None):
     if not 0 < p_test < 1:
         raise ValueError("p_test must be in (0, 1)")
 
-    random_state = check_random_state(random_state)
+    random_state = _check_random_state(random_state)
     token = tokenize(x, p_test, random_state.get_state())
     names = ['random-split-test-' + token,
              'random-split-train-' + token]
@@ -154,7 +168,7 @@ def random_split(x, p_test=0.1, random_state=None):
     if isinstance(x, da.Array):
         x, x_keys = _as_tall_skinny_and_keys(x)
         chunks = np.array(x.chunks[0])
-        seeds = different_seeds(len(chunks) + 1, random_state)
+        seeds = random_state_data(len(chunks) + 1, random_state)
         n_test = np.random.RandomState(seeds[0]).binomial(chunks, p_test)
         n_train = chunks - n_test
         dsks = [dict(((name,) + k[1:], (arr_split, k, n, b, s))
@@ -167,7 +181,7 @@ def random_split(x, p_test=0.1, random_state=None):
                          (tuple(n_train),) + x.chunks[1:], x.dtype)
 
     elif isinstance(x, (db.Bag, dm.Matrix)):
-        seeds = different_seeds(x.npartitions, random_state)
+        seeds = random_state_data(x.npartitions, random_state)
         split = bag_split if isinstance(x, db.Bag) else mat_split
         dsks = [dict(((name, k[1]), (split, k, p_test, b, s))
                      for k, s in zip(x._keys(), seeds))
@@ -237,7 +251,7 @@ class RandomSplit(DaskBaseCV):
             ``None``.
         """
         X, y = check_X_y(X, y)
-        seeds = different_seeds(self.n_iter, random_state=self.random_state)
+        seeds = random_state_data(self.n_iter, random_state=self.random_state)
         for seed in seeds:
             X_train, X_test = random_split(X, self.test_size, seed)
             if y is None:
@@ -398,5 +412,5 @@ def train_test_split(*arrays, **options):
     if options:
         raise ValueError("Invalid parameters passed: %s" % str(options))
 
-    seed = different_seeds(1, random_state=random_state)[0]
+    seed = random_state_data(1, random_state=random_state)[0]
     return list(concat(random_split(a, test_size, seed) for a in arrays))
