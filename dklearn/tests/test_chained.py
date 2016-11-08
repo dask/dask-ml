@@ -9,7 +9,6 @@ from dask.delayed import Delayed
 from sklearn.base import clone
 from sklearn.datasets import load_iris
 from sklearn.linear_model import LogisticRegression, SGDClassifier
-from toolz import dissoc
 
 import dklearn.matrix as dm
 from dklearn.wrapped import Wrapped
@@ -116,8 +115,8 @@ def test_repr():
     assert res.startswith('Chained')
 
 
-def fit_test(c, X, y):
-    fit = c.fit(X, y)
+def fit_test(c, X, y, **kwargs):
+    fit = c.fit(X, y, **kwargs)
     assert fit is not c
     assert isinstance(fit, Chained)
 
@@ -133,7 +132,7 @@ def test_fit_dask_array():
     y = da.from_array(y_iris, chunks=4)
 
     c = Chained(sgd1)
-    fit_test(c, X, y)
+    fit_test(c, X, y, classes=[0, 1, 2])
 
 
 def test_fit_dask_matrix():
@@ -143,7 +142,7 @@ def test_fit_dask_matrix():
     y = dm.from_bag(y_bag)
 
     c = Chained(sgd1)
-    fit_test(c, X, y)
+    fit_test(c, X, y, classes=[0, 1, 2])
 
 
 def test_predict():
@@ -151,7 +150,7 @@ def test_predict():
     y = da.from_array(y_iris, chunks=4)
 
     c = Chained(sgd1)
-    fit = c.fit(X, y)
+    fit = c.fit(X, y, classes=[0, 1, 2])
 
     pred = fit.predict(X_iris)
     assert isinstance(pred, Delayed)
@@ -173,7 +172,7 @@ def test_score():
     y = da.from_array(y_iris, chunks=4)
 
     c = Chained(sgd1)
-    fit = c.fit(X, y)
+    fit = c.fit(X, y, classes=[0, 1, 2])
 
     s = fit.score(X_iris, y_iris)
     assert isinstance(s, Delayed)
