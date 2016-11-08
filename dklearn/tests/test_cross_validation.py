@@ -252,8 +252,8 @@ def test_DaskCVWrapper():
 
 
 def test_check_cv():
-    X = np.arange(9)[:, None]
-    y = np.arange(9)
+    X = np.arange(9)[:, None].repeat(5, 1)
+    y = np.arange(9).repeat(5)
     dX = da.from_array(X, chunks=3)
     dy = da.from_array(y, chunks=3)
 
