@@ -1,8 +1,10 @@
-# Constants
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 import dask.array as da
 
+
+# Constants
 
 firstBacktrackMult = 0.1
 nextBacktrackMult = 0.5
