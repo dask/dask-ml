@@ -1,0 +1,9 @@
+recursive-include dask_glm *.py
+recursive-include docs *.rst
+
+include setup.py
+include README.rst
+include LICENSE.txt
+include MANIFEST.in
+
+prune docs/_build

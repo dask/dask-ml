@@ -1,0 +1,30 @@
+language: python
+sudo: false
+
+env:
+  matrix:
+    - PYTHON=2.7
+    - PYTHON=3.5
+
+install:
+  # Install conda
+  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update conda
+
+  # Install dependencies
+  - conda create -n test-environment python=$PYTHON
+  - source activate test-environment
+  - conda install -c conda-forge numpy dask
+
+  # Install dask-glm
+  - pip install --no-deps -e .
+
+script:
+  - py.test dask-glm
+  - flake8 dask
+
+notifications:
+  email: false
