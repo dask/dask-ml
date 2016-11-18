@@ -18,13 +18,14 @@ install:
   - conda create -n test-environment python=$PYTHON
   - source activate test-environment
   - conda install -c conda-forge numpy dask
+  - pip install flake8
 
   # Install dask-glm
   - pip install --no-deps -e .
 
 script:
-  - py.test dask-glm
-  - flake8 dask
+  - py.test dask_glm
+  - flake8 dask_glm
 
 notifications:
   email: false

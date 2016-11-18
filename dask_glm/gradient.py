@@ -38,7 +38,8 @@ def gradient(X, y, max_steps=100):
         steplen = (gradient**2).sum()**0.5
         Xgradient = X.dot(gradient)
 
-        Xbeta, eXbeta, func, gradient, steplen, Xgradient = da.compute(Xbeta, eXbeta, func, gradient, steplen, Xgradient)
+        Xbeta, eXbeta, func, gradient, steplen, Xgradient = da.compute(
+                Xbeta, eXbeta, func, gradient, steplen, Xgradient)
 
         obeta = beta
         oXbeta = Xbeta
@@ -64,7 +65,7 @@ def gradient(X, y, max_steps=100):
             break
         df /= max(func, lf)
         db = stepSize * steplen / (np.linalg.norm(beta) + stepSize * steplen)
-        print('%2d  %.6e %9.2e  %.2e  %.1e'%(k+1,func,df,db,stepSize))
+        print('%2d  %.6e %9.2e  %.2e  %.1e' % (k + 1, func, df, db, stepSize))
         if df < 1e-14:
             print('Converged')
             break
@@ -72,4 +73,3 @@ def gradient(X, y, max_steps=100):
         backtrackMult = nextBacktrackMult
 
     return beta
-
