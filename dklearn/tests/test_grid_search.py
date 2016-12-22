@@ -107,7 +107,7 @@ def test_grid_search_dask_inputs_dk_est():
     clf = SGDClassifier()
     d_clf = Chained(SGDClassifier())
     grid_search = GridSearchCV(clf, grid)
-    d_grid_search = GridSearchCV(d_clf, grid)
+    d_grid_search = GridSearchCV(d_clf, grid, fit_params={'classes': [0, 1]})
 
     grid_search.fit(X, y)
     d_grid_search.fit(dX, dy)
