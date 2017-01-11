@@ -58,3 +58,10 @@ def sum(A):
 @dispatch(da.Array)
 def sum(A):
     return da.sum(A)
+
+def make_y(X, beta0=np.array([1.5, -3]), chunks=2):
+    n, p   = X.shape        
+    z0     = X.dot(beta0)
+    z0     = da.compute(z0)[0]  # ensure z0 is a numpy array
+    y      = np.random.rand(n) < sigmoid(z0)
+    return da.from_array(y, chunks=chunks)
