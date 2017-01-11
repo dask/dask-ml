@@ -171,5 +171,70 @@ def newton(X, y, max_iter=50, tol=1e-8):
 
     return beta
 
-def proximal_grad(X, y, reg='l2', max_iter=50, tol=1e-8):
-    raise NotImplementedError
+def proximal_grad(X, y, reg='l2', lamduh=0.1, max_steps=50, tol=1e-4):
+
+    def l2(x,t):
+        return 1/(1+lamduh*t) * x
+
+    def l1(x,t):
+        return (np.absolute(x)>lamduh*t)*(x - np.sign(x)*lamduh*t)
+    
+    def identity(x,t):
+        return x
+        
+    prox_map = {'l1' : l1, 'l2' : l2, None : identity}
+    n, p = X.shape
+    firstBacktrackMult = 0.1
+    nextBacktrackMult = 0.5
+    armijoMult = 0.1
+    stepGrowth = 1.25
+    stepSize = 1.0
+    recalcRate = 10
+    backtrackMult = firstBacktrackMult
+    beta = np.zeros(p)
+
+    print('##       -f        |df/f|    |dx/x|    step')
+    print('----------------------------------------------')
+    for k in range(max_steps):
+        # Compute the gradient
+        if k % recalcRate == 0:
+            Xbeta = X.dot(beta)
+            eXbeta = da.exp(Xbeta)
+            func = da.log1p(eXbeta).sum() - y.dot(Xbeta)
+        e1 = eXbeta + 1.0
+        gradient = X.T.dot(eXbeta / e1 - y)
+
+        Xbeta, eXbeta, func, gradient = da.compute(
+                Xbeta, eXbeta, func, gradient)
+
+        obeta = beta
+        oXbeta = Xbeta
+
+        # Compute the step size
+        lf = func
+        for ii in range(100):
+            beta = prox_map[reg](obeta - stepSize * gradient, stepSize)
+            step = obeta - beta
+            Xbeta = X.dot(beta).compute() ## ugh
+
+            # This prevents overflow
+            if np.all(Xbeta < 700):
+                eXbeta = np.exp(Xbeta)
+                func = np.sum(np.log1p(eXbeta)) - np.dot(y, Xbeta)
+                df = lf - func
+                if df > 0:
+                    break
+            stepSize *= backtrackMult
+        if stepSize == 0:
+            print('No more progress')
+            break
+        df /= max(func, lf)
+        db = 0
+        print('%2d  %.6e %9.2e  %.2e  %.1e' % (k + 1, func, df, db, stepSize))
+        if df < tol:
+            print('Converged')
+            break
+        stepSize *= stepGrowth
+        backtrackMult = nextBacktrackMult
+
+    return beta    
