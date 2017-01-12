@@ -10,6 +10,8 @@ def bfgs(X, y, max_iter=50, tol=1e-14):
 
     n, p = X.shape
 
+    y_local = da.compute(y)[0]
+
     recalcRate = 10
     stepSize = 1.0
     armijoMult = 1e-4
@@ -26,20 +28,21 @@ def bfgs(X, y, max_iter=50, tol=1e-14):
             func = log1p(eXbeta).sum() - y.dot(Xbeta)
 
         e1 = eXbeta + 1.0
-        gradient = X.T.dot(eXbeta / e1 - y)
+        gradient = X.T.dot(eXbeta / e1 - y)  # implicit numpy -> dask conversion
 
         if k:
-            yk += gradient
-            rhok = 1/yk.dot(sk)
-            adj = np.eye(p) - rhok*sk.dot(yk.T)
-            Hk = adj.dot(Hk.dot(adj.T)) + rhok*sk.dot(sk.T)
+            yk = yk + gradient  # TODO: gradient is dasky and yk is numpy-y
+            rhok = 1 / yk.dot(sk)
+            adj = np.eye(p) - rhok*dot(sk, yk.T)
+            Hk = dot(adj, dot(Hk, adj.T)) + rhok*dot(sk, sk.T)
 
-        step = Hk.dot(gradient)
-        steplen = step.dot(gradient)
-        Xstep = X.dot(step)
+        step = dot(Hk, gradient)
+        steplen = dot(step, gradient)
+        Xstep = dot(X, step)
 
         Xbeta, gradient, func, steplen, step, Xstep = da.compute(
                 Xbeta, gradient, func, steplen, step, Xstep)
+
 
         # Compute the step size
         lf = func
@@ -56,7 +59,7 @@ def bfgs(X, y, max_iter=50, tol=1e-14):
             # This prevents overflow
             if np.all(Xbeta < 700):
                 eXbeta = np.exp(Xbeta)
-                func = np.sum(np.log1p(eXbeta)) - np.dot(y, Xbeta)
+                func = np.sum(np.log1p(eXbeta)) - np.dot(y_local, Xbeta)
                 df = lf - func
                 if df >= armijoMult * stepSize * steplen:
                     break
@@ -157,17 +160,21 @@ def newton(X, y, max_iter=50, tol=1e-8):
         hessian = dot(p*(1-p)*X.T, X)
         grad = X.T.dot(p-y)
 
+        hessian, grad = da.compute(hessian, grad)
+
         # should this be dask or numpy?
         # currently uses Python 3 specific syntax
-        step, *_ = da.linalg.lstsq(hessian, grad)
-        beta = (beta_old - step).compute()
+        step, *_ = np.linalg.lstsq(hessian, grad)
+        beta = (beta_old - step)
 
-        Xbeta = X.dot(beta)
         iter_count += 1
-        
+
         ## should change this criterion
         coef_change = np.absolute(beta_old - beta)
         converged = ((not np.any(coef_change>tol)) or (iter_count>max_iter))
+
+        if not converged:
+            Xbeta = X.dot(beta)
 
     return beta
 
@@ -178,10 +185,10 @@ def proximal_grad(X, y, reg='l2', lamduh=0.1, max_steps=100, tol=1e-8):
 
     def l1(x,t):
         return (np.absolute(x)>lamduh*t)*(x - np.sign(x)*lamduh*t)
-    
+
     def identity(x,t):
         return x
-        
+
     prox_map = {'l1' : l1, 'l2' : l2, None : identity}
     n, p = X.shape
     firstBacktrackMult = 0.1
@@ -237,4 +244,4 @@ def proximal_grad(X, y, reg='l2', lamduh=0.1, max_steps=100, tol=1e-8):
         stepSize *= stepGrowth
         backtrackMult = nextBacktrackMult
 
-    return beta    
+    return beta

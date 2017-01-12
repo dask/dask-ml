@@ -35,12 +35,12 @@ def log1p(A):
 
 @dispatch(da.Array,np.ndarray)
 def dot(A,B):
-    B = da.from_array(B, chunks=A.shape)
+    B = da.from_array(B, chunks=B.shape)
     return da.dot(A,B)
 
 @dispatch(np.ndarray,da.Array)
 def dot(A,B):
-    A = da.from_array(A, chunks=B.shape)
+    A = da.from_array(A, chunks=A.shape)
     return da.dot(A,B)
 
 @dispatch(np.ndarray,np.ndarray)
@@ -60,8 +60,7 @@ def sum(A):
     return da.sum(A)
 
 def make_y(X, beta=np.array([1.5, -3]), chunks=2):
-    n, p   = X.shape        
+    n, p   = X.shape
     z0     = X.dot(beta)
-    z0     = da.compute(z0)[0]  # ensure z0 is a numpy array
-    y      = np.random.rand(n) < sigmoid(z0)
-    return da.from_array(y, chunks=chunks)
+    y      = da.random.random(z0.shape, chunks=z0.chunks) < sigmoid(z0)
+    return y
