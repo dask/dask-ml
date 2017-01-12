@@ -171,7 +171,7 @@ def newton(X, y, max_iter=50, tol=1e-8):
 
     return beta
 
-def proximal_grad(X, y, reg='l2', lamduh=0.1, max_steps=50, tol=1e-4):
+def proximal_grad(X, y, reg='l2', lamduh=0.1, max_steps=100, tol=1e-8):
 
     def l2(x,t):
         return 1/(1+lamduh*t) * x
