@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 from dask_glm.utils import *
 import dask.array as da
 import dask.dataframe as dd
+from numba import jit
 import numpy as np
 
 def bfgs(X, y, max_iter=50, tol=1e-14):
@@ -43,27 +44,18 @@ def bfgs(X, y, max_iter=50, tol=1e-14):
         Xbeta, gradient, func, steplen, step, Xstep = da.compute(
                 Xbeta, gradient, func, steplen, step, Xstep)
 
-
-        # Compute the step size
+        ## backtracking line search
         lf = func
-        obeta = beta
-        oXbeta = Xbeta
+        stepSize, beta, Xbeta, func = compute_stepsize(beta, step,
+                Xbeta, Xstep, y_local, func,
+                **{'backtrackMult' : backtrackMult, 
+                    'armijoMult' : armijoMult, 'stepSize' : stepSize})
+        if stepSize == 0:
+            print('No more progress')
+            break
 
-        for ii in range(100):
-            beta = obeta - stepSize * step
-            if ii and np.array_equal(beta, obeta):
-                stepSize = 0
-                break
-            Xbeta = oXbeta - stepSize * Xstep
-
-            # This prevents overflow
-            if np.all(Xbeta < 700):
-                eXbeta = np.exp(Xbeta)
-                func = np.sum(np.log1p(eXbeta)) - np.dot(y_local, Xbeta)
-                df = lf - func
-                if df >= armijoMult * stepSize * steplen:
-                    break
-            stepSize *= backtrackMult
+        ## necessary for gradient computation
+        eXbeta = exp(Xbeta)
 
         yk = -gradient
         sk = -stepSize*step
@@ -73,6 +65,7 @@ def bfgs(X, y, max_iter=50, tol=1e-14):
             if verbose:
                 print('No more progress')
 
+        df = lf-func
         df /= max(func, lf)
         if df < tol:
             print('Converged')
@@ -80,10 +73,43 @@ def bfgs(X, y, max_iter=50, tol=1e-14):
 
     return beta
 
+@jit
+def loglike(Xbeta, y):
+#        # This prevents overflow
+#        if np.all(Xbeta < 700):
+    eXbeta = np.exp(Xbeta)
+    return np.sum(np.log1p(eXbeta)) - np.dot(y, Xbeta)
+
+def compute_stepsize(beta, step, Xbeta, Xstep, y, curr_val, **kwargs):
+
+    params = {'stepSize' : 1.0,
+            'armijoMult' : 0.1,
+            'backtrackMult' : 0.1}
+    params.update(kwargs)
+    stepSize, armijo, mult = params['stepSize'], params['armijoMult'], params['backtrackMult']
+    
+    obeta, oXbeta = beta, Xbeta
+    steplen = (step**2).sum()
+    lf = curr_val
+    for ii in range(100):
+        beta = obeta - stepSize * step
+        if ii and np.array_equal(beta, obeta):
+            stepSize = 0
+            break
+        Xbeta = oXbeta - stepSize * Xstep
+
+        func = loglike(Xbeta, y)
+        df = lf - func
+        if df >= armijo * stepSize * steplen:
+            break
+        stepSize *= mult
+
+    return stepSize, beta, Xbeta, func
+
 def gradient_descent(X, y, max_steps=100, tol=1e-14):
     '''Michael Grant's implementation of Gradient Descent.'''
 
-    N, M = X.shape
+    n, p = X.shape
     firstBacktrackMult = 0.1
     nextBacktrackMult = 0.5
     armijoMult = 0.1
@@ -91,49 +117,39 @@ def gradient_descent(X, y, max_steps=100, tol=1e-14):
     stepSize = 1.0
     recalcRate = 10
     backtrackMult = firstBacktrackMult
-    beta = np.zeros(M)
+    beta = np.zeros(p)
+    y_local = y.compute() ## is this different from da.compute()[0]??
 
-    print('##       -f        |df/f|    |dx/x|    step')
-    print('----------------------------------------------')
     for k in range(max_steps):
-        # Compute the gradient
+        ## how necessary is this recalculation?
         if k % recalcRate == 0:
             Xbeta = X.dot(beta)
             eXbeta = da.exp(Xbeta)
             func = da.log1p(eXbeta).sum() - y.dot(Xbeta)
+
         e1 = eXbeta + 1.0
         gradient = X.T.dot(eXbeta / e1 - y)
-        steplen = (gradient**2).sum()**0.5
         Xgradient = X.dot(gradient)
 
-        Xbeta, eXbeta, func, gradient, steplen, Xgradient = da.compute(
-                Xbeta, eXbeta, func, gradient, steplen, Xgradient)
+        Xbeta, eXbeta, func, gradient, Xgradient = da.compute(
+                Xbeta, eXbeta, func, gradient, Xgradient)
 
-        obeta = beta
-        oXbeta = Xbeta
-
-        # Compute the step size
+        ## backtracking line search
         lf = func
-        for ii in range(100):
-            beta = obeta - stepSize * gradient
-            if ii and np.array_equal(beta, obeta):
-                stepSize = 0
-                break
-            Xbeta = oXbeta - stepSize * Xgradient
-            # This prevents overflow
-            if np.all(Xbeta < 700):
-                eXbeta = np.exp(Xbeta)
-                func = np.sum(np.log1p(eXbeta)) - np.dot(y, Xbeta)
-                df = lf - func
-                if df >= armijoMult * stepSize * steplen ** 2:
-                    break
-            stepSize *= backtrackMult
+        stepSize, beta, Xbeta, func = compute_stepsize(beta, gradient,
+                Xbeta, Xgradient, y_local, func,
+                **{'backtrackMult' : backtrackMult, 
+                    'armijoMult' : armijoMult, 'stepSize' : stepSize})
         if stepSize == 0:
             print('No more progress')
             break
+
+        ## necessary for gradient computation
+        eXbeta = exp(Xbeta)
+
+        df = lf - func
         df /= max(func, lf)
-        db = stepSize * steplen / (np.linalg.norm(beta) + stepSize * steplen)
-        print('%2d  %.6e %9.2e  %.2e  %.1e' % (k + 1, func, df, db, stepSize))
+
         if df < tol:
             print('Converged')
             break
