@@ -1,17 +1,17 @@
 from __future__ import absolute_import, division, print_function
 
+from dask import delayed, persist, compute
 from dask_glm.utils import *
 import dask.array as da
 import dask.dataframe as dd
 from numba import jit
 import numpy as np
 
+
 def bfgs(X, y, max_iter=50, tol=1e-14):
     '''Simple implementation of BFGS.'''
 
     n, p = X.shape
-
-    y_local = da.compute(y)[0]
 
     recalcRate = 10
     stepSize = 1.0
@@ -41,15 +41,20 @@ def bfgs(X, y, max_iter=50, tol=1e-14):
         steplen = dot(step, gradient)
         Xstep = dot(X, step)
 
-        Xbeta, gradient, func, steplen, step, Xstep = da.compute(
-                Xbeta, gradient, func, steplen, step, Xstep)
-
         ## backtracking line search
         lf = func
-        stepSize, beta, Xbeta, func = compute_stepsize(beta, step,
-                Xbeta, Xstep, y_local, func,
-                **{'backtrackMult' : backtrackMult, 
-                    'armijoMult' : armijoMult, 'stepSize' : stepSize})
+        old_Xbeta = Xbeta
+        stepSize, beta, Xbeta, func = delayed(compute_stepsize, nout=4)(beta, step,
+                Xbeta, Xstep, y, func, backtrackMult=backtrackMult,
+                armijoMult=armijoMult, stepSize=stepSize)
+
+        beta, Xstep, stepSize, Xbeta, gradient, lf, func, step = persist(
+          beta, Xstep, stepSize, Xbeta, gradient, lf, func, step)
+
+        Xbeta = da.from_delayed(Xbeta, shape=old_Xbeta.shape, dtype=old_Xbeta.dtype)
+
+        stepSize, lf, func = compute(stepSize, lf, func)
+
         if stepSize == 0:
             print('No more progress')
             break
@@ -58,14 +63,14 @@ def bfgs(X, y, max_iter=50, tol=1e-14):
         eXbeta = exp(Xbeta)
 
         yk = -gradient
-        sk = -stepSize*step
+        sk = -stepSize * step
         stepSize = 1.0
 
         if stepSize == 0:
             if verbose:
                 print('No more progress')
 
-        df = lf-func
+        df = lf - func
         df /= max(func, lf)
         if df < tol:
             print('Converged')
@@ -73,24 +78,21 @@ def bfgs(X, y, max_iter=50, tol=1e-14):
 
     return beta
 
-@jit
+@jit(nogil=True)
 def loglike(Xbeta, y):
 #        # This prevents overflow
 #        if np.all(Xbeta < 700):
     eXbeta = np.exp(Xbeta)
     return np.sum(np.log1p(eXbeta)) - np.dot(y, Xbeta)
 
-def compute_stepsize(beta, step, Xbeta, Xstep, y, curr_val, **kwargs):
 
-    params = {'stepSize' : 1.0,
-            'armijoMult' : 0.1,
-            'backtrackMult' : 0.1}
-    params.update(kwargs)
-    stepSize, armijo, mult = params['stepSize'], params['armijoMult'], params['backtrackMult']
-    
+@jit(nogil=True)
+def compute_stepsize(beta, step, Xbeta, Xstep, y, curr_val, stepSize=1.0,
+        armijoMult=0.1, backtrackMult=0.1):
     obeta, oXbeta = beta, Xbeta
     steplen = (step**2).sum()
     lf = curr_val
+    func = 0
     for ii in range(100):
         beta = obeta - stepSize * step
         if ii and np.array_equal(beta, obeta):
@@ -100,11 +102,12 @@ def compute_stepsize(beta, step, Xbeta, Xstep, y, curr_val, **kwargs):
 
         func = loglike(Xbeta, y)
         df = lf - func
-        if df >= armijo * stepSize * steplen:
+        if df >= armijoMult * stepSize * steplen:
             break
-        stepSize *= mult
+        stepSize *= backtrackMult
 
     return stepSize, beta, Xbeta, func
+
 
 def gradient_descent(X, y, max_steps=100, tol=1e-14):
     '''Michael Grant's implementation of Gradient Descent.'''
@@ -138,7 +141,7 @@ def gradient_descent(X, y, max_steps=100, tol=1e-14):
         lf = func
         stepSize, beta, Xbeta, func = compute_stepsize(beta, gradient,
                 Xbeta, Xgradient, y_local, func,
-                **{'backtrackMult' : backtrackMult, 
+                **{'backtrackMult' : backtrackMult,
                     'armijoMult' : armijoMult, 'stepSize' : stepSize})
         if stepSize == 0:
             print('No more progress')
