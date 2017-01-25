@@ -27,8 +27,8 @@ def test_logistic_regression_with_large_l1_regularization_penalty(Xy):
     alpha = 10
     rho = 1
     over_relaxation = 1
-    X,y = Xy
-    coeff = logistic_regression(X,y, alpha, rho, over_relaxation)
+    X, y = Xy
+    coeff = logistic_regression(X, y, alpha, rho, over_relaxation)
     np.testing.assert_almost_equal(coeff, np.array([0, 0]))
 
 

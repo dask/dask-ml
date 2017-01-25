@@ -37,11 +37,11 @@ def gradient(X, y, max_steps=100):
             func = da.log1p(eXbeta).sum() - y.dot(Xbeta)
         e1 = eXbeta + 1.0
         gradient = X.T.dot(eXbeta / e1 - y)
-        steplen = (gradient**2).sum()**0.5
+        steplen = (gradient ** 2).sum() ** 0.5
         Xgradient = X.dot(gradient)
 
         Xbeta, eXbeta, func, gradient, steplen, Xgradient = da.compute(
-                Xbeta, eXbeta, func, gradient, steplen, Xgradient)
+            Xbeta, eXbeta, func, gradient, steplen, Xgradient)
 
         obeta = beta
         oXbeta = Xbeta
@@ -75,3 +75,4 @@ def gradient(X, y, max_steps=100):
         backtrackMult = nextBacktrackMult
 
     return beta
+
