@@ -15,7 +15,8 @@ install:
   - conda update conda
 
   # Install dependencies
-  - conda create -n test-environment -c conda-forge python=$PYTHON numpy dask flake8 pytest
+  - conda create -n test-environment -c conda-forge python=$PYTHON numpy flake8 pytest
+  - pip install git+https://github.com/dask/dask;
   - source activate test-environment
 
   # Install dask-glm
