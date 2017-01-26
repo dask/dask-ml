@@ -188,8 +188,8 @@ def newton(X, y, max_iter=50, tol=1e-8):
     '''Newtons Method for Logistic Regression.'''
 
     n, p = X.shape
-    beta = np.zeros(p)
-    Xbeta = X.dot(beta)
+    beta = np.zeros(p)  # always init to zeros?
+    Xbeta = dot(X, beta)
 
     iter_count = 0
     converged = False
@@ -200,13 +200,13 @@ def newton(X, y, max_iter=50, tol=1e-8):
         # should this use map_blocks()?
         p = sigmoid(Xbeta)
         hessian = dot(p * (1 - p) * X.T, X)
-        grad = X.T.dot(p - y)
+        grad = dot(X.T, p - y)
 
         hessian, grad = da.compute(hessian, grad)
 
         # should this be dask or numpy?
         # currently uses Python 3 specific syntax
-        step, _ = np.linalg.lstsq(hessian, grad)
+        step, _, _, _ = np.linalg.lstsq(hessian, grad)
         beta = (beta_old - step)
 
         iter_count += 1
@@ -217,7 +217,7 @@ def newton(X, y, max_iter=50, tol=1e-8):
             (not np.any(coef_change > tol)) or (iter_count > max_iter))
 
         if not converged:
-            Xbeta = X.dot(beta)
+            Xbeta = dot(X, beta)  # numpy -> dask converstion of beta
 
     return beta
 
@@ -330,8 +330,9 @@ def logistic_regression(X, y, alpha, rho, over_relaxation):
     return z.mean(1)
 
 
+# TODO: Dask+Numba JIT
 def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
+    return 1 / (1 + exp(-x))
 
 
 def logistic_loss(w, X, y):
