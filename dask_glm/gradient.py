@@ -3,7 +3,6 @@ from __future__ import absolute_import, division, print_function
 import numpy as np
 import dask.array as da
 
-
 # Constants
 
 firstBacktrackMult = 0.1
@@ -75,4 +74,3 @@ def gradient(X, y, max_steps=100):
         backtrackMult = nextBacktrackMult
 
     return beta
-

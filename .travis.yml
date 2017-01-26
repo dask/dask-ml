@@ -15,7 +15,7 @@ install:
   - conda update conda
 
   # Install dependencies
-  - conda create -n test-environment -c conda-forge python=$PYTHON numpy flake8 pytest pandas scipy multipledispatch cloudpickle numba dask
+  - conda create -n test-environment -c conda-forge python=$PYTHON numpy flake8 pytest pandas scipy multipledispatch cloudpickle numba dask mock
   - source activate test-environment
   - pip install git+https://github.com/dask/dask
 

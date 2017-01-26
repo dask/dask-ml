@@ -1,4 +1,4 @@
-from unittest.mock import Mock
+from mock import Mock
 
 import dask.array as da
 import numpy as np
@@ -37,7 +37,7 @@ def test_logistic_regression_with_small_l1_regularization_penalty(Xy):
     rho = 1
     over_relaxation = 1
     X, y = Xy
-    coef = logistic_regression(X,y, alpha, rho, over_relaxation)
+    coef = logistic_regression(X, y, alpha, rho, over_relaxation)
 
     w0, w1 = coef[0], coef[1]
     assert abs(w0 - 1.5) < 2
