@@ -6,8 +6,8 @@ import dask.array as da
 import numpy as np
 import pytest
 
-from dask_glm.gradient import gradient
-
+from dask_glm.logistic import gradient_descent as gradient
+from dask_glm.utils import make_y
 
 def logit(y):
     return 1.0 / (1.0 + da.exp(-y))
@@ -41,6 +41,6 @@ dX = da.from_array(X, chunks=(N / 10, M))
 dy = da.from_array(y, chunks=(N / 10,))
 
 
-@pytest.mark.parametrize('X,y', [(X, y), (dX, dy)])
+@pytest.mark.parametrize('X,y', [(dX, dy)])
 def test_gradient(X, y):
     gradient(X, y)
