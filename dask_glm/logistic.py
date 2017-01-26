@@ -3,10 +3,18 @@ from __future__ import absolute_import, division, print_function
 from dask import delayed, persist, compute
 import numpy as np
 import dask.array as da
-from numba import jit
 from scipy.optimize import fmin_l_bfgs_b
 
 from dask_glm.utils import dot, exp, log1p
+
+
+try:
+    from numba import jit
+except ImportError:
+    def jit(*args, **kwargs):
+        def _(func):
+            return func
+        return _
 
 
 def bfgs(X, y, max_iter=50, tol=1e-14):
