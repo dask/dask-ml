@@ -198,7 +198,7 @@ def newton(X, y, max_iter=50, tol=1e-8):
 
         # should this be dask or numpy?
         # currently uses Python 3 specific syntax
-        step, _ = np.linalg.lstsq(hessian, grad)
+        step, _, _, _ = np.linalg.lstsq(hessian, grad)
         beta = (beta_old - step)
 
         iter_count += 1
@@ -282,16 +282,18 @@ def proximal_grad(X, y, reg='l2', lamduh=0.1, max_steps=100, tol=1e-8):
     return beta
 
 
-def logistic_regression(X, y, alpha, rho, over_relaxation):
-    N = 5
+def logistic_regression(X, y, alpha, rho, over_relaxation, max_iter=100):
+    N = 5 # something to do with chunks
     (m, n) = X.shape
 
     z = np.zeros([n, N])
-    a = np.zeros([n, N])
+    a = np.zeros([n, N]) # to become u
+
+    ## why convert this to a dask array?
     beta_old = da.from_array(np.zeros([n, N]), chunks=(2, 1))
     beta = np.zeros((2, 5))
     u = da.from_array(a, chunks=(2, 1))
-    MAX_ITER = 100
+    MAX_ITER = max_iter
     ABSTOL = 1e-4
     RELTOL = 1e-2
 
@@ -361,7 +363,12 @@ def local_update(y, X, w, z, u, rho, fprime=proximal_logistic_gradient,
     w, f, d = solver(f, w, fprime=fprime, args=solver_args, pgtol=1e-10,
                      maxiter=200,
                      maxfun=250, factr=1e-30)
-    return w.reshape(2, 1)
+    if d['warnflag']:
+        raise ValueError(
+            '''Internal LBFGSB algorithm failed to converge!
+            Details: {}'''.format(d['task']))
+    else:
+        return w.reshape(2, 1)
 
 
 # def apply_local_update(X, y, w, z, rho, u):
