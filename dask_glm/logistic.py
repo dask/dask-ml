@@ -45,9 +45,6 @@ def bfgs(X, y, max_iter=50, tol=1e-14):
         steplen = dot(step, gradient)
         Xstep = dot(X, step)
 
-        Xbeta, gradient, func, steplen, step, Xstep = da.compute(
-            Xbeta, gradient, func, steplen, step, Xstep)
-
         # backtracking line search
         lf = func
         old_Xbeta = Xbeta
