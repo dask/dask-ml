@@ -37,7 +37,6 @@ def bfgs(X, y, max_iter=50, tol=1e-14):
             eXbeta = exp(Xbeta)
             func = log1p(eXbeta).sum() - dot(y, Xbeta)
 
-
         e1 = eXbeta + 1.0
         gradient = dot(X.T, eXbeta / e1 - y)  # implicit numpy -> dask conversion
 
