@@ -21,6 +21,7 @@ def bfgs(X, y, max_iter=50, tol=1e-14):
     '''Simple implementation of BFGS.'''
 
     n, p = X.shape
+    y = y.squeeze()
 
     recalcRate = 10
     stepSize = 1.0
