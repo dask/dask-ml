@@ -6,7 +6,7 @@ import dask.array as da
 from numba import jit
 from scipy.optimize import fmin_l_bfgs_b
 
-from dask_glm.utils import dot, exp, log1p
+from dask_glm.utils import dot, exp, log1p, sigmoid
 
 
 def bfgs(X, y, max_iter=50, tol=1e-14):
@@ -132,7 +132,7 @@ def gradient_descent(X, y, max_steps=100, tol=1e-14):
     recalcRate = 10
     backtrackMult = firstBacktrackMult
     beta = np.zeros(p)
-    y_local = y.compute()  # is this different from da.compute()[0]??
+    y_local = y.compute()
 
     for k in range(max_steps):
         # how necessary is this recalculation?
@@ -320,10 +320,6 @@ def logistic_regression(X, y, alpha, rho, over_relaxation):
             print("Converged!", k)
             break
     return z.mean(1)
-
-
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
 
 
 def logistic_loss(w, X, y):
