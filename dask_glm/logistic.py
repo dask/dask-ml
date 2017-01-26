@@ -22,8 +22,6 @@ def bfgs(X, y, max_iter=50, tol=1e-14):
 
     n, p = X.shape
 
-    y_local = da.compute(y)[0]
-
     recalcRate = 10
     stepSize = 1.0
     armijoMult = 1e-4
@@ -31,17 +29,16 @@ def bfgs(X, y, max_iter=50, tol=1e-14):
 
     beta = np.zeros(p)
     Hk = np.eye(p)
-    sk = None
     for k in range(max_iter):
 
         if k % recalcRate == 0:
             Xbeta = X.dot(beta)
             eXbeta = exp(Xbeta)
-            func = log1p(eXbeta).sum() - y.dot(Xbeta)
+            func = log1p(eXbeta).sum() - dot(y, Xbeta)
+
 
         e1 = eXbeta + 1.0
-        gradient = X.T.dot(
-            eXbeta / e1 - y)  # implicit numpy -> dask conversion
+        gradient = dot(X.T, eXbeta / e1 - y)  # implicit numpy -> dask conversion
 
         if k:
             yk = yk + gradient  # TODO: gradient is dasky and yk is numpy-y
@@ -56,23 +53,23 @@ def bfgs(X, y, max_iter=50, tol=1e-14):
         # backtracking line search
         lf = func
         old_Xbeta = Xbeta
-        stepSize, beta, Xbeta, func = delayed(compute_stepsize, nout=4)(beta,
-                                                                        step,
-                                                                        Xbeta,
-                                                                        Xstep,
-                                                                        y,
-                                                                        func,
-                                                                        backtrackMult=backtrackMult,
-                                                                        armijoMult=armijoMult,
-                                                                        stepSize=stepSize)
+        stepSize, _, _, func = delayed(compute_stepsize, nout=4)(beta,
+                                                                 step,
+                                                                 Xbeta,
+                                                                 Xstep,
+                                                                 y,
+                                                                 func,
+                                                                 backtrackMult=backtrackMult,
+                                                                 armijoMult=armijoMult,
+                                                                 stepSize=stepSize)
 
-        beta, Xstep, stepSize, Xbeta, gradient, lf, func, step = persist(
-            beta, Xstep, stepSize, Xbeta, gradient, lf, func, step)
+        beta, stepSize, Xbeta, gradient, lf, func, step, Xstep = persist(
+            beta, stepSize, Xbeta, gradient, lf, func, step, Xstep)
 
-        Xbeta = da.from_delayed(Xbeta, shape=old_Xbeta.shape,
-                                dtype=old_Xbeta.dtype)
+        stepSize, lf, func, step = compute(stepSize, lf, func, step)
 
-        stepSize, lf, func = compute(stepSize, lf, func)
+        beta = beta - stepSize * step  # tiny bit of repeat work here to avoid communication
+        Xbeta = Xbeta - stepSize * Xstep
 
         if stepSize == 0:
             print('No more progress')
