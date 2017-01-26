@@ -1,7 +1,8 @@
-from __future__ import absolute_import, division, print_function
+# Constants
 
 import numpy as np
 import dask.array as da
+
 
 # Constants
 
@@ -40,7 +41,7 @@ def gradient(X, y, max_steps=100):
         Xgradient = X.dot(gradient)
 
         Xbeta, eXbeta, func, gradient, steplen, Xgradient = da.compute(
-            Xbeta, eXbeta, func, gradient, steplen, Xgradient)
+                Xbeta, eXbeta, func, gradient, steplen, Xgradient)
 
         obeta = beta
         oXbeta = Xbeta
@@ -74,3 +75,4 @@ def gradient(X, y, max_steps=100):
         backtrackMult = nextBacktrackMult
 
     return beta
+
