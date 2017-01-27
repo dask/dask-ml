@@ -17,6 +17,7 @@ install:
   - conda create -n test-environment python=$TRAVIS_PYTHON_VERSION
   - source activate test-environment
   - conda install dask numpy scikit-learn pytest
+  - pip install -q git+https://github.com/dask/dask.git --upgrade
   - python setup.py develop
 
 script:

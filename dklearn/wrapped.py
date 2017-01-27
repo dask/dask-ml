@@ -147,7 +147,7 @@ class Wrapped(WrapperMixin, BaseEstimator):
                        for (i, k) in enumerate(keys))
             dsk.update(self.dask)
             if isinstance(X, da.Array):
-                return da.Array(dsk, name, chunks=(X.chunks[0],))
+                return da.Array(dsk, name, (X.chunks[0],), 'i8')
             return dm.Matrix(dsk, name, npartitions=len(keys))
         X, dsk = unpack_arguments(X)
         dsk[name] = (_predict, self._name, X)
