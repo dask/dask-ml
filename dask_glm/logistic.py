@@ -17,7 +17,7 @@ except ImportError:
         return _
 
 
-def bfgs(X, y, max_iter=50, tol=1e-14):
+def bfgs(X, y, max_iter=500, tol=1e-14):
     '''Simple implementation of BFGS.'''
 
     n, p = X.shape
@@ -26,7 +26,8 @@ def bfgs(X, y, max_iter=50, tol=1e-14):
     recalcRate = 10
     stepSize = 1.0
     armijoMult = 1e-4
-    backtrackMult = 0.1
+    backtrackMult = 0.5
+    stepGrowth = 1.25
 
     beta = np.zeros(p)
     Hk = np.eye(p)
@@ -80,7 +81,7 @@ def bfgs(X, y, max_iter=50, tol=1e-14):
 
         yk = -gradient
         sk = -stepSize * step
-        stepSize = 1.0
+        stepSize *= stepGrowth
 
         if stepSize == 0:
             print('No more progress')
@@ -137,7 +138,7 @@ def gradient_descent(X, y, max_steps=100, tol=1e-14):
     recalcRate = 10
     backtrackMult = firstBacktrackMult
     beta = np.zeros(p)
-    y_local = y.compute()  # is this different from da.compute()[0]??
+    y_local = y.compute()
 
     for k in range(max_steps):
         # how necessary is this recalculation?
@@ -287,16 +288,18 @@ def proximal_grad(X, y, reg='l2', lamduh=0.1, max_steps=100, tol=1e-8):
     return beta
 
 
-def logistic_regression(X, y, alpha, rho, over_relaxation):
-    N = 5
+def logistic_regression(X, y, alpha, rho, over_relaxation, max_iter=100):
+    N = 5  # something to do with chunks
     (m, n) = X.shape
 
     z = np.zeros([n, N])
-    a = np.zeros([n, N])
+    a = np.zeros([n, N])  # to become u
+
+    # why convert this to a dask array?
     beta_old = da.from_array(np.zeros([n, N]), chunks=(2, 1))
     beta = np.zeros((2, 5))
     u = da.from_array(a, chunks=(2, 1))
-    MAX_ITER = 100
+    MAX_ITER = max_iter
     ABSTOL = 1e-4
     RELTOL = 1e-2
 
