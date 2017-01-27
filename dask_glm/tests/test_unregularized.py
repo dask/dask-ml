@@ -11,7 +11,7 @@ from dask_glm.logistic import gradient_descent, bfgs, newton
 from dask_glm.utils import sigmoid, make_y
 
 
-def make_data(N,p, seed=20009):
+def make_data(N, p, seed=20009):
     '''Given the desired number of observations (N) and
     the desired number of variables (p), creates
     random logistic data to test on.'''
@@ -21,32 +21,17 @@ def make_data(N,p, seed=20009):
     np.random.seed(seed)
 
     X = np.random.random((N, p+1))
+    col_sums = X.sum(axis=0)
+    X = X / col_sums[None,:]
     X[:, p] = 1
     X = da.from_array(X, chunks=(N/5, p+1))
     y = make_y(X, beta=np.random.random(p+1))
 
     return X, y
 
-@pytest.mark.parametrize('opt',
-                        [bfgs])
-@pytest.mark.parametrize('N, p, seed',
-                        [(100, 2, 20009),
-                        (250, 12, 90210),
-                        (95, 6, 70605)])
-def test_bfgs(N, p, seed, opt):
-    X, y = make_data(N, p, seed=seed)
-    coefs = opt(X, y)
-    p = sigmoid(X.dot(coefs).compute())
-
-    y_sum = y.compute().sum()
-    p_sum = p.sum()
-    print('y sum: {}'.format(y_sum))
-    print('p sum: {}'.format(p_sum))
-    assert np.isclose(y.compute().sum(), p.sum(), atol=2e-2)
-
 
 @pytest.mark.parametrize('opt',
-                        [newton, gradient_descent])
+                        [newton, gradient_descent, bfgs])
 @pytest.mark.parametrize('N, p, seed',
                         [(100, 2, 20009),
                         (250, 12, 90210),
@@ -60,4 +45,4 @@ def test_methods(N, p, seed, opt):
     p_sum = p.sum()
     print('y sum: {}'.format(y_sum))
     print('p sum: {}'.format(p_sum))
-    assert np.isclose(y.compute().sum(), p.sum(), atol=2e-2)
+    assert np.isclose(y.compute().sum(), p.sum(), atol=1e-1)
