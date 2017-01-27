@@ -3,18 +3,25 @@ from __future__ import absolute_import, division, print_function
 from dask import delayed, persist, compute
 import numpy as np
 import dask.array as da
-from numba import jit
 from scipy.optimize import fmin_l_bfgs_b
 
-from dask_glm.utils import dot, exp, log1p, sigmoid
+from dask_glm.utils import dot, exp, log1p
+
+
+try:
+    from numba import jit
+except ImportError:
+    def jit(*args, **kwargs):
+        def _(func):
+            return func
+        return _
 
 
 def bfgs(X, y, max_iter=50, tol=1e-14):
     '''Simple implementation of BFGS.'''
 
     n, p = X.shape
-
-    y_local = da.compute(y)[0]
+    y = y.squeeze()
 
     recalcRate = 10
     stepSize = 1.0
@@ -23,17 +30,15 @@ def bfgs(X, y, max_iter=50, tol=1e-14):
 
     beta = np.zeros(p)
     Hk = np.eye(p)
-    sk = None
     for k in range(max_iter):
 
         if k % recalcRate == 0:
             Xbeta = X.dot(beta)
             eXbeta = exp(Xbeta)
-            func = log1p(eXbeta).sum() - y.dot(Xbeta)
+            func = log1p(eXbeta).sum() - dot(y, Xbeta)
 
         e1 = eXbeta + 1.0
-        gradient = X.T.dot(
-            eXbeta / e1 - y)  # implicit numpy -> dask conversion
+        gradient = dot(X.T, eXbeta / e1 - y)  # implicit numpy -> dask conversion
 
         if k:
             yk = yk + gradient  # TODO: gradient is dasky and yk is numpy-y
@@ -48,23 +53,23 @@ def bfgs(X, y, max_iter=50, tol=1e-14):
         # backtracking line search
         lf = func
         old_Xbeta = Xbeta
-        stepSize, beta, Xbeta, func = delayed(compute_stepsize, nout=4)(beta,
-                                                                        step,
-                                                                        Xbeta,
-                                                                        Xstep,
-                                                                        y,
-                                                                        func,
-                                                                        backtrackMult=backtrackMult,
-                                                                        armijoMult=armijoMult,
-                                                                        stepSize=stepSize)
+        stepSize, _, _, func = delayed(compute_stepsize, nout=4)(beta,
+                                                                 step,
+                                                                 Xbeta,
+                                                                 Xstep,
+                                                                 y,
+                                                                 func,
+                                                                 backtrackMult=backtrackMult,
+                                                                 armijoMult=armijoMult,
+                                                                 stepSize=stepSize)
 
-        beta, Xstep, stepSize, Xbeta, gradient, lf, func, step = persist(
-            beta, Xstep, stepSize, Xbeta, gradient, lf, func, step)
+        beta, stepSize, Xbeta, gradient, lf, func, step, Xstep = persist(
+            beta, stepSize, Xbeta, gradient, lf, func, step, Xstep)
 
-        Xbeta = da.from_delayed(Xbeta, shape=old_Xbeta.shape,
-                                dtype=old_Xbeta.dtype)
+        stepSize, lf, func, step = compute(stepSize, lf, func, step)
 
-        stepSize, lf, func = compute(stepSize, lf, func)
+        beta = beta - stepSize * step  # tiny bit of repeat work here to avoid communication
+        Xbeta = Xbeta - stepSize * Xstep
 
         if stepSize == 0:
             print('No more progress')
@@ -180,8 +185,8 @@ def newton(X, y, max_iter=50, tol=1e-8):
     '''Newtons Method for Logistic Regression.'''
 
     n, p = X.shape
-    beta = np.zeros(p)
-    Xbeta = X.dot(beta)
+    beta = np.zeros(p)  # always init to zeros?
+    Xbeta = dot(X, beta)
 
     iter_count = 0
     converged = False
@@ -192,7 +197,7 @@ def newton(X, y, max_iter=50, tol=1e-8):
         # should this use map_blocks()?
         p = sigmoid(Xbeta)
         hessian = dot(p * (1 - p) * X.T, X)
-        grad = X.T.dot(p - y)
+        grad = dot(X.T, p - y)
 
         hessian, grad = da.compute(hessian, grad)
 
@@ -209,7 +214,7 @@ def newton(X, y, max_iter=50, tol=1e-8):
             (not np.any(coef_change > tol)) or (iter_count > max_iter))
 
         if not converged:
-            Xbeta = X.dot(beta)
+            Xbeta = dot(X, beta)  # numpy -> dask converstion of beta
 
     return beta
 
@@ -322,6 +327,11 @@ def logistic_regression(X, y, alpha, rho, over_relaxation, max_iter=100):
             print("Converged!", k)
             break
     return z.mean(1)
+
+
+# TODO: Dask+Numba JIT
+def sigmoid(x):
+    return 1 / (1 + exp(-x))
 
 
 def logistic_loss(w, X, y):
