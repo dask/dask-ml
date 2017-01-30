@@ -42,6 +42,7 @@ def test_from_sklearn():
     d = from_sklearn(clf1)
     assert from_sklearn(clf1)._name == d._name
     assert from_sklearn(clf2)._name != d._name
+    assert 'logisticregression' in d._name.lower()
 
 
 def test_Estimator__init__():
@@ -114,6 +115,7 @@ def test_fit():
     fit = d.fit(X_iris, y_iris)
     assert fit is not d
     assert isinstance(fit, Wrapped)
+    assert any('logisticregression' in k.lower() for k in fit.dask)
 
     res = fit.compute()
     assert hasattr(res, 'coef_')
@@ -128,6 +130,7 @@ def test_predict():
     assert isinstance(pred, Delayed)
     res = pred.compute()
     assert isinstance(res, np.ndarray)
+    assert any('logisticregression' in k.lower() for k in pred.dask)
 
     dX_iris = da.from_array(X_iris, chunks=4)
     pred = fit.predict(dX_iris)

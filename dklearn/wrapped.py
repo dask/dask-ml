@@ -107,7 +107,7 @@ class Wrapped(WrapperMixin, BaseEstimator):
             raise TypeError("Expected instance of BaseEstimator, "
                             "got {0}".format(type(est).__name__))
         if dask is None and name is None:
-            name = 'estimator-' + tokenize(est)
+            name = est.__class__.__name__ + '-' + tokenize(est)
             dask = {name: est}
         elif dask is None or name is None:
             raise ValueError("Must provide both dask and name")
@@ -133,14 +133,16 @@ class Wrapped(WrapperMixin, BaseEstimator):
         return cls(est)
 
     def fit(self, X, y, **kwargs):
-        name = 'fit-' + tokenize(self, X, y, kwargs)
+        name = 'fit-%s-%s' % (type(self._est).__name__,
+                              tokenize(self, X, y, kwargs))
         X, y, dsk = unpack_arguments(X, y)
         dsk.update(self.dask)
         dsk[name] = (_fit, self._name, X, y, kwargs)
         return Wrapped(self._est, dsk, name)
 
     def predict(self, X):
-        name = 'predict-' + tokenize(self, X)
+        name = 'predict-%s-%s' % (type(self._est).__name__,
+                                  tokenize(self, X))
         if isinstance(X, (da.Array, dm.Matrix, db.Bag)):
             keys, dsk = unpack_as_lists_of_keys(X)
             dsk.update(((name, i), (_predict, self._name, k))
@@ -154,22 +156,25 @@ class Wrapped(WrapperMixin, BaseEstimator):
         return Delayed(name, [dsk, self.dask])
 
     def score(self, X, y, **kwargs):
-        name = 'score-' + tokenize(self, X, y, kwargs)
+        name = 'score-%s-%s' % (type(self._est).__name__,
+                                tokenize(self, X, y, kwargs))
         X, y, dsk = unpack_arguments(X, y)
         dsk[name] = (_score, self._name, X, y, kwargs)
         return Delayed(name, [dsk, self.dask])
 
     def transform(self, X):
-        name = 'transform-' + tokenize(self, X)
+        name = 'transform-%s-%s' % (type(self._est).__name__,
+                                    tokenize(self, X))
         X, dsk = unpack_arguments(X)
         dsk[name] = (_transform, self._name, X)
         return Delayed(name, [dsk, self.dask])
 
     def _fit_transform(self, X, y, **kwargs):
+        clsname = type(self._est).__name__
         token = tokenize(self, X, y, kwargs)
-        fit_tr_name = 'fit-transform-' + token
-        fit_name = 'fit-' + token
-        tr_name = 'tr-' + token
+        fit_tr_name = 'fit-transform-%s-%s' % (clsname, token)
+        fit_name = 'fit-%s-%s' % (clsname, token)
+        tr_name = 'tr-%s-%s' % (clsname, token)
         X, y, dsk = unpack_arguments(X, y)
         dsk[fit_tr_name] = (_fit_transform, self._name, X, y, kwargs)
         dsk1 = merge({fit_name: (getitem, fit_tr_name, 0)}, dsk, self.dask)
