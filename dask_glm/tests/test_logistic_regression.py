@@ -14,7 +14,7 @@ def sigmoid(x):
 
 
 @pytest.fixture
-def Xy(N=100):
+def Xy(N=1000):
     beta_len = 2
     X = np.random.multivariate_normal(np.zeros(beta_len), np.eye(beta_len), N)
     y = sigmoid(X.dot(np.array([[1.5, -3]]).T)) + .001 * np.random.normal(
