@@ -5,7 +5,7 @@ import numpy as np
 import dask.array as da
 from scipy.optimize import fmin_l_bfgs_b
 
-from dask_glm.utils import dot, exp, log1p
+from dask_glm.utils import dot, exp, log1p, absolute, sign
 
 
 try:
@@ -225,7 +225,7 @@ def proximal_grad(X, y, reg='l2', lamduh=0.1, max_steps=100, tol=1e-8):
         return 1 / (1 + lamduh * t) * x
 
     def l1(x, t):
-        return (np.absolute(x) > lamduh * t) * (x - np.sign(x) * lamduh * t)
+        return (absolute(x) > lamduh * t) * (x - sign(x) * lamduh * t)
 
     def identity(x, t):
         return x
@@ -247,12 +247,12 @@ def proximal_grad(X, y, reg='l2', lamduh=0.1, max_steps=100, tol=1e-8):
         # Compute the gradient
         if k % recalcRate == 0:
             Xbeta = X.dot(beta)
-            eXbeta = da.exp(Xbeta)
-            func = da.log1p(eXbeta).sum() - y.dot(Xbeta)
+            eXbeta = exp(Xbeta)
+            func = log1p(eXbeta).sum() - y.dot(Xbeta)
         e1 = eXbeta + 1.0
         gradient = X.T.dot(eXbeta / e1 - y)
 
-        Xbeta, eXbeta, func, gradient = da.compute(
+        Xbeta, eXbeta, func, gradient = persist(
             Xbeta, eXbeta, func, gradient)
 
         obeta = beta
@@ -263,12 +263,18 @@ def proximal_grad(X, y, reg='l2', lamduh=0.1, max_steps=100, tol=1e-8):
         for ii in range(100):
             beta = prox_map[reg](obeta - stepSize * gradient, stepSize)
             step = obeta - beta
-            Xbeta = X.dot(beta).compute()  # ugh
+            Xbeta = X.dot(beta)
+
+            overflow = (Xbeta < 700).all()
+            overflow, Xbeta, beta = persist(overflow, Xbeta, beta)
+            overflow = overflow.compute()
 
             # This prevents overflow
-            if np.all(Xbeta < 700):
-                eXbeta = np.exp(Xbeta)
-                func = np.sum(np.log1p(eXbeta)) - np.dot(y, Xbeta)
+            if overflow:
+                eXbeta = exp(Xbeta)
+                func = log1p(eXbeta).sum() - dot(y, Xbeta)
+                eXbeta, func = persist(eXbeta, func)
+                func = func.compute()
                 df = lf - func
                 if df > 0:
                     break

@@ -28,6 +28,26 @@ def exp(A):
 
 
 @dispatch(np.ndarray)
+def absolute(A):
+    return np.absolute(A)
+
+
+@dispatch(da.Array)
+def absolute(A):
+    return da.absolute(A)
+
+
+@dispatch(np.ndarray)
+def sign(A):
+    return np.sign(A)
+
+
+@dispatch(da.Array)
+def sign(A):
+    return da.sign(A)
+
+
+@dispatch(np.ndarray)
 def log1p(A):
     return np.log1p(A)
 
