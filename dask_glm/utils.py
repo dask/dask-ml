@@ -17,6 +17,11 @@ def sigmoid(x):
     return 1 / (1 + da.exp(-x))
 
 
+@dispatch(float)
+def exp(A):
+    return np.exp(A)
+
+
 @dispatch(np.ndarray)
 def exp(A):
     return np.exp(A)
