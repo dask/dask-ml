@@ -4,8 +4,8 @@ from dask import persist
 import numpy as np
 import dask.array as da
 
-from dask_glm.logistic import newton, bfgs, proximal_grad,\
-    gradient_descent
+from dask_glm.logistic import (newton, bfgs, proximal_grad,
+                               gradient_descent, admm)
 from dask_glm.utils import sigmoid, make_y
 
 
@@ -52,6 +52,7 @@ def test_methods(N, p, seed, opt):
     (gradient_descent, {'tol': 1e-7}),
     (proximal_grad, {'tol': 1e-6, 'reg': 'l1', 'lamduh': 0.001}),
     (proximal_grad, {'tol': 1e-7, 'reg': 'l2', 'lamduh': 0.001}),
+    (admm, {}),
 ])
 @pytest.mark.parametrize('N', [10000, 100000])
 @pytest.mark.parametrize('nchunks', [1, 10])

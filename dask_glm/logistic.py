@@ -336,7 +336,7 @@ def admm(X, y, lamduh=0.1, rho=1, over_relax=1,
             print("Converged!", k)
             break
 
-    return z.mean(0)
+    return z
 
 
 # TODO: Dask+Numba JIT
