@@ -12,7 +12,6 @@ from sklearn.metrics.scorer import check_scoring
 from sklearn.utils import safe_indexing
 
 from .core import from_sklearn
-from .utils import check_X_y
 
 
 def get_grid_scores(scores, parameters, n_samples, n_folds, iid):
@@ -95,7 +94,6 @@ class BaseSearchCV(BaseEstimator):
         self.scorer_ = check_scoring(estimator, scoring=self.scoring)
         cv = check_cv(self.cv, y, classifier=is_classifier(estimator))
         n_folds = cv.get_n_splits(X)
-        X, y = check_X_y(X, y)
 
         tups = []
         parameters = []
