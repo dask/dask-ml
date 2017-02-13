@@ -5,7 +5,7 @@ import dask.bag as db
 from dask.base import Base, tokenize
 from dask.delayed import Delayed
 from dask.utils import concrete
-from toolz import merge, concat
+from toolz import merge
 import sklearn.utils
 
 from .core import DaskBaseEstimator
@@ -88,47 +88,3 @@ def check_X_y(X, y=False):
     if y is False:
         return X
     return X, y
-
-
-def check_aligned_partitions(*arrays):
-    if not arrays:
-        return ()
-    first = arrays[0]
-    if isinstance(first, da.Array):
-        if not all(isinstance(a, da.Array) for a in arrays):
-            raise ValueError("Can't mix arrays and non-arrays")
-        for a in arrays:
-            if a.chunks[0] != first.chunks[0]:
-                raise ValueError("All arguments must have chunks aligned")
-    elif isinstance(first, db.Bag):
-        for a in arrays:
-            if a.npartitions != first.npartitions:
-                raise ValueError("All arguments must have same npartitions")
-    else:
-        raise TypeError("Expected an instance of ``da.Array`` or ``db.Bag``,"
-                        "got {0}".format(type(first).__name__))
-
-
-def _unpack_keys_dask(x):
-    if isinstance(x, da.Array):
-        if x.ndim == 2:
-            if len(x.chunks[1]) != 1:
-                x = x.rechunk((x.chunks[0], x.shape[1]))
-            keys = list(concat(x._keys()))
-        else:
-            keys = x._keys()
-        dsk = x.dask
-    elif isinstance(x, db.Bag):
-        keys = x._keys()
-        dsk = x.dask
-    else:
-        raise TypeError("Invalid input type: {0}".format(type(x)))
-    return keys, dsk.copy()
-
-
-def unpack_as_lists_of_keys(*args):
-    parts, dsks = zip(*map(_unpack_keys_dask, args))
-    if len(set(map(len, parts))) != 1:
-        raise ValueError("inputs must all have the same number "
-                         "of partitions along the first dimension")
-    return tuple(parts) + (merge(dsks),)

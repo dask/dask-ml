@@ -2,8 +2,6 @@ from __future__ import absolute_import, print_function, division
 
 from operator import getitem
 
-import dask.array as da
-import dask.bag as db
 from dask.base import tokenize
 from dask.delayed import Delayed
 from sklearn.base import clone, BaseEstimator
@@ -11,7 +9,7 @@ from toolz import merge
 from textwrap import wrap
 
 from .core import DaskBaseEstimator, from_sklearn
-from .utils import unpack_arguments, unpack_as_lists_of_keys
+from .utils import unpack_arguments
 
 
 def _fit(est, X, y, kwargs):
@@ -142,12 +140,6 @@ class Wrapped(WrapperMixin, BaseEstimator):
     def predict(self, X):
         name = 'predict-%s-%s' % (type(self._est).__name__,
                                   tokenize(self, X))
-        if isinstance(X, (da.Array, db.Bag)):
-            keys, dsk = unpack_as_lists_of_keys(X)
-            dsk.update(((name, i), (_predict, self._name, k))
-                       for (i, k) in enumerate(keys))
-            dsk.update(self.dask)
-            return da.Array(dsk, name, (X.chunks[0],), 'i8')
         X, dsk = unpack_arguments(X)
         dsk[name] = (_predict, self._name, X)
         return Delayed(name, [dsk, self.dask])
