@@ -8,12 +8,11 @@ from dask.utils import concrete
 from toolz import merge, concat
 import sklearn.utils
 
-from . import matrix as dm
 from .core import DaskBaseEstimator
 
 
 def is_dask_collection(x):
-    return isinstance(x, (da.Array, db.Bag, dm.Matrix))
+    return isinstance(x, (da.Array, db.Bag))
 
 
 def unpack_arguments(*args):
@@ -101,13 +100,13 @@ def check_aligned_partitions(*arrays):
         for a in arrays:
             if a.chunks[0] != first.chunks[0]:
                 raise ValueError("All arguments must have chunks aligned")
-    elif isinstance(first, (dm.Matrix, db.Bag)):
+    elif isinstance(first, db.Bag):
         for a in arrays:
             if a.npartitions != first.npartitions:
                 raise ValueError("All arguments must have same npartitions")
     else:
-        raise TypeError("Expected an instance of ``da.Array``, ``db.Bag``, or "
-                        "``dm.Matrix`` - got {0}".format(type(first).__name__))
+        raise TypeError("Expected an instance of ``da.Array`` or ``db.Bag``,"
+                        "got {0}".format(type(first).__name__))
 
 
 def _unpack_keys_dask(x):
@@ -119,7 +118,7 @@ def _unpack_keys_dask(x):
         else:
             keys = x._keys()
         dsk = x.dask
-    elif isinstance(x, (db.Bag, dm.Matrix)):
+    elif isinstance(x, db.Bag):
         keys = x._keys()
         dsk = x.dask
     else:

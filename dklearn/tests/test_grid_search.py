@@ -2,18 +2,15 @@ from __future__ import print_function, absolute_import, division
 
 import numpy as np
 import numpy.testing.utils as tm
-import dask.array as da
 from scipy import sparse
 from scipy.stats import expon
 from sklearn.base import BaseEstimator
 from sklearn.cross_validation import StratifiedKFold
 from sklearn.datasets import make_classification, make_blobs
-from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import f1_score, roc_auc_score
 from sklearn.svm import LinearSVC, SVC
 from sklearn.cluster import KMeans
 
-from dklearn import Chained
 from dklearn.grid_search import GridSearchCV, RandomizedSearchCV
 
 
@@ -74,45 +71,6 @@ def test_grid_search_numpy_inputs():
 
     for i, foo_i in enumerate([1, 2, 3]):
         assert grid_search.grid_scores_[i][0] == {'foo_param': foo_i}
-
-
-def test_grid_search_dask_inputs():
-    # Test that the best estimator contains the right value for foo_param
-    dX = da.from_array(X, chunks=2)
-    dy = da.from_array(y, chunks=2)
-    clf = MockClassifier()
-    grid_search = GridSearchCV(clf, {'foo_param': [1, 2, 3]})
-    # make sure it selects the smallest parameter in case of ties
-    grid_search.fit(dX, dy)
-    assert grid_search.best_estimator_.foo_param == 2
-
-    for i, foo_i in enumerate([1, 2, 3]):
-        assert grid_search.grid_scores_[i][0] == {'foo_param': foo_i}
-
-    y_pred = grid_search.predict(dX)
-    assert isinstance(y_pred, da.Array)
-    tm.assert_array_equal(y_pred, X.sum(axis=1))
-
-    y_pred = grid_search.predict(X)
-    assert isinstance(y_pred, np.ndarray)
-    tm.assert_array_equal(y_pred, X.sum(axis=1))
-
-
-def test_grid_search_dask_inputs_dk_est():
-    X, y = make_classification(n_samples=1000, n_features=100, random_state=0)
-    dX = da.from_array(X, chunks=100)
-    dy = da.from_array(y, chunks=100)
-    grid = {'alpha': [0.1, 0.01, 0.0001]}
-
-    clf = SGDClassifier()
-    d_clf = Chained(SGDClassifier())
-    grid_search = GridSearchCV(clf, grid)
-    d_grid_search = GridSearchCV(d_clf, grid, fit_params={'classes': [0, 1]})
-
-    grid_search.fit(X, y)
-    d_grid_search.fit(dX, dy)
-    assert (d_grid_search.best_estimator_.alpha ==
-            grid_search.best_estimator_.alpha)
 
 
 def test_grid_search_no_refit():

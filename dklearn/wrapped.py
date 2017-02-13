@@ -10,7 +10,6 @@ from sklearn.base import clone, BaseEstimator
 from toolz import merge
 from textwrap import wrap
 
-from . import matrix as dm
 from .core import DaskBaseEstimator, from_sklearn
 from .utils import unpack_arguments, unpack_as_lists_of_keys
 
@@ -143,14 +142,12 @@ class Wrapped(WrapperMixin, BaseEstimator):
     def predict(self, X):
         name = 'predict-%s-%s' % (type(self._est).__name__,
                                   tokenize(self, X))
-        if isinstance(X, (da.Array, dm.Matrix, db.Bag)):
+        if isinstance(X, (da.Array, db.Bag)):
             keys, dsk = unpack_as_lists_of_keys(X)
             dsk.update(((name, i), (_predict, self._name, k))
                        for (i, k) in enumerate(keys))
             dsk.update(self.dask)
-            if isinstance(X, da.Array):
-                return da.Array(dsk, name, (X.chunks[0],), 'i8')
-            return dm.Matrix(dsk, name, npartitions=len(keys))
+            return da.Array(dsk, name, (X.chunks[0],), 'i8')
         X, dsk = unpack_arguments(X)
         dsk[name] = (_predict, self._name, X)
         return Delayed(name, [dsk, self.dask])

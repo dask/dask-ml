@@ -5,12 +5,13 @@ from dask import threaded
 from dask.context import _globals
 from dask.delayed import compute, delayed
 from sklearn.base import is_classifier, BaseEstimator
+from sklearn.model_selection import check_cv
 from sklearn.grid_search import (_CVScoreTuple, _check_param_grid,
                                  ParameterGrid, ParameterSampler)
 from sklearn.metrics.scorer import check_scoring
+from sklearn.utils import safe_indexing
 
 from .core import from_sklearn
-from .cross_validation import check_cv
 from .utils import check_X_y
 
 
@@ -54,6 +55,24 @@ def score_and_n(scorer, fit, X_test, y_test):
     return score, n
 
 
+_safe_indexing = delayed(safe_indexing, pure=True)
+
+
+def split(cv, X, y=None):
+    # Avoid repeated hashing by preconverting to `Delayed` objects
+    dX = delayed(X, pure=True)
+    dy = delayed(y, pure=True)
+    for train, test in cv.split(X, y):
+        X_train = _safe_indexing(dX, train)
+        X_test = _safe_indexing(dX, test)
+        if y is not None:
+            y_train = _safe_indexing(dy, train)
+            y_test = _safe_indexing(dy, test)
+        else:
+            y_train = y_test = None
+        yield X_train, y_train, X_test, y_test
+
+
 class BaseSearchCV(BaseEstimator):
     """Base class for hyper parameter search with cross-validation."""
 
@@ -74,13 +93,13 @@ class BaseSearchCV(BaseEstimator):
     def _fit(self, X, y, parameter_iterable):
         estimator = from_sklearn(self.estimator)
         self.scorer_ = check_scoring(estimator, scoring=self.scoring)
-        cv = check_cv(self.cv, X, y, classifier=is_classifier(estimator))
-        n_folds = len(cv)
+        cv = check_cv(self.cv, y, classifier=is_classifier(estimator))
+        n_folds = cv.get_n_splits(X)
         X, y = check_X_y(X, y)
 
         tups = []
         parameters = []
-        train_test_sets = list(cv.split(X, y))
+        train_test_sets = list(split(cv, X, y))
         for params in parameter_iterable:
             est = estimator.set_params(**params)
             for X_train, y_train, X_test, y_test in train_test_sets:
@@ -121,9 +140,13 @@ class GridSearchCV(BaseSearchCV):
     def __init__(self, estimator, param_grid, scoring=None, fit_params=None,
                  iid=True, refit=True, cv=None, get=None):
 
-        super(GridSearchCV, self).__init__(
-                estimator=estimator, scoring=scoring, fit_params=fit_params,
-                iid=iid, refit=refit, cv=cv, get=get)
+        super(GridSearchCV, self).__init__(estimator=estimator,
+                                           scoring=scoring,
+                                           fit_params=fit_params,
+                                           iid=iid,
+                                           refit=refit,
+                                           cv=cv,
+                                           get=get)
         _check_param_grid(param_grid)
         self.param_grid = param_grid
 
@@ -136,9 +159,13 @@ class RandomizedSearchCV(BaseSearchCV):
                  fit_params=None, iid=True, refit=True, cv=None,
                  random_state=None, get=None):
 
-        super(RandomizedSearchCV, self).__init__(
-                estimator=estimator, scoring=scoring, fit_params=fit_params,
-                iid=iid, refit=refit, cv=cv, get=get)
+        super(RandomizedSearchCV, self).__init__(estimator=estimator,
+                                                 scoring=scoring,
+                                                 fit_params=fit_params,
+                                                 iid=iid,
+                                                 refit=refit,
+                                                 cv=cv,
+                                                 get=get)
         self.param_distributions = param_distributions
         self.n_iter = n_iter
         self.random_state = random_state
