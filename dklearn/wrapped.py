@@ -40,34 +40,49 @@ def _fit_transform(est, X, y, kwargs):
 
 
 class ClassProxy(object):
-    def __init__(self, wrap, cls):
-        self.wrap = wrap
+    def __init__(self, cls):
         self.cls = cls
 
     @property
     def __name__(self):
-        return self.wrap.__name__
+        return 'Wrapped'
 
     def __call__(self, *args, **kwargs):
-        return self.wrap(self.cls(*args, **kwargs))
+        return Wrapped(self.cls(*args, **kwargs))
 
 
-class WrapperMixin(DaskBaseEstimator):
-    """Mixin class for dask estimators that wrap sklearn estimators"""
-    @classmethod
-    def _finalize(cls, res):
+class Wrapped(DaskBaseEstimator, BaseEstimator):
+    """A class for wrapping a scikit-learn estimator.
+
+    All operations done on this estimator are pure (no mutation), and are done
+    lazily (if applicable). Calling `compute` results in the wrapped estimator.
+    """
+    @staticmethod
+    def _finalize(res):
         return res[0]
 
+    def __init__(self, est, dask=None, name=None):
+        if not isinstance(est, BaseEstimator):
+            raise TypeError("Expected instance of BaseEstimator, "
+                            "got {0}".format(type(est).__name__))
+        if dask is None and name is None:
+            name = est.__class__.__name__ + '-' + tokenize(est)
+            dask = {name: est}
+        elif dask is None or name is None:
+            raise ValueError("Must provide both dask and name")
+        self.dask = dask
+        self._name = name
+        self._est = est
+
     @property
-    def _estimator_type(self):
-        return self._est._estimator_type
+    def __class__(self):
+        return ClassProxy(type(self._est))
 
-    def get_params(self, deep=True):
-        return self._est.get_params(deep=deep)
-
-    def set_params(self, **params):
-        est = clone(self._est).set_params(**params)
-        return type(self).from_sklearn(est)
+    def __repr__(self):
+        class_name = type(self).__name__
+        est = ''.join(map(str.strip, repr(self._est).splitlines()))
+        return '\n'.join(wrap('{0}({1})'.format(class_name, est),
+                              subsequent_indent=" "*10))
 
     def __getattr__(self, attr):
         if hasattr(self._est, attr):
@@ -91,43 +106,22 @@ class WrapperMixin(DaskBaseEstimator):
         o.update(i for i in dir(self._est) if i.endswith('_'))
         return list(o)
 
-
-class Wrapped(WrapperMixin, BaseEstimator):
-    """A class for wrapping a scikit-learn estimator.
-
-    All operations done on this estimator are pure (no mutation), and are done
-    lazily (if applicable). Calling `compute` results in the wrapped estimator.
-    """
-
-    def __init__(self, est, dask=None, name=None):
-        if not isinstance(est, BaseEstimator):
-            raise TypeError("Expected instance of BaseEstimator, "
-                            "got {0}".format(type(est).__name__))
-        if dask is None and name is None:
-            name = est.__class__.__name__ + '-' + tokenize(est)
-            dask = {name: est}
-        elif dask is None or name is None:
-            raise ValueError("Must provide both dask and name")
-        self.dask = dask
-        self._name = name
-        self._est = est
-
-    @property
-    def __class__(self):
-        return ClassProxy(type(self), type(self._est))
-
-    def __repr__(self):
-        class_name = type(self).__name__
-        est = ''.join(map(str.strip, repr(self._est).splitlines()))
-        return '\n'.join(wrap('{0}({1})'.format(class_name, est),
-                              subsequent_indent=" "*10))
-
     @classmethod
     def from_sklearn(cls, est):
         """Wrap a scikit-learn estimator"""
         if isinstance(est, cls):
             return est
         return cls(est)
+
+    @property
+    def _estimator_type(self):
+        return self._est._estimator_type
+
+    def get_params(self, deep=True):
+        return self._est.get_params(deep=deep)
+
+    def set_params(self, **params):
+        return Wrapped(clone(self._est).set_params(**params))
 
     def fit(self, X, y, **kwargs):
         name = 'fit-%s-%s' % (type(self._est).__name__,

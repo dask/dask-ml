@@ -131,12 +131,6 @@ def test_predict():
     assert isinstance(res, np.ndarray)
     assert any('logisticregression' in k.lower() for k in pred.dask)
 
-    dX_iris = da.from_array(X_iris, chunks=4)
-    pred = fit.predict(dX_iris)
-    assert isinstance(pred, da.Array)
-    res = pred.compute()
-    assert isinstance(res, np.ndarray)
-
     will_error = d.predict(X_iris)
     with pytest.raises(NotFittedError):
         will_error.compute()
