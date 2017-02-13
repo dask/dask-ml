@@ -54,15 +54,12 @@ def bfgs(X, y, max_iter=500, tol=1e-14):
         # backtracking line search
         lf = func
         old_Xbeta = Xbeta
-        stepSize, _, _, func = delayed(compute_stepsize, nout=4)(beta,
-                                                                 step,
-                                                                 Xbeta,
-                                                                 Xstep,
-                                                                 y,
-                                                                 func,
-                                                                 backtrackMult=backtrackMult,
-                                                                 armijoMult=armijoMult,
-                                                                 stepSize=stepSize)
+        stepSize, _, _, func = compute_stepsize_dask(beta, step,
+                                                     Xbeta, Xstep,
+                                                     y, func,
+                                                     backtrackMult=backtrackMult,
+                                                     armijoMult=armijoMult,
+                                                     stepSize=stepSize)
 
         beta, stepSize, Xbeta, gradient, lf, func, step, Xstep = persist(
             beta, stepSize, Xbeta, gradient, lf, func, step, Xstep)
@@ -95,15 +92,13 @@ def bfgs(X, y, max_iter=500, tol=1e-14):
     return beta
 
 
-@jit(nogil=True)
 def loglike(Xbeta, y):
     #        # This prevents overflow
     #        if np.all(Xbeta < 700):
-    eXbeta = np.exp(Xbeta)
-    return np.sum(np.log1p(eXbeta)) - np.dot(y, Xbeta)
+    eXbeta = exp(Xbeta)
+    return log1p(eXbeta).sum() - dot(y, Xbeta)
 
 
-@jit(nogil=True)
 def compute_stepsize(beta, step, Xbeta, Xstep, y, curr_val, stepSize=1.0,
                      armijoMult=0.1, backtrackMult=0.1):
     obeta, oXbeta = beta, Xbeta
@@ -126,6 +121,32 @@ def compute_stepsize(beta, step, Xbeta, Xstep, y, curr_val, stepSize=1.0,
     return stepSize, beta, Xbeta, func
 
 
+def compute_stepsize_dask(beta, step, Xbeta, Xstep, y, curr_val, stepSize=1.0,
+                          armijoMult=0.1, backtrackMult=0.1):
+    beta, step, Xbeta, Xstep, y, curr_val = persist(beta, step, Xbeta, Xstep, y, curr_val)
+    obeta, oXbeta = beta, Xbeta
+    (step,) = compute(step)
+    steplen = (step ** 2).sum()
+    lf = curr_val
+    func = 0
+    for ii in range(100):
+        beta = obeta - stepSize * step
+        if ii and (beta == obeta).all():
+            stepSize = 0
+            break
+
+        Xbeta = oXbeta - stepSize * Xstep
+        func = loglike(Xbeta, y)
+        Xbeta, func = persist(Xbeta, func)
+
+        df = lf - compute(func)[0]
+        if df >= armijoMult * stepSize * steplen:
+            break
+        stepSize *= backtrackMult
+
+    return stepSize, beta, Xbeta, func
+
+
 def gradient_descent(X, y, max_steps=100, tol=1e-14):
     '''Michael Grant's implementation of Gradient Descent.'''
 
@@ -138,7 +159,6 @@ def gradient_descent(X, y, max_steps=100, tol=1e-14):
     recalcRate = 10
     backtrackMult = firstBacktrackMult
     beta = np.zeros(p)
-    y_local = y.compute()
 
     for k in range(max_steps):
         # how necessary is this recalculation?
@@ -151,18 +171,23 @@ def gradient_descent(X, y, max_steps=100, tol=1e-14):
         gradient = X.T.dot(eXbeta / e1 - y)
         Xgradient = X.dot(gradient)
 
-        Xbeta, eXbeta, func, gradient, Xgradient = da.compute(
-            Xbeta, eXbeta, func, gradient, Xgradient)
-
         # backtracking line search
         lf = func
-        stepSize, beta, Xbeta, func = compute_stepsize(beta, gradient,
-                                                       Xbeta, Xgradient,
-                                                       y_local, func,
-                                                       **{
-                                                           'backtrackMult': backtrackMult,
-                                                           'armijoMult': armijoMult,
-                                                           'stepSize': stepSize})
+        stepSize, _, _, func = compute_stepsize_dask(beta, gradient,
+                                                     Xbeta, Xgradient,
+                                                     y, func,
+                                                     backtrackMult=backtrackMult,
+                                                     armijoMult=armijoMult,
+                                                     stepSize=stepSize)
+
+        beta, stepSize, Xbeta, gradient, lf, func, gradient, Xgradient = persist(
+            beta, stepSize, Xbeta, gradient, lf, func, gradient, Xgradient)
+
+        stepSize, lf, func, gradient = compute(stepSize, lf, func, gradient)
+
+        beta = beta - stepSize * gradient  # tiny bit of repeat work here to avoid communication
+        Xbeta = Xbeta - stepSize * Xgradient
+
         if stepSize == 0:
             print('No more progress')
             break
