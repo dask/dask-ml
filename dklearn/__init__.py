@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
-from .core import from_sklearn
-from .pipeline import Pipeline
-from .wrapped import Wrapped
+import .normalize  # Need to import to register normalize methods
+#from .model_selection import GridSearchCV, RandomizedSearchCV
 
 __version__ = '0.1.0'
