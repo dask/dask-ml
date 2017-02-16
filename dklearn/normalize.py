@@ -23,7 +23,11 @@ def normalize_random_state(random_state):
 
 
 @normalize_token.register(BaseEstimator)
-def normalize_BaseEstimator(est):
+def normalize_estimator(est):
+    """Normalize an estimator.
+
+    Note: Since scikit-learn requires duck-typing, but not sub-typing from
+    ``BaseEstimator``, we sometimes need to call this function directly."""
     return type(est).__name__, normalize_token(est.get_params())
 
 

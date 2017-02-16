@@ -11,9 +11,9 @@ import numpy as np
 from sklearn.base import (clone, is_classifier, BaseEstimator,
                           MetaEstimatorMixin)
 from sklearn.exceptions import NotFittedError
+from sklearn import model_selection
 from sklearn.model_selection._split import check_cv
-from sklearn.model_selection._search import (_check_param_grid, ParameterGrid,
-                                             ParameterSampler, BaseSearchCV)
+from sklearn.model_selection._search import _check_param_grid, BaseSearchCV
 from sklearn.metrics.scorer import check_scoring
 from sklearn.utils.fixes import rankdata, MaskedArray
 from sklearn.utils.metaestimators import if_delegate_has_method
@@ -100,7 +100,19 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         self._check_is_fitted('inverse_transform')
         return self.best_estimator_.transform(Xt)
 
-    def fit(self, X, y=None, groups=None, **fit_params):
+    @derived_from(BaseSearchCV)
+    def score(self, X, y=None):
+        if self.scorer_ is None:
+            raise ValueError("No score function explicitly defined, "
+                             "and the estimator doesn't provide one %s"
+                             % self.best_estimator_)
+        return self.scorer_(self.best_estimator_, X, y)
+
+    def _fit(self, X, y=None, groups=None, **fit_params):
+        if self.error_score != 'raise':
+            raise NotImplementedError("`error_score` values other than "
+                                      "`'raise'` are not implemented")
+
         estimator = self.estimator
         cv = check_cv(self.cv, y, classifier=is_classifier(estimator))
         self.scorer_ = check_scoring(self.estimator, scoring=self.scoring)
@@ -110,8 +122,8 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
 
         X, y, groups = indexable(X, y, groups)
 
-        (dsk, X_train, y_train,
-         X_test, y_test, n_splits) = initialize_dask_graph(X, y, cv, groups)
+        (dsk, X_train, y_train, X_test,
+         y_test, n_splits) = initialize_dask_graph(estimator, X, y, cv, groups)
 
         keys = []
         for parameters in candidate_params:
@@ -119,8 +131,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             score = do_fit_and_score(dsk, est, X_train, y_train, X_test,
                                      y_test, n_splits, self.scorer_,
                                      fit_params=fit_params,
-                                     return_train_score=self.return_train_score,
-                                     error_score=self.error_score)
+                                     return_train_score=self.return_train_score)
             keys.extend([[(s, n) for s in score] for n in range(n_splits)])
 
         # Store the graph and keys
@@ -209,7 +220,11 @@ class DaskGridSearchCV(DaskBaseSearchCV):
 
     def _get_param_iterator(self):
         """Return ParameterGrid instance for the given param_grid"""
-        return ParameterGrid(self.param_grid)
+        return model_selection.ParameterGrid(self.param_grid)
+
+    @derived_from(model_selection.GridSearchCV)
+    def fit(self, X, y=None, groups=None, **fit_params):
+        return self._fit(X, y=y, groups=groups, **fit_params)
 
 
 class DaskRandomizedSearchCV(DaskBaseSearchCV):
@@ -227,6 +242,9 @@ class DaskRandomizedSearchCV(DaskBaseSearchCV):
 
     def _get_param_iterator(self):
         """Return ParameterSampler instance for the given distributions"""
-        return ParameterSampler(
-            self.param_distributions, self.n_iter,
-            random_state=self.random_state)
+        return model_selection.ParameterSampler(self.param_distributions,
+                self.n_iter, random_state=self.random_state)
+
+    @derived_from(model_selection.RandomizedSearchCV)
+    def fit(self, X, y=None, groups=None, **fit_params):
+        return self._fit(X, y=y, groups=groups, **fit_params)
