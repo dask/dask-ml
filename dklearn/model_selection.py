@@ -7,12 +7,13 @@ import numpy as np
 
 import dask
 from dask.threaded import get as threaded_get
+from dask.utils import derived_from
 from sklearn.base import (clone, is_classifier, BaseEstimator,
                           MetaEstimatorMixin)
 from sklearn.exceptions import NotFittedError
 from sklearn.model_selection._split import check_cv
 from sklearn.model_selection._search import (_check_param_grid, ParameterGrid,
-                                             ParameterSampler)
+                                             ParameterSampler, BaseSearchCV)
 from sklearn.metrics.scorer import check_scoring
 from sklearn.utils.fixes import rankdata, MaskedArray
 from sklearn.utils.metaestimators import if_delegate_has_method
@@ -21,7 +22,7 @@ from sklearn.utils.validation import indexable, check_is_fitted
 from .core import initialize_dask_graph, do_fit_and_score
 
 
-class BaseSearchCV(BaseEstimator, MetaEstimatorMixin):
+class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
     """Base class for hyper parameter search with cross-validation."""
 
     def __init__(self, estimator, scoring=None, iid=True, refit=True, cv=None,
@@ -64,31 +65,37 @@ class BaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         return self.best_estimator_.classes_
 
     @if_delegate_has_method(delegate=('best_estimator_', 'estimator'))
+    @derived_from(BaseSearchCV)
     def predict(self, X):
         self._check_is_fitted('predict')
         return self.best_estimator_.predict(X)
 
     @if_delegate_has_method(delegate=('best_estimator_', 'estimator'))
+    @derived_from(BaseSearchCV)
     def predict_proba(self, X):
         self._check_is_fitted('predict_proba')
         return self.best_estimator_.predict_proba(X)
 
     @if_delegate_has_method(delegate=('best_estimator_', 'estimator'))
+    @derived_from(BaseSearchCV)
     def predict_log_proba(self, X):
         self._check_is_fitted('predict_log_proba')
         return self.best_estimator_.predict_log_proba(X)
 
     @if_delegate_has_method(delegate=('best_estimator_', 'estimator'))
+    @derived_from(BaseSearchCV)
     def decision_function(self, X):
         self._check_is_fitted('decision_function')
         return self.best_estimator_.decision_function(X)
 
     @if_delegate_has_method(delegate=('best_estimator_', 'estimator'))
+    @derived_from(BaseSearchCV)
     def transform(self, X):
         self._check_is_fitted('transform')
         return self.best_estimator_.transform(X)
 
     @if_delegate_has_method(delegate=('best_estimator_', 'estimator'))
+    @derived_from(BaseSearchCV)
     def inverse_transform(self, Xt):
         self._check_is_fitted('inverse_transform')
         return self.best_estimator_.transform(Xt)
@@ -201,11 +208,11 @@ def _store(results, key_name, array, n_splits, n_candidates,
             rankdata(-array_means, method='min'), dtype=np.int32)
 
 
-class GridSearchCV(BaseSearchCV):
+class DaskGridSearchCV(DaskBaseSearchCV):
     def __init__(self, estimator, param_grid, scoring=None, iid=True,
                  refit=True, cv=None, error_score='raise',
                  return_train_score=True, get=None):
-        super(GridSearchCV, self).__init__(estimator=estimator,
+        super(DaskGridSearchCV, self).__init__(estimator=estimator,
                 scoring=scoring, iid=iid, refit=refit, cv=cv,
                 error_score=error_score, return_train_score=return_train_score,
                 get=get)
@@ -218,11 +225,11 @@ class GridSearchCV(BaseSearchCV):
         return ParameterGrid(self.param_grid)
 
 
-class RandomizedSearchCV(BaseSearchCV):
+class DaskRandomizedSearchCV(DaskBaseSearchCV):
     def __init__(self, estimator, param_distributions, n_iter=10, scoring=None,
                  iid=True, refit=True, cv=None, random_state=None,
                  error_score='raise', return_train_score=True, get=None):
-        super(RandomizedSearchCV, self).__init__(estimator=estimator,
+        super(DaskRandomizedSearchCV, self).__init__(estimator=estimator,
                 scoring=scoring, iid=iid, refit=refit, cv=cv,
                 error_score=error_score, return_train_score=return_train_score,
                 get=get)
