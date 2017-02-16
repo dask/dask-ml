@@ -1,13 +1,13 @@
 from __future__ import absolute_import, print_function, division
 
 from collections import defaultdict
-from functools import partial
-
-import numpy as np
 
 import dask
 from dask.threaded import get as threaded_get
 from dask.utils import derived_from
+
+import numpy as np
+
 from sklearn.base import (clone, is_classifier, BaseEstimator,
                           MetaEstimatorMixin)
 from sklearn.exceptions import NotFittedError
@@ -107,7 +107,6 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
 
         # Regenerate parameter iterable for each fit
         candidate_params = list(self._get_param_iterator())
-        n_candidates = len(candidate_params)
 
         X, y, groups = indexable(X, y, groups)
 
@@ -132,16 +131,14 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         get = self.get or dask.context._globals.get('get') or threaded_get
         out = get(dsk, keys)
 
-        # if one choose to see train score, "out" will contain train score info
         if self.return_train_score:
             train_scores, test_scores, test_sample_counts = zip(*out)
         else:
             test_scores, test_sample_counts = zip(*out)
 
-        results = dict()
-
-        # Computed the (weighted) mean and std for test scores alone
-        # NOTE test_sample counts (weights) remain the same for all candidates
+        # Construct the `cv_results_` dictionary
+        results = {'params': candidate_params}
+        n_candidates = len(candidate_params)
         test_sample_counts = np.array(test_sample_counts[:n_splits], dtype=int)
 
         _store(results, 'test_score', test_scores, n_splits, n_candidates,
@@ -151,34 +148,25 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             _store(results, 'train_score', train_scores,
                    n_splits, n_candidates, splits=True)
 
-        best_index = np.flatnonzero(results["rank_test_score"] == 1)[0]
-        best_parameters = candidate_params[best_index]
-
         # Use one MaskedArray and mask all the places where the param is not
         # applicable for that candidate. Use defaultdict as each candidate may
         # not contain all the params
-        param_results = defaultdict(partial(MaskedArray,
-                                            np.empty(n_candidates,),
-                                            mask=True,
-                                            dtype=object))
+        param_results = defaultdict(lambda: MaskedArray(np.empty(n_candidates),
+                                                        mask=True,
+                                                        dtype=object))
         for cand_i, params in enumerate(candidate_params):
             for name, value in params.items():
-                # An all masked empty array gets created for the key
-                # `"param_%s" % name` at the first occurence of `name`.
-                # Setting the value at an index also unmasks that index
                 param_results["param_%s" % name][cand_i] = value
 
         results.update(param_results)
 
-        # Store a list of param dicts at the key 'params'
-        results['params'] = candidate_params
-
+        self.best_index_ = np.flatnonzero(results["rank_test_score"] == 1)[0]
         self.cv_results_ = results
-        self.best_index_ = best_index
         self.n_splits_ = n_splits
 
         if self.refit:
             # fit the best estimator using the entire dataset
+            best_parameters = candidate_params[self.best_index_]
             best = estimator.set_params(**best_parameters)
             best = (best.fit(X, y, **fit_params) if y is not None
                     else best.fit(X, **fit_params))
