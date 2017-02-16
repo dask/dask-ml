@@ -122,8 +122,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
                                      fit_params=fit_params,
                                      return_train_score=self.return_train_score,
                                      error_score=self.error_score)
-            keys.extend([[(s, n) for s in score]
-                         for n in range(n_splits)])
+            keys.extend([[(s, n) for s in score] for n in range(n_splits)])
 
         # Store the graph and keys
         self.dask_graph_ = dsk
