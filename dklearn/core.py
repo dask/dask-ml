@@ -8,6 +8,11 @@ from scipy import sparse
 from dask.base import tokenize
 from sklearn.base import clone
 from sklearn.pipeline import Pipeline, FeatureUnion
+from sklearn.utils import safe_indexing
+from sklearn.utils.validation import _num_samples
+
+from . import normalize  # Need to import to register normalize methods
+del normalize
 
 
 # ----------------------- #
@@ -51,9 +56,82 @@ def fit_transform(est, X, y, fit_params):
     return est, Xt
 
 
+def score(est, X, y, scorer):
+    return scorer(est, X) if y is None else scorer(est, X, y)
+
+
+def cv_split(cv, X, y, groups):
+    return list(cv.split(X, y, groups))
+
+
+def cv_extract(x, splits, index):
+    return None if x is None else safe_indexing(x, splits[index])
+
+
 # -------------- #
 # Main Functions #
 # -------------- #
+
+
+def initialize_dask_graph(X, y, cv, groups):
+    """Initialize a dask graph and key names for a CV run.
+
+    Parameters
+    ----------
+    X, y : array_like
+    cv : BaseCrossValidator
+    groups : array_like
+    """
+    n_splits = cv.get_n_splits(X, y, groups)
+
+    X_name = 'X-' + tokenize(X)
+    y_name = 'y-' + tokenize(y)
+    dsk = {X_name: X, y_name: y}
+
+    # TODO: for certain CrossValidator classes, should be able to generate the
+    # `nth` split individually, removing the single task bottleneck we
+    # currently have.
+    cv_token = tokenize(cv, X_name, y_name, groups)
+    cv_name = 'cv-split-' + cv_token
+    dsk[cv_name] = (cv_split, cv, X_name, y_name, groups)
+    dsk.update(((cv_name, n), (getitem, cv_name, n)) for n in range(n_splits))
+
+    # Extract the test-train subsets
+    X_train = 'X-train-' + cv_token
+    y_train = 'y-train-' + cv_token
+    X_test = 'X-test-' + cv_token
+    y_test = 'y-test-' + cv_token
+    for n in range(n_splits):
+        dsk[(X_train, n)] = (cv_extract, X_name, (cv_name, n), 0)
+        dsk[(y_train, n)] = (cv_extract, y_name, (cv_name, n), 0)
+        dsk[(X_test, n)] = (cv_extract, X_name, (cv_name, n), 1)
+        dsk[(y_test, n)] = (cv_extract, y_name, (cv_name, n), 1)
+
+    return dsk, X_train, y_train, X_test, y_test, n_splits
+
+
+def do_fit_and_score(dsk, est, X_train, y_train, X_test, y_test, n_splits,
+                     scorer, fit_params, return_train_score, error_score):
+    # Fit the estimator on the training data
+    fit_est = do_fit(dsk, est, X_train, y_train, n_splits, fit_params)
+
+    test_score = 'test-score-' + tokenize(fit_est, X_test, y_test, scorer)
+    n_samples = 'num-samples-' + tokenize(X_test)
+
+    for n in range(n_splits):
+        dsk[(test_score, n)] = (score, (fit_est, n), (X_test, n),
+                                (y_test, n), scorer)
+        dsk[(n_samples, n)] = (_num_samples, (X_test, n))
+
+    if return_train_score:
+        train_score = 'train-score-' + tokenize(fit_est, X_train, y_train,
+                                                scorer)
+        for n in range(n_splits):
+            dsk[(train_score, n)] = (score, (fit_est, n), (X_train, n),
+                                     (y_train, n), scorer)
+        return train_score, test_score, n_samples
+
+    return test_score, n_samples
 
 
 def do_fit(dsk, est, X, y, n_splits, fit_params):
