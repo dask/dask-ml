@@ -1,4 +1,4 @@
-# NOTE: Most of these tests were copied (with modification) from the equivalent
+# NOTE: These tests were copied (with modification) from the equivalent
 # scikit-learn testing code. The scikit-learn license has been included at
 # dklearn/SCIKIT_LEARN_LICENSE.txt.
 
