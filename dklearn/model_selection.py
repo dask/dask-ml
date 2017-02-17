@@ -191,6 +191,31 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             self.best_estimator_ = best
         return self
 
+    def visualize(self, filename='mydask', format=None, **kwargs):
+        """Render the task graph for this parameter search using ``graphviz``.
+
+        Requires ``graphviz`` to be installed.
+
+        Parameters
+        ----------
+        filename : str or None, optional
+            The name (without an extension) of the file to write to disk.  If
+            `filename` is None, no file will be written, and we communicate
+            with dot using only pipes.
+        format : {'png', 'pdf', 'dot', 'svg', 'jpeg', 'jpg'}, optional
+            Format in which to write output file.  Default is 'png'.
+        **kwargs
+           Additional keyword arguments to forward to ``dask.dot.to_graphviz``.
+
+        Returns
+        -------
+        result : IPython.diplay.Image, IPython.display.SVG, or None
+            See ``dask.dot.dot_graph`` for more information.
+        """
+        check_is_fitted(self, 'dask_graph_')
+        return dask.visualize(self.dask_graph_, filename=filename,
+                              format=format, **kwargs)
+
 
 def _store(results, key_name, array, n_splits, n_candidates,
            weights=None, splits=False, rank=False):

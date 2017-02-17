@@ -5,6 +5,11 @@ python:
     - "3.4"
     - "3.5"
 
+addons:
+    apt:
+        packages:
+        - graphviz
+
 install:
   # Install conda
   - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
@@ -18,11 +23,12 @@ install:
   - source activate test-environment
   # Scikit-learn requires nose for test functions.
   - conda install dask numpy scikit-learn pytest nose
+  - pip install -q graphviz
   - pip install -q git+https://github.com/dask/dask.git --upgrade
-  - python setup.py develop
+  - pip install --no-deps -e .
 
 script:
-    - py.test dklearn --verbose
+  - py.test dklearn --verbose
 
 notifications:
   email: false
