@@ -4,6 +4,7 @@
 
 import pickle
 
+import dask
 import numpy as np
 import scipy.sparse as sp
 from scipy.stats import expon
@@ -115,11 +116,17 @@ def test_grid_search_no_score():
     X, y = make_blobs(random_state=0, centers=2)
     Cs = [.1, 1, 10]
     clf_no_score = LinearSVCNoScore(random_state=0)
-    grid_search = DaskGridSearchCV(clf, {'C': Cs}, scoring='accuracy')
+
+    # XXX: It seems there's some global shared state in LinearSVC - fitting
+    # multiple `SVC` instances in parallel using threads sometimes results in
+    # wrong results. This only happens with threads, not processes/sync.
+    # For now, we'll fit using the sync scheduler.
+    grid_search = DaskGridSearchCV(clf, {'C': Cs}, scoring='accuracy',
+                                   get=dask.get)
     grid_search.fit(X, y)
 
     grid_search_no_score = DaskGridSearchCV(clf_no_score, {'C': Cs},
-                                            scoring='accuracy')
+                                            scoring='accuracy', get=dask.get)
     # smoketest grid search
     grid_search_no_score.fit(X, y)
 
@@ -773,8 +780,12 @@ def test_grid_search_correct_score_results():
     X, y = make_blobs(random_state=0, centers=2)
     Cs = [.1, 1, 10]
     for score in ['f1', 'roc_auc']:
+        # XXX: It seems there's some global shared state in LinearSVC - fitting
+        # multiple `SVC` instances in parallel using threads sometimes results
+        # in wrong results. This only happens with threads, not processes/sync.
+        # For now, we'll fit using the sync scheduler.
         grid_search = DaskGridSearchCV(clf, {'C': Cs}, scoring=score,
-                                       cv=n_splits)
+                                       cv=n_splits, get=dask.get)
         cv_results = grid_search.fit(X, y).cv_results_
 
         # Test scorer names
