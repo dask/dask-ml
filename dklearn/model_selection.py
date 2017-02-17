@@ -1,5 +1,6 @@
 from __future__ import absolute_import, print_function, division
 
+from numbers import Number
 from collections import defaultdict
 
 import dask
@@ -19,7 +20,8 @@ from sklearn.utils.fixes import rankdata, MaskedArray
 from sklearn.utils.metaestimators import if_delegate_has_method
 from sklearn.utils.validation import indexable, check_is_fitted
 
-from .core import initialize_dask_graph, do_fit_and_score
+from .core import (initialize_dask_graph, do_fit_and_score,
+                   fit_failure_to_error_score)
 
 
 class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
@@ -109,13 +111,14 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         return self.scorer_(self.best_estimator_, X, y)
 
     def _fit(self, X, y=None, groups=None, **fit_params):
-        if self.error_score != 'raise':
-            raise NotImplementedError("`error_score` values other than "
-                                      "`'raise'` are not implemented")
-
         estimator = self.estimator
         cv = check_cv(self.cv, y, classifier=is_classifier(estimator))
-        self.scorer_ = check_scoring(self.estimator, scoring=self.scoring)
+        self.scorer_ = check_scoring(estimator, scoring=self.scoring)
+
+        error_score = self.error_score
+        if not (isinstance(error_score, Number) or error_score == 'raise'):
+            raise ValueError("error_score must be the string 'raise' or a"
+                             " numeric value.")
 
         # Regenerate parameter iterable for each fit
         candidate_params = list(self._get_param_iterator())
@@ -131,6 +134,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             score = do_fit_and_score(dsk, est, X_train, y_train, X_test,
                                      y_test, n_splits, self.scorer_,
                                      fit_params=fit_params,
+                                     error_score=error_score,
                                      return_train_score=self.return_train_score)
             keys.extend([[(s, n) for s in score] for n in range(n_splits)])
 
@@ -144,8 +148,11 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
 
         if self.return_train_score:
             train_scores, test_scores, test_sample_counts = zip(*out)
+            train_scores = fit_failure_to_error_score(train_scores, error_score)
         else:
             test_scores, test_sample_counts = zip(*out)
+
+        test_scores = fit_failure_to_error_score(test_scores, error_score)
 
         # Construct the `cv_results_` dictionary
         results = {'params': candidate_params}

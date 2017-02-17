@@ -12,7 +12,7 @@ from sklearn.base import BaseEstimator
 from sklearn.cluster import KMeans
 from sklearn.datasets import (make_classification, make_blobs,
                               make_multilabel_classification)
-from sklearn.exceptions import NotFittedError
+from sklearn.exceptions import NotFittedError, FitFailedWarning
 from sklearn.linear_model import Ridge
 from sklearn.metrics import f1_score, make_scorer, roc_auc_score
 from sklearn.model_selection import (KFold, StratifiedKFold,
@@ -28,7 +28,7 @@ from sklearn.utils.fixes import in1d
 from sklearn.utils.mocking import CheckingClassifier, MockDataFrame
 from sklearn.utils.testing import (assert_equal, assert_not_equal,
                                    assert_raises, assert_raise_message,
-                                   assert_false, assert_true,
+                                   assert_warns, assert_false, assert_true,
                                    assert_array_equal,
                                    assert_array_almost_equal,
                                    assert_almost_equal, ignore_warnings)
@@ -773,7 +773,8 @@ def test_grid_search_correct_score_results():
     X, y = make_blobs(random_state=0, centers=2)
     Cs = [.1, 1, 10]
     for score in ['f1', 'roc_auc']:
-        grid_search = DaskGridSearchCV(clf, {'C': Cs}, scoring=score, cv=n_splits)
+        grid_search = DaskGridSearchCV(clf, {'C': Cs}, scoring=score,
+                                       cv=n_splits)
         cv_results = grid_search.fit(X, y).cv_results_
 
         # Test scorer names
@@ -898,6 +899,37 @@ class FailingClassifier(BaseEstimator):
 
     def predict(self, X):
         return np.zeros(X.shape[0])
+
+
+def test_grid_search_failing_classifier():
+    X, y = make_classification(n_samples=20, n_features=10, random_state=0)
+    clf = FailingClassifier()
+
+    # refit=False because we want to test the behaviour of the grid search part
+    gs = DaskGridSearchCV(clf, [{'parameter': [0, 1, 2]}], scoring='accuracy',
+                          refit=False, error_score=0.0)
+    assert_warns(FitFailedWarning, gs.fit, X, y)
+    n_candidates = len(gs.cv_results_['params'])
+
+    # Ensure that grid scores were set to zero as required for those fits
+    # that are expected to fail.
+    def get_cand_scores(i):
+        return np.array(list(gs.cv_results_['split%d_test_score' % s][i]
+                             for s in range(gs.n_splits_)))
+
+    assert all((np.all(get_cand_scores(cand_i) == 0.0)
+                for cand_i in range(n_candidates)
+                if gs.cv_results_['param_parameter'][cand_i] ==
+                FailingClassifier.FAILING_PARAMETER))
+
+    gs = DaskGridSearchCV(clf, [{'parameter': [0, 1, 2]}], scoring='accuracy',
+                          refit=False, error_score=float('nan'))
+    assert_warns(FitFailedWarning, gs.fit, X, y)
+    n_candidates = len(gs.cv_results_['params'])
+    assert all(np.all(np.isnan(get_cand_scores(cand_i)))
+               for cand_i in range(n_candidates)
+               if gs.cv_results_['param_parameter'][cand_i] ==
+               FailingClassifier.FAILING_PARAMETER)
 
 
 def test_grid_search_failing_classifier_raise():
