@@ -108,14 +108,14 @@ def newton(X, y, max_iter=50, tol=1e-8, gradient=gradient, hessian=hessian):
         beta_old = beta
 
         # should this use map_blocks()?
-        hessian = hessian(Xbeta, X)
+        hess = hessian(Xbeta, X)
         grad = gradient(Xbeta, X, y)
 
-        hessian, grad = da.compute(hessian, grad)
+        hess, grad = da.compute(hess, grad)
 
         # should this be dask or numpy?
         # currently uses Python 3 specific syntax
-        step, _, _, _ = np.linalg.lstsq(hessian, grad)
+        step, _, _, _ = np.linalg.lstsq(hess, grad)
         beta = (beta_old - step)
 
         iter_count += 1

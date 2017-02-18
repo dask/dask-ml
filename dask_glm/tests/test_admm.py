@@ -4,7 +4,7 @@ from dask import persist
 import dask.array as da
 import numpy as np
 
-from dask_glm.logistic import admm, local_update
+from dask_glm.algorithms import admm, local_update
 from dask_glm.utils import make_y
 
 
