@@ -144,8 +144,8 @@ def admm(X, y, lamduh=0.1, rho=1, over_relax=1,
     u = np.array([np.zeros(p) for i in range(nchunks)])
     betas = np.array([np.zeros(p) for i in range(nchunks)])
 
-    f = add_reg_f(loglike)
-    fprime = add_reg_grad(gradient)
+    f = add_reg_f(pointwise_loss)
+    fprime = add_reg_grad(pointwise_gradient)
 
     for k in range(max_iter):
 
@@ -182,21 +182,22 @@ def admm(X, y, lamduh=0.1, rho=1, over_relax=1,
 
 
 def add_reg_grad(func):
-    @functools.wrap(func)
+    @functools.wraps(func)
     def wrapped(beta, X, y, z, u, rho):
         return func(beta, X, y) + rho * (beta - z + u)
     return wrapped
 
 
 def add_reg_f(func):
-    @functools.wrap(func)
+    @functools.wraps(func)
     def wrapped(beta, X, y, z, u, rho):
         return func(beta, X, y) + (rho / 2) * np.dot(beta - z + u,
                                                           beta - z + u)
     return wrapped
 
 
-def local_update(X, y, beta, z, u, rho, f, fprime, solver=fmin_l_bfgs_b):
+def local_update(X, y, beta, z, u, rho, f=add_reg_f(pointwise_loss),
+                 fprime=add_reg_grad(pointwise_gradient), solver=fmin_l_bfgs_b):
 
     beta = beta.ravel()
     u = u.ravel()
@@ -364,76 +365,3 @@ def proximal_grad(X, y, reg='l2', lamduh=0.1, max_steps=100, tol=1e-8):
         backtrackMult = nextBacktrackMult
 
     return beta
-
-
-def admm(X, y, lamduh=0.1, rho=1, over_relax=1,
-         max_iter=100, abstol=1e-4, reltol=1e-2):
-
-    nchunks = X.npartitions
-    (n, p) = X.shape
-    XD = X.to_delayed().flatten().tolist()
-    yD = y.to_delayed().flatten().tolist()
-
-    z = np.zeros(p)
-    u = np.array([np.zeros(p) for i in range(nchunks)])
-    betas = np.array([np.zeros(p) for i in range(nchunks)])
-
-    for k in range(max_iter):
-
-        # x-update step
-        new_betas = [delayed(local_update)(xx, yy, bb, z, uu, rho) for
-                     xx, yy, bb, uu in zip(XD, yD, betas, u)]
-        new_betas = np.array(da.compute(*new_betas))
-
-        beta_hat = over_relax * new_betas + (1 - over_relax) * z
-
-        #  z-update step
-        zold = z.copy()
-        ztilde = np.mean(beta_hat + np.array(u), axis=0)
-        z = shrinkage(ztilde, lamduh / (rho * nchunks))
-
-        # u-update step
-        u += beta_hat - z
-
-        # check for convergence
-        primal_res = np.linalg.norm(new_betas - z)
-        dual_res = np.linalg.norm(rho * (z - zold))
-
-        eps_pri = np.sqrt(p * nchunks) * abstol + nchunks * reltol * np.maximum(
-            np.linalg.norm(new_betas), np.linalg.norm(z))
-        eps_dual = np.sqrt(p * nchunks) * abstol + \
-            nchunks * reltol * np.linalg.norm(rho * u)
-
-        if primal_res < eps_pri and dual_res < eps_dual:
-            print("Converged!", k)
-            break
-
-    return z
-
-
-def proximal_pointwise_loss(beta, X, y, z, u, rho):
-    return pointwise_loss(beta, X, y) + (rho / 2) * np.dot(beta - z + u,
-                                                          beta - z + u)
-
-
-def proximal_pointwise_gradient(beta, X, y, z, u, rho):
-    return pointwise_gradient(beta, X, y) + rho * (beta - z + u)
-
-
-def local_update(X, y, beta, z, u, rho, fprime=proximal_pointwise_gradient,
-                 f=proximal_pointwise_loss,
-                 solver=fmin_l_bfgs_b):
-    beta = beta.ravel()
-    u = u.ravel()
-    z = z.ravel()
-    solver_args = (X, y, z, u, rho)
-    beta, f, d = solver(f, beta, fprime=fprime, args=solver_args, pgtol=1e-10,
-                        maxiter=200,
-                        maxfun=250, factr=1e-30)
-
-    return beta
-
-
-def shrinkage(x, kappa):
-    z = np.maximum(0, x - kappa) - np.maximum(0, -x - kappa)
-    return z
