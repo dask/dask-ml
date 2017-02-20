@@ -293,7 +293,7 @@ def bfgs(X, y, max_iter=500, tol=1e-14):
     return beta
 
 
-def proximal_grad(X, y, reg='l2', lamduh=0.1, max_steps=100, tol=1e-8):
+def proximal_grad(X, y, reg='l2', lamduh=0.1, max_steps=100, tol=1e-8, verbose=False):
     def l2(x, t):
         return 1 / (1 + lamduh * t) * x
 
@@ -314,8 +314,10 @@ def proximal_grad(X, y, reg='l2', lamduh=0.1, max_steps=100, tol=1e-8):
     backtrackMult = firstBacktrackMult
     beta = np.zeros(p)
 
-    print('#       -f        |df/f|    |dx/x|    step')
-    print('----------------------------------------------')
+    if verbose:
+        print('#       -f        |df/f|    |dx/x|    step')
+        print('----------------------------------------------')
+
     for k in range(max_steps):
         # Compute the gradient
         if k % recalcRate == 0:
@@ -357,11 +359,12 @@ def proximal_grad(X, y, reg='l2', lamduh=0.1, max_steps=100, tol=1e-8):
             break
         df /= max(func, lf)
         db = 0
-        print('%2d  %.6e %9.2e  %.2e  %.1e' % (k + 1, func, df, db, stepSize))
+        if verbose:
+            print('%2d  %.6e %9.2e  %.2e  %.1e' % (k + 1, func, df, db, stepSize))
         if df < tol:
             print('Converged')
             break
         stepSize *= stepGrowth
         backtrackMult = nextBacktrackMult
 
-    return beta
+    return beta.compute()
