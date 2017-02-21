@@ -5,7 +5,7 @@ import numpy as np
 import dask.array as da
 
 from dask_glm.algorithms import (newton, bfgs, proximal_grad,
-                               gradient_descent, admm)
+                                 gradient_descent, admm)
 from dask_glm.utils import sigmoid, make_y
 
 

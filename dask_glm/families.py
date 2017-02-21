@@ -27,7 +27,7 @@ class Logistic(object):
     @staticmethod
     def gradient(Xbeta, X, y):
         p = sigmoid(Xbeta)
-        return dot(X.T, p-y)
+        return dot(X.T, p - y)
 
     @staticmethod
     def hessian(Xbeta, X):

@@ -1,6 +1,7 @@
 *.pyc
 *.swpi
 *.cache
+*.coverage
 
 # Distribution / packaging
 .Python

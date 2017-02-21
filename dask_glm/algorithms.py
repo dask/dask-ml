@@ -11,21 +11,28 @@ from dask_glm.utils import dot, exp, log1p, absolute, sign
 from dask_glm.families import Logistic
 
 
-def compute_stepsize(beta, step, Xbeta, Xstep, y, curr_val, loglike=Logistic.loglike,
-                     stepSize=1.0, armijoMult=0.1, backtrackMult=0.1):
+def compute_stepsize_dask(beta, step, Xbeta, Xstep, y, curr_val,
+                          family=Logistic, stepSize=1.0,
+                          armijoMult=0.1, backtrackMult=0.1):
+
+    loglike = family.loglike
+    beta, step, Xbeta, Xstep, y, curr_val = persist(beta, step, Xbeta, Xstep, y, curr_val)
     obeta, oXbeta = beta, Xbeta
+    (step,) = compute(step)
     steplen = (step ** 2).sum()
     lf = curr_val
     func = 0
     for ii in range(100):
         beta = obeta - stepSize * step
-        if ii and np.array_equal(beta, obeta):
+        if ii and (beta == obeta).all():
             stepSize = 0
             break
-        Xbeta = oXbeta - stepSize * Xstep
 
+        Xbeta = oXbeta - stepSize * Xstep
         func = loglike(Xbeta, y)
-        df = lf - func
+        Xbeta, func = persist(Xbeta, func)
+
+        df = lf - compute(func)[0]
         if df >= armijoMult * stepSize * steplen:
             break
         stepSize *= backtrackMult
@@ -46,7 +53,6 @@ def gradient_descent(X, y, max_steps=100, tol=1e-14, family=Logistic):
     recalcRate = 10
     backtrackMult = firstBacktrackMult
     beta = np.zeros(p)
-    y_local = y.compute()
 
     for k in range(max_steps):
         # how necessary is this recalculation?
@@ -57,18 +63,23 @@ def gradient_descent(X, y, max_steps=100, tol=1e-14, family=Logistic):
         grad = gradient(Xbeta, X, y)
         Xgradient = X.dot(grad)
 
-        Xbeta, func, grad, Xgradient = da.compute(
-            Xbeta, func, grad, Xgradient)
-
         # backtracking line search
         lf = func
-        stepSize, beta, Xbeta, func = compute_stepsize(beta, grad,
-                                                       Xbeta, Xgradient,
-                                                       y_local, func,
-                                                       **{'loglike': loglike,
-                                                          'backtrackMult': backtrackMult,
-                                                          'armijoMult': armijoMult,
-                                                          'stepSize': stepSize})
+        stepSize, _, _, func = compute_stepsize_dask(beta, grad,
+                                                     Xbeta, Xgradient,
+                                                     y, func, family=family,
+                                                     backtrackMult=backtrackMult,
+                                                     armijoMult=armijoMult,
+                                                     stepSize=stepSize)
+
+        beta, stepSize, Xbeta, lf, func, grad, Xgradient = persist(
+            beta, stepSize, Xbeta, lf, func, grad, Xgradient)
+
+        stepSize, lf, func, grad = compute(stepSize, lf, func, grad)
+
+        beta = beta - stepSize * grad  # tiny bit of repeat work here to avoid communication
+        Xbeta = Xbeta - stepSize * Xgradient
+
         if stepSize == 0:
             print('No more progress')
             break
@@ -186,7 +197,7 @@ def add_reg_f(func):
     @functools.wraps(func)
     def wrapped(beta, X, y, z, u, rho):
         return func(beta, X, y) + (rho / 2) * np.dot(beta - z + u,
-                                                          beta - z + u)
+                                                     beta - z + u)
     return wrapped
 
 
@@ -209,7 +220,7 @@ def shrinkage(x, kappa):
     return z
 
 
-def bfgs(X, y, max_iter=500, tol=1e-14):
+def bfgs(X, y, max_iter=500, tol=1e-14, family=Logistic):
     '''Simple implementation of BFGS.'''
 
     n, p = X.shape
@@ -246,15 +257,12 @@ def bfgs(X, y, max_iter=500, tol=1e-14):
         # backtracking line search
         lf = func
         old_Xbeta = Xbeta
-        stepSize, _, _, func = delayed(compute_stepsize, nout=4)(beta,
-                                                                 step,
-                                                                 Xbeta,
-                                                                 Xstep,
-                                                                 y,
-                                                                 func,
-                                                                 backtrackMult=backtrackMult,
-                                                                 armijoMult=armijoMult,
-                                                                 stepSize=stepSize)
+        stepSize, _, _, func = compute_stepsize_dask(beta, step,
+                                                     Xbeta, Xstep,
+                                                     y, func, family=family,
+                                                     backtrackMult=backtrackMult,
+                                                     armijoMult=armijoMult,
+                                                     stepSize=stepSize)
 
         beta, stepSize, Xbeta, gradient, lf, func, step, Xstep = persist(
             beta, stepSize, Xbeta, gradient, lf, func, step, Xstep)
