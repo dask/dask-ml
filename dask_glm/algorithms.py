@@ -285,6 +285,7 @@ def bfgs(X, y, max_iter=500, tol=1e-14, family=Logistic):
 
         if stepSize == 0:
             print('No more progress')
+            break
 
         df = lf - func
         df /= max(func, lf)
