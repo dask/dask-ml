@@ -11,15 +11,6 @@ from dask_glm.utils import dot, exp, log1p, absolute, sign
 from dask_glm.families import Logistic
 
 
-try:
-    from numba import jit
-except ImportError:
-    def jit(*args, **kwargs):
-        def _(func):
-            return func
-        return _
-
-
 def compute_stepsize(beta, step, Xbeta, Xstep, y, curr_val, loglike=Logistic.loglike,
                      stepSize=1.0, armijoMult=0.1, backtrackMult=0.1):
     obeta, oXbeta = beta, Xbeta
@@ -42,10 +33,10 @@ def compute_stepsize(beta, step, Xbeta, Xstep, y, curr_val, loglike=Logistic.log
     return stepSize, beta, Xbeta, func
 
 
-def gradient_descent(X, y, max_steps=100, tol=1e-14, loglike=Logistic.loglike,
-                     gradient=Logistic.gradient):
+def gradient_descent(X, y, max_steps=100, tol=1e-14, family=Logistic):
     '''Michael Grant's implementation of Gradient Descent.'''
 
+    loglike, gradient = family.loglike, family.gradient
     n, p = X.shape
     firstBacktrackMult = 0.1
     nextBacktrackMult = 0.5
@@ -94,9 +85,10 @@ def gradient_descent(X, y, max_steps=100, tol=1e-14, loglike=Logistic.loglike,
     return beta
 
 
-def newton(X, y, max_iter=50, tol=1e-8, gradient=Logistic.gradient, hessian=Logistic.hessian):
+def newton(X, y, max_iter=50, tol=1e-8, family=Logistic):
     '''Newtons Method for Logistic Regression.'''
 
+    gradient, hessian = family.gradient, family.hessian
     n, p = X.shape
     beta = np.zeros(p)  # always init to zeros?
     Xbeta = dot(X, beta)
@@ -132,8 +124,10 @@ def newton(X, y, max_iter=50, tol=1e-8, gradient=Logistic.gradient, hessian=Logi
 
 
 def admm(X, y, lamduh=0.1, rho=1, over_relax=1,
-         max_iter=100, abstol=1e-4, reltol=1e-2, pointwise_loss=Logistic.pointwise_loss,
-         pointwise_gradient=Logistic.pointwise_gradient):
+         max_iter=100, abstol=1e-4, reltol=1e-2, family=Logistic):
+
+    pointwise_loss = Logistic.pointwise_loss
+    pointwise_gradient = Logistic.pointwise_gradient
 
     nchunks = X.npartitions
     (n, p) = X.shape
