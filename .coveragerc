@@ -1,0 +1,2 @@
+[run]
+omit = dask_glm/tests/*
