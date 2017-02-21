@@ -20,3 +20,4 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+dask_glm/.ropeproject/*

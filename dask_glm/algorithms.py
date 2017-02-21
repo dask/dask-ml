@@ -8,7 +8,7 @@ from scipy.optimize import fmin_l_bfgs_b
 
 
 from dask_glm.utils import dot, exp, log1p, absolute, sign
-from dask_glm.logistic import gradient, hessian, loglike, pointwise_gradient, pointwise_loss
+from dask_glm.families import Logistic
 
 
 try:
@@ -20,7 +20,7 @@ except ImportError:
         return _
 
 
-def compute_stepsize(beta, step, Xbeta, Xstep, y, curr_val, loglike=loglike,
+def compute_stepsize(beta, step, Xbeta, Xstep, y, curr_val, loglike=Logistic.loglike,
                      stepSize=1.0, armijoMult=0.1, backtrackMult=0.1):
     obeta, oXbeta = beta, Xbeta
     steplen = (step ** 2).sum()
@@ -42,8 +42,8 @@ def compute_stepsize(beta, step, Xbeta, Xstep, y, curr_val, loglike=loglike,
     return stepSize, beta, Xbeta, func
 
 
-def gradient_descent(X, y, max_steps=100, tol=1e-14, func=loglike,
-                     gradient=gradient):
+def gradient_descent(X, y, max_steps=100, tol=1e-14, loglike=Logistic.loglike,
+                     gradient=Logistic.gradient):
     '''Michael Grant's implementation of Gradient Descent.'''
 
     n, p = X.shape
@@ -94,7 +94,7 @@ def gradient_descent(X, y, max_steps=100, tol=1e-14, func=loglike,
     return beta
 
 
-def newton(X, y, max_iter=50, tol=1e-8, gradient=gradient, hessian=hessian):
+def newton(X, y, max_iter=50, tol=1e-8, gradient=Logistic.gradient, hessian=Logistic.hessian):
     '''Newtons Method for Logistic Regression.'''
 
     n, p = X.shape
@@ -132,8 +132,8 @@ def newton(X, y, max_iter=50, tol=1e-8, gradient=gradient, hessian=hessian):
 
 
 def admm(X, y, lamduh=0.1, rho=1, over_relax=1,
-         max_iter=100, abstol=1e-4, reltol=1e-2, pointwise_loss=pointwise_loss,
-         pointwise_gradient=pointwise_gradient):
+         max_iter=100, abstol=1e-4, reltol=1e-2, pointwise_loss=Logistic.pointwise_loss,
+         pointwise_gradient=Logistic.pointwise_gradient):
 
     nchunks = X.npartitions
     (n, p) = X.shape
@@ -196,8 +196,8 @@ def add_reg_f(func):
     return wrapped
 
 
-def local_update(X, y, beta, z, u, rho, f=add_reg_f(pointwise_loss),
-                 fprime=add_reg_grad(pointwise_gradient), solver=fmin_l_bfgs_b):
+def local_update(X, y, beta, z, u, rho, f=add_reg_f(Logistic.pointwise_loss),
+                 fprime=add_reg_grad(Logistic.pointwise_gradient), solver=fmin_l_bfgs_b):
 
     beta = beta.ravel()
     u = u.ravel()
