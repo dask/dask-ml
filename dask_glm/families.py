@@ -3,15 +3,6 @@ from __future__ import absolute_import, division, print_function
 from dask_glm.utils import dot, exp, log1p, sigmoid
 
 
-try:
-    from numba import jit
-except ImportError:
-    def jit(*args, **kwargs):
-        def _(func):
-            return func
-        return _
-
-
 class Logistic(object):
 
     @staticmethod
