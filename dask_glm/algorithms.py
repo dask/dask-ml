@@ -9,6 +9,7 @@ from scipy.optimize import fmin_l_bfgs_b
 
 from dask_glm.utils import dot, exp, log1p, absolute, sign
 from dask_glm.families import Logistic
+from dask_glm.regularizers import L1, L2
 
 
 def compute_stepsize_dask(beta, step, Xbeta, Xstep, y, curr_val,
@@ -134,7 +135,22 @@ def newton(X, y, max_iter=50, tol=1e-8, family=Logistic):
     return beta
 
 
-def admm(X, y, lamduh=0.1, rho=1, over_relax=1,
+def add_reg_grad(func):
+    @functools.wraps(func)
+    def wrapped(beta, X, y, z, u, rho):
+        return func(beta, X, y) + rho * (beta - z + u)
+    return wrapped
+
+
+def add_reg_f(func):
+    @functools.wraps(func)
+    def wrapped(beta, X, y, z, u, rho):
+        return func(beta, X, y) + (rho / 2) * np.dot(beta - z + u,
+                                                     beta - z + u)
+    return wrapped
+
+
+def admm(X, y, reg=L1, lamduh=0.1, rho=1, over_relax=1,
          max_iter=100, abstol=1e-4, reltol=1e-2, family=Logistic):
 
     pointwise_loss = family.pointwise_loss
@@ -165,7 +181,8 @@ def admm(X, y, lamduh=0.1, rho=1, over_relax=1,
         #  z-update step
         zold = z.copy()
         ztilde = np.mean(beta_hat + np.array(u), axis=0)
-        z = shrinkage(ztilde, lamduh / (rho * nchunks))
+        z = reg.proximal_operator(ztilde, lamduh / (rho * nchunks))
+#        z = shrinkage(ztilde, lamduh / (rho * nchunks))
 
         # u-update step
         u += beta_hat - z
@@ -184,21 +201,6 @@ def admm(X, y, lamduh=0.1, rho=1, over_relax=1,
             break
 
     return z
-
-
-def add_reg_grad(func):
-    @functools.wraps(func)
-    def wrapped(beta, X, y, z, u, rho):
-        return func(beta, X, y) + rho * (beta - z + u)
-    return wrapped
-
-
-def add_reg_f(func):
-    @functools.wraps(func)
-    def wrapped(beta, X, y, z, u, rho):
-        return func(beta, X, y) + (rho / 2) * np.dot(beta - z + u,
-                                                     beta - z + u)
-    return wrapped
 
 
 def local_update(X, y, beta, z, u, rho, f=add_reg_f(Logistic.pointwise_loss),
@@ -296,18 +298,9 @@ def bfgs(X, y, max_iter=500, tol=1e-14, family=Logistic):
     return beta
 
 
-def proximal_grad(X, y, reg='l2', lamduh=0.1, family=Logistic,
+def proximal_grad(X, y, reg=L1, lamduh=0.1, family=Logistic,
                   max_steps=100, tol=1e-8, verbose=False):
-    def l2(x, t):
-        return 1 / (1 + lamduh * t) * x
 
-    def l1(x, t):
-        return (absolute(x) > lamduh * t) * (x - sign(x) * lamduh * t)
-
-    def identity(x, t):
-        return x
-
-    prox_map = {'l1': l1, 'l2': l2, None: identity}
     n, p = X.shape
     firstBacktrackMult = 0.1
     nextBacktrackMult = 0.5
@@ -338,7 +331,7 @@ def proximal_grad(X, y, reg='l2', lamduh=0.1, family=Logistic,
         # Compute the step size
         lf = func
         for ii in range(100):
-            beta = prox_map[reg](obeta - stepSize * gradient, stepSize)
+            beta = reg.proximal_operator(obeta - stepSize * gradient, stepSize * lamduh)
             step = obeta - beta
             Xbeta = X.dot(beta)
 
@@ -368,4 +361,4 @@ def proximal_grad(X, y, reg='l2', lamduh=0.1, family=Logistic,
         stepSize *= stepGrowth
         backtrackMult = nextBacktrackMult
 
-    return beta.compute()
+    return beta
