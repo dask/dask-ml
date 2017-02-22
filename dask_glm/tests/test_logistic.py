@@ -30,7 +30,7 @@ def make_data(N, p, seed=20009):
 
 @pytest.mark.parametrize('opt',
                          [pytest.mark.xfail(bfgs, reason='''
-                          Early algorithm termination for unknown reason'''),
+                            BFGS needs a re-work.'''),
                           newton, gradient_descent])
 @pytest.mark.parametrize('N, p, seed',
                          [(100, 2, 20009),
@@ -48,7 +48,7 @@ def test_methods(N, p, seed, opt):
 
 @pytest.mark.parametrize('func,kwargs', [
     (newton, {'tol': 1e-5}),
-    (bfgs, {'tol': 1e-8}),
+    pytest.mark.xfail((bfgs, {'tol': 1e-8}), reason='BFGS needs a re-work.'),
     (gradient_descent, {'tol': 1e-7}),
     (proximal_grad, {'tol': 1e-6, 'reg': 'l1', 'lamduh': 0.001}),
     (proximal_grad, {'tol': 1e-7, 'reg': 'l2', 'lamduh': 0.001}),
