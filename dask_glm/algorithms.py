@@ -137,8 +137,8 @@ def newton(X, y, max_iter=50, tol=1e-8, family=Logistic):
 def admm(X, y, lamduh=0.1, rho=1, over_relax=1,
          max_iter=100, abstol=1e-4, reltol=1e-2, family=Logistic):
 
-    pointwise_loss = Logistic.pointwise_loss
-    pointwise_gradient = Logistic.pointwise_gradient
+    pointwise_loss = family.pointwise_loss
+    pointwise_gradient = family.pointwise_gradient
 
     nchunks = X.npartitions
     (n, p) = X.shape
@@ -296,7 +296,8 @@ def bfgs(X, y, max_iter=500, tol=1e-14, family=Logistic):
     return beta
 
 
-def proximal_grad(X, y, reg='l2', lamduh=0.1, max_steps=100, tol=1e-8, verbose=False):
+def proximal_grad(X, y, reg='l2', lamduh=0.1, family=Logistic,
+                  max_steps=100, tol=1e-8, verbose=False):
     def l2(x, t):
         return 1 / (1 + lamduh * t) * x
 
@@ -325,16 +326,14 @@ def proximal_grad(X, y, reg='l2', lamduh=0.1, max_steps=100, tol=1e-8, verbose=F
         # Compute the gradient
         if k % recalcRate == 0:
             Xbeta = X.dot(beta)
-            eXbeta = exp(Xbeta)
-            func = log1p(eXbeta).sum() - y.dot(Xbeta)
-        e1 = eXbeta + 1.0
-        gradient = X.T.dot(eXbeta / e1 - y)
+            func = family.loglike(Xbeta, y)
 
-        Xbeta, eXbeta, func, gradient = persist(
-            Xbeta, eXbeta, func, gradient)
+        gradient = family.gradient(Xbeta, X, y)
+
+        Xbeta, func, gradient = persist(
+            Xbeta, func, gradient)
 
         obeta = beta
-        oXbeta = Xbeta
 
         # Compute the step size
         lf = func
@@ -349,9 +348,8 @@ def proximal_grad(X, y, reg='l2', lamduh=0.1, max_steps=100, tol=1e-8, verbose=F
 
             # This prevents overflow
             if overflow:
-                eXbeta = exp(Xbeta)
-                func = log1p(eXbeta).sum() - dot(y, Xbeta)
-                eXbeta, func = persist(eXbeta, func)
+                func = family.loglike(Xbeta, y)
+                func = persist(func)[0]
                 func = func.compute()
                 df = lf - func
                 if df > 0:
