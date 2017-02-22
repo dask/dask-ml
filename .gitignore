@@ -1,6 +1,7 @@
 *.pyc
 *.swpi
 *.cache
+*.coverage
 
 # Distribution / packaging
 .Python
@@ -20,3 +21,4 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+dask_glm/.ropeproject/*
