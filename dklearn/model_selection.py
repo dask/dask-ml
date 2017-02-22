@@ -1,7 +1,6 @@
 from __future__ import absolute_import, print_function, division
 
 from numbers import Number
-from collections import defaultdict
 
 import dask
 from dask.threaded import get as threaded_get
@@ -9,19 +8,18 @@ from dask.utils import derived_from
 
 import numpy as np
 
-from sklearn.base import (clone, is_classifier, BaseEstimator,
-                          MetaEstimatorMixin)
+from sklearn.base import BaseEstimator, MetaEstimatorMixin
 from sklearn.exceptions import NotFittedError
 from sklearn import model_selection
-from sklearn.model_selection._split import check_cv
 from sklearn.model_selection._search import _check_param_grid, BaseSearchCV
 from sklearn.metrics.scorer import check_scoring
-from sklearn.utils.fixes import rankdata, MaskedArray
 from sklearn.utils.metaestimators import if_delegate_has_method
-from sklearn.utils.validation import indexable, check_is_fitted
+from sklearn.utils.validation import check_is_fitted
 
-from .core import (initialize_dask_graph, do_fit_and_score,
-                   fit_failure_to_error_score)
+from ._builder import build_graph
+
+
+__all__ = ['DaskGridSearchCV', 'DaskRandomizedSearchCV']
 
 
 class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
@@ -110,85 +108,49 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
                              % self.best_estimator_)
         return self.scorer_(self.best_estimator_, X, y)
 
-    def _fit(self, X, y=None, groups=None, **fit_params):
-        estimator = self.estimator
-        cv = check_cv(self.cv, y, classifier=is_classifier(estimator))
-        self.scorer_ = check_scoring(estimator, scoring=self.scoring)
+    def fit(self, X, y=None, groups=None, **fit_params):
+        """Run fit with all sets of parameters.
 
+        Parameters
+        ----------
+        X : array-like, shape = [n_samples, n_features]
+            Training vector, where n_samples is the number of samples and
+            n_features is the number of features.
+        y : array-like, shape = [n_samples] or [n_samples, n_output], optional
+            Target relative to X for classification or regression;
+            None for unsupervised learning.
+        groups : array-like, shape = [n_samples], optional
+            Group labels for the samples used while splitting the dataset into
+            train/test set.
+        **fit_params
+            Parameters passed to the ``fit`` method of the estimator
+        """
+        estimator = self.estimator
+        self.scorer_ = check_scoring(estimator, scoring=self.scoring)
         error_score = self.error_score
         if not (isinstance(error_score, Number) or error_score == 'raise'):
             raise ValueError("error_score must be the string 'raise' or a"
                              " numeric value.")
 
-        # Regenerate parameter iterable for each fit
-        candidate_params = list(self._get_param_iterator())
-
-        X, y, groups = indexable(X, y, groups)
-
-        (dsk, X_train, y_train, X_test,
-         y_test, n_splits) = initialize_dask_graph(estimator, X, y, cv, groups)
-
-        keys = []
-        for parameters in candidate_params:
-            est = clone(estimator).set_params(**parameters)
-            score = do_fit_and_score(dsk, est, X_train, y_train, X_test,
-                                     y_test, n_splits, self.scorer_,
-                                     fit_params=fit_params,
-                                     error_score=error_score,
-                                     return_train_score=self.return_train_score)
-            keys.extend([[(s, n) for s in score] for n in range(n_splits)])
-
-        # Store the graph and keys
+        dsk, keys, n_splits = build_graph(estimator, self.cv, self.scorer_,
+                                          list(self._get_param_iterator()),
+                                          X, y, groups,
+                                          fit_params=fit_params,
+                                          iid=self.iid,
+                                          refit=self.refit,
+                                          error_score=error_score,
+                                          return_train_score=self.return_train_score)
         self.dask_graph_ = dsk
-        self.dask_keys_ = keys
+        self.n_splits_ = n_splits
 
-        # Compute the scores
         get = self.get or dask.context._globals.get('get') or threaded_get
         out = get(dsk, keys)
 
-        if self.return_train_score:
-            train_scores, test_scores, test_sample_counts = zip(*out)
-            train_scores = fit_failure_to_error_score(train_scores, error_score)
-        else:
-            test_scores, test_sample_counts = zip(*out)
-
-        test_scores = fit_failure_to_error_score(test_scores, error_score)
-
-        # Construct the `cv_results_` dictionary
-        results = {'params': candidate_params}
-        n_candidates = len(candidate_params)
-        test_sample_counts = np.array(test_sample_counts[:n_splits], dtype=int)
-
-        _store(results, 'test_score', test_scores, n_splits, n_candidates,
-               splits=True, rank=True,
-               weights=test_sample_counts if self.iid else None)
-        if self.return_train_score:
-            _store(results, 'train_score', train_scores,
-                   n_splits, n_candidates, splits=True)
-
-        # Use one MaskedArray and mask all the places where the param is not
-        # applicable for that candidate. Use defaultdict as each candidate may
-        # not contain all the params
-        param_results = defaultdict(lambda: MaskedArray(np.empty(n_candidates),
-                                                        mask=True,
-                                                        dtype=object))
-        for cand_i, params in enumerate(candidate_params):
-            for name, value in params.items():
-                param_results["param_%s" % name][cand_i] = value
-
-        results.update(param_results)
-
+        self.cv_results_ = results = out[0]
         self.best_index_ = np.flatnonzero(results["rank_test_score"] == 1)[0]
-        self.cv_results_ = results
-        self.n_splits_ = n_splits
 
         if self.refit:
-            # fit the best estimator using the entire dataset
-            best_parameters = candidate_params[self.best_index_]
-            best = estimator.set_params(**best_parameters)
-            best = (best.fit(X, y, **fit_params) if y is not None
-                    else best.fit(X, **fit_params))
-            self.best_estimator_ = best
+            self.best_estimator_ = out[1]
         return self
 
     def visualize(self, filename='mydask', format=None, **kwargs):
@@ -217,27 +179,6 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
                               format=format, **kwargs)
 
 
-def _store(results, key_name, array, n_splits, n_candidates,
-           weights=None, splits=False, rank=False):
-    """A small helper to store the scores/times to the cv_results_"""
-    # When iterated first by parameters then by splits
-    array = np.array(array, dtype=np.float64).reshape(n_candidates, n_splits)
-    if splits:
-        for split_i in range(n_splits):
-            results["split%d_%s" % (split_i, key_name)] = array[:, split_i]
-
-    array_means = np.average(array, axis=1, weights=weights)
-    results['mean_%s' % key_name] = array_means
-    # Weighted std is not directly available in numpy
-    array_stds = np.sqrt(np.average((array - array_means[:, np.newaxis]) ** 2,
-                                    axis=1, weights=weights))
-    results['std_%s' % key_name] = array_stds
-
-    if rank:
-        results["rank_%s" % key_name] = np.asarray(
-            rankdata(-array_means, method='min'), dtype=np.int32)
-
-
 class DaskGridSearchCV(DaskBaseSearchCV):
     def __init__(self, estimator, param_grid, scoring=None, iid=True,
                  refit=True, cv=None, error_score='raise',
@@ -253,10 +194,6 @@ class DaskGridSearchCV(DaskBaseSearchCV):
     def _get_param_iterator(self):
         """Return ParameterGrid instance for the given param_grid"""
         return model_selection.ParameterGrid(self.param_grid)
-
-    @derived_from(model_selection.GridSearchCV)
-    def fit(self, X, y=None, groups=None, **fit_params):
-        return self._fit(X, y=y, groups=groups, **fit_params)
 
 
 class DaskRandomizedSearchCV(DaskBaseSearchCV):
@@ -276,7 +213,3 @@ class DaskRandomizedSearchCV(DaskBaseSearchCV):
         """Return ParameterSampler instance for the given distributions"""
         return model_selection.ParameterSampler(self.param_distributions,
                 self.n_iter, random_state=self.random_state)
-
-    @derived_from(model_selection.RandomizedSearchCV)
-    def fit(self, X, y=None, groups=None, **fit_params):
-        return self._fit(X, y=y, groups=groups, **fit_params)

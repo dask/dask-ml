@@ -24,7 +24,6 @@ install:
   # Scikit-learn requires nose for test functions.
   - conda install dask numpy scikit-learn pytest nose
   - pip install -q graphviz
-  - pip install -q git+https://github.com/dask/dask.git --upgrade
   - pip install --no-deps -e .
 
 script:

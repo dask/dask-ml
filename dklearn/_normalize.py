@@ -1,12 +1,10 @@
 from __future__ import absolute_import, division, print_function
 
-from uuid import uuid4
-
+import numpy as np
 from dask.base import normalize_token
 
 from sklearn.base import BaseEstimator
-from sklearn.model_selection._split import (BaseCrossValidator,
-                                            _BaseKFold,
+from sklearn.model_selection._split import (_BaseKFold,
                                             BaseShuffleSplit,
                                             LeaveOneOut,
                                             LeaveOneGroupOut,
@@ -14,12 +12,6 @@ from sklearn.model_selection._split import (BaseCrossValidator,
                                             LeavePGroupsOut,
                                             PredefinedSplit,
                                             _CVIterableWrapper)
-
-
-def normalize_random_state(random_state):
-    if isinstance(random_state, int):
-        return random_state
-    return uuid4().hex
 
 
 @normalize_token.register(BaseEstimator)
@@ -31,9 +23,10 @@ def normalize_estimator(est):
     return type(est).__name__, normalize_token(est.get_params())
 
 
-@normalize_token.register(BaseCrossValidator)
-def normalize_BaseCrossValidator(x):
-    return uuid4().hex
+def normalize_random_state(random_state):
+    if isinstance(random_state, np.random.RandomState):
+        return random_state.get_state()
+    return random_state
 
 
 @normalize_token.register(_BaseKFold)
