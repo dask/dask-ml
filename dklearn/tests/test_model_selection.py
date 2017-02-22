@@ -6,14 +6,17 @@ from itertools import product
 import pytest
 import numpy as np
 
+import dask
 import dask.array as da
 from dask.base import tokenize
 from dask.callbacks import Callback
 from dask.delayed import delayed
 from dask.utils import tmpdir
 
-from sklearn.datasets import make_classification
+from sklearn.datasets import make_classification, load_iris
+from sklearn.decomposition import PCA
 from sklearn.exceptions import NotFittedError
+from sklearn.feature_selection import SelectKBest
 from sklearn.model_selection import (KFold,
                                      GroupKFold,
                                      StratifiedKFold,
@@ -25,7 +28,9 @@ from sklearn.model_selection import (KFold,
                                      LeavePOut,
                                      LeaveOneGroupOut,
                                      LeavePGroupsOut,
-                                     PredefinedSplit)
+                                     PredefinedSplit,
+                                     GridSearchCV)
+from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.svm import SVC
 
 from dklearn import DaskGridSearchCV
@@ -249,3 +254,42 @@ def test_grid_search_dask_inputs():
 
         gs.fit(X, y, groups=groups)
         np.testing.assert_allclose(sol, gs.best_estimator_.support_vectors_)
+
+
+def test_pipeline_feature_union():
+    iris = load_iris()
+    X, y = iris.data, iris.target
+
+    pca = PCA(random_state=0)
+    kbest = SelectKBest()
+    svc = SVC(kernel='linear', random_state=0)
+
+    pipe = Pipeline([("union", FeatureUnion([("pca", pca), ('kbest', kbest)],
+                                            transformer_weights={'pca': 0.5})),
+                     ("svc", svc)])
+
+    param_grid = dict(union__pca__n_components=[1, 2, 3],
+                      union__kbest__k=[1, 2],
+                      svc__C=[0.1, 1, 10])
+
+    gs = GridSearchCV(pipe, param_grid=param_grid)
+    gs.fit(X, y)
+    dgs = DaskGridSearchCV(pipe, param_grid=param_grid, get=dask.get)
+    dgs.fit(X, y)
+
+    # Check best params match
+    assert gs.best_params_ == dgs.best_params_
+
+    # Check PCA components match
+    sk_pca = gs.best_estimator_.named_steps['union'].transformer_list[0][1]
+    dk_pca = dgs.best_estimator_.named_steps['union'].transformer_list[0][1]
+    np.testing.assert_allclose(sk_pca.components_, dk_pca.components_)
+
+    # Check SelectKBest scores match
+    sk_kbest = gs.best_estimator_.named_steps['union'].transformer_list[1][1]
+    dk_kbest = dgs.best_estimator_.named_steps['union'].transformer_list[1][1]
+    np.testing.assert_allclose(sk_kbest.scores_, dk_kbest.scores_)
+
+    # Check SVC coefs match
+    np.testing.assert_allclose(gs.best_estimator_.named_steps['svc'].coef_,
+                               dgs.best_estimator_.named_steps['svc'].coef_)

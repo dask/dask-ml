@@ -279,57 +279,71 @@ def do_fit_and_score(dsk, est, X_train, y_train, X_test, y_test, n_splits,
 
 def do_fit(dsk, est, X, y, n_splits, fit_params, error_score):
     if isinstance(est, Pipeline):
-        func = do_fit_pipeline
+        param_lk = _group_fit_params(est.steps, fit_params)
+        fits, Xt = _fit_transform_steps(dsk, est.steps[:-1], X, y, n_splits,
+                                        param_lk, error_score)
+        name, step = est.steps[-1]
+        fits.append(None if step is None else
+                    do_fit(dsk, step, Xt, y, n_splits, param_lk[name], error_score))
+        return _rebuild_pipeline(dsk, est, fits, n_splits)
     elif isinstance(est, FeatureUnion):
-        func = do_fit_feature_union
+        param_lk = _group_fit_params(est.transformer_list, fit_params)
+        fits = [None if tr is None else
+                do_fit(dsk, tr, X, y, n_splits, param_lk[name], error_score)
+                for name, tr in est.transformer_list]
+        return _rebuild_feature_union(dsk, est, fits, n_splits)
     else:
-        func = do_fit_estimator
-    return func(dsk, est, X, y, n_splits, fit_params, error_score)
+        token = tokenize(normalize_estimator(est), X, y, fit_params,
+                         error_score == 'raise')
+        name = '%s-fit-%s' % (type(est).__name__.lower(), token)
+        for n in range(n_splits):
+            dsk[(name, n)] = (fit, est, (X, n), (y, n), fit_params, error_score)
+        return name
 
 
 def do_fit_transform(dsk, est, X, y, n_splits, fit_params, error_score):
     if isinstance(est, Pipeline):
-        func = do_fit_transform_pipeline
+        param_lk = _group_fit_params(est.steps, fit_params)
+        fits, Xt = _fit_transform_steps(dsk, est.steps, X, y, n_splits,
+                                        param_lk, error_score)
+        fit = _rebuild_pipeline(dsk, est, fits, n_splits)
     elif isinstance(est, FeatureUnion):
-        func = do_fit_transform_feature_union
+        param_lk = _group_fit_params(est.transformer_list, fit_params)
+        get_weight = (est.transformer_weights or {}).get
+        fits, Xs, weights = [], [], []
+        for name, tr in est.transformer_list:
+            if tr is None:
+                fit_est = None
+            else:
+                fit_est, Xt = do_fit_transform(dsk, tr, X, y, n_splits,
+                                               param_lk[name], error_score)
+                Xs.append(Xt)
+                weights.append(get_weight(name))
+            fits.append(fit_est)
+        if not Xs:
+            Xt = 'feature-union-transform-' + tokenize(X)
+            for n in range(n_splits):
+                dsk[(Xt, n)] = (feature_union_empty, (X, n))
+        else:
+            Xt = 'feature-union-transform-' + tokenize(Xs, weights)
+            for n in range(n_splits):
+                dsk[(Xt, n)] = (feature_union_concat, [(x, n) for x in Xs],
+                                weights)
+        fit = _rebuild_feature_union(dsk, est, fits, n_splits)
     else:
-        func = do_fit_transform_estimator
-    return func(dsk, est, X, y, n_splits, fit_params, error_score)
+        token = tokenize(normalize_estimator(est), X, y, fit_params,
+                        error_score == 'raise')
+        name = type(est).__name__.lower()
+        fit_Xt = '%s-fit-transform-%s' % (name, token)
+        fit = '%s-fit-%s' % (name, token)
+        Xt = '%s-transform-%s' % (name, token)
+        for n in range(n_splits):
+            dsk[(fit_Xt, n)] = (fit_transform, est, (X, n), (y, n), fit_params,
+                                error_score)
+            dsk[(fit, n)] = (getitem, (fit_Xt, n), 0)
+            dsk[(Xt, n)] = (getitem, (fit_Xt, n), 1)
+    return fit, Xt
 
-
-# --------- #
-# Estimator #
-# --------- #
-
-def do_fit_estimator(dsk, est, X, y, n_splits, fit_params, error_score):
-    token = tokenize(normalize_estimator(est), X, y, fit_params,
-                     error_score == 'raise')
-    est_name = type(est).__name__.lower()
-    name = '%s-fit-%s' % (est_name, token)
-    for n in range(n_splits):
-        dsk[(name, n)] = (fit, est, (X, n), (y, n), fit_params, error_score)
-    return name
-
-
-def do_fit_transform_estimator(dsk, est, X, y, n_splits, fit_params,
-                               error_score):
-    token = tokenize(normalize_estimator(est), X, y, fit_params,
-                     error_score == 'raise')
-    name = type(est).__name__.lower()
-    fit_tr_name = '%s-fit-transform-%s' % (name, token)
-    fit_name = '%s-fit-%s' % (name, token)
-    tr_name = '%s-transform-%s' % (name, token)
-    for n in range(n_splits):
-        dsk[(fit_tr_name, n)] = (fit_transform, est, (X, n), (y, n),
-                                 fit_params, error_score)
-        dsk[(fit_name, n)] = (getitem, (fit_tr_name, n), 0)
-        dsk[(tr_name, n)] = (getitem, (fit_tr_name, n), 1)
-    return fit_name, tr_name
-
-
-# -------- #
-# Pipeline #
-# -------- #
 
 def _group_fit_params(steps, fit_params):
     param_lk = {n: {} for n, s in steps if s is not None}
@@ -360,28 +374,6 @@ def _rebuild_pipeline(dsk, est, fits, n_splits):
     return name
 
 
-def do_fit_transform_pipeline(dsk, est, X, y, n_splits, fit_params,
-                              error_score):
-    param_lk = _group_fit_params(est.steps, fit_params)
-    fits, Xt = _fit_transform_steps(dsk, est.steps, X, y, n_splits, param_lk)
-    return _rebuild_pipeline(dsk, est, fits, n_splits), Xt
-
-
-def do_fit_pipeline(dsk, est, X, y, n_splits, fit_params, error_score):
-    param_lk = _group_fit_params(est.steps, fit_params)
-    fits, Xt = _fit_transform_steps(dsk, est.steps[:-1], X, y, n_splits,
-                                    param_lk, error_score)
-    name, step = est.steps[-1]
-    fits.append(None if step is None
-                else do_fit(dsk, step, Xt, y, n_splits,
-                            param_lk[name], error_score))
-    return _rebuild_pipeline(dsk, est, fits, n_splits)
-
-
-# ------------ #
-# FeatureUnion #
-# ------------ #
-
 def _rebuild_feature_union(dsk, est, fits, n_splits):
     names = [n for n, _ in est.transformer_list]
     name = tokenize(fits, names, est.transformer_weights)
@@ -390,43 +382,6 @@ def _rebuild_feature_union(dsk, est, fits, n_splits):
                           [f if f is None else (f, n) for f in fits],
                           est.transformer_weights)
     return name
-
-
-def do_fit_transform_feature_union(dsk, est, X, y, n_splits, fit_params,
-                                   error_score):
-    param_lk = _group_fit_params(est.transformer_list, fit_params)
-    get_weight = (est.transformer_weights or {}).get
-    fits = []
-    Xs = []
-    weights = []
-    for name, tr in est.transformer_list:
-        if tr is None:
-            fit_est = None
-        else:
-            fit_est, Xt = do_fit_transform(dsk, tr, X, y, n_splits,
-                                           param_lk[name], error_score)
-            Xs.append(Xt)
-            weights.append(get_weight(name))
-        fits.append(fit_est)
-
-    if not Xs:
-        Xt = 'feature-union-transform-' + tokenize(X)
-        for n in range(n_splits):
-            dsk[(Xt, n)] = (feature_union_empty, (X, n))
-    else:
-        Xt = 'feature-union-transform-' + tokenize(Xs, weights)
-        for n in range(n_splits):
-            dsk[(Xt, n)] = (feature_union_concat, [(x, n) for x in Xs], weights)
-
-    return _rebuild_feature_union(dsk, est, fits, n_splits), Xt
-
-
-def do_fit_feature_union(dsk, est, X, y, n_splits, fit_params, error_score):
-    param_lk = _group_fit_params(est.transformer_list, fit_params)
-    fits = [None if tr is None
-            else do_fit(dsk, tr, X, y, n_splits, param_lk[name], error_score)
-            for name, tr in est.transformer_list]
-    return _rebuild_feature_union(dsk, est, fits, n_splits)
 
 
 # ------------ #
