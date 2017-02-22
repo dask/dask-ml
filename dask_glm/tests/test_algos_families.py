@@ -6,6 +6,7 @@ import dask.array as da
 
 from dask_glm.algorithms import (newton, bfgs, proximal_grad,
                                  gradient_descent, admm)
+from dask_glm.families import Logistic, Normal
 from dask_glm.utils import sigmoid, make_y
 
 
@@ -43,28 +44,29 @@ def test_methods(N, p, seed, opt):
 
     y_sum = y.compute().sum()
     p_sum = p.sum()
-    assert np.isclose(y.compute().sum(), p.sum(), atol=1e-1)
+    assert np.isclose(y_sum, p_sum, atol=1e-1)
 
 
 @pytest.mark.parametrize('func,kwargs', [
     (newton, {'tol': 1e-5}),
     pytest.mark.xfail((bfgs, {'tol': 1e-8}), reason='BFGS needs a re-work.'),
     (gradient_descent, {'tol': 1e-7}),
-    (proximal_grad, {'tol': 1e-6, 'reg': 'l1', 'lamduh': 0.001}),
-    (proximal_grad, {'tol': 1e-7, 'reg': 'l2', 'lamduh': 0.001}),
-    (admm, {}),
 ])
-@pytest.mark.parametrize('N', [10000, 100000])
+@pytest.mark.parametrize('N', [1000])
 @pytest.mark.parametrize('nchunks', [1, 10])
-@pytest.mark.parametrize('beta', [[-1.5, 3]])
-def test_basic(func, kwargs, N, beta, nchunks):
+@pytest.mark.parametrize('family', [Logistic, Normal])
+def test_basic_unreg_descent(func, kwargs, N, nchunks, family):
+    beta = np.random.normal(size=2)
     M = len(beta)
-
     X = da.random.random((N, M), chunks=(N // nchunks, M))
     y = make_y(X, beta=np.array(beta), chunks=(N // nchunks,))
 
     X, y = persist(X, y)
 
-    result = func(X, y, **kwargs)
+    result = func(X, y, family=family, **kwargs)
+    test_vec = np.random.normal(size=2)
 
-    assert np.allclose(result, beta, rtol=2e-1)
+    opt = family.pointwise_loss(result, X, y).compute()
+    test_val = family.pointwise_loss(test_vec, X, y).compute()
+
+    assert opt < test_val

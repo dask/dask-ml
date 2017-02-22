@@ -58,4 +58,4 @@ class Normal(object):
 
     @staticmethod
     def hessian(Xbeta, X):
-        return dot(X.T, X)
+        return 2 * dot(X.T, X)
