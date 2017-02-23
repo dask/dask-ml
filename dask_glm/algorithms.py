@@ -7,9 +7,9 @@ import dask.array as da
 from scipy.optimize import fmin_l_bfgs_b
 
 
-from dask_glm.utils import dot, exp, log1p, absolute, sign
+from dask_glm.utils import dot, exp, log1p
 from dask_glm.families import Logistic
-from dask_glm.regularizers import L1, L2
+from dask_glm.regularizers import L1
 
 
 def compute_stepsize_dask(beta, step, Xbeta, Xstep, y, curr_val,
