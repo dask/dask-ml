@@ -3,9 +3,12 @@
 # dklearn/SCIKIT_LEARN_LICENSE.txt.
 
 import pickle
+import pytest
 
 import dask
 import numpy as np
+from numpy.testing import (assert_array_equal, assert_array_almost_equal,
+                           assert_almost_equal)
 import scipy.sparse as sp
 from scipy.stats import expon
 
@@ -26,14 +29,8 @@ from sklearn.preprocessing import Imputer
 from sklearn.svm import LinearSVC, SVC
 from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
 from sklearn.utils.fixes import in1d
-from sklearn.utils.mocking import CheckingClassifier, MockDataFrame
-from sklearn.utils.testing import (assert_equal, assert_not_equal,
-                                   assert_raises, assert_raise_message,
-                                   assert_warns, assert_false, assert_true,
-                                   assert_array_equal,
-                                   assert_array_almost_equal,
-                                   assert_almost_equal, ignore_warnings)
 
+from dklearn.utils_test import CheckingClassifier, MockDataFrame, ignore_warnings
 from dklearn import DaskGridSearchCV, DaskRandomizedSearchCV
 
 
@@ -45,7 +42,7 @@ class MockClassifier(object):
         self.foo_param = foo_param
 
     def fit(self, X, Y):
-        assert_true(len(X) == len(Y))
+        assert len(X) == len(Y)
         self.classes_ = np.unique(Y)
         return self
 
@@ -84,7 +81,7 @@ y = np.array([1, 1, 2, 2])
 
 
 def assert_grid_iter_equals_getitem(grid):
-    assert_equal(list(grid), [grid[i] for i in range(len(grid))])
+    assert list(grid) == [grid[i] for i in range(len(grid))]
 
 
 def test_grid_search():
@@ -93,7 +90,7 @@ def test_grid_search():
     grid_search = DaskGridSearchCV(clf, {'foo_param': [1, 2, 3]})
     # make sure it selects the smallest parameter in case of ties
     grid_search.fit(X, y)
-    assert_equal(grid_search.best_estimator_.foo_param, 2)
+    assert grid_search.best_estimator_.foo_param == 2
 
     assert_array_equal(grid_search.cv_results_["param_foo_param"].data,
                        [1, 2, 3])
@@ -106,7 +103,8 @@ def test_grid_search():
 
     # Test exception handling on scoring
     grid_search.scoring = 'sklearn'
-    assert_raises(ValueError, grid_search.fit, X, y)
+    with pytest.raises(ValueError):
+        grid_search.fit(X, y)
 
 
 @ignore_warnings
@@ -131,14 +129,15 @@ def test_grid_search_no_score():
     grid_search_no_score.fit(X, y)
 
     # check that best params are equal
-    assert_equal(grid_search_no_score.best_params_, grid_search.best_params_)
+    assert grid_search_no_score.best_params_ == grid_search.best_params_
     # check that we can call score and that it gives the correct result
-    assert_equal(grid_search.score(X, y), grid_search_no_score.score(X, y))
+    assert grid_search.score(X, y) == grid_search_no_score.score(X, y)
 
     # giving no scoring function raises an error
     grid_search_no_score = DaskGridSearchCV(clf_no_score, {'C': Cs})
-    assert_raise_message(TypeError, "no scoring", grid_search_no_score.fit,
-                         [[1]])
+    with pytest.raises(TypeError) as exc:
+        grid_search_no_score.fit([[1]])
+    assert "no scoring" in str(exc.value)
 
 
 def test_grid_search_score_method():
@@ -161,9 +160,9 @@ def test_grid_search_score_method():
     score_auc = search_auc.score(X, y)
 
     # ensure the test is sane
-    assert_true(score_auc < 1.0)
-    assert_true(score_accuracy < 1.0)
-    assert_not_equal(score_auc, score_accuracy)
+    assert score_auc < 1.0
+    assert score_accuracy < 1.0
+    assert score_auc != score_accuracy
 
     assert_almost_equal(score_accuracy, score_no_scoring)
     assert_almost_equal(score_auc, score_no_score_auc)
@@ -184,9 +183,11 @@ def test_grid_search_groups():
                  GroupShuffleSplit()]
     for cv in group_cvs:
         gs = DaskGridSearchCV(clf, grid, cv=cv)
-        assert_raise_message(ValueError,
-                             "The groups parameter should not be None",
-                             gs.fit, X, y)
+
+        with pytest.raises(ValueError) as exc:
+            assert gs.fit(X, y)
+        assert "The groups parameter should not be None" in str(exc.value)
+
         gs.fit(X, y, groups=groups)
 
     non_group_cvs = [StratifiedKFold(), StratifiedShuffleSplit()]
@@ -210,17 +211,17 @@ def test_classes__property():
     # Test that regressors do not have a classes_ attribute
     grid_search = DaskGridSearchCV(Ridge(), {'alpha': [1.0, 2.0]})
     grid_search.fit(X, y)
-    assert_false(hasattr(grid_search, 'classes_'))
+    assert not hasattr(grid_search, 'classes_')
 
     # Test that the grid searcher has no classes_ attribute before it's fit
     grid_search = DaskGridSearchCV(LinearSVC(random_state=0), {'C': Cs})
-    assert_false(hasattr(grid_search, 'classes_'))
+    assert not hasattr(grid_search, 'classes_')
 
     # Test that the grid searcher has no classes_ attribute without a refit
     grid_search = DaskGridSearchCV(LinearSVC(random_state=0),
                                    {'C': Cs}, refit=False)
     grid_search.fit(X, y)
-    assert_false(hasattr(grid_search, 'classes_'))
+    assert not hasattr(grid_search, 'classes_')
 
 
 def test_trivial_cv_results_attr():
@@ -229,11 +230,11 @@ def test_trivial_cv_results_attr():
     clf = MockClassifier()
     grid_search = DaskGridSearchCV(clf, {'foo_param': [1]})
     grid_search.fit(X, y)
-    assert_true(hasattr(grid_search, "cv_results_"))
+    assert hasattr(grid_search, "cv_results_")
 
     random_search = DaskRandomizedSearchCV(clf, {'foo_param': [0]}, n_iter=1)
     random_search.fit(X, y)
-    assert_true(hasattr(grid_search, "cv_results_"))
+    assert hasattr(grid_search, "cv_results_")
 
 
 def test_no_refit():
@@ -241,17 +242,17 @@ def test_no_refit():
     clf = MockClassifier()
     grid_search = DaskGridSearchCV(clf, {'foo_param': [1, 2, 3]}, refit=False)
     grid_search.fit(X, y)
-    assert_true(not hasattr(grid_search, "best_estimator_") and
+    assert (not hasattr(grid_search, "best_estimator_") and
                 hasattr(grid_search, "best_index_") and
                 hasattr(grid_search, "best_params_"))
 
     # Make sure the predict/transform etc fns raise meaningfull error msg
     for fn_name in ('predict', 'predict_proba', 'predict_log_proba',
                     'transform', 'inverse_transform'):
-        assert_raise_message(NotFittedError,
-                             ('refit=False. %s is available only after '
-                              'refitting on the best parameters' % fn_name),
-                             getattr(grid_search, fn_name), X)
+        with pytest.raises(NotFittedError) as exc:
+            getattr(grid_search, fn_name)(X)
+        assert (('refit=False. %s is available only after refitting on the '
+                 'best parameters' % fn_name) in str(exc.value))
 
 
 def test_grid_search_error():
@@ -260,7 +261,8 @@ def test_grid_search_error():
 
     clf = LinearSVC()
     cv = DaskGridSearchCV(clf, {'C': [0.1, 1.0]})
-    assert_raises(ValueError, cv.fit, X_[:180], y_)
+    with pytest.raises(ValueError):
+        cv.fit(X_[:180], y_)
 
 
 def test_grid_search_one_grid_point():
@@ -280,30 +282,32 @@ def test_grid_search_one_grid_point():
 def test_grid_search_bad_param_grid():
     param_dict = {"C": 1.0}
     clf = SVC()
-    assert_raise_message(
-        ValueError,
-        "Parameter values for parameter (C) need to be a sequence"
-        "(but not a string) or np.ndarray.",
-        DaskGridSearchCV, clf, param_dict)
+
+    with pytest.raises(ValueError) as exc:
+        DaskGridSearchCV(clf, param_dict)
+    assert ("Parameter values for parameter (C) need to be a sequence"
+            "(but not a string) or np.ndarray.") in str(exc.value)
 
     param_dict = {"C": []}
     clf = SVC()
-    assert_raise_message(
-        ValueError,
-        "Parameter values for parameter (C) need to be a non-empty sequence.",
-        DaskGridSearchCV, clf, param_dict)
+
+    with pytest.raises(ValueError) as exc:
+        DaskGridSearchCV(clf, param_dict)
+    assert ("Parameter values for parameter (C) need to be a non-empty "
+            "sequence.") in str(exc.value)
 
     param_dict = {"C": "1,2,3"}
     clf = SVC()
-    assert_raise_message(
-        ValueError,
-        "Parameter values for parameter (C) need to be a sequence"
-        "(but not a string) or np.ndarray.",
-        DaskGridSearchCV, clf, param_dict)
+
+    with pytest.raises(ValueError) as exc:
+        DaskGridSearchCV(clf, param_dict)
+    assert ("Parameter values for parameter (C) need to be a sequence"
+            "(but not a string) or np.ndarray.") in str(exc.value)
 
     param_dict = {"C": np.ones(6).reshape(3, 2)}
     clf = SVC()
-    assert_raises(ValueError, DaskGridSearchCV, clf, param_dict)
+    with pytest.raises(ValueError):
+        DaskGridSearchCV(clf, param_dict)
 
 
 def test_grid_search_sparse():
@@ -323,8 +327,8 @@ def test_grid_search_sparse():
     y_pred2 = cv.predict(X_[180:])
     C2 = cv.best_estimator_.C
 
-    assert_true(np.mean(y_pred == y_pred2) >= .9)
-    assert_equal(C, C2)
+    assert np.mean(y_pred == y_pred2) >= .9
+    assert C == C2
 
 
 def test_grid_search_sparse_scoring():
@@ -344,7 +348,7 @@ def test_grid_search_sparse_scoring():
     C2 = cv.best_estimator_.C
 
     assert_array_equal(y_pred, y_pred2)
-    assert_equal(C, C2)
+    assert C == C2
     # Smoke test the score
     # np.testing.assert_allclose(f1_score(cv.predict(X_[:180]), y[:180]),
     #                            cv.score(X_[:180], y[:180]))
@@ -358,7 +362,7 @@ def test_grid_search_sparse_scoring():
     y_pred3 = cv.predict(X_[180:])
     C3 = cv.best_estimator_.C
 
-    assert_equal(C, C3)
+    assert C == C3
     assert_array_equal(y_pred, y_pred3)
 
 
@@ -375,7 +379,7 @@ def test_grid_search_precomputed_kernel():
     cv = DaskGridSearchCV(clf, {'C': [0.1, 1.0]})
     cv.fit(K_train, y_train)
 
-    assert_true(cv.best_score_ >= 0)
+    assert cv.best_score_ >= 0
 
     # compute the test kernel matrix
     K_test = np.dot(X_[180:], X_[:180].T)
@@ -383,11 +387,12 @@ def test_grid_search_precomputed_kernel():
 
     y_pred = cv.predict(K_test)
 
-    assert_true(np.mean(y_pred == y_test) >= 0)
+    assert np.mean(y_pred == y_test) >= 0
 
     # test error is raised when the precomputed kernel is not array-like
     # or sparse
-    assert_raises(ValueError, cv.fit, K_train.tolist(), y_train)
+    with pytest.raises(ValueError):
+        cv.fit(K_train.tolist(), y_train)
 
 
 def test_grid_search_precomputed_kernel_error_nonsquare():
@@ -397,7 +402,8 @@ def test_grid_search_precomputed_kernel_error_nonsquare():
     y_train = np.ones((10, ))
     clf = SVC(kernel='precomputed')
     cv = DaskGridSearchCV(clf, {'C': [0.1, 1.0]})
-    assert_raises(ValueError, cv.fit, K_train, y_train)
+    with pytest.raises(ValueError):
+        cv.fit(K_train, y_train)
 
 
 class BrokenClassifier(BaseEstimator):
@@ -407,7 +413,7 @@ class BrokenClassifier(BaseEstimator):
         self.parameter = parameter
 
     def fit(self, X, y):
-        assert_true(not hasattr(self, 'has_been_fit_'))
+        assert not hasattr(self, 'has_been_fit_')
         self.has_been_fit_ = True
 
     def predict(self, X):
@@ -435,7 +441,7 @@ def test_gridsearch_nd():
                              check_y=lambda x: x.shape[1:] == (7, 11))
     grid_search = DaskGridSearchCV(clf, {'foo_param': [1, 2, 3]})
     grid_search.fit(X_4d, y_3d).score(X, y)
-    assert_true(hasattr(grid_search, "cv_results_"))
+    assert hasattr(grid_search, "cv_results_")
 
 
 def test_X_as_list():
@@ -447,7 +453,7 @@ def test_X_as_list():
     cv = KFold(n_splits=3)
     grid_search = DaskGridSearchCV(clf, {'foo_param': [1, 2, 3]}, cv=cv)
     grid_search.fit(X.tolist(), y).score(X, y)
-    assert_true(hasattr(grid_search, "cv_results_"))
+    assert hasattr(grid_search, "cv_results_")
 
 
 def test_y_as_list():
@@ -459,7 +465,7 @@ def test_y_as_list():
     cv = KFold(n_splits=3)
     grid_search = DaskGridSearchCV(clf, {'foo_param': [1, 2, 3]}, cv=cv)
     grid_search.fit(X, y.tolist()).score(X, y)
-    assert_true(hasattr(grid_search, "cv_results_"))
+    assert hasattr(grid_search, "cv_results_")
 
 
 @ignore_warnings
@@ -484,7 +490,7 @@ def test_pandas_input():
         grid_search = DaskGridSearchCV(clf, {'foo_param': [1, 2, 3]})
         grid_search.fit(X_df, y_ser).score(X_df, y_ser)
         grid_search.predict(X_df)
-        assert_true(hasattr(grid_search, "cv_results_"))
+        assert hasattr(grid_search, "cv_results_")
 
 
 def test_unsupervised_grid_search():
@@ -495,12 +501,12 @@ def test_unsupervised_grid_search():
                                    scoring='adjusted_rand_score')
     grid_search.fit(X, y)
     # ARI can find the right number :)
-    assert_equal(grid_search.best_params_["n_clusters"], 3)
+    assert grid_search.best_params_["n_clusters"] == 3
 
     # Now without a score, and without y
     grid_search = DaskGridSearchCV(km, param_grid=dict(n_clusters=[2, 3, 4]))
     grid_search.fit(X)
-    assert_equal(grid_search.best_params_["n_clusters"], 4)
+    assert grid_search.best_params_["n_clusters"] == 4
 
 
 def test_gridsearch_no_predict():
@@ -514,28 +520,28 @@ def test_gridsearch_no_predict():
                               param_grid=dict(bandwidth=[.01, .1, 1]),
                               scoring=custom_scoring)
     search.fit(X)
-    assert_equal(search.best_params_['bandwidth'], .1)
-    assert_equal(search.best_score_, 42)
+    assert search.best_params_['bandwidth'] == .1
+    assert search.best_score_ == 42
 
 
 def check_cv_results_array_types(cv_results, param_keys, score_keys):
     # Check if the search `cv_results`'s array are of correct types
-    assert_true(all(isinstance(cv_results[param], np.ma.MaskedArray)
-                    for param in param_keys))
-    assert_true(all(cv_results[key].dtype == object for key in param_keys))
-    assert_false(any(isinstance(cv_results[key], np.ma.MaskedArray)
-                     for key in score_keys))
-    assert_true(all(cv_results[key].dtype == np.float64
-                    for key in score_keys if not key.startswith('rank')))
-    assert_true(cv_results['rank_test_score'].dtype == np.int32)
+    assert all(isinstance(cv_results[param], np.ma.MaskedArray)
+               for param in param_keys)
+    assert all(cv_results[key].dtype == object for key in param_keys)
+    assert not any(isinstance(cv_results[key], np.ma.MaskedArray)
+                   for key in score_keys)
+    assert all(cv_results[key].dtype == np.float64
+               for key in score_keys if not key.startswith('rank'))
+    assert cv_results['rank_test_score'].dtype == np.int32
 
 
 def check_cv_results_keys(cv_results, param_keys, score_keys, n_cand):
     # Test the search.cv_results_ contains all the required results
     assert_array_equal(sorted(cv_results.keys()),
                        sorted(param_keys + score_keys + ('params',)))
-    assert_true(all(cv_results[key].shape == (n_cand,)
-                    for key in param_keys + score_keys))
+    assert all(cv_results[key].shape == (n_cand,)
+               for key in param_keys + score_keys)
 
 
 def test_grid_search_cv_results():
@@ -564,31 +570,30 @@ def test_grid_search_cv_results():
     n_candidates = n_grid_points
 
     for search, iid in zip((grid_search, grid_search_iid), (False, True)):
-        assert_equal(iid, search.iid)
+        assert iid == search.iid
         cv_results = search.cv_results_
         # Check if score and timing are reasonable
-        assert_true(all(cv_results['rank_test_score'] >= 1))
-        assert_true(all(cv_results[k] >= 0) for k in score_keys
-                    if k is not 'rank_test_score')
-        assert_true(all(cv_results[k] <= 1) for k in score_keys
-                    if 'time' not in k and
-                    k is not 'rank_test_score')
+        assert all(cv_results['rank_test_score'] >= 1)
+        assert all(all(cv_results[k] >= 0) for k in score_keys
+                   if k != 'rank_test_score')
+        assert all(all(cv_results[k] <= 1) for k in score_keys
+                   if 'time' not in k and k != 'rank_test_score')
         # Check cv_results structure
         check_cv_results_array_types(cv_results, param_keys, score_keys)
         check_cv_results_keys(cv_results, param_keys, score_keys, n_candidates)
         # Check masking
         cv_results = grid_search.cv_results_
         n_candidates = len(grid_search.cv_results_['params'])
-        assert_true(all((cv_results['param_C'].mask[i] and
-                         cv_results['param_gamma'].mask[i] and
-                         not cv_results['param_degree'].mask[i])
-                        for i in range(n_candidates)
-                        if cv_results['param_kernel'][i] == 'linear'))
-        assert_true(all((not cv_results['param_C'].mask[i] and
-                         not cv_results['param_gamma'].mask[i] and
-                         cv_results['param_degree'].mask[i])
-                        for i in range(n_candidates)
-                        if cv_results['param_kernel'][i] == 'rbf'))
+        assert all((cv_results['param_C'].mask[i] and
+                    cv_results['param_gamma'].mask[i] and
+                    not cv_results['param_degree'].mask[i])
+                    for i in range(n_candidates)
+                    if cv_results['param_kernel'][i] == 'linear')
+        assert all((not cv_results['param_C'].mask[i] and
+                    not cv_results['param_gamma'].mask[i] and
+                    cv_results['param_degree'].mask[i])
+                    for i in range(n_candidates)
+                    if cv_results['param_kernel'][i] == 'rbf')
 
 
 def test_random_search_cv_results():
@@ -623,14 +628,14 @@ def test_random_search_cv_results():
     n_cand = n_search_iter
 
     for search, iid in zip((random_search, random_search_iid), (False, True)):
-        assert_equal(iid, search.iid)
+        assert iid == search.iid
         cv_results = search.cv_results_
         # Check results structure
         check_cv_results_array_types(cv_results, param_keys, score_keys)
         check_cv_results_keys(cv_results, param_keys, score_keys, n_cand)
         # For random_search, all the param array vals should be unmasked
-        assert_false(any(cv_results['param_C'].mask) or
-                     any(cv_results['param_gamma'].mask))
+        assert not (any(cv_results['param_C'].mask) or
+                    any(cv_results['param_gamma'].mask))
 
 
 def test_search_iid_param():
@@ -654,7 +659,7 @@ def test_search_iid_param():
                                            cv=cv)
     for search in (grid_search, random_search):
         search.fit(X, y)
-        assert_true(search.iid)
+        assert search.iid
 
         test_cv_scores = np.array(list(search.cv_results_['split%d_test_score'
                                                           % s_i][0]
@@ -672,7 +677,7 @@ def test_search_iid_param():
         train_std = search.cv_results_['std_train_score'][0]
 
         # Test the first candidate
-        assert_equal(search.cv_results_['param_C'][0], 1)
+        assert search.cv_results_['param_C'][0] == 1
         assert_array_almost_equal(test_cv_scores, [1, 1. / 3.])
         assert_array_almost_equal(train_cv_scores, [1, 1])
 
@@ -699,7 +704,7 @@ def test_search_iid_param():
 
     for search in (grid_search, random_search):
         search.fit(X, y)
-        assert_false(search.iid)
+        assert not search.iid
 
         test_cv_scores = np.array(list(search.cv_results_['split%d_test_score'
                                                           % s][0]
@@ -713,7 +718,7 @@ def test_search_iid_param():
         train_mean = search.cv_results_['mean_train_score'][0]
         train_std = search.cv_results_['std_train_score'][0]
 
-        assert_equal(search.cv_results_['param_C'][0], 1)
+        assert search.cv_results_['param_C'][0] == 1
         # scores are the same as above
         assert_array_almost_equal(test_cv_scores, [1, 1. / 3.])
         # Unweighted mean/std is used
@@ -793,7 +798,7 @@ def test_grid_search_correct_score_results():
         expected_keys = (("mean_test_score", "rank_test_score") +
                          tuple("split%d_test_score" % cv_i
                                for cv_i in range(n_splits)))
-        assert_true(all(in1d(expected_keys, result_keys)))
+        assert all(in1d(expected_keys, result_keys))
 
         cv = StratifiedKFold(n_splits=n_splits)
         n_splits = grid_search.n_splits_
@@ -881,7 +886,7 @@ def test_predict_proba_disabled():
     y = [0, 0, 1, 1, 1]
     clf = SVC(probability=False)
     gs = DaskGridSearchCV(clf, {}, cv=2).fit(X, y)
-    assert_false(hasattr(gs, "predict_proba"))
+    assert not hasattr(gs, "predict_proba")
 
 
 def test_grid_search_allows_nans():
@@ -912,6 +917,7 @@ class FailingClassifier(BaseEstimator):
         return np.zeros(X.shape[0])
 
 
+@ignore_warnings
 def test_grid_search_failing_classifier():
     X, y = make_classification(n_samples=20, n_features=10, random_state=0)
     clf = FailingClassifier()
@@ -919,7 +925,10 @@ def test_grid_search_failing_classifier():
     # refit=False because we want to test the behaviour of the grid search part
     gs = DaskGridSearchCV(clf, [{'parameter': [0, 1, 2]}], scoring='accuracy',
                           refit=False, error_score=0.0)
-    assert_warns(FitFailedWarning, gs.fit, X, y)
+
+    with pytest.warns(FitFailedWarning):
+        gs.fit(X, y)
+
     n_candidates = len(gs.cv_results_['params'])
 
     # Ensure that grid scores were set to zero as required for those fits
@@ -935,7 +944,10 @@ def test_grid_search_failing_classifier():
 
     gs = DaskGridSearchCV(clf, [{'parameter': [0, 1, 2]}], scoring='accuracy',
                           refit=False, error_score=float('nan'))
-    assert_warns(FitFailedWarning, gs.fit, X, y)
+
+    with pytest.warns(FitFailedWarning):
+        gs.fit(X, y)
+
     n_candidates = len(gs.cv_results_['params'])
     assert all(np.all(np.isnan(get_cand_scores(cand_i)))
                for cand_i in range(n_candidates)
@@ -952,7 +964,8 @@ def test_grid_search_failing_classifier_raise():
                           refit=False, error_score='raise')
 
     # FailingClassifier issues a ValueError so this is what we look for.
-    assert_raises(ValueError, gs.fit, X, y)
+    with pytest.raises(ValueError):
+        gs.fit(X, y)
 
 
 def test_search_train_scores_set_to_false():

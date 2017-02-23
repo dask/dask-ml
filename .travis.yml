@@ -21,8 +21,7 @@ install:
   # Install dependencies
   - conda create -n test-environment python=$TRAVIS_PYTHON_VERSION
   - source activate test-environment
-  # Scikit-learn requires nose for test functions.
-  - conda install dask numpy scikit-learn pytest nose
+  - conda install dask numpy scikit-learn pytest
   - pip install -q graphviz
   - pip install --no-deps -e .
 
