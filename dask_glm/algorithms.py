@@ -135,26 +135,27 @@ def newton(X, y, max_iter=50, tol=1e-8, family=Logistic):
     return beta
 
 
-def add_reg_grad(func):
-    @functools.wraps(func)
-    def wrapped(beta, X, y, z, u, rho):
-        return func(beta, X, y) + rho * (beta - z + u)
-    return wrapped
-
-
-def add_reg_f(func):
-    @functools.wraps(func)
-    def wrapped(beta, X, y, z, u, rho):
-        return func(beta, X, y) + (rho / 2) * np.dot(beta - z + u,
-                                                     beta - z + u)
-    return wrapped
-
-
 def admm(X, y, reg=L1, lamduh=0.1, rho=1, over_relax=1,
          max_iter=100, abstol=1e-4, reltol=1e-2, family=Logistic):
 
     pointwise_loss = family.pointwise_loss
     pointwise_gradient = family.pointwise_gradient
+
+    def create_local_gradient(func):
+        @functools.wraps(func)
+        def wrapped(beta, X, y, z, u, rho):
+            return func(beta, X, y) + rho * (beta - z + u)
+        return wrapped
+
+    def create_local_f(func):
+        @functools.wraps(func)
+        def wrapped(beta, X, y, z, u, rho):
+            return func(beta, X, y) + (rho / 2) * np.dot(beta - z + u,
+                                                         beta - z + u)
+        return wrapped
+
+    f = create_local_f(pointwise_loss)
+    fprime = create_local_gradient(pointwise_gradient)
 
     nchunks = X.npartitions
     (n, p) = X.shape
@@ -164,9 +165,6 @@ def admm(X, y, reg=L1, lamduh=0.1, rho=1, over_relax=1,
     z = np.zeros(p)
     u = np.array([np.zeros(p) for i in range(nchunks)])
     betas = np.array([np.zeros(p) for i in range(nchunks)])
-
-    f = add_reg_f(pointwise_loss)
-    fprime = add_reg_grad(pointwise_gradient)
 
     for k in range(max_iter):
 
@@ -203,8 +201,7 @@ def admm(X, y, reg=L1, lamduh=0.1, rho=1, over_relax=1,
     return z
 
 
-def local_update(X, y, beta, z, u, rho, f=add_reg_f(Logistic.pointwise_loss),
-                 fprime=add_reg_grad(Logistic.pointwise_gradient), solver=fmin_l_bfgs_b):
+def local_update(X, y, beta, z, u, rho, f, fprime, solver=fmin_l_bfgs_b):
 
     beta = beta.ravel()
     u = u.ravel()
