@@ -4,24 +4,41 @@ import dask.array as da
 from dask.base import Base, tokenize
 from dask.delayed import delayed, Delayed
 
-from sklearn.utils.validation import indexable
+from sklearn.utils.validation import indexable, _is_arraylike
 
 
 def _indexable(x):
     return indexable(x)[0]
 
 
-def to_indexable(*args):
+def _maybe_indexable(x):
+    if _is_arraylike(x):
+        return indexable(x)[0]
+    return x
+
+
+def to_indexable(*args, **kwargs):
     """Ensure that all args are an indexable type.
 
-    Conversion runs lazily for dask objects, immediately otherwise."""
+    Conversion runs lazily for dask objects, immediately otherwise.
+
+    Parameters
+    ----------
+    args : array_like or scalar
+    allow_scalars : bool, optional
+        Whether to allow scalars in args. Default is False.
+    """
+    if kwargs.get('allow_scalars', False):
+        indexable = _maybe_indexable
+    else:
+        indexable = _indexable
     for x in args:
         if x is None or isinstance(x, da.Array):
             yield x
         elif isinstance(x, Base):
-            yield delayed(_indexable, pure=True)(x)
+            yield delayed(indexable, pure=True)(x)
         else:
-            yield _indexable(x)
+            yield indexable(x)
 
 
 def to_keys(dsk, *args):

@@ -28,7 +28,8 @@ from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.utils import safe_indexing
 from sklearn.utils.fixes import rankdata, MaskedArray
 from sklearn.utils.multiclass import type_of_target
-from sklearn.utils.validation import _num_samples, check_consistent_length
+from sklearn.utils.validation import (_num_samples, check_consistent_length,
+                                      _is_arraylike)
 
 from ._normalize import normalize_estimator
 from .utils import to_indexable, to_keys, copy_estimator, unzip
@@ -69,6 +70,10 @@ def cv_extract_pairwise(X, y, ind1, ind2):
         raise ValueError("X should be a square kernel matrix")
     return (X[np.ix_(ind1, ind2)],
             None if y is None else safe_indexing(y, ind1))
+
+
+def cv_extract_param(x, indices):
+    return safe_indexing(x, indices) if _is_arraylike(x) else x
 
 
 def pipeline(names, steps):
@@ -215,7 +220,11 @@ def build_graph(estimator, cv, scorer, candidate_params, X, y=None,
                 error_score='raise', return_train_score=True):
 
     X, y, groups = to_indexable(X, y, groups)
-    fit_params = fit_params or {}
+    if fit_params:
+        param_values = to_indexable(*fit_params.values(), allow_scalars=True)
+        fit_params = dict(zip(fit_params, param_values))
+    else:
+        fit_params = {}
     cv = check_cv(cv, y, is_classifier(estimator))
     # "pairwise" estimators require a different graph for CV splitting
     is_pairwise = getattr(estimator, '_pairwise', False)
@@ -223,7 +232,9 @@ def build_graph(estimator, cv, scorer, candidate_params, X, y=None,
     (dsk, n_splits,
      X_name, y_name,
      X_train, y_train,
-     X_test, y_test) = initialize_graph(cv, X, y, groups, is_pairwise)
+     X_test, y_test,
+     fit_params) = initialize_graph(cv, X, y, groups, fit_params,
+                                    is_pairwise)
 
     scores = []
     for parameters in candidate_params:
@@ -246,7 +257,7 @@ def build_graph(estimator, cv, scorer, candidate_params, X, y=None,
         dsk[best_params] = (get_best_params, candidate_params, cv_results)
         best_estimator = 'best-estimator-' + token
         dsk[best_estimator] = (fit_best, clone(estimator), best_params,
-                               X_name, y_name, fit_params)
+                               X_name, y_name, _get_fit_params(fit_params, -1))
         keys.append(best_estimator)
 
     return dsk, keys, n_splits
@@ -296,8 +307,10 @@ def do_fit(dsk, est, X, y, n_splits, fit_params, error_score):
         token = tokenize(normalize_estimator(est), X, y, fit_params,
                          error_score == 'raise')
         name = '%s-fit-%s' % (type(est).__name__.lower(), token)
+
         for n in range(n_splits):
-            dsk[(name, n)] = (fit, est, (X, n), (y, n), fit_params, error_score)
+            dsk[(name, n)] = (fit, est, (X, n), (y, n),
+                              _get_fit_params(fit_params, n), error_score)
         return name
 
 
@@ -332,14 +345,14 @@ def do_fit_transform(dsk, est, X, y, n_splits, fit_params, error_score):
         fit = _rebuild_feature_union(dsk, est, fits, n_splits)
     else:
         token = tokenize(normalize_estimator(est), X, y, fit_params,
-                        error_score == 'raise')
+                         error_score == 'raise')
         name = type(est).__name__.lower()
         fit_Xt = '%s-fit-transform-%s' % (name, token)
         fit = '%s-fit-%s' % (name, token)
         Xt = '%s-transform-%s' % (name, token)
         for n in range(n_splits):
-            dsk[(fit_Xt, n)] = (fit_transform, est, (X, n), (y, n), fit_params,
-                                error_score)
+            dsk[(fit_Xt, n)] = (fit_transform, est, (X, n), (y, n),
+                                _get_fit_params(fit_params, n), error_score)
             dsk[(fit, n)] = (getitem, (fit_Xt, n), 0)
             dsk[(Xt, n)] = (getitem, (fit_Xt, n), 1)
     return fit, Xt
@@ -351,6 +364,12 @@ def _group_fit_params(steps, fit_params):
         step, param = pname.split('__', 1)
         param_lk[step][param] = pval
     return param_lk
+
+
+def _get_fit_params(fit_params, n):
+    if fit_params:
+        return (dict, [[k, (v, n)] for (k, v) in fit_params.items()])
+    return fit_params
 
 
 def _fit_transform_steps(dsk, steps, Xt, y, n_splits, param_lk, error_score):
@@ -409,7 +428,8 @@ def check_cv(cv=3, y=None, classifier=False):
     return KFold(cv)
 
 
-def initialize_graph(cv, X, y=None, groups=None, is_pairwise=False):
+def initialize_graph(cv, X, y=None, groups=None, fit_params=None,
+                     is_pairwise=False):
     """Initialize the CV dask graph.
 
     Given input data X, y, and groups, build up a dask graph performing the
@@ -419,6 +439,7 @@ def initialize_graph(cv, X, y=None, groups=None, is_pairwise=False):
     ----------
     cv : BaseCrossValidator
     X, y, groups : array_like, dask object, or None
+    fit_params : dict, optional
     is_pairwise : bool
         Whether the estimator being evaluated has ``_pairwise`` as an
         attribute (which affects how the CV splitting is done).
@@ -427,7 +448,10 @@ def initialize_graph(cv, X, y=None, groups=None, is_pairwise=False):
     X_name, y_name, groups_name = to_keys(dsk, X, y, groups)
     n_splits = compute_n_splits(cv, X, y, groups)
 
-    cv_token = tokenize(cv, X_name, y_name, groups_name)
+    if not fit_params:
+        fit_params = {}
+
+    cv_token = tokenize(cv, X_name, y_name, groups_name, is_pairwise)
     cv_name = 'cv-split-' + cv_token
     train_name = 'cv-split-train-' + cv_token
     test_name = 'cv-split-test-' + cv_token
@@ -471,7 +495,21 @@ def initialize_graph(cv, X, y=None, groups=None, is_pairwise=False):
         dsk[(X_test, n)] = (getitem, (Xy_test, n), 0)
         dsk[(y_test, n)] = (getitem, (Xy_test, n), 1)
 
-    return dsk, n_splits, X_name, y_name, X_train, y_train, X_test, y_test
+    fit_params_train = {}
+    if fit_params:
+        for name, val in zip(fit_params, to_keys(dsk, *fit_params.values())):
+            param_key = 'fit-param-train' + tokenize(name, val, cv_token)
+            dsk[(param_key, -1)] = val
+            for n in range(n_splits):
+                dsk[(param_key, n)] = (cv_extract_param, (param_key, -1),
+                                       (train_name, n))
+            fit_params_train[name] = param_key
+
+    return (dsk, n_splits,
+            X_name, y_name,
+            X_train, y_train,
+            X_test, y_test,
+            fit_params_train)
 
 
 def compute_n_splits(cv, X, y=None, groups=None):
