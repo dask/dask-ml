@@ -15,7 +15,7 @@ from dask.utils import tmpdir
 
 from sklearn.datasets import make_classification, load_iris
 from sklearn.decomposition import PCA
-from sklearn.exceptions import NotFittedError
+from sklearn.exceptions import NotFittedError, FitFailedWarning
 from sklearn.feature_selection import SelectKBest
 from sklearn.model_selection import (KFold,
                                      GroupKFold,
@@ -30,11 +30,14 @@ from sklearn.model_selection import (KFold,
                                      LeavePGroupsOut,
                                      PredefinedSplit,
                                      GridSearchCV)
+from sklearn.model_selection._split import _CVIterableWrapper
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.svm import SVC
 
 from dklearn import DaskGridSearchCV
 from dklearn._builder import compute_n_splits, check_cv
+from dklearn.utils_test import (FailingClassifier, MockClassifier,
+                                ignore_warnings)
 
 
 class assert_dask_compute(Callback):
@@ -185,6 +188,20 @@ def test_predefined_split():
         assert compute_n_splits(cv, da_X, da_y, da_groups) == sol
 
 
+def test_old_style_cv():
+    cv1 = _CVIterableWrapper([np.array([True, False, True, False] * 5),
+                              np.array([False, True, False, True] * 5)])
+    cv2 = _CVIterableWrapper([np.array([True, False, True, False] * 5),
+                              np.array([False, True, True, True] * 5)])
+    assert tokenize(cv1) == tokenize(cv1)
+    assert tokenize(cv1) != tokenize(cv2)
+
+    sol = cv1.get_n_splits(np_X, np_y, np_groups)
+    assert compute_n_splits(cv1, np_X, np_y, np_groups) == sol
+    with assert_dask_compute(False):
+        assert compute_n_splits(cv1, da_X, da_y, da_groups) == sol
+
+
 def test_check_cv():
     # No y, classifier=False
     cv = check_cv(3, classifier=False)
@@ -215,6 +232,12 @@ def test_check_cv():
     dy = da.from_array(y, chunks=2)
     with assert_dask_compute(True):
         assert isinstance(check_cv(y=dy, classifier=True), KFold)
+
+    # Old style
+    cv = [np.array([True, False, True]), np.array([False, True, False])]
+    with assert_dask_compute(False):
+        assert isinstance(check_cv(cv, y=dy, classifier=True),
+                          _CVIterableWrapper)
 
     # CV instance passes through
     y = da.ones(5, chunks=2)
@@ -262,11 +285,18 @@ def test_pipeline_feature_union():
 
     pca = PCA(random_state=0)
     kbest = SelectKBest()
+    empty_union = FeatureUnion([('first', None), ('second', None)])
+    empty_pipeline = Pipeline([('first', None), ('second', None)])
     svc = SVC(kernel='linear', random_state=0)
 
-    pipe = Pipeline([("union", FeatureUnion([("pca", pca), ('kbest', kbest)],
+    pipe = Pipeline([('empty_pipeline', empty_pipeline),
+                     ('missing', None),
+                     ('union', FeatureUnion([('pca', pca),
+                                             ('missing', None),
+                                             ('kbest', kbest),
+                                             ('empty_union', empty_union)],
                                             transformer_weights={'pca': 0.5})),
-                     ("svc", svc)])
+                     ('svc', svc)])
 
     param_grid = dict(union__pca__n_components=[1, 2, 3],
                       union__kbest__k=[1, 2],
@@ -286,10 +316,67 @@ def test_pipeline_feature_union():
     np.testing.assert_allclose(sk_pca.components_, dk_pca.components_)
 
     # Check SelectKBest scores match
-    sk_kbest = gs.best_estimator_.named_steps['union'].transformer_list[1][1]
-    dk_kbest = dgs.best_estimator_.named_steps['union'].transformer_list[1][1]
+    sk_kbest = gs.best_estimator_.named_steps['union'].transformer_list[2][1]
+    dk_kbest = dgs.best_estimator_.named_steps['union'].transformer_list[2][1]
     np.testing.assert_allclose(sk_kbest.scores_, dk_kbest.scores_)
 
     # Check SVC coefs match
     np.testing.assert_allclose(gs.best_estimator_.named_steps['svc'].coef_,
                                dgs.best_estimator_.named_steps['svc'].coef_)
+
+
+def check_scores_all_nan(gs, bad_param):
+    bad_param = 'param_' + bad_param
+    n_candidates = len(gs.cv_results_['params'])
+    assert all(np.isnan([gs.cv_results_['split%d_test_score' % s][cand_i]
+                        for s in range(gs.n_splits_)]).all()
+               for cand_i in range(n_candidates)
+               if gs.cv_results_[bad_param][cand_i] ==
+               FailingClassifier.FAILING_PARAMETER)
+
+
+@ignore_warnings
+def test_feature_union_fit_failure():
+    X, y = make_classification(n_samples=100, n_features=10, random_state=0)
+
+    pipe = Pipeline([('union', FeatureUnion([('good', MockClassifier()),
+                                             ('bad', FailingClassifier())],
+                                            transformer_weights={'bad': 0.5})),
+                     ('clf', MockClassifier())])
+
+    grid = {'union__bad__parameter': [0, 1, 2]}
+    gs = DaskGridSearchCV(pipe, grid, refit=False)
+
+    # Check that failure raises if error_score is `'raise'`
+    with pytest.raises(ValueError):
+        gs.fit(X, y)
+
+    # Check that grid scores were set to error_score on failure
+    gs.error_score = float('nan')
+    with pytest.warns(FitFailedWarning):
+        gs.fit(X, y)
+
+    check_scores_all_nan(gs, 'union__bad__parameter')
+
+
+@ignore_warnings
+def test_pipeline_fit_failure():
+    X, y = make_classification(n_samples=100, n_features=10, random_state=0)
+
+    pipe = Pipeline([('bad', FailingClassifier()),
+                     ('good1', MockClassifier()),
+                     ('good2', MockClassifier())])
+
+    grid = {'bad__parameter': [0, 1, 2]}
+    gs = DaskGridSearchCV(pipe, grid, refit=False)
+
+    # Check that failure raises if error_score is `'raise'`
+    with pytest.raises(ValueError):
+        gs.fit(X, y)
+
+    # Check that grid scores were set to error_score on failure
+    gs.error_score = float('nan')
+    with pytest.warns(FitFailedWarning):
+        gs.fit(X, y)
+
+    check_scores_all_nan(gs, 'bad__parameter')

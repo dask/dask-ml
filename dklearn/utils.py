@@ -51,6 +51,4 @@ def copy_estimator(est):
 
 
 def unzip(itbl, n):
-    if itbl:
-        return zip(*itbl)
-    return [()] * n
+    return zip(*itbl) if itbl else [()] * n
