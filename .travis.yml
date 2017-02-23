@@ -2,8 +2,8 @@ language: python
 sudo: false
 python:
     - "2.7"
-    - "3.4"
     - "3.5"
+    - "3.6"
 
 addons:
     apt:
@@ -22,11 +22,12 @@ install:
   - conda create -n test-environment python=$TRAVIS_PYTHON_VERSION
   - source activate test-environment
   - conda install dask numpy scikit-learn pytest
-  - pip install -q graphviz
+  - pip install -q graphviz flake8
   - pip install --no-deps -e .
 
 script:
   - py.test dklearn --verbose
+  - flake8 dklearn
 
 notifications:
   email: false

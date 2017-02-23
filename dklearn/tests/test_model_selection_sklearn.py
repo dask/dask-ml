@@ -43,6 +43,7 @@ class LinearSVCNoScore(LinearSVC):
     def score(self):
         raise AttributeError
 
+
 X = np.array([[-1, -1], [-2, -1], [1, 1], [2, 1]])
 y = np.array([1, 1, 2, 2])
 

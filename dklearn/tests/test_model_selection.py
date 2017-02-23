@@ -103,6 +103,10 @@ def test_kfolds(cls, has_shuffle):
         assert (tokenize(cls(shuffle=True, random_state=0)) ==
                 tokenize(cls(shuffle=True, random_state=0)))
 
+        rs = np.random.RandomState(42)
+        assert (tokenize(cls(shuffle=True, random_state=rs)) ==
+                tokenize(cls(shuffle=True, random_state=rs)))
+
         assert (tokenize(cls(shuffle=True, random_state=0)) !=
                 tokenize(cls(shuffle=True, random_state=2)))
 
@@ -380,3 +384,12 @@ def test_pipeline_fit_failure():
         gs.fit(X, y)
 
     check_scores_all_nan(gs, 'bad__parameter')
+
+
+def test_bad_error_score():
+    X, y = make_classification(n_samples=100, n_features=10, random_state=0)
+    gs = DaskGridSearchCV(MockClassifier(), {'foo_param': [0, 1, 2]},
+                          error_score='badparam')
+
+    with pytest.raises(ValueError):
+        gs.fit(X, y)

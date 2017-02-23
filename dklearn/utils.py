@@ -12,9 +12,7 @@ def _indexable(x):
 
 
 def _maybe_indexable(x):
-    if _is_arraylike(x):
-        return indexable(x)[0]
-    return x
+    return indexable(x)[0] if _is_arraylike(x) else x
 
 
 def to_indexable(*args, **kwargs):
