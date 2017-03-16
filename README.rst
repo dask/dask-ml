@@ -10,7 +10,7 @@ This library provides implementations of Scikit-Learn's ``GridSearchCV`` and
 parameters, and should be a drop-in replacement for the subset that they do
 implement. For certain problems, these implementations can be more efficient
 than those in scikit-learn, as they can avoid repeating expensive repeated
-comptuations.
+computations.
 
 .. |Travis Status| image:: https://travis-ci.org/dask/dask-learn.svg?branch=master
    :target: https://travis-ci.org/dask/dask-learn
