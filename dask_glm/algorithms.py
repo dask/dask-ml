@@ -97,7 +97,7 @@ def gradient_descent(X, y, max_steps=100, tol=1e-14, family=Logistic):
     return beta
 
 
-def newton(X, y, max_iter=50, tol=1e-8, family=Logistic):
+def newton(X, y, max_steps=50, tol=1e-8, family=Logistic):
     '''Newtons Method for Logistic Regression.'''
 
     gradient, hessian = family.gradient, family.hessian
@@ -127,7 +127,7 @@ def newton(X, y, max_iter=50, tol=1e-8, family=Logistic):
         # should change this criterion
         coef_change = np.absolute(beta_old - beta)
         converged = (
-            (not np.any(coef_change > tol)) or (iter_count > max_iter))
+            (not np.any(coef_change > tol)) or (iter_count > max_steps))
 
         if not converged:
             Xbeta = dot(X, beta)  # numpy -> dask converstion of beta
@@ -136,7 +136,7 @@ def newton(X, y, max_iter=50, tol=1e-8, family=Logistic):
 
 
 def admm(X, y, reg=L1, lamduh=0.1, rho=1, over_relax=1,
-         max_iter=100, abstol=1e-4, reltol=1e-2, family=Logistic):
+         max_steps=100, abstol=1e-4, reltol=1e-2, family=Logistic):
 
     pointwise_loss = family.pointwise_loss
     pointwise_gradient = family.pointwise_gradient
@@ -166,7 +166,7 @@ def admm(X, y, reg=L1, lamduh=0.1, rho=1, over_relax=1,
     u = np.array([np.zeros(p) for i in range(nchunks)])
     betas = np.array([np.zeros(p) for i in range(nchunks)])
 
-    for k in range(max_iter):
+    for k in range(max_steps):
 
         # x-update step
         new_betas = [delayed(local_update)(xx, yy, bb, z, uu, rho, f=f,
@@ -219,7 +219,7 @@ def shrinkage(x, kappa):
     return z
 
 
-def bfgs(X, y, max_iter=500, tol=1e-14, family=Logistic):
+def bfgs(X, y, max_steps=500, tol=1e-14, family=Logistic):
     '''Simple implementation of BFGS.'''
 
     n, p = X.shape
@@ -233,7 +233,7 @@ def bfgs(X, y, max_iter=500, tol=1e-14, family=Logistic):
 
     beta = np.zeros(p)
     Hk = np.eye(p)
-    for k in range(max_iter):
+    for k in range(max_steps):
 
         if k % recalcRate == 0:
             Xbeta = X.dot(beta)
