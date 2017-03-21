@@ -1,5 +1,7 @@
 import pytest
 
+import dask
+import dask.multiprocessing
 from dask import persist
 import numpy as np
 import dask.array as da
@@ -105,3 +107,47 @@ def test_basic_reg_descent(func, kwargs, N, nchunks, family, lam, reg):
     test_val = f(test_vec, X, y).compute()
 
     assert opt < test_val
+
+
+@pytest.mark.parametrize('func,kwargs', [
+    (admm, {'max_steps': 2}),
+    (proximal_grad, {'max_steps': 2}),
+    (newton, {'max_steps': 2}),
+    (gradient_descent, {'max_steps': 2}),
+])
+@pytest.mark.parametrize('get', [
+    dask.async.get_sync,
+    dask.threaded.get,
+    dask.multiprocessing.get
+])
+def test_determinism(func, kwargs, get):
+    X, y = make_intercept_data(1000, 10)
+
+    with dask.set_options(get=get):
+        a = func(X, y, **kwargs)
+        b = func(X, y, **kwargs)
+
+    assert (a == b).all()
+
+
+try:
+    from distributed import Client
+    from distributed.utils_test import cluster, loop  # flake8: noqa
+except ImportError:
+    pass
+else:
+    @pytest.mark.parametrize('func,kwargs', [
+        (admm, {'max_steps': 2}),
+        (proximal_grad, {'max_steps': 2}),
+        (newton, {'max_steps': 2}),
+        (gradient_descent, {'max_steps': 2}),
+    ])
+    def test_determinism_distributed(func, kwargs, loop):
+        with cluster() as (s, [a, b]):
+            with Client(s['address'], loop=loop) as c:
+                X, y = make_intercept_data(1000, 10)
+
+                a = func(X, y, **kwargs)
+                b = func(X, y, **kwargs)
+
+                assert (a == b).all()
