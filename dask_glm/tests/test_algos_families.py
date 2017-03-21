@@ -109,17 +109,16 @@ def test_basic_reg_descent(func, kwargs, N, nchunks, family, lam, reg):
     assert opt < test_val
 
 
-
 @pytest.mark.parametrize('func,kwargs', [
     (admm, {'max_steps': 2}),
     (proximal_grad, {'max_steps': 2}),
     (newton, {'max_steps': 2}),
     (gradient_descent, {'max_steps': 2}),
 ])
-@pytest.mark.parametrize('get',
-    [dask.async.get_sync,
-     dask.threaded.get,
-     dask.multiprocessing.get
+@pytest.mark.parametrize('get', [
+    dask.async.get_sync,
+    dask.threaded.get,
+    dask.multiprocessing.get
 ])
 def test_determinism(func, kwargs, get):
     X, y = make_intercept_data(1000, 10)
@@ -133,7 +132,7 @@ def test_determinism(func, kwargs, get):
 
 try:
     from distributed import Client
-    from distributed.utils_test import cluster, loop
+    from distributed.utils_test import cluster, loop  # flake8: noqa
 except ImportError:
     pass
 else:
