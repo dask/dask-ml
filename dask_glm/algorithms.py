@@ -136,7 +136,7 @@ def newton(X, y, max_steps=50, tol=1e-8, family=Logistic):
 
 
 def admm(X, y, reg=L1, lamduh=0.1, rho=1, over_relax=1,
-         max_steps=100, abstol=1e-4, reltol=1e-2, family=Logistic):
+         max_steps=250, abstol=1e-4, reltol=1e-2, family=Logistic):
 
     pointwise_loss = family.pointwise_loss
     pointwise_gradient = family.pointwise_gradient
@@ -180,7 +180,6 @@ def admm(X, y, reg=L1, lamduh=0.1, rho=1, over_relax=1,
         zold = z.copy()
         ztilde = np.mean(beta_hat + np.array(u), axis=0)
         z = reg.proximal_operator(ztilde, lamduh / (rho * nchunks))
-#        z = shrinkage(ztilde, lamduh / (rho * nchunks))
 
         # u-update step
         u += beta_hat - z
@@ -189,10 +188,10 @@ def admm(X, y, reg=L1, lamduh=0.1, rho=1, over_relax=1,
         primal_res = np.linalg.norm(new_betas - z)
         dual_res = np.linalg.norm(rho * (z - zold))
 
-        eps_pri = np.sqrt(p * nchunks) * abstol + nchunks * reltol * np.maximum(
-            np.linalg.norm(new_betas), np.linalg.norm(z))
+        eps_pri = np.sqrt(p * nchunks) * abstol + reltol * np.maximum(
+            np.linalg.norm(new_betas), np.sqrt(nchunks) * np.linalg.norm(z))
         eps_dual = np.sqrt(p * nchunks) * abstol + \
-            nchunks * reltol * np.linalg.norm(rho * u)
+            reltol * np.linalg.norm(rho * u)
 
         if primal_res < eps_pri and dual_res < eps_dual:
             print("Converged!", k)
@@ -207,9 +206,9 @@ def local_update(X, y, beta, z, u, rho, f, fprime, solver=fmin_l_bfgs_b):
     u = u.ravel()
     z = z.ravel()
     solver_args = (X, y, z, u, rho)
-    beta, f, d = solver(f, beta, fprime=fprime, args=solver_args, pgtol=1e-10,
+    beta, f, d = solver(f, beta, fprime=fprime, args=solver_args,
                         maxiter=200,
-                        maxfun=250, factr=1e-30)
+                        maxfun=250)
 
     return beta
 
