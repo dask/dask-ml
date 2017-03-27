@@ -1,10 +1,12 @@
 from __future__ import absolute_import, division, print_function
 
 import os
+import pickle
 from itertools import product
 
 import pytest
 import numpy as np
+import pandas as pd
 
 import dask
 import dask.array as da
@@ -35,9 +37,10 @@ from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.svm import SVC
 
 from dklearn import DaskGridSearchCV
-from dklearn._builder import compute_n_splits, check_cv
+from dklearn.core import compute_n_splits, check_cv
+from dklearn.methods import CVCache
 from dklearn.utils_test import (FailingClassifier, MockClassifier,
-                                ignore_warnings)
+                                IdentityTransformer, ignore_warnings)
 
 
 class assert_dask_compute(Callback):
@@ -291,9 +294,11 @@ def test_pipeline_feature_union():
     kbest = SelectKBest()
     empty_union = FeatureUnion([('first', None), ('second', None)])
     empty_pipeline = Pipeline([('first', None), ('second', None)])
+    identity = Pipeline([('transform', IdentityTransformer())])
     svc = SVC(kernel='linear', random_state=0)
 
     pipe = Pipeline([('empty_pipeline', empty_pipeline),
+                     ('identity', identity),
                      ('missing', None),
                      ('union', FeatureUnion([('pca', pca),
                                              ('missing', None),
@@ -302,7 +307,8 @@ def test_pipeline_feature_union():
                                             transformer_weights={'pca': 0.5})),
                      ('svc', svc)])
 
-    param_grid = dict(union__pca__n_components=[1, 2, 3],
+    param_grid = dict(identity__transform__dummy=[1, 2],
+                      union__pca__n_components=[1, 2, 3],
                       union__kbest__k=[1, 2],
                       svc__C=[0.1, 1, 10])
 
@@ -323,6 +329,45 @@ def test_pipeline_feature_union():
     sk_kbest = gs.best_estimator_.named_steps['union'].transformer_list[2][1]
     dk_kbest = dgs.best_estimator_.named_steps['union'].transformer_list[2][1]
     np.testing.assert_allclose(sk_kbest.scores_, dk_kbest.scores_)
+
+    # Check SVC coefs match
+    np.testing.assert_allclose(gs.best_estimator_.named_steps['svc'].coef_,
+                               dgs.best_estimator_.named_steps['svc'].coef_)
+
+
+def test_pipeline_sub_estimators():
+    iris = load_iris()
+    X, y = iris.data, iris.target
+
+    identity = Pipeline([('transform', IdentityTransformer())])
+
+    pipe = Pipeline([('setup', None),
+                     ('missing', None),
+                     ('identity', identity),
+                     ('svc', SVC(kernel='linear', random_state=0))])
+
+    param_grid = [{'svc__C': [0.1, 0.1]},  # Duplicates to test culling
+                  {'setup': [None],
+                   'svc__C': [0.1, 1, 10],
+                   'identity': [IdentityTransformer(), None]},
+                  {'setup': [SelectKBest()],
+                   'setup__k': [1, 2],
+                   'svc': [SVC(kernel='linear', random_state=0, C=0.1),
+                           SVC(kernel='linear', random_state=0, C=1),
+                           SVC(kernel='linear', random_state=0, C=10)]}]
+
+    gs = GridSearchCV(pipe, param_grid=param_grid)
+    gs.fit(X, y)
+    dgs = DaskGridSearchCV(pipe, param_grid=param_grid, get=dask.get)
+    dgs.fit(X, y)
+
+    # Check best params match
+    assert gs.best_params_ == dgs.best_params_
+
+    # Check cv results match
+    res = pd.DataFrame(dgs.cv_results_)
+    sol = pd.DataFrame(gs.cv_results_)[res.columns]
+    assert res.equals(sol)
 
     # Check SVC coefs match
     np.testing.assert_allclose(gs.best_estimator_.named_steps['svc'].coef_,
@@ -386,6 +431,23 @@ def test_pipeline_fit_failure():
     check_scores_all_nan(gs, 'bad__parameter')
 
 
+def test_pipeline_raises():
+    X, y = make_classification(n_samples=100, n_features=10, random_state=0)
+
+    pipe = Pipeline([('step1', MockClassifier()),
+                     ('step2', MockClassifier())])
+
+    grid = {'step3__parameter': [0, 1, 2]}
+    gs = DaskGridSearchCV(pipe, grid, refit=False)
+    with pytest.raises(ValueError):
+        gs.fit(X, y)
+
+    grid = {'steps': [[('one', MockClassifier()), ('two', MockClassifier())]]}
+    gs = DaskGridSearchCV(pipe, grid, refit=False)
+    with pytest.raises(NotImplementedError):
+        gs.fit(X, y)
+
+
 def test_bad_error_score():
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
     gs = DaskGridSearchCV(MockClassifier(), {'foo_param': [0, 1, 2]},
@@ -393,3 +455,45 @@ def test_bad_error_score():
 
     with pytest.raises(ValueError):
         gs.fit(X, y)
+
+
+class CountTakes(np.ndarray):
+    count = 0
+
+    def take(self, *args, **kwargs):
+        self.count += 1
+        return super(CountTakes, self).take(*args, **kwargs)
+
+
+def test_cache_cv():
+    X, y = make_classification(n_samples=100, n_features=10, random_state=0)
+    X2 = X.view(CountTakes)
+    gs = DaskGridSearchCV(MockClassifier(), {'foo_param': [0, 1, 2]},
+                          cv=3, cache_cv=False, get=dask.get)
+    gs.fit(X2, y)
+    assert X2.count == 3 * 3 * 3  # (2 train + 1 test) for n_params * n_splits
+
+    X2 = X.view(CountTakes)
+    assert X2.count == 0
+    gs.cache_cv = True
+    gs.fit(X2, y)
+    assert X2.count == 2 * 3  # (1 test + 1 train) * n_splits
+
+
+def test_CVCache_serializable():
+    inds = np.arange(10)
+    splits = [(inds[:3], inds[3:]), (inds[3:], inds[:3])]
+    X = np.arange(100).reshape((10, 10))
+    y = np.zeros(10)
+    cache = CVCache(splits, pairwise=True, cache=True)
+
+    # Add something to the cache
+    r1 = cache.extract(X, y, 0)
+    assert cache.extract(X, y, 0) is r1
+    assert len(cache.cache) == 1
+
+    cache2 = pickle.loads(pickle.dumps(cache))
+    assert len(cache2.cache) == 0
+    assert cache2.pairwise == cache.pairwise
+    assert all((cache2.splits[i][j] == cache.splits[i][j]).all()
+               for i in range(2) for j in range(2))

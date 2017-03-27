@@ -23,8 +23,10 @@ class MockClassifier(object):
     predict_proba = predict
     predict_log_proba = predict
     decision_function = predict
-    transform = predict
     inverse_transform = predict
+
+    def transform(self, X):
+        return X
 
     def score(self, X=None, Y=None):
         if self.foo_param > 1:
@@ -41,6 +43,17 @@ class MockClassifier(object):
         return self
 
 
+class IdentityTransformer(BaseEstimator):
+    def __init__(self, dummy=None):
+        self.dummy = dummy
+
+    def fit(self, X, y):
+        return self
+
+    def transform(self, X):
+        return X
+
+
 class FailingClassifier(BaseEstimator):
     """Classifier that raises a ValueError on fit()"""
 
@@ -52,11 +65,13 @@ class FailingClassifier(BaseEstimator):
     def fit(self, X, y=None):
         if self.parameter == FailingClassifier.FAILING_PARAMETER:
             raise ValueError("Failing classifier failed as required")
+        return self
+
+    def transform(self, X):
+        return X
 
     def predict(self, X):
         return np.zeros(X.shape[0])
-
-    transform = predict
 
 
 def ignore_warnings(f):

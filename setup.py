@@ -4,7 +4,7 @@ from setuptools import setup
 import versioneer
 
 install_requires = ["dask >= 0.12.0",
-                    "scikit-learn >= 0.18.1",
+                    "scikit-learn >= 0.18.0",
                     "numpy"]
 
 setup(name='dask-learn',
