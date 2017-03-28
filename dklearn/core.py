@@ -22,9 +22,10 @@ from sklearn.model_selection._split import (_BaseKFold,
 from sklearn.pipeline import Pipeline
 from sklearn.utils.multiclass import type_of_target
 
-from .methods import (fit, fit_transform, pipeline, fit_best, get_best_params,
-                      create_cv_results, cv_split, cv_n_samples, cv_extract,
-                      cv_extract_params, score, MISSING)
+from .methods import (fit, fit_transform, fit_and_score, pipeline, fit_best,
+                      get_best_params, create_cv_results, cv_split,
+                      cv_n_samples, cv_extract, cv_extract_params,
+                      decompress_params, score, MISSING)
 from ._normalize import normalize_estimator
 
 from .utils import to_indexable, to_keys, unzip
@@ -84,45 +85,21 @@ def build_graph(estimator, cv, scorer, candidate_params, X, y=None,
     else:
         weights = None
 
-    X_train = (cv_extract, cv_name, X_name, y_name, True, True)
-    X_test = (cv_extract, cv_name, X_name, y_name, True, False)
-    y_train = (cv_extract, cv_name, X_name, y_name, False, True)
-    y_test = (cv_extract, cv_name, X_name, y_name, False, False)
-
-    # Fit the estimator on the training data
-    X_trains = [X_train] * len(params)
-    y_trains = [y_train] * len(params)
-    fit_ests = do_fit(dsk, TokenIterator(main_token), estimator, cv_name,
-                      fields, tokens, params, X_trains, y_trains,
-                      fit_params, n_splits, error_score)
-
-    score_name = 'score-' + main_token
-
-    scores = []
-    scores_append = scores.append
-    for n in range(n_splits):
-        if return_train_score:
-            xtrain = X_train + (n,)
-            ytrain = y_train + (n,)
-        else:
-            xtrain = ytrain = None
-
-        xtest = X_test + (n,)
-        ytest = y_test + (n,)
-
-        for (name, m) in fit_ests:
-            dsk[(score_name, m, n)] = (score, (name, m, n),
-                                       xtest, ytest, xtrain, ytrain, scorer)
-            scores_append((score_name, m, n))
+    scores = do_fit_and_score(dsk, main_token, estimator, cv_name, fields,
+                              tokens, params, X_name, y_name, fit_params,
+                              n_splits, error_score, scorer,
+                              return_train_score)
 
     cv_results = 'cv-results-' + main_token
-    dsk[cv_results] = (create_cv_results, scores, candidate_params, n_splits,
-                       error_score, weights)
+    candidate_params_name = 'cv-parameters-' + main_token
+    dsk[candidate_params_name] = (decompress_params, fields, params)
+    dsk[cv_results] = (create_cv_results, scores, candidate_params_name,
+                       n_splits, error_score, weights)
     keys = [cv_results]
 
     if refit:
         best_params = 'best-params-' + main_token
-        dsk[best_params] = (get_best_params, candidate_params, cv_results)
+        dsk[best_params] = (get_best_params, candidate_params_name, cv_results)
         best_estimator = 'best-estimator-' + main_token
         if fit_params:
             fit_params = (dict, (zip, list(fit_params.keys()),
@@ -168,6 +145,70 @@ def _group_fit_params(steps, fit_params):
         step, param = pname.split('__', 1)
         param_lk[step][param] = pval
     return param_lk
+
+
+def do_fit_and_score(dsk, main_token, est, cv, fields, tokens, params,
+                     X, y, fit_params, n_splits, error_score, scorer,
+                     return_train_score):
+    if not isinstance(est, Pipeline):
+        # Fitting and scoring can all be done as a single task
+        n_and_fit_params = _get_fit_params(cv, fit_params, n_splits)
+
+        est_type = type(est).__name__.lower()
+        est_name = '%s-%s' % (est_type, main_token)
+        score_name = '%s-fit-score-%s' % (est_type, main_token)
+        dsk[est_name] = est
+
+        seen = {}
+        m = 0
+        out = []
+        out_append = out.append
+
+        for t, p in zip(tokens, params):
+            if t in seen:
+                out_append(seen[t])
+            else:
+                for n, fit_params in n_and_fit_params:
+                    dsk[(score_name, m, n)] = (fit_and_score, est_name, cv,
+                                               X, y, n, scorer, error_score,
+                                               fields, p, fit_params,
+                                               return_train_score)
+                seen[t] = (score_name, m)
+                out_append((score_name, m))
+                m += 1
+        scores = [k + (n,) for n in range(n_splits) for k in out]
+    else:
+        X_train = (cv_extract, cv, X, y, True, True)
+        X_test = (cv_extract, cv, X, y, True, False)
+        y_train = (cv_extract, cv, X, y, False, True)
+        y_test = (cv_extract, cv, X, y, False, False)
+
+        # Fit the estimator on the training data
+        X_trains = [X_train] * len(params)
+        y_trains = [y_train] * len(params)
+        fit_ests = do_fit(dsk, TokenIterator(main_token), est, cv,
+                          fields, tokens, params, X_trains, y_trains,
+                          fit_params, n_splits, error_score)
+
+        score_name = 'score-' + main_token
+
+        scores = []
+        scores_append = scores.append
+        for n in range(n_splits):
+            if return_train_score:
+                xtrain = X_train + (n,)
+                ytrain = y_train + (n,)
+            else:
+                xtrain = ytrain = None
+
+            xtest = X_test + (n,)
+            ytest = y_test + (n,)
+
+            for (name, m) in fit_ests:
+                dsk[(score_name, m, n)] = (score, (name, m, n),
+                                        xtest, ytest, xtrain, ytrain, scorer)
+                scores_append((score_name, m, n))
+    return scores
 
 
 def do_fit(dsk, next_token, est, cv, fields, tokens, params, Xs, ys,

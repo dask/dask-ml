@@ -471,7 +471,7 @@ def test_cache_cv():
     gs = DaskGridSearchCV(MockClassifier(), {'foo_param': [0, 1, 2]},
                           cv=3, cache_cv=False, get=dask.get)
     gs.fit(X2, y)
-    assert X2.count == 3 * 3 * 3  # (2 train + 1 test) for n_params * n_splits
+    assert X2.count == 2 * 3 * 3  # (1 train + 1 test) * n_params * n_splits
 
     X2 = X.view(CountTakes)
     assert X2.count == 0
