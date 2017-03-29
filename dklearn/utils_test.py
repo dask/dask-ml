@@ -43,15 +43,32 @@ class MockClassifier(object):
         return self
 
 
-class IdentityTransformer(BaseEstimator):
-    def __init__(self, dummy=None):
-        self.dummy = dummy
+class ScalingTransformer(BaseEstimator):
+    def __init__(self, factor=1):
+        self.factor = factor
 
     def fit(self, X, y):
         return self
 
     def transform(self, X):
-        return X
+        return X * self.factor
+
+
+class CheckXClassifier(BaseEstimator):
+    """Used to check output of featureunions"""
+    def __init__(self, expected_X=None):
+        self.expected_X = expected_X
+
+    def fit(self, X, y):
+        assert (X == self.expected_X).all()
+        assert len(X) == len(y)
+        return self
+
+    def predict(self, X):
+        return X.sum(axis=1)
+
+    def score(self, X=None, y=None):
+        return self.predict(X)[0]
 
 
 class FailingClassifier(BaseEstimator):

@@ -40,7 +40,8 @@ from dklearn import DaskGridSearchCV
 from dklearn.core import compute_n_splits, check_cv
 from dklearn.methods import CVCache
 from dklearn.utils_test import (FailingClassifier, MockClassifier,
-                                IdentityTransformer, ignore_warnings)
+                                ScalingTransformer, CheckXClassifier,
+                                ignore_warnings)
 
 
 class assert_dask_compute(Callback):
@@ -294,11 +295,11 @@ def test_pipeline_feature_union():
     kbest = SelectKBest()
     empty_union = FeatureUnion([('first', None), ('second', None)])
     empty_pipeline = Pipeline([('first', None), ('second', None)])
-    identity = Pipeline([('transform', IdentityTransformer())])
+    scaling = Pipeline([('transform', ScalingTransformer())])
     svc = SVC(kernel='linear', random_state=0)
 
     pipe = Pipeline([('empty_pipeline', empty_pipeline),
-                     ('identity', identity),
+                     ('scaling', scaling),
                      ('missing', None),
                      ('union', FeatureUnion([('pca', pca),
                                              ('missing', None),
@@ -307,7 +308,7 @@ def test_pipeline_feature_union():
                                             transformer_weights={'pca': 0.5})),
                      ('svc', svc)])
 
-    param_grid = dict(identity__transform__dummy=[1, 2],
+    param_grid = dict(scaling__transform__factor=[1, 2],
                       union__pca__n_components=[1, 2, 3],
                       union__kbest__k=[1, 2],
                       svc__C=[0.1, 1, 10])
@@ -339,17 +340,17 @@ def test_pipeline_sub_estimators():
     iris = load_iris()
     X, y = iris.data, iris.target
 
-    identity = Pipeline([('transform', IdentityTransformer())])
+    scaling = Pipeline([('transform', ScalingTransformer())])
 
     pipe = Pipeline([('setup', None),
                      ('missing', None),
-                     ('identity', identity),
+                     ('scaling', scaling),
                      ('svc', SVC(kernel='linear', random_state=0))])
 
     param_grid = [{'svc__C': [0.1, 0.1]},  # Duplicates to test culling
                   {'setup': [None],
                    'svc__C': [0.1, 1, 10],
-                   'identity': [IdentityTransformer(), None]},
+                   'scaling': [ScalingTransformer(), None]},
                   {'setup': [SelectKBest()],
                    'setup__k': [1, 2],
                    'svc': [SVC(kernel='linear', random_state=0, C=0.1),
@@ -382,6 +383,47 @@ def check_scores_all_nan(gs, bad_param):
                for cand_i in range(n_candidates)
                if gs.cv_results_[bad_param][cand_i] ==
                FailingClassifier.FAILING_PARAMETER)
+
+
+@pytest.mark.parametrize('weights',
+        [None, (None, {'tr0': 2, 'tr2': 3}, {'tr0': 2, 'tr2': 4})])
+def test_feature_union(weights):
+    X = np.ones((10, 5))
+    y = np.zeros(10)
+
+    union = FeatureUnion([('tr0', ScalingTransformer()),
+                          ('tr1', ScalingTransformer()),
+                          ('tr2', ScalingTransformer())])
+
+    factors = [(2, 3, 5), (2, 4, 5), (2, 4, 6),
+               (2, 4, None), (None, None, None)]
+    params, sols, grid = [], [], []
+    for constants, w in product(factors, weights or [None]):
+        p = {}
+        for n, c in enumerate(constants):
+            if c is None:
+                p['tr%d' % n] = None
+            elif n == 3:  # 3rd is always an estimator
+                p['tr%d' % n] = ScalingTransformer(c)
+            else:
+                p['tr%d__factor' % n] = c
+        sol = union.set_params(transformer_weights=w, **p).transform(X)
+        sols.append(sol)
+        if w is not None:
+            p['transformer_weights'] = w
+        params.append(p)
+        p2 = {'union__' + k: [v] for k, v in p.items()}
+        p2['est'] = [CheckXClassifier(sol[0])]
+        grid.append(p2)
+
+    # Need to recreate the union after setting estimators to `None` above
+    union = FeatureUnion([('tr0', ScalingTransformer()),
+                          ('tr1', ScalingTransformer()),
+                          ('tr2', ScalingTransformer())])
+
+    pipe = Pipeline([('union', union), ('est', CheckXClassifier())])
+    gs = DaskGridSearchCV(pipe, grid, refit=False, cv=2)
+    gs.fit(X, y)
 
 
 @ignore_warnings
@@ -443,6 +485,24 @@ def test_pipeline_raises():
         gs.fit(X, y)
 
     grid = {'steps': [[('one', MockClassifier()), ('two', MockClassifier())]]}
+    gs = DaskGridSearchCV(pipe, grid, refit=False)
+    with pytest.raises(NotImplementedError):
+        gs.fit(X, y)
+
+
+def test_feature_union_raises():
+    X, y = make_classification(n_samples=100, n_features=10, random_state=0)
+
+    union = FeatureUnion([('tr0', MockClassifier()),
+                          ('tr1', MockClassifier())])
+    pipe = Pipeline([('union', union), ('est', MockClassifier())])
+
+    grid = {'union__tr2__parameter': [0, 1, 2]}
+    gs = DaskGridSearchCV(pipe, grid, refit=False)
+    with pytest.raises(ValueError):
+        gs.fit(X, y)
+
+    grid = {'union__transformer_list': [[('one', MockClassifier())]]}
     gs = DaskGridSearchCV(pipe, grid, refit=False)
     with pytest.raises(NotImplementedError):
         gs.fit(X, y)

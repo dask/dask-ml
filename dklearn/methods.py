@@ -145,15 +145,14 @@ def feature_union(names, steps, weights):
                         transformer_weights=weights)
 
 
-def feature_union_empty(X):
-    return np.zeros((X.shape[0], 0))
-
-
-def feature_union_concat(Xs, weights):
+def feature_union_concat(Xs, nsamples, weights):
     """Apply weights and concatenate outputs from a FeatureUnion"""
     if any(x is FIT_FAILURE for x in Xs):
         return FIT_FAILURE
-    Xs = [X if w is None else X * w for X, w in zip(Xs, weights)]
+    Xs = [X if w is None else X * w for X, w in zip(Xs, weights)
+          if X is not None]
+    if not Xs:
+        return np.zeros((nsamples, 0))
     if any(sparse.issparse(f) for f in Xs):
         return sparse.hstack(Xs).tocsr()
     return np.hstack(Xs)

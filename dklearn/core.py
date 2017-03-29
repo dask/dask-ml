@@ -19,13 +19,15 @@ from sklearn.model_selection._split import (_BaseKFold,
                                             LeavePGroupsOut,
                                             PredefinedSplit,
                                             _CVIterableWrapper)
-from sklearn.pipeline import Pipeline
+from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.utils.multiclass import type_of_target
+from sklearn.utils.validation import _num_samples
 
 from .methods import (fit, fit_transform, fit_and_score, pipeline, fit_best,
                       get_best_params, create_cv_results, cv_split,
                       cv_n_samples, cv_extract, cv_extract_params,
-                      decompress_params, score, MISSING)
+                      decompress_params, score, feature_union,
+                      feature_union_concat, MISSING)
 from ._normalize import normalize_estimator
 
 from .utils import to_indexable, to_keys, unzip
@@ -254,6 +256,10 @@ def do_fit_transform(dsk, next_token, est, cv, fields, tokens, params, Xs, ys,
     if isinstance(est, Pipeline) and params is not None:
         return _do_pipeline(dsk, next_token, est, cv, fields, tokens, params,
                             Xs, ys, fit_params, n_splits, error_score, True)
+    elif isinstance(est, FeatureUnion) and params is not None:
+        return _do_featureunion(dsk, next_token, est, cv, fields, tokens,
+                                params, Xs, ys, fit_params, n_splits,
+                                error_score)
     else:
         n_and_fit_params = _get_fit_params(cv, fit_params, n_splits)
 
@@ -292,23 +298,125 @@ def do_fit_transform(dsk, next_token, est, cv, fields, tokens, params, Xs, ys,
         return [(fit_name, i) for i in out], [(Xt_name, i) for i in out]
 
 
-def _do_pipeline(dsk, next_token, est, cv, fields, tokens, params, Xs, ys,
-                 fit_params, n_splits, error_score, is_transform):
-    if 'steps' in fields:
-        raise NotImplementedError("Setting Pipeline.steps in a gridsearch")
-
+def _group_subparams(steps, fields, ignore=()):
     # Group the fields into a mapping of {stepname: [(newname, orig_index)]}
     field_to_index = dict(zip(fields, range(len(fields))))
-    step_fields_lk = {s: [] for s, _ in est.steps}
+    step_fields_lk = {s: [] for s, _ in steps}
     for f in fields:
         if '__' in f:
             step, param = f.split('__', 1)
             if step in step_fields_lk:
                 step_fields_lk[step].append((param, field_to_index[f]))
                 continue
-        if f not in step_fields_lk:
+        if f not in step_fields_lk and f not in ignore:
             raise ValueError("Unknown parameter: `%s`" % f)
+    return field_to_index, step_fields_lk
 
+
+def _group_ids_by_index(index, tokens):
+    id_groups = []
+
+    def new_group():
+        o = []
+        id_groups.append(o)
+        return o.append
+
+    _id_groups = defaultdict(new_group)
+    for n, t in enumerate(pluck(index, tokens)):
+        _id_groups[t](n)
+    return id_groups
+
+
+def _do_fit_step(dsk, next_token, step, cv, fields, tokens, params, Xs, ys,
+                 fit_params, n_splits, error_score, step_fields_lk,
+                 fit_params_lk, field_to_index, step_name, none_passthrough,
+                 is_transform):
+    sub_fields, sub_inds = map(list, unzip(step_fields_lk[step_name], 2))
+    sub_fit_params = fit_params_lk[step_name]
+
+    if step_name in field_to_index:
+        # The estimator may change each call
+        new_fits = {}
+        new_Xs = {}
+        est_index = field_to_index[step_name]
+
+        for ids in _group_ids_by_index(est_index, tokens):
+            # Get the estimator for this subgroup
+            sub_est = params[ids[0]][est_index]
+            if sub_est is MISSING:
+                sub_est = step
+
+            # If an estimator is `None`, there's nothing to do
+            if sub_est is None:
+                nones = dict.fromkeys(ids, None)
+                new_fits.update(nones)
+                if is_transform:
+                    if none_passthrough:
+                        new_Xs.update(zip(ids, get(ids, Xs)))
+                    else:
+                        new_Xs.update(nones)
+            else:
+                # Extract the proper subset of Xs, ys
+                sub_Xs = get(ids, Xs)
+                sub_ys = get(ids, ys)
+                # Only subset the parameters/tokens if necessary
+                if sub_fields:
+                    sub_tokens = list(pluck(sub_inds, get(ids, tokens)))
+                    sub_params = list(pluck(sub_inds, get(ids, params)))
+                else:
+                    sub_tokens = sub_params = None
+
+                if is_transform:
+                    sub_fits, sub_Xs = do_fit_transform(dsk, next_token,
+                                                        sub_est, cv, sub_fields,
+                                                        sub_tokens, sub_params,
+                                                        sub_Xs, sub_ys,
+                                                        sub_fit_params,
+                                                        n_splits, error_score)
+                    new_Xs.update(zip(ids, sub_Xs))
+                    new_fits.update(zip(ids, sub_fits))
+                else:
+                    sub_fits = do_fit(dsk, next_token, sub_est, cv,
+                                        sub_fields, sub_tokens, sub_params,
+                                        sub_Xs, sub_ys, sub_fit_params,
+                                        n_splits, error_score)
+                    new_fits.update(zip(ids, sub_fits))
+        # Extract lists of transformed Xs and fit steps
+        all_ids = list(range(len(Xs)))
+        if is_transform:
+            Xs = get(all_ids, new_Xs)
+        fits = get(all_ids, new_fits)
+    elif step is None:
+        # Nothing to do
+        fits = [None] * len(Xs)
+        if not none_passthrough:
+            Xs = fits
+    else:
+        # Only subset the parameters/tokens if necessary
+        if sub_fields:
+            sub_tokens = list(pluck(sub_inds, tokens))
+            sub_params = list(pluck(sub_inds, params))
+        else:
+            sub_tokens = sub_params = None
+
+        if is_transform:
+            fits, Xs = do_fit_transform(dsk, next_token, step, cv,
+                                        sub_fields, sub_tokens, sub_params,
+                                        Xs, ys, sub_fit_params, n_splits,
+                                        error_score)
+        else:
+            fits = do_fit(dsk, next_token, step, cv, sub_fields,
+                            sub_tokens, sub_params, Xs, ys, sub_fit_params,
+                            n_splits, error_score)
+    return (fits, Xs) if is_transform else (fits, None)
+
+
+def _do_pipeline(dsk, next_token, est, cv, fields, tokens, params, Xs, ys,
+                 fit_params, n_splits, error_score, is_transform):
+    if 'steps' in fields:
+        raise NotImplementedError("Setting Pipeline.steps in a gridsearch")
+
+    field_to_index, step_fields_lk = _group_subparams(est.steps, fields)
     fit_params_lk = _group_fit_params(est.steps, fit_params)
 
     # A list of (step, is_transform)
@@ -317,89 +425,10 @@ def _do_pipeline(dsk, next_token, est, cv, fields, tokens, params, Xs, ys,
 
     fit_steps = []
     for (step_name, step), transform in instrs:
-        sub_fields, sub_inds = map(list, unzip(step_fields_lk[step_name], 2))
-
-        sub_fit_params = fit_params_lk[step_name]
-
-        if step_name in field_to_index:
-            # The estimator may change each call
-            new_fits = {}
-            new_Xs = {}
-            est_index = field_to_index[step_name]
-
-            id_groups = []
-
-            def new_group():
-                o = []
-                id_groups.append(o)
-                return o.append
-
-            _id_groups = defaultdict(new_group)
-            for n, step_token in enumerate(pluck(est_index, tokens)):
-                _id_groups[step_token](n)
-
-            for ids in id_groups:
-                # Get the estimator for this subgroup
-                sub_est = params[ids[0]][est_index]
-                if sub_est is MISSING:
-                    sub_est = step
-
-                # If an estimator is `None`, there's nothing to do
-                if sub_est is None:
-                    new_fits.update(dict.fromkeys(ids, None))
-                    if transform:
-                        new_Xs.update(zip(ids, get(ids, Xs)))
-                else:
-                    # Extract the proper subset of Xs, ys
-                    sub_Xs = get(ids, Xs)
-                    sub_ys = get(ids, ys)
-                    # Only subset the parameters/tokens if necessary
-                    if sub_fields:
-                        sub_tokens = list(pluck(sub_inds, get(ids, tokens)))
-                        sub_params = list(pluck(sub_inds, get(ids, params)))
-                    else:
-                        sub_tokens = sub_params = None
-
-                    if transform:
-                        sub_fits, sub_Xs = do_fit_transform(dsk, next_token,
-                                                            sub_est, cv, sub_fields,
-                                                            sub_tokens, sub_params,
-                                                            sub_Xs, sub_ys,
-                                                            sub_fit_params,
-                                                            n_splits, error_score)
-                        new_Xs.update(zip(ids, sub_Xs))
-                        new_fits.update(zip(ids, sub_fits))
-                    else:
-                        sub_fits = do_fit(dsk, next_token, sub_est, cv,
-                                          sub_fields, sub_tokens, sub_params,
-                                          sub_Xs, sub_ys, sub_fit_params,
-                                          n_splits, error_score)
-                        new_fits.update(zip(ids, sub_fits))
-            # Extract lists of transformed Xs and fit steps
-            all_ids = list(range(len(Xs)))
-            if transform:
-                Xs = get(all_ids, new_Xs)
-            fits = get(all_ids, new_fits)
-        elif step is None:
-            # Nothing to do
-            fits = [None] * len(Xs)
-        else:
-            # Only subset the parameters/tokens if necessary
-            if sub_fields:
-                sub_tokens = list(pluck(sub_inds, tokens))
-                sub_params = list(pluck(sub_inds, params))
-            else:
-                sub_tokens = sub_params = None
-
-            if transform:
-                fits, Xs = do_fit_transform(dsk, next_token, step, cv,
-                                            sub_fields, sub_tokens, sub_params,
-                                            Xs, ys, sub_fit_params, n_splits,
-                                            error_score)
-            else:
-                fits = do_fit(dsk, next_token, step, cv, sub_fields,
-                              sub_tokens, sub_params, Xs, ys, sub_fit_params,
-                              n_splits, error_score)
+        fits, Xs = _do_fit_step(dsk, next_token, step, cv, fields, tokens,
+                                params, Xs, ys, fit_params, n_splits,
+                                error_score, step_fields_lk, fit_params_lk,
+                                field_to_index, step_name, True, transform)
         fit_steps.append(fits)
 
     # Rebuild the pipelines
@@ -424,6 +453,95 @@ def _do_pipeline(dsk, next_token, est, cv, fields, tokens, params, Xs, ys,
     if is_transform:
         return out_ests, Xs
     return out_ests
+
+
+def _do_n_samples(dsk, token, Xs, n_splits):
+    name = 'n_samples-' + token
+    n_samples = []
+    n_samples_append = n_samples.append
+    seen = {}
+    m = 0
+    for x in Xs:
+        if x in seen:
+            n_samples_append(seen[x])
+        else:
+            for n in range(n_splits):
+                dsk[name, m, n] = (_num_samples, x + (n,))
+            n_samples_append((name, m))
+            seen[x] = (name, m)
+            m += 1
+    return n_samples
+
+
+def _do_featureunion(dsk, next_token, est, cv, fields, tokens, params, Xs, ys,
+                     fit_params, n_splits, error_score):
+    if 'transformer_list' in fields:
+        raise NotImplementedError("Setting FeatureUnion.transformer_list "
+                                  "in a gridsearch")
+
+    (field_to_index,
+     step_fields_lk) = _group_subparams(est.transformer_list, fields,
+                                        ignore=('transformer_weights'))
+    fit_params_lk = _group_fit_params(est.transformer_list, fit_params)
+
+    token = next_token(est)
+
+    n_samples = _do_n_samples(dsk, token, Xs, n_splits)
+
+    fit_steps = []
+    tr_Xs = []
+    for (step_name, step) in est.transformer_list:
+        fits, out_Xs = _do_fit_step(dsk, next_token, step, cv, fields, tokens,
+                                    params, Xs, ys, fit_params, n_splits,
+                                    error_score, step_fields_lk, fit_params_lk,
+                                    field_to_index, step_name, False, True)
+        fit_steps.append(fits)
+        tr_Xs.append(out_Xs)
+
+    # Rebuild the FeatureUnions
+    step_names = [n for n, _ in est.transformer_list]
+
+    if 'transformer_weights' in field_to_index:
+        index = field_to_index['transformer_weights']
+        weight_lk = {}
+        weight_tokens = list(pluck(index, tokens))
+        for i, tok in enumerate(weight_tokens):
+            if tok not in weight_lk:
+                weights = params[i][index]
+                if weights is MISSING:
+                    weights = est.transformer_weights
+                lk = weights or {}
+                weight_list = [lk.get(n) for n in step_names]
+                weight_lk[tok] = (weights, weight_list)
+        weights = get(weight_tokens, weight_lk)
+    else:
+        lk = est.transformer_weights or {}
+        weight_list = [lk.get(n) for n in step_names]
+        weight_tokens = repeat(None)
+        weights = repeat((est.transformer_weights, weight_list))
+
+    out = []
+    out_append = out.append
+    fit_name = 'feature-union-' + token
+    tr_name = 'feature-union-concat-' + token
+    m = 0
+    seen = {}
+    for steps, Xs, wt, (w, wl), nsamp in zip(zip(*fit_steps), zip(*tr_Xs),
+                                             weight_tokens, weights, n_samples):
+        if (steps, wt) in seen:
+            out_append(seen[steps, wt])
+        else:
+            for n in range(n_splits):
+                dsk[(fit_name, m, n)] = (feature_union, step_names,
+                                         [None if s is None else s + (n,)
+                                          for s in steps], w)
+                dsk[(tr_name, m, n)] = (feature_union_concat,
+                                        [None if x is None else x + (n,)
+                                         for x in Xs], nsamp + (n,), wl)
+            seen[steps, wt] = m
+            out_append(m)
+            m += 1
+    return [(fit_name, i) for i in out], [(tr_name, i) for i in out]
 
 
 # ------------ #
