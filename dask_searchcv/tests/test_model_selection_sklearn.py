@@ -1,6 +1,6 @@
 # NOTE: These tests were copied (with modification) from the equivalent
 # scikit-learn testing code. The scikit-learn license has been included at
-# dklearn/SCIKIT_LEARN_LICENSE.txt.
+# dask_searchcv/SCIKIT_LEARN_LICENSE.txt.
 
 import pickle
 import pytest
@@ -31,10 +31,10 @@ from sklearn.svm import LinearSVC, SVC
 from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
 from sklearn.utils.fixes import in1d
 
-from dklearn.utils_test import (FailingClassifier, MockClassifier,
-                                CheckingClassifier, MockDataFrame,
-                                ignore_warnings)
-from dklearn import DaskGridSearchCV, DaskRandomizedSearchCV
+import dask_searchcv as dcv
+from dask_searchcv.utils_test import (FailingClassifier, MockClassifier,
+                                      CheckingClassifier, MockDataFrame,
+                                      ignore_warnings)
 
 
 class LinearSVCNoScore(LinearSVC):
@@ -55,7 +55,7 @@ def assert_grid_iter_equals_getitem(grid):
 def test_grid_search():
     # Test that the best estimator contains the right value for foo_param
     clf = MockClassifier()
-    grid_search = DaskGridSearchCV(clf, {'foo_param': [1, 2, 3]})
+    grid_search = dcv.GridSearchCV(clf, {'foo_param': [1, 2, 3]})
     # make sure it selects the smallest parameter in case of ties
     grid_search.fit(X, y)
     assert grid_search.best_estimator_.foo_param == 2
@@ -76,8 +76,8 @@ def test_grid_search():
 
 
 @pytest.mark.parametrize('cls,kwargs',
-                         [(DaskGridSearchCV, {}),
-                          (DaskRandomizedSearchCV, {'n_iter': 1})])
+                         [(dcv.GridSearchCV, {}),
+                          (dcv.RandomizedSearchCV, {'n_iter': 1})])
 def test_hyperparameter_searcher_with_fit_params(cls, kwargs):
     X = np.arange(100).reshape(10, 10)
     y = np.array([0] * 5 + [1] * 5)
@@ -109,11 +109,11 @@ def test_grid_search_no_score():
     # multiple `SVC` instances in parallel using threads sometimes results in
     # wrong results. This only happens with threads, not processes/sync.
     # For now, we'll fit using the sync scheduler.
-    grid_search = DaskGridSearchCV(clf, {'C': Cs}, scoring='accuracy',
+    grid_search = dcv.GridSearchCV(clf, {'C': Cs}, scoring='accuracy',
                                    get=dask.get)
     grid_search.fit(X, y)
 
-    grid_search_no_score = DaskGridSearchCV(clf_no_score, {'C': Cs},
+    grid_search_no_score = dcv.GridSearchCV(clf_no_score, {'C': Cs},
                                             scoring='accuracy', get=dask.get)
     # smoketest grid search
     grid_search_no_score.fit(X, y)
@@ -124,7 +124,7 @@ def test_grid_search_no_score():
     assert grid_search.score(X, y) == grid_search_no_score.score(X, y)
 
     # giving no scoring function raises an error
-    grid_search_no_score = DaskGridSearchCV(clf_no_score, {'C': Cs})
+    grid_search_no_score = dcv.GridSearchCV(clf_no_score, {'C': Cs})
     with pytest.raises(TypeError) as exc:
         grid_search_no_score.fit([[1]])
     assert "no scoring" in str(exc.value)
@@ -136,11 +136,11 @@ def test_grid_search_score_method():
     clf = LinearSVC(random_state=0)
     grid = {'C': [.1]}
 
-    search_no_scoring = DaskGridSearchCV(clf, grid, scoring=None).fit(X, y)
-    search_accuracy = DaskGridSearchCV(clf, grid, scoring='accuracy').fit(X, y)
-    search_no_score_method_auc = DaskGridSearchCV(LinearSVCNoScore(), grid,
+    search_no_scoring = dcv.GridSearchCV(clf, grid, scoring=None).fit(X, y)
+    search_accuracy = dcv.GridSearchCV(clf, grid, scoring='accuracy').fit(X, y)
+    search_no_score_method_auc = dcv.GridSearchCV(LinearSVCNoScore(), grid,
                                                   scoring='roc_auc').fit(X, y)
-    search_auc = DaskGridSearchCV(clf, grid, scoring='roc_auc').fit(X, y)
+    search_auc = dcv.GridSearchCV(clf, grid, scoring='roc_auc').fit(X, y)
 
     # Check warning only occurs in situation where behavior changed:
     # estimator requires score method to compete with scoring parameter
@@ -159,7 +159,7 @@ def test_grid_search_score_method():
 
 
 def test_grid_search_groups():
-    # Check if ValueError (when groups is None) propagates to DaskGridSearchCV
+    # Check if ValueError (when groups is None) propagates to dcv.GridSearchCV
     # And also check if groups is correctly passed to the cv object
     rng = np.random.RandomState(0)
 
@@ -172,7 +172,7 @@ def test_grid_search_groups():
     group_cvs = [LeaveOneGroupOut(), LeavePGroupsOut(2), GroupKFold(),
                  GroupShuffleSplit()]
     for cv in group_cvs:
-        gs = DaskGridSearchCV(clf, grid, cv=cv)
+        gs = dcv.GridSearchCV(clf, grid, cv=cv)
 
         with pytest.raises(ValueError) as exc:
             assert gs.fit(X, y)
@@ -182,7 +182,7 @@ def test_grid_search_groups():
 
     non_group_cvs = [StratifiedKFold(), StratifiedShuffleSplit()]
     for cv in non_group_cvs:
-        gs = DaskGridSearchCV(clf, grid, cv=cv)
+        gs = dcv.GridSearchCV(clf, grid, cv=cv)
         # Should not raise an error
         gs.fit(X, y)
 
@@ -193,22 +193,22 @@ def test_classes__property():
     y = np.array([0] * 5 + [1] * 5)
     Cs = [.1, 1, 10]
 
-    grid_search = DaskGridSearchCV(LinearSVC(random_state=0), {'C': Cs})
+    grid_search = dcv.GridSearchCV(LinearSVC(random_state=0), {'C': Cs})
     grid_search.fit(X, y)
     assert_array_equal(grid_search.best_estimator_.classes_,
                        grid_search.classes_)
 
     # Test that regressors do not have a classes_ attribute
-    grid_search = DaskGridSearchCV(Ridge(), {'alpha': [1.0, 2.0]})
+    grid_search = dcv.GridSearchCV(Ridge(), {'alpha': [1.0, 2.0]})
     grid_search.fit(X, y)
     assert not hasattr(grid_search, 'classes_')
 
     # Test that the grid searcher has no classes_ attribute before it's fit
-    grid_search = DaskGridSearchCV(LinearSVC(random_state=0), {'C': Cs})
+    grid_search = dcv.GridSearchCV(LinearSVC(random_state=0), {'C': Cs})
     assert not hasattr(grid_search, 'classes_')
 
     # Test that the grid searcher has no classes_ attribute without a refit
-    grid_search = DaskGridSearchCV(LinearSVC(random_state=0),
+    grid_search = dcv.GridSearchCV(LinearSVC(random_state=0),
                                    {'C': Cs}, refit=False)
     grid_search.fit(X, y)
     assert not hasattr(grid_search, 'classes_')
@@ -216,13 +216,13 @@ def test_classes__property():
 
 def test_trivial_cv_results_attr():
     # Test search over a "grid" with only one point.
-    # Non-regression test: grid_scores_ wouldn't be set by DaskGridSearchCV.
+    # Non-regression test: grid_scores_ wouldn't be set by dcv.GridSearchCV.
     clf = MockClassifier()
-    grid_search = DaskGridSearchCV(clf, {'foo_param': [1]})
+    grid_search = dcv.GridSearchCV(clf, {'foo_param': [1]})
     grid_search.fit(X, y)
     assert hasattr(grid_search, "cv_results_")
 
-    random_search = DaskRandomizedSearchCV(clf, {'foo_param': [0]}, n_iter=1)
+    random_search = dcv.RandomizedSearchCV(clf, {'foo_param': [0]}, n_iter=1)
     random_search.fit(X, y)
     assert hasattr(grid_search, "cv_results_")
 
@@ -230,7 +230,7 @@ def test_trivial_cv_results_attr():
 def test_no_refit():
     # Test that GSCV can be used for model selection alone without refitting
     clf = MockClassifier()
-    grid_search = DaskGridSearchCV(clf, {'foo_param': [1, 2, 3]}, refit=False)
+    grid_search = dcv.GridSearchCV(clf, {'foo_param': [1, 2, 3]}, refit=False)
     grid_search.fit(X, y)
     assert (not hasattr(grid_search, "best_estimator_") and
                 hasattr(grid_search, "best_index_") and
@@ -250,7 +250,7 @@ def test_grid_search_error():
     X_, y_ = make_classification(n_samples=200, n_features=100, random_state=0)
 
     clf = LinearSVC()
-    cv = DaskGridSearchCV(clf, {'C': [0.1, 1.0]})
+    cv = dcv.GridSearchCV(clf, {'C': [0.1, 1.0]})
     with pytest.raises(ValueError):
         cv.fit(X_[:180], y_)
 
@@ -260,7 +260,7 @@ def test_grid_search_one_grid_point():
     param_dict = {"C": [1.0], "kernel": ["rbf"], "gamma": [0.1]}
 
     clf = SVC()
-    cv = DaskGridSearchCV(clf, param_dict)
+    cv = dcv.GridSearchCV(clf, param_dict)
     cv.fit(X_, y_)
 
     clf = SVC(C=1.0, kernel="rbf", gamma=0.1)
@@ -274,7 +274,7 @@ def test_grid_search_bad_param_grid():
     clf = SVC()
 
     with pytest.raises(ValueError) as exc:
-        DaskGridSearchCV(clf, param_dict)
+        dcv.GridSearchCV(clf, param_dict)
     assert ("Parameter values for parameter (C) need to be a sequence"
             "(but not a string) or np.ndarray.") in str(exc.value)
 
@@ -282,7 +282,7 @@ def test_grid_search_bad_param_grid():
     clf = SVC()
 
     with pytest.raises(ValueError) as exc:
-        DaskGridSearchCV(clf, param_dict)
+        dcv.GridSearchCV(clf, param_dict)
     assert ("Parameter values for parameter (C) need to be a non-empty "
             "sequence.") in str(exc.value)
 
@@ -290,14 +290,14 @@ def test_grid_search_bad_param_grid():
     clf = SVC()
 
     with pytest.raises(ValueError) as exc:
-        DaskGridSearchCV(clf, param_dict)
+        dcv.GridSearchCV(clf, param_dict)
     assert ("Parameter values for parameter (C) need to be a sequence"
             "(but not a string) or np.ndarray.") in str(exc.value)
 
     param_dict = {"C": np.ones(6).reshape(3, 2)}
     clf = SVC()
     with pytest.raises(ValueError):
-        DaskGridSearchCV(clf, param_dict)
+        dcv.GridSearchCV(clf, param_dict)
 
 
 def test_grid_search_sparse():
@@ -305,14 +305,14 @@ def test_grid_search_sparse():
     X_, y_ = make_classification(n_samples=200, n_features=100, random_state=0)
 
     clf = LinearSVC()
-    cv = DaskGridSearchCV(clf, {'C': [0.1, 1.0]})
+    cv = dcv.GridSearchCV(clf, {'C': [0.1, 1.0]})
     cv.fit(X_[:180], y_[:180])
     y_pred = cv.predict(X_[180:])
     C = cv.best_estimator_.C
 
     X_ = sp.csr_matrix(X_)
     clf = LinearSVC()
-    cv = DaskGridSearchCV(clf, {'C': [0.1, 1.0]})
+    cv = dcv.GridSearchCV(clf, {'C': [0.1, 1.0]})
     cv.fit(X_[:180].tocoo(), y_[:180])
     y_pred2 = cv.predict(X_[180:])
     C2 = cv.best_estimator_.C
@@ -325,14 +325,14 @@ def test_grid_search_sparse_scoring():
     X_, y_ = make_classification(n_samples=200, n_features=100, random_state=0)
 
     clf = LinearSVC()
-    cv = DaskGridSearchCV(clf, {'C': [0.1, 1.0]}, scoring="f1")
+    cv = dcv.GridSearchCV(clf, {'C': [0.1, 1.0]}, scoring="f1")
     cv.fit(X_[:180], y_[:180])
     y_pred = cv.predict(X_[180:])
     C = cv.best_estimator_.C
 
     X_ = sp.csr_matrix(X_)
     clf = LinearSVC()
-    cv = DaskGridSearchCV(clf, {'C': [0.1, 1.0]}, scoring="f1")
+    cv = dcv.GridSearchCV(clf, {'C': [0.1, 1.0]}, scoring="f1")
     cv.fit(X_[:180], y_[:180])
     y_pred2 = cv.predict(X_[180:])
     C2 = cv.best_estimator_.C
@@ -347,7 +347,7 @@ def test_grid_search_sparse_scoring():
     def f1_loss(y_true_, y_pred_):
         return -f1_score(y_true_, y_pred_)
     F1Loss = make_scorer(f1_loss, greater_is_better=False)
-    cv = DaskGridSearchCV(clf, {'C': [0.1, 1.0]}, scoring=F1Loss)
+    cv = dcv.GridSearchCV(clf, {'C': [0.1, 1.0]}, scoring=F1Loss)
     cv.fit(X_[:180], y_[:180])
     y_pred3 = cv.predict(X_[180:])
     C3 = cv.best_estimator_.C
@@ -366,7 +366,7 @@ def test_grid_search_precomputed_kernel():
     y_train = y_[:180]
 
     clf = SVC(kernel='precomputed')
-    cv = DaskGridSearchCV(clf, {'C': [0.1, 1.0]})
+    cv = dcv.GridSearchCV(clf, {'C': [0.1, 1.0]})
     cv.fit(K_train, y_train)
 
     assert cv.best_score_ >= 0
@@ -391,7 +391,7 @@ def test_grid_search_precomputed_kernel_error_nonsquare():
     K_train = np.zeros((10, 20))
     y_train = np.ones((10, ))
     clf = SVC(kernel='precomputed')
-    cv = DaskGridSearchCV(clf, {'C': [0.1, 1.0]})
+    cv = dcv.GridSearchCV(clf, {'C': [0.1, 1.0]})
     with pytest.raises(ValueError):
         cv.fit(K_train, y_train)
 
@@ -418,42 +418,42 @@ def test_refit():
     X = np.arange(100).reshape(10, 10)
     y = np.array([0] * 5 + [1] * 5)
 
-    clf = DaskGridSearchCV(BrokenClassifier(), [{'parameter': [0, 1]}],
+    clf = dcv.GridSearchCV(BrokenClassifier(), [{'parameter': [0, 1]}],
                            scoring="precision", refit=True)
     clf.fit(X, y)
 
 
 def test_gridsearch_nd():
-    # Pass X as list in DaskGridSearchCV
+    # Pass X as list in dcv.GridSearchCV
     X_4d = np.arange(10 * 5 * 3 * 2).reshape(10, 5, 3, 2)
     y_3d = np.arange(10 * 7 * 11).reshape(10, 7, 11)
     clf = CheckingClassifier(check_X=lambda x: x.shape[1:] == (5, 3, 2),
                              check_y=lambda x: x.shape[1:] == (7, 11))
-    grid_search = DaskGridSearchCV(clf, {'foo_param': [1, 2, 3]})
+    grid_search = dcv.GridSearchCV(clf, {'foo_param': [1, 2, 3]})
     grid_search.fit(X_4d, y_3d).score(X, y)
     assert hasattr(grid_search, "cv_results_")
 
 
 def test_X_as_list():
-    # Pass X as list in DaskGridSearchCV
+    # Pass X as list in dcv.GridSearchCV
     X = np.arange(100).reshape(10, 10)
     y = np.array([0] * 5 + [1] * 5)
 
     clf = CheckingClassifier(check_X=lambda x: isinstance(x, list))
     cv = KFold(n_splits=3)
-    grid_search = DaskGridSearchCV(clf, {'foo_param': [1, 2, 3]}, cv=cv)
+    grid_search = dcv.GridSearchCV(clf, {'foo_param': [1, 2, 3]}, cv=cv)
     grid_search.fit(X.tolist(), y).score(X, y)
     assert hasattr(grid_search, "cv_results_")
 
 
 def test_y_as_list():
-    # Pass y as list in DaskGridSearchCV
+    # Pass y as list in dcv.GridSearchCV
     X = np.arange(100).reshape(10, 10)
     y = np.array([0] * 5 + [1] * 5)
 
     clf = CheckingClassifier(check_y=lambda x: isinstance(x, list))
     cv = KFold(n_splits=3)
-    grid_search = DaskGridSearchCV(clf, {'foo_param': [1, 2, 3]}, cv=cv)
+    grid_search = dcv.GridSearchCV(clf, {'foo_param': [1, 2, 3]}, cv=cv)
     grid_search.fit(X, y.tolist()).score(X, y)
     assert hasattr(grid_search, "cv_results_")
 
@@ -477,7 +477,7 @@ def test_pandas_input():
         clf = CheckingClassifier(check_X=lambda x: isinstance(x, InputFeatureType),
                                  check_y=lambda x: isinstance(x, TargetType))
 
-        grid_search = DaskGridSearchCV(clf, {'foo_param': [1, 2, 3]})
+        grid_search = dcv.GridSearchCV(clf, {'foo_param': [1, 2, 3]})
         grid_search.fit(X_df, y_ser).score(X_df, y_ser)
         grid_search.predict(X_df)
         assert hasattr(grid_search, "cv_results_")
@@ -487,14 +487,14 @@ def test_unsupervised_grid_search():
     # test grid-search with unsupervised estimator
     X, y = make_blobs(random_state=0)
     km = KMeans(random_state=0)
-    grid_search = DaskGridSearchCV(km, param_grid=dict(n_clusters=[2, 3, 4]),
+    grid_search = dcv.GridSearchCV(km, param_grid=dict(n_clusters=[2, 3, 4]),
                                    scoring='adjusted_rand_score')
     grid_search.fit(X, y)
     # ARI can find the right number :)
     assert grid_search.best_params_["n_clusters"] == 3
 
     # Now without a score, and without y
-    grid_search = DaskGridSearchCV(km, param_grid=dict(n_clusters=[2, 3, 4]))
+    grid_search = dcv.GridSearchCV(km, param_grid=dict(n_clusters=[2, 3, 4]))
     grid_search.fit(X)
     assert grid_search.best_params_["n_clusters"] == 4
 
@@ -506,7 +506,7 @@ def test_gridsearch_no_predict():
         return 42 if estimator.bandwidth == .1 else 0
     X, _ = make_blobs(cluster_std=.1, random_state=1,
                       centers=[[0, 1], [1, 0], [0, 0]])
-    search = DaskGridSearchCV(KernelDensity(),
+    search = dcv.GridSearchCV(KernelDensity(),
                               param_grid=dict(bandwidth=[.01, .1, 1]),
                               scoring=custom_scoring)
     search.fit(X)
@@ -542,10 +542,10 @@ def test_grid_search_cv_results():
     n_grid_points = 6
     params = [dict(kernel=['rbf', ], C=[1, 10], gamma=[0.1, 1]),
               dict(kernel=['poly', ], degree=[1, 2])]
-    grid_search = DaskGridSearchCV(SVC(), cv=n_splits, iid=False,
+    grid_search = dcv.GridSearchCV(SVC(), cv=n_splits, iid=False,
                                    param_grid=params)
     grid_search.fit(X, y)
-    grid_search_iid = DaskGridSearchCV(SVC(), cv=n_splits, iid=True,
+    grid_search_iid = dcv.GridSearchCV(SVC(), cv=n_splits, iid=True,
                                        param_grid=params)
     grid_search_iid.fit(X, y)
 
@@ -598,11 +598,11 @@ def test_random_search_cv_results():
     n_splits = 3
     n_search_iter = 30
     params = dict(C=expon(scale=10), gamma=expon(scale=0.1))
-    random_search = DaskRandomizedSearchCV(SVC(), n_iter=n_search_iter,
+    random_search = dcv.RandomizedSearchCV(SVC(), n_iter=n_search_iter,
                                            cv=n_splits, iid=False,
                                            param_distributions=params)
     random_search.fit(X, y)
-    random_search_iid = DaskRandomizedSearchCV(SVC(), n_iter=n_search_iter,
+    random_search_iid = dcv.RandomizedSearchCV(SVC(), n_iter=n_search_iter,
                                                cv=n_splits, iid=True,
                                                param_distributions=params)
     random_search_iid.fit(X, y)
@@ -643,8 +643,8 @@ def test_search_iid_param():
     # create "cv" for splits
     cv = [[mask, ~mask], [~mask, mask]]
     # once with iid=True (default)
-    grid_search = DaskGridSearchCV(SVC(), param_grid={'C': [1, 10]}, cv=cv)
-    random_search = DaskRandomizedSearchCV(SVC(), n_iter=2,
+    grid_search = dcv.GridSearchCV(SVC(), param_grid={'C': [1, 10]}, cv=cv)
+    random_search = dcv.RandomizedSearchCV(SVC(), n_iter=2,
                                            param_distributions={'C': [1, 10]},
                                            cv=cv)
     for search in (grid_search, random_search):
@@ -686,9 +686,9 @@ def test_search_iid_param():
         assert_almost_equal(train_std, 0)
 
     # once with iid=False
-    grid_search = DaskGridSearchCV(SVC(), param_grid={'C': [1, 10]},
+    grid_search = dcv.GridSearchCV(SVC(), param_grid={'C': [1, 10]},
                                    cv=cv, iid=False)
-    random_search = DaskRandomizedSearchCV(SVC(), n_iter=2,
+    random_search = dcv.RandomizedSearchCV(SVC(), n_iter=2,
                                            param_distributions={'C': [1, 10]},
                                            cv=cv, iid=False)
 
@@ -728,8 +728,8 @@ def test_search_cv_results_rank_tie_breaking():
     # which would result in a tie of their mean cv-scores
     param_grid = {'C': [1, 1.001, 0.001]}
 
-    grid_search = DaskGridSearchCV(SVC(), param_grid=param_grid)
-    random_search = DaskRandomizedSearchCV(SVC(), n_iter=3,
+    grid_search = dcv.GridSearchCV(SVC(), param_grid=param_grid)
+    random_search = dcv.RandomizedSearchCV(SVC(), n_iter=3,
                                            param_distributions=param_grid)
 
     for search in (grid_search, random_search):
@@ -763,7 +763,7 @@ def test_search_cv_results_none_param():
     cv = KFold(random_state=0)
 
     for est in estimators:
-        grid_search = DaskGridSearchCV(est, est_parameters, cv=cv).fit(X, y)
+        grid_search = dcv.GridSearchCV(est, est_parameters, cv=cv).fit(X, y)
         assert_array_equal(grid_search.cv_results_['param_random_state'],
                            [0, None])
 
@@ -779,7 +779,7 @@ def test_grid_search_correct_score_results():
         # multiple `SVC` instances in parallel using threads sometimes results
         # in wrong results. This only happens with threads, not processes/sync.
         # For now, we'll fit using the sync scheduler.
-        grid_search = DaskGridSearchCV(clf, {'C': Cs}, scoring=score,
+        grid_search = dcv.GridSearchCV(clf, {'C': Cs}, scoring=score,
                                        cv=n_splits, get=dask.get)
         cv_results = grid_search.fit(X, y).cv_results_
 
@@ -811,13 +811,13 @@ def test_grid_search_correct_score_results():
 def test_pickle():
     # Test that a fit search can be pickled
     clf = MockClassifier()
-    grid_search = DaskGridSearchCV(clf, {'foo_param': [1, 2, 3]}, refit=True)
+    grid_search = dcv.GridSearchCV(clf, {'foo_param': [1, 2, 3]}, refit=True)
     grid_search.fit(X, y)
     grid_search_pickled = pickle.loads(pickle.dumps(grid_search))
     assert_array_almost_equal(grid_search.predict(X),
                               grid_search_pickled.predict(X))
 
-    random_search = DaskRandomizedSearchCV(clf, {'foo_param': [1, 2, 3]},
+    random_search = dcv.RandomizedSearchCV(clf, {'foo_param': [1, 2, 3]},
                                            refit=True, n_iter=3)
     random_search.fit(X, y)
     random_search_pickled = pickle.loads(pickle.dumps(random_search))
@@ -839,7 +839,7 @@ def test_grid_search_with_multioutput_data():
 
     # Test with grid search cv
     for est in estimators:
-        grid_search = DaskGridSearchCV(est, est_parameters, cv=cv)
+        grid_search = dcv.GridSearchCV(est, est_parameters, cv=cv)
         grid_search.fit(X, y)
         res_params = grid_search.cv_results_['params']
         for cand_i in range(len(res_params)):
@@ -854,7 +854,7 @@ def test_grid_search_with_multioutput_data():
 
     # Test with a randomized search
     for est in estimators:
-        random_search = DaskRandomizedSearchCV(est, est_parameters,
+        random_search = dcv.RandomizedSearchCV(est, est_parameters,
                                                cv=cv, n_iter=3)
         random_search.fit(X, y)
         res_params = random_search.cv_results_['params']
@@ -875,12 +875,12 @@ def test_predict_proba_disabled():
     X = np.arange(20).reshape(5, -1)
     y = [0, 0, 1, 1, 1]
     clf = SVC(probability=False)
-    gs = DaskGridSearchCV(clf, {}, cv=2).fit(X, y)
+    gs = dcv.GridSearchCV(clf, {}, cv=2).fit(X, y)
     assert not hasattr(gs, "predict_proba")
 
 
 def test_grid_search_allows_nans():
-    # Test DaskGridSearchCV with Imputer
+    # Test dcv.GridSearchCV with Imputer
     X = np.arange(20, dtype=np.float64).reshape(5, -1)
     X[2, :] = np.nan
     y = [0, 0, 1, 1, 1]
@@ -888,7 +888,7 @@ def test_grid_search_allows_nans():
         ('imputer', Imputer(strategy='mean', missing_values='NaN')),
         ('classifier', MockClassifier()),
     ])
-    DaskGridSearchCV(p, {'classifier__foo_param': [1, 2, 3]}, cv=2).fit(X, y)
+    dcv.GridSearchCV(p, {'classifier__foo_param': [1, 2, 3]}, cv=2).fit(X, y)
 
 
 @ignore_warnings
@@ -897,7 +897,7 @@ def test_grid_search_failing_classifier():
     clf = FailingClassifier()
 
     # refit=False because we want to test the behaviour of the grid search part
-    gs = DaskGridSearchCV(clf, [{'parameter': [0, 1, 2]}], scoring='accuracy',
+    gs = dcv.GridSearchCV(clf, [{'parameter': [0, 1, 2]}], scoring='accuracy',
                           refit=False, error_score=0.0)
 
     with pytest.warns(FitFailedWarning):
@@ -916,7 +916,7 @@ def test_grid_search_failing_classifier():
                 if gs.cv_results_['param_parameter'][cand_i] ==
                 FailingClassifier.FAILING_PARAMETER))
 
-    gs = DaskGridSearchCV(clf, [{'parameter': [0, 1, 2]}], scoring='accuracy',
+    gs = dcv.GridSearchCV(clf, [{'parameter': [0, 1, 2]}], scoring='accuracy',
                           refit=False, error_score=float('nan'))
 
     with pytest.warns(FitFailedWarning):
@@ -934,7 +934,7 @@ def test_grid_search_failing_classifier_raise():
     clf = FailingClassifier()
 
     # refit=False because we want to test the behaviour of the grid search part
-    gs = DaskGridSearchCV(clf, [{'parameter': [0, 1, 2]}], scoring='accuracy',
+    gs = dcv.GridSearchCV(clf, [{'parameter': [0, 1, 2]}], scoring='accuracy',
                           refit=False, error_score='raise')
 
     # FailingClassifier issues a ValueError so this is what we look for.
@@ -947,6 +947,6 @@ def test_search_train_scores_set_to_false():
     y = [0, 0, 0, 1, 1, 1]
     clf = LinearSVC(random_state=0)
 
-    gs = DaskGridSearchCV(clf, param_grid={'C': [0.1, 0.2]},
+    gs = dcv.GridSearchCV(clf, param_grid={'C': [0.1, 0.2]},
                           return_train_score=False)
     gs.fit(X, y)

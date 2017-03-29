@@ -42,8 +42,8 @@ def get_config():
     cfg.VCS = "git"
     cfg.style = "pep440"
     cfg.tag_prefix = ""
-    cfg.parentdir_prefix = "dklearn-"
-    cfg.versionfile_source = "dklearn/_version.py"
+    cfg.parentdir_prefix = "dask_searchcv-"
+    cfg.versionfile_source = "dask_searchcv/_version.py"
     cfg.verbose = False
     return cfg
 

@@ -1,9 +1,9 @@
-dask-learn
-==========
+dask-searchcv
+=============
 
 |Travis Status|
 
-Tools for working with Scikit-Learn and Dask.
+Tools for performing hyperparameter search with Scikit-Learn and Dask.
 
 This library provides implementations of Scikit-Learn's ``GridSearchCV`` and
 ``RandomizedGridSearchCV``. They implement many (but not all) of the same
@@ -12,5 +12,5 @@ implement. For certain problems, these implementations can be more efficient
 than those in scikit-learn, as they can avoid repeating expensive repeated
 computations.
 
-.. |Travis Status| image:: https://travis-ci.org/dask/dask-learn.svg?branch=master
-   :target: https://travis-ci.org/dask/dask-learn
+.. |Travis Status| image:: https://travis-ci.org/dask/dask-searchcv.svg?branch=master
+   :target: https://travis-ci.org/dask/dask-searchcv

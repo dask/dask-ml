@@ -26,8 +26,8 @@ install:
   - pip install --no-deps -e .
 
 script:
-  - py.test dklearn --verbose
-  - flake8 dklearn
+  - py.test dask_searchcv --verbose
+  - flake8 dask_searchcv
 
 notifications:
   email: false
