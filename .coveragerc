@@ -1,6 +1,6 @@
 [run]
 omit =
-    dklearn/_version.py
+    dask_searchcv/_version.py
     */test_*.py
 source =
-    dklearn
+    dask_searchcv
