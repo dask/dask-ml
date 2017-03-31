@@ -1,9 +1,11 @@
 language: python
 sudo: false
-python:
-    - "2.7"
-    - "3.5"
-    - "3.6"
+
+env:
+  matrix:
+    - PYTHON=2.7 SKLEARN=0.18.1 TEST_FLAGS=
+    - PYTHON=3.5 SKLEARN=0.18.0 TEST_FLAGS=
+    - PYTHON=3.6 SKLEARN=0.18.1 TEST_FLAGS=--doctest-modules
 
 addons:
     apt:
@@ -19,14 +21,14 @@ install:
   - conda update conda
 
   # Install dependencies
-  - conda create -n test-environment python=$TRAVIS_PYTHON_VERSION
+  - conda create -n test-environment python=$PYTHON
   - source activate test-environment
-  - conda install dask numpy scikit-learn cytoolz pytest
+  - conda install dask numpy scikit-learn=$SKLEARN cytoolz pytest
   - pip install -q graphviz flake8
   - pip install --no-deps -e .
 
 script:
-  - py.test dask_searchcv --verbose
+  - py.test dask_searchcv --verbose $TEST_FLAGS
   - flake8 dask_searchcv
 
 notifications:

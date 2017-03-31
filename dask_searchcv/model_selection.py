@@ -775,7 +775,207 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
                               format=format, **kwargs)
 
 
+_DOC_TEMPLATE = """{oneliner}
+
+{name} implements a "fit" and a "score" method.
+It also implements "predict", "predict_proba", "decision_function",
+"transform" and "inverse_transform" if they are implemented in the
+estimator used.
+
+{description}
+
+Parameters
+----------
+estimator : estimator object.
+    This is assumed to implement the scikit-learn estimator interface.
+    Either estimator needs to provide a ``score`` function,
+    or ``scoring`` must be passed.
+
+{parameters}
+
+scoring : string, callable or None, default=None
+    A string (see model evaluation documentation) or
+    a scorer callable object / function with signature
+    ``scorer(estimator, X, y)``.
+    If ``None``, the ``score`` method of the estimator is used.
+
+iid : boolean, default=True
+    If True, the data is assumed to be identically distributed across
+    the folds, and the loss minimized is the total loss per sample,
+    and not the mean loss across the folds.
+
+cv : int, cross-validation generator or an iterable, optional
+    Determines the cross-validation splitting strategy.
+    Possible inputs for cv are:
+        - None, to use the default 3-fold cross validation,
+        - integer, to specify the number of folds in a ``(Stratified)KFold``,
+        - An object to be used as a cross-validation generator.
+        - An iterable yielding train, test splits.
+
+    For integer/None inputs, if the estimator is a classifier and ``y`` is
+    either binary or multiclass, ``StratifiedKFold`` is used. In all
+    other cases, ``KFold`` is used.
+
+refit : boolean, default=True
+    Refit the best estimator with the entire dataset.
+    If "False", it is impossible to make predictions using
+    this {name} instance after fitting.
+
+error_score : 'raise' (default) or numeric
+    Value to assign to the score if an error occurs in estimator fitting.
+    If set to 'raise', the error is raised. If a numeric value is given,
+    FitFailedWarning is raised. This parameter does not affect the refit
+    step, which will always raise the error.
+
+return_train_score : boolean, default=True
+    If ``'False'``, the ``cv_results_`` attribute will not include training
+    scores.
+
+get : None (default) or scheduler get function
+    The dask scheduler ``get`` function to use. Default is to use the
+    global scheduler if set, and fallback to the threaded scheduler
+    otherwise.
+
+cache_cv : bool, default=True
+    Whether to extract each train/test subset at most once in each worker
+    process, or every time that subset is needed. Caching the splits can
+    speedup computation at the cost of increased memory usage per worker
+    process.
+
+    If True, worst case memory usage is ``(n_splits + 1) * (X.nbytes +
+    y.nbytes)`` per worker. If False, worst case memory usage is
+    ``(n_threads_per_worker + 1) * (X.nbytes + y.nbytes)`` per worker.
+
+Examples
+--------
+{example}
+
+Attributes
+----------
+cv_results_ : dict of numpy (masked) ndarrays
+    A dict with keys as column headers and values as columns, that can be
+    imported into a pandas ``DataFrame``.
+
+    For instance the below given table
+
+    +------------+-----------+------------+-----------------+---+---------+
+    |param_kernel|param_gamma|param_degree|split0_test_score|...|rank_....|
+    +============+===========+============+=================+===+=========+
+    |  'poly'    |     --    |      2     |        0.8      |...|    2    |
+    +------------+-----------+------------+-----------------+---+---------+
+    |  'poly'    |     --    |      3     |        0.7      |...|    4    |
+    +------------+-----------+------------+-----------------+---+---------+
+    |  'rbf'     |     0.1   |     --     |        0.8      |...|    3    |
+    +------------+-----------+------------+-----------------+---+---------+
+    |  'rbf'     |     0.2   |     --     |        0.9      |...|    1    |
+    +------------+-----------+------------+-----------------+---+---------+
+
+    will be represented by a ``cv_results_`` dict of::
+
+        {{
+        'param_kernel': masked_array(data = ['poly', 'poly', 'rbf', 'rbf'],
+                                        mask = [False False False False]...)
+        'param_gamma': masked_array(data = [-- -- 0.1 0.2],
+                                    mask = [ True  True False False]...),
+        'param_degree': masked_array(data = [2.0 3.0 -- --],
+                                        mask = [False False  True  True]...),
+        'split0_test_score'  : [0.8, 0.7, 0.8, 0.9],
+        'split1_test_score'  : [0.82, 0.5, 0.7, 0.78],
+        'mean_test_score'    : [0.81, 0.60, 0.75, 0.82],
+        'std_test_score'     : [0.02, 0.01, 0.03, 0.03],
+        'rank_test_score'    : [2, 4, 3, 1],
+        'split0_train_score' : [0.8, 0.9, 0.7],
+        'split1_train_score' : [0.82, 0.5, 0.7],
+        'mean_train_score'   : [0.81, 0.7, 0.7],
+        'std_train_score'    : [0.03, 0.03, 0.04],
+        'params'             : [{{'kernel': 'poly', 'degree': 2}}, ...],
+        }}
+
+    NOTE that the key ``'params'`` is used to store a list of parameter
+    settings dict for all the parameter candidates.
+
+best_estimator_ : estimator
+    Estimator that was chosen by the search, i.e. estimator
+    which gave highest score (or smallest loss if specified)
+    on the left out data. Not available if refit=False.
+
+best_score_ : float
+    Score of best_estimator on the left out data.
+
+best_params_ : dict
+    Parameter setting that gave the best results on the hold out data.
+
+best_index_ : int
+    The index (of the ``cv_results_`` arrays) which corresponds to the best
+    candidate parameter setting.
+
+    The dict at ``search.cv_results_['params'][search.best_index_]`` gives
+    the parameter setting for the best model, that gives the highest
+    mean score (``search.best_score_``).
+
+scorer_ : function
+    Scorer function used on the held out data to choose the best
+    parameters for the model.
+
+n_splits_ : int
+    The number of cross-validation splits (folds/iterations).
+
+Notes
+------
+The parameters selected are those that maximize the score of the left out
+data, unless an explicit score is passed in which case it is used instead.
+"""
+
+# ------------ #
+# GridSearchCV #
+# ------------ #
+
+_grid_oneliner = """\
+Exhaustive search over specified parameter values for an estimator.\
+"""
+_grid_description = """\
+The parameters of the estimator used to apply these methods are optimized
+by cross-validated grid-search over a parameter grid.\
+"""
+_grid_parameters = """\
+param_grid : dict or list of dictionaries
+    Dictionary with parameters names (string) as keys and lists of
+    parameter settings to try as values, or a list of such
+    dictionaries, in which case the grids spanned by each dictionary
+    in the list are explored. This enables searching over any sequence
+    of parameter settings.\
+"""
+_grid_example = """\
+>>> import dask_searchcv as dcv
+>>> from sklearn import svm, datasets
+>>> iris = datasets.load_iris()
+>>> parameters = {'kernel': ['linear', 'rbf'], 'C': [1, 10]}
+>>> svc = svm.SVC()
+>>> clf = dcv.GridSearchCV(svc, parameters)
+>>> clf.fit(iris.data, iris.target)  # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+GridSearchCV(cache_cv=..., cv=..., error_score=...,
+        estimator=SVC(C=..., cache_size=..., class_weight=..., coef0=...,
+                      decision_function_shape=..., degree=..., gamma=...,
+                      kernel=..., max_iter=-1, probability=False,
+                      random_state=..., shrinking=..., tol=...,
+                      verbose=...),
+        get=..., iid=..., param_grid=..., refit=...,
+        return_train_score=..., scoring=...)
+>>> sorted(clf.cv_results_.keys())  # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+['mean_test_score', 'mean_train_score', 'param_C', 'param_kernel',...
+ 'params', 'rank_test_score', 'split0_test_score', 'split0_train_score',...
+ 'split1_test_score', 'split1_train_score', 'split2_test_score',...
+ 'split2_train_score', 'std_test_score', 'std_train_score'...]\
+"""
+
+
 class GridSearchCV(DaskBaseSearchCV):
+    __doc__ = _DOC_TEMPLATE.format(name="GridSearchCV",
+                                   oneliner=_grid_oneliner,
+                                   description=_grid_description,
+                                   parameters=_grid_parameters,
+                                   example=_grid_example)
+
     def __init__(self, estimator, param_grid, scoring=None, iid=True,
                  refit=True, cv=None, error_score='raise',
                  return_train_score=True, get=None, cache_cv=True):
@@ -792,11 +992,74 @@ class GridSearchCV(DaskBaseSearchCV):
         return model_selection.ParameterGrid(self.param_grid)
 
 
+# ------------------ #
+# RandomizedSearchCV #
+# ------------------ #
+
+_randomized_oneliner = "Randomized search on hyper parameters."
+_randomized_description = """\
+In contrast to GridSearchCV, not all parameter values are tried out, but
+rather a fixed number of parameter settings is sampled from the specified
+distributions. The number of parameter settings that are tried is
+given by n_iter.
+
+If all parameters are presented as a list, sampling without replacement is
+performed. If at least one parameter is given as a distribution, sampling
+with replacement is used. It is highly recommended to use continuous
+distributions for continuous parameters.\
+"""
+_randomized_parameters = """\
+param_distributions : dict
+    Dictionary with parameters names (string) as keys and distributions
+    or lists of parameters to try. Distributions must provide a ``rvs``
+    method for sampling (such as those from scipy.stats.distributions).
+    If a list is given, it is sampled uniformly.
+
+n_iter : int, default=10
+    Number of parameter settings that are sampled. n_iter trades
+    off runtime vs quality of the solution.
+
+random_state : int or RandomState
+    Pseudo random number generator state used for random uniform sampling
+    from lists of possible values instead of scipy.stats distributions.\
+"""
+_randomized_example = """\
+>>> import dask_searchcv as dcv
+>>> from scipy.stats import expon
+>>> from sklearn import svm, datasets
+>>> iris = datasets.load_iris()
+>>> parameters = {'C': expon(scale=100), 'kernel': ['linear', 'rbf']}
+>>> svc = svm.SVC()
+>>> clf = dcv.RandomizedSearchCV(svc, parameters, n_iter=100)
+>>> clf.fit(iris.data, iris.target)  # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+RandomizedSearchCV(cache_cv=..., cv=..., error_score=...,
+        estimator=SVC(C=..., cache_size=..., class_weight=..., coef0=...,
+                      decision_function_shape=..., degree=..., gamma=...,
+                      kernel=..., max_iter=..., probability=...,
+                      random_state=..., shrinking=..., tol=...,
+                      verbose=...),
+        get=..., iid=..., n_iter=..., param_distributions=...,
+        random_state=..., refit=..., return_train_score=..., scoring=...)
+>>> sorted(clf.cv_results_.keys())  # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+['mean_test_score', 'mean_train_score', 'param_C', 'param_kernel',...
+ 'params', 'rank_test_score', 'split0_test_score', 'split0_train_score',...
+ 'split1_test_score', 'split1_train_score', 'split2_test_score',...
+ 'split2_train_score', 'std_test_score', 'std_train_score'...]\
+"""
+
+
 class RandomizedSearchCV(DaskBaseSearchCV):
-    def __init__(self, estimator, param_distributions, n_iter=10, scoring=None,
-                 iid=True, refit=True, cv=None, random_state=None,
-                 error_score='raise', return_train_score=True, get=None,
-                 cache_cv=True):
+    __doc__ = _DOC_TEMPLATE.format(name="RandomizedSearchCV",
+                                   oneliner=_randomized_oneliner,
+                                   description=_randomized_description,
+                                   parameters=_randomized_parameters,
+                                   example=_randomized_example)
+
+    def __init__(self, estimator, param_distributions, n_iter=10,
+                 random_state=None, scoring=None, iid=True, refit=True,
+                 cv=None, error_score='raise', return_train_score=True,
+                 get=None, cache_cv=True):
+
         super(RandomizedSearchCV, self).__init__(estimator=estimator,
                 scoring=scoring, iid=iid, refit=refit, cv=cv,
                 error_score=error_score, return_train_score=return_train_score,

@@ -4,6 +4,7 @@
 
 import pickle
 import pytest
+from distutils.version import LooseVersion
 
 import dask
 import dask.array as da
@@ -13,6 +14,7 @@ from numpy.testing import (assert_array_equal, assert_array_almost_equal,
 import scipy.sparse as sp
 from scipy.stats import expon
 
+import sklearn
 from sklearn.base import BaseEstimator
 from sklearn.cluster import KMeans
 from sklearn.datasets import (make_classification, make_blobs,
@@ -808,6 +810,8 @@ def test_grid_search_correct_score_results():
                 assert_almost_equal(correct_score, cv_scores[i])
 
 
+@pytest.mark.skipif(LooseVersion(sklearn.__version__) < '0.18.1',
+                    reason="Pickle of masked-arrays broken in 0.18.0")
 def test_pickle():
     # Test that a fit search can be pickled
     clf = MockClassifier()
