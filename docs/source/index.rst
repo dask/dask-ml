@@ -29,6 +29,15 @@ Highlights
   once. For meta-estimators such as ``Pipeline`` this can be significantly more
   efficient as it can avoid expensive repeated computations.
 
+Install
+-------
+
+Dask-searchcv is available via ``pip``:
+
+::
+
+   $ pip install dask-searchcv
+
 Example
 -------
 

@@ -1,7 +1,7 @@
 dask-searchcv
 =============
 
-|Travis Status| |Doc Status|
+|Travis Status| |Doc Status| |PyPI Badge|
 
 Tools for performing hyperparameter search with
 `Scikit-Learn <http://scikit-learn.org>`_ and `Dask <http://dask.pydata.org>`_.
@@ -11,6 +11,21 @@ This library provides implementations of Scikit-Learn's ``GridSearchCV`` and
 parameters, and should be a drop-in replacement for the subset that they do
 implement. For certain problems, these implementations can be more efficient
 than those in Scikit-Learn, as they can avoid expensive repeated computations.
+
+For more information, check out the `documentation <http://dask-searchcv.readthedocs.io>`_.
+
+Install
+-------
+
+Dask-searchcv is available via ``pip``:
+
+::
+
+   $ pip install dask-searchcv
+
+
+Example
+-------
 
 .. code-block:: python
 
@@ -36,3 +51,5 @@ than those in Scikit-Learn, as they can avoid expensive repeated computations.
 .. |Doc Status| image:: http://readthedocs.org/projects/dask-searchcv/badge/?version=latest
    :target: http://dask-searchcv.readthedocs.io/en/latest/index.html
    :alt: Documentation Status
+.. |PyPI Badge| image:: https://img.shields.io/pypi/v/dask-searchcv.svg
+   :target: https://pypi.python.org/pypi/dask-searchcv

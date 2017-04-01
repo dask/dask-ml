@@ -16,7 +16,7 @@ setup(name='dask-searchcv',
       maintainer='Jim Crist',
       maintainer_email='jcrist@continuum.io',
       install_requires=install_requires,
-      description='Tools for doing hyperparameter search Scikit-Learn and Dask',
+      description='Tools for doing hyperparameter search with Scikit-Learn and Dask',
       long_description=(open('README.rst').read() if exists('README.rst')
                         else ''),
       packages=['dask_searchcv', 'dask_searchcv.tests'])
