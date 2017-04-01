@@ -1,7 +1,7 @@
 dask-searchcv
 =============
 
-|Travis Status|
+|Travis Status| |Doc Status|
 
 Tools for performing hyperparameter search with
 `Scikit-Learn <http://scikit-learn.org>`_ and `Dask <http://dask.pydata.org>`_.
@@ -33,3 +33,6 @@ than those in Scikit-Learn, as they can avoid expensive repeated computations.
 
 .. |Travis Status| image:: https://travis-ci.org/dask/dask-searchcv.svg?branch=master
    :target: https://travis-ci.org/dask/dask-searchcv
+.. |Doc Status| image:: http://readthedocs.org/projects/dask-searchcv/badge/?version=latest
+   :target: http://dask-searchcv.readthedocs.io/en/latest/index.html
+   :alt: Documentation Status
