@@ -3,7 +3,8 @@ from os.path import exists
 from setuptools import setup
 import versioneer
 
-install_requires = ["dask >= 0.12.0",
+install_requires = ["dask[delayed] >= 0.14.0",
+                    "toolz >= 0.8.2",
                     "scikit-learn >= 0.18.0",
                     "numpy"]
 
