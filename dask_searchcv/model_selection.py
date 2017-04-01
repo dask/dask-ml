@@ -763,7 +763,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         format : {'png', 'pdf', 'dot', 'svg', 'jpeg', 'jpg'}, optional
             Format in which to write output file.  Default is 'png'.
         **kwargs
-           Additional keyword arguments to forward to ``dask.dot.to_graphviz``.
+            Additional keyword arguments to forward to ``dask.dot.to_graphviz``.
 
         Returns
         -------
@@ -859,7 +859,7 @@ cv_results_ : dict of numpy (masked) ndarrays
     For instance the below given table
 
     +------------+-----------+------------+-----------------+---+---------+
-    |param_kernel|param_gamma|param_degree|split0_test_score|...|rank_....|
+    |param_kernel|param_gamma|param_degree|split0_test_score|...|rank.....|
     +============+===========+============+=================+===+=========+
     |  'poly'    |     --    |      2     |        0.8      |...|    2    |
     +------------+-----------+------------+-----------------+---+---------+
