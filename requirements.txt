@@ -1,5 +1,4 @@
-cloudpickle==0.2.2
+cloudpickle>=0.2.2
 dask[array]
-multipledispatch==0.4.9
-pandas==0.19.2
-scipy==0.18.1
+multipledispatch>=0.4.9
+scipy>=0.18.1
