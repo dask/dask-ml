@@ -79,3 +79,9 @@ class L1(object):
         def wrapped(beta, *args):
             return grad(beta, *args) + lam * L1.gradient(beta)
         return wrapped
+
+
+_regularizers = {
+    'l1': L1,
+    'l2': L2,
+}

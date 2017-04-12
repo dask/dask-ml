@@ -94,8 +94,31 @@ def sum(A):
     return da.sum(A)
 
 
+@dispatch(np.ndarray)
+def add_intercept(X):
+    return np.concatenate([X, np.ones((X.shape[0], 1))], axis=1)
+
+
+@dispatch(da.Array)
+def add_intercept(X):
+    j, k = X.chunks
+    o = da.ones((X.shape[0], 1), chunks=(j, 1))
+    # TODO: Needed this `.rechunk` for the solver to work
+    # Is this OK / correct?
+    X_i = da.concatenate([X, o], axis=1).rechunk((j, (k[0] + 1,)))
+    return X_i
+
+
 def make_y(X, beta=np.array([1.5, -3]), chunks=2):
     n, p = X.shape
     z0 = X.dot(beta)
     y = da.random.random(z0.shape, chunks=z0.chunks) < sigmoid(z0)
     return y
+
+
+def mean_squared_error(y_true, y_pred):
+    return ((y_true - y_pred) ** 2).mean()
+
+
+def accuracy_score(y_true, y_pred):
+    return (y_true == y_pred).mean()

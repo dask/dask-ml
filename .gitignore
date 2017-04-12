@@ -22,3 +22,4 @@ wheels/
 .installed.cfg
 *.egg
 dask_glm/.ropeproject/*
+.ipynb_checkpoints/
