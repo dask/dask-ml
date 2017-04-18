@@ -1,7 +1,7 @@
 dask-searchcv
 =============
 
-|Travis Status| |Doc Status| |PyPI Badge|
+|Travis Status| |Doc Status| |Conda Badge| |PyPI Badge|
 
 Tools for performing hyperparameter search with
 `Scikit-Learn <http://scikit-learn.org>`_ and `Dask <http://dask.pydata.org>`_.
@@ -53,3 +53,5 @@ Example
    :alt: Documentation Status
 .. |PyPI Badge| image:: https://img.shields.io/pypi/v/dask-searchcv.svg
    :target: https://pypi.python.org/pypi/dask-searchcv
+.. |Conda Badge| image:: https://anaconda.org/conda-forge/dask-searchcv/badges/version.svg
+   :target: https://anaconda.org/conda-forge/dask-searchcv
