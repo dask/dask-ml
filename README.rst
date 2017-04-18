@@ -17,10 +17,14 @@ For more information, check out the `documentation <http://dask-searchcv.readthe
 Install
 -------
 
-Dask-searchcv is available via ``pip``:
+Dask-searchcv is available via ``conda`` or ``pip``:
 
 ::
 
+   # Install with conda
+   $ conda install dask-searchcv -c conda-forge
+
+   # Install with pip
    $ pip install dask-searchcv
 
 
