@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 import os
 import pickle
 from itertools import product
+from multiprocessing import cpu_count
 
 import pytest
 import numpy as np
@@ -13,6 +14,7 @@ import dask.array as da
 from dask.base import tokenize
 from dask.callbacks import Callback
 from dask.delayed import delayed
+from dask.threaded import get as get_threading
 from dask.utils import tmpdir
 
 from sklearn.datasets import make_classification, load_iris
@@ -37,11 +39,20 @@ from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.svm import SVC
 
 import dask_searchcv as dcv
-from dask_searchcv.model_selection import compute_n_splits, check_cv
+from dask_searchcv.model_selection import (compute_n_splits, check_cv,
+        _normalize_n_jobs, _normalize_scheduler)
 from dask_searchcv.methods import CVCache
 from dask_searchcv.utils_test import (FailingClassifier, MockClassifier,
                                       ScalingTransformer, CheckXClassifier,
                                       ignore_warnings)
+
+try:
+    from distributed import Client
+    from distributed.utils_test import cluster, loop
+    has_distributed = True
+except:
+    loop = pytest.fixture(lambda: None)
+    has_distributed = False
 
 
 class assert_dask_compute(Callback):
@@ -315,7 +326,7 @@ def test_pipeline_feature_union():
 
     gs = GridSearchCV(pipe, param_grid=param_grid)
     gs.fit(X, y)
-    dgs = dcv.GridSearchCV(pipe, param_grid=param_grid, get=dask.get)
+    dgs = dcv.GridSearchCV(pipe, param_grid=param_grid, scheduler='sync')
     dgs.fit(X, y)
 
     # Check best params match
@@ -359,7 +370,7 @@ def test_pipeline_sub_estimators():
 
     gs = GridSearchCV(pipe, param_grid=param_grid)
     gs.fit(X, y)
-    dgs = dcv.GridSearchCV(pipe, param_grid=param_grid, get=dask.get)
+    dgs = dcv.GridSearchCV(pipe, param_grid=param_grid, scheduler='sync')
     dgs.fit(X, y)
 
     # Check best params match
@@ -529,7 +540,7 @@ def test_cache_cv():
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
     X2 = X.view(CountTakes)
     gs = dcv.GridSearchCV(MockClassifier(), {'foo_param': [0, 1, 2]},
-                          cv=3, cache_cv=False, get=dask.get)
+                          cv=3, cache_cv=False, scheduler='sync')
     gs.fit(X2, y)
     assert X2.count == 2 * 3 * 3  # (1 train + 1 test) * n_params * n_splits
 
@@ -557,3 +568,47 @@ def test_CVCache_serializable():
     assert cache2.pairwise == cache.pairwise
     assert all((cache2.splits[i][j] == cache.splits[i][j]).all()
                for i in range(2) for j in range(2))
+
+
+def test_normalize_n_jobs():
+    assert _normalize_n_jobs(-1) is None
+    assert _normalize_n_jobs(-2) == cpu_count() - 1
+    with pytest.raises(TypeError):
+        _normalize_n_jobs('not an integer')
+
+
+@pytest.mark.parametrize('scheduler,n_jobs,get',
+                         [(None, 4, get_threading),
+                          ('threading', 4, get_threading),
+                          ('threaded', 4, get_threading),
+                          ('threading', 1, dask.get),
+                          ('sequential', 4, dask.get),
+                          ('synchronous', 4, dask.get),
+                          ('sync', 4, dask.get),
+                          ('multiprocessing', 4, None),
+                          (dask.get, 4, dask.get)])
+def test_scheduler_param(scheduler, n_jobs, get):
+    if scheduler == 'multiprocessing':
+        mp = pytest.importorskip('dask.multiprocessing')
+        get = mp.get
+
+    assert _normalize_scheduler(scheduler, n_jobs) is get
+
+    X, y = make_classification(n_samples=100, n_features=10, random_state=0)
+    gs = dcv.GridSearchCV(MockClassifier(), {'foo_param': [0, 1, 2]}, cv=3,
+                          scheduler=scheduler, n_jobs=n_jobs)
+    gs.fit(X, y)
+
+
+@pytest.mark.skipif('not has_distributed')
+def test_scheduler_param_distributed(loop):
+    X, y = make_classification(n_samples=100, n_features=10, random_state=0)
+    gs = dcv.GridSearchCV(MockClassifier(), {'foo_param': [0, 1, 2]}, cv=3)
+    with cluster() as (s, [a, b]):
+        with Client(s['address'], loop=loop):
+            gs.fit(X, y)
+
+
+def test_scheduler_param_bad(loop):
+    with pytest.raises(ValueError):
+        _normalize_scheduler('threeding', 4, loop)

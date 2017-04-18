@@ -23,7 +23,7 @@ install:
   # Install dependencies
   - conda create -n test-environment python=$PYTHON
   - source activate test-environment
-  - conda install dask numpy scikit-learn=$SKLEARN cytoolz pytest
+  - conda install dask distributed numpy scikit-learn=$SKLEARN cytoolz pytest
   - pip install -q graphviz flake8
   - pip install --no-deps -e .
 

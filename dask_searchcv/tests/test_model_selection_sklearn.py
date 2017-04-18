@@ -4,7 +4,6 @@
 
 import pickle
 import pytest
-from distutils.version import LooseVersion
 
 import dask
 import dask.array as da
@@ -14,7 +13,6 @@ from numpy.testing import (assert_array_equal, assert_array_almost_equal,
 import scipy.sparse as sp
 from scipy.stats import expon
 
-import sklearn
 from sklearn.base import BaseEstimator
 from sklearn.cluster import KMeans
 from sklearn.datasets import (make_classification, make_blobs,
@@ -112,11 +110,12 @@ def test_grid_search_no_score():
     # wrong results. This only happens with threads, not processes/sync.
     # For now, we'll fit using the sync scheduler.
     grid_search = dcv.GridSearchCV(clf, {'C': Cs}, scoring='accuracy',
-                                   get=dask.get)
+                                   scheduler='sync')
     grid_search.fit(X, y)
 
     grid_search_no_score = dcv.GridSearchCV(clf_no_score, {'C': Cs},
-                                            scoring='accuracy', get=dask.get)
+                                            scoring='accuracy',
+                                            scheduler='sync')
     # smoketest grid search
     grid_search_no_score.fit(X, y)
 
@@ -782,7 +781,7 @@ def test_grid_search_correct_score_results():
         # in wrong results. This only happens with threads, not processes/sync.
         # For now, we'll fit using the sync scheduler.
         grid_search = dcv.GridSearchCV(clf, {'C': Cs}, scoring=score,
-                                       cv=n_splits, get=dask.get)
+                                       cv=n_splits, scheduler='sync')
         cv_results = grid_search.fit(X, y).cv_results_
 
         # Test scorer names
@@ -810,8 +809,6 @@ def test_grid_search_correct_score_results():
                 assert_almost_equal(correct_score, cv_scores[i])
 
 
-@pytest.mark.skipif(LooseVersion(sklearn.__version__) < '0.18.1',
-                    reason="Pickle of masked-arrays broken in 0.18.0")
 def test_pickle():
     # Test that a fit search can be pickled
     clf = MockClassifier()
