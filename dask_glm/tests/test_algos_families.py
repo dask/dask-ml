@@ -98,7 +98,7 @@ def test_basic_reg_descent(func, kwargs, N, nchunks, family, lam, reg):
 
     X, y = persist(X, y)
 
-    result = func(X, y, family=family, lamduh=lam, reg=reg, **kwargs)
+    result = func(X, y, family=family, lamduh=lam, regularizer=reg, **kwargs)
     test_vec = np.random.normal(size=2)
 
     f = reg.add_reg_f(family.pointwise_loss, lam)
@@ -110,10 +110,10 @@ def test_basic_reg_descent(func, kwargs, N, nchunks, family, lam, reg):
 
 
 @pytest.mark.parametrize('func,kwargs', [
-    (admm, {'max_steps': 2}),
-    (proximal_grad, {'max_steps': 2}),
-    (newton, {'max_steps': 2}),
-    (gradient_descent, {'max_steps': 2}),
+    (admm, {'max_iter': 2}),
+    (proximal_grad, {'max_iter': 2}),
+    (newton, {'max_iter': 2}),
+    (gradient_descent, {'max_iter': 2}),
 ])
 @pytest.mark.parametrize('get', [
     dask.async.get_sync,
@@ -137,10 +137,10 @@ except ImportError:
     pass
 else:
     @pytest.mark.parametrize('func,kwargs', [
-        (admm, {'max_steps': 2}),
-        (proximal_grad, {'max_steps': 2}),
-        (newton, {'max_steps': 2}),
-        (gradient_descent, {'max_steps': 2}),
+        (admm, {'max_iter': 2}),
+        (proximal_grad, {'max_iter': 2}),
+        (newton, {'max_iter': 2}),
+        (gradient_descent, {'max_iter': 2}),
     ])
     def test_determinism_distributed(func, kwargs, loop):
         with cluster() as (s, [a, b]):

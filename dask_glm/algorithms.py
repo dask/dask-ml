@@ -1,3 +1,18 @@
+"""
+
+Parameter Key:
+
+================  =========  ===  ======  ===========  =======  ===  ==========  ======  ======
+algo / parameter  max_iter   tol  family  regularizer  lambduh  rho  over_relax  abstol  reltol
+================  =========  ===  ======  ===========  =======  ===  ==========  ======  ======
+admm              X          *    X       X            X        X    X           X       x
+gradient_descent  X          X    X       .            .        .    .           .       .
+newton            X          X    X       .            .        .    .           .       .
+bfgs              X          X    X       .            .        .    .           .       .
+proximal_grad     X          X    X       X            X        .    .           .       .
+================  =========  ===  ======  ===========  =======  ===  ==========  ======  ======
+"""
+
 from __future__ import absolute_import, division, print_function
 
 from dask import delayed, persist, compute
@@ -9,7 +24,7 @@ from scipy.optimize import fmin_l_bfgs_b
 
 from dask_glm.utils import dot, exp, log1p
 from dask_glm.families import Logistic
-from dask_glm.regularizers import L1
+from dask_glm.regularizers import L1, _regularizers
 
 
 def compute_stepsize_dask(beta, step, Xbeta, Xstep, y, curr_val,
@@ -41,7 +56,7 @@ def compute_stepsize_dask(beta, step, Xbeta, Xstep, y, curr_val,
     return stepSize, beta, Xbeta, func
 
 
-def gradient_descent(X, y, max_steps=100, tol=1e-14, family=Logistic):
+def gradient_descent(X, y, max_iter=100, tol=1e-14, family=Logistic):
     '''Michael Grant's implementation of Gradient Descent.'''
 
     loglike, gradient = family.loglike, family.gradient
@@ -55,7 +70,7 @@ def gradient_descent(X, y, max_steps=100, tol=1e-14, family=Logistic):
     backtrackMult = firstBacktrackMult
     beta = np.zeros(p)
 
-    for k in range(max_steps):
+    for k in range(max_iter):
         # how necessary is this recalculation?
         if k % recalcRate == 0:
             Xbeta = X.dot(beta)
@@ -97,7 +112,7 @@ def gradient_descent(X, y, max_steps=100, tol=1e-14, family=Logistic):
     return beta
 
 
-def newton(X, y, max_steps=50, tol=1e-8, family=Logistic):
+def newton(X, y, max_iter=50, tol=1e-8, family=Logistic):
     '''Newtons Method for Logistic Regression.'''
 
     gradient, hessian = family.gradient, family.hessian
@@ -127,7 +142,7 @@ def newton(X, y, max_steps=50, tol=1e-8, family=Logistic):
         # should change this criterion
         coef_change = np.absolute(beta_old - beta)
         converged = (
-            (not np.any(coef_change > tol)) or (iter_count > max_steps))
+            (not np.any(coef_change > tol)) or (iter_count > max_iter))
 
         if not converged:
             Xbeta = dot(X, beta)  # numpy -> dask converstion of beta
@@ -135,11 +150,12 @@ def newton(X, y, max_steps=50, tol=1e-8, family=Logistic):
     return beta
 
 
-def admm(X, y, reg=L1, lamduh=0.1, rho=1, over_relax=1,
-         max_steps=250, abstol=1e-4, reltol=1e-2, family=Logistic):
+def admm(X, y, regularizer=L1, lamduh=0.1, rho=1, over_relax=1,
+         max_iter=250, abstol=1e-4, reltol=1e-2, family=Logistic):
 
     pointwise_loss = family.pointwise_loss
     pointwise_gradient = family.pointwise_gradient
+    regularizer = _regularizers.get(regularizer, regularizer)  # string
 
     def create_local_gradient(func):
         @functools.wraps(func)
@@ -157,16 +173,25 @@ def admm(X, y, reg=L1, lamduh=0.1, rho=1, over_relax=1,
     f = create_local_f(pointwise_loss)
     fprime = create_local_gradient(pointwise_gradient)
 
-    nchunks = X.npartitions
+    nchunks = getattr(X, 'npartitions', 1)
+    # nchunks = X.npartitions
     (n, p) = X.shape
-    XD = X.to_delayed().flatten().tolist()
-    yD = y.to_delayed().flatten().tolist()
+    # XD = X.to_delayed().flatten().tolist()
+    # yD = y.to_delayed().flatten().tolist()
+    if isinstance(X, da.Array):
+        XD = X.rechunk((None, X.shape[-1])).to_delayed().flatten().tolist()
+    else:
+        XD = [X]
+    if isinstance(y, da.Array):
+        yD = y.rechunk((None, y.shape[-1])).to_delayed().flatten().tolist()
+    else:
+        yD = [y]
 
     z = np.zeros(p)
     u = np.array([np.zeros(p) for i in range(nchunks)])
-    betas = np.array([np.zeros(p) for i in range(nchunks)])
+    betas = np.array([np.ones(p) for i in range(nchunks)])
 
-    for k in range(max_steps):
+    for k in range(max_iter):
 
         # x-update step
         new_betas = [delayed(local_update)(xx, yy, bb, z, uu, rho, f=f,
@@ -179,7 +204,7 @@ def admm(X, y, reg=L1, lamduh=0.1, rho=1, over_relax=1,
         #  z-update step
         zold = z.copy()
         ztilde = np.mean(beta_hat + np.array(u), axis=0)
-        z = reg.proximal_operator(ztilde, lamduh / (rho * nchunks))
+        z = regularizer.proximal_operator(ztilde, lamduh / (rho * nchunks))
 
         # u-update step
         u += beta_hat - z
@@ -218,7 +243,7 @@ def shrinkage(x, kappa):
     return z
 
 
-def bfgs(X, y, max_steps=500, tol=1e-14, family=Logistic):
+def bfgs(X, y, max_iter=500, tol=1e-14, family=Logistic):
     '''Simple implementation of BFGS.'''
 
     n, p = X.shape
@@ -232,7 +257,7 @@ def bfgs(X, y, max_steps=500, tol=1e-14, family=Logistic):
 
     beta = np.zeros(p)
     Hk = np.eye(p)
-    for k in range(max_steps):
+    for k in range(max_iter):
 
         if k % recalcRate == 0:
             Xbeta = X.dot(beta)
@@ -294,8 +319,8 @@ def bfgs(X, y, max_steps=500, tol=1e-14, family=Logistic):
     return beta
 
 
-def proximal_grad(X, y, reg=L1, lamduh=0.1, family=Logistic,
-                  max_steps=100, tol=1e-8, verbose=False):
+def proximal_grad(X, y, regularizer=L1, lamduh=0.1, family=Logistic,
+                  max_iter=100, tol=1e-8, verbose=False):
 
     n, p = X.shape
     firstBacktrackMult = 0.1
@@ -306,12 +331,13 @@ def proximal_grad(X, y, reg=L1, lamduh=0.1, family=Logistic,
     recalcRate = 10
     backtrackMult = firstBacktrackMult
     beta = np.zeros(p)
+    regularizer = _regularizers.get(regularizer, regularizer)  # string
 
     if verbose:
         print('#       -f        |df/f|    |dx/x|    step')
         print('----------------------------------------------')
 
-    for k in range(max_steps):
+    for k in range(max_iter):
         # Compute the gradient
         if k % recalcRate == 0:
             Xbeta = X.dot(beta)
@@ -327,19 +353,19 @@ def proximal_grad(X, y, reg=L1, lamduh=0.1, family=Logistic,
         # Compute the step size
         lf = func
         for ii in range(100):
-            beta = reg.proximal_operator(obeta - stepSize * gradient, stepSize * lamduh)
+            beta = regularizer.proximal_operator(obeta - stepSize * gradient, stepSize * lamduh)
             step = obeta - beta
             Xbeta = X.dot(beta)
 
             overflow = (Xbeta < 700).all()
             overflow, Xbeta, beta = persist(overflow, Xbeta, beta)
-            overflow = overflow.compute()
+            overflow = compute(overflow)[0]
 
             # This prevents overflow
             if overflow:
                 func = family.loglike(Xbeta, y)
                 func = persist(func)[0]
-                func = func.compute()
+                func = compute(func)[0]
                 df = lf - func
                 if df > 0:
                     break
@@ -358,3 +384,12 @@ def proximal_grad(X, y, reg=L1, lamduh=0.1, family=Logistic,
         backtrackMult = nextBacktrackMult
 
     return beta
+
+
+_solvers = {
+    'admm': admm,
+    'gradient_descent': gradient_descent,
+    'newton': newton,
+    'bfgs': bfgs,
+    'proximal_grad': proximal_grad
+}
