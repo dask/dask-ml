@@ -20,7 +20,7 @@ class _GLM(BaseEstimator):
     def __init__(self, fit_intercept=True, solver='admm', regularizer='l2',
                  max_iter=100, tol=1e-4, lamduh=1.0, rho=1,
                  over_relax=1, abstol=1e-4, reltol=1e-2):
-        self.fit_intercept = True
+        self.fit_intercept = fit_intercept
         self.solver = solver
         self.regularizer = regularizer
         self.max_iter = max_iter
