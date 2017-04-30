@@ -98,14 +98,12 @@ def gradient_descent(X, y, max_iter=100, tol=1e-14, family=Logistic, **kwargs):
         Xbeta = Xbeta - stepSize * Xgradient
 
         if stepSize == 0:
-            print('No more progress')
             break
 
         df = lf - func
         df /= max(func, lf)
 
         if df < tol:
-            print('Converged')
             break
         stepSize *= stepGrowth
         backtrackMult = nextBacktrackMult
@@ -222,7 +220,6 @@ def admm(X, y, regularizer=L1, lamduh=0.1, rho=1, over_relax=1,
             reltol * np.linalg.norm(rho * u)
 
         if primal_res < eps_pri and dual_res < eps_dual:
-            print("Converged!", k)
             break
 
     return z
@@ -300,7 +297,6 @@ def bfgs(X, y, max_iter=500, tol=1e-14, family=Logistic, **kwargs):
         Xbeta = Xbeta - stepSize * Xstep
 
         if stepSize == 0:
-            print('No more progress')
             break
 
         # necessary for gradient computation
@@ -311,13 +307,11 @@ def bfgs(X, y, max_iter=500, tol=1e-14, family=Logistic, **kwargs):
         stepSize *= stepGrowth
 
         if stepSize == 0:
-            print('No more progress')
             break
 
         df = lf - func
         df /= max(func, lf)
         if df < tol:
-            print('Converged')
             break
 
     return beta
@@ -325,7 +319,7 @@ def bfgs(X, y, max_iter=500, tol=1e-14, family=Logistic, **kwargs):
 
 @normalize()
 def proximal_grad(X, y, regularizer=L1, lamduh=0.1, family=Logistic,
-                  max_iter=100, tol=1e-8, verbose=False):
+                  max_iter=100, tol=1e-8):
 
     n, p = X.shape
     firstBacktrackMult = 0.1
@@ -337,10 +331,6 @@ def proximal_grad(X, y, regularizer=L1, lamduh=0.1, family=Logistic,
     backtrackMult = firstBacktrackMult
     beta = np.zeros(p)
     regularizer = _regularizers.get(regularizer, regularizer)  # string
-
-    if verbose:
-        print('#       -f        |df/f|    |dx/x|    step')
-        print('----------------------------------------------')
 
     for k in range(max_iter):
         # Compute the gradient
@@ -362,28 +352,19 @@ def proximal_grad(X, y, regularizer=L1, lamduh=0.1, family=Logistic,
             step = obeta - beta
             Xbeta = X.dot(beta)
 
-            overflow = (Xbeta < 700).all()
-            overflow, Xbeta, beta = persist(overflow, Xbeta, beta)
-            overflow = compute(overflow)[0]
+            Xbeta, beta = persist(Xbeta, beta)
 
-            # This prevents overflow
-            if overflow:
-                func = family.loglike(Xbeta, y)
-                func = persist(func)[0]
-                func = compute(func)[0]
-                df = lf - func
-                if df > 0:
-                    break
+            func = family.loglike(Xbeta, y)
+            func = persist(func)[0]
+            func = compute(func)[0]
+            df = lf - func
+            if df > 0:
+                break
             stepSize *= backtrackMult
         if stepSize == 0:
-            print('No more progress')
             break
         df /= max(func, lf)
-        db = 0
-        if verbose:
-            print('%2d  %.6e %9.2e  %.2e  %.1e' % (k + 1, func, df, db, stepSize))
         if df < tol:
-            print('Converged')
             break
         stepSize *= stepGrowth
         backtrackMult = nextBacktrackMult
