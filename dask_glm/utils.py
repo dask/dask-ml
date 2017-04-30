@@ -5,7 +5,23 @@ import sys
 
 import dask.array as da
 import numpy as np
+from functools import wraps
 from multipledispatch import dispatch
+
+
+def standardize(algo):
+    @wraps(algo)
+    def normalize_inputs(X, y, *args, **kwargs):
+        mean, std = X.mean(axis=0).compute(), X.std(axis=0).compute()
+        intercept_idx = np.where(std == 0)
+        mean[intercept_idx] = 0
+        std[intercept_idx] = 1
+        Xn = (X - mean) / std
+        out = algo(Xn, y, *args, **kwargs)
+        i_adj = np.sum(out * mean / std)
+        out[intercept_idx] -= i_adj
+        return out / std
+    return normalize_inputs
 
 
 def sigmoid(x):
