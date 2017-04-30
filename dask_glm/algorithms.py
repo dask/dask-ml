@@ -22,7 +22,7 @@ import dask.array as da
 from scipy.optimize import fmin_l_bfgs_b
 
 
-from dask_glm.utils import dot, exp, log1p
+from dask_glm.utils import dot, exp, log1p, normalize
 from dask_glm.families import Logistic
 from dask_glm.regularizers import L1, _regularizers
 
@@ -56,7 +56,8 @@ def compute_stepsize_dask(beta, step, Xbeta, Xstep, y, curr_val,
     return stepSize, beta, Xbeta, func
 
 
-def gradient_descent(X, y, max_iter=100, tol=1e-14, family=Logistic):
+@normalize()
+def gradient_descent(X, y, max_iter=100, tol=1e-14, family=Logistic, **kwargs):
     '''Michael Grant's implementation of Gradient Descent.'''
 
     loglike, gradient = family.loglike, family.gradient
@@ -112,7 +113,8 @@ def gradient_descent(X, y, max_iter=100, tol=1e-14, family=Logistic):
     return beta
 
 
-def newton(X, y, max_iter=50, tol=1e-8, family=Logistic):
+@normalize()
+def newton(X, y, max_iter=50, tol=1e-8, family=Logistic, **kwargs):
     '''Newtons Method for Logistic Regression.'''
 
     gradient, hessian = family.gradient, family.hessian
@@ -150,6 +152,7 @@ def newton(X, y, max_iter=50, tol=1e-8, family=Logistic):
     return beta
 
 
+@normalize()
 def admm(X, y, regularizer=L1, lamduh=0.1, rho=1, over_relax=1,
          max_iter=250, abstol=1e-4, reltol=1e-2, family=Logistic):
 
@@ -243,7 +246,8 @@ def shrinkage(x, kappa):
     return z
 
 
-def bfgs(X, y, max_iter=500, tol=1e-14, family=Logistic):
+@normalize()
+def bfgs(X, y, max_iter=500, tol=1e-14, family=Logistic, **kwargs):
     '''Simple implementation of BFGS.'''
 
     n, p = X.shape
@@ -319,6 +323,7 @@ def bfgs(X, y, max_iter=500, tol=1e-14, family=Logistic):
     return beta
 
 
+@normalize()
 def proximal_grad(X, y, regularizer=L1, lamduh=0.1, family=Logistic,
                   max_iter=100, tol=1e-8, verbose=False):
 
@@ -383,7 +388,11 @@ def proximal_grad(X, y, regularizer=L1, lamduh=0.1, family=Logistic,
         stepSize *= stepGrowth
         backtrackMult = nextBacktrackMult
 
-    return beta
+    # L2-regularization returned a dask-array
+    try:
+        return beta.compute()
+    except AttributeError:
+        return beta
 
 
 _solvers = {

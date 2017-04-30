@@ -41,6 +41,18 @@ def make_intercept_data(N, p, seed=20009):
 @pytest.mark.parametrize('opt',
                          [pytest.mark.xfail(bfgs, reason='''
                             BFGS needs a re-work.'''),
+                          newton, gradient_descent,
+                          proximal_grad, admm])
+@pytest.mark.parametrize('reg', [L1, L2])
+def test_methods_return_numpy_arrays(opt, reg, seed=20009):
+    X, y = make_intercept_data(100, 2, seed=seed)
+    coefs = opt(X, y, **{'regularizer': reg})
+    assert type(coefs) == np.ndarray
+
+
+@pytest.mark.parametrize('opt',
+                         [pytest.mark.xfail(bfgs, reason='''
+                            BFGS needs a re-work.'''),
                           newton, gradient_descent])
 @pytest.mark.parametrize('N, p, seed',
                          [(100, 2, 20009),
