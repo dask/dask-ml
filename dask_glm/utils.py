@@ -9,19 +9,24 @@ from functools import wraps
 from multipledispatch import dispatch
 
 
-def standardize(algo):
-    @wraps(algo)
-    def normalize_inputs(X, y, *args, **kwargs):
-        mean, std = X.mean(axis=0).compute(), X.std(axis=0).compute()
-        intercept_idx = np.where(std == 0)
-        mean[intercept_idx] = 0
-        std[intercept_idx] = 1
-        Xn = (X - mean) / std
-        out = algo(Xn, y, *args, **kwargs)
-        i_adj = np.sum(out * mean / std)
-        out[intercept_idx] -= i_adj
-        return out / std
-    return normalize_inputs
+def normalize(normalize=True):
+    def decorator(algo):
+        @wraps(algo)
+        def normalize_inputs(X, y, *args, **kwargs):
+            if normalize:
+                mean, std = da.compute(X.mean(axis=0), X.std(axis=0))
+                intercept_idx = np.where(std == 0)
+                mean[intercept_idx] = 0
+                std[intercept_idx] = 1
+                Xn = (X - mean) / std if intercept_idx[0] else X
+                out = algo(Xn, y, *args, **kwargs)
+                i_adj = np.sum(out * mean / std)
+                out[intercept_idx] -= i_adj
+                return out / std if intercept_idx[0] else out
+            else:
+                return algo(X, y, *args, **kwargs)
+        return normalize_inputs
+    return decorator
 
 
 def sigmoid(x):
