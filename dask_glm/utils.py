@@ -15,10 +15,11 @@ def normalize(normalize=True):
         def normalize_inputs(X, y, *args, **kwargs):
             if normalize:
                 mean, std = da.compute(X.mean(axis=0), X.std(axis=0))
+                mean, std = mean.copy(), std.copy()
                 intercept_idx = np.where(std == 0)
                 mean[intercept_idx] = 0
                 std[intercept_idx] = 1
-                mean = mean if intercept_idx[0] else np.zeros(mean.shape)
+                mean = mean if len(intercept_idx[0]) else np.zeros(mean.shape)
                 Xn = (X - mean) / std
                 out = algo(Xn, y, *args, **kwargs)
                 i_adj = np.sum(out * mean / std)
