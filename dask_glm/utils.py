@@ -18,11 +18,12 @@ def normalize(normalize=True):
                 intercept_idx = np.where(std == 0)
                 mean[intercept_idx] = 0
                 std[intercept_idx] = 1
-                Xn = (X - mean) / std if intercept_idx[0] else X
+                mean = mean if intercept_idx[0] else np.zeros(mean.shape)
+                Xn = (X - mean) / std
                 out = algo(Xn, y, *args, **kwargs)
                 i_adj = np.sum(out * mean / std)
                 out[intercept_idx] -= i_adj
-                return out / std if intercept_idx[0] else out
+                return out / std
             else:
                 return algo(X, y, *args, **kwargs)
         return normalize_inputs
