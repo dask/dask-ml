@@ -33,7 +33,7 @@ def test_normalize_normalizes_if_intercept_not_present():
     X = da.from_array(np.array([[1, 0, 0], [3, 9.0, 2]]), chunks=(2, 3))
     y = da.from_array(np.array([0, 1, 0]), chunks=(3, ))
     res = do_nothing(X, y)
-    np.testing.assert_equal(res, np.array([0, 1/4.5, 2]))
+    np.testing.assert_equal(res, np.array([0, 1 / 4.5, 2]))
 
 
 def test_add_intercept():
