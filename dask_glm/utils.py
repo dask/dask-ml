@@ -33,7 +33,7 @@ def normalize(algo):
 
 
 def sigmoid(x):
-    '''Sigmoid function of x.'''
+    """Sigmoid function of x."""
     return 1 / (1 + exp(-x))
 
 

@@ -1,16 +1,4 @@
-"""
-
-Parameter Key:
-
-================  =========  ===  ======  ===========  =======  ===  ==========  ======  ======
-algo / parameter  max_iter   tol  family  regularizer  lambduh  rho  over_relax  abstol  reltol
-================  =========  ===  ======  ===========  =======  ===  ==========  ======  ======
-admm              X          *    X       X            X        X    X           X       x
-gradient_descent  X          X    X       .            .        .    .           .       .
-newton            X          X    X       .            .        .    .           .       .
-bfgs              X          X    X       .            .        .    .           .       .
-proximal_grad     X          X    X       X            X        .    .           .       .
-================  =========  ===  ======  ===========  =======  ===  ==========  ======  ======
+"""Optimization algorithms for solving minimizaiton problems.
 """
 
 from __future__ import absolute_import, division, print_function
@@ -30,6 +18,26 @@ from dask_glm.regularizers import Regularizer
 def compute_stepsize_dask(beta, step, Xbeta, Xstep, y, curr_val,
                           family=Logistic, stepSize=1.0,
                           armijoMult=0.1, backtrackMult=0.1):
+    """Compute the optimal stepsize
+
+    beta : array-like
+    step : float
+    XBeta : array-lie
+    Xstep :
+    y : array-like
+    curr_val : float
+    famlily : Family, optional
+    stepSize : float, optional
+    armijoMult : float, optional
+    backtrackMult : float, optional
+
+    Returns
+    -------
+    stepSize : flaot
+    beta : array-like
+    xBeta : array-like
+    func : callable
+    """
 
     loglike = family.loglike
     beta, step, Xbeta, Xstep, y, curr_val = persist(beta, step, Xbeta, Xstep, y, curr_val)
@@ -58,7 +66,25 @@ def compute_stepsize_dask(beta, step, Xbeta, Xstep, y, curr_val,
 
 @normalize
 def gradient_descent(X, y, max_iter=100, tol=1e-14, family=Logistic, **kwargs):
-    '''Michael Grant's implementation of Gradient Descent.'''
+    """
+    Michael Grant's implementation of Gradient Descent.
+
+    Parameters
+    ----------
+    X : array-like, shape (n_samples, n_features)
+    y : array-like, shape (n_samples,)
+    max_iter : int
+        maximum number of iterations to attempt before declaring
+        failure to converge
+    tol : float
+        Maximum allowed change from prior iteration required to
+        declare convergence
+    family : Family
+
+    Returns
+    -------
+    beta : array-like, shape (n_features,)
+    """
 
     loglike, gradient = family.loglike, family.gradient
     n, p = X.shape
@@ -113,7 +139,24 @@ def gradient_descent(X, y, max_iter=100, tol=1e-14, family=Logistic, **kwargs):
 
 @normalize
 def newton(X, y, max_iter=50, tol=1e-8, family=Logistic, **kwargs):
+    """Newtons Method for Logistic Regression.
 
+    Parameters
+    ----------
+    X : array-like, shape (n_samples, n_features)
+    y : array-like, shape (n_samples,)
+    max_iter : int
+        maximum number of iterations to attempt before declaring
+        failure to converge
+    tol : float
+        Maximum allowed change from prior iteration required to
+        declare convergence
+    family : Family
+
+    Returns
+    -------
+    beta : array-like, shape (n_features,)
+    """
     gradient, hessian = family.gradient, family.hessian
     n, p = X.shape
     beta = np.zeros(p)  # always init to zeros?
@@ -152,6 +195,27 @@ def newton(X, y, max_iter=50, tol=1e-8, family=Logistic, **kwargs):
 @normalize
 def admm(X, y, regularizer='l1', lamduh=0.1, rho=1, over_relax=1,
          max_iter=250, abstol=1e-4, reltol=1e-2, family=Logistic):
+    """
+    Alternating Direction Method of Multipliers
+
+    Parameters
+    ----------
+    X : array-like, shape (n_samples, n_features)
+    y : array-like, shape (n_samples,)
+    regularizer : str or Regularizer
+    lambuh : float
+    rho : float
+    over_relax : FLOAT
+    max_iter : int
+        maximum number of iterations to attempt before declaring
+        failure to converge
+    abstol, reltol : float
+    family : Family
+
+    Returns
+    -------
+    beta : array-like, shape (n_features,)
+    """
 
     pointwise_loss = family.pointwise_loss
     pointwise_gradient = family.pointwise_gradient
@@ -240,7 +304,24 @@ def local_update(X, y, beta, z, u, rho, f, fprime, solver=fmin_l_bfgs_b):
 @normalize
 def lbfgs(X, y, regularizer=None, lamduh=1.0, max_iter=100, tol=1e-4,
           family=Logistic, verbose=False):
-    """L-BFGS solver using scipy.optimize implementation"""
+    """L-BFGS solver using scipy.optimize implementation
+
+    Parameters
+    ----------
+    X : array-like, shape (n_samples, n_features)
+    y : array-like, shape (n_samples,)
+    max_iter : int
+        maximum number of iterations to attempt before declaring
+        failure to converge
+    tol : float
+        Maximum allowed change from prior iteration required to
+        declare convergence
+    family : Family
+
+    Returns
+    -------
+    beta : array-like, shape (n_features,)
+    """
 
     pointwise_loss = family.pointwise_loss
     pointwise_gradient = family.pointwise_gradient
@@ -270,6 +351,26 @@ def lbfgs(X, y, regularizer=None, lamduh=1.0, max_iter=100, tol=1e-4,
 @normalize
 def proximal_grad(X, y, regularizer='l1', lamduh=0.1, family=Logistic,
                   max_iter=100, tol=1e-8):
+    """
+
+    Parameters
+    ----------
+    X : array-like, shape (n_samples, n_features)
+    y : array-like, shape (n_samples,)
+    max_iter : int
+        maximum number of iterations to attempt before declaring
+        failure to converge
+    tol : float
+        Maximum allowed change from prior iteration required to
+        declare convergence
+    family : Family
+    verbose : bool, default False
+        whether to print diagnostic information during convergence
+
+    Returns
+    -------
+    beta : array-like, shape (n_features,)
+    """
 
     n, p = X.shape
     firstBacktrackMult = 0.1

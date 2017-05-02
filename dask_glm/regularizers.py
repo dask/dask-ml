@@ -12,41 +12,130 @@ class Regularizer(object):
     name = '_base'
 
     def f(self, beta):
-        """Regularization function."""
+        """Regularization function.
+
+        Parameters
+        ----------
+        beta : array, shape (n_features,)
+
+        Returns
+        -------
+        result : float
+        """
         raise NotImplementedError
 
     def gradient(self, beta):
-        """Gradient of regularization function."""
+        """Gradient of regularization function.
+
+        Parameters
+        ----------
+        beta : array, shape ``(n_features,)``
+
+        Returns
+        -------
+        gradient : array, shape ``(n_features,)``
+        """
         raise NotImplementedError
 
     def hessian(self, beta):
-        """Hessian of regularization function."""
+        """Hessian of regularization function.
+
+        Parameters
+        ----------
+        beta : array, shape ``(n_features,)``
+
+        Returns
+        -------
+        hessian : array, shape ``(n_features, n_features)``
+        """
         raise NotImplementedError
 
     def proximal_operator(self, beta, t):
-        """Proximal operator for regularization function."""
+        """Proximal operator for regularization function.
+
+        Parameters
+        ----------
+        beta : array, shape ``(n_features,)``
+        t : float  # TODO: is that right?
+
+        Returns
+        -------
+        proximal_operator : array, shape ``(n_features,)``
+        """
         raise NotImplementedError
 
     def add_reg_f(self, f, lam):
-        """Add regularization function to other function."""
+        """Add regularization function to other function.
+
+        Parameters
+        ----------
+        f : callable
+            Function taking ``beta`` and ``*args``
+        lam : float
+            regularization constant
+
+        Returns
+        -------
+        wrapped : callable
+            function taking ``beta`` and ``*args``
+        """
         def wrapped(beta, *args):
             return f(beta, *args) + lam * self.f(beta)
         return wrapped
 
     def add_reg_grad(self, grad, lam):
-        """Add regularization gradient to other gradient function."""
+        """Add regularization gradient to other gradient function.
+
+        Parameters
+        ----------
+        grad : callable
+            Function taking ``beta`` and ``*args``
+        lam : float
+            regularization constant
+
+        Returns
+        -------
+        wrapped : callable
+            function taking ``beta`` and ``*args``
+        """
         def wrapped(beta, *args):
             return grad(beta, *args) + lam * self.gradient(beta)
         return wrapped
 
     def add_reg_hessian(self, hess, lam):
-        """Add regularization hessian to other hessian function."""
+        """Add regularization hessian to other hessian function.
+
+        Parameters
+        ----------
+        hess : callable
+            Function taking ``beta`` and ``*args``
+        lam : float
+            regularization constant
+
+        Returns
+        -------
+        wrapped : callable
+            function taking ``beta`` and ``*args``
+        """
         def wrapped(beta, *args):
             return hess(beta, *args) + lam * self.hessian(beta)
         return wrapped
 
     @classmethod
     def get(cls, obj):
+        """Get the concrete instance for the name ``obj``.
+
+        Parameters
+        ----------
+        obj : Regularizer or str
+            Valid instances of ``Regularizer`` are passed through.
+            Strings are looked up according to ``obj.name`` and a
+            new instance is created
+
+        Returns
+        -------
+        obj : Regularizer
+        """
         if isinstance(obj, cls):
             return obj
         elif isinstance(obj, str):
