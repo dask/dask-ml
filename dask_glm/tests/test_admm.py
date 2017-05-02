@@ -52,6 +52,6 @@ def test_admm_with_large_lamduh(N, p, nchunks):
     y = make_y(X, beta=np.array(beta), chunks=(N // nchunks,))
 
     X, y = persist(X, y)
-    z = admm(X, y, regularizer=L1, lamduh=1e4, rho=20, max_iter=500)
+    z = admm(X, y, regularizer=L1, lamduh=1e5, rho=20, max_iter=500)
 
     assert np.allclose(z, np.zeros(p), atol=1e-4)
