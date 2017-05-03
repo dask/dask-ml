@@ -6,7 +6,7 @@ from sklearn.base import BaseEstimator
 from . import algorithms
 from . import families
 from .utils import (
-    sigmoid, dot, add_intercept, mean_squared_error, accuracy_score
+    sigmoid, dot, add_intercept, mean_squared_error, accuracy_score, exp, poisson_deviance
 )
 
 
@@ -120,8 +120,9 @@ class LogisticRegression(_GLM):
 
 class LinearRegression(_GLM):
     """
-    Ordinary Lest Square regression
+    Ordinary Least Squares regression
     """
+
     @property
     def family(self):
         return families.Normal
@@ -132,3 +133,52 @@ class LinearRegression(_GLM):
 
     def score(self, X, y):
         return mean_squared_error(y, self.predict(X))
+
+
+class PoissonRegression(_GLM):
+    """
+    Parameters
+    ----------
+    fit_intercept : bool, default True
+        Specifies if a constant (a.k.a. bias or intercept) should be
+        added to the decision function.
+    solver : {'admm', 'gradient_descent', 'newton', 'bfgs', 'proximal_grad'}
+        Solver to use. See :ref:`algorithms` for details
+    regularizer : {'l1', 'l2'}
+        Regularizer to use. See :ref:`regularizers` for details.
+        Only used with ``admm`` and ``proximal_grad`` solvers.
+    max_iter : int, default 100
+        Maximum number of iterations taken for the solvers to converge
+    tol : float, default 1e-4
+        Tolerance for stopping criteria. Ignored for ``admm`` solver
+    lambduh : float, default 1.0
+        Only used with ``admm`` and ``proximal_grad`` solvers
+    rho, over_relax, abstol, reltol : float
+        Only used with the ``admm`` solver. See :ref:`algorithms.admm`
+        for details
+
+    Attributes
+    ----------
+    coef_ : array, shape (n_classes, n_features)
+    intercept_ : float
+
+    Examples
+    --------
+    >>> from dask_glm.datasets import make_poisson
+    >>> X, y = make_poisson()
+    >>> pr = PoissonRegression()
+    >>> pr.fit(X, y)
+    >>> pr.predict(X)
+    >>> pr.get_deviance(X, y)
+    """
+
+    @property
+    def family(self):
+        return families.Poisson
+
+    def predict(self, X):
+        X_ = self._maybe_add_intercept(X)
+        return exp(dot(X_, self._coef))
+
+    def get_deviance(self, X, y):
+        return poisson_deviance(y, self.predict(X))

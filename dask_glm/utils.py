@@ -145,6 +145,10 @@ def accuracy_score(y_true, y_pred):
     return (y_true == y_pred).mean()
 
 
+def poisson_deviance(y_true, y_pred):
+    return 2 * (y_true * log1p(y_true / y_pred) - (y_true - y_pred)).sum()
+
+
 try:
     import sparse
 except ImportError:

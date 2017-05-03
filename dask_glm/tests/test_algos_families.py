@@ -8,7 +8,7 @@ import dask.array as da
 
 from dask_glm.algorithms import (newton, bfgs, proximal_grad,
                                  gradient_descent, admm)
-from dask_glm.families import Logistic, Normal
+from dask_glm.families import Logistic, Normal, Poisson
 from dask_glm.regularizers import L1, L2
 from dask_glm.utils import sigmoid, make_y
 
@@ -63,7 +63,7 @@ def test_methods(N, p, seed, opt):
 ])
 @pytest.mark.parametrize('N', [1000])
 @pytest.mark.parametrize('nchunks', [1, 10])
-@pytest.mark.parametrize('family', [Logistic, Normal])
+@pytest.mark.parametrize('family', [Logistic, Normal, Poisson])
 def test_basic_unreg_descent(func, kwargs, N, nchunks, family):
     beta = np.random.normal(size=2)
     M = len(beta)
@@ -87,7 +87,7 @@ def test_basic_unreg_descent(func, kwargs, N, nchunks, family):
 ])
 @pytest.mark.parametrize('N', [1000])
 @pytest.mark.parametrize('nchunks', [1, 10])
-@pytest.mark.parametrize('family', [Logistic, Normal])
+@pytest.mark.parametrize('family', [Logistic, Normal, Poisson])
 @pytest.mark.parametrize('lam', [0.01, 1.2, 4.05])
 @pytest.mark.parametrize('reg', [L1, L2])
 def test_basic_reg_descent(func, kwargs, N, nchunks, family, lam, reg):
