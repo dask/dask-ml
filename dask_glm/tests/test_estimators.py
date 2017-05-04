@@ -2,17 +2,16 @@ import pytest
 
 from dask_glm.estimators import LogisticRegression, LinearRegression, PoissonRegression
 from dask_glm.datasets import make_classification, make_regression, make_poisson
-from dask_glm.algorithms import _solvers
-from dask_glm.regularizers import _regularizers
+from dask_glm.regularizers import Regularizer
 
 
-@pytest.fixture(params=_solvers.keys())
+@pytest.fixture(params=[r() for r in Regularizer.__subclasses__()])
 def solver(request):
     """Parametrized fixture for all the solver names"""
     return request.param
 
 
-@pytest.fixture(params=_regularizers.keys())
+@pytest.fixture(params=[r() for r in Regularizer.__subclasses__()])
 def regularizer(request):
     """Parametrized fixture for all the regularizer names"""
     return request.param
