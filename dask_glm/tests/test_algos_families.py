@@ -43,7 +43,7 @@ def make_intercept_data(N, p, seed=20009):
                             BFGS needs a re-work.'''),
                           newton, gradient_descent,
                           proximal_grad, admm])
-@pytest.mark.parametrize('reg', [L1, L2])
+@pytest.mark.parametrize('reg', [r() for r in Regularizer.__subclasses__()])
 def test_methods_return_numpy_arrays(opt, reg, seed=20009):
     X, y = make_intercept_data(100, 2, seed=seed)
     coefs = opt(X, y, **{'regularizer': reg})

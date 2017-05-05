@@ -150,6 +150,7 @@ def newton(X, y, max_iter=50, tol=1e-8, family=Logistic, **kwargs):
     return beta
 
 
+@normalize()
 def admm(X, y, regularizer='l1', lamduh=0.1, rho=1, over_relax=1,
          max_iter=250, abstol=1e-4, reltol=1e-2, family=Logistic):
 
@@ -237,11 +238,6 @@ def local_update(X, y, beta, z, u, rho, f, fprime, solver=fmin_l_bfgs_b):
     return beta
 
 
-def shrinkage(x, kappa):
-    z = np.maximum(0, x - kappa) - np.maximum(0, -x - kappa)
-    return z
-
-
 @normalize()
 def bfgs(X, y, max_iter=500, tol=1e-14, family=Logistic, **kwargs):
     '''Simple implementation of BFGS.'''
@@ -316,6 +312,7 @@ def bfgs(X, y, max_iter=500, tol=1e-14, family=Logistic, **kwargs):
     return beta
 
 
+@normalize()
 def proximal_grad(X, y, regularizer='l1', lamduh=0.1, family=Logistic,
                   max_iter=100, tol=1e-8):
 

@@ -9,10 +9,11 @@ from functools import wraps
 from multipledispatch import dispatch
 
 
-def normalize(normalize=True):
+def normalize():
     def decorator(algo):
         @wraps(algo)
         def normalize_inputs(X, y, *args, **kwargs):
+            normalize = kwargs.pop('normalize', True)
             if normalize:
                 mean, std = da.compute(X.mean(axis=0), X.std(axis=0))
                 mean, std = mean.copy(), std.copy()
