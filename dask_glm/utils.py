@@ -16,7 +16,7 @@ def normalize():
             normalize = kwargs.pop('normalize', True)
             if normalize:
                 mean, std = da.compute(X.mean(axis=0), X.std(axis=0))
-                mean, std = mean.copy(), std.copy() # in case they are read-only
+                mean, std = mean.copy(), std.copy()  # in case they are read-only
                 intercept_idx = np.where(std == 0)
                 if len(intercept_idx[0]) > 1:
                     raise ValueError('Multiple constant columns detected!')
