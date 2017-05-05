@@ -113,7 +113,6 @@ def gradient_descent(X, y, max_iter=100, tol=1e-14, family=Logistic, **kwargs):
 
 @normalize()
 def newton(X, y, max_iter=50, tol=1e-8, family=Logistic, **kwargs):
-    '''Newtons Method for Logistic Regression.'''
 
     gradient, hessian = family.gradient, family.hessian
     n, p = X.shape
