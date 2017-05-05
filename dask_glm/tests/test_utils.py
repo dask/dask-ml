@@ -36,6 +36,16 @@ def test_normalize_normalizes_if_intercept_not_present():
     np.testing.assert_equal(res, np.array([0, 1 / 4.5, 2]))
 
 
+def test_normalize_raises_if_multiple_constants():
+    @utils.normalize()
+    def do_nothing(X, y):
+        return np.array([0.0, 1.0, 2.0])
+    X = da.from_array(np.array([[1, 2, 3], [1, 2, 3]]), chunks=(2, 3))
+    y = da.from_array(np.array([0, 1, 0]), chunks=(3, ))
+    with pytest.raises(ValueError):
+        res = do_nothing(X, y)
+
+
 def test_add_intercept():
     X = np.zeros((4, 4))
     result = utils.add_intercept(X)

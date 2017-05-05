@@ -18,6 +18,8 @@ def normalize():
                 mean, std = da.compute(X.mean(axis=0), X.std(axis=0))
                 mean, std = mean.copy(), std.copy()
                 intercept_idx = np.where(std == 0)
+                if len(intercept_idx[0]) > 1:
+                    raise ValueError('Multiple constant columns detected!')
                 mean[intercept_idx] = 0
                 std[intercept_idx] = 1
                 mean = mean if len(intercept_idx[0]) else np.zeros(mean.shape)
