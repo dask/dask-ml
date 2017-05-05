@@ -1,18 +1,17 @@
 import pytest
 
-from dask_glm.estimators import LogisticRegression, LinearRegression
-from dask_glm.datasets import make_classification, make_regression
-from dask_glm.algorithms import _solvers
-from dask_glm.regularizers import _regularizers
+from dask_glm.estimators import LogisticRegression, LinearRegression, PoissonRegression
+from dask_glm.datasets import make_classification, make_regression, make_poisson
+from dask_glm.regularizers import Regularizer
 
 
-@pytest.fixture(params=_solvers.keys())
+@pytest.fixture(params=[r() for r in Regularizer.__subclasses__()])
 def solver(request):
     """Parametrized fixture for all the solver names"""
     return request.param
 
 
-@pytest.fixture(params=_regularizers.keys())
+@pytest.fixture(params=[r() for r in Regularizer.__subclasses__()])
 def regularizer(request):
     """Parametrized fixture for all the regularizer names"""
     return request.param
@@ -37,6 +36,10 @@ X, y = make_classification()
 
 def test_lr_init(solver):
     LogisticRegression(solver=solver)
+
+
+def test_pr_init(solver):
+    PoissonRegression(solver=solver)
 
 
 @pytest.mark.parametrize('fit_intercept', [True, False])
@@ -69,6 +72,19 @@ def test_big(fit_intercept):
     lr.predict_proba(X)
     if fit_intercept:
         assert lr.intercept_ is not None
+
+
+@pytest.mark.parametrize('fit_intercept', [True, False])
+def test_poisson_fit(fit_intercept):
+    import dask
+    dask.set_options(get=dask.get)
+    X, y = make_poisson()
+    pr = PoissonRegression(fit_intercept=fit_intercept)
+    pr.fit(X, y)
+    pr.predict(X)
+    pr.get_deviance(X, y)
+    if fit_intercept:
+        assert pr.intercept_ is not None
 
 
 def test_in_pipeline():
