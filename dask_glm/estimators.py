@@ -43,7 +43,7 @@ class _GLM(BaseEstimator):
                 'regularizer', 'lamduh', 'rho', 'over_relax', 'abstol',
                 'reltol'
             })
-        elif solver == 'proximal_grad':
+        elif solver == 'proximal_grad' or solver == 'lbfgs':
             fit_kwargs.update({'regularizer', 'lamduh'})
 
         self._fit_kwargs = {k: getattr(self, k) for k in fit_kwargs}
@@ -73,17 +73,17 @@ class LogisticRegression(_GLM):
     fit_intercept : bool, default True
         Specifies if a constant (a.k.a. bias or intercept) should be
         added to the decision function.
-    solver : {'admm', 'gradient_descent', 'newton', 'bfgs', 'proximal_grad'}
+    solver : {'admm', 'gradient_descent', 'newton', 'lbfgs', 'proximal_grad'}
         Solver to use. See :ref:`algorithms` for details
     regularizer : {'l1', 'l2'}
         Regularizer to use. See :ref:`regularizers` for details.
-        Only used with ``admm`` and ``proximal_grad`` solvers.
+        Only used with ``admm``, ``lbfgs`` and ``proximal_grad`` solvers.
     max_iter : int, default 100
         Maximum number of iterations taken for the solvers to converge
     tol : float, default 1e-4
         Tolerance for stopping criteria. Ignored for ``admm`` solver
     lambduh : float, default 1.0
-        Only used with ``admm`` and ``proximal_grad`` solvers
+        Only used with ``admm``, ``lbfgs`` and ``proximal_grad`` solvers.
     rho, over_relax, abstol, reltol : float
         Only used with the ``admm`` solver. See :ref:`algorithms.admm`
         for details
@@ -142,17 +142,17 @@ class PoissonRegression(_GLM):
     fit_intercept : bool, default True
         Specifies if a constant (a.k.a. bias or intercept) should be
         added to the decision function.
-    solver : {'admm', 'gradient_descent', 'newton', 'bfgs', 'proximal_grad'}
+    solver : {'admm', 'gradient_descent', 'newton', 'lbfgs', 'proximal_grad'}
         Solver to use. See :ref:`algorithms` for details
     regularizer : {'l1', 'l2'}
         Regularizer to use. See :ref:`regularizers` for details.
-        Only used with ``admm`` and ``proximal_grad`` solvers.
+        Only used with ``admm``, ``lbfgs`` and ``proximal_grad`` solvers.
     max_iter : int, default 100
         Maximum number of iterations taken for the solvers to converge
     tol : float, default 1e-4
         Tolerance for stopping criteria. Ignored for ``admm`` solver
     lambduh : float, default 1.0
-        Only used with ``admm`` and ``proximal_grad`` solvers
+        Only used with ``admm``, ``lbfgs`` and ``proximal_grad`` solvers.
     rho, over_relax, abstol, reltol : float
         Only used with the ``admm`` solver. See :ref:`algorithms.admm`
         for details
