@@ -56,7 +56,7 @@ def compute_stepsize_dask(beta, step, Xbeta, Xstep, y, curr_val,
     return stepSize, beta, Xbeta, func
 
 
-@normalize()
+@normalize
 def gradient_descent(X, y, max_iter=100, tol=1e-14, family=Logistic, **kwargs):
     '''Michael Grant's implementation of Gradient Descent.'''
 
@@ -111,7 +111,7 @@ def gradient_descent(X, y, max_iter=100, tol=1e-14, family=Logistic, **kwargs):
     return beta
 
 
-@normalize()
+@normalize
 def newton(X, y, max_iter=50, tol=1e-8, family=Logistic, **kwargs):
 
     gradient, hessian = family.gradient, family.hessian
@@ -149,7 +149,7 @@ def newton(X, y, max_iter=50, tol=1e-8, family=Logistic, **kwargs):
     return beta
 
 
-@normalize()
+@normalize
 def admm(X, y, regularizer='l1', lamduh=0.1, rho=1, over_relax=1,
          max_iter=250, abstol=1e-4, reltol=1e-2, family=Logistic):
 
@@ -237,7 +237,7 @@ def local_update(X, y, beta, z, u, rho, f, fprime, solver=fmin_l_bfgs_b):
     return beta
 
 
-@normalize()
+@normalize
 def lbfgs(X, y, regularizer=None, lamduh=1.0, max_iter=100, tol=1e-4,
           family=Logistic, verbose=False):
     """L-BFGS solver using scipy.optimize implementation"""
@@ -267,7 +267,7 @@ def lbfgs(X, y, regularizer=None, lamduh=1.0, max_iter=100, tol=1e-4,
     return beta
 
 
-@normalize()
+@normalize
 def proximal_grad(X, y, regularizer='l1', lamduh=0.1, family=Logistic,
                   max_iter=100, tol=1e-8):
 
