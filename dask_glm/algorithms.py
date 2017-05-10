@@ -15,14 +15,14 @@ proximal_grad     X          X    X       X            X        .    .          
 
 from __future__ import absolute_import, division, print_function
 
-from dask import delayed, persist, compute
+from dask import delayed, persist, compute, set_options
 import functools
 import numpy as np
 import dask.array as da
 from scipy.optimize import fmin_l_bfgs_b
 
 
-from dask_glm.utils import dot, exp, log1p, normalize
+from dask_glm.utils import dot, normalize
 from dask_glm.families import Logistic
 from dask_glm.regularizers import Regularizer
 
@@ -238,75 +238,31 @@ def local_update(X, y, beta, z, u, rho, f, fprime, solver=fmin_l_bfgs_b):
 
 
 @normalize()
-def bfgs(X, y, max_iter=500, tol=1e-14, family=Logistic, **kwargs):
-    '''Simple implementation of BFGS.'''
+def lbfgs(X, y, regularizer=None, lamduh=1.0, max_iter=100, tol=1e-4,
+          family=Logistic, verbose=False):
+    """L-BFGS solver using scipy.optimize implementation"""
+
+    pointwise_loss = family.pointwise_loss
+    pointwise_gradient = family.pointwise_gradient
+    if regularizer is not None:
+        regularizer = Regularizer.get(regularizer)
+        pointwise_loss = regularizer.add_reg_f(pointwise_loss, lamduh)
+        pointwise_gradient = regularizer.add_reg_grad(pointwise_gradient, lamduh)
 
     n, p = X.shape
-    y = y.squeeze()
+    beta0 = np.zeros(p)
 
-    recalcRate = 10
-    stepSize = 1.0
-    armijoMult = 1e-4
-    backtrackMult = 0.5
-    stepGrowth = 1.25
+    def compute_loss_grad(beta, X, y):
+        loss_fn = pointwise_loss(beta, X, y)
+        gradient_fn = pointwise_gradient(beta, X, y)
+        loss, gradient = compute(loss_fn, gradient_fn)
+        return loss, gradient.copy()
 
-    beta = np.zeros(p)
-    Hk = np.eye(p)
-    for k in range(max_iter):
-
-        if k % recalcRate == 0:
-            Xbeta = X.dot(beta)
-            eXbeta = exp(Xbeta)
-            func = log1p(eXbeta).sum() - dot(y, Xbeta)
-
-        e1 = eXbeta + 1.0
-        gradient = dot(X.T, eXbeta / e1 - y)  # implicit numpy -> dask conversion
-
-        if k:
-            yk = yk + gradient  # TODO: gradient is dasky and yk is numpy-y
-            rhok = 1 / yk.dot(sk)
-            adj = np.eye(p) - rhok * dot(sk, yk.T)
-            Hk = dot(adj, dot(Hk, adj.T)) + rhok * dot(sk, sk.T)
-
-        step = dot(Hk, gradient)
-        steplen = dot(step, gradient)
-        Xstep = dot(X, step)
-
-        # backtracking line search
-        lf = func
-        old_Xbeta = Xbeta
-        stepSize, _, _, func = compute_stepsize_dask(beta, step,
-                                                     Xbeta, Xstep,
-                                                     y, func, family=family,
-                                                     backtrackMult=backtrackMult,
-                                                     armijoMult=armijoMult,
-                                                     stepSize=stepSize)
-
-        beta, stepSize, Xbeta, gradient, lf, func, step, Xstep = persist(
-            beta, stepSize, Xbeta, gradient, lf, func, step, Xstep)
-
-        stepSize, lf, func, step = compute(stepSize, lf, func, step)
-
-        beta = beta - stepSize * step  # tiny bit of repeat work here to avoid communication
-        Xbeta = Xbeta - stepSize * Xstep
-
-        if stepSize == 0:
-            break
-
-        # necessary for gradient computation
-        eXbeta = exp(Xbeta)
-
-        yk = -gradient
-        sk = -stepSize * step
-        stepSize *= stepGrowth
-
-        if stepSize == 0:
-            break
-
-        df = lf - func
-        df /= max(func, lf)
-        if df < tol:
-            break
+    with set_options(fuse_ave_width=0):  # optimizations slows this down
+        beta, loss, info = fmin_l_bfgs_b(
+            compute_loss_grad, beta0, fprime=None,
+            args=(X, y),
+            iprint=(verbose > 0) - 1, pgtol=tol, maxiter=max_iter)
 
     return beta
 
@@ -374,6 +330,6 @@ _solvers = {
     'admm': admm,
     'gradient_descent': gradient_descent,
     'newton': newton,
-    'bfgs': bfgs,
+    'lbfgs': lbfgs,
     'proximal_grad': proximal_grad
 }

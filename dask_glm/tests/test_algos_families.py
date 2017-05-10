@@ -6,7 +6,7 @@ from dask import persist
 import numpy as np
 import dask.array as da
 
-from dask_glm.algorithms import (newton, bfgs, proximal_grad,
+from dask_glm.algorithms import (newton, lbfgs, proximal_grad,
                                  gradient_descent, admm)
 from dask_glm.families import Logistic, Normal, Poisson
 from dask_glm.regularizers import Regularizer
@@ -39,21 +39,9 @@ def make_intercept_data(N, p, seed=20009):
 
 
 @pytest.mark.parametrize('opt',
-                         [pytest.mark.xfail(bfgs, reason='''
-                            BFGS needs a re-work.'''),
-                          newton, gradient_descent,
-                          proximal_grad, admm])
-@pytest.mark.parametrize('reg', [r() for r in Regularizer.__subclasses__()])
-def test_methods_return_numpy_arrays(opt, reg, seed=20009):
-    X, y = make_intercept_data(100, 2, seed=seed)
-    coefs = opt(X, y, **{'regularizer': reg})
-    assert type(coefs) == np.ndarray
-
-
-@pytest.mark.parametrize('opt',
-                         [pytest.mark.xfail(bfgs, reason='''
-                            BFGS needs a re-work.'''),
-                          newton, gradient_descent])
+                         [lbfgs,
+                          newton,
+                          gradient_descent])
 @pytest.mark.parametrize('N, p, seed',
                          [(100, 2, 20009),
                           (250, 12, 90210),
@@ -70,7 +58,7 @@ def test_methods(N, p, seed, opt):
 
 @pytest.mark.parametrize('func,kwargs', [
     (newton, {'tol': 1e-5}),
-    pytest.mark.xfail((bfgs, {'tol': 1e-8}), reason='BFGS needs a re-work.'),
+    (lbfgs, {'tol': 1e-8}),
     (gradient_descent, {'tol': 1e-7}),
 ])
 @pytest.mark.parametrize('N', [1000])
