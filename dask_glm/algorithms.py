@@ -22,7 +22,7 @@ import dask.array as da
 from scipy.optimize import fmin_l_bfgs_b
 
 
-from dask_glm.utils import dot
+from dask_glm.utils import dot, normalize
 from dask_glm.families import Logistic
 from dask_glm.regularizers import Regularizer
 
@@ -56,7 +56,8 @@ def compute_stepsize_dask(beta, step, Xbeta, Xstep, y, curr_val,
     return stepSize, beta, Xbeta, func
 
 
-def gradient_descent(X, y, max_iter=100, tol=1e-14, family=Logistic):
+@normalize
+def gradient_descent(X, y, max_iter=100, tol=1e-14, family=Logistic, **kwargs):
     '''Michael Grant's implementation of Gradient Descent.'''
 
     loglike, gradient = family.loglike, family.gradient
@@ -97,14 +98,12 @@ def gradient_descent(X, y, max_iter=100, tol=1e-14, family=Logistic):
         Xbeta = Xbeta - stepSize * Xgradient
 
         if stepSize == 0:
-            print('No more progress')
             break
 
         df = lf - func
         df /= max(func, lf)
 
         if df < tol:
-            print('Converged')
             break
         stepSize *= stepGrowth
         backtrackMult = nextBacktrackMult
@@ -112,8 +111,8 @@ def gradient_descent(X, y, max_iter=100, tol=1e-14, family=Logistic):
     return beta
 
 
-def newton(X, y, max_iter=50, tol=1e-8, family=Logistic):
-    '''Newtons Method for Logistic Regression.'''
+@normalize
+def newton(X, y, max_iter=50, tol=1e-8, family=Logistic, **kwargs):
 
     gradient, hessian = family.gradient, family.hessian
     n, p = X.shape
@@ -150,6 +149,7 @@ def newton(X, y, max_iter=50, tol=1e-8, family=Logistic):
     return beta
 
 
+@normalize
 def admm(X, y, regularizer='l1', lamduh=0.1, rho=1, over_relax=1,
          max_iter=250, abstol=1e-4, reltol=1e-2, family=Logistic):
 
@@ -219,7 +219,6 @@ def admm(X, y, regularizer='l1', lamduh=0.1, rho=1, over_relax=1,
             reltol * np.linalg.norm(rho * u)
 
         if primal_res < eps_pri and dual_res < eps_dual:
-            print("Converged!", k)
             break
 
     return z
@@ -238,18 +237,14 @@ def local_update(X, y, beta, z, u, rho, f, fprime, solver=fmin_l_bfgs_b):
     return beta
 
 
-def shrinkage(x, kappa):
-    z = np.maximum(0, x - kappa) - np.maximum(0, -x - kappa)
-    return z
-
-
+@normalize
 def lbfgs(X, y, regularizer=None, lamduh=1.0, max_iter=100, tol=1e-4,
           family=Logistic, verbose=False):
     """L-BFGS solver using scipy.optimize implementation"""
 
     pointwise_loss = family.pointwise_loss
     pointwise_gradient = family.pointwise_gradient
-    if regularizer:
+    if regularizer is not None:
         regularizer = Regularizer.get(regularizer)
         pointwise_loss = regularizer.add_reg_f(pointwise_loss, lamduh)
         pointwise_gradient = regularizer.add_reg_grad(pointwise_gradient, lamduh)
@@ -272,8 +267,9 @@ def lbfgs(X, y, regularizer=None, lamduh=1.0, max_iter=100, tol=1e-4,
     return beta
 
 
+@normalize
 def proximal_grad(X, y, regularizer='l1', lamduh=0.1, family=Logistic,
-                  max_iter=100, tol=1e-8, verbose=False):
+                  max_iter=100, tol=1e-8):
 
     n, p = X.shape
     firstBacktrackMult = 0.1
@@ -285,10 +281,6 @@ def proximal_grad(X, y, regularizer='l1', lamduh=0.1, family=Logistic,
     backtrackMult = firstBacktrackMult
     beta = np.zeros(p)
     regularizer = Regularizer.get(regularizer)
-
-    if verbose:
-        print('#       -f        |df/f|    |dx/x|    step')
-        print('----------------------------------------------')
 
     for k in range(max_iter):
         # Compute the gradient
@@ -310,33 +302,28 @@ def proximal_grad(X, y, regularizer='l1', lamduh=0.1, family=Logistic,
             step = obeta - beta
             Xbeta = X.dot(beta)
 
-            overflow = (Xbeta < 700).all()
-            overflow, Xbeta, beta = persist(overflow, Xbeta, beta)
-            overflow = compute(overflow)[0]
+            Xbeta, beta = persist(Xbeta, beta)
 
-            # This prevents overflow
-            if overflow:
-                func = family.loglike(Xbeta, y)
-                func = persist(func)[0]
-                func = compute(func)[0]
-                df = lf - func
-                if df > 0:
-                    break
+            func = family.loglike(Xbeta, y)
+            func = persist(func)[0]
+            func = compute(func)[0]
+            df = lf - func
+            if df > 0:
+                break
             stepSize *= backtrackMult
         if stepSize == 0:
-            print('No more progress')
             break
         df /= max(func, lf)
-        db = 0
-        if verbose:
-            print('%2d  %.6e %9.2e  %.2e  %.1e' % (k + 1, func, df, db, stepSize))
         if df < tol:
-            print('Converged')
             break
         stepSize *= stepGrowth
         backtrackMult = nextBacktrackMult
 
-    return beta
+    # L2-regularization returned a dask-array
+    try:
+        return beta.compute()
+    except AttributeError:
+        return beta
 
 
 _solvers = {

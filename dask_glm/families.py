@@ -6,8 +6,8 @@ from dask_glm.utils import dot, exp, log1p, sigmoid
 class Logistic(object):
     @staticmethod
     def loglike(Xbeta, y):
-        eXbeta = exp(Xbeta)
-        return (log1p(eXbeta)).sum() - dot(y, Xbeta)
+        enXbeta = exp(-Xbeta)
+        return (Xbeta + log1p(enXbeta)).sum() - dot(y, Xbeta)
 
     @staticmethod
     def pointwise_loss(beta, X, y):

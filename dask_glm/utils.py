@@ -5,7 +5,31 @@ import sys
 
 import dask.array as da
 import numpy as np
+from functools import wraps
 from multipledispatch import dispatch
+
+
+def normalize(algo):
+    @wraps(algo)
+    def normalize_inputs(X, y, *args, **kwargs):
+        normalize = kwargs.pop('normalize', True)
+        if normalize:
+            mean, std = da.compute(X.mean(axis=0), X.std(axis=0))
+            mean, std = mean.copy(), std.copy()  # in case they are read-only
+            intercept_idx = np.where(std == 0)
+            if len(intercept_idx[0]) > 1:
+                raise ValueError('Multiple constant columns detected!')
+            mean[intercept_idx] = 0
+            std[intercept_idx] = 1
+            mean = mean if len(intercept_idx[0]) else np.zeros(mean.shape)
+            Xn = (X - mean) / std
+            out = algo(Xn, y, *args, **kwargs)
+            i_adj = np.sum(out * mean / std)
+            out[intercept_idx] -= i_adj
+            return out / std
+        else:
+            return algo(X, y, *args, **kwargs)
+    return normalize_inputs
 
 
 def sigmoid(x):
