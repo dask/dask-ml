@@ -194,7 +194,7 @@ def newton(X, y, max_iter=50, tol=1e-8, family=Logistic, **kwargs):
 
 @normalize
 def admm(X, y, regularizer='l1', lamduh=0.1, rho=1, over_relax=1,
-         max_iter=250, abstol=1e-4, reltol=1e-2, family=Logistic):
+         max_iter=250, abstol=1e-4, reltol=1e-2, family=Logistic, **kwargs):
     """
     Alternating Direction Method of Multipliers
 
@@ -303,7 +303,7 @@ def local_update(X, y, beta, z, u, rho, f, fprime, solver=fmin_l_bfgs_b):
 
 @normalize
 def lbfgs(X, y, regularizer=None, lamduh=1.0, max_iter=100, tol=1e-4,
-          family=Logistic, verbose=False):
+          family=Logistic, verbose=False, **kwargs):
     """L-BFGS solver using scipy.optimize implementation
 
     Parameters
@@ -350,7 +350,7 @@ def lbfgs(X, y, regularizer=None, lamduh=1.0, max_iter=100, tol=1e-4,
 
 @normalize
 def proximal_grad(X, y, regularizer='l1', lamduh=0.1, family=Logistic,
-                  max_iter=100, tol=1e-8):
+                  max_iter=100, tol=1e-8, **kwargs):
     """
 
     Parameters
