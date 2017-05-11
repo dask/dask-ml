@@ -24,3 +24,6 @@ wheels/
 dask_glm/.ropeproject/*
 .ipynb_checkpoints/
 .idea/*
+
+docs/_build/
+docs/examples/trip.csv

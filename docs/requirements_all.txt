@@ -1,0 +1,7 @@
+dask[complete]
+pandas
+scikit-learn
+multipledispatch
+scipy
+sphinx
+nbsphinx

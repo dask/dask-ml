@@ -6,15 +6,17 @@ from sklearn.base import BaseEstimator
 from . import algorithms
 from . import families
 from .utils import (
-    sigmoid, dot, add_intercept, mean_squared_error, accuracy_score, exp, poisson_deviance
+    sigmoid, dot, add_intercept, mean_squared_error, accuracy_score, exp,
+    poisson_deviance
 )
 
 
 class _GLM(BaseEstimator):
+
     @property
     def family(self):
         """
-        Family
+        The family this estimator is for.
         """
 
     def __init__(self, fit_intercept=True, solver='admm', regularizer='l2',
@@ -68,16 +70,18 @@ class _GLM(BaseEstimator):
 
 class LogisticRegression(_GLM):
     """
+    Esimator for logistic regression.
+
     Parameters
     ----------
     fit_intercept : bool, default True
         Specifies if a constant (a.k.a. bias or intercept) should be
         added to the decision function.
     solver : {'admm', 'gradient_descent', 'newton', 'lbfgs', 'proximal_grad'}
-        Solver to use. See :ref:`algorithms` for details
+        Solver to use. See :ref:`api.algorithms` for details
     regularizer : {'l1', 'l2'}
-        Regularizer to use. See :ref:`regularizers` for details.
-        Only used with ``admm``, ``lbfgs`` and ``proximal_grad`` solvers.
+        Regularizer to use. See :ref:`api.regularizers` for details.
+        Only used with ``admm``, ``lbfgs``, and ``proximal_grad`` solvers.
     max_iter : int, default 100
         Maximum number of iterations taken for the solvers to converge
     tol : float, default 1e-4
@@ -85,13 +89,15 @@ class LogisticRegression(_GLM):
     lambduh : float, default 1.0
         Only used with ``admm``, ``lbfgs`` and ``proximal_grad`` solvers.
     rho, over_relax, abstol, reltol : float
-        Only used with the ``admm`` solver. See :ref:`algorithms.admm`
-        for details
+        Only used with the ``admm`` solver.
 
     Attributes
     ----------
     coef_ : array, shape (n_classes, n_features)
-    intercept_ : float
+        The learned value for the model's coefficients
+    intercept_ : float of None
+        The learned value for the intercept, if one was added
+        to the model
 
     Examples
     --------
@@ -101,6 +107,7 @@ class LogisticRegression(_GLM):
     >>> lr.fit(X, y)
     >>> lr.predict(X)
     >>> lr.predict_proba(X)
+    >>> est.score(X, y)
     """
 
     @property
@@ -120,9 +127,44 @@ class LogisticRegression(_GLM):
 
 class LinearRegression(_GLM):
     """
-    Ordinary Least Squares regression
-    """
+    Esimator for a linear model using Ordinary Least Squares.
 
+    Parameters
+    ----------
+    fit_intercept : bool, default True
+        Specifies if a constant (a.k.a. bias or intercept) should be
+        added to the decision function.
+    solver : {'admm', 'gradient_descent', 'newton', 'lbfgs', 'proximal_grad'}
+        Solver to use. See :ref:`api.algorithms` for details
+    regularizer : {'l1', 'l2'}
+        Regularizer to use. See :ref:`api.regularizers` for details.
+        Only used with ``admm`` and ``proximal_grad`` solvers.
+    max_iter : int, default 100
+        Maximum number of iterations taken for the solvers to converge
+    tol : float, default 1e-4
+        Tolerance for stopping criteria. Ignored for ``admm`` solver
+    lambduh : float, default 1.0
+        Only used with ``admm`` and ``proximal_grad`` solvers
+    rho, over_relax, abstol, reltol : float
+        Only used with the ``admm`` solver.
+
+    Attributes
+    ----------
+    coef_ : array, shape (n_classes, n_features)
+        The learned value for the model's coefficients
+    intercept_ : float of None
+        The learned value for the intercept, if one was added
+        to the model
+
+    Examples
+    --------
+    >>> from dask_glm.datasets import make_regression
+    >>> X, y = make_regression()
+    >>> est = LinearRegression()
+    >>> est.fit(X, y)
+    >>> est.predict(X)
+    >>> est.score(X, y)
+    """
     @property
     def family(self):
         return families.Normal
@@ -137,16 +179,18 @@ class LinearRegression(_GLM):
 
 class PoissonRegression(_GLM):
     """
+    Esimator for Poisson Regression.
+
     Parameters
     ----------
     fit_intercept : bool, default True
         Specifies if a constant (a.k.a. bias or intercept) should be
         added to the decision function.
     solver : {'admm', 'gradient_descent', 'newton', 'lbfgs', 'proximal_grad'}
-        Solver to use. See :ref:`algorithms` for details
+        Solver to use. See :ref:`api.algorithms` for details
     regularizer : {'l1', 'l2'}
-        Regularizer to use. See :ref:`regularizers` for details.
-        Only used with ``admm``, ``lbfgs`` and ``proximal_grad`` solvers.
+        Regularizer to use. See :ref:`api.regularizers` for details.
+        Only used with ``admm``, ``lbfgs``, and ``proximal_grad`` solvers.
     max_iter : int, default 100
         Maximum number of iterations taken for the solvers to converge
     tol : float, default 1e-4
@@ -154,13 +198,15 @@ class PoissonRegression(_GLM):
     lambduh : float, default 1.0
         Only used with ``admm``, ``lbfgs`` and ``proximal_grad`` solvers.
     rho, over_relax, abstol, reltol : float
-        Only used with the ``admm`` solver. See :ref:`algorithms.admm`
-        for details
+        Only used with the ``admm`` solver.
 
     Attributes
     ----------
     coef_ : array, shape (n_classes, n_features)
-    intercept_ : float
+        The learned value for the model's coefficients
+    intercept_ : float of None
+        The learned value for the intercept, if one was added
+        to the model
 
     Examples
     --------
@@ -171,7 +217,6 @@ class PoissonRegression(_GLM):
     >>> pr.predict(X)
     >>> pr.get_deviance(X, y)
     """
-
     @property
     def family(self):
         return families.Poisson

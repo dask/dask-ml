@@ -16,4 +16,14 @@ setup(name='dask-glm',
       long_description=(open('README.rst').read() if exists('README.rst')
                         else ''),
       install_requires=list(open('requirements.txt').read().strip().split('\n')),
+      extras_require={
+          'docs': [
+              'jupyter',
+              'nbsphinx',
+              'notebook',
+              'numpydoc',
+              'sphinx',
+              'sphinx_rtd_theme',
+          ]
+      },
       zip_safe=False)
