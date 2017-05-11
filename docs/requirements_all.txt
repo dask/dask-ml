@@ -3,5 +3,9 @@ pandas
 scikit-learn
 multipledispatch
 scipy
-sphinx
+numpydoc
+jupyter
+notebook
 nbsphinx
+sphinx
+sphinx_rtd_theme
