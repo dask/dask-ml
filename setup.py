@@ -5,7 +5,6 @@ from setuptools import setup
 
 
 setup(name='dask-glm',
-      version='0.0.1',
       description='Generalized Linear Models with Dask',
       url='http://github.com/dask/dask-glm/',
       maintainer='Matthew Rocklin',
@@ -16,6 +15,8 @@ setup(name='dask-glm',
       long_description=(open('README.rst').read() if exists('README.rst')
                         else ''),
       install_requires=list(open('requirements.txt').read().strip().split('\n')),
+      use_scm_version=True,
+      setup_requires=['setuptools_scm'],
       extras_require={
           'docs': [
               'jupyter',
