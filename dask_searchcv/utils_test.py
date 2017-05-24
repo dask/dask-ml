@@ -1,5 +1,7 @@
 import warnings
 
+from functools import wraps
+
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import _num_samples, check_array
@@ -93,6 +95,7 @@ class FailingClassifier(BaseEstimator):
 
 def ignore_warnings(f):
     """A super simple version of `sklearn.utils.testing.ignore_warnings"""
+    @wraps(f)
     def _(*args, **kwargs):
         with warnings.catch_warnings(record=True):
             f(*args, **kwargs)

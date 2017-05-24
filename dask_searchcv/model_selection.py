@@ -631,7 +631,7 @@ _scheduler_aliases = {'sync': 'synchronous',
                       'threaded': 'threading'}
 
 
-def _normalize_scheduler(scheduler, n_jobs, loop=None):
+def _normalize_scheduler(scheduler, n_jobs):
     # Default
     if scheduler is None:
         scheduler = dask.context._globals.get('get')
@@ -655,18 +655,10 @@ def _normalize_scheduler(scheduler, n_jobs, loop=None):
         from dask.multiprocessing import get as scheduler
     elif scheduler == 'synchronous':
         scheduler = dask.get
+    elif hasattr(scheduler, 'get'):
+        scheduler = scheduler.get
     else:
-        try:
-            from dask.distributed import Client
-            # We pass loop to make testing possible, not needed for normal use
-            return Client(scheduler, set_as_default=False, loop=loop).get
-        except Exception as e:
-            msg = ("Failed to initialize scheduler from parameter %r. "
-                   "This could be due to a typo, or a failure to initialize "
-                   "the distributed scheduler. Original error is below:\n\n"
-                   "%r" % (scheduler, e))
-        # Re-raise outside the except to provide a cleaner error message
-        raise ValueError(msg)
+        raise ValueError("Unknown scheduler: %r." % scheduler)
     return scheduler
 
 
@@ -889,13 +881,12 @@ return_train_score : boolean, default=True
     If ``'False'``, the ``cv_results_`` attribute will not include training
     scores.
 
-scheduler : string, callable, or None, default=None
+scheduler : string, callable, Client, or None, default=None
     The dask scheduler to use. Default is to use the global scheduler if set,
     and fallback to the threaded scheduler otherwise. To use a different
-    scheduler, specify it by name (either "threading", "multiprocessing",
-    or "synchronous") or provide the scheduler ``get`` function. Other
-    arguments are assumed to be the address of a distributed scheduler,
-    and passed to ``dask.distributed.Client``.
+    scheduler either specify it by name (either "threading", "multiprocessing",
+    or "synchronous"), pass in a ``dask.distributed.Client``, or provide a
+    scheduler ``get`` function.
 
 n_jobs : int, default=-1
     Number of jobs to run in parallel. Ignored for the synchronous and
