@@ -6,13 +6,25 @@ dask-searchcv
 Tools for performing hyperparameter search with
 `Scikit-Learn <http://scikit-learn.org>`_ and `Dask <http://dask.pydata.org>`_.
 
-This library provides implementations of Scikit-Learn's ``GridSearchCV`` and
-``RandomizedSearchCV``. They implement many (but not all) of the same
-parameters, and should be a drop-in replacement for the subset that they do
-implement. For certain problems, these implementations can be more efficient
-than those in Scikit-Learn, as they can avoid expensive repeated computations.
+Highlights
+----------
+
+- Drop-in replacement for Scikit-Learn's ``GridSearchCV`` and
+  ``RandomizedSearchCV``.
+
+- Hyperparameter optimization can be done in parallel using threads, processes,
+  or distributed across a cluster.
+
+- Works well with Dask collections. Dask arrays, dataframes, and delayed can be
+  passed to ``fit``.
+
+- Candidate estimators with identical parameters and inputs will only be fit
+  once. For composite-estimators such as ``Pipeline`` this can be significantly
+  more efficient as it can avoid expensive repeated computations.
+
 
 For more information, check out the `documentation <http://dask-searchcv.readthedocs.io>`_.
+
 
 Install
 -------
