@@ -1,0 +1,31 @@
+digraph merged {
+    rankdir="BT"
+    node [fontname = "Inconsolata"]
+
+    data [label="Training Data"]
+
+    vect1 [label="CountVectorizer\n- ngram_range=(1, 1)"]
+
+    tfidf_1_1 [label="TfidfTransformer\n- norm='l1'"]
+    tfidf_1_2 [label="TfidfTransformer\n- norm='l2'"]
+
+    sgd_1_1_1 [label="SGDClassifier\n- alpha=1e-3"]
+    sgd_1_1_2 [label="SGDClassifier\n- alpha=1e-4"]
+    sgd_1_1_3 [label="SGDClassifier\n- alpha=1e-5"]
+
+    sgd_1_2_1 [label="SGDClassifier\n- alpha=1e-3"]
+    sgd_1_2_2 [label="SGDClassifier\n- alpha=1e-4"]
+    sgd_1_2_3 [label="SGDClassifier\n- alpha=1e-5"]
+
+    best [label="Choose Best Parameters"]
+
+    data -> vect1
+
+    vect1 -> tfidf_1_1 -> sgd_1_1_1 -> best
+    tfidf_1_1 -> sgd_1_1_2 -> best
+    tfidf_1_1 -> sgd_1_1_3 -> best
+
+    vect1 -> tfidf_1_2 -> sgd_1_2_1 -> best
+    tfidf_1_2 -> sgd_1_2_2 -> best
+    tfidf_1_2 -> sgd_1_2_3 -> best
+}
