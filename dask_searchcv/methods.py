@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 import warnings
 from collections import defaultdict
 from threading import Lock
+from timeit import default_timer
 from distutils.version import LooseVersion
 
 import numpy as np
@@ -145,19 +146,32 @@ def decompress_params(fields, params):
             for p in params]
 
 
+def _maybe_timed(x):
+    """Unpack (est, fit_time) tuples if provided"""
+    return x if isinstance(x, tuple) and len(x) == 2 else (x, 0.0)
+
+
 def pipeline(names, steps):
     """Reconstruct a Pipeline from names and steps"""
+    steps, times = zip(*map(_maybe_timed, steps))
+    fit_time = sum(times)
     if any(s is FIT_FAILURE for s in steps):
-        return FIT_FAILURE
-    return Pipeline(list(zip(names, steps)))
+        fit_est = FIT_FAILURE
+    else:
+        fit_est = Pipeline(list(zip(names, steps)))
+    return fit_est, fit_time
 
 
 def feature_union(names, steps, weights):
     """Reconstruct a FeatureUnion from names, steps, and weights"""
+    steps, times = zip(*map(_maybe_timed, steps))
+    fit_time = sum(times)
     if any(s is FIT_FAILURE for s in steps):
-        return FIT_FAILURE
-    return FeatureUnion(list(zip(names, steps)),
-                        transformer_weights=weights)
+        fit_est = FIT_FAILURE
+    else:
+        fit_est = FeatureUnion(list(zip(names, steps)),
+                               transformer_weights=weights)
+    return fit_est, fit_time
 
 
 def feature_union_concat(Xs, nsamples, weights):
@@ -191,40 +205,48 @@ def set_params(est, fields=None, params=None, copy=True):
 
 def fit(est, X, y, error_score='raise', fields=None, params=None,
         fit_params=None):
-    if est is FIT_FAILURE or X is FIT_FAILURE:
-        return FIT_FAILURE
-    if not fit_params:
-        fit_params = {}
-    try:
-        est = set_params(est, fields, params)
-        est.fit(X, y, **fit_params)
-    except Exception as e:
-        if error_score == 'raise':
-            raise
-        warn_fit_failure(error_score, e)
-        est = FIT_FAILURE
-    return est
+    if X is FIT_FAILURE:
+        est, fit_time = FIT_FAILURE, 0.0
+    else:
+        if not fit_params:
+            fit_params = {}
+        start_time = default_timer()
+        try:
+            est = set_params(est, fields, params)
+            est.fit(X, y, **fit_params)
+        except Exception as e:
+            if error_score == 'raise':
+                raise
+            warn_fit_failure(error_score, e)
+            est = FIT_FAILURE
+        fit_time = default_timer() - start_time
+
+    return est, fit_time
 
 
 def fit_transform(est, X, y, error_score='raise', fields=None, params=None,
                   fit_params=None):
-    if est is FIT_FAILURE or X is FIT_FAILURE:
-        return FIT_FAILURE, FIT_FAILURE
-    if not fit_params:
-        fit_params = {}
-    try:
-        est = set_params(est, fields, params)
-        if hasattr(est, 'fit_transform'):
-            Xt = est.fit_transform(X, y, **fit_params)
-        else:
-            est.fit(X, y, **fit_params)
-            Xt = est.transform(X)
-    except Exception as e:
-        if error_score == 'raise':
-            raise
-        warn_fit_failure(error_score, e)
-        est = Xt = FIT_FAILURE
-    return est, Xt
+    if X is FIT_FAILURE:
+        est, fit_time, Xt = FIT_FAILURE, 0.0, FIT_FAILURE
+    else:
+        if not fit_params:
+            fit_params = {}
+        start_time = default_timer()
+        try:
+            est = set_params(est, fields, params)
+            if hasattr(est, 'fit_transform'):
+                Xt = est.fit_transform(X, y, **fit_params)
+            else:
+                est.fit(X, y, **fit_params)
+                Xt = est.transform(X)
+        except Exception as e:
+            if error_score == 'raise':
+                raise
+            warn_fit_failure(error_score, e)
+            est = Xt = FIT_FAILURE
+        fit_time = default_timer() - start_time
+
+    return (est, fit_time), Xt
 
 
 def _score(est, X, y, scorer):
@@ -233,12 +255,15 @@ def _score(est, X, y, scorer):
     return scorer(est, X) if y is None else scorer(est, X, y)
 
 
-def score(est, X_test, y_test, X_train, y_train, scorer):
+def score(est_and_time, X_test, y_test, X_train, y_train, scorer):
+    est, fit_time = est_and_time
+    start_time = default_timer()
     test_score = _score(est, X_test, y_test, scorer)
+    score_time = default_timer() - start_time
     if X_train is None:
-        return test_score
+        return fit_time, test_score, score_time
     train_score = _score(est, X_train, y_train, scorer)
-    return test_score, train_score
+    return fit_time, test_score, score_time, train_score
 
 
 def fit_and_score(est, cv, X, y, n, scorer,
@@ -248,10 +273,11 @@ def fit_and_score(est, cv, X, y, n, scorer,
     y_train = cv.extract(X, y, n, False, True)
     X_test = cv.extract(X, y, n, True, False)
     y_test = cv.extract(X, y, n, False, False)
-    est = fit(est, X_train, y_train, error_score, fields, params, fit_params)
+    est_and_time = fit(est, X_train, y_train, error_score,
+                       fields, params, fit_params)
     if not return_train_score:
         X_train = y_train = None
-    return score(est, X_test, y_test, X_train, y_train, scorer)
+    return score(est_and_time, X_test, y_test, X_train, y_train, scorer)
 
 
 def _store(results, key_name, array, n_splits, n_candidates,
@@ -276,10 +302,10 @@ def _store(results, key_name, array, n_splits, n_candidates,
 
 
 def create_cv_results(scores, candidate_params, n_splits, error_score, weights):
-    if isinstance(scores[0], tuple):
-        test_scores, train_scores = zip(*scores)
+    if len(scores[0]) == 4:
+        fit_times, test_scores, score_times, train_scores = zip(*scores)
     else:
-        test_scores = scores
+        fit_times, test_scores, score_times = zip(*scores)
         train_scores = None
 
     test_scores = [error_score if s is FIT_FAILURE else s for s in test_scores]
@@ -297,6 +323,8 @@ def create_cv_results(scores, candidate_params, n_splits, error_score, weights):
 
     _store(results, 'test_score', test_scores, n_splits, n_candidates,
            splits=True, rank=True, weights=weights)
+    _store(results, 'fit_time', fit_times, n_splits, n_candidates)
+    _store(results, 'score_time', score_times, n_splits, n_candidates)
     if train_scores is not None:
         _store(results, 'train_score', train_scores,
                n_splits, n_candidates, splits=True)

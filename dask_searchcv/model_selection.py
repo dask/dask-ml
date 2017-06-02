@@ -217,8 +217,8 @@ def do_fit_and_score(dsk, main_token, est, cv, fields, tokens, params,
             ytest = y_test + (n,)
 
             for (name, m) in fit_ests:
-                dsk[(score_name, m, n)] = (score, (name, m, n),
-                                        xtest, ytest, xtrain, ytrain, scorer)
+                dsk[(score_name, m, n)] = (score, (name, m, n), xtest, ytest,
+                                           xtrain, ytrain, scorer)
                 scores_append((score_name, m, n))
     return scores
 
@@ -941,15 +941,22 @@ cv_results_ : dict of numpy (masked) ndarrays
         'mean_test_score'    : [0.81, 0.60, 0.75, 0.82],
         'std_test_score'     : [0.02, 0.01, 0.03, 0.03],
         'rank_test_score'    : [2, 4, 3, 1],
-        'split0_train_score' : [0.8, 0.9, 0.7],
-        'split1_train_score' : [0.82, 0.5, 0.7],
-        'mean_train_score'   : [0.81, 0.7, 0.7],
-        'std_train_score'    : [0.03, 0.03, 0.04],
+        'split0_train_score' : [0.8, 0.7, 0.8, 0.9],
+        'split1_train_score' : [0.82, 0.7, 0.82, 0.5],
+        'mean_train_score'   : [0.81, 0.7, 0.81, 0.7],
+        'std_train_score'    : [0.03, 0.04, 0.03, 0.03],
+        'mean_fit_time'      : [0.73, 0.63, 0.43, 0.49],
+        'std_fit_time'       : [0.01, 0.02, 0.01, 0.01],
+        'mean_score_time'    : [0.007, 0.06, 0.04, 0.04],
+        'std_score_time'     : [0.001, 0.002, 0.003, 0.005],
         'params'             : [{{'kernel': 'poly', 'degree': 2}}, ...],
         }}
 
     NOTE that the key ``'params'`` is used to store a list of parameter
     settings dict for all the parameter candidates.
+
+    The ``mean_fit_time``, ``std_fit_time``, ``mean_score_time`` and
+    ``std_score_time`` are all in seconds.
 
 best_estimator_ : estimator
     Estimator that was chosen by the search, i.e. estimator
@@ -1019,10 +1026,12 @@ GridSearchCV(cache_cv=..., cv=..., error_score=...,
         iid=..., n_jobs=..., param_grid=..., refit=..., return_train_score=...,
         scheduler=..., scoring=...)
 >>> sorted(clf.cv_results_.keys())  # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-['mean_test_score', 'mean_train_score', 'param_C', 'param_kernel',...
- 'params', 'rank_test_score', 'split0_test_score', 'split0_train_score',...
- 'split1_test_score', 'split1_train_score', 'split2_test_score',...
- 'split2_train_score', 'std_test_score', 'std_train_score'...]\
+['mean_fit_time', 'mean_score_time', 'mean_test_score',...
+ 'mean_train_score', 'param_C', 'param_kernel', 'params',...
+ 'rank_test_score', 'split0_test_score',...
+ 'split0_train_score', 'split1_test_score', 'split1_train_score',...
+ 'split2_test_score', 'split2_train_score',...
+ 'std_fit_time', 'std_score_time', 'std_test_score', 'std_train_score'...]\
 """
 
 
@@ -1100,10 +1109,12 @@ RandomizedSearchCV(cache_cv=..., cv=..., error_score=...,
         random_state=..., refit=..., return_train_score=...,
         scheduler=..., scoring=...)
 >>> sorted(clf.cv_results_.keys())  # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-['mean_test_score', 'mean_train_score', 'param_C', 'param_kernel',...
- 'params', 'rank_test_score', 'split0_test_score', 'split0_train_score',...
- 'split1_test_score', 'split1_train_score', 'split2_test_score',...
- 'split2_train_score', 'std_test_score', 'std_train_score'...]\
+['mean_fit_time', 'mean_score_time', 'mean_test_score',...
+ 'mean_train_score', 'param_C', 'param_kernel', 'params',...
+ 'rank_test_score', 'split0_test_score',...
+ 'split0_train_score', 'split1_test_score', 'split1_train_score',...
+ 'split2_test_score', 'split2_train_score',...
+ 'std_fit_time', 'std_score_time', 'std_test_score', 'std_train_score'...]\
 """
 
 

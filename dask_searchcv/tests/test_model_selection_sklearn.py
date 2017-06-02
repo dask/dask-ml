@@ -557,7 +557,9 @@ def test_grid_search_cv_results():
                   'split2_test_score',
                   'split0_train_score', 'split1_train_score',
                   'split2_train_score',
-                  'std_test_score', 'std_train_score')
+                  'std_test_score', 'std_train_score',
+                  'mean_fit_time', 'std_fit_time',
+                  'mean_score_time', 'std_score_time')
     n_candidates = n_grid_points
 
     for search, iid in zip((grid_search, grid_search_iid), (False, True)):
@@ -615,7 +617,9 @@ def test_random_search_cv_results():
                   'split2_test_score',
                   'split0_train_score', 'split1_train_score',
                   'split2_train_score',
-                  'std_test_score', 'std_train_score')
+                  'std_test_score', 'std_train_score',
+                  'mean_fit_time', 'std_fit_time',
+                  'mean_score_time', 'std_score_time')
     n_cand = n_search_iter
 
     for search, iid in zip((random_search, random_search_iid), (False, True)):

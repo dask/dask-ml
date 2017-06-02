@@ -379,7 +379,11 @@ def test_pipeline_sub_estimators():
 
     # Check cv results match
     res = pd.DataFrame(dgs.cv_results_)
-    sol = pd.DataFrame(gs.cv_results_)[res.columns]
+    sol = pd.DataFrame(gs.cv_results_)
+    assert res.columns.equals(sol.columns)
+    skip = ['mean_fit_time', 'std_fit_time', 'mean_score_time', 'std_score_time']
+    res = res.drop(skip, axis=1)
+    sol = sol.drop(skip, axis=1)
     assert res.equals(sol)
 
     # Check SVC coefs match
