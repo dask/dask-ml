@@ -70,8 +70,8 @@ change is necessary:
     # Fit with dask-searchcv
     from dask_searchcv import GridSearchCV
 
-    param_space = {'C': [-1e4, 1, 1e4],
-                   'gamma': [-1e3, 1, 1e3],
+    param_space = {'C': [1e-4, 1, 1e4],
+                   'gamma': [1e-3, 1, 1e3],
                    'class_weight': [None, 'balanced']}
 
     model = SVC(kernel='rbf')
