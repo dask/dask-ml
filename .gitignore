@@ -1,0 +1,7 @@
+docs/build
+
+# datasets
+docs/day_1
+*.parquet
+*.gz
+docs/source/examples/susy
