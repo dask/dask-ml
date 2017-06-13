@@ -8,14 +8,20 @@ This is a repository to collect all the ways dask can be used in parallel and
 distributed machine learning workflows. There are quite a few options, and the
 best one depends on your goals, data, and available compute.
 
-Single Machine
+Existing Tools
 --------------
+
+Dask can already be used to parallelize or distribute workflows using other
+libraries like scikit-learn (with joblib), xgboost, dask-glm, or tensorflow.
+
+Single Machine
+^^^^^^^^^^^^^^
 
 If your computation fits on a single machine, you may be able to use dask to
 speed up the computation. See :ref:`single-machine`.
 
 Distributed Learning
---------------------
+^^^^^^^^^^^^^^^^^^^^
 
 Dask can help in cases where you'd like to fit a model on a dataset that doesn't
 fit in memory. You can either use a library like `dask-glm`_, that's built on top
