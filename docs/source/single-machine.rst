@@ -1,8 +1,10 @@
-========================
-Dask on a Single Machine
-========================
+.. _single-machine:
 
-First, we need to realize that scikit-learn already uses parallelism in quite a
+==============
+Single Machine
+==============
+
+First, we need to recognize that scikit-learn already uses parallelism in quite a
 few places, anywhere you see an ``n_jobs`` parameter. This already covers many of
 the places dask could provide speedups be enabling parallelism. That said, dask can
 still improve performance through its sophisticated caching when fitting a
@@ -11,7 +13,8 @@ a :class:`sklearn.pipeline.Pipeline`.
 Pipelines
 ---------
 
-A :class:`pipeline.Pipeline` makes it possible to define the entire modeling
+First, some non-dask-related background:
+A :class:`sklearn.pipeline.Pipeline` makes it possible to define the entire modeling
 process, from raw data to fit estimator, in a single python object. You can
 create a pipeline with :func:`sklearn.pipeline.make_pipeline`.
 
@@ -49,7 +52,8 @@ be set ahead of time. :class:`sklearn.model_selection.GridSearchCV` and
 hyper-parameters by searching over the space of hyper-parameters to find the
 combination that gives the best performance on a cross-validation set.
 
-If you use the drop-in replacements :class:`dask_searchcv.GridSearchCV` and
+Here's where dask comes in: If you use the drop-in replacements
+:class:`dask_searchcv.GridSearchCV` and
 :class:`dask_searchcv.RandomizedSearchCV` to fit a ``Pipeline``, you can improve
 the training time since dask will cache and reuse the intermediate steps.
 

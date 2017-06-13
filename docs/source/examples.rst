@@ -6,5 +6,8 @@ This is set of runnable Jupyter notebooks.
 
    examples/hyperparameter-search
    examples/joblib-distributed
+   examples/predict
+   examples/dask-glm
    examples/xgboost
+   examples/tensorflow
 
