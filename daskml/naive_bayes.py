@@ -5,6 +5,17 @@ from sklearn.base import BaseEstimator
 
 
 class GaussianNB(BaseEstimator):
+    """
+    Fit a naive bayes model with a Gaussian likelihood
+
+    Examples
+    --------
+    >>> from daskml import datasets
+    >>> from daskml.naive_bayes import GaussianNB
+    >>> X, y = datasets.make_classification(chunks=10)
+    >>> gnb = GaussianNB()
+    >>> gnb.fit(X, y)
+    """
 
     def __init__(self, priors=None, classes=None):
         self.priors = priors
