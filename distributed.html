@@ -1,0 +1,317 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Distributed Learning &mdash; dask-ml 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="dask-ml 0.1 documentation" href="index.html"/>
+        <link rel="next" title="&lt;no title&gt;" href="examples.html"/>
+        <link rel="prev" title="Single Machine" href="single-machine.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> dask-ml
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="single-machine.html">Single Machine</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Distributed Learning</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dask-glm">dask-glm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#distributed-joblib">distributed-joblib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interoperate">Interoperate</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples/hyperparameter-search.html">Hyper-parameter Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/joblib-distributed.html">Distributed Joblib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/predict.html">Out-of-core Prediction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/dask-glm.html">Dask GLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/xgboost.html">Dask and XGBoost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/tensorflow.html">Dask and Tensorflow</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">dask-ml</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Distributed Learning</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/distributed.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+/* nice headers on first paragraph of info/warning boxes */
+.admonition .first {
+    margin: -12px;
+    padding: 6px 12px;
+    margin-bottom: 12px;
+    color: #fff;
+    line-height: 1;
+    display: block;
+}
+.admonition.warning .first {
+    background: #f0b37e;
+}
+.admonition.note .first {
+    background: #6ab0de;
+}
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="distributed-learning">
+<span id="distributed"></span><h1>Distributed Learning<a class="headerlink" href="#distributed-learning" title="Permalink to this headline">¶</a></h1>
+<p>Dask is able to simplify distributed machine learning.</p>
+<div class="section" id="dask-glm">
+<h2>dask-glm<a class="headerlink" href="#dask-glm" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://dask-glm.readthedocs.io/">dask-glm</a> is a library for fitting Generalized Linear Models that’s built on
+top of dask. Typically, you’d use it like a regular scikit-learn estimator:
+instantiate an estimator and call <code class="docutils literal"><span class="pre">estimator.fit(X,</span> <span class="pre">y)</span></code> with dask arrays.
+See <a class="reference internal" href="examples/dask-glm.html"><span class="std std-ref">Dask GLM</span></a> for an example.</p>
+</div>
+<div class="section" id="distributed-joblib">
+<h2>distributed-joblib<a class="headerlink" href="#distributed-joblib" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal"><span class="pre">scikit-learn</span></code> parallelizes internally using <a class="reference external" href="https://pythonhosted.org/joblib/">joblib</a>. <code class="docutils literal"><span class="pre">dask.distributed</span></code>
+registers itself with <code class="docutils literal"><span class="pre">joblib</span></code>, allowing you to use your cluster to fit a
+scikit-learn estimator. Given a scikit-learn estimator called <code class="docutils literal"><span class="pre">estimator</span></code> and
+some data <code class="docutils literal"><span class="pre">X</span></code> and <code class="docutils literal"><span class="pre">y</span></code>, you’d fit it on a single machine (in parallel) like</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Assuming you have a <code class="docutils literal"><span class="pre">distributed.Client</span></code> called <code class="docutils literal"><span class="pre">client</span></code>, this can be fit on
+your cluster like</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.externals</span> <span class="kn">import</span> <span class="n">joblib</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">distributed.joblib</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">joblib</span><span class="o">.</span><span class="n">parallel_backend</span><span class="p">(</span><span class="s1">&#39;dask.distributed&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                              <span class="n">scheduler_host</span><span class="o">=</span><span class="n">client</span><span class="o">.</span><span class="n">scheduler</span><span class="o">.</span><span class="n">address</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="examples/joblib-distributed.html"><span class="std std-ref">here</span></a> for an example.</p>
+</div>
+<div class="section" id="interoperate">
+<h2>Interoperate<a class="headerlink" href="#interoperate" title="Permalink to this headline">¶</a></h2>
+<p>dask arrays can be used with other distributed machine learning libraries like
+<a class="reference external" href="https://xgboost.readthedocs.io/">xgboost</a> and <a class="reference external" href="https://www.tensorflow.org/">tensorflow</a>, that don’t necessarily use dask objects or
+schedulers internally. Still, you may prefer to use dask for pre-processing
+tasks or to avoid setting up a second cluster.</p>
+<ul class="simple">
+<li><a class="reference internal" href="examples/xgboost.html"><span class="std std-ref">xgboost</span></a></li>
+<li><a class="reference internal" href="examples/tensorflow.html"><span class="std std-ref">tensorflow</span></a></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="examples.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="single-machine.html" class="btn btn-neutral" title="Single Machine" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Dask developers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

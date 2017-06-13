@@ -1,0 +1,844 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Dask and Tensorflow &mdash; dask-ml 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="dask-ml 0.1 documentation" href="../index.html"/>
+        <link rel="up" title="&lt;no title&gt;" href="../examples.html"/>
+        <link rel="prev" title="Dask and XGBoost" href="xgboost.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> dask-ml
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../single-machine.html">Single Machine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../distributed.html">Distributed Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hyperparameter-search.html">Hyper-parameter Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joblib-distributed.html">Distributed Joblib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="predict.html">Out-of-core Prediction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dask-glm.html">Dask GLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xgboost.html">Dask and XGBoost</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Dask and Tensorflow</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">dask-ml</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../examples.html">&lt;no title&gt;</a> &raquo;</li>
+        
+      <li>Dask and Tensorflow</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/examples/tensorflow.ipynb.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput div.prompt,
+div.nbinput div.input_area,
+div.nbinput div[class*=highlight],
+div.nbinput div[class*=highlight] pre,
+div.nboutput,
+div.nbinput div.prompt,
+div.nbinput div.output_area,
+div.nboutput div[class*=highlight],
+div.nboutput div[class*=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput,
+    div.nboutput {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput div.prompt pre {
+    color: #303F9F;
+}
+
+/* output prompt */
+div.nboutput div.prompt pre {
+    color: #D84315;
+}
+
+/* all prompts */
+div.nbinput div.prompt,
+div.nboutput div.prompt {
+    min-width: 8ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+@media (max-width: 540px) {
+    div.nbinput div.prompt,
+    div.nboutput div.prompt {
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput div.prompt.empty {
+        padding: 0;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput div.prompt pre,
+div.nboutput div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput div.input_area,
+div.nboutput div.output_area {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput div.input_area,
+    div.nboutput div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput div.input_area {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-bold { font-weight: bold; }
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+/* nice headers on first paragraph of info/warning boxes */
+.admonition .first {
+    margin: -12px;
+    padding: 6px 12px;
+    margin-bottom: 12px;
+    color: #fff;
+    line-height: 1;
+    display: block;
+}
+.admonition.warning .first {
+    background: #f0b37e;
+}
+.admonition.note .first {
+    background: #6ab0de;
+}
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="Dask-and-Tensorflow">
+<h1>Dask and Tensorflow<a class="headerlink" href="#Dask-and-Tensorflow" title="Permalink to this headline">¶</a></h1>
+<p>See <a class="reference external" href="http://matthewrocklin.com/blog/work/2017/02/11/dask-tensorflow">http://matthewrocklin.com/blog/work/2017/02/11/dask-tensorflow</a> for
+more.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="o">%</span><span class="k">matplotlib</span> inline
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">dask.array</span> <span class="k">as</span> <span class="nn">da</span>
+<span class="kn">from</span> <span class="nn">dask</span> <span class="k">import</span> <span class="n">delayed</span>
+<span class="kn">from</span> <span class="nn">dask_tensorflow</span> <span class="k">import</span> <span class="n">start_tensorflow</span>
+<span class="kn">from</span> <span class="nn">distributed</span> <span class="k">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">progress</span>
+<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">import</span> <span class="nn">dask.array</span> <span class="k">as</span> <span class="nn">da</span>
+<span class="kn">from</span> <span class="nn">dask</span> <span class="k">import</span> <span class="n">delayed</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="k">def</span> <span class="nf">get_mnist</span><span class="p">():</span>
+    <span class="kn">from</span> <span class="nn">tensorflow.examples.tutorials.mnist</span> <span class="k">import</span> <span class="n">input_data</span>
+    <span class="n">mnist</span> <span class="o">=</span> <span class="n">input_data</span><span class="o">.</span><span class="n">read_data_sets</span><span class="p">(</span><span class="s1">&#39;/tmp/mnist-data&#39;</span><span class="p">,</span> <span class="n">one_hot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mnist</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">images</span><span class="p">,</span> <span class="n">mnist</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">labels</span>
+
+<span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span><span class="n">delayed</span><span class="p">(</span><span class="n">get_mnist</span><span class="p">)()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">)]</span>  <span class="c1"># 20 versions of same dataset</span>
+<span class="n">images</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">]</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">]</span>
+
+<span class="n">images</span> <span class="o">=</span> <span class="p">[</span><span class="n">da</span><span class="o">.</span><span class="n">from_delayed</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">55000</span><span class="p">,</span> <span class="mi">784</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">im</span> <span class="ow">in</span> <span class="n">images</span><span class="p">]</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">da</span><span class="o">.</span><span class="n">from_delayed</span><span class="p">(</span><span class="n">la</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">55000</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">la</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">]</span>
+
+<span class="n">images</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">images</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>Out[4]:
+</pre></div>
+</div>
+<div class="output_area highlight-none"><div class="highlight"><pre>
+<span></span>dask.array&lt;concatenate, shape=(1100000, 784), dtype=float32, chunksize=(55000, 784)&gt;
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persist</span><span class="p">([</span><span class="n">images</span><span class="p">,</span> <span class="n">labels</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="n">im</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>Out[7]:
+</pre></div>
+</div>
+<div class="output_area highlight-none"><div class="highlight"><pre>
+<span></span>&lt;matplotlib.image.AxesImage at 0x117ce19e8&gt;
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_tensorflow_8_1.png" src="../_images/examples_tensorflow_8_1.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="n">im</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>Out[8]:
+</pre></div>
+</div>
+<div class="output_area highlight-none"><div class="highlight"><pre>
+<span></span>&lt;matplotlib.image.AxesImage at 0x117d2d668&gt;
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_tensorflow_9_1.png" src="../_images/examples_tensorflow_9_1.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="n">images</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">rechunk</span><span class="p">((</span><span class="mi">10000</span><span class="p">,</span> <span class="mi">784</span><span class="p">))</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">rechunk</span><span class="p">((</span><span class="mi">10000</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+<span class="n">images</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">to_delayed</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">to_delayed</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="n">batches</span> <span class="o">=</span> <span class="p">[</span><span class="n">delayed</span><span class="p">([</span><span class="n">im</span><span class="p">,</span> <span class="n">la</span><span class="p">])</span> <span class="k">for</span> <span class="n">im</span><span class="p">,</span> <span class="n">la</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">labels</span><span class="p">)]</span>
+
+<span class="n">batches</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">batches</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">dask_tensorflow</span> <span class="k">import</span> <span class="n">start_tensorflow</span>
+<span class="n">tf_spec</span><span class="p">,</span> <span class="n">dask_spec</span> <span class="o">=</span> <span class="n">start_tensorflow</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">ps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">worker</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">scorer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">queue</span> <span class="k">import</span> <span class="n">Empty</span>
+
+<span class="n">IMAGE_PIXELS</span> <span class="o">=</span> <span class="mi">28</span>
+<span class="n">hidden_units</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">learning_rate</span> <span class="o">=</span> <span class="mf">0.01</span>
+<span class="n">sync_replicas</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">replicas_to_aggregate</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dask_spec</span><span class="p">[</span><span class="s1">&#39;worker&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="n">server</span><span class="p">):</span>
+    <span class="n">worker_device</span> <span class="o">=</span> <span class="s2">&quot;/job:</span><span class="si">%s</span><span class="s2">/task:</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">server_def</span><span class="o">.</span><span class="n">job_name</span><span class="p">,</span>
+                                         <span class="n">server</span><span class="o">.</span><span class="n">server_def</span><span class="o">.</span><span class="n">task_index</span><span class="p">)</span>
+    <span class="n">task_index</span> <span class="o">=</span> <span class="n">server</span><span class="o">.</span><span class="n">server_def</span><span class="o">.</span><span class="n">task_index</span>
+    <span class="n">is_chief</span> <span class="o">=</span> <span class="n">task_index</span> <span class="o">==</span> <span class="mi">0</span>
+
+    <span class="k">with</span> <span class="n">tf</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">replica_device_setter</span><span class="p">(</span>
+                      <span class="n">worker_device</span><span class="o">=</span><span class="n">worker_device</span><span class="p">,</span>
+                      <span class="n">ps_device</span><span class="o">=</span><span class="s2">&quot;/job:ps/cpu:0&quot;</span><span class="p">,</span>
+                      <span class="n">cluster</span><span class="o">=</span><span class="n">tf_spec</span><span class="p">)):</span>
+
+        <span class="n">global_step</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;global_step&quot;</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Variables of the hidden layer</span>
+        <span class="n">hid_w</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">truncated_normal</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">IMAGE_PIXELS</span> <span class="o">*</span> <span class="n">IMAGE_PIXELS</span><span class="p">,</span> <span class="n">hidden_units</span><span class="p">],</span>
+                <span class="n">stddev</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">IMAGE_PIXELS</span><span class="p">),</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;hid_w&quot;</span><span class="p">)</span>
+        <span class="n">hid_b</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">hidden_units</span><span class="p">]),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;hid_b&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Variables of the softmax layer</span>
+        <span class="n">sm_w</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">truncated_normal</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">hidden_units</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>
+                <span class="n">stddev</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">hidden_units</span><span class="p">)),</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sm_w&quot;</span><span class="p">)</span>
+        <span class="n">sm_b</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">10</span><span class="p">]),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sm_b&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Ops: located on the worker specified with task_index</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">IMAGE_PIXELS</span> <span class="o">*</span> <span class="n">IMAGE_PIXELS</span><span class="p">])</span>
+        <span class="n">y_</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">placeholder</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
+
+        <span class="n">hid_lin</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">xw_plus_b</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">hid_w</span><span class="p">,</span> <span class="n">hid_b</span><span class="p">)</span>
+        <span class="n">hid</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">hid_lin</span><span class="p">)</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">xw_plus_b</span><span class="p">(</span><span class="n">hid</span><span class="p">,</span> <span class="n">sm_w</span><span class="p">,</span> <span class="n">sm_b</span><span class="p">))</span>
+        <span class="n">cross_entropy</span> <span class="o">=</span> <span class="o">-</span><span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span><span class="n">y_</span> <span class="o">*</span> <span class="n">tf</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">clip_by_value</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="mf">1e-10</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)))</span>
+
+        <span class="n">opt</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">AdamOptimizer</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sync_replicas</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">replicas_to_aggregate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">replicas_to_aggregate</span> <span class="o">=</span> <span class="n">num_workers</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">replicas_to_aggregate</span> <span class="o">=</span> <span class="n">replicas_to_aggregate</span>
+
+            <span class="n">opt</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">SyncReplicasOptimizer</span><span class="p">(</span>
+                      <span class="n">opt</span><span class="p">,</span>
+                      <span class="n">replicas_to_aggregate</span><span class="o">=</span><span class="n">replicas_to_aggregate</span><span class="p">,</span>
+                      <span class="n">total_num_replicas</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span>
+                      <span class="n">name</span><span class="o">=</span><span class="s2">&quot;mnist_sync_replicas&quot;</span><span class="p">)</span>
+
+        <span class="n">train_step</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">cross_entropy</span><span class="p">,</span> <span class="n">global_step</span><span class="o">=</span><span class="n">global_step</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sync_replicas</span><span class="p">:</span>
+            <span class="n">local_init_op</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">local_step_init_op</span>
+            <span class="k">if</span> <span class="n">is_chief</span><span class="p">:</span>
+                <span class="n">local_init_op</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">chief_init_op</span>
+
+            <span class="n">ready_for_local_init_op</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">ready_for_local_init_op</span>
+
+            <span class="c1"># Initial token and chief queue runners required by the sync_replicas mode</span>
+            <span class="n">chief_queue_runner</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">get_chief_queue_runner</span><span class="p">()</span>
+            <span class="n">sync_init_op</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">get_init_tokens_op</span><span class="p">()</span>
+
+        <span class="n">init_op</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">global_variables_initializer</span><span class="p">()</span>
+        <span class="n">train_dir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">sync_replicas</span><span class="p">:</span>
+          <span class="n">sv</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Supervisor</span><span class="p">(</span>
+              <span class="n">is_chief</span><span class="o">=</span><span class="n">is_chief</span><span class="p">,</span>
+              <span class="n">logdir</span><span class="o">=</span><span class="n">train_dir</span><span class="p">,</span>
+              <span class="n">init_op</span><span class="o">=</span><span class="n">init_op</span><span class="p">,</span>
+              <span class="n">local_init_op</span><span class="o">=</span><span class="n">local_init_op</span><span class="p">,</span>
+              <span class="n">ready_for_local_init_op</span><span class="o">=</span><span class="n">ready_for_local_init_op</span><span class="p">,</span>
+              <span class="n">recovery_wait_secs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+              <span class="n">global_step</span><span class="o">=</span><span class="n">global_step</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">sv</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Supervisor</span><span class="p">(</span>
+              <span class="n">is_chief</span><span class="o">=</span><span class="n">is_chief</span><span class="p">,</span>
+              <span class="n">logdir</span><span class="o">=</span><span class="n">train_dir</span><span class="p">,</span>
+              <span class="n">init_op</span><span class="o">=</span><span class="n">init_op</span><span class="p">,</span>
+              <span class="n">recovery_wait_secs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+              <span class="n">global_step</span><span class="o">=</span><span class="n">global_step</span><span class="p">)</span>
+
+        <span class="n">sess_config</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">ConfigProto</span><span class="p">(</span>
+            <span class="n">allow_soft_placement</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">log_device_placement</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">device_filters</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;/job:ps&quot;</span><span class="p">,</span> <span class="s2">&quot;/job:worker/task:</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">task_index</span><span class="p">])</span>
+
+        <span class="c1"># The chief worker (task_index==0) session will prepare the session,</span>
+        <span class="c1"># while the remaining workers will wait for the preparation to complete.</span>
+        <span class="k">if</span> <span class="n">is_chief</span><span class="p">:</span>
+          <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Worker </span><span class="si">%d</span><span class="s2">: Initializing session...&quot;</span> <span class="o">%</span> <span class="n">task_index</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Worker </span><span class="si">%d</span><span class="s2">: Waiting for session to be initialized...&quot;</span> <span class="o">%</span>
+                <span class="n">task_index</span><span class="p">)</span>
+
+        <span class="n">sess</span> <span class="o">=</span> <span class="n">sv</span><span class="o">.</span><span class="n">prepare_or_wait_for_session</span><span class="p">(</span><span class="n">server</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">sess_config</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">sync_replicas</span> <span class="ow">and</span> <span class="n">is_chief</span><span class="p">:</span>
+          <span class="c1"># Chief worker will start the chief queue runner and call the init op.</span>
+          <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">sync_init_op</span><span class="p">)</span>
+          <span class="n">sv</span><span class="o">.</span><span class="n">start_queue_runners</span><span class="p">(</span><span class="n">sess</span><span class="p">,</span> <span class="p">[</span><span class="n">chief_queue_runner</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">sess</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y_</span><span class="p">,</span> <span class="n">train_step</span><span class="p">,</span> <span class="n">global_step</span><span class="p">,</span> <span class="n">cross_entropy</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="k">def</span> <span class="nf">ps_task</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">local_client</span><span class="p">()</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">worker</span><span class="o">.</span><span class="n">tensorflow_server</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="k">def</span> <span class="nf">scoring_task</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">local_client</span><span class="p">()</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
+        <span class="c1"># Scores Channel</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">channel</span><span class="p">(</span><span class="s1">&#39;scores&#39;</span><span class="p">,</span> <span class="n">maxlen</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="c1"># Make Model</span>
+        <span class="n">server</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">worker</span><span class="o">.</span><span class="n">tensorflow_server</span>
+        <span class="n">sess</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">cross_entropy</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">worker</span><span class="o">.</span><span class="n">tensorflow_server</span><span class="p">)</span>
+
+        <span class="c1"># Testing Data</span>
+        <span class="kn">from</span> <span class="nn">tensorflow.examples.tutorials.mnist</span> <span class="k">import</span> <span class="n">input_data</span>
+        <span class="n">mnist</span> <span class="o">=</span> <span class="n">input_data</span><span class="o">.</span><span class="n">read_data_sets</span><span class="p">(</span><span class="s1">&#39;/tmp/mnist-data&#39;</span><span class="p">,</span> <span class="n">one_hot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">test_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">mnist</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">images</span><span class="p">,</span>
+                     <span class="n">y_</span><span class="p">:</span> <span class="n">mnist</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">labels</span><span class="p">}</span>
+
+        <span class="c1"># Main Loop</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cross_entropy</span><span class="p">,</span> <span class="n">feed_dict</span><span class="o">=</span><span class="n">test_data</span><span class="p">)</span>
+            <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">score</span><span class="p">))</span>
+
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="k">def</span> <span class="nf">worker_task</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">local_client</span><span class="p">()</span> <span class="k">as</span> <span class="n">c</span><span class="p">:</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">channel</span><span class="p">(</span><span class="s1">&#39;scores&#39;</span><span class="p">)</span>
+        <span class="n">num_workers</span> <span class="o">=</span> <span class="n">replicas_to_aggregate</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dask_spec</span><span class="p">[</span><span class="s1">&#39;worker&#39;</span><span class="p">])</span>
+
+        <span class="n">server</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">worker</span><span class="o">.</span><span class="n">tensorflow_server</span>
+        <span class="n">queue</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">worker</span><span class="o">.</span><span class="n">tensorflow_queue</span>
+
+        <span class="c1"># Make model</span>
+        <span class="n">sess</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y_</span><span class="p">,</span> <span class="n">train_step</span><span class="p">,</span> <span class="n">global_step</span><span class="p">,</span> <span class="n">_</span><span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">worker</span><span class="o">.</span><span class="n">tensorflow_server</span><span class="p">)</span>
+
+        <span class="c1"># Main loop</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">scores</span> <span class="ow">or</span> <span class="n">scores</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1000</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">batch</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">Empty</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">train_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="n">batch</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                          <span class="n">y_</span><span class="p">:</span> <span class="n">batch</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span>
+
+            <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="n">train_step</span><span class="p">,</span> <span class="n">global_step</span><span class="p">],</span> <span class="n">feed_dict</span><span class="o">=</span><span class="n">train_data</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="n">ps_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">client</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">ps_task</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="n">worker</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">worker</span> <span class="ow">in</span> <span class="n">dask_spec</span><span class="p">[</span><span class="s1">&#39;ps&#39;</span><span class="p">]]</span>
+
+<span class="n">worker_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">client</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">worker_task</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="n">addr</span><span class="p">,</span> <span class="n">pure</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">addr</span> <span class="ow">in</span> <span class="n">dask_spec</span><span class="p">[</span><span class="s1">&#39;worker&#39;</span><span class="p">]]</span>
+
+<span class="n">scorer_task</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">scoring_task</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="n">dask_spec</span><span class="p">[</span><span class="s1">&#39;scorer&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">distributed.worker_client</span> <span class="k">import</span> <span class="n">get_worker</span>
+
+<span class="k">def</span> <span class="nf">transfer_dask_to_tensorflow</span><span class="p">(</span><span class="n">batch</span><span class="p">):</span>
+    <span class="n">worker</span> <span class="o">=</span> <span class="n">get_worker</span><span class="p">()</span>
+    <span class="n">worker</span><span class="o">.</span><span class="n">tensorflow_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+
+<span class="n">dump</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">transfer_dask_to_tensorflow</span><span class="p">,</span> <span class="n">batches</span><span class="p">,</span>
+                  <span class="n">workers</span><span class="o">=</span><span class="n">dask_spec</span><span class="p">[</span><span class="s1">&#39;worker&#39;</span><span class="p">],</span> <span class="n">pure</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="xgboost.html" class="btn btn-neutral" title="Dask and XGBoost" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Dask developers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

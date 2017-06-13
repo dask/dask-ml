@@ -1,0 +1,348 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Single Machine &mdash; dask-ml 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="dask-ml 0.1 documentation" href="index.html"/>
+        <link rel="next" title="Distributed Learning" href="distributed.html"/>
+        <link rel="prev" title="dask-ml" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> dask-ml
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Single Machine</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pipelines">Pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hyper-parameter-search">Hyper-parameter Search</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="distributed.html">Distributed Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/hyperparameter-search.html">Hyper-parameter Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/joblib-distributed.html">Distributed Joblib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/predict.html">Out-of-core Prediction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/dask-glm.html">Dask GLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/xgboost.html">Dask and XGBoost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/tensorflow.html">Dask and Tensorflow</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">dask-ml</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Single Machine</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/single-machine.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+/* nice headers on first paragraph of info/warning boxes */
+.admonition .first {
+    margin: -12px;
+    padding: 6px 12px;
+    margin-bottom: 12px;
+    color: #fff;
+    line-height: 1;
+    display: block;
+}
+.admonition.warning .first {
+    background: #f0b37e;
+}
+.admonition.note .first {
+    background: #6ab0de;
+}
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="single-machine">
+<span id="id1"></span><h1>Single Machine<a class="headerlink" href="#single-machine" title="Permalink to this headline">¶</a></h1>
+<p>First, we need to recognize that scikit-learn already uses parallelism in quite a
+few places, anywhere you see an <code class="docutils literal"><span class="pre">n_jobs</span></code> parameter. This already covers many of
+the places dask could provide speedups be enabling parallelism. That said, dask can
+still improve performance through its sophisticated caching when fitting a
+a <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.18.1)"><code class="xref py py-class docutils literal"><span class="pre">sklearn.pipeline.Pipeline</span></code></a>.</p>
+<div class="section" id="pipelines">
+<h2>Pipelines<a class="headerlink" href="#pipelines" title="Permalink to this headline">¶</a></h2>
+<p>First, some non-dask-related background:
+A <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.18.1)"><code class="xref py py-class docutils literal"><span class="pre">sklearn.pipeline.Pipeline</span></code></a> makes it possible to define the entire modeling
+process, from raw data to fit estimator, in a single python object. You can
+create a pipeline with <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.pipeline.make_pipeline.html#sklearn.pipeline.make_pipeline" title="(in scikit-learn v0.18.1)"><code class="xref py py-func docutils literal"><span class="pre">sklearn.pipeline.make_pipeline()</span></code></a>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">make_pipeline</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">CountVectorizer</span><span class="p">,</span> <span class="n">TfidfTransformer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">SGDClassifier</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">CountVectorizer</span><span class="p">(),</span>
+<span class="go">                             TfidfTransformer(),</span>
+<span class="go">                             SGDClassifier())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pipeline</span>
+<span class="go">Pipeline(steps=[(&#39;countvectorizer&#39;, CountVectorizer(analyzer=&#39;word&#39;, binary=False, decode_error=&#39;strict&#39;,</span>
+<span class="go">     dtype=&lt;class &#39;numpy.int64&#39;&gt;, encoding=&#39;utf-8&#39;, input=&#39;content&#39;,</span>
+<span class="go">     lowercase=True, max_df=1.0, max_features=None, min_df=1,</span>
+<span class="go">     ngram_range=(1, 1), preprocessor=None, stop_words=None,</span>
+<span class="go">     penalty=&#39;l2&#39;, power_t=0.5, random_state=None, shuffle=True,</span>
+<span class="go">     verbose=0, warm_start=False))])</span>
+</pre></div>
+</div>
+<p>Pipelines work by calling the usual <code class="docutils literal"><span class="pre">fit</span></code> and <code class="docutils literal"><span class="pre">transform</span></code> methods in succession.
+The result of the prior <code class="docutils literal"><span class="pre">transform</span></code> is passed into the next <code class="docutils literal"><span class="pre">fit</span></code> step.
+We’ll see an example in the next section.</p>
+<p>The common combination of pipelines and hyper-parameter search provide an
+opportunity for dask to speed up model training.</p>
+</div>
+<div class="section" id="hyper-parameter-search">
+<h2>Hyper-parameter Search<a class="headerlink" href="#hyper-parameter-search" title="Permalink to this headline">¶</a></h2>
+<p>Most scikit-learn estimators have a set of <em>hyper-parameters</em>.
+These are parameters that are not learned during estimation; they must
+be set ahead of time. <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v0.18.1)"><code class="xref py py-class docutils literal"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a> and
+<a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v0.18.1)"><code class="xref py py-class docutils literal"><span class="pre">sklearn.model_selection.RandomizedSearchCV</span></code></a> let you tune your
+hyper-parameters by searching over the space of hyper-parameters to find the
+combination that gives the best performance on a cross-validation set.</p>
+<p>Here’s where dask comes in: If you use the drop-in replacements
+<a class="reference external" href="http://dask-searchcv.readthedocs.io/en/latest/api.html#dask_searchcv.GridSearchCV" title="(in dask-searchcv v)"><code class="xref py py-class docutils literal"><span class="pre">dask_searchcv.GridSearchCV</span></code></a> and
+<a class="reference external" href="http://dask-searchcv.readthedocs.io/en/latest/api.html#dask_searchcv.RandomizedSearchCV" title="(in dask-searchcv v)"><code class="xref py py-class docutils literal"><span class="pre">dask_searchcv.RandomizedSearchCV</span></code></a> to fit a <code class="docutils literal"><span class="pre">Pipeline</span></code>, you can improve
+the training time since dask will cache and reuse the intermediate steps.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dask_searchcv</span> <span class="kn">import</span> <span class="n">GridSearchCV</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">param_grid</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;tfidftransformer__norm&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;l1&#39;</span><span class="p">,</span> <span class="s1">&#39;l2&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;sgdclassifier__loss&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;hing&#39;</span><span class="p">,</span> <span class="s1">&#39;log&#39;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;sgdclassifier__alpha&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1e-5</span><span class="p">,</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1e-1</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">}</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">param_grid</span><span class="o">=</span><span class="n">param_grid</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">GridSearchCV(cache_cv=True, cv=None, error_score=&#39;raise&#39;,</span>
+<span class="go">  estimator=Pipeline(steps=[(&#39;countvectorizer&#39;, CountVectorizer(analyzer=&#39;word&#39;, binary=False, decode_error=&#39;strict&#39;,</span>
+<span class="go">  dtype=&lt;class &#39;numpy.int64&#39;&gt;, encoding=&#39;utf-8&#39;, input=&#39;content&#39;,</span>
+<span class="go">  lowercase=True, max_df=1.0, max_features=None, min_df=1,</span>
+<span class="go">  ngram_range=(1, 1), preprocessor=None, stop_words=None,</span>
+<span class="go">  power_t=0.5, random_state=None, shuffle=True,</span>
+<span class="go">  verbose=0, warm_start=False))]),</span>
+<span class="go">  iid=True, n_jobs=-1,</span>
+<span class="go">  param_grid={&#39;tfidftransformer__norm&#39;: [&#39;l1&#39;, &#39;l2&#39;, None], &#39;sgdclassifier__loss&#39;: [&#39;hing&#39;, &#39;log&#39;], &#39;sgdclassifier__alpha&#39;: [1e-05, 0.001, 0.1]},</span>
+<span class="go">  refit=True, return_train_score=True, scheduler=None, scoring=None)</span>
+</pre></div>
+</div>
+<p>With the regular scikit-learn version, each stage of the pipeline must be fit
+for each of the combinations of the parameters, even if that step isn’t being
+searched over. For example, the <code class="docutils literal"><span class="pre">CountVectorizer</span></code> must be fit 3 * 2 * 2 = 12
+times, even though it’s identical each time.</p>
+<p>See <a class="reference internal" href="examples/hyperparameter-search.html"><span class="std std-ref">Hyper-parameter Search</span></a> for an example.</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="distributed.html" class="btn btn-neutral float-right" title="Distributed Learning" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="dask-ml" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Dask developers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
