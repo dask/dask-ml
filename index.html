@@ -197,13 +197,17 @@
 <p>This is a repository to collect all the ways dask can be used in parallel and
 distributed machine learning workflows. There are quite a few options, and the
 best one depends on your goals, data, and available compute.</p>
+<div class="section" id="existing-tools">
+<h2>Existing Tools<a class="headerlink" href="#existing-tools" title="Permalink to this headline">¶</a></h2>
+<p>Dask can already be used to parallelize or distribute workflows using other
+libraries like scikit-learn (with joblib), xgboost, dask-glm, or tensorflow.</p>
 <div class="section" id="single-machine">
-<h2>Single Machine<a class="headerlink" href="#single-machine" title="Permalink to this headline">¶</a></h2>
+<h3>Single Machine<a class="headerlink" href="#single-machine" title="Permalink to this headline">¶</a></h3>
 <p>If your computation fits on a single machine, you may be able to use dask to
 speed up the computation. See <a class="reference internal" href="single-machine.html#single-machine"><span class="std std-ref">Single Machine</span></a>.</p>
 </div>
 <div class="section" id="distributed-learning">
-<h2>Distributed Learning<a class="headerlink" href="#distributed-learning" title="Permalink to this headline">¶</a></h2>
+<h3>Distributed Learning<a class="headerlink" href="#distributed-learning" title="Permalink to this headline">¶</a></h3>
 <p>Dask can help in cases where you’d like to fit a model on a dataset that doesn’t
 fit in memory. You can either use a library like <a class="reference external" href="http://dask-glm.readthedocs.io/">dask-glm</a>, that’s built on top
 of dask, or use another distributed machine learning framework like <a class="reference external" href="https://xgboost.readthedocs.io/">XGBoost</a> or <a class="reference external" href="https://www.tensorflow.org/">tensorflow</a>.
@@ -243,12 +247,13 @@ See <a class="reference internal" href="distributed.html#distributed"><span clas
 </ul>
 </div>
 <div class="section" id="indices-and-tables">
-<h3>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h3>
+<h4>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h4>
 <ul class="simple">
 <li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
 <li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
 <li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
 </ul>
+</div>
 </div>
 </div>
 </div>

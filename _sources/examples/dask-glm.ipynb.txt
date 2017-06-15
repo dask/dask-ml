@@ -11,7 +11,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "[`dask-glm`](github.com/dask/dask-glm) is a library for fitting generalized linear models on large datasets.\n",
+    "[`dask-glm`](https://github.com/dask/dask-glm) is a library for fitting generalized linear models on large datasets.\n",
     "The heart of the project is the set of optimization routines that work on either NumPy or dask arrays.\n",
     "See [these](https://mrocklin.github.com/blog/work/2017/03/22/dask-glm-1) [two](http://matthewrocklin.com/blog/work/2017/04/19/dask-glm-2) blogposts describing how dask-glm works internally.\n",
     "\n",
