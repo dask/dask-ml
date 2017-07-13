@@ -3,8 +3,8 @@ sudo: false
 
 env:
   matrix:
-    - PYTHON=2.7
-    - PYTHON=3.5
+    - PYTHON=2.7 IPYTHON_KERNEL=python2
+    - PYTHON=3.5 IPYTHON_KERNEL=python3
 
 install:
   # Install conda
@@ -26,7 +26,7 @@ script:
   - py.test dask_glm
   - flake8 dask_glm
   - cd notebooks
-  - for i in *.ipynb; do jupyter nbconvert --ExecutePreprocessor.timeout=None --execute $i; done
+  - for i in *.ipynb; do jupyter nbconvert --ExecutePreprocessor.kernel_name=$IPYTHON_KERNEL --ExecutePreprocessor.timeout=None --execute $i; done
 
 notifications:
   email: false
