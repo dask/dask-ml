@@ -25,8 +25,6 @@ install:
 script:
   - py.test dask_glm
   - flake8 dask_glm
-  - cd notebooks
-  - for i in *.ipynb; do jupyter nbconvert --ExecutePreprocessor.kernel_name=$IPYTHON_KERNEL --ExecutePreprocessor.timeout=None --execute $i; done
 
 notifications:
   email: false
