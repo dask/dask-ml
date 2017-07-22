@@ -46,7 +46,7 @@ extensions = [
 numpydoc_show_class_members = False
 numpydoc_show_inherited_class_members = True
 nbsphinx_execute = "always"
-
+nbsphinx_timeout = 60 * 30  # 30 minutes
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
