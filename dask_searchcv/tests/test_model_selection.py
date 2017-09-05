@@ -293,7 +293,7 @@ def test_grid_search_dask_inputs():
 
         with pytest.raises(ValueError) as exc:
             gs.fit(X, y)
-        assert "The groups parameter should not be None" in str(exc.value)
+        assert "parameter should not be None" in str(exc.value)
 
         gs.fit(X, y, groups=groups)
         np.testing.assert_allclose(sol, gs.best_estimator_.support_vectors_)

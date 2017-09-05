@@ -5,7 +5,7 @@ env:
   matrix:
     - PYTHON=2.7 SKLEARN=0.18.1 TEST_FLAGS=
     - PYTHON=3.5 SKLEARN=0.18.0 TEST_FLAGS=
-    - PYTHON=3.6 SKLEARN=0.18.1 TEST_FLAGS=--doctest-modules
+    - PYTHON=3.6 SKLEARN=0.19.0 TEST_FLAGS=--doctest-modules
 
 addons:
     apt:

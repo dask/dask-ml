@@ -29,7 +29,6 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import Imputer
 from sklearn.svm import LinearSVC, SVC
 from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
-from sklearn.utils.fixes import in1d
 
 import dask_searchcv as dcv
 from dask_searchcv.utils_test import (FailingClassifier, MockClassifier,
@@ -177,7 +176,7 @@ def test_grid_search_groups():
 
         with pytest.raises(ValueError) as exc:
             assert gs.fit(X, y)
-        assert "The groups parameter should not be None" in str(exc.value)
+        assert "parameter should not be None" in str(exc.value)
 
         gs.fit(X, y, groups=groups)
 
@@ -793,7 +792,7 @@ def test_grid_search_correct_score_results():
         expected_keys = (("mean_test_score", "rank_test_score") +
                          tuple("split%d_test_score" % cv_i
                                for cv_i in range(n_splits)))
-        assert all(in1d(expected_keys, result_keys))
+        assert all(np.in1d(expected_keys, result_keys))
 
         cv = StratifiedKFold(n_splits=n_splits)
         n_splits = grid_search.n_splits_
