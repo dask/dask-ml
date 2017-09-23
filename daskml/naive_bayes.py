@@ -2,6 +2,9 @@ import numpy as np
 import dask.array as da
 from dask import delayed
 from sklearn.base import BaseEstimator
+from sklearn import naive_bayes as _naive_bayes
+
+from daskml.base import _BigPartialFitMixin
 
 
 class GaussianNB(BaseEstimator):
@@ -115,6 +118,16 @@ class GaussianNB(BaseEstimator):
 
         joint_log_likelihood = da.stack(jll).T
         return joint_log_likelihood
+
+
+class BigMultinomialNB(_BigPartialFitMixin, _naive_bayes.MultinomialNB):
+    _init_kwargs = ['classes']
+    _fit_kwargs = ['classes']
+
+
+class BigBernoulliNB(_BigPartialFitMixin, _naive_bayes.BernoulliNB):
+    _init_kwargs = ['classes']
+    _fit_kwargs = ['classes']
 
 
 def logsumexp(arr, axis=0):
