@@ -19,3 +19,4 @@ def _wrap_maker(func):
 
 make_classification = _wrap_maker(_datasets.make_classification)
 make_regression = _wrap_maker(_datasets.make_regression)
+make_blobs = _wrap_maker(_datasets.make_blobs)
