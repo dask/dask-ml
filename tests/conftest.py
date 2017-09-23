@@ -1,5 +1,5 @@
 import pytest
-from daskml.datasets import make_classification, make_regression
+from daskml.datasets import make_classification, make_regression, make_blobs
 
 
 @pytest.fixture
@@ -47,4 +47,15 @@ def single_chunk_binary_classification():
     """
     X, y = make_classification(chunks=100, random_state=0)
     X = (abs(X) > 0).astype(int)
+    return X, y
+
+
+@pytest.fixture
+def single_chunk_blobs():
+    """X, y pair for clustering
+
+    The `X` and `y` have a single block, so chunksize is 100.
+    Useful for testing `partial_fit` methods.
+    """
+    X, y = make_blobs(chunks=100, random_state=0)
     return X, y
