@@ -39,7 +39,7 @@ class _BigPartialFitMixin:
             get = dask.threaded.get
 
         fit_kwargs = {k: getattr(self, k) for k in self._fit_kwargs}
-        result = learn.fit(self, X, y, **fit_kwargs, get=get)
+        result = learn.fit(self, X, y, get=get, **fit_kwargs)
 
         # Copy the learned attributes over to self
         # It should go without saying that this is *not* threadsafe
