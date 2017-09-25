@@ -17,7 +17,8 @@ class StandardScaler(skdata.StandardScaler):
             to_persist['mean_'] = mean_
         if self.with_std:
             var_ = X.var(0)
-            scale_ = var_[var_ == 0] = 1
+            scale_ = var_.copy()
+            scale_[scale_ == 0] = 1
             scale_ = da.sqrt(scale_)
             to_persist['scale_'] = scale_
             to_persist['var_'] = var_
