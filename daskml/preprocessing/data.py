@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from dask import compute, persist
+from dask import persist
 import dask.array as da
 from sklearn.preprocessing import data as skdata
 

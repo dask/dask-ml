@@ -3,14 +3,6 @@ import os
 from codecs import open
 
 from setuptools import setup
-from setuptools.extension import Extension
-try:
-    from Cython.Build import cythonize
-    import numpy as np
-except ImportError:
-    build_extensions = False
-else:
-    build_extensions = True
 
 here = os.path.abspath(os.path.dirname(__file__))
 
