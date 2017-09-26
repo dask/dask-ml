@@ -9,9 +9,8 @@ class MinMaxScaler(skdata.MinMaxScaler):
 
     def __init__(self, feature_range=(0, 1), copy=True, columns=None):
         super().__init__(feature_range, copy)
-        self.columns_ = columns
 
-        if copy:
+        if copy or columns:
             raise NotImplementedError()
 
     def fit(self, X, y=None):
