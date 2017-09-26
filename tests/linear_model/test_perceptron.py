@@ -4,7 +4,7 @@ from daskml.linear_model import BigPerceptron
 from dask.array.utils import assert_eq
 
 
-class TestPerceptron:
+class TestPerceptron(object):
 
     def test_basic(self, single_chunk_classification):
         X, y = single_chunk_classification

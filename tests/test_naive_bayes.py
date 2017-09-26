@@ -24,7 +24,7 @@ def test_smoke():
     assert_eq(a.predict_log_proba(X).compute(), b.predict_log_proba(X_))
 
 
-class TestBigMultinomialNB:
+class TestBigMultinomialNB(object):
     def test_basic(self, single_chunk_count_classification):
         X, y = single_chunk_count_classification
         a = nb.BigMultinomialNB(classes=[0, 1])
@@ -34,7 +34,7 @@ class TestBigMultinomialNB:
         assert_eq(a.coef_, b.coef_)
 
 
-class TestBigBernoulliNB:
+class TestBigBernoulliNB(object):
     def test_basic(self, single_chunk_binary_classification):
         X, y = single_chunk_binary_classification
         a = nb.BigBernoulliNB(classes=[0, 1])
