@@ -1,8 +1,48 @@
 from collections import OrderedDict
 
-from dask import compute, persist
+from dask import persist
 import dask.array as da
 from sklearn.preprocessing import data as skdata
+
+
+class MinMaxScaler(skdata.MinMaxScaler):
+
+    def __init__(self, feature_range=(0, 1), copy=True, columns=None):
+        super().__init__(feature_range, copy)
+        self.columns_ = columns
+
+        if copy:
+            raise NotImplementedError()
+
+    def fit(self, X, y=None):
+        self._reset()
+        feature_range = self.feature_range
+        if feature_range[0] >= feature_range[1]:
+            raise ValueError("Minimum of desired feature range must be smaller"
+                             " than maximum. Got %s." % str(feature_range))
+
+        data_min = X.min(0)
+        data_max = X.max(0)
+        data_range = data_max - data_min
+        scale = (feature_range[1] - feature_range[0])/data_range
+        min_ = feature_range[0] - data_min * scale
+
+        self.data_min_ = data_min
+        self.data_max_ = data_max
+        self.data_range_ = data_range
+        self.scale_ = scale
+        self.min_ = min_
+
+    def partial_fit(self, X, y=None):
+        raise NotImplementedError()
+
+    def transform(self, X, y=None, copy=None):
+        X *= self.scale_
+        X += self.min_
+        return X
+
+    def inverse_transform(self, X, y=None, copy=None):
+        raise NotImplementedError()
 
 
 class StandardScaler(skdata.StandardScaler):

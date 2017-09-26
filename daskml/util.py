@@ -1,7 +1,8 @@
-import dask.array as da
 from distributed.diagnostics.plugin import SchedulerPlugin
 
+
 def memoize():
+
     """
     We want to support memoization somehow...
 
