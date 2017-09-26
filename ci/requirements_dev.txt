@@ -1,0 +1,12 @@
+coverage
+flake8
+pytest
+pytest-cov
+pytest-mock
+mock
+numpy
+pandas
+scikit-learn
+scipy
+git+https://github.com/dask/dask
+git+https://github.com/dask/distributed

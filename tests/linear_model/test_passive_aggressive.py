@@ -4,7 +4,7 @@ from daskml import linear_model as lm
 from dask.array.utils import assert_eq
 
 
-class TestPassiveAggressiveClassifier:
+class TestPassiveAggressiveClassifier(object):
 
     def test_basic(self, single_chunk_classification):
         X, y = single_chunk_classification
@@ -17,7 +17,7 @@ class TestPassiveAggressiveClassifier:
         assert_eq(a.coef_, b.coef_)
 
 
-class TestPassiveAggressiveRegressor:
+class TestPassiveAggressiveRegressor(object):
 
     def test_basic(self, single_chunk_regression):
         X, y = single_chunk_regression

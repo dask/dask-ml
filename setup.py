@@ -2,7 +2,7 @@ import sys
 import os
 from codecs import open
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -51,7 +51,7 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
-    packages=['daskml'],
+    packages=find_packages(exclude=['docs', 'tests']),
     use_scm_version=True,
     setup_requires=['setuptools_scm'],
     install_requires=install_requires,

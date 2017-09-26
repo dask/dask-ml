@@ -37,7 +37,6 @@ conda install -q \
       numpy \
       pandas \
       scikit-learn \
-      bokeh
 
 # development dask, distributed
 pip install git+https://github.com/dask/dask
