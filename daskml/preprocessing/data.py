@@ -1,7 +1,9 @@
 from collections import OrderedDict
+from builtins import super
 
 from dask import persist
 import dask.array as da
+import dask.dataframe as dd
 from sklearn.preprocessing import data as skdata
 
 
@@ -55,8 +57,9 @@ class MinMaxScaler(skdata.MinMaxScaler):
 
     def __init__(self, feature_range=(0, 1), copy=True, columns=None):
         super().__init__(feature_range, copy)
+        self._columns = columns
 
-        if not copy or columns:
+        if not copy:
             raise NotImplementedError()
 
     def fit(self, X, y=None):
@@ -66,10 +69,11 @@ class MinMaxScaler(skdata.MinMaxScaler):
         feature_range = self.feature_range
 
         if feature_range[0] >= feature_range[1]:
-            raise ValueError("Minimum of desired feature range must be smaller"
-                             " than maximum. Got %s." % str(feature_range))
-        if not isinstance(X, da.Array):
-            raise ValueError("Scaler only supports dask.Array types for X.")
+            raise ValueError("Minimum of desired feature "
+                             "range must be smaller")
+
+        if self._columns and isinstance(X, dd.DataFrame):
+            X = X[self._columns]
 
         data_min = X.min(0)
         data_max = X.max(0)
@@ -99,8 +103,8 @@ class MinMaxScaler(skdata.MinMaxScaler):
 
     def inverse_transform(self, X, y=None, copy=None):
         if not hasattr(self, "min_") or not hasattr(self, "scale_"):
-            raise Exception("This %(name)s instance is not fitted yet."
-                            "Call 'fit' with appropriate arguments before"
+            raise Exception("This %(name)s instance is not fitted yet. "
+                            "Call 'fit' with appropriate arguments before "
                             "using this method.")
         X -= self.min_
         X /= self.scale_
