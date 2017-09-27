@@ -1,5 +1,4 @@
 from collections import OrderedDict
-from builtins import super
 
 from dask import persist
 import dask.array as da
