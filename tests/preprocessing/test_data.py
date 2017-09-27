@@ -1,11 +1,18 @@
 from daskml.datasets import make_classification
 from sklearn.preprocessing import StandardScaler as StandardScaler_
+from sklearn.preprocessing import MinMaxScaler as MinMaxScaler_
 from daskml.preprocessing import StandardScaler
+from daskml.preprocessing import MinMaxScaler
 
 from dask.array.utils import assert_eq
 
 
 X, y = make_classification(chunks=2)
+
+
+def _get_scaler_attributes(scaler):
+    return filter(lambda a: a.endswith("_") and not a.startswith("__"),
+                  dir(scaler))
 
 
 class TestStandardScaler(object):
@@ -16,6 +23,17 @@ class TestStandardScaler(object):
         a.fit(X)
         b.fit(X.compute())
 
-        assert_eq(a.mean_, b.mean_)
-        assert_eq(a.scale_, b.scale_)
-        assert a.n_samples_seen_ == b.n_samples_seen_
+        for attr in _get_scaler_attributes(self):
+            assert_eq(getattr(a, attr), getattr(b, attr))
+
+
+class TestMinMaxScaler(object):
+    def test_basic(self):
+        a = MinMaxScaler()
+        b = MinMaxScaler_()
+
+        a.fit(X)
+        b.fit(X.compute())
+
+        for attr in _get_scaler_attributes(self):
+            assert_eq(getattr(a, attr), getattr(b, attr))
