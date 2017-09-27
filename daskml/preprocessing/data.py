@@ -96,6 +96,8 @@ class MinMaxScaler(skdata.MinMaxScaler):
         raise NotImplementedError()
 
     def transform(self, X, y=None, copy=None):
+        if self._columns and isinstance(X, dd.DataFrame):
+            X = X[self._columns]
         X *= self.scale_
         X += self.min_
         return X

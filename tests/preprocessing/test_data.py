@@ -8,6 +8,7 @@ from dask.array.utils import assert_eq
 
 
 X, y = make_classification(chunks=2)
+df = X.to_dask_dataframe()
 
 
 def _get_scaler_attributes(scaler):
@@ -47,3 +48,9 @@ class TestMinMaxScaler(object):
         a = MinMaxScaler()
         assert_eq(a.inverse_transform(a.fit_transform(X)).compute(),
                   X.compute())
+
+    def test_dataframe(self):
+        a = MinMaxScaler()
+
+        assert_eq(a.fit_transform(X).compute(),
+                  a.fit_transform(df).compute().as_matrix())
