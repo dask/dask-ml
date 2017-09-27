@@ -98,4 +98,10 @@ class MinMaxScaler(skdata.MinMaxScaler):
         return X
 
     def inverse_transform(self, X, y=None, copy=None):
-        raise NotImplementedError()
+        if not hasattr(self, "min_") or not hasattr(self, "scale_"):
+            raise Exception("This %(name)s instance is not fitted yet."
+                            "Call 'fit' with appropriate arguments before"
+                            "using this method.")
+        X -= self.min_
+        X /= self.scale_
+        return X

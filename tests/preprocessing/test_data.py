@@ -26,6 +26,11 @@ class TestStandardScaler(object):
         for attr in _get_scaler_attributes(self):
             assert_eq(getattr(a, attr), getattr(b, attr))
 
+    def test_inverse_transform(self):
+        a = StandardScaler()
+        assert_eq(a.inverse_transform(a.fit_transform(X)).compute(),
+                  X.compute())
+
 
 class TestMinMaxScaler(object):
     def test_basic(self):
@@ -37,3 +42,8 @@ class TestMinMaxScaler(object):
 
         for attr in _get_scaler_attributes(self):
             assert_eq(getattr(a, attr), getattr(b, attr))
+
+    def test_inverse_transform(self):
+        a = MinMaxScaler()
+        assert_eq(a.inverse_transform(a.fit_transform(X)).compute(),
+                  X.compute())
