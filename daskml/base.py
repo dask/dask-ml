@@ -3,7 +3,7 @@ import dask
 from dask.array import learn
 
 
-class _BigPartialFitMixin:
+class _BigPartialFitMixin(object):
 
     _init_kwargs = []
     _fit_kwargs = []
@@ -17,7 +17,7 @@ class _BigPartialFitMixin:
             )
         for kwarg in self._init_kwargs:
             setattr(self, kwarg, kwargs.pop(kwarg))
-        super().__init__(**kwargs)
+        super(_BigPartialFitMixin, self).__init__(**kwargs)
 
     @classmethod
     def _get_param_names(cls):
@@ -39,7 +39,7 @@ class _BigPartialFitMixin:
             get = dask.threaded.get
 
         fit_kwargs = {k: getattr(self, k) for k in self._fit_kwargs}
-        result = learn.fit(self, X, y, **fit_kwargs, get=get)
+        result = learn.fit(self, X, y, get=get, **fit_kwargs)
 
         # Copy the learned attributes over to self
         # It should go without saying that this is *not* threadsafe
@@ -49,14 +49,14 @@ class _BigPartialFitMixin:
         return self
 
     def predict(self, X, dtype=None):
-        predict = super().predict
+        predict = super(_BigPartialFitMixin, self).predict
         if dtype is None:
             dtype = self._get_predict_dtype(X)
         return X.map_blocks(predict, dtype=dtype, drop_axis=1)
 
     def _get_predict_dtype(self, X):
         xx = np.zeros((1, X.shape[1]), dtype=X.dtype)
-        return super().predict(xx).dtype
+        return super(_BigPartialFitMixin, self).predict(xx).dtype
 
 
 __all__ = [

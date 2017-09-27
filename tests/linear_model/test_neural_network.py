@@ -4,7 +4,7 @@ from daskml import neural_network as nn
 from dask.array.utils import assert_eq
 
 
-class TestMLPClassifier:
+class TestMLPClassifier(object):
 
     def test_basic(self, single_chunk_classification):
         X, y = single_chunk_classification
@@ -16,7 +16,7 @@ class TestMLPClassifier:
             assert_eq(a_, b_)
 
 
-class TestMLPRegressor:
+class TestMLPRegressor(object):
 
     def test_basic(self, single_chunk_classification):
         X, y = single_chunk_classification

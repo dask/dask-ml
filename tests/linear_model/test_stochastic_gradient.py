@@ -4,7 +4,7 @@ from daskml import linear_model as lm
 import numpy.testing as npt
 
 
-class TestStochasticGradientClassifier:
+class TestStochasticGradientClassifier(object):
 
     def test_basic(self, single_chunk_classification):
         X, y = single_chunk_classification
@@ -18,7 +18,7 @@ class TestStochasticGradientClassifier:
         npt.assert_almost_equal(a.coef_, b.coef_)
 
 
-class TestStochasticGradientRegressor:
+class TestStochasticGradientRegressor(object):
 
     def test_basic(self, single_chunk_regression):
         X, y = single_chunk_regression
