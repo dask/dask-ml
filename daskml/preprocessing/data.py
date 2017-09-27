@@ -25,12 +25,16 @@ class MinMaxScaler(skdata.MinMaxScaler):
         data_range = data_max - data_min
         scale = (feature_range[1] - feature_range[0])/data_range
         min_ = feature_range[0] - data_min * scale
+        n_samples_seen = len(X)
 
         self.data_min_ = data_min
         self.data_max_ = data_max
         self.data_range_ = data_range
         self.scale_ = scale
         self.min_ = min_
+        self.n_samples_seen_ = n_samples_seen
+
+        return self
 
     def partial_fit(self, X, y=None):
         raise NotImplementedError()
