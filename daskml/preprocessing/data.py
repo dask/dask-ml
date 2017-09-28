@@ -7,6 +7,11 @@ from sklearn.preprocessing import data as skdata
 
 
 def _handle_zeros_in_scale(scale):
+    scale = scale.copy()
+    if isinstance(scale, da.Array):
+        scale[scale == 0.0] = 1.0
+    elif isinstance(scale, dd.Series):
+        scale = scale.map(lambda x: 1 if x == 0 else x)
     return scale
 
 
