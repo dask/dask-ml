@@ -5,15 +5,7 @@ import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 from sklearn.preprocessing import data as skdata
-
-
-def _handle_zeros_in_scale(scale):
-    scale = scale.copy()
-    if isinstance(scale, da.Array):
-        scale[scale == 0.0] = 1.0
-    elif isinstance(scale, dd.Series):
-        scale = scale.map(lambda x: 1 if x == 0 else x)
-    return scale
+from daskml.utils import handle_zeros_in_scale, slice_columns
 
 
 class StandardScaler(skdata.StandardScaler):
@@ -67,14 +59,6 @@ class MinMaxScaler(skdata.MinMaxScaler):
         if not copy:
             raise NotImplementedError()
 
-    def _slice_columns(self, X):
-        if isinstance(X, dd.DataFrame):
-            self._columns = self._columns or list(X.columns)
-            _X = X[self._columns]
-        else:
-            _X = X
-        return _X
-
     def fit(self, X, y=None):
         self._reset()
         self._cache = dict()
@@ -85,12 +69,12 @@ class MinMaxScaler(skdata.MinMaxScaler):
             raise ValueError("Minimum of desired feature "
                              "range must be smaller than maximum.")
 
-        _X = self._slice_columns(X)
+        _X = slice_columns(X, self._columns)
         data_min = _X.min(0)
         data_max = _X.max(0)
         data_range = data_max - data_min
         scale = ((feature_range[1] - feature_range[0]) /
-                 _handle_zeros_in_scale(data_range))
+                 handle_zeros_in_scale(data_range))
 
         to_persist["data_min_"] = data_min
         to_persist["data_max_"] = data_max
@@ -108,10 +92,10 @@ class MinMaxScaler(skdata.MinMaxScaler):
         raise NotImplementedError()
 
     def transform(self, X, y=None, copy=None):
-        _X = self._slice_columns(X)
+        _X = slice_columns(X, self._columns)
         _X *= self.scale_
         _X += self.min_
-        if isinstance(X, dd.DataFrame):
+        if isinstance(_X, dd.DataFrame) and self._columns:
             return dd.merge(_X, X.drop(self._columns, axis=1),
                             left_index=True, right_index=True)
         else:

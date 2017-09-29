@@ -4,7 +4,8 @@ from sklearn.preprocessing import MinMaxScaler as MinMaxScaler_
 from daskml.preprocessing import StandardScaler
 from daskml.preprocessing import MinMaxScaler
 
-from dask.array.utils import assert_eq
+from dask.array.utils import assert_eq as assert_eq_ar
+from dask.array.utils import assert_eq as assert_eq_df
 import dask.dataframe as dd
 import pandas as pd
 
@@ -28,12 +29,12 @@ class TestStandardScaler(object):
         b.fit(X.compute())
 
         for attr in _get_scaler_attributes(self):
-            assert_eq(getattr(a, attr), getattr(b, attr))
+            assert_eq_ar(getattr(a, attr), getattr(b, attr))
 
     def test_inverse_transform(self):
         a = StandardScaler()
-        assert_eq(a.inverse_transform(a.fit_transform(X)).compute(),
-                  X.compute())
+        assert_eq_ar(a.inverse_transform(a.fit_transform(X)).compute(),
+                     X.compute())
 
 
 class TestMinMaxScaler(object):
@@ -45,17 +46,17 @@ class TestMinMaxScaler(object):
         b.fit(X.compute())
 
         for attr in _get_scaler_attributes(self):
-            assert_eq(getattr(a, attr), getattr(b, attr))
+            assert_eq_ar(getattr(a, attr), getattr(b, attr))
 
     def test_inverse_transform(self):
         a = MinMaxScaler()
-        assert_eq(a.inverse_transform(a.fit_transform(X)).compute(),
-                  X.compute())
+        assert_eq_ar(a.inverse_transform(a.fit_transform(X)).compute(),
+                     X.compute())
 
     def test_df_values(self):
         a = MinMaxScaler()
-        assert_eq(a.fit_transform(X).compute(),
-                  a.fit_transform(df).compute().as_matrix())
+        assert_eq_ar(a.fit_transform(X).compute(),
+                     a.fit_transform(df).compute().as_matrix())
 
     def test_df_column_slice(self):
         mask = [3, 4]
@@ -67,6 +68,6 @@ class TestMinMaxScaler(object):
         mxb = b.fit_transform(df2.compute())
 
         assert isinstance(dfa, pd.DataFrame)
-        assert_eq(dfa[mask].as_matrix(), mxb[:, mask_ix])
-        assert_eq(dfa.drop(mask, axis=1),
-                  df2.drop(mask, axis=1).compute())
+        assert_eq_df(dfa[mask].as_matrix(), mxb[:, mask_ix])
+        assert_eq_df(dfa.drop(mask, axis=1),
+                     df2.drop(mask, axis=1).compute())
