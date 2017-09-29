@@ -53,6 +53,12 @@ class TestMinMaxScaler(object):
         assert_eq_ar(a.inverse_transform(a.fit_transform(X)).compute(),
                      X.compute())
 
+    def test_df_inverse_transform(self):
+        mask = [3, 4]
+        a = MinMaxScaler(columns=mask)
+        assert_eq_df(a.inverse_transform(a.fit_transform(df2)).compute(),
+                     df2.compute())
+
     def test_df_values(self):
         a = MinMaxScaler()
         assert_eq_ar(a.fit_transform(X).compute(),

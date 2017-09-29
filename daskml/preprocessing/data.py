@@ -95,6 +95,7 @@ class MinMaxScaler(skdata.MinMaxScaler):
         _X = slice_columns(X, self._columns)
         _X *= self.scale_
         _X += self.min_
+
         if isinstance(_X, dd.DataFrame) and self._columns:
             return dd.merge(_X, X.drop(self._columns, axis=1),
                             left_index=True, right_index=True)
@@ -106,6 +107,12 @@ class MinMaxScaler(skdata.MinMaxScaler):
             raise Exception("This %(name)s instance is not fitted yet. "
                             "Call 'fit' with appropriate arguments before "
                             "using this method.")
-        X -= self.min_
-        X /= self.scale_
-        return X
+        _X = slice_columns(X, self._columns)
+        _X -= self.min_
+        _X /= self.scale_
+
+        if isinstance(_X, dd.DataFrame) and self._columns:
+            return dd.merge(_X, X.drop(self._columns, axis=1),
+                            left_index=True, right_index=True)
+        else:
+            return _X
