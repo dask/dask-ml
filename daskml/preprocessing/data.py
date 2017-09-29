@@ -3,6 +3,7 @@ from collections import OrderedDict
 from dask import persist
 import dask.array as da
 import dask.dataframe as dd
+import numpy as np
 from sklearn.preprocessing import data as skdata
 
 
@@ -66,6 +67,14 @@ class MinMaxScaler(skdata.MinMaxScaler):
         if not copy:
             raise NotImplementedError()
 
+    def _slice_columns(self, X):
+        if isinstance(X, dd.DataFrame):
+            self._columns = self._columns or list(X.columns)
+            _X = X[self._columns]
+        else:
+            _X = X
+        return _X
+
     def fit(self, X, y=None):
         self._reset()
         self._cache = dict()
@@ -74,11 +83,9 @@ class MinMaxScaler(skdata.MinMaxScaler):
 
         if feature_range[0] >= feature_range[1]:
             raise ValueError("Minimum of desired feature "
-                             "range must be smaller")
+                             "range must be smaller than maximum.")
 
-        if self._columns and isinstance(X, dd.DataFrame):
-            _X = X[self._columns]
-
+        _X = self._slice_columns(X)
         data_min = _X.min(0)
         data_max = _X.max(0)
         data_range = data_max - data_min
@@ -90,7 +97,7 @@ class MinMaxScaler(skdata.MinMaxScaler):
         to_persist["data_range_"] = data_range
         to_persist["scale_"] = scale
         to_persist["min_"] = feature_range[0] - data_min * scale
-        to_persist["n_samples_seen_"] = len(X)
+        to_persist["n_samples_seen_"] = np.nan
 
         values = persist(*to_persist.values(), cache=self._cache)
         for k, v in zip(to_persist, values):
@@ -101,14 +108,17 @@ class MinMaxScaler(skdata.MinMaxScaler):
         raise NotImplementedError()
 
     def transform(self, X, y=None, copy=None):
-        if self._columns and isinstance(X, dd.DataFrame):
-            _X = X[self._columns]
+        _X = self._slice_columns(X)
         _X *= self.scale_
         _X += self.min_
-        return _X
+        if isinstance(X, dd.DataFrame):
+            return dd.merge(_X, X.drop(self._columns, axis=1),
+                            left_index=True, right_index=True)
+        else:
+            return _X
 
     def inverse_transform(self, X, y=None, copy=None):
-        if not hasattr(self, "min_") or not hasattr(self, "scale_"):
+        if not hasattr(self, "scale_"):
             raise Exception("This %(name)s instance is not fitted yet. "
                             "Call 'fit' with appropriate arguments before "
                             "using this method.")

@@ -5,10 +5,13 @@ from daskml.preprocessing import StandardScaler
 from daskml.preprocessing import MinMaxScaler
 
 from dask.array.utils import assert_eq
+import dask.dataframe as dd
+import pandas as pd
 
 
 X, y = make_classification(chunks=2)
 df = X.to_dask_dataframe()
+df2 = dd.from_pandas(pd.DataFrame(5*[range(42)]).T, npartitions=5)
 
 
 def _get_scaler_attributes(scaler):
@@ -51,18 +54,19 @@ class TestMinMaxScaler(object):
 
     def test_df_values(self):
         a = MinMaxScaler()
-
         assert_eq(a.fit_transform(X).compute(),
                   a.fit_transform(df).compute().as_matrix())
 
     def test_df_column_slice(self):
-        mask = [3, 4, 5]
-        mask_ix = [df.columns.tolist().index(x) for x in mask]
+        mask = [3, 4]
+        mask_ix = [mask.index(x) for x in mask]
         a = MinMaxScaler(columns=mask)
         b = MinMaxScaler_()
 
-        tdfa = a.fit_transform(df[mask].values)
-        tdfb = b.fit_transform(df[mask].values.compute())
+        dfa = a.fit_transform(df2).compute()
+        mxb = b.fit_transform(df2.compute())
 
-        assert_eq(tdfa.compute(), tdfb)
-        #assert all(c in a.fit_transform(df).columns for c in df.columns)
+        assert isinstance(dfa, pd.DataFrame)
+        assert_eq(dfa[mask].as_matrix(), mxb[:, mask_ix])
+        assert_eq(dfa.drop(mask, axis=1),
+                  df2.drop(mask, axis=1).compute())
