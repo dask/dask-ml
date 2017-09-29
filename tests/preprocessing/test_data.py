@@ -4,21 +4,18 @@ from sklearn.preprocessing import MinMaxScaler as MinMaxScaler_
 from daskml.preprocessing import StandardScaler
 from daskml.preprocessing import MinMaxScaler
 
-from dask.array.utils import assert_eq as assert_eq_ar
-from dask.array.utils import assert_eq as assert_eq_df
 import dask.dataframe as dd
 import pandas as pd
+from dask.array.utils import assert_eq as assert_eq_ar
+from dask.array.utils import assert_eq as assert_eq_df
+
+from ..test_utils import assert_estimator_equal
 
 
 X, y = make_classification(chunks=2)
 df = X.to_dask_dataframe().rename(columns=str)
 df2 = dd.from_pandas(pd.DataFrame(5*[range(42)]).T.rename(columns=str),
                      npartitions=5)
-
-
-def _get_scaler_attributes(scaler):
-    return filter(lambda a: a.endswith("_") and not a.startswith("__"),
-                  dir(scaler))
 
 
 class TestStandardScaler(object):
@@ -28,9 +25,7 @@ class TestStandardScaler(object):
 
         a.fit(X)
         b.fit(X.compute())
-
-        for attr in _get_scaler_attributes(self):
-            assert_eq_ar(getattr(a, attr), getattr(b, attr))
+        assert_estimator_equal(a, b)
 
     def test_inverse_transform(self):
         a = StandardScaler()
@@ -45,9 +40,7 @@ class TestMinMaxScaler(object):
 
         a.fit(X)
         b.fit(X.compute())
-
-        for attr in _get_scaler_attributes(self):
-            assert_eq_ar(getattr(a, attr), getattr(b, attr))
+        assert_estimator_equal(a, b, exclude='n_samples_seen_')
 
     def test_inverse_transform(self):
         a = MinMaxScaler()
