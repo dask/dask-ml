@@ -77,10 +77,10 @@ class MinMaxScaler(skdata.MinMaxScaler):
                              "range must be smaller")
 
         if self._columns and isinstance(X, dd.DataFrame):
-            X = X[self._columns]
+            _X = X[self._columns]
 
-        data_min = X.min(0)
-        data_max = X.max(0)
+        data_min = _X.min(0)
+        data_max = _X.max(0)
         data_range = data_max - data_min
         scale = ((feature_range[1] - feature_range[0]) /
                  _handle_zeros_in_scale(data_range))
@@ -102,10 +102,10 @@ class MinMaxScaler(skdata.MinMaxScaler):
 
     def transform(self, X, y=None, copy=None):
         if self._columns and isinstance(X, dd.DataFrame):
-            X = X[self._columns]
-        X *= self.scale_
-        X += self.min_
-        return X
+            _X = X[self._columns]
+        _X *= self.scale_
+        _X += self.min_
+        return _X
 
     def inverse_transform(self, X, y=None, copy=None):
         if not hasattr(self, "min_") or not hasattr(self, "scale_"):

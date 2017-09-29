@@ -49,8 +49,20 @@ class TestMinMaxScaler(object):
         assert_eq(a.inverse_transform(a.fit_transform(X)).compute(),
                   X.compute())
 
-    def test_dataframe(self):
+    def test_df_values(self):
         a = MinMaxScaler()
 
         assert_eq(a.fit_transform(X).compute(),
                   a.fit_transform(df).compute().as_matrix())
+
+    def test_df_column_slice(self):
+        mask = [3, 4, 5]
+        mask_ix = [df.columns.tolist().index(x) for x in mask]
+        a = MinMaxScaler(columns=mask)
+        b = MinMaxScaler_()
+
+        tdfa = a.fit_transform(df[mask].values)
+        tdfb = b.fit_transform(df[mask].values.compute())
+
+        assert_eq(tdfa.compute(), tdfb)
+        #assert all(c in a.fit_transform(df).columns for c in df.columns)
