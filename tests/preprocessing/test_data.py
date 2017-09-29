@@ -11,8 +11,9 @@ import pandas as pd
 
 
 X, y = make_classification(chunks=2)
-df = X.to_dask_dataframe()
-df2 = dd.from_pandas(pd.DataFrame(5*[range(42)]).T, npartitions=5)
+df = X.to_dask_dataframe().rename(columns=str)
+df2 = dd.from_pandas(pd.DataFrame(5*[range(42)]).T.rename(columns=str),
+                     npartitions=5)
 
 
 def _get_scaler_attributes(scaler):
@@ -54,7 +55,7 @@ class TestMinMaxScaler(object):
                      X.compute())
 
     def test_df_inverse_transform(self):
-        mask = [3, 4]
+        mask = ["3", "4"]
         a = MinMaxScaler(columns=mask)
         assert_eq_df(a.inverse_transform(a.fit_transform(df2)).compute(),
                      df2.compute())
@@ -65,7 +66,7 @@ class TestMinMaxScaler(object):
                      a.fit_transform(df).compute().as_matrix())
 
     def test_df_column_slice(self):
-        mask = [3, 4]
+        mask = ["3", "4"]
         mask_ix = [mask.index(x) for x in mask]
         a = MinMaxScaler(columns=mask)
         b = MinMaxScaler_()

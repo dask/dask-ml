@@ -54,7 +54,7 @@ class MinMaxScaler(skdata.MinMaxScaler):
 
     def __init__(self, feature_range=(0, 1), copy=True, columns=None):
         super().__init__(feature_range, copy)
-        self._columns = columns
+        self.columns = columns
 
         if not copy:
             raise NotImplementedError()
@@ -69,7 +69,7 @@ class MinMaxScaler(skdata.MinMaxScaler):
             raise ValueError("Minimum of desired feature "
                              "range must be smaller than maximum.")
 
-        _X = slice_columns(X, self._columns)
+        _X = slice_columns(X, self.columns)
         data_min = _X.min(0)
         data_max = _X.max(0)
         data_range = data_max - data_min
@@ -92,13 +92,14 @@ class MinMaxScaler(skdata.MinMaxScaler):
         raise NotImplementedError()
 
     def transform(self, X, y=None, copy=None):
-        _X = slice_columns(X, self._columns)
+        _X = slice_columns(X, self.columns)
         _X *= self.scale_
         _X += self.min_
 
-        if isinstance(_X, dd.DataFrame) and self._columns:
-            return dd.merge(_X, X.drop(self._columns, axis=1),
-                            left_index=True, right_index=True)
+        if isinstance(_X, dd.DataFrame) and self.columns:
+            for column in self.columns:
+                X[column] = _X[column]
+            return X
         else:
             return _X
 
@@ -107,12 +108,13 @@ class MinMaxScaler(skdata.MinMaxScaler):
             raise Exception("This %(name)s instance is not fitted yet. "
                             "Call 'fit' with appropriate arguments before "
                             "using this method.")
-        _X = slice_columns(X, self._columns)
+        _X = slice_columns(X, self.columns)
         _X -= self.min_
         _X /= self.scale_
 
-        if isinstance(_X, dd.DataFrame) and self._columns:
-            return dd.merge(_X, X.drop(self._columns, axis=1),
-                            left_index=True, right_index=True)
+        if isinstance(_X, dd.DataFrame) and self.columns:
+            for column in self.columns:
+                X[column] = _X[column]
+            return X
         else:
             return _X
