@@ -1,5 +1,5 @@
-import dask.dataframe as dd
 import dask.array as da
+import dask.dataframe as dd
 
 
 def slice_columns(X, columns):
