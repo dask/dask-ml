@@ -12,7 +12,6 @@ class StandardScaler(skdata.StandardScaler):
 
     def fit(self, X, y=None):
         self._reset()
-        self._cache = {}
         to_persist = OrderedDict()
 
         if self.with_mean:
@@ -27,7 +26,7 @@ class StandardScaler(skdata.StandardScaler):
             to_persist['var_'] = var_
 
         to_persist['n_samples_seen_'] = len(X)
-        values = persist(*to_persist.values(), cache=self._cache)
+        values = persist(*to_persist.values())
         for k, v in zip(to_persist, values):
             setattr(self, k, v)
         return self
@@ -61,7 +60,6 @@ class MinMaxScaler(skdata.MinMaxScaler):
 
     def fit(self, X, y=None):
         self._reset()
-        self._cache = dict()
         to_persist = OrderedDict()
         feature_range = self.feature_range
 
@@ -83,7 +81,7 @@ class MinMaxScaler(skdata.MinMaxScaler):
         to_persist["min_"] = feature_range[0] - data_min * scale
         to_persist["n_samples_seen_"] = np.nan
 
-        values = persist(*to_persist.values(), cache=self._cache)
+        values = persist(*to_persist.values())
         for k, v in zip(to_persist, values):
             setattr(self, k, v)
         return self
