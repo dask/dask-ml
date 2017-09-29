@@ -29,3 +29,11 @@ class TestImputer(object):
 
         for attr in _get_scaler_attributes(self):
             assert_eq_ar(getattr(a, attr), getattr(b, attr))
+
+    def test_transform(self):
+        mask = [3, 4, 5]
+        a = Imputer(columns=mask)
+        b = Imputer_()
+
+        assert_eq_ar(a.fit_transform(df2).compute().as_matrix(),
+                     b.fit_transform(df2.compute()))
