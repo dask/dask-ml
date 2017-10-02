@@ -1,10 +1,10 @@
-import dask.dataframe as dd
 import dask.array as da
+import dask.dataframe as dd
 
 
 def slice_columns(X, columns):
     if isinstance(X, dd.DataFrame):
-        return X[columns or list(X.columns)]
+        return X[list(X.columns) if columns is None else columns]
     else:
         return X
 
@@ -14,5 +14,5 @@ def handle_zeros_in_scale(scale):
     if isinstance(scale, da.Array):
         scale[scale == 0.0] = 1.0
     elif isinstance(scale, dd.Series):
-        scale = scale.map(lambda x: 1 if x == 0 else x)
+        scale = scale.where(scale != 0, 1)
     return scale

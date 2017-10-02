@@ -1,5 +1,6 @@
 from .data import (  # noqa
-    StandardScaler
+    StandardScaler,
+    MinMaxScaler
 )
 
 from .imputation import ( # noqa
