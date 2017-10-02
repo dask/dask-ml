@@ -1,7 +1,7 @@
 from sklearn import linear_model as lm_
 from daskml import linear_model as lm
 
-from dask.array.utils import assert_eq
+from ..test_utils import assert_estimator_equal
 
 
 class TestPassiveAggressiveClassifier(object):
@@ -14,7 +14,7 @@ class TestPassiveAggressiveClassifier(object):
                                             tol=1e-3)
         a.fit(X, y)
         b.partial_fit(X, y, classes=[0, 1])
-        assert_eq(a.coef_, b.coef_)
+        assert_estimator_equal(a, b, exclude=['loss_function_'])
 
 
 class TestPassiveAggressiveRegressor(object):
@@ -27,4 +27,4 @@ class TestPassiveAggressiveRegressor(object):
                                            tol=1e-3)
         a.fit(X, y)
         b.partial_fit(X, y)
-        assert_eq(a.coef_, b.coef_)
+        assert_estimator_equal(a, b, exclude=['loss_function_'])

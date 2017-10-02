@@ -1,7 +1,7 @@
 from sklearn import cluster as cluster_
 from daskml import cluster
 
-from dask.array.utils import assert_eq
+from .test_utils import assert_estimator_equal
 
 
 class TestMiniBatchKMeans(object):
@@ -12,5 +12,4 @@ class TestMiniBatchKMeans(object):
         b = cluster_.MiniBatchKMeans(n_clusters=3, random_state=0)
         a.fit(X)
         b.partial_fit(X)
-
-        assert_eq(a.cluster_centers_, b.cluster_centers_)
+        assert_estimator_equal(a, b, exclude=['random_state_'])

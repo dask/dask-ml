@@ -1,7 +1,7 @@
 from sklearn.linear_model import Perceptron
 from daskml.linear_model import BigPerceptron
 
-from dask.array.utils import assert_eq
+from ..test_utils import assert_estimator_equal
 
 
 class TestPerceptron(object):
@@ -12,4 +12,4 @@ class TestPerceptron(object):
         b = Perceptron(max_iter=1000, tol=1e-3)
         a.fit(X, y)
         b.partial_fit(X, y, classes=[0, 1])
-        assert_eq(a.coef_, b.coef_)
+        assert_estimator_equal(a.coef_, b.coef_)
