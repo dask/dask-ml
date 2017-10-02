@@ -1,7 +1,7 @@
 from sklearn import linear_model as lm_
 from daskml import linear_model as lm
 
-import numpy.testing as npt
+from ..test_utils import assert_estimator_equal
 
 
 class TestStochasticGradientClassifier(object):
@@ -15,7 +15,7 @@ class TestStochasticGradientClassifier(object):
 
         a.fit(X, y)
         b.partial_fit(X, y, classes=[0, 1])
-        npt.assert_almost_equal(a.coef_, b.coef_)
+        assert_estimator_equal(a, b, exclude='loss_function_')
 
 
 class TestStochasticGradientRegressor(object):
@@ -28,4 +28,4 @@ class TestStochasticGradientRegressor(object):
 
         a.fit(X, y)
         b.partial_fit(X, y)
-        npt.assert_almost_equal(a.coef_, b.coef_)
+        assert_estimator_equal(a, b)
