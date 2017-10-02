@@ -1,3 +1,4 @@
 from .data import (  # noqa
-    StandardScaler
+    StandardScaler,
+    MinMaxScaler
 )
