@@ -116,7 +116,7 @@ def test_basic_reg_descent(func, kwargs, N, nchunks, family, lam, reg):
     (gradient_descent, {'max_iter': 2}),
 ])
 @pytest.mark.parametrize('get', [
-    dask.async.get_sync,
+    dask.local.get_sync,
     dask.threaded.get,
     dask.multiprocessing.get
 ])
