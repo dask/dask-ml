@@ -1,7 +1,7 @@
 from sklearn import linear_model as lm_
 from daskml import linear_model as lm
 
-from ..test_utils import assert_estimator_equal
+from daskml.utils import assert_estimator_equal
 
 
 class TestPassiveAggressiveClassifier(object):
