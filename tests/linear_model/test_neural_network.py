@@ -1,7 +1,7 @@
 from sklearn import neural_network as nn_
 from daskml import neural_network as nn
 
-from dask.array.utils import assert_eq
+from ..test_utils import assert_estimator_equal
 
 
 class TestMLPClassifier(object):
@@ -12,8 +12,7 @@ class TestMLPClassifier(object):
         b = nn_.MLPClassifier(random_state=0)
         a.fit(X, y)
         b.partial_fit(X, y, classes=[0, 1])
-        for a_, b_ in zip(a.coefs_, b.coefs_):
-            assert_eq(a_, b_)
+        assert_estimator_equal(a, b)
 
 
 class TestMLPRegressor(object):
@@ -24,5 +23,4 @@ class TestMLPRegressor(object):
         b = nn_.MLPRegressor(random_state=0)
         a.fit(X, y)
         b.partial_fit(X, y)
-        for a_, b_ in zip(a.coefs_, b.coefs_):
-            assert_eq(a_, b_)
+        assert_estimator_equal(a, b)

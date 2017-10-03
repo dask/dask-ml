@@ -1,4 +1,4 @@
-from collections import namedtuple
+from collections import namedtuple, Sequence
 import pytest
 
 from daskml.utils import slice_columns, handle_zeros_in_scale
@@ -48,12 +48,22 @@ def assert_estimator_equal(left, right, exclude=None, **kwargs):
     for attr in set(left_attrs) - exclude:
         l = getattr(left, attr)
         r = getattr(right, attr)
-        if isinstance(l, (np.ndarray, da.Array)):
-            assert_eq_ar(l, r, **kwargs)
-        elif isinstance(l, (pd.core.generic.NDFrame, dd._Frame)):
-            assert_eq_df(l, r, **kwargs)
-        else:
-            assert l == r
+        _assert_eq(l, r, **kwargs)
+
+
+def _assert_eq(l, r, **kwargs):
+    array_types = (np.ndarray, da.Array)
+    frame_types = (pd.core.generic.NDFrame, dd._Frame)
+    if isinstance(l, array_types):
+        assert_eq_ar(l, r, **kwargs)
+    elif isinstance(l, frame_types):
+        assert_eq_df(l, r, **kwargs)
+    elif (isinstance(l, Sequence) and
+            any(isinstance(x, array_types + frame_types) for x in l)):
+        for a, b in zip(l, r):
+            _assert_eq(a, b, **kwargs)
+    else:
+        assert l == r
 
 
 def test_slice_columns():
