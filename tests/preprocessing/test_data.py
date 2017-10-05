@@ -9,7 +9,7 @@ import pandas as pd
 from dask.array.utils import assert_eq as assert_eq_ar
 from dask.array.utils import assert_eq as assert_eq_df
 
-from ..test_utils import assert_estimator_equal
+from daskml.utils import assert_estimator_equal
 
 
 X, y = make_classification(chunks=2)

@@ -1,7 +1,7 @@
 from sklearn.linear_model import Perceptron
 from daskml.linear_model import BigPerceptron
 
-from ..test_utils import assert_estimator_equal
+from daskml.utils import assert_estimator_equal
 
 
 class TestPerceptron(object):
