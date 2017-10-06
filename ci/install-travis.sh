@@ -40,6 +40,7 @@ conda install -q \
 
 # development dask, distributed
 pip install git+https://github.com/dask/dask
+pip install git+https://github.com/dask/dask-glm
 pip install git+https://github.com/dask/distributed
 
 pip install -e .
