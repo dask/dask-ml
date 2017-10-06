@@ -46,7 +46,7 @@ def make_counts(n_samples=1000, n_features=100, n_informative=2, scale=1.0,
     --------
     >>> X, y = make_classification()
     >>> X
-    dask.array<da.random.normal, shape=(1000, 100), dtype=float64, chunksize=(100, 100)>
+    dask.array<da.random.normal, shape=(1000, 100), dtype=float64, chunksize=(100, 100)>  # noqa
     >>> y
     dask.array<da.random.poisson, shape=(1000,), dtype=int64, chunksize=(100,)>
     """
