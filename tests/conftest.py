@@ -1,5 +1,29 @@
 import pytest
-from daskml.datasets import make_classification, make_regression, make_blobs
+from daskml.datasets import (make_classification,
+                             make_regression,
+                             make_blobs,
+                             make_counts)
+
+
+@pytest.fixture
+def xy_classification():
+    """X, y pair for classification"""
+    X, y = make_classification(chunks=10, random_state=0)
+    return X, y
+
+
+@pytest.fixture
+def xy_regression():
+    """X, y pair for classification"""
+    X, y = make_regression(chunks=10, random_state=0)
+    return X, y
+
+
+@pytest.fixture
+def xy_counts():
+    """X, y pair for predicting counts"""
+    X, y = make_counts(n_samples=100, n_features=5, chunks=10)
+    return X, y
 
 
 @pytest.fixture
