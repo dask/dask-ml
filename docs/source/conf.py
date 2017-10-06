@@ -32,9 +32,12 @@
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'nbsphinx',
     'sphinx.ext.mathjax',
-    'sphinx.ext.intersphinx'
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
+    'nbsphinx',
+    'numpydoc',
 ]
 
 intersphinx_mapping = {
@@ -43,6 +46,7 @@ intersphinx_mapping = {
     'dask': ('http://dask.pydata.org/en/latest/', None),
     'distributed': ('http://distributed.readthedocs.io/en/latest/', None),
     'dask_searchcv': ('http://dask-searchcv.readthedocs.io/en/latest/', None),
+    'dask_glm': ('http://dask-glm.readthedocs.io/en/latest/', None),
 }
 
 # Add any paths that contain templates here, relative to this directory.
