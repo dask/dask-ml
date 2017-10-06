@@ -62,6 +62,7 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+docs/source/**generated/
 
 # PyBuilder
 target/
@@ -106,3 +107,5 @@ docs/day_1
 *.parquet
 *.gz
 docs/source/examples/susy
+/docs/source/modules/generated
+/docs/generate_deprecated.sh
