@@ -37,12 +37,14 @@ conda install -q \
       numpy \
       pandas \
       scikit-learn \
+      Cython
 
 # development dask, distributed
 pip install git+https://github.com/dask/dask
 pip install git+https://github.com/dask/dask-glm
 pip install git+https://github.com/dask/distributed
 
+python setup.py build_ext -i
 pip install -e .
 conda list test-environment
 exit 0
