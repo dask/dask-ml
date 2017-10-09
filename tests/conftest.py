@@ -27,6 +27,25 @@ def xy_counts():
 
 
 @pytest.fixture
+def Xl_blobs():
+    """
+    Tuple of (X, labels) for a classification task. `X`
+    and `l` are both dask arrays
+    """
+    X, l = make_classification(n_samples=1000, n_features=4, chunks=500,
+                               random_state=1)
+    return X, l
+
+
+@pytest.fixture
+def X_blobs(Xl_blobs):
+    """
+    X dataset from `Xl_blobs`.
+    """
+    return Xl_blobs[0]
+
+
+@pytest.fixture
 def single_chunk_classification():
     """X, y pair for classification.
 
