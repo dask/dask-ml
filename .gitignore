@@ -106,3 +106,6 @@ docs/day_1
 *.parquet
 *.gz
 docs/source/examples/susy
+.DS_Store
+/benchmarks/k_means.csv
+/benchmarks/k_means.png
