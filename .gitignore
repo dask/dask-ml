@@ -62,6 +62,7 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+docs/source/**generated/
 
 # PyBuilder
 target/
@@ -109,3 +110,6 @@ docs/source/examples/susy
 .DS_Store
 /benchmarks/k_means.csv
 /benchmarks/k_means.png
+/docs/source/modules/generated
+/docs/generate_deprecated.sh
+/docs/source/generated/

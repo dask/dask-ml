@@ -17,7 +17,7 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
+import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
@@ -49,8 +49,10 @@ intersphinx_mapping = {
     'dask_glm': ('http://dask-glm.readthedocs.io/en/latest/', None),
 }
 
-# Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+numpydoc_class_members_toctree = False
+autodoc_default_flags = ['members', 'inherited-members']
+autosummary_generate = True
+templates_path = ['templates']
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -89,6 +91,7 @@ exclude_patterns = [
     'build',
     '**.ipynb_checkpoints',
 ]
+exclude_trees = ['_build', 'includes']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -176,4 +179,15 @@ texinfo_documents = [
 ]
 
 
+def generate_example_rst(app, what, name, obj, options, lines):
+    # generate empty examples files, so that we don't get
+    # inclusion errors if there are no examples for a class / module
+    examples_path = os.path.join(app.srcdir, "modules", "generated",
+                                 "%s.examples" % name)
+    if not os.path.exists(examples_path):
+        # touch file
+        open(examples_path, 'w').close()
 
+
+def setup(app):
+    app.connect('autodoc-process-docstring', generate_example_rst)

@@ -59,6 +59,16 @@ class _BigPartialFitMixin(object):
         return super(_BigPartialFitMixin, self).predict(xx).dtype
 
 
+def _copy_partial_doc(cls):
+    for base in cls.mro():
+        if base.__module__.startswith('sklearn'):
+            break
+    # TODO: update examples?
+    cls.__doc__ = base.__doc__
+    return cls
+
+
 __all__ = [
-    '_BigPartialFitMixin'
+    '_BigPartialFitMixin',
+    '_copy_partial_doc',
 ]
