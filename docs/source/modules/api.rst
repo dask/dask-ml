@@ -26,3 +26,19 @@ API Reference
    linear_model.LinearRegression
    linear_model.LogisticRegression
    linear_model.PoissonRegression
+
+:mod:`daskml.cluster`: Clustering
+=================================
+
+.. automodule:: daskml.cluster
+   :no-members:
+   :no-inherited-members:
+
+.. currentmodule:: daskml
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   cluster.KMeans
+   cluster.BigMiniBatchKMeans

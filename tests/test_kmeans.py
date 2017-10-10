@@ -6,7 +6,6 @@ import numpy as np
 from dask.array.utils import assert_eq
 from daskml.cluster import KMeans as DKKMeans
 from daskml.cluster import k_means
-from daskml.datasets import make_blobs
 from daskml.utils import assert_estimator_equal
 from sklearn.cluster import KMeans as SKKMeans
 from sklearn.cluster import k_means_
@@ -20,16 +19,10 @@ def test_row_norms(X_blobs):
 
 class TestKMeans:
 
-    def test_basic(self):
+    def test_basic(self, Xl_blobs_easy):
+        X, _ = Xl_blobs_easy
 
         # make it super easy to cluster
-        centers = np.array([
-            [-7, -7],
-            [0, 0],
-            [7, 7],
-        ])
-        X, y = make_blobs(cluster_std=0.1, centers=centers, chunks=50,
-                          random_state=0)
         a = DKKMeans(random_state=0)
         b = SKKMeans(random_state=0)
         a.fit(X)
@@ -52,3 +45,14 @@ class TestKMeans:
         dkkm.fit(X_blobs)
         skkm.fit(X_)
         assert_eq(dkkm.inertia_, skkm.inertia_)
+
+    def test_kmeanspp_init(self, Xl_blobs_easy):
+        X, y = Xl_blobs_easy
+        X_ = X.compute()
+        rs = np.random.RandomState(0)
+        dkkm = DKKMeans(3, init='k-means++', random_state=rs)
+        skkm = SKKMeans(3, init='k-means++', random_state=rs, n_init=1)
+        dkkm.fit(X)
+        skkm.fit(X_)
+        assert abs(dkkm.inertia_ - skkm.inertia_) < 1e-4
+        assert dkkm.init == 'k-means++'

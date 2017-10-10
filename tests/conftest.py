@@ -1,4 +1,6 @@
 import pytest
+import numpy as np
+
 from daskml.datasets import (make_classification,
                              make_regression,
                              make_blobs,
@@ -37,6 +39,24 @@ def Xl_blobs():
     X, l = make_classification(n_samples=1000, n_features=4, chunks=500,
                                random_state=1)
     return X, l
+
+
+@pytest.fixture
+def Xl_blobs_easy():
+    """
+    Tuple of (X, labels) for classification.
+
+    The centers are very spread out, so the clustering is easy.
+    """
+    centers = np.array([
+        [-7, -7],
+        [0, 0],
+        [7, 7],
+    ])
+    X, y = make_blobs(cluster_std=0.1, centers=centers, chunks=50,
+                      random_state=0)
+    return X, y
+
 
 
 @pytest.fixture

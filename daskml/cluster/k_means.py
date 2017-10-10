@@ -130,7 +130,6 @@ def compute_inertia(X, labels, centers):
 # Initialization
 # -----------------------------------------------------------------------------
 
-
 def k_init(X, n_clusters, init='k-means||',
            oversampling_factor=2,
            random_state=None,
@@ -140,10 +139,22 @@ def k_init(X, n_clusters, init='k-means||',
     """
     if isinstance(init, np.ndarray):
         return init
-    elif init != 'k-means||':
-        raise TypeError("Unexpected value for `init` {!r}".foramt(init))
+
     if isinstance(random_state, int) or random_state is None:
         random_state = np.random.RandomState(random_state)
+
+    if init == 'k-means++':
+        x_squared_norms = row_norms(X, squared=True).compute()
+        logger.info("Initializing with k-means++")
+        t0 = tic()
+        centers = sk_k_means._k_init(X, n_clusters, random_state=random_state,
+                                     x_squared_norms=x_squared_norms)
+        logger.info("Finished initialization. %.2f s, %2d centers",
+                    tic() - t0, n_clusters)
+
+        return centers
+    elif init != 'k-means||':
+        raise TypeError("Unexpected value for `init` {!r}".foramt(init))
 
     logger.info("Starting Init")
     init_start = tic()
