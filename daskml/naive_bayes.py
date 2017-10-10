@@ -4,7 +4,7 @@ from dask import delayed
 from sklearn.base import BaseEstimator
 from sklearn import naive_bayes as _naive_bayes
 
-from daskml.base import _BigPartialFitMixin
+from daskml.base import _BigPartialFitMixin, _copy_partial_doc
 
 
 class GaussianNB(BaseEstimator):
@@ -120,11 +120,13 @@ class GaussianNB(BaseEstimator):
         return joint_log_likelihood
 
 
+@_copy_partial_doc
 class BigMultinomialNB(_BigPartialFitMixin, _naive_bayes.MultinomialNB):
     _init_kwargs = ['classes']
     _fit_kwargs = ['classes']
 
 
+@_copy_partial_doc
 class BigBernoulliNB(_BigPartialFitMixin, _naive_bayes.BernoulliNB):
     _init_kwargs = ['classes']
     _fit_kwargs = ['classes']

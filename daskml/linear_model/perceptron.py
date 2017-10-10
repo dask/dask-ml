@@ -1,8 +1,9 @@
 from sklearn.linear_model import Perceptron as _Perceptron
 
-from daskml.base import _BigPartialFitMixin
+from daskml.base import _BigPartialFitMixin, _copy_partial_doc
 
 
+@_copy_partial_doc
 class BigPerceptron(_BigPartialFitMixin, _Perceptron):
     _init_kwargs = ['classes']
     _fit_kwargs = ['classes']

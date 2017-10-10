@@ -4,11 +4,11 @@
 Single Machine
 ==============
 
-First, we need to recognize that scikit-learn already uses parallelism in quite a
-few places, anywhere you see an ``n_jobs`` parameter. This already covers many of
-the places dask could provide speedups be enabling parallelism. That said, dask can
-still improve performance through its sophisticated caching when fitting a
-a :class:`sklearn.pipeline.Pipeline`.
+First, we need to recognize that most machine learning frameworks already use
+parallelism in quite a few places. For example, in scikit-learn anywhere you see
+an ``n_jobs`` parameter, scikit-learn will already be using some parallelism.
+That said, dask can still improve performance through its sophisticated caching
+when fitting a a :class:`sklearn.pipeline.Pipeline`.
 
 Pipelines
 ---------
