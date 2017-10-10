@@ -51,4 +51,4 @@ class TestKMeans:
         skkm = SKKMeans(3, init=init, random_state=rs, n_init=1)
         dkkm.fit(X_blobs)
         skkm.fit(X_)
-        assert_eq(dkkm.inertia_.compute(), skkm.inertia_)
+        assert_eq(dkkm.inertia_, skkm.inertia_)
