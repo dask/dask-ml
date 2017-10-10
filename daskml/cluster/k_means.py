@@ -55,6 +55,18 @@ class KMeans(BaseEstimator):
     algorithm : 'full'
         The algorithm to use for the EM step. Only "full" (LLoyd's algorithm)
         is allowed.
+
+    Attributes
+    ----------
+    cluster_centers_ : np.ndarray [n_clusters, n_features]
+        A NumPy array with the cluster centers
+    labels_ : da.array [n_samples,]
+        A dask array with the index position in ``cluster_centers_`` this
+        sample belongs to.
+    intertia_ : float
+        Sum of distances of samples to their closest cluster center.
+    n_iter_ : int
+        Number of EM steps to reach convergence
     """
     def __init__(self, n_clusters=8, init='k-means||', oversampling_factor=2,
                  max_iter=300, tol=0.0001, precompute_distances='auto',
@@ -233,6 +245,7 @@ def _kmeans_single_lloyd(X, n_clusters, max_iter=300, init='k-means||',
     centers = k_init(X, n_clusters, init=init,
                      oversampling_factor=oversampling_factor,
                      random_state=random_state)
+    dt = X.dtype
     X = X.astype(np.float32)
     P = X.shape[1]
     for i in range(max_iter):
@@ -267,7 +280,8 @@ def _kmeans_single_lloyd(X, n_clusters, max_iter=300, init='k-means||',
 
     if shift > 1e-7:
         labels, distances = pairwise_distances_argmin_min(X, centers)
-    inertia = distances.astype('f8').sum()
+    inertia = distances.astype(dt).sum()
+    centers = centers.astype(dt)
 
     return labels, inertia, centers, i + 1
 
