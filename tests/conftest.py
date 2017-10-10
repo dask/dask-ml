@@ -58,7 +58,6 @@ def Xl_blobs_easy():
     return X, y
 
 
-
 @pytest.fixture
 def X_blobs(Xl_blobs):
     """

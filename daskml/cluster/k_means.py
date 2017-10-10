@@ -44,29 +44,68 @@ class KMeans(BaseEstimator):
     ----------
     n_clusters : int, default 8
         Number of clusters to end up with
-    init : 'k-means||' or ndarray
-        'k-means||' will initialize using the ``k-means||`` algorithm.
-        An array of shape [n_clusters, n_features], can be used to give
+    init : {'k-means||', 'k-means++' or ndarray}
+        Method for center initialization, defualts to 'k-means||'.
+
+        'k-means||' : selects the the gg
+
+        'k-means++' : selects the initial cluster centers in a smart way
+        to speed up convergence. Uses scikit-learn's implementation.
+
+        .. warning::
+
+           If using ``'k-means++'``, the entire dataset will be read into
+           memory at once.
+
+        An array of shape (n_clusters, n_features) can be used to give
         an explicit starting point
+
     oversampling_factor : int, default 2
         Oversampling factor for use in the ``k-means||`` algorithm.
+
     max_iter : int
+        Maximum number EM iterations to attempt.
+
     tol : float
+        Relative tolerance with regards to inertia to declare convergence
+
     algorithm : 'full'
         The algorithm to use for the EM step. Only "full" (LLoyd's algorithm)
         is allowed.
+
+    random_state : int, RandomState instance or None, optional, default: None
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`.
 
     Attributes
     ----------
     cluster_centers_ : np.ndarray [n_clusters, n_features]
         A NumPy array with the cluster centers
+
     labels_ : da.array [n_samples,]
         A dask array with the index position in ``cluster_centers_`` this
         sample belongs to.
+
     intertia_ : float
         Sum of distances of samples to their closest cluster center.
+
     n_iter_ : int
         Number of EM steps to reach convergence
+
+    References
+    ----------
+    - Scalable K-Means++, 2012
+      Bahman Bahmani, Benjamin Moseley, Andrea Vattani, Ravi Kumar,
+      Sergei Vassilvitskii
+      https://arxiv.org/abs/1203.6402
+
+    See Also
+    --------
+    BigMiniBatchKMeans
+    sklearn.cluster.MiniBatchKMeans
+    sklearn.cluster.KMeans
     """
     def __init__(self, n_clusters=8, init='k-means||', oversampling_factor=2,
                  max_iter=300, tol=0.0001, precompute_distances='auto',
