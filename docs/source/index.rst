@@ -11,7 +11,7 @@ Single Machine
 
 *``dask-ml`` helps parallelize machine learning workloads that fit on a single-machine.*
 
-If you dataset fits in RAM, ``dask-ml`` can help you fit more models in less
+If your dataset fits in RAM, ``dask-ml`` can help you fit more models in less
 time, by
 
 1. Using all the cores available on your machine.
