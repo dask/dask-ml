@@ -1,24 +1,3 @@
-"""
-https://arxiv.org/abs/1203.6402
-
-1: C ← sample a point uniformly at random from X
-2: ψ←φX(C)
-3: for O(log ψ) times do
-4: C′ ← sample each point x ∈ X independently with
-      probability p_x = l·d2(x, C) / φ_X(C)
-5: C ← C ∪ C′
-6: end for
-7: For x∈C,set w_x to be the number of points in X closer
-    to x than any other point in C
-8: Recluster the weighted points in C into k clusters
-
-Prior Attemps:
-
-- https://github.com/scikit-learn/scikit-learn/issues/4357
-- https://github.com/scikit-learn/scikit-learn/pull/5530
-- https://github.com/scikit-learn/scikit-learn/pull/8585
-
-"""
 import logging
 from timeit import default_timer as tic
 
@@ -110,6 +89,29 @@ class KMeans(BaseEstimator):
     BigMiniBatchKMeans
     sklearn.cluster.MiniBatchKMeans
     sklearn.cluster.KMeans
+
+    Notes
+    -----
+
+    This class implements a parallel and distributed version of k-Means.
+
+    **Initialization with k-means||**
+
+    The default initializer for ``KMeans`` is ``k-means||``, compared to
+    ``k-means++`` from scikit-learn. This is the algorithm described in
+    *Scalable K-Means++ (2012)*.
+
+    ``k-means||`` is designed to work well in a distributed environment. It's a
+    variant of k-means++ that's designed to work in parallel (k-means++ is
+    inherently sequential). Currently, the ``k-means||`` implementation here is
+    slower than scikit-learn's ``k-means++``. If your entire dataset fits in
+    memory, consider using ``init='k-means++'``.
+
+    **Parallel Lloyd's Algorithm**
+
+    LLoyd's Algorithm (the default Expectation Maximization algorithm used in
+    scikit-learn) is naturally parallelizable. In naive benchmarks, the
+    implementation here achieves 2-3x speedups over scikit-learn.
     """
     def __init__(self, n_clusters=8, init='k-means||', oversampling_factor=2,
                  max_iter=300, tol=0.0001, precompute_distances='auto',
