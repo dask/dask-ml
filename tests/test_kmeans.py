@@ -17,22 +17,35 @@ def test_row_norms(X_blobs):
     assert_eq(result, expected)
 
 
+def replace(a, old, new):
+    arr = np.empty(a.max()+1, dtype=new.dtype)
+    arr[old] = new
+    return arr[a]
+
+
 class TestKMeans:
 
     def test_basic(self, Xl_blobs_easy):
         X, _ = Xl_blobs_easy
 
         # make it super easy to cluster
-        a = DKKMeans(random_state=0)
-        b = SKKMeans(random_state=0)
+        a = DKKMeans(n_clusters=3, random_state=0)
+        b = SKKMeans(n_clusters=3, random_state=0)
         a.fit(X)
         b.fit(X)
         assert_estimator_equal(a, b, exclude=['n_iter_', 'inertia_',
-                                              'cluster_centers_'])
+                                              'cluster_centers_',
+                                              'labels_'])
         assert abs(a.inertia_ - b.inertia_) < 0.01
-        np.testing.assert_allclose(np.sort(a.cluster_centers_, 0),
-                                   np.sort(b.cluster_centers_, 0))
-
+        # order is arbitrary, so align first
+        a_order = np.argsort(a.cluster_centers_, 0)[:, 0]
+        b_order = np.argsort(b.cluster_centers_, 0)[:, 0]
+        a_centers = a.cluster_centers_[a_order]
+        b_centers = b.cluster_centers_[b_order]
+        np.testing.assert_allclose(a_centers, b_centers,
+                                   rtol=1e-3)
+        b_labels = replace(b.labels_, [0, 1, 2], a_order[b_order])
+        assert_eq(a.labels_.compute(), b_labels)
         assert a.n_iter_
 
     def test_fit_given_init(self, X_blobs):

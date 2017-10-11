@@ -332,6 +332,7 @@ def _kmeans_single_lloyd(X, n_clusters, max_iter=300, init='k-means||',
         labels, distances = pairwise_distances_argmin_min(X, centers)
     inertia = distances.astype(dt).sum()
     centers = centers.astype(dt)
+    labels = labels.astype(np.int64)
 
     return labels, inertia, centers, i + 1
 

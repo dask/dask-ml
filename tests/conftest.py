@@ -7,6 +7,7 @@ from daskml.datasets import (make_classification,
                              make_counts)
 
 pytest.register_assert_rewrite('daskml.utils')
+pytest.register_assert_rewrite('dask.array.utils')
 
 
 @pytest.fixture
