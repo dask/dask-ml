@@ -5,6 +5,7 @@ channels:
 dependencies:
 - python=3.5
 - numpydoc
+- nbsphinx
 - cython
 - dask
 - distributed

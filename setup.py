@@ -16,7 +16,7 @@ install_requires = ['dask', 'distributed', 'numpy', 'pandas', 'scikit-learn',
 # Optional Requirements
 
 
-doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme']
+doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme', 'nbsphinx']
 test_requires = ['coverage', 'pytest', 'pytest-mock']
 dev_requires = doc_requires + test_requires
 
