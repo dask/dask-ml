@@ -5,14 +5,14 @@ the same as the serial.
 import numpy as np
 from dask.array.utils import assert_eq
 from daskml.cluster import KMeans as DKKMeans
-from daskml.cluster import k_means
 from daskml.utils import assert_estimator_equal
 from sklearn.cluster import KMeans as SKKMeans
 from sklearn.cluster import k_means_
+from daskml.utils import row_norms
 
 
 def test_row_norms(X_blobs):
-    result = k_means.row_norms(X_blobs, squared=True)
+    result = row_norms(X_blobs, squared=True)
     expected = k_means_.row_norms(X_blobs.compute(), squared=True)
     assert_eq(result, expected)
 
@@ -47,6 +47,10 @@ class TestKMeans:
         b_labels = replace(b.labels_, [0, 1, 2], a_order[b_order])
         assert_eq(a.labels_.compute(), b_labels)
         assert a.n_iter_
+        # this is hacky
+        b.cluster_centers_ = b_centers
+        a.cluster_centers_ = a_centers
+        assert_eq(a.transform(X), b.transform(X), rtol=1e-3)
 
     def test_fit_given_init(self, X_blobs):
         X_ = X_blobs.compute()

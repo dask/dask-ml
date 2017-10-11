@@ -6,6 +6,8 @@ import numpy as np
 from dask import delayed
 from sklearn import metrics
 
+from ..utils import row_norms
+
 
 def pairwise_distances_argmin_min(X, Y, axis=1, metric="euclidean",
                                   batch_size=None,
@@ -37,8 +39,32 @@ def pairwise_distances(X, Y, metric='euclidean', n_jobs=None, **kwargs):
                         metric=metric, **kwargs)
 
 
-def row_norms(X, squared=False):
-    norms = (X * X).sum(1)
-    if not squared:
-        norms = da.sqrt(norms)
-    return norms
+def euclidean_distances(X, Y=None, Y_norm_squared=None, squared=False,
+                        X_norm_squared=None):
+    if X_norm_squared is not None:
+        XX = X_norm_squared
+        if XX.shape == (1, X.shape[0]):
+            XX = XX.T
+        elif XX.shape != (X.shape[0], 1):
+            raise ValueError(
+                "Incompatible dimensions for X and X_norm_squared")
+    else:
+        XX = row_norms(X, squared=True)[:, np.newaxis]
+    if X is Y:
+        YY = XX.T
+    elif Y_norm_squared is not None:
+        if Y_norm_squared.ndim < 2:
+            YY = Y_norm_squared[:, np.newaxis]
+        else:
+            YY = Y_norm_squared
+        if YY.shape != (1, Y.shape[0]):
+            raise ValueError(
+                "Incompatiable dimensions for Y and Y_norm_squared")
+    else:
+        YY = row_norms(Y, squared=True)[np.newaxis, :]
+
+    distances = -2 * X.dot(Y.T) + XX + YY
+    distances = da.maximum(distances, 0)
+    # TODO: scikit-learn sets the diagonal to 0 when X is Y.
+
+    return distances if squared else da.sqrt(distances)

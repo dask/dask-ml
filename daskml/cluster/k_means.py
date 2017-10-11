@@ -28,9 +28,13 @@ from dask import compute
 from sklearn.base import BaseEstimator
 from sklearn.cluster import k_means_ as sk_k_means
 from sklearn.utils.extmath import squared_norm
+from sklearn.utils.validation import check_is_fitted
 
-from daskml.metrics import pairwise_distances_argmin_min, pairwise_distances
 from ._k_means import _centers_dense
+from ..metrics import (
+    pairwise_distances_argmin_min, pairwise_distances, euclidean_distances
+)
+from ..utils import row_norms
 
 
 logger = logging.getLogger(__name__)
@@ -132,8 +136,9 @@ class KMeans(BaseEstimator):
         self.n_iter_ = n_iter
         return self
 
-    def transform(self, X):
-        pass
+    def transform(self, X, y=None):
+        check_is_fitted(self, 'cluster_centers_')
+        return euclidean_distances(X, self.cluster_centers_)
 
 
 def k_means(X, n_clusters, init='k-means||', precompute_distances='auto',
@@ -335,15 +340,3 @@ def _kmeans_single_lloyd(X, n_clusters, max_iter=300, init='k-means||',
     labels = labels.astype(np.int64)
 
     return labels, inertia, centers, i + 1
-
-
-# -----------------------------------------------------------------------------
-# Misc
-# -----------------------------------------------------------------------------
-
-
-def row_norms(X: da.Array, squared: bool=False) -> da.Array:
-    if isinstance(X, np.ndarray):
-        return sk_k_means.row_norms(X, squared=squared)
-    return X.map_blocks(sk_k_means.row_norms, chunks=(X.chunks[0],),
-                        drop_axis=1, squared=squared)
