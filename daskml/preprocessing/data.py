@@ -1,10 +1,14 @@
 from collections import OrderedDict
 
-from dask import persist
 import dask.array as da
 import dask.dataframe as dd
+from dask import persist, compute
 import numpy as np
+import pandas as pd
+from scipy import stats
 from sklearn.preprocessing import data as skdata
+from sklearn.utils.validation import check_random_state
+
 from daskml.utils import handle_zeros_in_scale, slice_columns
 
 
@@ -116,3 +120,85 @@ class MinMaxScaler(skdata.MinMaxScaler):
             return X
         else:
             return _X
+
+
+class QuantileTransformer(skdata.QuantileTransformer):
+    def _check_inputs(self, X, accept_sparse_negative=False):
+        if isinstance(X, (pd.DataFrame, dd.DataFrame)):
+            X = X.values
+        if isinstance(X, np.ndarray):
+            # TODO: What should the package policy be on inferring
+            # chunksizes?
+            X = da.from_array(X, chunks=10000)
+
+        rng = check_random_state(self.random_state)
+        # TODO: non-float dtypes?
+        # TODO: sparse arrays?
+        # TODO: mix of sparse, dense?
+        sample = rng.uniform(size=(5, X.shape[1])).astype(X.dtype)
+        super()._check_inputs(
+            sample, accept_sparse_negative=accept_sparse_negative)
+        return X
+
+    def _sparse_fit(self, X, random_state):
+        raise NotImplementedError
+
+    def _dense_fit(self, X, random_state):
+        references = self.references_ * 100
+        quantiles = [da.percentile(col, references) for col in X.T]
+        self.quantiles_, = compute(da.vstack(quantiles).T)
+
+    def _transform(self, X, inverse=False):
+        X = X.copy()  # ...
+        transformed = [self._transform_col(X[:, feature_idx],
+                                           self.quantiles_[:, feature_idx],
+                                           inverse)
+                       for feature_idx in range(X.shape[1])]
+        return da.vstack(transformed).T
+
+    def _transform_col(self, X_col, quantiles, inverse):
+        if self.output_distribution == 'normal':
+            output_distribution = 'norm'
+        else:
+            output_distribution = self.output_distribution
+        output_distribution = getattr(stats, output_distribution)
+
+        if not inverse:
+            lower_bound_x = quantiles[0]
+            upper_bound_x = quantiles[-1]
+            lower_bound_y = 0
+            upper_bound_y = 1
+        else:
+            lower_bound_x = 0
+            upper_bound_x = 1
+            lower_bound_y = quantiles[0]
+            upper_bound_y = quantiles[-1]
+            X_col = X_col.map_blocks(output_distribution.cdf)
+
+        lower_bounds_idx = (X_col - skdata.BOUNDS_THRESHOLD <
+                            lower_bound_x)
+        upper_bounds_idx = (X_col + skdata.BOUNDS_THRESHOLD >
+                            upper_bound_x)
+        if not inverse:
+            # See the note in scikit-learn. This trick is to avoid
+            # repeated extreme values
+            X_col = 0.5 * (
+                X_col.map_blocks(np.interp, quantiles, self.references_) -
+                (-X_col).map_blocks(np.interp, -quantiles[::-1],
+                                    -self.references_[::-1])
+            )
+        else:
+            X_col = X_col.map_blocks(np.interp, self.references_, quantiles)
+
+        X_col[upper_bounds_idx] = upper_bound_y
+        X_col[lower_bounds_idx] = lower_bound_y
+
+        if not inverse:
+            X_col = X_col.map_blocks(output_distribution.ppf)
+            clip_min = output_distribution.ppf(skdata.BOUNDS_THRESHOLD -
+                                               np.spacing(1))
+            clip_max = output_distribution.ppf(1 - (skdata.BOUNDS_THRESHOLD -
+                                                    np.spacing(1)))
+            X_col = da.clip(X_col, clip_min, clip_max)
+
+        return X_col
