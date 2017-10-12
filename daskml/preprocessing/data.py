@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import multiprocessing
 
 import dask.array as da
 import dask.dataframe as dd
@@ -135,9 +136,8 @@ class QuantileTransformer(skdata.QuantileTransformer):
         if isinstance(X, (pd.DataFrame, dd.DataFrame)):
             X = X.values
         if isinstance(X, np.ndarray):
-            # TODO: What should the package policy be on inferring
-            # chunksizes?
-            X = da.from_array(X, chunks=10000)
+            C = len(X) // multiprocessing.cpu_count()
+            X = da.from_array(X, chunks=C)
 
         rng = check_random_state(self.random_state)
         # TODO: non-float dtypes?
