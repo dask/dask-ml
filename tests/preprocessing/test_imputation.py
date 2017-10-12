@@ -1,9 +1,9 @@
 from daskml.datasets import make_classification
 from sklearn.preprocessing import Imputer as Imputer_
 from daskml.preprocessing import Imputer
-from dask.array.utils import assert_eq as assert_eq_ar
 import dask.dataframe as dd
 import pandas as pd
+from dask.array.utils import assert_eq as assert_eq_ar
 import numpy as np
 
 
@@ -20,20 +20,11 @@ def _get_scaler_attributes(scaler):
 
 class TestImputer(object):
     def test_basic(self):
-        mask = [3, 4]
-        a = Imputer(columns=mask)
+        a = Imputer()
         b = Imputer_()
 
-        a.fit(df2)
-        b.fit(df2[mask].compute())
+        a.fit(df)
+        b.fit(df.values.compute())
 
-        for attr in _get_scaler_attributes(self):
-            assert_eq_ar(getattr(a, attr), getattr(b, attr))
-
-    def test_transform(self):
-        mask = [3, 4, 5]
-        a = Imputer(columns=mask)
-        b = Imputer_()
-
-        assert_eq_ar(a.fit_transform(df2).compute().as_matrix(),
-                     b.fit_transform(df2.compute()))
+        assert_eq_ar(a.transform(df).values.compute(),
+                     b.transform(df.values.compute()))

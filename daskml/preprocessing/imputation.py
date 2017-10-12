@@ -4,6 +4,7 @@ from dask import persist
 from sklearn.preprocessing import imputation as skimputation
 from daskml.utils import slice_columns
 import dask.dataframe as dd
+import numpy as np
 
 
 class Imputer(skimputation.Imputer):
@@ -11,17 +12,14 @@ class Imputer(skimputation.Imputer):
                  axis=0, verbose=0, copy=True, columns=None):
         super().__init__(missing_values="NaN", strategy="mean",
                          axis=0, verbose=0, copy=True)
-        self._columns = columns
+        self.columns = columns
 
         if (not copy or missing_values != "NaN" or strategy != "mean"
                 or axis != 0 or verbose != 0):
             raise NotImplementedError()
 
     def fit(self, X, y=None):
-        self._cache = dict()
         to_persist = OrderedDict()
-        if not isinstance(X, dd.DataFrame):
-            raise NotImplementedError()
 
         # Check parameters
         allowed_strategies = ["mean", "median", "most_frequent"]
@@ -34,15 +32,30 @@ class Imputer(skimputation.Imputer):
             raise ValueError("Can only impute missing values on axis 0 and 1, "
                              " got axis={0}".format(self.axis))
 
-        _X = slice_columns(X, self._columns)
-        if self.strategy == "mean":
-            to_persist["statistics_"] = X[list(_X.columns)].mean()
+        _X = slice_columns(X, self.columns)
+        if self.missing_values != "NaN":
+            _X = _X.where(_X != self.missing_values, np.nan)
 
-        values = persist(*to_persist.values(), cache=self._cache)
+        if self.strategy == "mean":
+            to_persist["statistics_"] = _X.mean()
+        elif self.strategy == "median":
+            to_persist["statistics_"] = _X.median()
+        elif self.strategy == "most_frequent":
+            raise NotImplementedError()
+
+        values = persist(*to_persist.values())
         for k, v in zip(to_persist, values):
             setattr(self, k, v)
 
         return self
 
     def transform(self, X):
-        return X.fillna(self.statistics_)
+        _X = slice_columns(X, self.columns)
+        if self.missing_values != "NaN":
+            _X = _X.where(_X != self.missing_values, np.nan)
+        if isinstance(_X, dd._Frame) and self.columns:
+            for column in self.columns:
+                X[column] = _X[column]
+            return X.fillna(self.statistics_)
+        else:
+            return _X.fillna(self.statistics_)
