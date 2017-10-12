@@ -8,5 +8,6 @@ numpy
 pandas
 scikit-learn
 scipy
+cython
 git+https://github.com/dask/dask
 git+https://github.com/dask/distributed

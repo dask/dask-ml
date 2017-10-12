@@ -5,6 +5,8 @@ import numpy as np
 
 import dask.array as da
 import dask.dataframe as dd
+import sklearn.utils.extmath as skm
+
 from dask.array.utils import assert_eq as assert_eq_ar
 from dask.dataframe.utils import assert_eq as assert_eq_df
 
@@ -23,6 +25,13 @@ def handle_zeros_in_scale(scale):
     elif isinstance(scale, dd.Series):
         scale = scale.where(scale != 0, 1)
     return scale
+
+
+def row_norms(X, squared=False):
+    if isinstance(X, np.ndarray):
+        return skm.row_norms(X, squared=squared)
+    return X.map_blocks(skm.row_norms, chunks=(X.chunks[0],),
+                        drop_axis=1, squared=squared)
 
 
 def assert_estimator_equal(left, right, exclude=None, **kwargs):

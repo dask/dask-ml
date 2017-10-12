@@ -38,6 +38,7 @@ framework like `XGBoost`_ or `tensorflow`_. See :ref:`distributed` for more.
 
    single-machine.rst
    distributed.rst
+   clustering.rst
    examples.rst
    modules/api.rst
 
