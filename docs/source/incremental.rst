@@ -8,9 +8,9 @@ Incremental Learning
    naive_bayes.PartialMultinomialNB
    linear_model.PartialSGDRegressor
    linear_model.PartialSGDClassifier
-   perceptron.PartialPerceptron
-   passive_aggressive.PartialPassiveAggressiveClassifier
-   passive_aggressive.PartialPassiveAggressiveRegressor
+   linear_model.PartialPerceptron
+   linear_model.PartialPassiveAggressiveClassifier
+   linear_model.PartialPassiveAggressiveRegressor
    cluster.PartialMiniBatchKMeans
 
 Some scikit-learn models support `incremental learning`_, they can see batches
