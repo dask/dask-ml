@@ -20,6 +20,8 @@ def compute_stepsize_dask(beta, step, Xbeta, Xstep, y, curr_val,
                           armijoMult=0.1, backtrackMult=0.1):
     """Compute the optimal stepsize
 
+    Parameters
+    ----------
     beta : array-like
     step : float
     XBeta : array-lie
@@ -85,7 +87,6 @@ def gradient_descent(X, y, max_iter=100, tol=1e-14, family=Logistic, **kwargs):
     -------
     beta : array-like, shape (n_features,)
     """
-
     loglike, gradient = family.loglike, family.gradient
     n, p = X.shape
     firstBacktrackMult = 0.1
@@ -216,7 +217,6 @@ def admm(X, y, regularizer='l1', lamduh=0.1, rho=1, over_relax=1,
     -------
     beta : array-like, shape (n_features,)
     """
-
     pointwise_loss = family.pointwise_loss
     pointwise_gradient = family.pointwise_gradient
     regularizer = Regularizer.get(regularizer)
@@ -322,7 +322,6 @@ def lbfgs(X, y, regularizer=None, lamduh=1.0, max_iter=100, tol=1e-4,
     -------
     beta : array-like, shape (n_features,)
     """
-
     pointwise_loss = family.pointwise_loss
     pointwise_gradient = family.pointwise_gradient
     if regularizer is not None:
@@ -371,7 +370,6 @@ def proximal_grad(X, y, regularizer='l1', lamduh=0.1, family=Logistic,
     -------
     beta : array-like, shape (n_features,)
     """
-
     n, p = X.shape
     firstBacktrackMult = 0.1
     nextBacktrackMult = 0.5

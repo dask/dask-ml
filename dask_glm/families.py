@@ -4,8 +4,9 @@ from dask_glm.utils import dot, exp, log1p, sigmoid
 
 
 class Logistic(object):
-    """Implements methods for `Logistic regression`_,
-    useful for classifying binary outcomes.
+    """ Implements methods for `Logistic regression`_,
+
+    Useful for classifying binary outcomes.
 
     .. _Logistic regression: https://en.wikipedia.org/wiki/Logistic_regression
     """
@@ -50,8 +51,9 @@ class Logistic(object):
 
 
 class Normal(object):
-    """Implements methods for `Linear regression`_,
-    useful for modeling continuous outcomes.
+    """ Implements methods for `Linear regression`_,
+
+    Useful for modeling continuous outcomes.
 
     .. _Linear regression: https://en.wikipedia.org/wiki/Linear_regression
     """
@@ -82,13 +84,12 @@ class Normal(object):
 
 class Poisson(object):
     """
-    This implements `Poisson regression`_, useful for
-    modelling count data.
+    This implements `Poisson regression`_
 
+    Useful for modelling count data.
 
     .. _Poisson regression: https://en.wikipedia.org/wiki/Poisson_regression
     """
-
     @staticmethod
     def loglike(Xbeta, y):
         eXbeta = exp(Xbeta)
