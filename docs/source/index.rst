@@ -4,12 +4,13 @@
 dask-ml
 =======
 
-``dask-ml`` is a library for parallel and distributed machine learning.
+Dask-ML enables parallel and distributed machine learning using Dask_ alongside
+existing machine learning libraries like Scikit-Learn_.
 
 Single Machine
 ^^^^^^^^^^^^^^
 
-*``dask-ml`` helps parallelize machine learning workloads that fit on a single-machine.*
+*Dask-ML helps parallelize machine learning workloads that fit on a single-machine.*
 
 If your dataset fits in RAM, ``dask-ml`` can help you fit more models in less
 time, by
@@ -22,14 +23,15 @@ See :ref:`single-machine` for more.
 Distributed Learning
 ^^^^^^^^^^^^^^^^^^^^
 
-*``dask-ml`` implements distributed machine learning algorithms*
+*Dask-ML implements distributed machine learning algorithms*
 
-``dask.array`` and ``dask.dataframe`` scale out to process data on a cluster of
-computers. ``dask-ml`` implements distributed algorithms that operate on dask
-collections.
+The Dask_ modules ``dask.array`` and ``dask.dataframe`` scale out data
+processing to a cluster of computers. Dask-ML implements distributed algorithms
+that operate on dask collections.
 
-Additionally, ``dask-ml`` can peer with other distributed machine learning
-framework like `XGBoost`_ or `tensorflow`_. See :ref:`distributed` for more.
+Additionally, Dask-ML can peer with other distributed machine learning
+framework like `XGBoost`_ or `tensorflow`_. See :ref:`distributed` for more
+information.
 
 
 .. toctree::
@@ -52,3 +54,5 @@ Indices and tables
 .. _dask-glm: http://dask-glm.readthedocs.io/
 .. _XGBoost: https://xgboost.readthedocs.io/
 .. _tensorflow: https://www.tensorflow.org/
+.. _Scikit-Learn: http://scikit-learn.org/stable/
+.. _Dask: https://dask.pydata.org/en/latest/
