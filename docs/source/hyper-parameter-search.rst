@@ -2,7 +2,7 @@ Hyper Parameter Search
 ======================
 
 .. autosummary::
-   sklearn.make_pipeline
+   sklearn.pipeline.make_pipeline
    dask_searchcv.GridSearchCV
    dask_searchcv.RandomizedSearchCV
 
@@ -42,7 +42,7 @@ Hyper-parameter Search
 ----------------------
 
 Most scikit-learn estimators have a set of *hyper-parameters*.
-These are parameters that are not learned during estimation; they must
+These are parameters that are not learned during training; they must
 be set ahead of time. :class:`sklearn.model_selection.GridSearchCV` and
 :class:`sklearn.model_selection.RandomizedSearchCV` let you tune your
 hyper-parameters by searching over the space of hyper-parameters to find the
