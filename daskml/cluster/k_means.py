@@ -86,7 +86,7 @@ class KMeans(BaseEstimator):
 
     See Also
     --------
-    BigMiniBatchKMeans
+    PartialMiniBatchKMeans
     sklearn.cluster.MiniBatchKMeans
     sklearn.cluster.KMeans
 

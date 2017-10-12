@@ -24,20 +24,20 @@ def test_smoke():
     assert_eq(a.predict_log_proba(X).compute(), b.predict_log_proba(X_))
 
 
-class TestBigMultinomialNB(object):
+class TestPartialMultinomialNB(object):
     def test_basic(self, single_chunk_count_classification):
         X, y = single_chunk_count_classification
-        a = nb.BigMultinomialNB(classes=[0, 1])
+        a = nb.PartialMultinomialNB(classes=[0, 1])
         b = nb_.MultinomialNB()
         a.fit(X, y)
         b.partial_fit(X, y, classes=[0, 1])
         assert_eq(a.coef_, b.coef_)
 
 
-class TestBigBernoulliNB(object):
+class TestPartialBernoulliNB(object):
     def test_basic(self, single_chunk_binary_classification):
         X, y = single_chunk_binary_classification
-        a = nb.BigBernoulliNB(classes=[0, 1])
+        a = nb.PartialBernoulliNB(classes=[0, 1])
         b = nb_.BernoulliNB()
         a.fit(X, y)
         b.partial_fit(X, y, classes=[0, 1])

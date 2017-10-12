@@ -17,14 +17,14 @@ API Reference
 .. autosummary::
    :toctree: generated/
    :template: class.rst
-
-   linear_model.BigPassiveAggressiveClassifier
-   linear_model.BigPassiveAggressiveRegressor
-   linear_model.BigPerceptron
-   linear_model.BigSGDClassifier
-   linear_model.BigSGDRegressor
+              
    linear_model.LinearRegression
    linear_model.LogisticRegression
+   linear_model.PartialPassiveAggressiveClassifier
+   linear_model.PartialPassiveAggressiveRegressor
+   linear_model.PartialPerceptron
+   linear_model.PartialSGDClassifier
+   linear_model.PartialSGDRegressor
    linear_model.PoissonRegression
 
 :mod:`daskml.cluster`: Clustering
@@ -41,7 +41,7 @@ API Reference
    :template: class.rst
 
    cluster.KMeans
-   cluster.BigMiniBatchKMeans
+   cluster.PartialMiniBatchKMeans
 
 
 :mod:`daskml.preprocessing`: Preprocessing Data

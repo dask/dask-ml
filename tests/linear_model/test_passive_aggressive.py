@@ -8,8 +8,9 @@ class TestPassiveAggressiveClassifier(object):
 
     def test_basic(self, single_chunk_classification):
         X, y = single_chunk_classification
-        a = lm.BigPassiveAggressiveClassifier(classes=[0, 1], random_state=0,
-                                              max_iter=100, tol=1e-3)
+        a = lm.PartialPassiveAggressiveClassifier(classes=[0, 1],
+                                                  random_state=0,
+                                                  max_iter=100, tol=1e-3)
         b = lm_.PassiveAggressiveClassifier(random_state=0, max_iter=100,
                                             tol=1e-3)
         a.fit(X, y)
@@ -21,8 +22,9 @@ class TestPassiveAggressiveRegressor(object):
 
     def test_basic(self, single_chunk_regression):
         X, y = single_chunk_regression
-        a = lm.BigPassiveAggressiveRegressor(random_state=0, max_iter=100,
-                                             tol=1e-3)
+        a = lm.PartialPassiveAggressiveRegressor(random_state=0,
+                                                 max_iter=100,
+                                                 tol=1e-3)
         b = lm_.PassiveAggressiveRegressor(random_state=0, max_iter=100,
                                            tol=1e-3)
         a.fit(X, y)
