@@ -51,6 +51,8 @@ API Reference
 .. currentmodule:: daskml
 
 .. autosummary::
+   :toctree: generated/
+   :template: class.rst
 
    preprocessing.StandardScaler
    preprocessing.MinMaxScaler
