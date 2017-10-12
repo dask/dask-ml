@@ -6,15 +6,23 @@ dependencies:
   - coverage
   - Cython
   - flake8
+  - gcc
+  - heapdict
+  - multipledispatch
   - nbsphinx
   - numpy
   - numpydoc
   - pandas
+  - psutil
   - pytest
   - pytest-cov
   - python=3.6
+  - sortedcontainers
   - scikit-learn
   - sphinx
+  - tornado
+  - toolz
+  - zict
   - pip:
     - dask-glm
     - sphinx-rtd-theme
