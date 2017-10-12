@@ -42,3 +42,17 @@ API Reference
 
    cluster.KMeans
    cluster.BigMiniBatchKMeans
+
+
+:mod:`daskml.preprocessing`: Preprocessing Data
+===============================================
+
+.. automodule:: daskml.preprocessing
+
+.. currentmodule:: daskml
+
+.. autosummary::
+
+   preprocessing.StandardScaler
+   preprocessing.MinMaxScaler
+   preprocessing.QuantileTransformer
