@@ -1,0 +1,22 @@
+name: dask-ml-test
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - coverage
+  - Cython
+  - flake8
+  - nbsphinx
+  - numpy
+  - numpydoc
+  - pandas
+  - pytest
+  - pytest-cov
+  - python=3.6
+  - scikit-learn
+  - sphinx
+  - pip:
+    - dask-glm
+    - sphinx-rtd-theme
+    - git+https://github.com/dask/dask.git
+    - git+https://github.com/dask/distributed.git

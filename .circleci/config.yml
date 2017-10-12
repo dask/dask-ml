@@ -1,0 +1,38 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: continuumio/miniconda:latest
+    environment:
+      PYTHON: "3.6"
+      ENV_NAME: "dask-ml-test"
+    steps:
+      - checkout
+      - restore_cache:
+          key: deps-{{ .Branch }}-{{ checksum "ci/environment-circle.yml" }}
+      - run:
+          name: configure conda
+          command: |
+            conda config --set always_yes true --set changeps1 false
+            conda update -q conda
+            conda install conda-build anaconda-client --yes
+            conda config --add channels conda-forge
+            conda env create -f ci/environment-circle.yml
+            source activate ${ENV_NAME}
+            pip install --no-deps -e .
+            conda list ${ENV_NAME}
+      - run:
+          command: |
+            source activate ${ENV_NAME}
+      - run:
+          command: |
+            source activate ${ENV_NAME}
+            pytest
+      - run:
+          command: |
+            source activate ${ENV_NAME}
+            flake8
+      - save_cache:
+          key: deps-{{ .Branch }}-{{ checksum "ci/environment-circle.yml" }}
+          paths:
+            - "/opt/conda/envs/${ENV_NAME}/"
