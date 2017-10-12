@@ -13,4 +13,5 @@ dependencies:
 - pandas
 - scikit-learn
 - scipy
-- dask-glm
+- pip:
+  - dask-glm
