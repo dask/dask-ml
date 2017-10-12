@@ -121,13 +121,13 @@ class GaussianNB(BaseEstimator):
 
 
 @_copy_partial_doc
-class BigMultinomialNB(_BigPartialFitMixin, _naive_bayes.MultinomialNB):
+class PartialMultinomialNB(_BigPartialFitMixin, _naive_bayes.MultinomialNB):
     _init_kwargs = ['classes']
     _fit_kwargs = ['classes']
 
 
 @_copy_partial_doc
-class BigBernoulliNB(_BigPartialFitMixin, _naive_bayes.BernoulliNB):
+class PartialBernoulliNB(_BigPartialFitMixin, _naive_bayes.BernoulliNB):
     _init_kwargs = ['classes']
     _fit_kwargs = ['classes']
 

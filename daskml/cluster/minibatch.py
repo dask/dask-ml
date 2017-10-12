@@ -7,5 +7,5 @@ from daskml.base import _BigPartialFitMixin, _copy_partial_doc
 
 
 @_copy_partial_doc
-class BigMiniBatchKMeans(_BigPartialFitMixin, _cluster.MiniBatchKMeans):
+class PartialMiniBatchKMeans(_BigPartialFitMixin, _cluster.MiniBatchKMeans):
     pass
