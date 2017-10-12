@@ -16,7 +16,7 @@ API Reference
 .. autosummary::
    :toctree: generated/
    :template: class.rst
-              
+
    linear_model.LinearRegression
    linear_model.LogisticRegression
    linear_model.PartialPassiveAggressiveClassifier
