@@ -136,7 +136,7 @@ class QuantileTransformer(skdata.QuantileTransformer):
         if isinstance(X, (pd.DataFrame, dd.DataFrame)):
             X = X.values
         if isinstance(X, np.ndarray):
-            C = len(X) // multiprocessing.cpu_count()
+            C = len(X) // min(multiprocessing.cpu_count(), 2)
             X = da.from_array(X, chunks=C)
 
         rng = check_random_state(self.random_state)
