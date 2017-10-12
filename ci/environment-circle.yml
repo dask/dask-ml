@@ -6,7 +6,6 @@ dependencies:
   - coverage
   - Cython
   - flake8
-  - gcc
   - heapdict
   - multipledispatch
   - nbsphinx
