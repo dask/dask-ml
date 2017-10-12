@@ -4,7 +4,6 @@
 API Reference
 =============
 
-
 :mod:`daskml.linear_model`: Generalized Linear Models
 =====================================================
 

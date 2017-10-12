@@ -47,4 +47,4 @@ def test_euclidean_distances_same():
     assert_eq(a, b)
 
     x_norm_squared = (X ** 2).sum(axis=1).compute()[:, np.newaxis]
-    assert_eq(X, X, Y_norm_squared=x_norm_squared, atol=1e-5)
+    assert_eq(X, X, Y_norm_squared=x_norm_squared, atol=1e-4)
