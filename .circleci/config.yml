@@ -13,7 +13,7 @@ jobs:
       - run:
           name: configure conda
           command: |
-            sudo apt-get update; sudo apt-get install gcc
+            apt-get update; apt-get install gcc
             conda config --set always_yes true --set changeps1 false --set quiet true
             conda update -q conda
             conda install conda-build anaconda-client --yes
