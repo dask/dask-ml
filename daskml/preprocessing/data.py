@@ -123,6 +123,14 @@ class MinMaxScaler(skdata.MinMaxScaler):
 
 
 class QuantileTransformer(skdata.QuantileTransformer):
+    """Transforms features using quantile information.
+
+    This implementation differs from the scikit-learn implementation
+    by using approximate quantiles. The scikit-learn docstring follows.
+    """
+    __doc__ = __doc__ + '\n'.join(
+        skdata.QuantileTransformer.__doc__.split("\n")[1:])
+
     def _check_inputs(self, X, accept_sparse_negative=False):
         if isinstance(X, (pd.DataFrame, dd.DataFrame)):
             X = X.values
