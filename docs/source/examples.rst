@@ -1,3 +1,9 @@
+.. _examples:
+
+========
+Examples
+========
+
 This is set of runnable Jupyter notebooks.
 
 .. toctree::
@@ -10,4 +16,3 @@ This is set of runnable Jupyter notebooks.
    examples/dask-glm
    examples/xgboost
    examples/tensorflow
-

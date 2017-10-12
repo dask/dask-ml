@@ -1,13 +1,15 @@
 from sklearn.linear_model import stochastic_gradient as _sg
 
-from daskml.base import _BigPartialFitMixin
+from daskml.base import _BigPartialFitMixin, _copy_partial_doc
 
 
-class BigSGDClassifier(_BigPartialFitMixin, _sg.SGDClassifier):
+@_copy_partial_doc
+class PartialSGDClassifier(_BigPartialFitMixin, _sg.SGDClassifier):
 
     _init_kwargs = ['classes']
     _fit_kwargs = ['classes']
 
 
-class BigSGDRegressor(_BigPartialFitMixin, _sg.SGDRegressor):
+@_copy_partial_doc
+class PartialSGDRegressor(_BigPartialFitMixin, _sg.SGDRegressor):
     pass

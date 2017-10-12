@@ -1,0 +1,17 @@
+name: dask-ml-docs
+channels:
+- conda-forge
+- defaults
+dependencies:
+- python=3.5
+- numpydoc
+- nbsphinx
+- cython
+- dask
+- distributed
+- numpy
+- pandas
+- scikit-learn
+- scipy
+- pip:
+  - dask-glm

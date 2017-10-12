@@ -2,7 +2,9 @@ import sys
 import os
 from codecs import open
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
+from Cython.Build import cythonize
+import numpy as np
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -11,12 +13,10 @@ with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 install_requires = ['dask', 'distributed', 'numpy', 'pandas', 'scikit-learn',
-                    'scipy']
+                    'scipy', 'dask-glm']
 
 # Optional Requirements
-
-
-doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme']
+doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme', 'nbsphinx']
 test_requires = ['coverage', 'pytest', 'pytest-mock']
 dev_requires = doc_requires + test_requires
 
@@ -29,6 +29,15 @@ extra_requires = {
     'test': test_requires,
     'dev': dev_requires,
 }
+
+# C Extensions
+extensions = [
+    Extension(
+        "daskml.cluster._k_means",
+        ["daskml/cluster/_k_means.pyx"],
+        include_dirs=[np.get_include()],
+    ),
+]
 
 setup(
     name='daskml',
@@ -57,4 +66,5 @@ setup(
     setup_requires=['setuptools_scm'],
     install_requires=install_requires,
     extras_require=extra_requires,
+    ext_modules=cythonize(extensions),
 )

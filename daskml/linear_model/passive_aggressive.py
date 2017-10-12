@@ -1,13 +1,15 @@
 from sklearn import linear_model as _lm
 
-from daskml.base import _BigPartialFitMixin
+from daskml.base import _BigPartialFitMixin, _copy_partial_doc
 
 
-class BigPassiveAggressiveClassifier(_BigPartialFitMixin,
-                                     _lm.PassiveAggressiveClassifier):
+@_copy_partial_doc
+class PartialPassiveAggressiveClassifier(_BigPartialFitMixin,
+                                         _lm.PassiveAggressiveClassifier):
     _init_kwargs = _fit_kwargs = ['classes']
 
 
-class BigPassiveAggressiveRegressor(_BigPartialFitMixin,
-                                    _lm.PassiveAggressiveRegressor):
+@_copy_partial_doc
+class PartialPassiveAggressiveRegressor(_BigPartialFitMixin,
+                                        _lm.PassiveAggressiveRegressor):
     pass

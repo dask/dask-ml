@@ -1,32 +1,38 @@
-.. _dask-ml
+.. _dask-ml:
 
 =======
 dask-ml
 =======
 
-This is a repository to collect all the ways dask can be used in parallel and
-distributed machine learning workflows. There are quite a few options, and the
-best one depends on your goals, data, and available compute.
-
-Existing Tools
---------------
-
-Dask can already be used to parallelize or distribute workflows using other
-libraries like scikit-learn (with joblib), xgboost, dask-glm, or tensorflow.
+Dask-ML enables parallel and distributed machine learning using Dask_ alongside
+existing machine learning libraries like Scikit-Learn_.
 
 Single Machine
 ^^^^^^^^^^^^^^
 
-If your computation fits on a single machine, you may be able to use dask to
-speed up the computation. See :ref:`single-machine`.
+*Dask-ML helps parallelize machine learning workloads that fit on a single-machine.*
+
+If your dataset fits in RAM, ``dask-ml`` can help you fit more models in less
+time, by
+
+1. Using all the cores available on your machine.
+2. Using dask's intelligent data-hashing to avoid redundant computation
+
+See :ref:`single-machine` for more.
 
 Distributed Learning
 ^^^^^^^^^^^^^^^^^^^^
 
-Dask can help in cases where you'd like to fit a model on a dataset that doesn't
-fit in memory. You can either use a library like `dask-glm`_, that's built on top
-of dask, or use another distributed machine learning framework like `XGBoost`_ or `tensorflow`_.
-See :ref:`distributed`.
+*Dask-ML implements distributed machine learning algorithms*
+
+The Dask_ modules ``dask.array`` and ``dask.dataframe`` scale out data
+processing to a cluster of computers. Dask-ML implements distributed algorithms
+that operate on dask collections.
+
+Additionally, Dask-ML can peer with other distributed machine learning
+framework like `XGBoost`_ or `tensorflow`_. See :ref:`distributed` for more
+information.
+
 
 .. toctree::
    :maxdepth: 2
@@ -34,7 +40,9 @@ See :ref:`distributed`.
 
    single-machine.rst
    distributed.rst
+   clustering.rst
    examples.rst
+   modules/api.rst
 
 Indices and tables
 ==================
@@ -43,7 +51,8 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-
 .. _dask-glm: http://dask-glm.readthedocs.io/
 .. _XGBoost: https://xgboost.readthedocs.io/
 .. _tensorflow: https://www.tensorflow.org/
+.. _Scikit-Learn: http://scikit-learn.org/stable/
+.. _Dask: https://dask.pydata.org/en/latest/

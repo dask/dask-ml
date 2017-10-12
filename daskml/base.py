@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import dask
 from dask.array import learn
@@ -59,6 +60,29 @@ class _BigPartialFitMixin(object):
         return super(_BigPartialFitMixin, self).predict(xx).dtype
 
 
+def _copy_partial_doc(cls):
+    for base in cls.mro():
+        if base.__module__.startswith('sklearn'):
+            break
+    lines = base.__doc__.split(os.linesep)
+    header, rest = lines[0], lines[1:]
+
+    insert = """
+
+    This class wraps scikit-learn's {classname}. When a dask-array is passed
+    to our ``fit`` method, the array is passed block-wise to the scikit-learn
+    class' ``partial_fit`` method. This will allow you to fit the estimator
+    on larger-than memory datasets sequentially (block-wise), but without an
+    parallelism, or any ability to distribute across a cluster.""".format(
+        classname=base.__name__)
+
+    doc = '\n'.join([header + insert] + rest)
+
+    cls.__doc__ = doc
+    return cls
+
+
 __all__ = [
-    '_BigPartialFitMixin'
+    '_BigPartialFitMixin',
+    '_copy_partial_doc',
 ]

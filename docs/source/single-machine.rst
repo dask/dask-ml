@@ -4,11 +4,11 @@
 Single Machine
 ==============
 
-First, we need to recognize that scikit-learn already uses parallelism in quite a
-few places, anywhere you see an ``n_jobs`` parameter. This already covers many of
-the places dask could provide speedups be enabling parallelism. That said, dask can
-still improve performance through its sophisticated caching when fitting a
-a :class:`sklearn.pipeline.Pipeline`.
+First, we need to recognize that most machine learning frameworks already use
+parallelism in quite a few places. For example, in scikit-learn anywhere you see
+an ``n_jobs`` parameter, scikit-learn will already be using some parallelism.
+That said, dask can still improve performance through its sophisticated caching
+when fitting a a :class:`sklearn.pipeline.Pipeline`.
 
 Pipelines
 ---------
@@ -78,7 +78,6 @@ the training time since dask will cache and reuse the intermediate steps.
      param_grid={'tfidftransformer__norm': ['l1', 'l2', None], 'sgdclassifier__loss': ['hing', 'log'], 'sgdclassifier__alpha': [1e-05, 0.001, 0.1]},
      refit=True, return_train_score=True, scheduler=None, scoring=None)
 
-
 With the regular scikit-learn version, each stage of the pipeline must be fit
 for each of the combinations of the parameters, even if that step isn't being
 searched over. For example, the ``CountVectorizer`` must be fit 3 * 2 * 2 = 12
@@ -86,4 +85,24 @@ times, even though it's identical each time.
 
 See :ref:`examples/hyperparameter-search.ipynb` for an example.
 
+Incremental Learnings
+---------------------
+
+Some scikit-learn models support `incremental learning`_, they can see batches
+of the datasets and update the parameters as new data comes in. This fits nicely
+with dask's block-wise nature: dask arrays are composed of many smaller NumPy
+arrays. ``dask-ml`` wraps scikit-learn's incremental learners, so that the usual
+``.fit`` API will work on larger-than-memory datasets. These wrappers can be
+dropped into a :class:`sklearn.pipeline.Pipeline` just like normal. In
+``dask-ml``, all of these estimators are prefixed with ``Partial``, e.g.
+:class:`PartialSGDClassifier`.
+
+.. note::
+
+   While these wrappers are useful for fitting on larger than memory datasets
+   out-of-core, they *do not* support any kind of parallelism or distributed
+   learning. Inside, e.g. ``PartialSGDClassifier.fit()``, execution is entirely
+   sequential.
+
 .. _dask-searchcv: http://dask-searchcv.readthedocs.io/en/latest/
+.. _incremental learning: http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning
