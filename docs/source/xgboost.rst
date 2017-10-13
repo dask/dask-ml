@@ -1,7 +1,7 @@
 XGBoost
 =======
 
-.. currentmodule:: daskml.xgboost
+.. currentmodule:: dask_ml.xgboost
 
 .. autosummary::
    train
@@ -37,7 +37,7 @@ Example
    del test['x']  # remove informative column from data
 
    # from xgboost import XGBRegressor  # change import
-   from daskml.xgboost import XGBRegressor
+   from dask_ml.xgboost import XGBRegressor
 
    est = XGBRegressor(...)
    est.fit(train, train_labels)

@@ -4,11 +4,11 @@ the same as the serial.
 """
 import numpy as np
 from dask.array.utils import assert_eq
-from daskml.cluster import KMeans as DKKMeans
-from daskml.utils import assert_estimator_equal
+from dask_ml.cluster import KMeans as DKKMeans
+from dask_ml.utils import assert_estimator_equal
 from sklearn.cluster import KMeans as SKKMeans
 from sklearn.cluster import k_means_
-from daskml.utils import row_norms
+from dask_ml.utils import row_norms
 
 
 def test_row_norms(X_blobs):

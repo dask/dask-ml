@@ -1,7 +1,7 @@
 Generalized Linear Models
 =========================
 
-.. currentmodule:: daskml.linear_model
+.. currentmodule:: dask_ml.linear_model
 
 .. autosummary::
    LinearRegression

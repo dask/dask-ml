@@ -1,7 +1,7 @@
 from sklearn import neural_network as nn_
-from daskml import neural_network as nn
+from dask_ml import neural_network as nn
 
-from daskml.utils import assert_estimator_equal
+from dask_ml.utils import assert_estimator_equal
 
 
 class TestMLPClassifier(object):

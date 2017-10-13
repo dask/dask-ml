@@ -1,7 +1,7 @@
 from sklearn import linear_model as lm_
-from daskml import linear_model as lm
+from dask_ml import linear_model as lm
 
-from daskml.utils import assert_estimator_equal
+from dask_ml.utils import assert_estimator_equal
 
 
 class TestStochasticGradientClassifier(object):

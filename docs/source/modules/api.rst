@@ -4,14 +4,14 @@
 API Reference
 =============
 
-:mod:`daskml.linear_model`: Generalized Linear Models
-=====================================================
+:mod:`dask_ml.linear_model`: Generalized Linear Models
+======================================================
 
-.. automodule:: daskml.linear_model
+.. automodule:: dask_ml.linear_model
    :no-members:
    :no-inherited-members:
 
-.. currentmodule:: daskml
+.. currentmodule:: dask_ml
 
 .. autosummary::
    :toctree: generated/
@@ -26,14 +26,14 @@ API Reference
    linear_model.PartialSGDRegressor
    linear_model.PoissonRegression
 
-:mod:`daskml.cluster`: Clustering
-=================================
+:mod:`dask_ml.cluster`: Clustering
+==================================
 
-.. automodule:: daskml.cluster
+.. automodule:: dask_ml.cluster
    :no-members:
    :no-inherited-members:
 
-.. currentmodule:: daskml
+.. currentmodule:: dask_ml
 
 .. autosummary::
    :toctree: generated/
@@ -43,12 +43,12 @@ API Reference
    cluster.PartialMiniBatchKMeans
 
 
-:mod:`daskml.preprocessing`: Preprocessing Data
-===============================================
+:mod:`dask_ml.preprocessing`: Preprocessing Data
+================================================
 
-.. automodule:: daskml.preprocessing
+.. automodule:: dask_ml.preprocessing
 
-.. currentmodule:: daskml
+.. currentmodule:: dask_ml
 
 .. autosummary::
    :toctree: generated/
@@ -59,12 +59,12 @@ API Reference
    preprocessing.QuantileTransformer
 
 
-:mod:`daskml.xgboost`: XGBoost
-==============================
+:mod:`dask_ml.xgboost`: XGBoost
+===============================
 
-.. automodule:: daskml.xgboost
+.. automodule:: dask_ml.xgboost
 
-.. currentmodule:: daskml.xgboost
+.. currentmodule:: dask_ml.xgboost
 
 .. autosummary::
    :toctree: generated/

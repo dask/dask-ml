@@ -33,14 +33,14 @@ extra_requires = {
 # C Extensions
 extensions = [
     Extension(
-        "daskml.cluster._k_means",
-        ["daskml/cluster/_k_means.pyx"],
+        "dask_ml.cluster._k_means",
+        ["dask_ml/cluster/_k_means.pyx"],
         include_dirs=[np.get_include()],
     ),
 ]
 
 setup(
-    name='daskml',
+    name='dask_ml',
     description='A library for distributed and parallel machine learning',
     long_description=long_description,
     url='https://github.com/dask/dask-ml',

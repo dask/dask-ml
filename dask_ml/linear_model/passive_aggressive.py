@@ -1,6 +1,6 @@
 from sklearn import linear_model as _lm
 
-from daskml.base import _BigPartialFitMixin, _copy_partial_doc
+from dask_ml.base import _BigPartialFitMixin, _copy_partial_doc
 
 
 @_copy_partial_doc

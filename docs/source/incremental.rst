@@ -1,7 +1,7 @@
 Incremental Learning
 ====================
 
-.. currentmodule::  daskml
+.. currentmodule::  dask_ml
 
 .. autosummary::
    naive_bayes.PartialBernoulliNB
@@ -46,8 +46,8 @@ Example
 
 .. code-block:: python
 
-   >>> from daskml.linear_model import PartialSGDRegressor
-   >>> from daskml.datasets import make_classification
+   >>> from dask_ml.linear_model import PartialSGDRegressor
+   >>> from dask_ml.datasets import make_classification
    >>> X, y = make_classification(n_samples=100000, chunks=10000)
    >>> est = PartialSGDRegressor()
    >>> est.fit(X, y)
