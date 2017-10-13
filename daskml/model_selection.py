@@ -1,1 +1,1 @@
-from dask_searchcv.model_selection import GridSearchCV, RandomizedSearchCV
+from dask_searchcv.model_selection import GridSearchCV, RandomizedSearchCV  # noqa
