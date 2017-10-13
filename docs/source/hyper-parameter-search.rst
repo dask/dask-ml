@@ -4,9 +4,9 @@ Hyper Parameter Search
 .. autosummary::
    sklearn.pipeline.make_pipeline
    sklearn.model_selection.GridSearchCV
+   daskml.model_selection.GridSearchCV
    sklearn.model_selection.RandomizedSearchCV
-   dask_searchcv.GridSearchCV
-   dask_searchcv.RandomizedSearchCV
+   daskml.model_selection.RandomizedSearchCV
 
 Most estimators have a set of *hyper-parameters*.
 These are parameters that are not learned during training but instead must be
@@ -60,14 +60,14 @@ opportunity for dask to speed up model training not just by simple parallelism,
 but also by searching the space in a more structured way.
 
 If you use the drop-in replacements
-:class:`dask_searchcv.GridSearchCV` and
-:class:`dask_searchcv.RandomizedSearchCV` to fit a ``Pipeline``, you can improve
+:class:`daskml.model_selection.GridSearchCV` and
+:class:`daskml.model_selection.RandomizedSearchCV` to fit a ``Pipeline``, you can improve
 the training time since Dask will cache and reuse the intermediate steps.
 
 .. code-block:: python
 
    >>> # from sklearn.model_selection import GridSearchCV  # replace import
-   >>> from dask_searchcv.model_selection import GridSearchCV
+   >>> from daskml.model_selection import GridSearchCV
    >>> param_grid = {
    ...     'tfidftransformer__norm': ['l1', 'l2', None],
    ...     'sgdclassifier__loss': ['hing', 'log'],
