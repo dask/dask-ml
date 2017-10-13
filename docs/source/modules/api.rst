@@ -57,3 +57,20 @@ API Reference
    preprocessing.StandardScaler
    preprocessing.MinMaxScaler
    preprocessing.QuantileTransformer
+
+
+:mod:`daskml.xgboost`: XGBoost
+==============================
+
+.. automodule:: daskml.xgboost
+
+.. currentmodule:: daskml.xgboost
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   train
+   predict
+   XGBClassifier
+   XGBRegressor
