@@ -3,7 +3,7 @@
 Clustering
 ==========
 
-.. currentmodule:: daskml.cluster
+.. currentmodule:: dask_ml.cluster
 
 .. autosummary::
    KMeans

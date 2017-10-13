@@ -59,12 +59,12 @@ API Reference
    preprocessing.QuantileTransformer
 
 
-:mod:`daskml.xgboost`: XGBoost
-==============================
+:mod:`dask_ml.xgboost`: XGBoost
+===============================
 
-.. automodule:: daskml.xgboost
+.. automodule:: dask_ml.xgboost
 
-.. currentmodule:: daskml.xgboost
+.. currentmodule:: dask_ml.xgboost
 
 .. autosummary::
    :toctree: generated/
