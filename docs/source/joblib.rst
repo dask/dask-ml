@@ -9,9 +9,10 @@ Joblib_ is a library for simple parallel programming primarily developed and
 used by the Scikit Learn community.  As of version 0.10.0 it contains a plugin
 mechanism to allow Joblib code to use other parallel frameworks to execute
 computations.  The ``dask.distributed`` scheduler implements such a plugin in
-the ``distributed.joblib`` module and registers it appropriately with Joblib.
-As a result, any joblib code (including many scikit-learn algorithms) will run
-on the distributed scheduler if you enclose it in a context manager as follows:
+the ``distributed.joblib`` module and registers it appropriately with Joblib
+when imported.  As a result, any joblib code (including many scikit-learn
+algorithms) will run on the distributed scheduler if you enclose it in a
+context manager as follows:
 
 .. code-block:: python
 
