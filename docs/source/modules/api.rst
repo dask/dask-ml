@@ -4,19 +4,19 @@
 API Reference
 =============
 
-:mod:`daskml.linear_model`: Generalized Linear Models
-=====================================================
+:mod:`dask_ml.linear_model`: Generalized Linear Models
+======================================================
 
-.. automodule:: daskml.linear_model
+.. automodule:: dask_ml.linear_model
    :no-members:
    :no-inherited-members:
 
-.. currentmodule:: daskml
+.. currentmodule:: dask_ml
 
 .. autosummary::
    :toctree: generated/
    :template: class.rst
-              
+
    linear_model.LinearRegression
    linear_model.LogisticRegression
    linear_model.PartialPassiveAggressiveClassifier
@@ -26,14 +26,14 @@ API Reference
    linear_model.PartialSGDRegressor
    linear_model.PoissonRegression
 
-:mod:`daskml.cluster`: Clustering
-=================================
+:mod:`dask_ml.cluster`: Clustering
+==================================
 
-.. automodule:: daskml.cluster
+.. automodule:: dask_ml.cluster
    :no-members:
    :no-inherited-members:
 
-.. currentmodule:: daskml
+.. currentmodule:: dask_ml
 
 .. autosummary::
    :toctree: generated/
@@ -43,15 +43,38 @@ API Reference
    cluster.PartialMiniBatchKMeans
 
 
-:mod:`daskml.preprocessing`: Preprocessing Data
-===============================================
+:mod:`dask_ml.preprocessing`: Preprocessing Data
+================================================
 
-.. automodule:: daskml.preprocessing
+.. automodule:: dask_ml.preprocessing
 
-.. currentmodule:: daskml
+.. currentmodule:: dask_ml
 
 .. autosummary::
+   :toctree: generated/
+   :template: class.rst
 
    preprocessing.StandardScaler
    preprocessing.MinMaxScaler
    preprocessing.QuantileTransformer
+
+
+:mod:`dask_ml.xgboost`: XGBoost
+===============================
+
+.. automodule:: dask_ml.xgboost
+
+.. currentmodule:: dask_ml.xgboost
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   XGBClassifier
+   XGBRegressor
+
+.. autosummary::
+   :toctree: generated/
+
+   train
+   predict

@@ -1,4 +1,4 @@
-"""The ``daskml.linear_model`` module implements linear models for
+"""The ``dask_ml.linear_model`` module implements linear models for
 classification and regression.
 """
 from .stochastic_gradient import PartialSGDClassifier, PartialSGDRegressor  # noqa

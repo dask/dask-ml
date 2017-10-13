@@ -4,7 +4,7 @@ import numpy.testing as npt
 from dask.array.utils import assert_eq
 import sklearn.metrics as sm
 
-import daskml.metrics as dm
+import dask_ml.metrics as dm
 
 
 def test_pairwise_distances(X_blobs):

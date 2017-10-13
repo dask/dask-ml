@@ -8,10 +8,10 @@ import dask.array as da
 from dask.array.utils import assert_eq as assert_eq_ar
 from dask.dataframe.utils import assert_eq as assert_eq_df
 
-from daskml.utils import (
+from dask_ml.utils import (
     slice_columns, handle_zeros_in_scale, assert_estimator_equal
 )
-from daskml.datasets import make_classification
+from dask_ml.datasets import make_classification
 
 
 df = dd.from_pandas(pd.DataFrame(5*[range(42)]).T, npartitions=5)

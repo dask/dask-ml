@@ -4,7 +4,7 @@ from dask import delayed
 from sklearn.base import BaseEstimator
 from sklearn import naive_bayes as _naive_bayes
 
-from daskml.base import _BigPartialFitMixin, _copy_partial_doc
+from dask_ml.base import _BigPartialFitMixin, _copy_partial_doc
 
 
 class GaussianNB(BaseEstimator):
@@ -13,8 +13,8 @@ class GaussianNB(BaseEstimator):
 
     Examples
     --------
-    >>> from daskml import datasets
-    >>> from daskml.naive_bayes import GaussianNB
+    >>> from dask_ml import datasets
+    >>> from dask_ml.naive_bayes import GaussianNB
     >>> X, y = datasets.make_classification(chunks=10)
     >>> gnb = GaussianNB()
     >>> gnb.fit(X, y)

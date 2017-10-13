@@ -15,7 +15,7 @@ import pandas as pd
 import requests
 import s3fs
 import sklearn.cluster as sk
-from daskml.cluster import KMeans
+from dask_ml.cluster import KMeans
 from distributed import Client
 from sklearn.datasets import get_data_home
 

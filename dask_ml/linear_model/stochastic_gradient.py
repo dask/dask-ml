@@ -1,6 +1,6 @@
 from sklearn.linear_model import stochastic_gradient as _sg
 
-from daskml.base import _BigPartialFitMixin, _copy_partial_doc
+from dask_ml.base import _BigPartialFitMixin, _copy_partial_doc
 
 
 @_copy_partial_doc

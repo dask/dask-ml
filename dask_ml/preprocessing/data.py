@@ -10,7 +10,7 @@ from scipy import stats
 from sklearn.preprocessing import data as skdata
 from sklearn.utils.validation import check_random_state
 
-from daskml.utils import handle_zeros_in_scale, slice_columns
+from dask_ml.utils import handle_zeros_in_scale, slice_columns
 
 
 class StandardScaler(skdata.StandardScaler):
