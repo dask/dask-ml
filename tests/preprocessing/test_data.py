@@ -8,9 +8,9 @@ import pandas as pd
 from dask.array.utils import assert_eq as assert_eq_ar
 from dask.array.utils import assert_eq as assert_eq_df
 
-import daskml.preprocessing as dpp
-from daskml.datasets import make_classification
-from daskml.utils import assert_estimator_equal
+import dask_ml.preprocessing as dpp
+from dask_ml.datasets import make_classification
+from dask_ml.utils import assert_estimator_equal
 
 
 X, y = make_classification(chunks=2)

@@ -1,7 +1,7 @@
 from sklearn import cluster as cluster_
-from daskml import cluster
+from dask_ml import cluster
 
-from daskml.utils import assert_estimator_equal
+from dask_ml.utils import assert_estimator_equal
 
 
 class TestMiniBatchKMeans(object):

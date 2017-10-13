@@ -9,4 +9,4 @@ Clustering
    KMeans
    PartialMiniBatchKMeans
 
-The :mod:`daskml.cluster` module implements K-Means clustering for unlabeled data.
+The :mod:`dask_ml.cluster` module implements K-Means clustering for unlabeled data.

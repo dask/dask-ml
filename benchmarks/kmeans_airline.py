@@ -12,7 +12,7 @@ import pandas as pd
 import dask.dataframe as dd
 from distributed import Client
 from dask import persist
-from daskml.cluster import KMeans
+from dask_ml.cluster import KMeans
 
 logger = logging.getLogger()
 coloredlogs.install()

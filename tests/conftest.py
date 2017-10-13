@@ -1,12 +1,12 @@
 import pytest
 import numpy as np
 
-from daskml.datasets import (make_classification,
-                             make_regression,
-                             make_blobs,
-                             make_counts)
+from dask_ml.datasets import (make_classification,
+                              make_regression,
+                              make_blobs,
+                              make_counts)
 
-pytest.register_assert_rewrite('daskml.utils')
+pytest.register_assert_rewrite('dask_ml.utils')
 pytest.register_assert_rewrite('dask.array.utils')
 
 
