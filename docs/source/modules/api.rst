@@ -70,7 +70,11 @@ API Reference
    :toctree: generated/
    :template: class.rst
 
-   train
-   predict
    XGBClassifier
    XGBRegressor
+
+.. autosummary::
+   :toctree: generated/
+
+   train
+   predict
