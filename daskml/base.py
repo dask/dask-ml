@@ -5,6 +5,7 @@ from dask.array import learn
 
 
 class _BigPartialFitMixin(object):
+    """ Wraps a partial_fit enabled estimator for use with Dask arrays """
 
     _init_kwargs = []
     _fit_kwargs = []

@@ -1,19 +1,26 @@
-.. _single-machine:
+Hyper Parameter Search
+======================
 
-==============
-Single Machine
-==============
+.. autosummary::
+   sklearn.pipeline.make_pipeline
+   sklearn.model_selection.GridSearchCV
+   daskml.model_selection.GridSearchCV
+   sklearn.model_selection.RandomizedSearchCV
+   daskml.model_selection.RandomizedSearchCV
 
-First, we need to recognize that most machine learning frameworks already use
-parallelism in quite a few places. For example, in scikit-learn anywhere you see
-an ``n_jobs`` parameter, scikit-learn will already be using some parallelism.
-That said, dask can still improve performance through its sophisticated caching
-when fitting a a :class:`sklearn.pipeline.Pipeline`.
+Most estimators have a set of *hyper-parameters*.
+These are parameters that are not learned during training but instead must be
+set ahead of time. Traditionally we use Scikit-Learn tools like
+:class:`sklearn.model_selection.GridSearchCV` and
+:class:`sklearn.model_selection.RandomizedSearchCV` to tune our
+hyper-parameters by searching over the space of hyper-parameters to find the
+combination that gives the best performance on a cross-validation set.
 
 Pipelines
 ---------
 
-First, some non-dask-related background:
+This search for hyper-parameters can become significantly more expensive when
+we have not a single estimator, but many estimators arranged into a pipeline.
 A :class:`sklearn.pipeline.Pipeline` makes it possible to define the entire modeling
 process, from raw data to fit estimator, in a single python object. You can
 create a pipeline with :func:`sklearn.pipeline.make_pipeline`.
@@ -39,27 +46,28 @@ Pipelines work by calling the usual ``fit`` and ``transform`` methods in success
 The result of the prior ``transform`` is passed into the next ``fit`` step.
 We'll see an example in the next section.
 
+Efficient Search
+----------------
+
+However now each of our estimators in our pipeline have hyper-parameters,
+both expanding the space over which we want to search as well as adding
+hierarchy to the search process.  For every parameter we try in the first stage
+in the pipeline we want to try several in the second, and several more in the
+third, and so on.
+
 The common combination of pipelines and hyper-parameter search provide an
-opportunity for dask to speed up model training.
+opportunity for dask to speed up model training not just by simple parallelism,
+but also by searching the space in a more structured way.
 
-Hyper-parameter Search
-----------------------
-
-Most scikit-learn estimators have a set of *hyper-parameters*.
-These are parameters that are not learned during estimation; they must
-be set ahead of time. :class:`sklearn.model_selection.GridSearchCV` and
-:class:`sklearn.model_selection.RandomizedSearchCV` let you tune your
-hyper-parameters by searching over the space of hyper-parameters to find the
-combination that gives the best performance on a cross-validation set.
-
-Here's where dask comes in: If you use the drop-in replacements
-:class:`dask_searchcv.GridSearchCV` and
-:class:`dask_searchcv.RandomizedSearchCV` to fit a ``Pipeline``, you can improve
-the training time since dask will cache and reuse the intermediate steps.
+If you use the drop-in replacements
+:class:`daskml.model_selection.GridSearchCV` and
+:class:`daskml.model_selection.RandomizedSearchCV` to fit a ``Pipeline``, you can improve
+the training time since Dask will cache and reuse the intermediate steps.
 
 .. code-block:: python
 
-   >>> from dask_searchcv import GridSearchCV
+   >>> # from sklearn.model_selection import GridSearchCV  # replace import
+   >>> from daskml.model_selection import GridSearchCV
    >>> param_grid = {
    ...     'tfidftransformer__norm': ['l1', 'l2', None],
    ...     'sgdclassifier__loss': ['hing', 'log'],
@@ -85,24 +93,4 @@ times, even though it's identical each time.
 
 See :ref:`examples/hyperparameter-search.ipynb` for an example.
 
-Incremental Learnings
----------------------
-
-Some scikit-learn models support `incremental learning`_, they can see batches
-of the datasets and update the parameters as new data comes in. This fits nicely
-with dask's block-wise nature: dask arrays are composed of many smaller NumPy
-arrays. ``dask-ml`` wraps scikit-learn's incremental learners, so that the usual
-``.fit`` API will work on larger-than-memory datasets. These wrappers can be
-dropped into a :class:`sklearn.pipeline.Pipeline` just like normal. In
-``dask-ml``, all of these estimators are prefixed with ``Partial``, e.g.
-:class:`PartialSGDClassifier`.
-
-.. note::
-
-   While these wrappers are useful for fitting on larger than memory datasets
-   out-of-core, they *do not* support any kind of parallelism or distributed
-   learning. Inside, e.g. ``PartialSGDClassifier.fit()``, execution is entirely
-   sequential.
-
 .. _dask-searchcv: http://dask-searchcv.readthedocs.io/en/latest/
-.. _incremental learning: http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning
