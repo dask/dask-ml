@@ -7,12 +7,26 @@ import dask.dataframe as dd
 import numpy as np
 
 
+
+def _get_mask(X, value_to_mask):
+    """Compute the boolean mask X == missing_values."""
+    if value_to_mask == "NaN" or np.isnan(value_to_mask):
+        return np.isnan(X)
+    else:
+        return X == value_to_mask
+
+
 class Imputer(skimputation.Imputer):
     def __init__(self, missing_values="NaN", strategy="mean",
                  axis=0, verbose=0, copy=True, columns=None):
         super().__init__(missing_values="NaN", strategy="mean",
                          axis=0, verbose=0, copy=True)
         self.columns = columns
+        self.missing_values = missing_values
+        self.strategy = strategy
+        self.axis = axis
+        self.verbose = verbose
+        self.copy = copy
 
         if (not copy or missing_values != "NaN" or strategy != "mean"
                 or axis != 0 or verbose != 0):
@@ -36,13 +50,6 @@ class Imputer(skimputation.Imputer):
         if self.missing_values != "NaN":
             _X = _X.where(_X != self.missing_values, np.nan)
 
-        if self.strategy == "mean":
-            to_persist["statistics_"] = _X.mean()
-        elif self.strategy == "median":
-            to_persist["statistics_"] = _X.median()
-        elif self.strategy == "most_frequent":
-            raise NotImplementedError()
-
         values = persist(*to_persist.values())
         for k, v in zip(to_persist, values):
             setattr(self, k, v)
@@ -50,12 +57,4 @@ class Imputer(skimputation.Imputer):
         return self
 
     def transform(self, X):
-        _X = slice_columns(X, self.columns)
-        if self.missing_values != "NaN":
-            _X = _X.where(_X != self.missing_values, np.nan)
-        if isinstance(_X, dd._Frame) and self.columns:
-            for column in self.columns:
-                X[column] = _X[column]
-            return X.fillna(self.statistics_)
-        else:
-            return _X.fillna(self.statistics_)
+        pass
