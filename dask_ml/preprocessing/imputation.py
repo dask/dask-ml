@@ -74,17 +74,13 @@ class Imputer(skimputation.Imputer):
     def transform(self, X):
         _X = slice_columns(X, self.columns)
         s = self.statistics_.compute()
-        if self.missing_values == "NaN" or np.isnan(self.missing_values):
-            if isinstance(_X, dd._Frame):
-                for c in _X.columns:
-                    _X[c] = _X[c].mask(_X[c].isnull(), s[c])
-            else:
-                for i in range(_X.shape[1]):
-                    _X[:, i][da.isnull(_X[:, i])] = s[i]
+        if isinstance(_X, dd._Frame):
+            for c in _X.columns:
+                x = _X[c]
+                mask = (x.isnull() if self.missing_values == "NaN"
+                        or np.isnan(self.missing_values)
+                        else x == self.missing_values)
+                _X[c] = x.mask(mask, s[c])
         else:
-            if isinstance(_X, dd._Frame):
-                for c in _X.columns:
-                    _X[c] = _X[c].mask(_X[c] == self.missing_values, s[c])
-            else:
-                raise NotImplementedError()
+            raise NotImplementedError()
         return _X

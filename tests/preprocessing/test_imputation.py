@@ -8,9 +8,9 @@ from dask.array.utils import assert_eq as assert_eq_ar
 
 
 X, y = make_classification(chunks=2)
-X_with_zeros = X
+X_with_zeros = X.copy()
 X_with_zeros[X < 0] = 0
-X_with_nan = X
+X_with_nan = X.copy()
 X_with_nan[X < 0] = np.nan
 df_with_zeros = X_with_zeros.to_dask_dataframe().rename(columns=str)
 df_with_nan = df_with_zeros.mask(df_with_zeros > 1)
@@ -38,6 +38,9 @@ class TestImputer(object):
                      b.statistics_[columns_ix])
 
     @pytest.mark.parametrize('X,missing_values,columns', [
+        (X_with_nan, "NaN", None),
+        (X_with_nan, np.nan, None),
+        (X_with_zeros, 0, None),
         (df_with_nan, "NaN", ['1', '2']),
         (df_with_nan, np.nan, ['1', '2']),
         (df_with_zeros, 0, ['1', '2']),
