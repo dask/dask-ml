@@ -49,9 +49,9 @@ class Imputer(skimputation.Imputer):
         _X = slice_columns(X, self.columns)
         _masked_X = _mask_values(_X, self.missing_values)
         if self.axis == 0:
-            self.statistics_ = self._dense_fit(_masked_X,
-                                               self.strategy,
-                                               self.missing_values)
+            to_persist['statistics_'] = self._dense_fit(_masked_X,
+                                                        self.strategy,
+                                                        self.missing_values)
 
         values = persist(*to_persist.values())
         for k, v in zip(to_persist, values):
@@ -68,5 +68,18 @@ class Imputer(skimputation.Imputer):
 
         return estimator(_masked_X)
 
-    def transform(self, X):
+    def _sparse_fit(self):
         pass
+
+    def transform(self, X):
+        _X = slice_columns(X, self.columns)
+        s = self.statistics_.compute()
+        if self.missing_values == "NaN" or np.isnan(self.missing_values):
+            raise NotImplementedError()
+        else:
+            if isinstance(_X, dd._Frame):
+                for c in self.columns:
+                    _X[c] = _X[c].mask(_X[c] == self.missing_values, s[c])
+            else:
+                raise NotImplementedError()
+        return _X
