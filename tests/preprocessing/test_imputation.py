@@ -1,43 +1,57 @@
 import dask_ml.preprocessing as dpp
 import sklearn.preprocessing as spp
+import dask.dataframe as dd
+import numpy as np
+import pytest
 from dask_ml.datasets import make_classification
 from dask.array.utils import assert_eq as assert_eq_ar
-from dask_ml.utils import assert_estimator_equal
 
 
 X, y = make_classification(chunks=2)
-X[X < 0] = 0
-df2 = X.to_dask_dataframe().rename(columns=str)
-df = df2.mask(df2 > 1)
+X_with_zeros = X
+X_with_zeros[X < 0] = 0
+X_with_nan = X
+X_with_nan[X < 0] = np.nan
+df_with_zeros = X_with_zeros.to_dask_dataframe().rename(columns=str)
+df_with_nan = df_with_zeros.mask(df_with_zeros > 1)
 
 
 class TestImputer(object):
-    def test_array_fit(self):
-        a = dpp.Imputer(missing_values=0)
-        b = spp.Imputer(missing_values=0)
-
+    @pytest.mark.parametrize('X,missing_values,columns', [
+        (X_with_nan, "NaN", None),
+        (X_with_nan, np.nan, None),
+        (X_with_zeros, 0, None),
+        (df_with_nan, "NaN", ['1', '2']),
+        (df_with_nan, np.nan, ['1', '2']),
+        (df_with_zeros, 0, ['1', '2']),
+        (df_with_zeros, 0, None)
+    ])
+    def test_fit(self, X, missing_values, columns):
+        a = dpp.Imputer(columns=columns, missing_values=missing_values)
+        b = spp.Imputer(missing_values=missing_values)
+        columns_ix = list(map(int, columns) if columns else
+                          range(len(X.columns) if isinstance(X, dd._Frame)
+                                else X.shape[1]))
         a.fit(X)
         b.fit(X.compute())
-        assert_estimator_equal(a, b)
+        assert_eq_ar(a.statistics_.compute(),
+                     b.statistics_[columns_ix])
 
-    def test_df_fit(self):
-        mask = ['1', '2']
-        mask_ix = list(map(int, mask))
-        a = dpp.Imputer(columns=mask)
-        b = spp.Imputer()
-
-        a.fit(df)
-        b.fit(df.values.compute())
-
-        assert_eq_ar(a.statistics_.values.compute(),
-                     b.statistics_[mask_ix])
-
-    def test_df_fit_transform(self):
-        mask = ['1', '2']
-        mask_ix = list(map(int, mask))
-        a = dpp.Imputer(columns=mask, missing_values=0)
-        b = spp.Imputer(missing_values=0)
-
-        dfa = a.fit_transform(df2)[mask].compute()
-        mxb = b.fit_transform(df2.values.compute())[:, mask_ix]
-        assert_eq_ar(dfa.values, mxb)
+    @pytest.mark.parametrize('X,missing_values,columns', [
+        (df_with_nan, "NaN", ['1', '2']),
+        (df_with_nan, np.nan, ['1', '2']),
+        (df_with_zeros, 0, ['1', '2']),
+        (df_with_zeros, 0, None)
+    ])
+    def test_fit_transform(self, X, missing_values, columns):
+        a = dpp.Imputer(columns=columns, missing_values=missing_values)
+        b = spp.Imputer(missing_values=missing_values)
+        columns_ix = list(map(int, columns) if columns else
+                          range(len(X.columns) if isinstance(X, dd._Frame)
+                                else X.shape[1]))
+        ta = a.fit_transform(X).compute()
+        tb = b.fit_transform(X.compute())[:, columns_ix]
+        if isinstance(X, dd._Frame):
+            assert_eq_ar(ta.values, tb)
+        else:
+            assert_eq_ar(ta, tb)

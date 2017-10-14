@@ -69,16 +69,21 @@ class Imputer(skimputation.Imputer):
         return estimator(_masked_X)
 
     def _sparse_fit(self):
-        pass
+        raise NotImplementedError()
 
     def transform(self, X):
         _X = slice_columns(X, self.columns)
         s = self.statistics_.compute()
         if self.missing_values == "NaN" or np.isnan(self.missing_values):
-            raise NotImplementedError()
+            if isinstance(_X, dd._Frame):
+                for c in _X.columns:
+                    _X[c] = _X[c].mask(_X[c].isnull(), s[c])
+            else:
+                for i in range(_X.shape[1]):
+                    _X[:, i][da.isnull(_X[:, i])] = s[i]
         else:
             if isinstance(_X, dd._Frame):
-                for c in self.columns:
+                for c in _X.columns:
                     _X[c] = _X[c].mask(_X[c] == self.missing_values, s[c])
             else:
                 raise NotImplementedError()
