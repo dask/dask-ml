@@ -1,19 +1,20 @@
 from collections import OrderedDict
 
 from dask import persist
+from dask_ml.utils import slice_columns
 from sklearn.preprocessing import imputation as skimputation
-from daskml.utils import slice_columns
 import dask.dataframe as dd
+import dask.array as da
 import numpy as np
 
 
-
-def _get_mask(X, value_to_mask):
-    """Compute the boolean mask X == missing_values."""
-    if value_to_mask == "NaN" or np.isnan(value_to_mask):
-        return np.isnan(X)
+def _mask_values(X, missing_values):
+    """Compute the masked version of X."""
+    if missing_values == "NaN" or np.isnan(missing_values):
+        return X if isinstance(X, dd._Frame) else da.ma.masked_invalid(X)
     else:
-        return X == value_to_mask
+        return (X.mask(X == missing_values) if isinstance(X, dd._Frame)
+                else da.ma.masked_equal(X, missing_values))
 
 
 class Imputer(skimputation.Imputer):
@@ -28,8 +29,7 @@ class Imputer(skimputation.Imputer):
         self.verbose = verbose
         self.copy = copy
 
-        if (not copy or missing_values != "NaN" or strategy != "mean"
-                or axis != 0 or verbose != 0):
+        if not copy or strategy != "mean" or axis != 0 or verbose != 0:
             raise NotImplementedError()
 
     def fit(self, X, y=None):
@@ -47,14 +47,26 @@ class Imputer(skimputation.Imputer):
                              " got axis={0}".format(self.axis))
 
         _X = slice_columns(X, self.columns)
-        if self.missing_values != "NaN":
-            _X = _X.where(_X != self.missing_values, np.nan)
+        _masked_X = _mask_values(_X, self.missing_values)
+        if self.axis == 0:
+            self.statistics_ = self._dense_fit(_masked_X,
+                                               self.strategy,
+                                               self.missing_values)
 
         values = persist(*to_persist.values())
         for k, v in zip(to_persist, values):
             setattr(self, k, v)
 
         return self
+
+    def _dense_fit(self, _masked_X, strategy, missing_values):
+        if strategy == "mean":
+            estimator = (lambda x: x.mean() if isinstance(x, dd._Frame)
+                         else da.ma.filled(x.mean(0)))
+        else:
+            raise NotImplementedError()
+
+        return estimator(_masked_X)
 
     def transform(self, X):
         pass
