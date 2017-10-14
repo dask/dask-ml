@@ -17,6 +17,13 @@ def _mask_values(X, missing_values):
                 else da.ma.masked_equal(X, missing_values))
 
 
+def _safe_eq(X, v):
+    if isinstance(X, dd._Frame):
+        return X.isnull() if v == "NaN" or np.isnan(v) else X == v
+    else:
+        return da.isnull(X) if v == "NaN" or np.isnan(v) else X == v
+
+
 class Imputer(skimputation.Imputer):
     def __init__(self, missing_values="NaN", strategy="mean",
                  axis=0, verbose=0, copy=True, columns=None):
@@ -72,15 +79,12 @@ class Imputer(skimputation.Imputer):
         raise NotImplementedError()
 
     def transform(self, X):
-        _X = slice_columns(X, self.columns)
+        _X = slice_columns(X, self.columns).copy()
         s = self.statistics_.compute()
         if isinstance(_X, dd._Frame):
             for c in _X.columns:
-                x = _X[c]
-                mask = (x.isnull() if self.missing_values == "NaN"
-                        or np.isnan(self.missing_values)
-                        else x == self.missing_values)
-                _X[c] = x.mask(mask, s[c])
+                _X[c] = _X[c].mask(_safe_eq(_X[c], self.missing_values), s[c])
         else:
-            raise NotImplementedError()
+            _X = da.vstack([da.where(_safe_eq(x, self.missing_values), s[i], x)
+                            for i, x in enumerate(X.T)]).T
         return _X
