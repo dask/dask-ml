@@ -13,5 +13,8 @@ dependencies:
 - pandas
 - scikit-learn
 - scipy
+- sphinx_rtd_theme
+- xgboost
+- dask-xgboost
 - pip:
   - dask-glm
