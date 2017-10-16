@@ -9,7 +9,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: deps-{{ .Branch }}-{{ checksum "ci/environment-circle.yml" }}
+          key: deps-{{ .Branch }}-{{ checksum "ci/environment.yml" }}
       - run:
           name: configure conda
           command: |
@@ -18,7 +18,7 @@ jobs:
             conda update -q conda
             conda install conda-build anaconda-client --yes
             conda config --add channels conda-forge
-            conda env create -f ci/environment-circle.yml --name=${ENV_NAME}
+            conda env create -f ci/environment.yml --name=${ENV_NAME}
             source activate ${ENV_NAME}
             pip install --no-deps -e .
             conda list ${ENV_NAME}
@@ -34,6 +34,6 @@ jobs:
             source activate ${ENV_NAME}
             flake8
       - save_cache:
-          key: deps-{{ .Branch }}-{{ checksum "ci/environment-circle.yml" }}
+          key: deps-{{ .Branch }}-{{ checksum "ci/environment.yml" }}
           paths:
             - "/opt/conda/envs/${ENV_NAME}/"
