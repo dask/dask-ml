@@ -225,7 +225,10 @@ def k_init(X, n_clusters, init='k-means||',
         t1 = tic()
         logger.info("init iteration %2d/%2d %.2f s, %2d centers",
                     i + 1, n_iter, t1 - t0, len(c_idx))
-        centers = X[list(c_idx)].compute()
+        # Sort before slicing, for better performance / memory
+        # usage with the scheduler.
+        # See https://github.com/dask/dask-ml/issues/39
+        centers = X[sorted(c_idx)].compute()
 
     # Step 7: weights
     # XXX: scikit-learn doesn't have weighted k-means.
@@ -283,6 +286,7 @@ def _sample_points(X, centers, oversampling_factor):
     denom = distances.sum()
     p = oversampling_factor * distances / denom
 
+    # TODO: use random_state
     draws = da.random.uniform(size=len(p), chunks=p.chunks)
     picked = p > draws
 
@@ -330,7 +334,7 @@ def _kmeans_single_lloyd(X, n_clusters, max_iter=300, init='k-means||',
         # Convergence check
         shift = squared_norm(centers - new_centers)
         t1 = tic()
-        logger.info("Lloyd loop %2d. Shift: %0.2f [%.2f s]", i, shift, t1 - t0)
+        logger.info("Lloyd loop %2d. Shift: %0.4f [%.2f s]", i, shift, t1 - t0)
         if shift < tol:
             break
         centers = new_centers
