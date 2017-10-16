@@ -18,7 +18,7 @@ jobs:
             conda update -q conda
             conda install conda-build anaconda-client --yes
             conda config --add channels conda-forge
-            conda env create -f ci/environment-circle.yml
+            conda env create -f ci/environment-circle.yml --name=${ENV_NAME}
             source activate ${ENV_NAME}
             pip install --no-deps -e .
             conda list ${ENV_NAME}
