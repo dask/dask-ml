@@ -28,3 +28,4 @@ dependencies:
     - sphinx-rtd-theme
     - git+https://github.com/dask/dask.git
     - git+https://github.com/dask/distributed.git
+    - git+https://github.com/dask/dask-searchcv.git
