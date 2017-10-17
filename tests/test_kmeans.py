@@ -2,8 +2,12 @@
 Mostly just smoke tests, and verifying that the parallel implementation is
 the same as the serial.
 """
+import dask.array as da
+import dask.dataframe as dd
 import numpy as np
+import pandas as pd
 import pytest
+
 
 from dask.array.utils import assert_eq
 from dask_ml.cluster import k_means
@@ -105,3 +109,19 @@ class TestKMeans:
 
         with pytest.raises(TypeError):
             k_means.k_init(X, 2, 2)
+
+    @pytest.mark.parametrize("X", [
+        np.random.uniform(size=(100, 4)),
+        da.random.uniform(size=(100, 4), chunks=(10, 4)),
+        pd.DataFrame(np.random.uniform(size=(100, 4))),
+    ])
+    def test_inputs(self, X):
+        km = DKKMeans(n_clusters=3)
+        km.fit(X)
+        km.transform(X)
+
+    def test_dask_dataframe_raises(self):
+        km = DKKMeans(n_clusters=3)
+        X = dd.from_pandas(pd.DataFrame({"A": range(50)}), npartitions=2)
+        with pytest.raises(TypeError):
+            km.fit(X)
