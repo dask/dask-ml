@@ -186,9 +186,6 @@ def k_init(X, n_clusters, init='k-means||',
     if isinstance(init, np.ndarray):
         return init
 
-    if isinstance(random_state, int) or random_state is None:
-        random_state = np.random.RandomState(random_state)
-
     if init == 'k-means++':
         x_squared_norms = row_norms(X, squared=True).compute()
         logger.info("Initializing with k-means++")
@@ -201,6 +198,9 @@ def k_init(X, n_clusters, init='k-means||',
         return centers
     elif init != 'k-means||':
         raise TypeError("Unexpected value for `init` {!r}".foramt(init))
+
+    if isinstance(random_state, int) or random_state is None:
+        random_state = da.random.RandomState(random_state)
 
     logger.info("Starting Init")
     init_start = tic()
@@ -219,13 +219,17 @@ def k_init(X, n_clusters, init='k-means||',
     # Steps 3 - 6: update candidate Centers
     for i in range(n_iter):
         t0 = tic()
-        new_idxs = _sample_points(X, centers, oversampling_factor)
+        new_idxs = _sample_points(X, centers, oversampling_factor,
+                                  random_state)
         new_idxs = set(*compute(new_idxs))
         c_idx |= new_idxs
         t1 = tic()
         logger.info("init iteration %2d/%2d %.2f s, %2d centers",
                     i + 1, n_iter, t1 - t0, len(c_idx))
-        centers = X[list(c_idx)].compute()
+        # Sort before slicing, for better performance / memory
+        # usage with the scheduler.
+        # See https://github.com/dask/dask-ml/issues/39
+        centers = X[sorted(c_idx)].compute()
 
     # Step 7: weights
     # XXX: scikit-learn doesn't have weighted k-means.
@@ -268,7 +272,7 @@ def evaluate_cost(X, centers):
     return (pairwise_distances(X, centers).min(1) ** 2).sum()
 
 
-def _sample_points(X, centers, oversampling_factor):
+def _sample_points(X, centers, oversampling_factor, random_state):
     r"""
     Sample points independently with probability
 
@@ -283,7 +287,8 @@ def _sample_points(X, centers, oversampling_factor):
     denom = distances.sum()
     p = oversampling_factor * distances / denom
 
-    draws = da.random.uniform(size=len(p), chunks=p.chunks)
+    # TODO: use random_state
+    draws = random_state.uniform(size=len(p), chunks=p.chunks)
     picked = p > draws
 
     new_idxs, = da.where(picked)
@@ -330,7 +335,7 @@ def _kmeans_single_lloyd(X, n_clusters, max_iter=300, init='k-means||',
         # Convergence check
         shift = squared_norm(centers - new_centers)
         t1 = tic()
-        logger.info("Lloyd loop %2d. Shift: %0.2f [%.2f s]", i, shift, t1 - t0)
+        logger.info("Lloyd loop %2d. Shift: %0.4f [%.2f s]", i, shift, t1 - t0)
         if shift < tol:
             break
         centers = new_centers
