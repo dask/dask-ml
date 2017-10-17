@@ -1,11 +1,12 @@
 from collections import OrderedDict
 
-from dask import persist
+from dask import persist, compute
 from dask_ml.utils import slice_columns
 from sklearn.preprocessing import imputation as skimputation
 import dask.dataframe as dd
 import dask.array as da
 import numpy as np
+import pandas as pd
 
 
 def _mask_values(X, missing_values):
@@ -15,6 +16,15 @@ def _mask_values(X, missing_values):
     else:
         return (X.mask(X == missing_values) if isinstance(X, dd._Frame)
                 else da.ma.masked_equal(X, missing_values))
+
+
+def _fit_columns_df(df, columns, estimator):
+    df = df.copy()
+    return {c: estimator(df[c]) for c in columns}
+
+
+def _fit_columns_ar(ar, estimator):
+    raise NotImplementedError()
 
 
 def _safe_eq(X, v):
@@ -36,7 +46,7 @@ class Imputer(skimputation.Imputer):
         self.verbose = verbose
         self.copy = copy
 
-        if not copy or strategy != "mean" or axis != 0 or verbose != 0:
+        if not copy or axis != 0 or verbose != 0:
             raise NotImplementedError()
 
     def fit(self, X, y=None):
@@ -67,20 +77,35 @@ class Imputer(skimputation.Imputer):
         return self
 
     def _dense_fit(self, _masked_X, strategy, missing_values):
+        columns = (self.columns
+                   if self.columns or isinstance(_masked_X, da.Array)
+                   else _masked_X.columns)
         if strategy == "mean":
-            estimator = (lambda x: x.mean() if isinstance(x, dd._Frame)
-                         else da.ma.filled(x.mean(0)))
+            return (_masked_X.mean() if isinstance(_masked_X, dd._Frame)
+                    else da.ma.filled(_masked_X.mean(0)))
+        elif strategy == "median":
+            def _estimator_df(x):
+                return x.dropna().quantile(0.5)
+
+            def _estimator_ar(x):
+                raise NotImplementedError()
+
+            return (_fit_columns_df(_masked_X, columns, _estimator_df)
+                    if isinstance(_masked_X, dd._Frame)
+                    else _fit_columns_ar(_masked_X, _estimator_ar))
         else:
             raise NotImplementedError()
-
-        return estimator(_masked_X)
 
     def _sparse_fit(self):
         raise NotImplementedError()
 
     def transform(self, X):
         _X = slice_columns(X, self.columns).copy()
-        s = self.statistics_.compute()
+        if isinstance(X, dd._Frame) and self.strategy == "median":
+            s = pd.Series(data=compute(list(self.statistics_.values()))[0],
+                          index=list(self.statistics_.keys()))
+        else:
+            s = self.statistics_.compute()
         if isinstance(_X, dd._Frame):
             for c in _X.columns:
                 _X[c] = _X[c].mask(_safe_eq(_X[c], self.missing_values), s[c])

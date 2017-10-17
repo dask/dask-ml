@@ -3,8 +3,10 @@ import sklearn.preprocessing as spp
 import dask.dataframe as dd
 import numpy as np
 import pytest
+import pandas as pd
 from dask_ml.datasets import make_classification
 from dask.array.utils import assert_eq as assert_eq_ar
+from dask import compute
 
 
 X, y = make_classification(chunks=2)
@@ -16,7 +18,7 @@ df_with_zeros = X_with_zeros.to_dask_dataframe().rename(columns=str)
 df_with_nan = df_with_zeros.mask(df_with_zeros > 1)
 
 
-@pytest.mark.parametrize('strategy', ["mean"])
+@pytest.mark.parametrize('strategy', ["mean", "median"])
 @pytest.mark.parametrize('X,missing_values,columns', [
     (X_with_nan, "NaN", None),
     (X_with_nan, np.nan, None),
@@ -35,13 +37,18 @@ class TestImputer(object):
                           range(len(X.columns) if isinstance(X, dd._Frame)
                                 else X.shape[1]))
 
-        if strategy == "median":
-            X = X.repartition(npartitions=1)
-
-        a.fit(X)
+        a.fit(X if strategy != "median" else (X.repatition(npartitions=1)
+                                              if isinstance(X, dd._Frame)
+                                              else X.rechunk(1)))
         b.fit(X.compute())
-        assert_eq_ar(a.statistics_.compute(),
-                     b.statistics_[columns_ix])
+
+        if strategy == "median":
+            c = pd.Series(data=compute(list(a.statistics_.values()))[0],
+                          index=list(a.statistics_.keys()))
+        else:
+            c = a.statistics_.compute()
+
+        assert_eq_ar(c, b.statistics_[columns_ix])
 
     def test_fit_transform(self, X, missing_values, columns, strategy):
         a = dpp.Imputer(columns=columns, missing_values=missing_values,
