@@ -3,7 +3,10 @@ Mostly just smoke tests, and verifying that the parallel implementation is
 the same as the serial.
 """
 import numpy as np
+import pytest
+
 from dask.array.utils import assert_eq
+from dask_ml.cluster import k_means
 from dask_ml.cluster import KMeans as DKKMeans
 from dask_ml.utils import assert_estimator_equal
 from sklearn.cluster import KMeans as SKKMeans
@@ -73,3 +76,32 @@ class TestKMeans:
         skkm.fit(X_)
         assert abs(dkkm.inertia_ - skkm.inertia_) < 1e-4
         assert dkkm.init == 'k-means++'
+
+    def test_random_init(self, Xl_blobs_easy):
+        X, y = Xl_blobs_easy
+        X_ = X.compute()
+        rs = 0
+        dkkm = DKKMeans(3, init='random', random_state=rs)
+        skkm = SKKMeans(3, init='random', random_state=rs, n_init=1)
+        dkkm.fit(X)
+        skkm.fit(X_)
+        assert abs(dkkm.inertia_ - skkm.inertia_) < 1e-4
+        assert dkkm.init == 'random'
+
+    def test_invalid_init(self, Xl_blobs_easy):
+        X, y = Xl_blobs_easy
+        init = X[:2].compute()
+
+        with pytest.raises(ValueError):
+            k_means.k_init(X, 3, init)
+
+        init = X[:2, :-1].compute()
+
+        with pytest.raises(ValueError):
+            k_means.k_init(X, 2, init)
+
+        with pytest.raises(ValueError):
+            k_means.k_init(X, 2, 'invalid')
+
+        with pytest.raises(TypeError):
+            k_means.k_init(X, 2, 2)
