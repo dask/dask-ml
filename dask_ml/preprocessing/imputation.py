@@ -24,7 +24,7 @@ def _fit_columns_df(df, columns, estimator):
 
 
 def _fit_columns_ar(ar, estimator):
-    raise NotImplementedError()
+    return da.hstack([estimator(x) for x in ar.T])
 
 
 def _safe_eq(X, v):

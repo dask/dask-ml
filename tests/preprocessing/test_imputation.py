@@ -37,12 +37,12 @@ class TestImputer(object):
                           range(len(X.columns) if isinstance(X, dd._Frame)
                                 else X.shape[1]))
 
-        a.fit(X if strategy != "median" else (X.repatition(npartitions=1)
+        a.fit(X if strategy != "median" else (X.repartition(npartitions=1)
                                               if isinstance(X, dd._Frame)
                                               else X.rechunk(1)))
         b.fit(X.compute())
 
-        if strategy == "median":
+        if strategy == "median" and isinstance(X, dd._Frame):
             c = pd.Series(data=compute(list(a.statistics_.values()))[0],
                           index=list(a.statistics_.keys()))
         else:
@@ -57,12 +57,11 @@ class TestImputer(object):
         columns_ix = list(map(int, columns) if columns else
                           range(len(X.columns) if isinstance(X, dd._Frame)
                                 else X.shape[1]))
-        if strategy == "median":
-            X = X.repartition(npartitions=1)
 
-        ta = a.fit_transform(X).compute()
+        ta = a.fit_transform(X if strategy != "median"
+                             else (X.repartition(npartitions=1)
+                                   if isinstance(X, dd._Frame)
+                                   else X.rechunk(1)))
         tb = b.fit_transform(X.compute())[:, columns_ix]
-        if isinstance(X, dd._Frame):
-            assert_eq_ar(ta.values, tb)
-        else:
-            assert_eq_ar(ta, tb)
+
+        assert_eq_ar(ta.values if isinstance(X, dd._Frame) else ta, tb)
