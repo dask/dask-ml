@@ -186,9 +186,6 @@ def k_init(X, n_clusters, init='k-means||',
     if isinstance(init, np.ndarray):
         return init
 
-    if isinstance(random_state, int) or random_state is None:
-        random_state = np.random.RandomState(random_state)
-
     if init == 'k-means++':
         x_squared_norms = row_norms(X, squared=True).compute()
         logger.info("Initializing with k-means++")
@@ -201,6 +198,9 @@ def k_init(X, n_clusters, init='k-means||',
         return centers
     elif init != 'k-means||':
         raise TypeError("Unexpected value for `init` {!r}".foramt(init))
+
+    if isinstance(random_state, int) or random_state is None:
+        random_state = da.random.RandomState(random_state)
 
     logger.info("Starting Init")
     init_start = tic()
@@ -219,7 +219,8 @@ def k_init(X, n_clusters, init='k-means||',
     # Steps 3 - 6: update candidate Centers
     for i in range(n_iter):
         t0 = tic()
-        new_idxs = _sample_points(X, centers, oversampling_factor)
+        new_idxs = _sample_points(X, centers, oversampling_factor,
+                                  random_state)
         new_idxs = set(*compute(new_idxs))
         c_idx |= new_idxs
         t1 = tic()
@@ -271,7 +272,7 @@ def evaluate_cost(X, centers):
     return (pairwise_distances(X, centers).min(1) ** 2).sum()
 
 
-def _sample_points(X, centers, oversampling_factor):
+def _sample_points(X, centers, oversampling_factor, random_state):
     r"""
     Sample points independently with probability
 
@@ -287,7 +288,7 @@ def _sample_points(X, centers, oversampling_factor):
     p = oversampling_factor * distances / denom
 
     # TODO: use random_state
-    draws = da.random.uniform(size=len(p), chunks=p.chunks)
+    draws = random_state.uniform(size=len(p), chunks=p.chunks)
     picked = p > draws
 
     new_idxs, = da.where(picked)
