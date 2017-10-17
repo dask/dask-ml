@@ -53,6 +53,9 @@ class KMeans(BaseEstimator):
     max_iter : int
         Maximum number EM iterations to attempt.
 
+    init_max_iter : int
+        Number of iterations for init step.
+
     tol : float
         Relative tolerance with regards to inertia to declare convergence
 
@@ -119,12 +122,14 @@ class KMeans(BaseEstimator):
     """
     def __init__(self, n_clusters=8, init='k-means||', oversampling_factor=2,
                  max_iter=300, tol=0.0001, precompute_distances='auto',
-                 random_state=None, copy_x=True, n_jobs=1, algorithm='full'):
+                 random_state=None, copy_x=True, n_jobs=1, algorithm='full',
+                 init_max_iter=None):
         self.n_clusters = n_clusters
         self.init = init
         self.oversampling_factor = oversampling_factor
         self.random_state = random_state
         self.max_iter = max_iter
+        self.init_max_iter = init_max_iter
         self.algorithm = algorithm
         self.tol = tol
         self.n_jobs = n_jobs
@@ -147,7 +152,9 @@ class KMeans(BaseEstimator):
         labels, centroids, inertia, n_iter = k_means(
             X, self.n_clusters, oversampling_factor=self.oversampling_factor,
             random_state=self.random_state, init=self.init,
-            return_n_iter=True
+            return_n_iter=True,
+            max_iter=self.max_iter,
+            init_max_iter=self.init_max_iter,
         )
         self.cluster_centers_ = centroids
         self.labels_ = labels
@@ -164,7 +171,8 @@ class KMeans(BaseEstimator):
 def k_means(X, n_clusters, init='k-means||', precompute_distances='auto',
             n_init=1, max_iter=300, verbose=False,
             tol=1e-4, random_state=None, copy_x=True, n_jobs=-1,
-            algorithm='full', return_n_iter=False, oversampling_factor=2):
+            algorithm='full', return_n_iter=False, oversampling_factor=2,
+            init_max_iter=None):
     """K-means algorithm for clustering
 
     Differences from scikit-learn:
@@ -176,7 +184,8 @@ def k_means(X, n_clusters, init='k-means||', precompute_distances='auto',
     labels, inertia, centers, n_iter = _kmeans_single_lloyd(
         X, n_clusters, max_iter=max_iter, init=init, verbose=verbose,
         tol=tol, random_state=random_state,
-        oversampling_factor=oversampling_factor)
+        oversampling_factor=oversampling_factor,
+        init_max_iter=init_max_iter)
     if return_n_iter:
         return labels, centers, inertia, n_iter
     else:
@@ -368,7 +377,6 @@ def _sample_points(X, centers, oversampling_factor, random_state):
     denom = distances.sum()
     p = oversampling_factor * distances / denom
 
-    # TODO: use random_state
     draws = random_state.uniform(size=len(p), chunks=p.chunks)
     picked = p > draws
 
@@ -384,10 +392,11 @@ def _kmeans_single_lloyd(X, n_clusters, max_iter=300, init='k-means||',
                          verbose=False, x_squared_norms=None,
                          random_state=None, tol=1e-4,
                          precompute_distances=True,
-                         oversampling_factor=2):
+                         oversampling_factor=2,
+                         init_max_iter=None):
     centers = k_init(X, n_clusters, init=init,
                      oversampling_factor=oversampling_factor,
-                     random_state=random_state)
+                     random_state=random_state, max_iter=init_max_iter)
     dt = X.dtype
     X = X.astype(np.float32)
     P = X.shape[1]
