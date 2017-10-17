@@ -13,7 +13,7 @@ with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 install_requires = ['dask', 'distributed', 'numpy', 'pandas', 'scikit-learn',
-                    'scipy', 'dask-glm', 'dask-searchcv', 'setuptools']
+                    'scipy', 'dask-glm', 'dask-searchcv']
 
 # Optional Requirements
 doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme', 'nbsphinx']
@@ -61,7 +61,7 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
-    packages=find_packages(exclude=['docs', 'tests']),
+    packages=find_packages(exclude=['docs', 'tests', 'tests.*', 'docs.*']),
     use_scm_version=True,
     setup_requires=['setuptools_scm'],
     install_requires=install_requires,

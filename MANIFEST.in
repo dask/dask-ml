@@ -2,3 +2,11 @@ include MANIFEST.in
 include LICENSE.md
 include README.rst
 include setup.py
+
+recursive-exclude tests *
+exclude .gitignore
+exclude readthedocs.yml
+exclude tox.ini
+prune .circleci
+prune benchmarks
+prune ci
