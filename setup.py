@@ -61,7 +61,7 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
-    packages=find_packages(exclude=['docs', 'tests']),
+    packages=find_packages(exclude=['docs', 'tests', 'tests.*', 'docs.*']),
     use_scm_version=True,
     setup_requires=['setuptools_scm'],
     install_requires=install_requires,
