@@ -1,9 +1,12 @@
 import logging
+from multiprocessing import cpu_count
 from numbers import Integral
 from timeit import default_timer as tic
 
 import numpy as np
+import pandas as pd
 import dask.array as da
+import dask.dataframe as dd
 from dask import compute
 from sklearn.base import BaseEstimator
 from sklearn.cluster import k_means_ as sk_k_means
@@ -127,7 +130,20 @@ class KMeans(BaseEstimator):
         self.n_jobs = n_jobs
         self.copy_x = copy_x
 
+    def _check_array(self, X):
+        if isinstance(X, dd.DataFrame):
+            raise TypeError("Unable to fit K-Means on dataframe, since the "
+                            "chunk lengths are not known")
+        if isinstance(X,  pd.DataFrame):
+            X = X.values
+
+        if isinstance(X, np.ndarray):
+            X = da.from_array(X, chunks=(len(X) // cpu_count(), X.shape[-1]))
+
+        return X
+
     def fit(self, X):
+        X = self._check_array(X)
         labels, centroids, inertia, n_iter = k_means(
             X, self.n_clusters, oversampling_factor=self.oversampling_factor,
             random_state=self.random_state, init=self.init,
@@ -141,6 +157,7 @@ class KMeans(BaseEstimator):
 
     def transform(self, X, y=None):
         check_is_fitted(self, 'cluster_centers_')
+        X = self._check_array(X)
         return euclidean_distances(X, self.cluster_centers_)
 
 
