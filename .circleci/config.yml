@@ -41,6 +41,7 @@ jobs:
       - run:
           name: install sklearn-dev
           command: |
+            source activate ${ENV_NAME}
             conda uninstall -y --force scikit-learn
             pip install --pre git+https://github.com/scikit-learn/scikit-learn
       - run:
