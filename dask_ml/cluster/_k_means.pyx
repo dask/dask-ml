@@ -69,9 +69,10 @@ def _centers_dense(np.ndarray[floating, ndim=2] X,
         centers = np.zeros((n_clusters, n_features), dtype=np.float64)
 
 
-    # TODO: think about empty clusters
-    for i in range(n_samples):
-        for j in range(n_features):
-            centers[labels[i], j] += X[i, j]
+    with nogil:
+        # TODO: think about empty clusters
+        for i in range(n_samples):
+            for j in range(n_features):
+                centers[labels[i], j] += X[i, j]
 
     return centers
