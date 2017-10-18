@@ -41,7 +41,7 @@ jobs:
       - run:
           name: install sklearn-dev
           command: |
-            pip uninstall -y sklearn
+            pip uninstall -y scikit-learn
             pip install --pre git+https://github.com/scikit-learn/scikit-learn
       - run:
           command: |
