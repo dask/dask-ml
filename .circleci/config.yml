@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  main:
     docker:
       - image: continuumio/miniconda:latest
     environment:
@@ -25,8 +25,13 @@ jobs:
           command: |
             source activate ${ENV_NAME}
             flake8
-
-    sklearn_dev:
+  sklearn_dev:
+    docker:
+      - image: continuumio/miniconda:latest
+    environment:
+      PYTHON: "3.6"
+      ENV_NAME: "dask-ml-test"
+    steps:
       - checkout
       - restore_cache:
           key: deps-{{ checksum "ci/environment.yml" }}
@@ -47,5 +52,5 @@ workflows:
   version: 2
   build_and_test:
     jobs:
-      - build
+      - main
       - sklearn_dev
