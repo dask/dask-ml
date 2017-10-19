@@ -9,6 +9,13 @@ import numpy as np
 import pandas as pd
 
 
+def _safe_eq(X, v):
+    if isinstance(X, dd._Frame):
+        return X.isnull() if v == "NaN" or np.isnan(v) else X == v
+    else:
+        return da.isnull(X) if v == "NaN" or np.isnan(v) else X == v
+
+
 def _mask_values(X, missing_values):
     """Compute the masked version of X."""
     if missing_values == "NaN" or np.isnan(missing_values):
@@ -24,14 +31,7 @@ def _fit_columns_df(df, columns, estimator):
 
 
 def _fit_columns_ar(ar, estimator):
-    return da.hstack([estimator(x) for x in ar.T])
-
-
-def _safe_eq(X, v):
-    if isinstance(X, dd._Frame):
-        return X.isnull() if v == "NaN" or np.isnan(v) else X == v
-    else:
-        return da.isnull(X) if v == "NaN" or np.isnan(v) else X == v
+    raise NotImplementedError()
 
 
 class Imputer(skimputation.Imputer):
@@ -101,11 +101,13 @@ class Imputer(skimputation.Imputer):
 
     def transform(self, X):
         _X = slice_columns(X, self.columns).copy()
+
         if isinstance(X, dd._Frame) and self.strategy == "median":
             s = pd.Series(data=compute(list(self.statistics_.values()))[0],
                           index=list(self.statistics_.keys()))
         else:
             s = self.statistics_.compute()
+
         if isinstance(_X, dd._Frame):
             for c in _X.columns:
                 _X[c] = _X[c].mask(_safe_eq(_X[c], self.missing_values), s[c])

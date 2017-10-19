@@ -18,15 +18,18 @@ df_with_zeros = X_with_zeros.to_dask_dataframe().rename(columns=str)
 df_with_nan = df_with_zeros.mask(df_with_zeros > 1)
 
 
-@pytest.mark.parametrize('strategy', ["mean", "median"])
-@pytest.mark.parametrize('X,missing_values,columns', [
-    (X_with_nan, "NaN", None),
-    (X_with_nan, np.nan, None),
-    (X_with_zeros, 0, None),
-    (df_with_nan, "NaN", ['1', '2']),
-    (df_with_nan, np.nan, ['1', '2']),
-    (df_with_zeros, 0, ['1', '2']),
-    (df_with_zeros, 0, None)
+@pytest.mark.parametrize('X,missing_values,columns,strategy', [
+    (X_with_nan, "NaN", None, "mean"),
+    (X_with_nan, np.nan, None, "mean"),
+    (X_with_zeros, 0, None, "mean"),
+    (df_with_nan, "NaN", ['1', '2'], "mean"),
+    (df_with_nan, np.nan, ['1', '2'], "mean"),
+    (df_with_zeros, 0, ['1', '2'], "mean"),
+    (df_with_zeros, 0, None, "mean"),
+    (df_with_nan, "NaN", ['1', '2'], "median"),
+    (df_with_nan, np.nan, ['1', '2'], "median"),
+    (df_with_zeros, 0, ['1', '2'], "median"),
+    (df_with_zeros, 0, None, "median")
 ])
 class TestImputer(object):
     def test_fit(self, X, missing_values, columns, strategy):
