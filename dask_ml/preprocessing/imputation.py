@@ -37,15 +37,9 @@ def _fit_columns_ar(ar, estimator):
 class Imputer(skimputation.Imputer):
     def __init__(self, missing_values="NaN", strategy="mean",
                  axis=0, verbose=0, copy=True, columns=None):
-        super().__init__(missing_values="NaN", strategy="mean",
-                         axis=0, verbose=0, copy=True)
+        super().__init__(missing_values=missing_values, strategy=strategy,
+                         axis=axis, verbose=verbose, copy=copy)
         self.columns = columns
-        self.missing_values = missing_values
-        self.strategy = strategy
-        self.axis = axis
-        self.verbose = verbose
-        self.copy = copy
-
         if not copy or axis != 0 or verbose != 0:
             raise NotImplementedError()
 
