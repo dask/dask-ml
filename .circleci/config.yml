@@ -25,7 +25,7 @@ jobs:
       - run:
           command: |
             source activate ${ENV_NAME}
-            pytest test
+            pytest tests
       - run:
           command: |
             source activate ${ENV_NAME}
@@ -61,7 +61,7 @@ jobs:
       - run:
           command: |
             source activate ${ENV_NAME}
-            pytest test
+            pytest tests
       - run:
           command: |
             source activate ${ENV_NAME}
