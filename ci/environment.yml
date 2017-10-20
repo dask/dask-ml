@@ -15,7 +15,6 @@ dependencies:
   - psutil
   - pytest
   - pytest-cov
-  - python=3.6
   - sortedcontainers
   - scikit-learn
   - scipy
