@@ -25,6 +25,7 @@ familiar NumPy, Pandas, and Scikit-Learn APIs.
    incremental.rst
    joblib.rst
    xgboost.rst
+   tensorflow.rst
    clustering.rst
    examples.rst
    modules/api.rst

@@ -21,6 +21,7 @@ dependencies:
   - scipy
   - sphinx
   - sphinx_rtd_theme
+  - tensorflow
   - tornado
   - toolz
   - xgboost
