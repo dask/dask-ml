@@ -36,7 +36,7 @@ jobs:
             - "/opt/conda/envs/${ENV_NAME}/"
 
   # Now repeat for py27
-  py36:
+  py27:
     docker:
       - image: continuumio/miniconda:latest
     environment:
