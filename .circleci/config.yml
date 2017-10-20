@@ -16,11 +16,11 @@ jobs:
             apt-get update; apt-get install -y gcc
             conda config --set always_yes true --set changeps1 false --set quiet true
             conda update -q conda
-            conda install conda-build anaconda-client --yes
+            conda install -q conda-build anaconda-client --yes
             conda config --add channels conda-forge
-            conda env create -f ci/environment.yml --name=${ENV_NAME} python=${PYTHON}
+            conda env create -q -f ci/environment.yml --name=${ENV_NAME} python=${PYTHON}
             source activate ${ENV_NAME}
-            pip install --no-deps -e .
+            pip install --no-deps --quiet -e .
             conda list ${ENV_NAME}
       - run:
           command: |
@@ -52,11 +52,11 @@ jobs:
             apt-get update; apt-get install -y gcc
             conda config --set always_yes true --set changeps1 false --set quiet true
             conda update -q conda
-            conda install conda-build anaconda-client --yes
+            conda install -q conda-build anaconda-client --yes
             conda config --add channels conda-forge
-            conda env create -f ci/environment.yml --name=${ENV_NAME} python=${PYTHON}
+            conda env create -q -f ci/environment.yml --name=${ENV_NAME} python=${PYTHON}
             source activate ${ENV_NAME}
-            pip install --no-deps -e .
+            pip install --no-deps --quiet -e .
             conda list ${ENV_NAME}
       - run:
           command: |
