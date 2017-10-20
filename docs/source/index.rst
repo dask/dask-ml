@@ -20,6 +20,7 @@ familiar NumPy, Pandas, and Scikit-Learn APIs.
    :maxdepth: 2
    :caption: Contents:
 
+   install.rst
    hyper-parameter-search.rst
    glm.rst
    incremental.rst
