@@ -16,6 +16,7 @@ existing machine learning libraries like Scikit-Learn_.
    incremental.rst
    joblib.rst
    xgboost.rst
+   tensorflow.rst
    clustering.rst
    examples.rst
    modules/api.rst
