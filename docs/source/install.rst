@@ -13,7 +13,7 @@ Conda
 PyPI
 ~~~~
 
-Wheels and a source distribution are available on conda-forge and can be
+Wheels and a source distribution are available on PyPI and can be
 installed with
 
 .. code-block:: none
@@ -24,17 +24,20 @@ installed with
 Optional Dependencies
 ---------------------
 
-``dask_ml.xgboost`` requires ``xgboost`` and ``dask-xgboost``. Both of these
-are available on conda-forge and PyPI.
+Certain modules have additional dependencies:
 
-``dask_ml.tensorflow`` requires ``tensorflow`` and ``dask-tensorflow``. Both of
-these are available on conda-forge and PyPI.
+====================== ===========================
+module                 Additional Dependencies               
+====================== ===========================
+``dask_ml.xgboost``    xgboost, dask-xgboost
+``dask_ml.tensorflow`` tensorflow, dask-tensorflow
+====================== ===========================
 
-The conda-forge package will install all optional dependencies. With pip, the
-optional dependencies can be installed as
+The conda-forge package will install all additional dependencies. With pip, the
+additional dependencies are not installed by default, but can be with
 
 .. code-block:: none
 
-   pip install dask-ml[xgboost]  # also install xgboost and dask-xgboost
+   pip install dask-ml[xgboost]    # also install xgboost and dask-xgboost
    pip install dask-ml[tensorflow]
-   pip install dask-ml[complete]  # install all optional dependencies
+   pip install dask-ml[complete]   # install all optional dependencies
