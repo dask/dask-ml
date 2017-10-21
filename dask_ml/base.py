@@ -1,9 +1,24 @@
 import os
+import six
+from abc import ABCMeta
+
 import numpy as np
 import dask
 from dask.array import learn
 
 
+class _WritableDoc(ABCMeta):
+    """In py27, classes inheriting from `object` do not have
+    a multable __doc__.
+
+    We inherit from ABCMeta instead of type to avoid metaclass
+    conflicts, since some sklearn estimators (eventually) subclass
+    ABCMeta
+    """
+    # TODO: Py2: remove all this
+
+
+@six.add_metaclass(_WritableDoc)
 class _BigPartialFitMixin(object):
     """ Wraps a partial_fit enabled estimator for use with Dask arrays """
 
