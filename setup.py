@@ -38,7 +38,7 @@ extra_requires = {
 extensions = [
     Extension(
         "dask_ml.cluster._k_means",
-        ["dask_ml/cluster/_k_means.pyx"],
+        [os.path.join(here, "dask_ml", "cluster", "_k_means.pyx")],
         include_dirs=[np.get_include()],
     ),
 ]
