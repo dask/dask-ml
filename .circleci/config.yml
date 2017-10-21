@@ -40,7 +40,7 @@ jobs:
     docker:
       - image: continuumio/miniconda:latest
     environment:
-      PYTHON: "2.7"
+      PYTHON: "27"
       ENV_NAME: "dask-ml-test"
     steps:
       - checkout
@@ -54,7 +54,7 @@ jobs:
             conda update -q conda
             conda install -q conda-build anaconda-client --yes
             conda config --add channels conda-forge
-            conda env create -q -f ci/environment.yml --name=${ENV_NAME} python=${PYTHON}
+            conda env create -q -f ci/environment-${PYTHON}.yml --name=${ENV_NAME}
             source activate ${ENV_NAME}
             pip install --no-deps --quiet -e .
             conda list ${ENV_NAME}
