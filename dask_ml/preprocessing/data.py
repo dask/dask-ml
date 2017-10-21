@@ -57,7 +57,7 @@ class StandardScaler(skdata.StandardScaler):
 class MinMaxScaler(skdata.MinMaxScaler):
 
     def __init__(self, feature_range=(0, 1), copy=True, columns=None):
-        super().__init__(feature_range, copy)
+        super(MinMaxScaler, self).__init__(feature_range, copy)
         self.columns = columns
 
         if not copy:
@@ -144,7 +144,7 @@ class QuantileTransformer(skdata.QuantileTransformer):
         # TODO: sparse arrays?
         # TODO: mix of sparse, dense?
         sample = rng.uniform(size=(5, X.shape[1])).astype(X.dtype)
-        super()._check_inputs(
+        super(QuantileTransformer, self)._check_inputs(
             sample, accept_sparse_negative=accept_sparse_negative)
         return X
 
