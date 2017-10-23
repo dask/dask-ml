@@ -45,11 +45,7 @@ class TestImputer(object):
                                               else X.rechunk(1)))
         b.fit(X.compute())
 
-        if strategy == "median" and isinstance(X, dd._Frame):
-            c = pd.Series(data=compute(list(a.statistics_.values()))[0],
-                          index=list(a.statistics_.keys()))
-        else:
-            c = a.statistics_.compute()
+        c = a.statistics_.compute()
 
         assert_eq_ar(c, b.statistics_[columns_ix])
 

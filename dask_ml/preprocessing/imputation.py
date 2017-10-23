@@ -1,12 +1,11 @@
 from collections import OrderedDict
 
-from dask import persist, compute
+from dask import persist
 from dask_ml.utils import slice_columns
 from sklearn.preprocessing import imputation as skimputation
 import dask.dataframe as dd
 import dask.array as da
 import numpy as np
-import pandas as pd
 
 
 def _safe_eq(X, v):
@@ -74,35 +73,33 @@ class Imputer(skimputation.Imputer):
         columns = (self.columns
                    if self.columns or isinstance(_masked_X, da.Array)
                    else _masked_X.columns)
+        is_frame = isinstance(_masked_X, dd.DataFrame)
+
         if strategy == "mean":
-            return (_masked_X.mean() if isinstance(_masked_X, dd._Frame)
-                    else da.ma.filled(_masked_X.mean(0)))
+            if is_frame:
+                return _masked_X.mean()
+            else:
+                return da.ma.filled(_masked_X.mean(0))
         elif strategy == "median":
-            def _estimator_df(x):
-                return x.dropna().quantile(0.5)
-
-            def _estimator_ar(x):
-                raise NotImplementedError()
-
-            return (_fit_columns_df(_masked_X, columns, _estimator_df)
-                    if isinstance(_masked_X, dd._Frame)
-                    else _fit_columns_ar(_masked_X, _estimator_ar))
+            if is_frame:
+                return _masked_X.quantile(0.5)
+            else:
+                raise NotImplementedError("strategy='median' is not supported "
+                                          "arrays. Use `dask.dataframe` or a "
+                                          "different strategy instead.")
         else:
-            raise NotImplementedError()
+            raise NotImplementedError("Invalid strategy {}".format(strategy))
 
     def _sparse_fit(self):
         raise NotImplementedError()
 
     def transform(self, X):
         _X = slice_columns(X, self.columns).copy()
+        is_frame = isinstance(X, dd.DataFrame)
 
-        if isinstance(X, dd._Frame) and self.strategy == "median":
-            s = pd.Series(data=compute(list(self.statistics_.values()))[0],
-                          index=list(self.statistics_.keys()))
-        else:
-            s = self.statistics_.compute()
+        s = self.statistics_.compute()
 
-        if isinstance(_X, dd._Frame):
+        if is_frame:
             for c in _X.columns:
                 _X[c] = _X[c].mask(_safe_eq(_X[c], self.missing_values), s[c])
         else:
