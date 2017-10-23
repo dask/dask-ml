@@ -9,7 +9,7 @@ from dask.array.utils import assert_eq as assert_eq_ar
 from dask import compute
 
 
-X, y = make_classification(chunks=2)
+X, y = make_classification(chunks=50)
 X_with_zeros = X.copy()
 X_with_zeros[X < 0] = 0
 X_with_nan = X.copy()
