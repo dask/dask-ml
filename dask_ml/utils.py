@@ -60,24 +60,24 @@ def assert_estimator_equal(left, right, exclude=None, **kwargs):
     assert (set(left_attrs) - exclude) == set(right_attrs) - exclude
 
     for attr in set(left_attrs) - exclude:
-        l = getattr(left, attr)
-        r = getattr(right, attr)
-        _assert_eq(l, r, **kwargs)
+        left = getattr(left, attr)
+        right = getattr(right, attr)
+        _assert_eq(left, right, **kwargs)
 
 
-def _assert_eq(l, r, **kwargs):
+def _assert_eq(left, right, **kwargs):
     array_types = (np.ndarray, da.Array)
     frame_types = (pd.core.generic.NDFrame, dd._Frame)
-    if isinstance(l, array_types):
-        assert_eq_ar(l, r, **kwargs)
-    elif isinstance(l, frame_types):
-        assert_eq_df(l, r, **kwargs)
-    elif (isinstance(l, Sequence) and
-            any(isinstance(x, array_types + frame_types) for x in l)):
-        for a, b in zip(l, r):
+    if isinstance(left, array_types):
+        assert_eq_ar(left, right, **kwargs)
+    elif isinstance(left, frame_types):
+        assert_eq_df(left, right, **kwargs)
+    elif (isinstance(left, Sequence) and
+            any(isinstance(x, array_types + frame_types) for x in left)):
+        for a, b in zip(left, right):
             _assert_eq(a, b, **kwargs)
     else:
-        assert l == r
+        assert left == right
 
 
 __all__ = ['assert_estimator_equal']
