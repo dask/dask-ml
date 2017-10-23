@@ -60,9 +60,6 @@ class Imputer(skimputation.Imputer):
         return self
 
     def _dense_fit(self, _masked_X, strategy, missing_values):
-        columns = (self.columns
-                   if self.columns or isinstance(_masked_X, da.Array)
-                   else _masked_X.columns)
         is_frame = isinstance(_masked_X, dd.DataFrame)
 
         if strategy == "mean":
@@ -84,15 +81,23 @@ class Imputer(skimputation.Imputer):
         raise NotImplementedError()
 
     def transform(self, X):
-        _X = slice_columns(X, self.columns).copy()
         is_frame = isinstance(X, dd.DataFrame)
+        if is_frame:
+            return X.fillna(self.statistics_)
 
+        # just arrays here.
         s = self.statistics_
 
-        if is_frame:
-            for c in _X.columns:
-                _X[c] = _X[c].mask(_safe_eq(_X[c], self.missing_values), s[c])
+        if self.columns:
+            columns = set(self.columns)
         else:
-            _X = da.vstack([da.where(_safe_eq(x, self.missing_values), s[i], x)
-                            for i, x in enumerate(X.T)]).T
-        return _X
+            columns = set(range(X.shape[1]))
+
+        X1 = []
+        for i, x in enumerate(X.T):
+            if i in columns:
+                X1.append(da.where(_safe_eq(x, self.missing_values), s[i], x))
+            else:
+                X1.append(x)
+        X2 = da.vstack(X1).T
+        return X2

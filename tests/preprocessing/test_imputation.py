@@ -4,6 +4,7 @@ import dask.dataframe as dd
 import numpy as np
 import pytest
 import pandas as pd
+import pandas.util.testing as tm
 from dask_ml.datasets import make_classification
 from dask.array.utils import assert_eq as assert_eq_ar
 from dask import compute
@@ -61,6 +62,13 @@ class TestImputer(object):
                              else (X.repartition(npartitions=1)
                                    if isinstance(X, dd._Frame)
                                    else X.rechunk(1)))
-        tb = b.fit_transform(X.compute())[:, columns_ix]
+        tb = b.fit_transform(X.compute())
 
-        assert_eq_ar(ta.values if isinstance(X, dd._Frame) else ta, tb)
+        assert_eq_ar(
+            ta.values[:, columns_ix] if isinstance(X, dd._Frame) else ta,
+            tb[:, columns_ix]
+        )
+        if isinstance(X, dd.DataFrame):
+            tm.assert_index_equal(ta.columns, X.columns)
+        else:
+            assert ta.shape[1] == X.shape[1]
