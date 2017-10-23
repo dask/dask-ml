@@ -417,7 +417,11 @@ def _kmeans_single_lloyd(X, n_clusters, max_iter=300, init='k-means||',
                     distances, 'i',
                     adjust_chunks={"i": n_clusters, "j": P},
                     dtype='f8')
-        new_centers = sum(r.to_delayed().flatten())
+        new_centers = da.from_delayed(
+            sum(r.to_delayed().flatten()),
+            (n_clusters, P),
+            X.dtype
+        )
         counts = da.bincount(labels, minlength=n_clusters)
         new_centers = new_centers / counts[:, None]
         new_centers, = compute(new_centers)

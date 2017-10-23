@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  py36:
     docker:
       - image: continuumio/miniconda:latest
     environment:
@@ -9,31 +9,71 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: deps-{{ .Branch }}-{{ checksum "ci/environment.yml" }}
+          key: deps-{{ .Branch }}-36-{{ checksum "ci/environment.yml" }}
       - run:
           name: configure conda
           command: |
             apt-get update; apt-get install -y gcc
             conda config --set always_yes true --set changeps1 false --set quiet true
             conda update -q conda
-            conda install conda-build anaconda-client --yes
+            conda install -q conda-build anaconda-client --yes
             conda config --add channels conda-forge
-            conda env create -f ci/environment.yml --name=${ENV_NAME}
+            conda env create -q -f ci/environment.yml --name=${ENV_NAME} python=${PYTHON}
             source activate ${ENV_NAME}
-            pip install --no-deps -e .
+            pip install --no-deps --quiet -e .
             conda list ${ENV_NAME}
       - run:
           command: |
             source activate ${ENV_NAME}
+            pytest tests
       - run:
           command: |
             source activate ${ENV_NAME}
-            pytest
-      - run:
-          command: |
-            source activate ${ENV_NAME}
-            flake8
+            flake8 dask_ml
       - save_cache:
-          key: deps-{{ .Branch }}-{{ checksum "ci/environment.yml" }}
+          key: deps-{{ .Branch }}-36-{{ checksum "ci/environment.yml" }}
           paths:
             - "/opt/conda/envs/${ENV_NAME}/"
+
+  # Now repeat for py27
+  py27:
+    docker:
+      - image: continuumio/miniconda:latest
+    environment:
+      PYTHON: "27"
+      ENV_NAME: "dask-ml-test"
+    steps:
+      - checkout
+      - restore_cache:
+          key: deps-{{ .Branch }}-27-{{ checksum "ci/environment.yml" }}
+      - run:
+          name: configure conda
+          command: |
+            apt-get update; apt-get install -y gcc
+            conda config --set always_yes true --set changeps1 false --set quiet true
+            conda update -q conda
+            conda install -q conda-build anaconda-client --yes
+            conda config --add channels conda-forge
+            conda env create -q -f ci/environment-${PYTHON}.yml --name=${ENV_NAME}
+            source activate ${ENV_NAME}
+            pip install --no-deps --quiet -e .
+            conda list ${ENV_NAME}
+      - run:
+          command: |
+            source activate ${ENV_NAME}
+            pytest tests
+      - run:
+          command: |
+            source activate ${ENV_NAME}
+            flake8 dask_ml
+      - save_cache:
+          key: deps-{{ .Branch }}-27-{{ checksum "ci/environment.yml" }}
+          paths:
+            - "/opt/conda/envs/${ENV_NAME}/"
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - py36
+      - py27
