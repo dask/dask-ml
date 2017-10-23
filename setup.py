@@ -17,15 +17,11 @@ install_requires = ['dask', 'numpy', 'pandas', 'scikit-learn',
 
 # Optional Requirements
 doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme', 'nbsphinx']
-test_requires = ['coverage', 'pytest', 'pytest-mock']
+test_requires = ['coverage', 'pytest']
 dev_requires = doc_requires + test_requires
 tensorflow_requires = ['dask-tensorflow', 'tensorflow']
 xgboost_requires = ['dask-xgboost', 'xgboost']
 complete_requires = tensorflow_requires + xgboost_requires
-
-if sys.version_info.major == 2:
-    test_requires.append("mock")
-
 
 extra_requires = {
     'docs': doc_requires,
