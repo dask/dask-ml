@@ -54,9 +54,10 @@ API Reference
    :toctree: generated/
    :template: class.rst
 
-   preprocessing.StandardScaler
+   preprocessing.Imputer
    preprocessing.MinMaxScaler
    preprocessing.QuantileTransformer
+   preprocessing.StandardScaler
 
 
 :mod:`dask_ml.tensorflow`: Tensorflow
