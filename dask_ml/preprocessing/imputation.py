@@ -1,6 +1,3 @@
-from collections import OrderedDict
-
-from dask import persist
 from dask_ml.utils import slice_columns
 from sklearn.preprocessing import imputation as skimputation
 import dask.dataframe as dd
@@ -43,8 +40,6 @@ class Imputer(skimputation.Imputer):
             raise NotImplementedError()
 
     def fit(self, X, y=None):
-        to_persist = OrderedDict()
-
         # Check parameters
         allowed_strategies = ["mean", "median", "most_frequent"]
         if self.strategy not in allowed_strategies:
@@ -58,14 +53,9 @@ class Imputer(skimputation.Imputer):
 
         _X = slice_columns(X, self.columns)
         _masked_X = _mask_values(_X, self.missing_values)
-        if self.axis == 0:
-            to_persist['statistics_'] = self._dense_fit(_masked_X,
-                                                        self.strategy,
-                                                        self.missing_values)
-
-        values = persist(*to_persist.values())
-        for k, v in zip(to_persist, values):
-            setattr(self, k, v)
+        self.statistics_ = self._dense_fit(_masked_X,
+                                           self.strategy,
+                                           self.missing_values).compute()
 
         return self
 
@@ -97,7 +87,7 @@ class Imputer(skimputation.Imputer):
         _X = slice_columns(X, self.columns).copy()
         is_frame = isinstance(X, dd.DataFrame)
 
-        s = self.statistics_.compute()
+        s = self.statistics_
 
         if is_frame:
             for c in _X.columns:

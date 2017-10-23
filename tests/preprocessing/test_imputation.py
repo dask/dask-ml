@@ -45,7 +45,7 @@ class TestImputer(object):
                                               else X.rechunk(1)))
         b.fit(X.compute())
 
-        c = a.statistics_.compute()
+        c = a.statistics_
 
         assert_eq_ar(c, b.statistics_[columns_ix])
 
