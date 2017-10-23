@@ -1,17 +1,34 @@
-name: dask-ml-docs
+name: dask-ml-test
 channels:
-- conda-forge
-- defaults
+  - defaults
+  - conda-forge
 dependencies:
-- python=3.5
-- numpydoc
-- nbsphinx
-- cython
-- dask
-- distributed
-- numpy
-- pandas
-- scikit-learn
-- scipy
-- pip:
-  - dask-glm
+  - coverage
+  - Cython
+  - flake8
+  - heapdict
+  - multipledispatch
+  - nbsphinx
+  - numpy
+  - numpydoc
+  - pandas
+  - psutil
+  - pytest
+  - pytest-cov
+  - python=3.6
+  - sortedcontainers
+  - scikit-learn
+  - scipy
+  - sphinx
+  - sphinx_rtd_theme
+  - tensorflow
+  - tornado
+  - toolz
+  - xgboost
+  - zict
+  - pip:
+    - dask-glm
+    - git+https://github.com/dask/dask.git
+    - git+https://github.com/dask/distributed.git
+    - git+https://github.com/dask/dask-searchcv.git
+    - git+https://github.com/dask/dask-xgboost.git

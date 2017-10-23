@@ -13,12 +13,15 @@ with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 install_requires = ['dask', 'distributed', 'numpy', 'pandas', 'scikit-learn',
-                    'scipy', 'dask-glm']
+                    'scipy', 'dask-glm', 'dask-searchcv']
 
 # Optional Requirements
 doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme', 'nbsphinx']
 test_requires = ['coverage', 'pytest', 'pytest-mock']
 dev_requires = doc_requires + test_requires
+tensorflow_requires = ['dask-tensorflow', 'tensorflow']
+xgboost_requires = ['dask-xgboost', 'xgboost']
+complete_requires = tensorflow_requires + xgboost_requires
 
 if sys.version_info.major == 2:
     test_requires.append("mock")
@@ -28,13 +31,16 @@ extra_requires = {
     'docs': doc_requires,
     'test': test_requires,
     'dev': dev_requires,
+    'tensorflow': tensorflow_requires,
+    'xgboost': xgboost_requires,
+    'complete': complete_requires,
 }
 
 # C Extensions
 extensions = [
     Extension(
         "dask_ml.cluster._k_means",
-        ["dask_ml/cluster/_k_means.pyx"],
+        [os.path.join(here, "dask_ml", "cluster", "_k_means.pyx")],
         include_dirs=[np.get_include()],
     ),
 ]
@@ -61,7 +67,7 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
-    packages=find_packages(exclude=['docs', 'tests']),
+    packages=find_packages(exclude=['docs', 'tests', 'tests.*', 'docs.*']),
     use_scm_version=True,
     setup_requires=['setuptools_scm'],
     install_requires=install_requires,
