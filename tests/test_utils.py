@@ -3,6 +3,7 @@ import inspect
 
 import pytest
 import pandas as pd
+import six
 import numpy as np
 import dask.dataframe as dd
 import dask.array as da
@@ -84,6 +85,7 @@ def test_assert_estimator_different_dataframes(a):
         assert_estimator_equal(l, r)
 
 
+@pytest.mark.skipif(six.PY2, reason="No inspect.signature")
 def test_wrapper():
     assert "chunks" in make_classification.__doc__
     assert make_classification.__module__ == "dask_ml.datasets"

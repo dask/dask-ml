@@ -1,8 +1,10 @@
 import inspect
 from textwrap import dedent
-from sklearn import datasets as _datasets
+
+import six
 import numpy as np
 import dask.array as da
+from sklearn import datasets as _datasets
 
 
 __all__ = ['make_counts']
@@ -23,13 +25,15 @@ def _wrap_maker(func):
                 da.from_array(y, chunks=chunks))
     __all__.append(func.__name__)
 
-    sig = inspect.signature(func)
-    params = list(sig.parameters.values())
-    # TODO(py3): Make this keyword-only
-    params.append(inspect.Parameter("chunks",
-                                    inspect.Parameter.POSITIONAL_OR_KEYWORD,
-                                    default=None))
-    inner.__signature__ = sig.replace(parameters=params)
+    if not six.PY2:
+        sig = inspect.signature(func)
+        params = list(sig.parameters.values())
+        # TODO(py3): Make this keyword-only
+        params.append(
+            inspect.Parameter("chunks",
+                              inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                              default=None))
+        inner.__signature__ = sig.replace(parameters=params)
 
     doc = func.__doc__.split("\n")
     doc = ['    ' + doc[0], chunks_doc] + doc[1:]
