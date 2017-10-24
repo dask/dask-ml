@@ -1,6 +1,7 @@
 from collections import namedtuple
-import pytest
+import inspect
 
+import pytest
 import pandas as pd
 import numpy as np
 import dask.dataframe as dd
@@ -81,3 +82,11 @@ def test_assert_estimator_different_dataframes(a):
     r = Foo(1, 2, 3, pd.DataFrame({"A": [0, 1]}))
     with pytest.raises(AssertionError):
         assert_estimator_equal(l, r)
+
+
+def test_wrapper():
+    assert "chunks" in make_classification.__doc__
+    assert make_classification.__module__ == "dask_ml.datasets"
+
+    sig = inspect.signature(make_classification)
+    assert 'chunks' in sig.parameters
