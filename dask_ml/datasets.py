@@ -1,4 +1,4 @@
-from functools import wraps
+from textwrap import dedent
 from sklearn import datasets as _datasets
 import numpy as np
 import dask.array as da
@@ -7,14 +7,27 @@ import dask.array as da
 __all__ = ['make_counts']
 
 
+chunks_doc = """
+    This returns dask.Arrays instead of numpy.ndarrays.
+    Requires an additional 'chunks' keyword to control the number
+    of blocks in the arrays."""
+
+
 def _wrap_maker(func):
-    @wraps(func)
+
     def inner(*args, **kwargs):
         chunks = kwargs.pop('chunks')
         X, y = func(*args, **kwargs)
         return (da.from_array(X, chunks=(chunks, X.shape[-1])),
                 da.from_array(y, chunks=chunks))
     __all__.append(func.__name__)
+
+    doc = func.__doc__.split("\n")
+    doc = ['    ' + doc[0], chunks_doc] + doc[1:]
+    inner.__doc__ = dedent('\n'.join(doc))
+    inner.__name__ = func.__name__
+    inner.__module__ = __file__
+
     return inner
 
 
