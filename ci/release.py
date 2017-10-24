@@ -2,9 +2,11 @@
 Start a release
 """
 import argparse
+import subprocess
 import sys
-from git import Repo
+
 from packaging.version import parse, Version
+from git import Repo
 
 
 def parse_args(args=None):
@@ -54,6 +56,9 @@ def main(args=None):
 
     remote.push("master:master")
     remote.push(tag)
+
+    subprocess.check_call(["python", "setup.py", "sdist"])
+    subprocess.check_call(["twine", "upload", "dist/*", "--skip-existing"])
 
 
 if __name__ == '__main__':
