@@ -5,8 +5,9 @@ import argparse
 import subprocess
 import sys
 
-from packaging.version import parse, Version
 from git import Repo
+from packaging.version import parse, Version
+import twine  # noqa
 
 
 def parse_args(args=None):
