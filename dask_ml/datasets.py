@@ -35,7 +35,7 @@ def _wrap_maker(func):
     doc = ['    ' + doc[0], chunks_doc] + doc[1:]
     inner.__doc__ = dedent('\n'.join(doc))
     inner.__name__ = func.__name__
-    inner.__module__ = __file__
+    inner.__module__ = __name__
 
     return inner
 
