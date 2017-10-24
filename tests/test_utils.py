@@ -15,7 +15,7 @@ from dask_ml.utils import (
 from dask_ml.datasets import make_classification
 
 
-df = dd.from_pandas(pd.DataFrame(5*[range(42)]).T, npartitions=5)
+df = dd.from_pandas(pd.DataFrame(5 * [range(42)]).T, npartitions=5)
 s = dd.from_pandas(pd.Series([0, 1, 2, 3, 0]), npartitions=5)
 a = da.from_array(np.array([0, 1, 2, 3, 0]), chunks=3)
 X, y = make_classification(chunks=2)
