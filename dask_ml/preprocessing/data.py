@@ -210,3 +210,22 @@ class QuantileTransformer(skdata.QuantileTransformer):
             X_col = da.clip(X_col, clip_min, clip_max)
 
         return X_col
+
+
+class RobustScaler(skdata.RobustScaler):
+
+    def _check_array(self, X, copy):
+        return X
+
+    def fit(self, X, y=None):
+        q_min, q_max = self.quantile_range
+        if not 0 <= q_min <= q_max <= 100:
+            raise ValueError("Invalid quantile range: %s" %
+                             str(self.quantile_range))
+
+        quantiles = [da.percentile(col, [q_min, 50., q_max]) for col in X.T]
+        quantiles = da.vstack(quantiles).compute()
+        self.center_ = quantiles[:, 1]
+        self.scale_ = quantiles[:, 2] - quantiles[:, 0]
+        self.scale_ = skdata._handle_zeros_in_scale(self.scale_, copy=False)
+        return self
