@@ -5,7 +5,7 @@ from setuptools import setup, find_packages, Extension
 from Cython.Build import cythonize
 import numpy as np
 
-here = os.path.abspath(os.path.dirname(__file__))
+here = os.path.dirname(__file__)
 
 # Get the long description from the README file
 with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
