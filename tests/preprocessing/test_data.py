@@ -15,7 +15,7 @@ from dask_ml.utils import assert_estimator_equal
 
 X, y = make_classification(chunks=2)
 df = X.to_dask_dataframe().rename(columns=str)
-df2 = dd.from_pandas(pd.DataFrame(5*[range(42)]).T.rename(columns=str),
+df2 = dd.from_pandas(pd.DataFrame(5 * [range(42)]).T.rename(columns=str),
                      npartitions=5)
 
 

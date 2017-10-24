@@ -139,7 +139,7 @@ class KMeans(BaseEstimator):
         if isinstance(X, dd.DataFrame):
             raise TypeError("Unable to fit K-Means on dataframe, since the "
                             "chunk lengths are not known")
-        if isinstance(X,  pd.DataFrame):
+        if isinstance(X, pd.DataFrame):
             X = X.values
 
         if isinstance(X, np.ndarray):

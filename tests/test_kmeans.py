@@ -25,7 +25,7 @@ def test_row_norms(X_blobs):
 
 
 def replace(a, old, new):
-    arr = np.empty(a.max()+1, dtype=new.dtype)
+    arr = np.empty(a.max() + 1, dtype=new.dtype)
     arr[old] = new
     return arr[a]
 
