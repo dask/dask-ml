@@ -16,7 +16,7 @@ context manager as follows:
 
 .. code-block:: python
 
-   import dask_ml.joblib  # import registers joblib plugin
+   import dask_ml.joblib  # registers joblib plugin
    from joblib import Parallel, parallel_backend
 
    with parallel_backend('dask.distributed', scheduler_host='HOST:PORT'):
@@ -29,7 +29,7 @@ validated parameter search as follows.
 
 .. code-block:: python
 
-   import dask_ml.joblib  # import registers joblib plugin
+   import dask_ml.joblib  # registers joblib plugin
    # Scikit-learn bundles joblib, so you need to import from
    # `sklearn.externals.joblib` instead of `joblib` directly
    from sklearn.externals.joblib import parallel_backend
