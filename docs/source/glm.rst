@@ -24,8 +24,8 @@ Example
 
 .. code-block:: python
 
-   >>> from dask_glm.estimators import LogisticRegression
-   >>> from dask_glm.datasets import make_classification
+   >>> from dask_ml.linear_model import LogisticRegression
+   >>> from dask_ml.datasets import make_classification
    >>> X, y = make_classification()
    >>> lr = LogisticRegression()
    >>> lr.fit(X, y)
