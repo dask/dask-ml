@@ -70,7 +70,7 @@ def make_counts(n_samples=1000, n_features=100, n_informative=2, scale=1.0,
 
     Examples
     --------
-    >>> X, y = make_classification()
+    >>> X, y = make_counts()
     """
     X = da.random.normal(0, 1, size=(n_samples, n_features),
                          chunks=(chunks, n_features))
