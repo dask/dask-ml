@@ -57,6 +57,7 @@ API Reference
    preprocessing.StandardScaler
    preprocessing.MinMaxScaler
    preprocessing.QuantileTransformer
+   preprocessing.Categorizer
 
 
 :mod:`dask_ml.tensorflow`: Tensorflow

@@ -5,6 +5,8 @@ import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
+import pandas.util.testing as tm
+from pandas.api.types import is_categorical_dtype, is_object_dtype
 from dask.array.utils import assert_eq as assert_eq_ar
 from dask.array.utils import assert_eq as assert_eq_df
 
@@ -105,3 +107,49 @@ class TestQuantileTransformer(object):
         qt.fit(X)
         dqt = dpp.QuantileTransformer()
         dqt.fit(dX)
+
+
+raw = pd.DataFrame({"A": ['a', 'b', 'c', 'a'],
+                    "B": ['a', 'b', 'c', 'a'],
+                    "C": ['a', 'b', 'c', 'a'],
+                    "D": [1, 2, 3, 4]},
+                   columns=['A', 'B', 'C', 'D'])
+
+
+class TestCategorizer(object):
+
+    def test_ce(self):
+        ce = dpp.Categorizer()
+        original = raw.copy()
+        trn = ce.fit_transform(raw)
+        assert is_categorical_dtype(trn['A'])
+        assert is_categorical_dtype(trn['B'])
+        assert is_categorical_dtype(trn['C'])
+        assert trn['D'].dtype == int
+        tm.assert_index_equal(ce.columns_, pd.Index(['A', 'B', 'C']))
+        tm.assert_frame_equal(raw, original)
+
+    def test_given_categories(self):
+        cats = ['a', 'b', 'c', 'd']
+        ce = dpp.Categorizer(categories={'A': (cats, True)})
+        trn = ce.fit_transform(raw)
+        assert trn['A'].dtype == 'category'
+        tm.assert_index_equal(trn['A'].cat.categories, pd.Index(cats))
+        assert all(trn['A'].cat.categories == cats)
+        assert trn['A'].cat.ordered
+
+    def test_dask(self):
+        a = dd.from_pandas(raw, npartitions=2)
+        ce = dpp.Categorizer()
+        trn = ce.fit_transform(a)
+        assert is_categorical_dtype(trn['A'])
+        assert is_categorical_dtype(trn['B'])
+        assert is_categorical_dtype(trn['C'])
+        assert trn['D'].dtype == int
+        tm.assert_index_equal(ce.columns_, pd.Index(['A', 'B', 'C']))
+
+    def test_columns(self):
+        ce = dpp.Categorizer(columns=['A'])
+        trn = ce.fit_transform(raw)
+        assert is_categorical_dtype(trn['A'])
+        assert is_object_dtype(trn['B'])

@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from distutils.version import LooseVersion
 import multiprocessing
 
 import dask.array as da
@@ -6,11 +7,16 @@ import dask.dataframe as dd
 from dask import persist, compute
 import numpy as np
 import pandas as pd
+from pandas.api.types import is_categorical_dtype
 from scipy import stats
+from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import data as skdata
 from sklearn.utils.validation import check_random_state
 
 from dask_ml.utils import handle_zeros_in_scale, slice_columns
+
+_PANDAS_VERSION = LooseVersion(pd.__version__)
+_HAS_CTD = _PANDAS_VERSION >= '0.21.0'
 
 
 class StandardScaler(skdata.StandardScaler):
@@ -210,3 +216,123 @@ class QuantileTransformer(skdata.QuantileTransformer):
             X_col = da.clip(X_col, clip_min, clip_max)
 
         return X_col
+
+
+class Categorizer(BaseEstimator, TransformerMixin):
+    """Transform columns of a DataFrame to categoricals
+
+    Parameters
+    ----------
+    categories : mapping, optional
+        A dictionary mapping column name to instances of
+        ``pandas.api.types.CategoricalDtype``. Alternatively, a
+        mapping column name to ``(categories, ordered)`` tuples.
+
+    columns : sequence, optional
+        A sequence of column names to limit the categorization to.
+        This argument is ignored when ``categories`` is specified.
+
+    Notes
+    -----
+    This transformer only applies to ``dask.DataFrame`` and
+    ``pandas.DataFrame``. By default, all object-type columns are converted to
+    categoricals. The set of categories will be the values present in the
+    column and the categoricals will be unordered. Pass ``dtypes`` to control
+    this behavior.
+
+    Attributes
+    ----------
+    columns_ : pandas.Index
+        The columns that were categorized. Useful when ``categories`` is None,
+        and we detect the categorical and object columns
+
+    categories_ : dict
+        A dictionary mapping column names to dtypes. For pandas>=0.21.0, the
+        values are instances of ``pandas.api.types.CategoricalDtype``. For
+        older pandas, the values are tuples of ``(categories, ordered)``.
+
+    Examples
+    --------
+    >>> df = pd.DataFrame({"A": [1, 2, 3], "B": ['a', 'a', 'b']})
+    >>> ce = Categorizer()
+    >>> ce.fit_transform(df).dtypes
+    A       int64
+    B    category
+    dtype: object
+
+    >>> ce.categories_
+    {'B': CategoricalDtype(categories=['a', 'b'], ordered=False)}
+    """
+    def __init__(self, categories=None, columns=None):
+        self.categories = categories
+        self.columns = columns
+
+    def _check_array(self, X):
+        # TODO: refactor to check_array
+        if not isinstance(X, (pd.DataFrame, dd.DataFrame)):
+            raise TypeError("Expected a pandas or dask DataFrame, got "
+                            "{} instead".format(type(X)))
+        return X
+
+    def fit(self, X, y=None):
+        """Find the categorical columns.
+
+        """
+        X = self._check_array(X)
+
+        if self.categories is not None:
+            # some basic validation
+            columns = pd.Index(self.categories)
+            categories = self.categories
+
+        elif isinstance(X, pd.DataFrame):
+            columns, categories = self._fit(X)
+        else:
+            columns, categories = self._fit_dask(X)
+
+        self.columns_ = columns
+        self.categories_ = categories
+        return self
+
+    def _fit(self, X):
+        if self.columns is None:
+            columns = X.select_dtypes(include=['object', 'category']).columns
+        else:
+            columns = self.columns
+        categories = {}
+        for name in columns:
+            col = X[name]
+            if not is_categorical_dtype(col):
+                # This shouldn't ever be hit on a dask.array, since
+                # the object columns would have been converted to known cats
+                # already
+                col = pd.Categorical(col)
+
+            if _HAS_CTD:
+                categories[name] = col.dtype
+            else:
+                categories[name] = (col.cat.categories, col.cat.ordered)
+
+        return columns, categories
+
+    def _fit_dask(self, X):
+        columns = self.columns
+        df = X.categorize(columns=columns, index=False)
+        return self._fit(df)
+
+    def transform(self, X, y=None):
+        """Transform the columns in ``X`` according to ``self.categories_``.
+        """
+        X = self._check_array(X).copy()
+        categories = self.categories_
+
+        for k, dtype in categories.items():
+            if _HAS_CTD:
+                if not isinstance(dtype, pd.api.types.CategoricalDtype):
+                    dtype = pd.api.types.CategoricalDtype(*dtype)
+                X[k] = X[k].astype(dtype)
+            else:
+                cat, ordered = dtype
+                X[k] = X[k].astype('category').cat.set_categories(cat, ordered)
+
+        return X
