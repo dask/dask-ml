@@ -1,10 +1,13 @@
 import pytest
 import sklearn.preprocessing as spp
+from sklearn.exceptions import NotFittedError
 
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
+import pandas.util.testing as tm
+from pandas.api.types import is_categorical_dtype, is_object_dtype
 from dask.array.utils import assert_eq as assert_eq_ar
 from dask.array.utils import assert_eq as assert_eq_df
 
@@ -17,6 +20,11 @@ X, y = make_classification(chunks=2)
 df = X.to_dask_dataframe().rename(columns=str)
 df2 = dd.from_pandas(pd.DataFrame(5 * [range(42)]).T.rename(columns=str),
                      npartitions=5)
+raw = pd.DataFrame({"A": ['a', 'b', 'c', 'a'],
+                    "B": ['a', 'b', 'c', 'a'],
+                    "C": ['a', 'b', 'c', 'a'],
+                    "D": [1, 2, 3, 4]},
+                   columns=['A', 'B', 'C', 'D'])
 
 
 class TestStandardScaler(object):
@@ -105,3 +113,70 @@ class TestQuantileTransformer(object):
         qt.fit(X)
         dqt = dpp.QuantileTransformer()
         dqt.fit(dX)
+
+
+class TestCategorizer(object):
+
+    def test_ce(self):
+        ce = dpp.Categorizer()
+        original = raw.copy()
+        trn = ce.fit_transform(raw)
+        assert is_categorical_dtype(trn['A'])
+        assert is_categorical_dtype(trn['B'])
+        assert is_categorical_dtype(trn['C'])
+        assert trn['D'].dtype == int
+        tm.assert_index_equal(ce.columns_, pd.Index(['A', 'B', 'C']))
+        tm.assert_frame_equal(raw, original)
+
+    def test_given_categories(self):
+        cats = ['a', 'b', 'c', 'd']
+        ce = dpp.Categorizer(categories={'A': (cats, True)})
+        trn = ce.fit_transform(raw)
+        assert trn['A'].dtype == 'category'
+        tm.assert_index_equal(trn['A'].cat.categories, pd.Index(cats))
+        assert all(trn['A'].cat.categories == cats)
+        assert trn['A'].cat.ordered
+
+    def test_dask(self):
+        a = dd.from_pandas(raw, npartitions=2)
+        ce = dpp.Categorizer()
+        trn = ce.fit_transform(a)
+        assert is_categorical_dtype(trn['A'])
+        assert is_categorical_dtype(trn['B'])
+        assert is_categorical_dtype(trn['C'])
+        assert trn['D'].dtype == int
+        tm.assert_index_equal(ce.columns_, pd.Index(['A', 'B', 'C']))
+
+    def test_columns(self):
+        ce = dpp.Categorizer(columns=['A'])
+        trn = ce.fit_transform(raw)
+        assert is_categorical_dtype(trn['A'])
+        assert is_object_dtype(trn['B'])
+
+    @pytest.mark.skipif(dpp.data._HAS_CTD, reason="No CategoricalDtypes")
+    def test_non_categorical_dtype(self):
+        ce = dpp.Categorizer()
+        ce.fit(raw)
+        idx, ordered = ce.categories_['A']
+        tm.assert_index_equal(idx, pd.Index(['a', 'b', 'c']))
+        assert ordered is False
+
+    @pytest.mark.skipif(not dpp.data._HAS_CTD, reason="Has CategoricalDtypes")
+    def test_categorical_dtype(self):
+        ce = dpp.Categorizer()
+        ce.fit(raw)
+        assert (hash(ce.categories_['A']) ==
+                hash(pd.api.types.CategoricalDtype(['a', 'b', 'c'], False)))
+
+    def test_raises(self):
+        ce = dpp.Categorizer()
+        X = np.array([[0, 0], [1, 1]])
+        with pytest.raises(TypeError):
+            ce.fit(X)
+
+        X = da.from_array(X, chunks=(2, 2))
+        with pytest.raises(TypeError):
+            ce.fit(X)
+
+        with pytest.raises(NotFittedError):
+            ce.transform(raw)
