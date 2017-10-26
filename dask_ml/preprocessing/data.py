@@ -226,7 +226,7 @@ class Categorizer(BaseEstimator, TransformerMixin):
     categories : mapping, optional
         A dictionary mapping column name to instances of
         ``pandas.api.types.CategoricalDtype``. Alternatively, a
-        mapping column name to ``(categories, ordered)`` tuples.
+        mapping of column name to ``(categories, ordered)`` tuples.
 
     columns : sequence, optional
         A sequence of column names to limit the categorization to.
@@ -262,6 +262,13 @@ class Categorizer(BaseEstimator, TransformerMixin):
 
     >>> ce.categories_
     {'B': CategoricalDtype(categories=['a', 'b'], ordered=False)}
+
+    Using CategoricalDtypes for specifying the categories:
+
+    >>> from pandas.api.types import CategoricalDtype
+    >>> ce = Categorizer(categories={"B": CategoricalDtype(['a', 'b', 'c'])})
+    >>> ce.fit_transform(df).B.dtype
+    CategoricalDtype(categories=['a', 'b', 'c'], ordered=False)
     """
     def __init__(self, categories=None, columns=None):
         self.categories = categories
@@ -306,7 +313,7 @@ class Categorizer(BaseEstimator, TransformerMixin):
                 # This shouldn't ever be hit on a dask.array, since
                 # the object columns would have been converted to known cats
                 # already
-                col = pd.Categorical(col)
+                col = pd.Series(col, index=X.index).astype('category')
 
             if _HAS_CTD:
                 categories[name] = col.dtype

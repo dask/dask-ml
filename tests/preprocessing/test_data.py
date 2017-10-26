@@ -19,6 +19,11 @@ X, y = make_classification(chunks=2)
 df = X.to_dask_dataframe().rename(columns=str)
 df2 = dd.from_pandas(pd.DataFrame(5 * [range(42)]).T.rename(columns=str),
                      npartitions=5)
+raw = pd.DataFrame({"A": ['a', 'b', 'c', 'a'],
+                    "B": ['a', 'b', 'c', 'a'],
+                    "C": ['a', 'b', 'c', 'a'],
+                    "D": [1, 2, 3, 4]},
+                   columns=['A', 'B', 'C', 'D'])
 
 
 class TestStandardScaler(object):
@@ -109,13 +114,6 @@ class TestQuantileTransformer(object):
         dqt.fit(dX)
 
 
-raw = pd.DataFrame({"A": ['a', 'b', 'c', 'a'],
-                    "B": ['a', 'b', 'c', 'a'],
-                    "C": ['a', 'b', 'c', 'a'],
-                    "D": [1, 2, 3, 4]},
-                   columns=['A', 'B', 'C', 'D'])
-
-
 class TestCategorizer(object):
 
     def test_ce(self):
@@ -153,3 +151,16 @@ class TestCategorizer(object):
         trn = ce.fit_transform(raw)
         assert is_categorical_dtype(trn['A'])
         assert is_object_dtype(trn['B'])
+
+    @pytest.mark.skipif(dpp.data._HAS_CTD, reason="No CategoricalDtypes")
+    def test_non_categorical_dtype(self):
+        ce = dpp.Categorizer()
+        ce.fit(raw)
+        assert ce.categories_['A'] == (pd.Index(['a', 'b', 'c']), False)
+
+    @pytest.mark.skipif(not dpp.data._HAS_CTD, reason="Has CategoricalDtypes")
+    def test_categorical_dtype(self):
+        ce = dpp.Categorizer()
+        ce.fit(raw)
+        assert (hash(ce.categories_['A']) ==
+                hash(pd.api.types.CategoricalDtype(['a', 'b', 'c'], False)))
