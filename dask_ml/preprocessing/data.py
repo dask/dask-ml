@@ -219,7 +219,10 @@ class QuantileTransformer(skdata.QuantileTransformer):
 
 
 class Categorizer(BaseEstimator, TransformerMixin):
-    """Transform columns of a DataFrame to categoricals
+    """Transform columns of a DataFrame to categorical dtype.
+
+    This is a useful pre-processing step for dummy, one-hot, or
+    categorical encoding.
 
     Parameters
     ----------
@@ -239,6 +242,10 @@ class Categorizer(BaseEstimator, TransformerMixin):
     categoricals. The set of categories will be the values present in the
     column and the categoricals will be unordered. Pass ``dtypes`` to control
     this behavior.
+
+    All other columns are included in the transformed output untouched.
+
+    For ``dask.DataFrame``, any unknown categoricals will become known.
 
     Attributes
     ----------
@@ -284,6 +291,14 @@ class Categorizer(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
         """Find the categorical columns.
 
+        Parameters
+        ----------
+        X : pandas.DataFrame or dask.DataFrame
+        y : ignored
+
+        Returns
+        -------
+        self
         """
         X = self._check_array(X)
 
@@ -329,6 +344,17 @@ class Categorizer(BaseEstimator, TransformerMixin):
 
     def transform(self, X, y=None):
         """Transform the columns in ``X`` according to ``self.categories_``.
+
+        Parameters
+        ----------
+        X : pandas.DataFrame or dask.DataFrame
+        y : ignored
+
+        Returns
+        -------
+        X_trn : pandas.DataFrame or dask.DataFrame
+            Same type as the input. The columns in ``self.categories_`` will
+            be converted to categorical dtype.
         """
         X = self._check_array(X).copy()
         categories = self.categories_

@@ -156,7 +156,9 @@ class TestCategorizer(object):
     def test_non_categorical_dtype(self):
         ce = dpp.Categorizer()
         ce.fit(raw)
-        assert ce.categories_['A'] == (pd.Index(['a', 'b', 'c']), False)
+        idx, ordered = ce.categories_['A']
+        tm.assert_index_equal(idx, pd.Index(['a', 'b', 'c']))
+        assert ordered is False
 
     @pytest.mark.skipif(not dpp.data._HAS_CTD, reason="Has CategoricalDtypes")
     def test_categorical_dtype(self):
