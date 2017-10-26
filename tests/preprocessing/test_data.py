@@ -1,5 +1,6 @@
 import pytest
 import sklearn.preprocessing as spp
+from sklearn.exceptions import NotFittedError
 
 import dask.array as da
 import dask.dataframe as dd
@@ -166,3 +167,16 @@ class TestCategorizer(object):
         ce.fit(raw)
         assert (hash(ce.categories_['A']) ==
                 hash(pd.api.types.CategoricalDtype(['a', 'b', 'c'], False)))
+
+    def test_raises(self):
+        ce = dpp.Categorizer()
+        X = np.array([[0, 0], [1, 1]])
+        with pytest.raises(TypeError):
+            ce.fit(X)
+
+        X = da.from_array(X, chunks=(2, 2))
+        with pytest.raises(TypeError):
+            ce.fit(X)
+
+        with pytest.raises(NotFittedError):
+            ce.transform(raw)
