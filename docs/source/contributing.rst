@@ -3,17 +3,17 @@ Contributing
 
 Thanks for helping to build ``dask-ml``!
 
-Cloning the Rep
-~~~~~~~~~~~~~~~
+Cloning the Repository
+~~~~~~~~~~~~~~~~~~~~~~
 
-Make a fork of the repo and clone that
+Make a fork of the `repo <https://github.com/dask/dask-ml>`__ and clone that
 
 .. code-block:: none
 
    git clone https://github.com/<your-github-username>/dask-ml
    cd dask-ml
 
-You may want to add ``dask/dask-ml`` as an upstream
+You may want to add ``https://github.com/dask/dask-ml`` as an upstream.
 
 .. code-block::none
 
@@ -30,7 +30,8 @@ conda you can
    conda env create -f ci/environment.yml --name=dask-ml-dev
 
 If you're using pip, check out the ``setup.py`` for the required and optional
-dependencies.
+dependencies. You'll at lest need the build dependencies of NumPy, setuptools,
+setuptools_scm, and Cython.
 
 Building dask-ml
 ~~~~~~~~~~~~~~~~
@@ -49,7 +50,7 @@ And then
 
 .. code-block:: none
 
-   python -m pip install -e .
+   python -m pip install -e .[dev]
 
 If you have any trouble with the build step, please open an issue.
 

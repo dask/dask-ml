@@ -21,6 +21,7 @@ familiar NumPy, Pandas, and Scikit-Learn APIs.
    :caption: Contents:
 
    install.rst
+   contributing.rst
    hyper-parameter-search.rst
    glm.rst
    incremental.rst
