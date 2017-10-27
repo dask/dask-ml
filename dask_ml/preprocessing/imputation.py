@@ -71,7 +71,7 @@ class Imputer(skimputation.Imputer):
             if is_frame:
                 return _masked_X.quantile(0.5)
             else:
-                raise NotImplementedError("strategy='median' is not supported "
+                raise NotImplementedError("strategy='median' is not supported for"
                                           "arrays. Use `dask.dataframe` or a "
                                           "different strategy instead.")
         else:

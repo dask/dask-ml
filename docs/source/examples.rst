@@ -4,7 +4,7 @@
 Examples
 ========
 
-This is set of runnable Jupyter notebooks.
+This is a set of runnable Jupyter notebooks.
 
 .. toctree::
    :maxdepth: 2

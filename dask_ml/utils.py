@@ -46,10 +46,10 @@ def assert_estimator_equal(left, right, exclude=None, **kwargs):
         Passed through to the dask `assert_eq` method.
 
     """
-    left_attrs = [x for x in dir(left) if x.endswith('_')
-                  and not x.startswith('_')]
-    right_attrs = [x for x in dir(right) if x.endswith('_')
-                   and not x.startswith('_')]
+    left_attrs = [x for x in dir(left) if x.endswith('_') and
+                  not x.startswith('_')]
+    right_attrs = [x for x in dir(right) if x.endswith('_') and
+                   not x.startswith('_')]
     if exclude is None:
         exclude = set()
     elif isinstance(exclude, str):

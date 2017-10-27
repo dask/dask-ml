@@ -1,7 +1,9 @@
 from collections import namedtuple
-import pytest
+import inspect
 
+import pytest
 import pandas as pd
+import six
 import numpy as np
 import dask.dataframe as dd
 import dask.array as da
@@ -14,7 +16,7 @@ from dask_ml.utils import (
 from dask_ml.datasets import make_classification
 
 
-df = dd.from_pandas(pd.DataFrame(5*[range(42)]).T, npartitions=5)
+df = dd.from_pandas(pd.DataFrame(5 * [range(42)]).T, npartitions=5)
 s = dd.from_pandas(pd.Series([0, 1, 2, 3, 0]), npartitions=5)
 a = da.from_array(np.array([0, 1, 2, 3, 0]), chunks=3)
 X, y = make_classification(chunks=2)
@@ -81,3 +83,12 @@ def test_assert_estimator_different_dataframes(a):
     r = Foo(1, 2, 3, pd.DataFrame({"A": [0, 1]}))
     with pytest.raises(AssertionError):
         assert_estimator_equal(l, r)
+
+
+@pytest.mark.skipif(six.PY2, reason="No inspect.signature")
+def test_wrapper():
+    assert "chunks" in make_classification.__doc__
+    assert make_classification.__module__ == "dask_ml.datasets"
+
+    sig = inspect.signature(make_classification)
+    assert 'chunks' in sig.parameters

@@ -1,4 +1,3 @@
-import sys
 import os
 from codecs import open
 
@@ -6,26 +5,22 @@ from setuptools import setup, find_packages, Extension
 from Cython.Build import cythonize
 import numpy as np
 
-here = os.path.abspath(os.path.dirname(__file__))
+here = os.path.dirname(__file__)
 
 # Get the long description from the README file
 with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
-install_requires = ['dask', 'distributed', 'numpy', 'pandas', 'scikit-learn',
+install_requires = ['dask', 'numpy', 'pandas', 'scikit-learn',
                     'scipy', 'dask-glm', 'dask-searchcv', 'six']
 
 # Optional Requirements
 doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme', 'nbsphinx']
-test_requires = ['coverage', 'pytest', 'pytest-mock']
+test_requires = ['coverage', 'pytest']
 dev_requires = doc_requires + test_requires
 tensorflow_requires = ['dask-tensorflow', 'tensorflow']
 xgboost_requires = ['dask-xgboost', 'xgboost']
 complete_requires = tensorflow_requires + xgboost_requires
-
-if sys.version_info.major == 2:
-    test_requires.append("mock")
-
 
 extra_requires = {
     'docs': doc_requires,
