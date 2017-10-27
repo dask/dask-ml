@@ -5,4 +5,5 @@ from .data import (  # noqa
     MinMaxScaler,
     QuantileTransformer,
     Categorizer,
+    DummyEncoder,
 )
