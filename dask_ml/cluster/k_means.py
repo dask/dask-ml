@@ -6,6 +6,7 @@ from timeit import default_timer as tic
 import numpy as np
 import pandas as pd
 import dask.array as da
+import dask.dataframe as dd
 from dask import compute
 from sklearn.base import BaseEstimator
 from sklearn.cluster import k_means_ as sk_k_means
@@ -141,11 +142,22 @@ class KMeans(BaseEstimator):
 
     def _check_array(self, X):
         t0 = tic()
+
+        if isinstance(X, pd.DataFrame):
+            X = X.values
+
+        elif isinstance(X, dd.DataFrame):
+            raise TypeError("Cannot fit on dask.dataframe due to unknown "
+                            "partition lengths.")
+
+        if X.dtype == 'int32':
+            X = X.astype('float32')
+        elif X.dtype == 'int64':
+            X = X.astype('float64')
+
         X = check_array(X, accept_dask_dataframe=False,
                         accept_unknown_chunks=False,
                         accept_sparse=False)
-        if isinstance(X, pd.DataFrame):
-            X = X.values
 
         if isinstance(X, np.ndarray):
             X = da.from_array(X, chunks=(max(1, len(X) // cpu_count()),

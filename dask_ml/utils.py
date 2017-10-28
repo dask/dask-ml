@@ -72,11 +72,6 @@ def check_array(array, *args, **kwargs):
     accept_unknown_chunks = kwargs.pop("accept_unknown_chunks", False)
     accept_multiple_blocks = kwargs.pop("accept_multiple_blocks", False)
 
-    if array.dtype == 'int32':
-        array = array.astype('float32')
-    elif array.dtype == 'int64':
-        array = array.astype('float64')
-
     if isinstance(array, da.Array):
         if not accept_dask_array:
             raise TypeError
