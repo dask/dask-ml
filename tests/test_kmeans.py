@@ -48,9 +48,6 @@ def test_fit_raises():
     with pytest.raises(ValueError):
         km.fit(np.array([]).reshape(1, 0))
 
-    with pytest.raises(ValueError):
-        km.fit(np.random.uniform(size=(20, 2)).astype("complex64"))
-
 
 class TestKMeans:
 
