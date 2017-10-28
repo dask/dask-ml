@@ -398,25 +398,23 @@ def _kmeans_single_lloyd(X, n_clusters, max_iter=300, init='k-means||',
                      oversampling_factor=oversampling_factor,
                      random_state=random_state, max_iter=init_max_iter)
     dt = X.dtype
-    X = X.astype(np.float32)
     P = X.shape[1]
     for i in range(max_iter):
         t0 = tic()
-        centers = centers.astype('f4')
         labels, distances = pairwise_distances_argmin_min(
             X, centers, metric='euclidean', metric_kwargs={"squared": True}
         )
 
         labels = labels.astype(np.int32)
-        distances = distances.astype(np.float32)
-
+        # distances is always float64, but we need it to match X.dtype
+        # for centers_dense, but remain float64 for inertia
         r = da.atop(_centers_dense, 'ij',
                     X, 'ij',
                     labels, 'i',
                     n_clusters, None,
-                    distances, 'i',
+                    distances.astype(X.dtype), 'i',
                     adjust_chunks={"i": n_clusters, "j": P},
-                    dtype='f8')
+                    dtype=X.dtype)
         new_centers = da.from_delayed(
             sum(r.to_delayed().flatten()),
             (n_clusters, P),
@@ -436,8 +434,8 @@ def _kmeans_single_lloyd(X, n_clusters, max_iter=300, init='k-means||',
 
     if shift > 1e-7:
         labels, distances = pairwise_distances_argmin_min(X, centers)
-    inertia = distances.astype(dt).sum()
+
+    inertia = distances.sum()
     centers = centers.astype(dt)
-    labels = labels.astype(np.int64)
 
     return labels, inertia, centers, i + 1

@@ -51,7 +51,8 @@ class TestKMeans:
         b_centers = b.cluster_centers_[b_order]
         np.testing.assert_allclose(a_centers, b_centers,
                                    rtol=1e-3)
-        b_labels = replace(b.labels_, [0, 1, 2], a_order[b_order])
+        b_labels = replace(b.labels_, [0, 1, 2], a_order[b_order]).astype(
+            b.labels_.dtype)
         assert_eq(a.labels_.compute(), b_labels)
         assert a.n_iter_
         # this is hacky
@@ -125,3 +126,20 @@ class TestKMeans:
         X = dd.from_pandas(pd.DataFrame({"A": range(50)}), npartitions=2)
         with pytest.raises(TypeError):
             km.fit(X)
+
+    def test_dtypes(self):
+        X = da.random.uniform(size=(100, 2), chunks=(50, 2))
+        X2 = X.astype('f4')
+        pairs = [(X, X), (X2, X2), (X, X2), (X2, X)]
+
+        for xx, yy in pairs:
+            print("Fitting on {}".format(xx.dtype))
+            a = DKKMeans()
+            b = SKKMeans()
+            a.fit(xx)
+            b.fit(xx)
+            assert a.cluster_centers_.dtype == b.cluster_centers_.dtype
+            assert a.inertia_.dtype == b.inertia_.dtype
+            assert a.labels_.dtype == b.labels_.dtype
+            assert a.transform(xx).dtype == b.transform(xx).dtype
+            assert a.transform(yy).dtype == b.transform(yy).dtype
