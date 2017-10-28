@@ -8,14 +8,18 @@ import numpy as np
 import pandas as pd
 import pytest
 
-
 from dask.array.utils import assert_eq
 from dask_ml.cluster import k_means
 from dask_ml.cluster import KMeans as DKKMeans
 from dask_ml.utils import assert_estimator_equal
 from sklearn.cluster import KMeans as SKKMeans
 from sklearn.cluster import k_means_
+from sklearn.utils.estimator_checks import check_estimator
 from dask_ml.utils import row_norms
+
+
+def test_check_estimator():
+    check_estimator(DKKMeans)
 
 
 def test_row_norms(X_blobs):
@@ -28,6 +32,24 @@ def replace(a, old, new):
     arr = np.empty(a.max() + 1, dtype=new.dtype)
     arr[old] = new
     return arr[a]
+
+
+def test_too_small():
+    km = DKKMeans()
+    X = da.random.uniform(size=(20, 2), chunks=(10, 2))
+    km.fit(X)
+
+
+def test_fit_raises():
+    km = DKKMeans()
+    with pytest.raises(ValueError):
+        km.fit(np.array([]).reshape(0, 1))
+
+    with pytest.raises(ValueError):
+        km.fit(np.array([]).reshape(1, 0))
+
+    with pytest.raises(ValueError):
+        km.fit(np.random.uniform(size=(20, 2)).astype("complex128"))
 
 
 class TestKMeans:
