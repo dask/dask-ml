@@ -155,7 +155,6 @@ class TestKMeans:
         pairs = [(X, X), (X2, X2), (X, X2), (X2, X)]
 
         for xx, yy in pairs:
-            print("Fitting on {}".format(xx.dtype))
             a = DKKMeans()
             b = SKKMeans()
             a.fit(xx)
