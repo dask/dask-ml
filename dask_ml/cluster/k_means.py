@@ -148,7 +148,6 @@ class KMeans(BaseEstimator):
             X = X.values
 
         if isinstance(X, np.ndarray):
-            X = check_array(X)
             X = da.from_array(X, chunks=(max(1, len(X) // cpu_count()),
                                          X.shape[-1]))
 
