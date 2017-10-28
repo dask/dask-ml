@@ -73,7 +73,8 @@ We have some additional decisions to make in the dask context. Ideally
 
 3. If possible, transformers should accept a ``columns`` keyword to limit the
    transformation to just those columns, while passing through other columns
-   untouched.
+   untouched. ``inverse_transform`` should behave similarly (ignoring other
+   columns) so that ``inverse_transform(transform(X))`` equals ``X``.
 4. Methods returning arrays (like ``.transform``, ``.predict``), should return
    the same type as the input. So if a ``dask.array`` is passed in, a
    ``dask.array`` with the same chunks should be returned.

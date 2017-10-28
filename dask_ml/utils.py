@@ -21,9 +21,9 @@ def slice_columns(X, columns):
 
 def handle_zeros_in_scale(scale):
     scale = scale.copy()
-    if isinstance(scale, da.Array):
+    if isinstance(scale, (np.ndarray, da.Array)):
         scale[scale == 0.0] = 1.0
-    elif isinstance(scale, dd.Series):
+    elif isinstance(scale, (pd.Series, dd.Series)):
         scale = scale.where(scale != 0, 1)
     return scale
 

@@ -11,14 +11,15 @@ import pandas.util.testing as tm
 from pandas.api.types import is_categorical_dtype, is_object_dtype
 from dask import compute
 from dask.array.utils import assert_eq as assert_eq_ar
-from dask.array.utils import assert_eq as assert_eq_df
+from dask.dataframe.utils import assert_eq as assert_eq_df
 
 import dask_ml.preprocessing as dpp
 from dask_ml.datasets import make_classification
 from dask_ml.utils import assert_estimator_equal
+from dask_ml.preprocessing.data import handle_zeros_in_scale
 
 
-X, y = make_classification(chunks=2)
+X, y = make_classification(chunks=50)
 df = X.to_dask_dataframe().rename(columns=str)
 df2 = dd.from_pandas(pd.DataFrame(5 * [range(42)]).T.rename(columns=str),
                      npartitions=5)
@@ -64,6 +65,7 @@ class TestMinMaxScaler(object):
         assert_eq_ar(a.inverse_transform(a.fit_transform(X)).compute(),
                      X.compute())
 
+    @pytest.mark.xfail(reason="removed columns")
     def test_df_inverse_transform(self):
         mask = ["3", "4"]
         a = dpp.MinMaxScaler(columns=mask)
@@ -71,10 +73,23 @@ class TestMinMaxScaler(object):
                      df2.compute())
 
     def test_df_values(self):
-        a = dpp.MinMaxScaler()
-        assert_eq_ar(a.fit_transform(X).compute(),
-                     a.fit_transform(df).compute().as_matrix())
+        est1 = dpp.MinMaxScaler()
+        est2 = dpp.MinMaxScaler()
 
+        result_ar = est1.fit_transform(X)
+        result_df = est2.fit_transform(df)
+
+        for attr in ['data_min_', 'data_max_', 'data_range_',
+                     'scale_', 'min_']:
+            assert_eq_ar(getattr(est1, attr), getattr(est2, attr).values)
+
+        assert_eq_ar(est1.transform(X), est2.transform(X))
+        assert_eq_ar(est1.transform(df).values, est2.transform(X))
+        assert_eq_ar(est1.transform(X), est2.transform(df).values)
+
+        assert_eq_ar(result_ar, result_df.values)
+
+    @pytest.mark.xfail(reason="removed columns")
     def test_df_column_slice(self):
         mask = ["3", "4"]
         mask_ix = [mask.index(x) for x in mask]
@@ -85,7 +100,7 @@ class TestMinMaxScaler(object):
         mxb = b.fit_transform(df2.compute())
 
         assert isinstance(dfa, pd.DataFrame)
-        assert_eq_df(dfa[mask].as_matrix(), mxb[:, mask_ix])
+        assert_eq_ar(dfa[mask].values, mxb[:, mask_ix])
         assert_eq_df(dfa.drop(mask, axis=1),
                      df2.drop(mask, axis=1).compute())
 
@@ -249,3 +264,25 @@ class TestDummyEncoder:
         with pytest.raises(ValueError) as rec:
             de.transform(dummy.drop("B", axis='columns'))
         assert rec.match("Columns of 'X' do not match the training")
+
+
+def test_handle_zeros_in_scale():
+    x = np.array([1, 2, 3, 0], dtype='f8')
+    expected = np.array([1, 2, 3, 1], dtype='f8')
+    result = handle_zeros_in_scale(x)
+    np.testing.assert_array_equal(result, expected)
+
+    x = pd.Series(x)
+    expected = pd.Series(expected)
+    result = handle_zeros_in_scale(x)
+    tm.assert_series_equal(result, expected)
+
+    x = da.from_array(x.values, chunks=2)
+    expected = expected.values
+    result = handle_zeros_in_scale(x)
+    assert_eq_ar(result, expected)
+
+    x = dd.from_dask_array(x)
+    expected = pd.Series(expected)
+    result = handle_zeros_in_scale(x)
+    assert_eq_df(result, expected)
