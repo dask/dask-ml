@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import pandas.util.testing as tm
 from pandas.api.types import is_categorical_dtype, is_object_dtype
+from dask import compute
 from dask.array.utils import assert_eq as assert_eq_ar
 from dask.array.utils import assert_eq as assert_eq_df
 
@@ -221,13 +222,30 @@ class TestDummyEncoder:
 
         tm.assert_frame_equal(result, df)
 
-    def test_drop_first(self):
-        ct = dpp.DummyEncoder(drop_first=True)
-        trn = ct.fit_transform(dummy)
-        assert trn.shape[1] == 8
+    @pytest.mark.parametrize("daskify", [False, True])
+    def test_drop_first(self, daskify):
+        if daskify:
+            df = dd.from_pandas(dummy, 2)
+        else:
+            df = dummy
+        de = dpp.DummyEncoder(drop_first=True)
+        trn = de.fit_transform(df)
+        assert len(trn.columns) == 8
+
+        result = de.inverse_transform(trn)
+        if daskify:
+            result, df = compute(result, df)
+        tm.assert_frame_equal(result, dummy)
 
     def test_da(self):
         a = dd.from_pandas(dummy, npartitions=2)
         de = dpp.DummyEncoder()
         result = de.fit_transform(a)
         assert isinstance(result, dd.DataFrame)
+
+    def test_transform_raises(self):
+        de = dpp.DummyEncoder()
+        de.fit(dummy)
+        with pytest.raises(ValueError) as rec:
+            de.transform(dummy.drop("B", axis='columns'))
+        assert rec.match("Columns of 'X' do not match the training")

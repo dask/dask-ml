@@ -493,6 +493,8 @@ class DummyEncoder(TransformerMixin):
         self.categorical_blocks_ = {}
         for col in self.categorical_columns_:
             right = left + len(X[col].cat.categories)
+            if self.drop_first:
+                right -= 1
             self.categorical_blocks_[col], left = slice(left, right), right
 
         if isinstance(X, pd.DataFrame):
@@ -517,13 +519,17 @@ class DummyEncoder(TransformerMixin):
         transformed : pd.DataFrame or dd.DataFrame
             Same type as the input
         """
-        # TODO: validation of columns, dtypes
+        if not X.columns.equals(self.columns_):
+            raise ValueError("Columns of 'X' do not match the training "
+                             "columns. Got {!r}, expected {!r}".format(
+                                 X.columns, self.columns
+                             ))
         if isinstance(X, pd.DataFrame):
             return pd.get_dummies(X, drop_first=self.drop_first)
         elif isinstance(X, dd.DataFrame):
             return dd.get_dummies(X, drop_first=self.drop_first)
         else:
-            raise TypeError
+            raise TypeError("Unexpected type {}".format(type(X)))
 
     def inverse_transform(self, X):
         """Inverse dummy-encode the columns in `X`
@@ -574,7 +580,12 @@ class DummyEncoder(TransformerMixin):
                 categories, ordered = self.dtypes_[col]
 
             # use .values to avoid warning from pandas
-            codes = X[list(X.columns[slice_])].values.argmax(1)
+            inds = X[list(X.columns[slice_])].values
+            codes = inds.argmax(1)
+
+            if self.drop_first:
+                codes += 1
+            codes[(inds == 0).all(1)] = 0
 
             if big:
                 # dask
