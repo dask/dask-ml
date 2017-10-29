@@ -585,6 +585,9 @@ class DummyEncoder(TransformerMixin):
                           .cat.set_categories(np.arange(len(categories)),
                                               ordered=ordered)
                           .cat.rename_categories(categories))
+                # Bug in pandas <= 0.20.3 lost name
+                if series.name is None:
+                    series.name = col
                 series.divisions = X.divisions
             else:
                 # pandas
