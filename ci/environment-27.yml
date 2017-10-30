@@ -9,6 +9,7 @@ dependencies:
   - heapdict
   - multipledispatch
   - nbsphinx
+  - nose
   - numpy
   - numpydoc
   - pandas

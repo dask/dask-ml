@@ -23,6 +23,7 @@ def pairwise_distances_argmin_min(X, Y, axis=1, metric="euclidean",
 
     argmins = [da.from_delayed(block, (chunksize,), np.int64)
                for block, chunksize in zip(argmins, X.chunks[0])]
+    # Scikit-learn seems to always use float64
     mins = [da.from_delayed(block, (chunksize,), 'f8')
             for block, chunksize in zip(mins, X.chunks[0])]
     argmins = da.concatenate(argmins)

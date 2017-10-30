@@ -6,6 +6,7 @@ import numpy as np
 import dask.array as da
 import dask.dataframe as dd
 import sklearn.utils.extmath as skm
+import sklearn.utils.validation as sk_validation
 
 from dask.array.utils import assert_eq as assert_eq_ar
 from dask.dataframe.utils import assert_eq as assert_eq_df
@@ -65,6 +66,46 @@ def assert_estimator_equal(left, right, exclude=None, **kwargs):
         _assert_eq(left, right, **kwargs)
 
 
+def check_array(array, *args, **kwargs):
+    accept_dask_array = kwargs.pop("accept_dask_array", True)
+    accept_dask_dataframe = kwargs.pop("accept_dask_dataframe", True)
+    accept_unknown_chunks = kwargs.pop("accept_unknown_chunks", False)
+    accept_multiple_blocks = kwargs.pop("accept_multiple_blocks", False)
+
+    if isinstance(array, da.Array):
+        if not accept_dask_array:
+            raise TypeError
+        if not accept_unknown_chunks:
+            if np.isnan(array.shape[0]):
+                raise TypeError
+        if not accept_multiple_blocks:
+            if len(array.chunks[1]) > 1:
+                raise TypeError
+
+        # hmmm, we want to catch things like shape errors.
+        # I'd like to make a small sample somehow
+        shape = array.shape
+        if len(shape) == 2:
+            shape = (min(10, shape[0]), shape[1])
+        elif shape == 1:
+            shape = min(10, shape[0])
+
+        sample = np.ones(shape=shape, dtype=array.dtype)
+        sk_validation.check_array(sample, *args, **kwargs)
+        return array
+
+    elif isinstance(array, dd.DataFrame):
+        if not accept_dask_dataframe:
+            raise TypeError
+        if not accept_unknown_chunks:
+            raise TypeError
+
+        sk_validation.check_array(sample, *args, **kwargs)
+        return array
+    else:
+        return sk_validation.check_array(array, *args, **kwargs)
+
+
 def _assert_eq(left, right, **kwargs):
     array_types = (np.ndarray, da.Array)
     frame_types = (pd.core.generic.NDFrame, dd._Frame)
@@ -80,4 +121,4 @@ def _assert_eq(left, right, **kwargs):
         assert left == right
 
 
-__all__ = ['assert_estimator_equal']
+__all__ = ['assert_estimator_equal', 'check_array']
