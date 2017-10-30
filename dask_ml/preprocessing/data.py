@@ -23,6 +23,8 @@ _HAS_CTD = _PANDAS_VERSION >= '0.21.0'
 
 class StandardScaler(skdata.StandardScaler):
 
+    __doc__ = skdata.StandardScaler.__doc__
+
     def fit(self, X, y=None):
         self._reset()
         attributes = OrderedDict()
@@ -63,6 +65,8 @@ class StandardScaler(skdata.StandardScaler):
 
 
 class MinMaxScaler(skdata.MinMaxScaler):
+
+    __doc__ = skdata.MinMaxScaler.__doc__
 
     def fit(self, X, y=None):
         self._reset()
@@ -217,11 +221,13 @@ class Categorizer(BaseEstimator, TransformerMixin):
     Parameters
     ----------
     categories : mapping, optional
+
         A dictionary mapping column name to instances of
         ``pandas.api.types.CategoricalDtype``. Alternatively, a
         mapping of column name to ``(categories, ordered)`` tuples.
 
     columns : sequence, optional
+
         A sequence of column names to limit the categorization to.
         This argument is ignored when ``categories`` is specified.
 

@@ -7,6 +7,7 @@ dependencies:
   - Cython
   - flake8
   - heapdict
+  - ipython
   - multipledispatch
   - nbsphinx
   - nose

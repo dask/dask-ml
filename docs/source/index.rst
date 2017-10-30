@@ -23,6 +23,7 @@ familiar NumPy, Pandas, and Scikit-Learn APIs.
    changelog.rst
    install.rst
    contributing.rst
+   preprocessing.rst
    hyper-parameter-search.rst
    glm.rst
    incremental.rst
