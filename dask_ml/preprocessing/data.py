@@ -1,10 +1,12 @@
+from __future__ import division
+
 from collections import OrderedDict
 from distutils.version import LooseVersion
 import multiprocessing
 
 import dask.array as da
 import dask.dataframe as dd
-from dask import persist, compute
+from dask import compute
 import numpy as np
 import pandas as pd
 from pandas.api.types import is_categorical_dtype
@@ -13,7 +15,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import data as skdata
 from sklearn.utils.validation import check_random_state, check_is_fitted
 
-from dask_ml.utils import handle_zeros_in_scale, slice_columns
+from dask_ml.utils import handle_zeros_in_scale
 
 _PANDAS_VERSION = LooseVersion(pd.__version__)
 _HAS_CTD = _PANDAS_VERSION >= '0.21.0'
@@ -23,22 +25,22 @@ class StandardScaler(skdata.StandardScaler):
 
     def fit(self, X, y=None):
         self._reset()
-        to_persist = OrderedDict()
+        attributes = OrderedDict()
 
         if self.with_mean:
             mean_ = X.mean(0)
-            to_persist['mean_'] = mean_
+            attributes['mean_'] = mean_
         if self.with_std:
             var_ = X.var(0)
             scale_ = var_.copy()
             scale_[scale_ == 0] = 1
             scale_ = da.sqrt(scale_)
-            to_persist['scale_'] = scale_
-            to_persist['var_'] = var_
+            attributes['scale_'] = scale_
+            attributes['var_'] = var_
 
-        to_persist['n_samples_seen_'] = len(X)
-        values = persist(*to_persist.values())
-        for k, v in zip(to_persist, values):
+        attributes['n_samples_seen_'] = len(X)
+        values = compute(*attributes.values())
+        for k, v in zip(attributes, values):
             setattr(self, k, v)
         return self
 
@@ -62,38 +64,30 @@ class StandardScaler(skdata.StandardScaler):
 
 class MinMaxScaler(skdata.MinMaxScaler):
 
-    def __init__(self, feature_range=(0, 1), copy=True, columns=None):
-        super(MinMaxScaler, self).__init__(feature_range, copy)
-        self.columns = columns
-
-        if not copy:
-            raise NotImplementedError()
-
     def fit(self, X, y=None):
         self._reset()
-        to_persist = OrderedDict()
+        attributes = OrderedDict()
         feature_range = self.feature_range
 
         if feature_range[0] >= feature_range[1]:
             raise ValueError("Minimum of desired feature "
                              "range must be smaller than maximum.")
 
-        _X = slice_columns(X, self.columns)
-        data_min = _X.min(0)
-        data_max = _X.max(0)
+        data_min = X.min(0)
+        data_max = X.max(0)
         data_range = data_max - data_min
         scale = ((feature_range[1] - feature_range[0]) /
                  handle_zeros_in_scale(data_range))
 
-        to_persist["data_min_"] = data_min
-        to_persist["data_max_"] = data_max
-        to_persist["data_range_"] = data_range
-        to_persist["scale_"] = scale
-        to_persist["min_"] = feature_range[0] - data_min * scale
-        to_persist["n_samples_seen_"] = np.nan
+        attributes["data_min_"] = data_min
+        attributes["data_max_"] = data_max
+        attributes["data_range_"] = data_range
+        attributes["scale_"] = scale
+        attributes["min_"] = feature_range[0] - data_min * scale
+        attributes["n_samples_seen_"] = np.nan
 
-        values = persist(*to_persist.values())
-        for k, v in zip(to_persist, values):
+        values = compute(*attributes.values())
+        for k, v in zip(attributes, values):
             setattr(self, k, v)
         return self
 
@@ -101,32 +95,28 @@ class MinMaxScaler(skdata.MinMaxScaler):
         raise NotImplementedError()
 
     def transform(self, X, y=None, copy=None):
-        _X = slice_columns(X, self.columns)
-        _X *= self.scale_
-        _X += self.min_
-
-        if isinstance(_X, dd.DataFrame) and self.columns:
-            for column in self.columns:
-                X[column] = _X[column]
-            return X
+        # Workaround for https://github.com/dask/dask/issues/2840
+        if isinstance(X, dd.DataFrame):
+            X = X.mul(self.scale_).add(self.min_)
         else:
-            return _X
+            X = X * self.scale_
+            X = X + self.min_
+        return X
 
     def inverse_transform(self, X, y=None, copy=None):
         if not hasattr(self, "scale_"):
             raise Exception("This %(name)s instance is not fitted yet. "
                             "Call 'fit' with appropriate arguments before "
                             "using this method.")
-        _X = slice_columns(X, self.columns)
-        _X -= self.min_
-        _X /= self.scale_
-
-        if isinstance(_X, dd.DataFrame) and self.columns:
-            for column in self.columns:
-                X[column] = _X[column]
-            return X
+        X = X.copy()
+        if isinstance(X, dd.DataFrame):
+            X = X.sub(self.min_)
+            X = X.div(self.scale_)
         else:
-            return _X
+            X -= self.min_
+            X /= self.scale_
+
+        return X
 
 
 class QuantileTransformer(skdata.QuantileTransformer):

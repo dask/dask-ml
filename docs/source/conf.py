@@ -191,3 +191,9 @@ def generate_example_rst(app, what, name, obj, options, lines):
 
 def setup(app):
     app.connect('autodoc-process-docstring', generate_example_rst)
+
+
+extlinks = {
+    'issue': ('https://github.com/dask/dask/issues/%s', 'GH#'),
+    'pr': ('https://github.com/dask/dask/pull/%s', 'GH#')
+}
