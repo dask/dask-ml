@@ -25,22 +25,16 @@ A :class:`sklearn.pipeline.Pipeline` makes it possible to define the entire mode
 process, from raw data to fit estimator, in a single python object. You can
 create a pipeline with :func:`sklearn.pipeline.make_pipeline`.
 
-.. code-block:: python
+.. ipython:: python
 
-   >>> from sklearn.pipeline import make_pipeline
-   >>> from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-   >>> from sklearn.linear_model import SGDClassifier
+   from sklearn.pipeline import make_pipeline
+   from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+   from sklearn.linear_model import SGDClassifier
 
-   >>> pipeline = make_pipeline(CountVectorizer(),
-                                TfidfTransformer(),
-                                SGDClassifier())
-   >>> pipeline
-   Pipeline(steps=[('countvectorizer', CountVectorizer(analyzer='word', binary=False, decode_error='strict',
-        dtype=<class 'numpy.int64'>, encoding='utf-8', input='content',
-        lowercase=True, max_df=1.0, max_features=None, min_df=1,
-        ngram_range=(1, 1), preprocessor=None, stop_words=None,
-        penalty='l2', power_t=0.5, random_state=None, shuffle=True,
-        verbose=0, warm_start=False))])
+   pipeline = make_pipeline(CountVectorizer(),
+                            TfidfTransformer(),
+                            SGDClassifier())
+   pipeline
 
 Pipelines work by calling the usual ``fit`` and ``transform`` methods in succession.
 The result of the prior ``transform`` is passed into the next ``fit`` step.
@@ -64,27 +58,17 @@ If you use the drop-in replacements
 :class:`dask_ml.model_selection.RandomizedSearchCV` to fit a ``Pipeline``, you can improve
 the training time since Dask will cache and reuse the intermediate steps.
 
-.. code-block:: python
+.. ipython:: python
 
-   >>> # from sklearn.model_selection import GridSearchCV  # replace import
-   >>> from dask_ml.model_selection import GridSearchCV
-   >>> param_grid = {
-   ...     'tfidftransformer__norm': ['l1', 'l2', None],
-   ...     'sgdclassifier__loss': ['hing', 'log'],
-   ...     'sgdclassifier__alpha': [1e-5, 1e-3, 1e-1],
-   ... }
+   # from sklearn.model_selection import GridSearchCV  # replace import
+   from dask_ml.model_selection import GridSearchCV
+   param_grid = {
+       'tfidftransformer__norm': ['l1', 'l2', None],
+       'sgdclassifier__loss': ['hing', 'log'],
+       'sgdclassifier__alpha': [1e-5, 1e-3, 1e-1],
+   }
 
-   >>> clf = GridSearchCV(pipeline, param_grid=param_grid, n_jobs=-1)
-   GridSearchCV(cache_cv=True, cv=None, error_score='raise',
-     estimator=Pipeline(steps=[('countvectorizer', CountVectorizer(analyzer='word', binary=False, decode_error='strict',
-     dtype=<class 'numpy.int64'>, encoding='utf-8', input='content',
-     lowercase=True, max_df=1.0, max_features=None, min_df=1,
-     ngram_range=(1, 1), preprocessor=None, stop_words=None,
-     power_t=0.5, random_state=None, shuffle=True,
-     verbose=0, warm_start=False))]),
-     iid=True, n_jobs=-1,
-     param_grid={'tfidftransformer__norm': ['l1', 'l2', None], 'sgdclassifier__loss': ['hing', 'log'], 'sgdclassifier__alpha': [1e-05, 0.001, 0.1]},
-     refit=True, return_train_score=True, scheduler=None, scoring=None)
+   clf = GridSearchCV(pipeline, param_grid=param_grid, n_jobs=-1)
 
 With the regular scikit-learn version, each stage of the pipeline must be fit
 for each of the combinations of the parameters, even if that step isn't being

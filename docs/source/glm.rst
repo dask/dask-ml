@@ -22,17 +22,13 @@ and dataframes.
 Example
 -------
 
-.. code-block:: python
+.. ipython:: python
 
-   >>> from dask_ml.linear_model import LogisticRegression
-   >>> from dask_ml.datasets import make_classification
-   >>> X, y = make_classification()
-   >>> lr = LogisticRegression()
-   >>> lr.fit(X, y)
-   >>> lr
-   LogisticRegression(abstol=0.0001, fit_intercept=True, lamduh=1.0,
-                      max_iter=100, over_relax=1, regularizer='l2', reltol=0.01,
-                      rho=1, solver='admm', tol=0.0001)
+   from dask_ml.linear_model import LogisticRegression
+   from dask_ml.datasets import make_classification
+   X, y = make_classification(chunks=50)
+   lr = LogisticRegression()
+   lr.fit(X, y)
 
 
 Algorithms
