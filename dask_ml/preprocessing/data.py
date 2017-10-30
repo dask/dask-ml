@@ -370,3 +370,245 @@ class Categorizer(BaseEstimator, TransformerMixin):
                 X[k] = X[k].astype('category').cat.set_categories(cat, ordered)
 
         return X
+
+
+class DummyEncoder(TransformerMixin):
+    """Dummy (one-hot) encode categorical columns
+
+    Parameters
+    ----------
+    columns : sequence, optional
+        The columns to dummy encode. Must be categorical dtype.
+        Dummy encodes all categorical dtype columns by default.
+    drop_first : bool, default False
+        Whether to drop the first category in each column.
+
+    Attributes
+    ----------
+    columns_ : Index
+        The columns in the training data before dummy encoding
+
+    transformed_columns_ : Index
+        The columns in the training data after dummy encoding
+
+    categorical_columns_ : Index
+        The categorical columns in the training data
+
+    noncategorical_columns_ : Index
+        The rest of the columns in the training data
+
+    categorical_blocks_ : dict
+        Mapping from column names to slice objects. The slices
+        represent the positions in the transformed array that the
+        categorical column ends up at
+
+    dtypes_ : dict
+        Dictionary mapping column name to either
+
+        * instances of CategoricalDtype (pandas >= 0.21.0)
+        * tuples of (categories, ordered)
+
+    Notes
+    -----
+    This transformer only applies to dask and pandas DataFrames. For dask
+    DataFrames, all of your categoricals should be known.
+
+    The inverse transformation can be used on a dataframe or array.
+
+    Examples
+    --------
+    >>> data = pd.DataFrame({"A": [1, 2, 3, 4],
+    ...                      "B": pd.Categorical(['a', 'a', 'a', 'b'])})
+    >>> de = DummyEncoder()
+    >>> trn = de.fit_transform(data)
+    >>> trn
+    A  B_a  B_b
+    0  1    1    0
+    1  2    1    0
+    2  3    1    0
+    3  4    0    1
+
+    >>> de.columns_
+    Index(['A', 'B'], dtype='object')
+
+    >>> de.non_categorical_columns_
+    Index(['A'], dtype='object')
+
+    >>> de.categorical_columns_
+    Index(['B'], dtype='object')
+
+    >>> de.dtypes_
+    {'B': CategoricalDtype(categories=['a', 'b'], ordered=False)}
+
+    >>> de.categorical_blocks_
+    {'B': slice(1, 3, None)}
+
+    >>> de.fit_transform(dd.from_pandas(data, 2))
+    Dask DataFrame Structure:
+                    A    B_a    B_b
+    npartitions=2
+    0              int64  uint8  uint8
+    2                ...    ...    ...
+    3                ...    ...    ...
+    Dask Name: get_dummies, 4 tasks
+    """
+    def __init__(self, columns=None, drop_first=False):
+        self.columns = columns
+        self.drop_first = drop_first
+
+    def fit(self, X, y=None):
+        """Determine the categorical columns to be dummy encoded.
+
+        Parameters
+        ----------
+        X : pandas.DataFrame or dask.dataframe.DataFrame
+        y : ignored
+
+        Returns
+        -------
+        self
+        """
+        self.columns_ = X.columns
+        columns = self.columns
+        if columns is None:
+            columns = X.select_dtypes(include=['category']).columns
+        else:
+            for column in columns:
+                assert is_categorical_dtype(X[column]), "Must be categorical"
+
+        self.categorical_columns_ = columns
+        self.non_categorical_columns_ = X.columns.drop(
+            self.categorical_columns_)
+
+        if _HAS_CTD:
+            self.dtypes_ = {col: X[col].dtype
+                            for col in self.categorical_columns_}
+        else:
+            self.dtypes_ = {
+                col: (X[col].cat.categories, X[col].cat.ordered)
+                for col in self.categorical_columns_
+            }
+
+        left = len(self.non_categorical_columns_)
+        self.categorical_blocks_ = {}
+        for col in self.categorical_columns_:
+            right = left + len(X[col].cat.categories)
+            if self.drop_first:
+                right -= 1
+            self.categorical_blocks_[col], left = slice(left, right), right
+
+        if isinstance(X, pd.DataFrame):
+            sample = X.iloc[:1]
+        else:
+            sample = X._meta_nonempty
+
+        self.transformed_columns_ = pd.get_dummies(
+            sample, drop_first=self.drop_first).columns
+        return self
+
+    def transform(self, X, y=None):
+        """Dummy encode the categorical columns in X
+
+        Parameters
+        ----------
+        X : pd.DataFrame or dd.DataFrame
+        y : ignored
+
+        Returns
+        -------
+        transformed : pd.DataFrame or dd.DataFrame
+            Same type as the input
+        """
+        if not X.columns.equals(self.columns_):
+            raise ValueError("Columns of 'X' do not match the training "
+                             "columns. Got {!r}, expected {!r}".format(
+                                 X.columns, self.columns
+                             ))
+        if isinstance(X, pd.DataFrame):
+            return pd.get_dummies(X, drop_first=self.drop_first)
+        elif isinstance(X, dd.DataFrame):
+            return dd.get_dummies(X, drop_first=self.drop_first)
+        else:
+            raise TypeError("Unexpected type {}".format(type(X)))
+
+    def inverse_transform(self, X):
+        """Inverse dummy-encode the columns in `X`
+
+        Parameters
+        ----------
+        X : array or dataframe
+            Either the NumPy, dask, or pandas version
+
+        Returns
+        -------
+        data : DataFrame
+            Dask array or dataframe will return a Dask DataFrame.
+            Numpy array or pandas dataframe will return a pandas DataFrame
+        """
+        if isinstance(X, np.ndarray):
+            X = pd.DataFrame(X, columns=self.transformed_columns_)
+
+        elif isinstance(X, da.Array):
+            # later on we concat(..., axis=1), which requires
+            # known divisions. Suboptimal, but I think unavoidable.
+            unknown = np.isnan(X.chunks[0]).any()
+            if unknown:
+                lengths = da.atop(len, 'i', X[:, 0],
+                                  'i', dtype='i8').compute()
+                X = X.copy()
+                chunks = (tuple(lengths), X.chunks[1])
+                X._chunks = chunks
+
+            X = dd.from_dask_array(X, columns=self.transformed_columns_)
+
+        big = isinstance(X, dd.DataFrame)
+
+        if big:
+            chunks = np.array(X.divisions)[1:]
+            chunks[-1] = chunks[-1] - 1
+            chunks = tuple(chunks)
+
+        non_cat = X[list(self.non_categorical_columns_)]
+
+        cats = []
+        for col in self.categorical_columns_:
+            slice_ = self.categorical_blocks_[col]
+            if _HAS_CTD:
+                dtype = self.dtypes_[col]
+                categories, ordered = dtype.categories, dtype.ordered
+            else:
+                categories, ordered = self.dtypes_[col]
+
+            # use .values to avoid warning from pandas
+            inds = X[list(X.columns[slice_])].values
+            codes = inds.argmax(1)
+
+            if self.drop_first:
+                codes += 1
+            codes[(inds == 0).all(1)] = 0
+
+            if big:
+                # dask
+                codes._chunks = (chunks,)
+                # Need a Categorical.from_codes for dask
+                series = (dd.from_dask_array(codes, columns=col)
+                          .astype('category')
+                          .cat.set_categories(np.arange(len(categories)),
+                                              ordered=ordered)
+                          .cat.rename_categories(categories))
+                # Bug in pandas <= 0.20.3 lost name
+                if series.name is None:
+                    series.name = col
+                series.divisions = X.divisions
+            else:
+                # pandas
+                series = pd.Series(pd.Categorical.from_codes(
+                    codes, categories, ordered=ordered
+                ), name=col)
+
+            cats.append(series)
+        if big:
+            df = dd.concat([non_cat] + cats, axis=1)[list(self.columns_)]
+        else:
+            df = pd.concat([non_cat] + cats, axis=1)[self.columns_]
+        return df

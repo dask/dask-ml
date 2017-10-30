@@ -4,10 +4,12 @@ from sklearn.exceptions import NotFittedError
 
 import dask.array as da
 import dask.dataframe as dd
+from dask.dataframe.utils import assert_eq
 import numpy as np
 import pandas as pd
 import pandas.util.testing as tm
 from pandas.api.types import is_categorical_dtype, is_object_dtype
+from dask import compute
 from dask.array.utils import assert_eq as assert_eq_ar
 from dask.array.utils import assert_eq as assert_eq_df
 
@@ -25,6 +27,12 @@ raw = pd.DataFrame({"A": ['a', 'b', 'c', 'a'],
                     "C": ['a', 'b', 'c', 'a'],
                     "D": [1, 2, 3, 4]},
                    columns=['A', 'B', 'C', 'D'])
+dummy = pd.DataFrame({"A": pd.Categorical(['a', 'b', 'c', 'a'], ordered=True),
+                      "B": pd.Categorical(['a', 'b', 'c', 'a'], ordered=False),
+                      "C": pd.Categorical(['a', 'b', 'c', 'a'],
+                                          categories=['a', 'b', 'c', 'd']),
+                      "D": [1, 2, 3, 4]},
+                     columns=['A', 'B', 'C', 'D'])
 
 
 class TestStandardScaler(object):
@@ -180,3 +188,64 @@ class TestCategorizer(object):
 
         with pytest.raises(NotFittedError):
             ce.transform(raw)
+
+
+class TestDummyEncoder:
+
+    @pytest.mark.parametrize('daskify', [False, True])
+    @pytest.mark.parametrize('values', [True, False])
+    def test_basic(self, daskify, values):
+        de = dpp.DummyEncoder()
+        df = dummy[['A', 'D']]
+        if daskify:
+            df = dd.from_pandas(df, 2)
+        de = de.fit(df)
+        trn = de.transform(df)
+
+        expected = pd.DataFrame({
+            "D": np.array([1, 2, 3, 4]),
+            "A_a": np.array([1, 0, 0, 1], dtype='uint8'),
+            "A_b": np.array([0, 1, 0, 0], dtype='uint8'),
+            "A_c": np.array([0, 0, 1, 0], dtype='uint8'),
+        }, columns=['D', 'A_a', 'A_b', 'A_c'])
+
+        assert_eq(trn, expected)
+
+        if values:
+            trn = trn.values
+
+        result = de.inverse_transform(trn)
+
+        if daskify:
+            df = df.compute()
+            result = result.compute()
+
+        tm.assert_frame_equal(result, df)
+
+    @pytest.mark.parametrize("daskify", [False, True])
+    def test_drop_first(self, daskify):
+        if daskify:
+            df = dd.from_pandas(dummy, 2)
+        else:
+            df = dummy
+        de = dpp.DummyEncoder(drop_first=True)
+        trn = de.fit_transform(df)
+        assert len(trn.columns) == 8
+
+        result = de.inverse_transform(trn)
+        if daskify:
+            result, df = compute(result, df)
+        tm.assert_frame_equal(result, dummy)
+
+    def test_da(self):
+        a = dd.from_pandas(dummy, npartitions=2)
+        de = dpp.DummyEncoder()
+        result = de.fit_transform(a)
+        assert isinstance(result, dd.DataFrame)
+
+    def test_transform_raises(self):
+        de = dpp.DummyEncoder()
+        de.fit(dummy)
+        with pytest.raises(ValueError) as rec:
+            de.transform(dummy.drop("B", axis='columns'))
+        assert rec.match("Columns of 'X' do not match the training")
