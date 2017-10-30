@@ -36,6 +36,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
+    'sphinx.ext.extlinks',
     'nbsphinx',
     'numpydoc',
 ]
@@ -194,6 +195,5 @@ def setup(app):
 
 
 extlinks = {
-    'issue': ('https://github.com/dask/dask/issues/%s', 'GH#'),
-    'pr': ('https://github.com/dask/dask/pull/%s', 'GH#')
+    'issue': ('https://github.com/dask/dask-ml/issues/%s', 'GH#'),
 }

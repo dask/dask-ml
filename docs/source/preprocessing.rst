@@ -1,0 +1,132 @@
+Preprocessing
+=============
+
+:mod:`dask_ml.preprocessing` contains some scikit-learn style transformers that
+can be used in ``Pipelines`` s to perform various data transformations as part
+of the model fitting process. These transformers will work well on dask
+collections (``dask.array``, ``dask.dataframe``), NumPy arrays, pandas
+dataframes. They'll fit and transform in parallel.
+
+Scikit-Learn Clones
+-------------------
+
+Some of the transformers are (mostly) drop-in replacements for their
+scikit-learn counterparts.
+
+.. currentmodule:: dask_ml.preprocessing
+
+.. autosummary::
+
+   MinMaxScaler
+   QuantileTransformer
+   StandardScaler
+
+These can be used just like the scikit-learn versions, except that:
+
+1. They operate on dask collections in parallel
+2. ``.transform`` will return a ``dask.array`` or ``dask.dataframe``
+   when the input is a dask collection
+
+See :mod:`sklearn.preprocessing` for more information about any particular
+transformer.
+
+Additional Tranformers
+----------------------
+
+Other transformers are specific to dask-ml.
+
+.. autosummary::
+
+   Categorizer
+   DummyEncoder
+
+
+Both :class:`dask_ml.preprocessing.Categorizer` and
+:class:`dask_ml.preprocessing.DummyEncoder` deal with converting non-numeric
+data to numeric data. They are useful as a preprocessing step in a pipeline
+where you start with heterogenous data (a mix of numeric and non-numeric), but
+the estimator requires all numeric data.
+
+.. code-block:: python
+
+   >>> from dask_ml.preprocessing import Categorizer, DummyEncoder
+   >>> from sklearn.linear_model import LogisticRegression
+   >>> from sklearn.pipeline import make_pipeline
+   >>> import pandas as pd
+   >>> import dask.dataframe as dd
+
+   >>> df = pd.DataFrame({"A": [1, 2, 1, 2], "B": ["a", "b", "c", "a"]})
+   >>> X = dd.from_pandas(df, npartitions=2)
+   >>> y = dd.from_pandas(pd.Series([0, 1, 1, 0]), npartitions=2)
+
+   >>> pipe = make_pipeline(
+   ...    Categorizer(),
+   ...    DummyEncoder(),
+   ...    LogisticRegression()
+   ... )
+   >>> pipe.fit(X, y)
+   Pipeline(memory=None, steps=[('categorizer', Categorizer(categories=None,
+       columns=None)), ('dummyencoder', <dask_ml.preprocessing.data.DummyEncoder
+       object at 0x10c535dd8>), ('logisticregression', LogisticRegression(C=1.0,
+       class_weight=None, dual=False, fit_intercept=True, intercept_scaling=1,
+       max_iter=100, multi_class='ovr', n_jobs=1, penalty='l2',
+       random_state=None, solver='liblinear', tol=0.0001, verbose=0,
+       warm_start=False))])
+
+
+``Categorizer`` will convert a subset of the columns in ``X`` to categorical
+dtype (see `here <http://pandas.pydata.org/pandas-docs/stable/categorical.html>`_
+for more about how pandas handles categorical data). By default, it converts all
+the ``object`` dtype columns.
+
+``DummyEncoder`` will dummy (or one-hot) encode the dataset. This replaces a
+categorical column with multiple columns, where the values are either 0 or 1,
+depending on whether the value in the original.
+
+.. code-block:: python
+
+   >>> df['B']
+   0    a
+   1    b
+   2    c
+   3    a
+   Name: B, dtype: object
+
+   >>> pd.get_dummies(df['B'])
+      a  b  c
+   0  1  0  0
+   1  0  1  0
+   2  0  0  1
+   3  1  0  0
+
+Wherever the original was ``'a'``, the transformed now has a ``1`` in the ``a``
+column and a ``0`` everywhere else.
+
+Why was the ``Categorizizer`` step necessary? Why couldn't we operate directly
+on a the ``object`` (string) dtype column? Doing this would be fragile,
+especially when using ``dask.dataframe``, since *the shape of the output would
+depend on the values present*. For example, suppose that we just saw the first
+two rows in the training, and the last two rows in the tests datasets. Then,
+when training, our transformed columns would be:
+
+.. code-block:: python
+
+   >>> pd.get_dummies(df.loc[[0, 1], 'B'])
+      a  b
+   0  1  0
+   1  0  1
+
+while on the test dataset, they would be:
+
+.. code-block:: python
+
+   >>> pd.get_dummies(df.loc[[2, 3], 'B'])
+      a  c
+   2  0  1
+   3  1  0
+
+Which is incorrect! The columns don't match.
+
+When we categorize the data, we can be confident that all the possible values
+have been specified, so the output shape no longer depends on the values in the
+whatever subset of the data we currently see.
