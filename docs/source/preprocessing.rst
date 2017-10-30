@@ -4,7 +4,7 @@ Preprocessing
 :mod:`dask_ml.preprocessing` contains some scikit-learn style transformers that
 can be used in ``Pipelines`` s to perform various data transformations as part
 of the model fitting process. These transformers will work well on dask
-collections (``dask.array``, ``dask.dataframe``), NumPy arrays, pandas
+collections (``dask.array``, ``dask.dataframe``), NumPy arrays, or pandas
 dataframes. They'll fit and transform in parallel.
 
 Scikit-Learn Clones
@@ -47,6 +47,13 @@ data to numeric data. They are useful as a preprocessing step in a pipeline
 where you start with heterogenous data (a mix of numeric and non-numeric), but
 the estimator requires all numeric data.
 
+In this toy example, we make a dataset with two columns. ``'A'`` is numeric and
+``'B'`` contains text data. We make a small pipeline to
+
+1. Categorize the text data
+2. Dummy encode the categorical data
+3. Fit a linear regression
+
 .. code-block:: python
 
    >>> from dask_ml.preprocessing import Categorizer, DummyEncoder
@@ -55,7 +62,7 @@ the estimator requires all numeric data.
    >>> import pandas as pd
    >>> import dask.dataframe as dd
 
-   >>> df = pd.DataFrame({"A": [1, 2, 1, 2], "B": ["a", "b", "c", "a"]})
+   >>> df = pd.DataFrame({"A": [1, 2, 1, 2], "B": ["a", "b", "c", "c"]})
    >>> X = dd.from_pandas(df, npartitions=2)
    >>> y = dd.from_pandas(pd.Series([0, 1, 1, 0]), npartitions=2)
 
@@ -89,7 +96,7 @@ depending on whether the value in the original.
    0    a
    1    b
    2    c
-   3    a
+   3    c
    Name: B, dtype: object
 
    >>> pd.get_dummies(df['B'])
@@ -97,7 +104,7 @@ depending on whether the value in the original.
    0  1  0  0
    1  0  1  0
    2  0  0  1
-   3  1  0  0
+   3  0  0  1
 
 Wherever the original was ``'a'``, the transformed now has a ``1`` in the ``a``
 column and a ``0`` everywhere else.
@@ -121,12 +128,13 @@ while on the test dataset, they would be:
 .. code-block:: python
 
    >>> pd.get_dummies(df.loc[[2, 3], 'B'])
-      a  c
-   2  0  1
-   3  1  0
+      c
+   2  1
+   3  1
 
 Which is incorrect! The columns don't match.
 
 When we categorize the data, we can be confident that all the possible values
 have been specified, so the output shape no longer depends on the values in the
-whatever subset of the data we currently see.
+whatever subset of the data we currently see. Instead, it depends on the
+``categories``, which are identical in all the subsets.
