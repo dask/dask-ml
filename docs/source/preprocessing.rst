@@ -54,32 +54,24 @@ In this toy example, we make a dataset with two columns. ``'A'`` is numeric and
 2. Dummy encode the categorical data
 3. Fit a linear regression
 
-.. code-block:: python
+.. ipython:: python
 
-   >>> from dask_ml.preprocessing import Categorizer, DummyEncoder
-   >>> from sklearn.linear_model import LogisticRegression
-   >>> from sklearn.pipeline import make_pipeline
-   >>> import pandas as pd
-   >>> import dask.dataframe as dd
+   from dask_ml.preprocessing import Categorizer, DummyEncoder
+   from sklearn.linear_model import LogisticRegression
+   from sklearn.pipeline import make_pipeline
+   import pandas as pd
+   import dask.dataframe as dd
 
-   >>> df = pd.DataFrame({"A": [1, 2, 1, 2], "B": ["a", "b", "c", "c"]})
-   >>> X = dd.from_pandas(df, npartitions=2)
-   >>> y = dd.from_pandas(pd.Series([0, 1, 1, 0]), npartitions=2)
+   df = pd.DataFrame({"A": [1, 2, 1, 2], "B": ["a", "b", "c", "c"]})
+   X = dd.from_pandas(df, npartitions=2)
+   y = dd.from_pandas(pd.Series([0, 1, 1, 0]), npartitions=2)
 
-   >>> pipe = make_pipeline(
-   ...    Categorizer(),
-   ...    DummyEncoder(),
-   ...    LogisticRegression()
-   ... )
-   >>> pipe.fit(X, y)
-   Pipeline(memory=None, steps=[('categorizer', Categorizer(categories=None,
-       columns=None)), ('dummyencoder', <dask_ml.preprocessing.data.DummyEncoder
-       object at 0x10c535dd8>), ('logisticregression', LogisticRegression(C=1.0,
-       class_weight=None, dual=False, fit_intercept=True, intercept_scaling=1,
-       max_iter=100, multi_class='ovr', n_jobs=1, penalty='l2',
-       random_state=None, solver='liblinear', tol=0.0001, verbose=0,
-       warm_start=False))])
-
+   pipe = make_pipeline(
+      Categorizer(),
+      DummyEncoder(),
+      LogisticRegression()
+   )
+   pipe.fit(X, y)
 
 ``Categorizer`` will convert a subset of the columns in ``X`` to categorical
 dtype (see `here <http://pandas.pydata.org/pandas-docs/stable/categorical.html>`_
@@ -90,21 +82,10 @@ the ``object`` dtype columns.
 categorical column with multiple columns, where the values are either 0 or 1,
 depending on whether the value in the original.
 
-.. code-block:: python
+.. ipython:: python
 
-   >>> df['B']
-   0    a
-   1    b
-   2    c
-   3    c
-   Name: B, dtype: object
-
-   >>> pd.get_dummies(df['B'])
-      a  b  c
-   0  1  0  0
-   1  0  1  0
-   2  0  0  1
-   3  0  0  1
+   df['B']
+   pd.get_dummies(df['B'])
 
 Wherever the original was ``'a'``, the transformed now has a ``1`` in the ``a``
 column and a ``0`` everywhere else.
@@ -116,21 +97,15 @@ depend on the values present*. For example, suppose that we just saw the first
 two rows in the training, and the last two rows in the tests datasets. Then,
 when training, our transformed columns would be:
 
-.. code-block:: python
+.. ipython::python
 
-   >>> pd.get_dummies(df.loc[[0, 1], 'B'])
-      a  b
-   0  1  0
-   1  0  1
+   pd.get_dummies(df.loc[[0, 1], 'B'])
 
 while on the test dataset, they would be:
 
-.. code-block:: python
+.. ipython:: python
 
-   >>> pd.get_dummies(df.loc[[2, 3], 'B'])
-      c
-   2  1
-   3  1
+   pd.get_dummies(df.loc[[2, 3], 'B'])
 
 Which is incorrect! The columns don't match.
 
