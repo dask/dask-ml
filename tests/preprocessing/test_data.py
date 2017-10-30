@@ -264,25 +264,3 @@ class TestDummyEncoder:
         with pytest.raises(ValueError) as rec:
             de.transform(dummy.drop("B", axis='columns'))
         assert rec.match("Columns of 'X' do not match the training")
-
-
-def test_handle_zeros_in_scale():
-    x = np.array([1, 2, 3, 0], dtype='f8')
-    expected = np.array([1, 2, 3, 1], dtype='f8')
-    result = handle_zeros_in_scale(x)
-    np.testing.assert_array_equal(result, expected)
-
-    x = pd.Series(x)
-    expected = pd.Series(expected)
-    result = handle_zeros_in_scale(x)
-    tm.assert_series_equal(result, expected)
-
-    x = da.from_array(x.values, chunks=2)
-    expected = expected.values
-    result = handle_zeros_in_scale(x)
-    assert_eq_ar(result, expected)
-
-    x = dd.from_dask_array(x)
-    expected = pd.Series(expected)
-    result = handle_zeros_in_scale(x)
-    assert_eq_df(result, expected)

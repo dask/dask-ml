@@ -3,6 +3,7 @@ import inspect
 
 import pytest
 import pandas as pd
+import pandas.util.testing as tm
 import six
 import numpy as np
 import dask.dataframe as dd
@@ -41,6 +42,27 @@ def test_handle_zeros_in_scale():
 
     assert list(s2.compute()) == [1, 1, 2, 3, 1]
     assert list(a2.compute()) == [1, 1, 2, 3, 1]
+
+    x = np.array([1, 2, 3, 0], dtype='f8')
+    expected = np.array([1, 2, 3, 1], dtype='f8')
+    result = handle_zeros_in_scale(x)
+    np.testing.assert_array_equal(result, expected)
+
+    x = pd.Series(x)
+    expected = pd.Series(expected)
+    result = handle_zeros_in_scale(x)
+    tm.assert_series_equal(result, expected)
+
+    x = da.from_array(x.values, chunks=2)
+    expected = expected.values
+    result = handle_zeros_in_scale(x)
+    assert_eq_ar(result, expected)
+
+    x = dd.from_dask_array(x)
+    expected = pd.Series(expected)
+    result = handle_zeros_in_scale(x)
+    assert_eq_df(result, expected)
+
 
 
 def test_assert_estimator_passes():
