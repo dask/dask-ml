@@ -59,6 +59,7 @@ API Reference
    preprocessing.QuantileTransformer
    preprocessing.StandardScaler
    preprocessing.Categorizer
+   preprocessing.DummyEncoder
 
 
 :mod:`dask_ml.tensorflow`: Tensorflow

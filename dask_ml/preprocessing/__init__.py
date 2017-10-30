@@ -5,6 +5,7 @@ from .data import (  # noqa
     MinMaxScaler,
     QuantileTransformer,
     Categorizer,
+    DummyEncoder,
 )
 
 from .imputation import ( # noqa
