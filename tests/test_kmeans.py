@@ -8,14 +8,18 @@ import numpy as np
 import pandas as pd
 import pytest
 
-
 from dask.array.utils import assert_eq
 from dask_ml.cluster import k_means
 from dask_ml.cluster import KMeans as DKKMeans
 from dask_ml.utils import assert_estimator_equal
 from sklearn.cluster import KMeans as SKKMeans
 from sklearn.cluster import k_means_
+from sklearn.utils.estimator_checks import check_estimator
 from dask_ml.utils import row_norms
+
+
+def test_check_estimator():
+    check_estimator(DKKMeans)
 
 
 def test_row_norms(X_blobs):
@@ -28,6 +32,21 @@ def replace(a, old, new):
     arr = np.empty(a.max() + 1, dtype=new.dtype)
     arr[old] = new
     return arr[a]
+
+
+def test_too_small():
+    km = DKKMeans()
+    X = da.random.uniform(size=(20, 2), chunks=(10, 2))
+    km.fit(X)
+
+
+def test_fit_raises():
+    km = DKKMeans()
+    with pytest.raises(ValueError):
+        km.fit(np.array([]).reshape(0, 1))
+
+    with pytest.raises(ValueError):
+        km.fit(np.array([]).reshape(1, 0))
 
 
 class TestKMeans:
@@ -51,7 +70,8 @@ class TestKMeans:
         b_centers = b.cluster_centers_[b_order]
         np.testing.assert_allclose(a_centers, b_centers,
                                    rtol=1e-3)
-        b_labels = replace(b.labels_, [0, 1, 2], a_order[b_order])
+        b_labels = replace(b.labels_, [0, 1, 2], a_order[b_order]).astype(
+            b.labels_.dtype)
         assert_eq(a.labels_.compute(), b_labels)
         assert a.n_iter_
         # this is hacky
@@ -125,3 +145,19 @@ class TestKMeans:
         X = dd.from_pandas(pd.DataFrame({"A": range(50)}), npartitions=2)
         with pytest.raises(TypeError):
             km.fit(X)
+
+    def test_dtypes(self):
+        X = da.random.uniform(size=(100, 2), chunks=(50, 2))
+        X2 = X.astype('f4')
+        pairs = [(X, X), (X2, X2), (X, X2), (X2, X)]
+
+        for xx, yy in pairs:
+            a = DKKMeans()
+            b = SKKMeans()
+            a.fit(xx)
+            b.fit(xx)
+            assert a.cluster_centers_.dtype == b.cluster_centers_.dtype
+            assert a.inertia_.dtype == b.inertia_.dtype
+            assert a.labels_.dtype == b.labels_.dtype
+            assert a.transform(xx).dtype == b.transform(xx).dtype
+            assert a.transform(yy).dtype == b.transform(yy).dtype
