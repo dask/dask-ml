@@ -41,7 +41,7 @@ extensions = [
 ]
 
 setup(
-    name='dask_ml',
+    name='dask-ml',
     description='A library for distributed and parallel machine learning',
     long_description=long_description,
     url='https://github.com/dask/dask-ml',
