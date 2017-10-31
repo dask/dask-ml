@@ -101,6 +101,14 @@ class TestKMeans:
         assert abs(dkkm.inertia_ - skkm.inertia_) < 1e-4
         assert dkkm.init == 'k-means++'
 
+    def test_kmeanspp_init_random_state(self, Xl_blobs_easy):
+        X, y = Xl_blobs_easy
+        a = DKKMeans(3, init='k-means++')
+        a.fit(X)
+
+        b = DKKMeans(3, init='k-means++', random_state=0)
+        b.fit(X)
+
     def test_random_init(self, Xl_blobs_easy):
         X, y = Xl_blobs_easy
         X_ = X.compute()
