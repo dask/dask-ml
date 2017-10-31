@@ -281,6 +281,13 @@ def k_init(X, n_clusters, init='k-means||', random_state=None, max_iter=None,
             type(init)))
 
     valid = {'k-means||', 'k-means++', 'random'}
+
+    if isinstance(random_state, Integral) or random_state is None:
+        if init == 'k-means||':
+            random_state = da.random.RandomState(random_state)
+        else:
+            random_state = np.random.RandomState(random_state)
+
     if init == 'k-means||':
         return init_scalable(X, n_clusters, random_state, max_iter,
                              oversampling_factor)
@@ -316,9 +323,6 @@ def init_random(X, n_clusters, random_state):
     logger.info("Initializing randomly")
     t0 = tic()
 
-    if random_state is None or isinstance(random_state, Integral):
-        random_state = np.random.RandomState(random_state)
-
     idx = sorted(random_state.randint(0, len(X), size=n_clusters))
     centers = X[idx].compute()
 
@@ -333,8 +337,6 @@ def init_scalable(X, n_clusters, random_state=None, max_iter=None,
 
     This is algorithm 2 in Scalable K-Means++ (2012).
     """
-    if isinstance(random_state, Integral) or random_state is None:
-        random_state = da.random.RandomState(random_state)
 
     logger.info("Initializing with k-means||")
     init_start = tic()
