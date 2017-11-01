@@ -368,7 +368,7 @@ class Categorizer(BaseEstimator, TransformerMixin):
         return X
 
 
-class DummyEncoder(TransformerMixin):
+class DummyEncoder(BaseEstimator, TransformerMixin):
     """Dummy (one-hot) encode categorical columns
 
     Parameters
@@ -560,9 +560,9 @@ class DummyEncoder(TransformerMixin):
         big = isinstance(X, dd.DataFrame)
 
         if big:
-            chunks = np.array(X.divisions)[1:]
-            chunks[-1] = chunks[-1] - 1
-            chunks = tuple(chunks)
+            chunks = np.array(X.divisions)
+            chunks[-1] = chunks[-1] + 1
+            chunks = tuple(chunks[1:] - chunks[:-1])
 
         non_cat = X[list(self.non_categorical_columns_)]
 
@@ -581,7 +581,7 @@ class DummyEncoder(TransformerMixin):
 
             if self.drop_first:
                 codes += 1
-            codes[(inds == 0).all(1)] = 0
+                codes[(inds == 0).all(1)] = 0
 
             if big:
                 # dask
