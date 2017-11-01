@@ -51,7 +51,7 @@ try:
     from distributed import Client
     from distributed.utils_test import cluster, loop
     has_distributed = True
-except:
+except ImportError:
     loop = pytest.fixture(lambda: None)
     has_distributed = False
 

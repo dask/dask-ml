@@ -1,10 +1,21 @@
 import copy
+from distutils.version import LooseVersion
 
+import dask
 import dask.array as da
-from dask.base import Base, tokenize
+from dask.base import tokenize
 from dask.delayed import delayed, Delayed
 
 from sklearn.utils.validation import indexable, _is_arraylike
+
+
+if LooseVersion(dask.__version__) > '0.15.4':
+    from dask.base import is_dask_collection
+else:
+    from dask.base import Base
+
+    def is_dask_collection(x):
+        return isinstance(x, Base)
 
 
 def _indexable(x):
@@ -33,7 +44,7 @@ def to_indexable(*args, **kwargs):
     for x in args:
         if x is None or isinstance(x, da.Array):
             yield x
-        elif isinstance(x, Base):
+        elif is_dask_collection(x):
             yield delayed(indexable, pure=True)(x)
         else:
             yield indexable(x)
@@ -51,7 +62,7 @@ def to_keys(dsk, *args):
             dsk.update(x.dask)
             yield x.key
         else:
-            assert not isinstance(x, Base)
+            assert not is_dask_collection(x)
             key = 'array-' + tokenize(x)
             dsk[key] = x
             yield key
