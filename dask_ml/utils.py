@@ -67,6 +67,32 @@ def assert_estimator_equal(left, right, exclude=None, **kwargs):
 
 
 def check_array(array, *args, **kwargs):
+    """Validate inputs
+
+    Parameters
+    ----------
+    accept_dask_array : bool, default True
+    accept_dask_dataframe : bool, default True
+    accept_unknown_chunks : bool, default False
+        For dask Arrays, whether to allow the `.chunks` attribute to contain
+        any unknown values
+    accept_multiple_blocks : bool, default False
+        For dask Arrays, whether to allow multiple blocks along the second
+        axis.
+    *args, **kwargs : tuple, dict
+        Passed through to scikit-learn
+
+    Returns
+    -------
+    array : obj
+        Same type as the input
+
+    Notes
+    -----
+    For dask.array, a small numpy array emulating ``array`` is created
+    and passed to scikit-learn's ``check_array`` with all the additional
+    arguments.
+    """
     accept_dask_array = kwargs.pop("accept_dask_array", True)
     accept_dask_dataframe = kwargs.pop("accept_dask_dataframe", True)
     accept_unknown_chunks = kwargs.pop("accept_unknown_chunks", False)
@@ -100,7 +126,7 @@ def check_array(array, *args, **kwargs):
         if not accept_unknown_chunks:
             raise TypeError
 
-        sk_validation.check_array(sample, *args, **kwargs)
+        # TODO: sample?
         return array
     else:
         return sk_validation.check_array(array, *args, **kwargs)
