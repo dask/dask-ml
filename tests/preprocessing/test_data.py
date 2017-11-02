@@ -264,3 +264,13 @@ class TestDummyEncoder:
         with pytest.raises(ValueError) as rec:
             de.transform(dummy.drop("B", axis='columns'))
         assert rec.match("Columns of 'X' do not match the training")
+
+    def test_inverse_transform(self):
+        de = dpp.DummyEncoder()
+        df = dd.from_pandas(pd.DataFrame({"A": np.arange(10),
+                                          "B": pd.Categorical(['a'] * 4 +
+                                                              ['b'] * 6)}),
+                            npartitions=2)
+        de.fit(df)
+        assert_eq_df(df, de.inverse_transform(de.transform(df)))
+        assert_eq_df(df, de.inverse_transform(de.transform(df).values))
