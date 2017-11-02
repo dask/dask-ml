@@ -116,8 +116,8 @@ class Nystroem(BaseEstimator, TransformerMixin):
         X : array-like, shape=(n_samples, n_feature)
             Training data.
         """
-        X = self._check_array(X, accept_unkown_chunks=False,
-                              accept_dask_datafarme=False)
+        X = self._check_array(X, accept_unknown_chunks=False,
+                              accept_dask_dataframe=False)
 
         rnd = check_random_state(self.random_state)
         n_samples = X.shape[0]
@@ -177,8 +177,8 @@ class Nystroem(BaseEstimator, TransformerMixin):
             Transformed data.
         """
         check_is_fitted(self, 'components_')
-        X = self._check_array(X, accept_unkown_chunks=False,
-                              accept_dask_datafarme=False)
+        X = self._check_array(X, accept_unknown_chunks=False,
+                              accept_dask_dataframe=False)
 
         kernel_params = self._get_kernel_params()
         embedded = pairwise_kernels(X, self.components_,
