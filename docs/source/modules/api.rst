@@ -43,6 +43,19 @@ API Reference
    cluster.PartialMiniBatchKMeans
 
 
+:mod:`dask_ml.kernel_approximation`: Kernel Approximation
+=========================================================
+
+.. automodule:: dask_ml.kernel_approximation
+   :no-members:
+   :no-inherited-members:
+
+.. currentmodule:: dask_ml
+   :toctree: generated/
+   :template: class.rst
+
+   kernel_approximation.Nystroem
+
 :mod:`dask_ml.preprocessing`: Preprocessing Data
 ================================================
 
