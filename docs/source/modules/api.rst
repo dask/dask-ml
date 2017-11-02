@@ -51,6 +51,8 @@ API Reference
    :no-inherited-members:
 
 .. currentmodule:: dask_ml
+
+.. autosummary::
    :toctree: generated/
    :template: class.rst
 

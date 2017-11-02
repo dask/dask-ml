@@ -2,7 +2,6 @@
 """
 Implements approximate kernel methods.
 """
-import six
 import warnings
 
 import numpy as np
@@ -91,10 +90,7 @@ class Nystroem(BaseEstimator, TransformerMixin):
 
     See also
     --------
-    RBFSampler : An approximation to the RBF kernel using random Fourier
-                 features.
-
-    sklearn.metrics.pairwise.kernel_metrics : List of built-in kernels.
+    dask_ml.metrics.pairwise.kernel_metrics : List of built-in kernels.
     """
     def __init__(self, kernel="rbf", gamma=None, coef0=None, degree=None,
                  kernel_params=None, n_components=100, random_state=None):
@@ -203,9 +199,4 @@ class Nystroem(BaseEstimator, TransformerMixin):
                 raise ValueError("Passing gamma, coef0 or degree to Nystroem "
                                  "when using a callable kernel is not "
                                  "supported")
-
         return params
-
-
-if six.PY3:
-    Nyström = Nystroem
