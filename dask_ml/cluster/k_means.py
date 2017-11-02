@@ -497,6 +497,7 @@ def _kmeans_single_lloyd(X, n_clusters, max_iter=300, init='k-means||',
 
     if shift > 1e-7:
         labels, distances = pairwise_distances_argmin_min(X, centers)
+        labels = labels.astype(np.int32)
 
     inertia = distances.sum()
     centers = centers.astype(dt)

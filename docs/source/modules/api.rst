@@ -90,7 +90,6 @@ Incremental Learning
    decomposition.TruncatedSVD
 
 
-
 :mod:`dask_ml.preprocessing`: Preprocessing Data
 ================================================
 
