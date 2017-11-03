@@ -79,6 +79,10 @@ class TestKMeans:
         a.cluster_centers_ = a_centers
         assert_eq(a.transform(X), b.transform(X), rtol=1e-3)
 
+        yhat_a = a.predict(X)
+        yhat_b = b.predict(X)
+        assert_eq(yhat_a.compute(), yhat_b)
+
     def test_fit_given_init(self, X_blobs):
         X_ = X_blobs.compute()
         x_squared_norms = k_means_.row_norms(X_, squared=True)

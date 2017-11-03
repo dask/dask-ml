@@ -4,6 +4,11 @@ Changelog
 Version 0.3.0
 ~~~~~~~~~~~~~
 
+Enhancements
+------------
+
+- Added :meth:`KMeans.predict` (:issue:`83`)
+
 API Changes
 -----------
 
