@@ -192,6 +192,27 @@ class KMeans(BaseEstimator):
         X = self._check_array(X)
         return euclidean_distances(X, self.cluster_centers_)
 
+    def predict(self, X):
+        """Predict the closest cluster each sample in X belongs to.
+        In the vector quantization literature, `cluster_centers_` is called
+        the code book and each value returned by `predict` is the index of
+        the closest code in the code book.
+        Parameters
+        ----------
+        X : array-like, shape = [n_samples, n_features]
+            New data to predict.
+
+        Returns
+        -------
+        labels : array, shape [n_samples,]
+            Index of the cluster each sample belongs to.
+        """
+        check_is_fitted(self, 'cluster_centers_')
+        X = self._check_array(X)
+        labels = (pairwise_distances_argmin_min(X, self.cluster_centers_)[0]
+                  .astype(np.int32))
+        return labels
+
 
 def k_means(X, n_clusters, init='k-means||', precompute_distances='auto',
             n_init=1, max_iter=300, verbose=False,
