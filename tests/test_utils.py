@@ -64,7 +64,6 @@ def test_handle_zeros_in_scale():
     assert_eq_df(result, expected)
 
 
-
 def test_assert_estimator_passes():
     l = Foo(1, 2, 3, 4)
     r = Foo(1, 2, 3, 4)

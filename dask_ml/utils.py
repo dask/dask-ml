@@ -8,8 +8,19 @@ import dask.dataframe as dd
 import sklearn.utils.extmath as skm
 import sklearn.utils.validation as sk_validation
 
+from dask import delayed
 from dask.array.utils import assert_eq as assert_eq_ar
 from dask.dataframe.utils import assert_eq as assert_eq_df
+
+
+def svd_flip(u, v):
+    u2, v2 = delayed(skm.svd_flip, nout=2)(u, v)
+    u = da.from_delayed(u2, shape=u.shape, dtype=u.dtype)
+    v = da.from_delayed(v2, shape=v.shape, dtype=v.dtype)
+    return u, v
+
+
+svd_flip.__doc__ = skm.svd_flip.__doc__
 
 
 def slice_columns(X, columns):

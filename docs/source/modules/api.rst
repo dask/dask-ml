@@ -43,6 +43,23 @@ API Reference
    cluster.PartialMiniBatchKMeans
 
 
+:mod:`dask_ml.decomponosition`: Matrix Decomposition
+====================================================
+
+.. automodule:: dask_ml.decompositoin
+   :no-members:
+   :no-inherited-members:
+
+.. currentmodule:: dask_ml
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   decomposition.TruncatedSVD
+
+
+
 :mod:`dask_ml.preprocessing`: Preprocessing Data
 ================================================
 
