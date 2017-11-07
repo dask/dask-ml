@@ -13,7 +13,8 @@ from dask.dataframe.utils import assert_eq as assert_eq_df
 
 from dask_ml.utils import (
     slice_columns, handle_zeros_in_scale, assert_estimator_equal,
-    check_random_state
+    check_random_state,
+    check_chunks,
 )
 from dask_ml.datasets import make_classification
 
@@ -127,3 +128,23 @@ def test_check_random_state():
 
     with pytest.raises(TypeError):
         check_random_state(np.random.RandomState(0))
+
+
+@pytest.mark.parametrize('chunks', [
+    None, 8, (2, 4), [2, 4],
+])
+def test_get_chunks(chunks):
+    result = check_chunks(n_samples=16, n_features=4, chunks=chunks)
+    expected = (2, 4)
+    assert result == expected
+
+
+def test_get_chunks_raises():
+    with pytest.raises(AssertionError):
+        check_chunks(1, 1, chunks=(1, 2, 3))
+
+    with pytest.raises(AssertionError):
+        check_chunks(1, 1, chunks=[1, 2, 3])
+
+    with pytest.raises(ValueError):
+        check_chunks(1, 1, chunks=object())
