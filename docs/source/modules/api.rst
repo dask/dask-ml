@@ -4,6 +4,24 @@
 API Reference
 =============
 
+:mod:`dask_ml.model_selection`: Model Selection
+===============================================
+
+.. automodule:: dask_ml.model_selection
+   :no-members:
+   :no-inherited-members:
+
+.. currentmodule:: dask_ml
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   model_selection.GridSearchCV
+   model_selection.RandomizedSearchCV
+   sklearn.pipeline.make_pipeline
+
+
 :mod:`dask_ml.linear_model`: Generalized Linear Models
 ======================================================
 
@@ -19,12 +37,26 @@ API Reference
 
    linear_model.LinearRegression
    linear_model.LogisticRegression
+   linear_model.PoissonRegression
+
+Incremental Learning
+====================
+
+.. currentmodule:: dask_ml
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   cluster.PartialMiniBatchKMeans
    linear_model.PartialPassiveAggressiveClassifier
    linear_model.PartialPassiveAggressiveRegressor
    linear_model.PartialPerceptron
    linear_model.PartialSGDClassifier
    linear_model.PartialSGDRegressor
-   linear_model.PoissonRegression
+   naive_bayes.PartialBernoulliNB
+   naive_bayes.PartialMultinomialNB
+
 
 :mod:`dask_ml.cluster`: Clustering
 ==================================
@@ -40,7 +72,6 @@ API Reference
    :template: class.rst
 
    cluster.KMeans
-   cluster.PartialMiniBatchKMeans
 
 
 :mod:`dask_ml.preprocessing`: Preprocessing Data
