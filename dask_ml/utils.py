@@ -1,4 +1,5 @@
 from collections import Sequence
+from numbers import Integral
 
 import pandas as pd
 import numpy as np
@@ -121,4 +122,17 @@ def _assert_eq(l, r, **kwargs):
         assert l == r
 
 
-__all__ = ['assert_estimator_equal', 'check_array']
+def check_random_state(random_state):
+    if random_state is None:
+        return da.random.RandomState()
+    elif isinstance(random_state, Integral):
+        return da.random.RandomState(random_state)
+    elif isinstance(random_state, np.random.RandomState):
+        return da.random.RandomState(random_state.randint())
+    elif isinstance(random_state, da.random.RandomState):
+        return random_state
+    else:
+        raise TypeError("Unexpected type '{}'".format(type(random_state)))
+
+
+__all__ = ['assert_estimator_equal', 'check_array', 'check_random_state']

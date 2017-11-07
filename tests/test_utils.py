@@ -12,7 +12,8 @@ from dask.array.utils import assert_eq as assert_eq_ar
 from dask.dataframe.utils import assert_eq as assert_eq_df
 
 from dask_ml.utils import (
-    slice_columns, handle_zeros_in_scale, assert_estimator_equal
+    slice_columns, handle_zeros_in_scale, assert_estimator_equal,
+    check_random_state
 )
 from dask_ml.datasets import make_classification
 
@@ -64,7 +65,6 @@ def test_handle_zeros_in_scale():
     assert_eq_df(result, expected)
 
 
-
 def test_assert_estimator_passes():
     l = Foo(1, 2, 3, 4)
     r = Foo(1, 2, 3, 4)
@@ -114,3 +114,16 @@ def test_wrapper():
 
     sig = inspect.signature(make_classification)
     assert 'chunks' in sig.parameters
+
+
+def test_check_random_state():
+    for rs in [None, 0]:
+        result = check_random_state(rs)
+        assert isinstance(result, da.random.RandomState)
+
+    rs = da.random.RandomState(0)
+    result = check_random_state(rs)
+    assert result is rs
+
+    with pytest.raises(TypeError):
+        check_random_state(np.random.RandomState(0))
