@@ -1,5 +1,6 @@
 from collections import Sequence
 from numbers import Integral
+from multiprocessing import cpu_count
 
 import pandas as pd
 import numpy as np
@@ -135,4 +136,47 @@ def check_random_state(random_state):
         raise TypeError("Unexpected type '{}'".format(type(random_state)))
 
 
-__all__ = ['assert_estimator_equal', 'check_array', 'check_random_state']
+def check_chunks(n_samples, n_features, chunks=None):
+    """Validate and normalize the chunks argument for a dask.array
+
+    Parameters
+    ----------
+    n_samples, n_features : int
+        Give the shape of the array
+    chunks : int, sequence, optional, default None
+        * For 'chunks=None', this picks a "good" default number of chunks based
+          on the number of CPU cores. The default results in a block structure
+          with one block per core along the first dimension (of roughly equal
+          lengths) and a single block along the second dimension. This may or
+          may not be appropriate for your use-case. The chunk size will be at
+          least 100 along the first dimension.
+
+        * When chunks is an int, we split the ``n_samples`` into ``chunks``
+          blocks along the first dimension, and a single block along the
+          second. Again, the chunksize will be at least 100 along the first
+          dimension.
+
+        * When chunks is a sequence, we validate that it's length two and turn
+          it into a tuple.
+
+    Returns
+    -------
+    chunks : tuple
+    """
+    if chunks is None:
+        chunks = (max(100, n_samples // cpu_count()), n_features)
+    elif isinstance(chunks, Integral):
+        chunks = (max(100, n_samples // chunks), n_features)
+    elif isinstance(chunks, Sequence):
+        chunks = tuple(chunks)
+        if len(chunks) != 2:
+            raise AssertionError("Chunks should be a 2-tuple.")
+    else:
+        raise ValueError("Unknown type of chunks: '{}'".format(type(chunks)))
+    return chunks
+
+
+__all__ = ['assert_estimator_equal',
+           'check_array',
+           'check_random_state',
+           'check_chunks']
