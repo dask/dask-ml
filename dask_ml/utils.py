@@ -145,25 +145,28 @@ def check_chunks(n_samples, n_features, chunks=None):
         Give the shape of the array
     chunks : int, sequence, optional, default None
         * For 'chunks=None', this picks a "good" default number of chunks based
-        on the number of CPU cores. The default results in a block structure
-        with one block per core along the first dimension (of roughly equal
-        lengths) and a single block along the second dimension. This may or may
-        not be appropriate for your use-case.
+          on the number of CPU cores. The default results in a block structure
+          with one block per core along the first dimension (of roughly equal
+          lengths) and a single block along the second dimension. This may or
+          may not be appropriate for your use-case. The chunk size will be at
+          least 100 along the first dimension.
 
         * When chunks is an int, we split the ``n_samples`` into ``chunks``
-        blocks along the first dimension, and a single block along the second
+          blocks along the first dimension, and a single block along the
+          second. Again, the chunksize will be at least 100 along the first
+          dimension.
 
         * When chunks is a sequence, we validate that it's length two and turn
-        it into a tuple.
+          it into a tuple.
 
     Returns
     -------
     chunks : tuple
     """
     if chunks is None:
-        chunks = (n_samples // cpu_count(), n_features)
+        chunks = (max(100, n_samples // cpu_count()), n_features)
     elif isinstance(chunks, Integral):
-        chunks = (n_samples // chunks, n_features)
+        chunks = (max(100, n_samples // chunks), n_features)
     elif isinstance(chunks, Sequence):
         chunks = tuple(chunks)
         if len(chunks) != 2:

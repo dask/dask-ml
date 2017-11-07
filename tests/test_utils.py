@@ -131,11 +131,22 @@ def test_check_random_state():
 
 
 @pytest.mark.parametrize('chunks', [
-    None, 8, (2, 4), [2, 4],
+    None, 4, (2000, 4), [2000, 4],
 ])
+@pytest.mark.skipif(six.PY2, reason="No mock")
 def test_get_chunks(chunks):
-    result = check_chunks(n_samples=16, n_features=4, chunks=chunks)
-    expected = (2, 4)
+    from unittest import mock
+
+    with mock.patch("dask_ml.utils.cpu_count", return_value=4):
+        result = check_chunks(n_samples=8000, n_features=4, chunks=chunks)
+        expected = (2000, 4)
+        assert result == expected
+
+
+@pytest.mark.parametrize('chunks', [None, 8])
+def test_get_chunks_min(chunks):
+    result = check_chunks(n_samples=8, n_features=4, chunks=chunks)
+    expected = (100, 4)
     assert result == expected
 
 
