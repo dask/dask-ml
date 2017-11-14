@@ -74,7 +74,7 @@ Incremental Learning
    cluster.KMeans
 
 
-:mod:`dask_ml.decomponosition`: Matrix Decomposition
+:mod:`dask_ml.decomposition`: Matrix Decomposition
 ====================================================
 
 .. automodule:: dask_ml.decompositoin
