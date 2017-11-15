@@ -10,7 +10,6 @@ from dask.array.random import doc_wraps
 from sklearn import metrics
 from sklearn.metrics.pairwise import (
     KERNEL_PARAMS,
-    _pairwise_callable,
 )
 
 from ..utils import row_norms
@@ -163,7 +162,6 @@ def pairwise_kernels(X, Y=None, metric="linear", filter_params=False,
         return X
     elif isinstance(metric, GPKernel):
         raise NotImplementedError()
-        func = metric.__call__
     elif metric in PAIRWISE_KERNEL_FUNCTIONS:
         if filter_params:
             kwds = dict((k, kwds[k]) for k in kwds
@@ -171,7 +169,6 @@ def pairwise_kernels(X, Y=None, metric="linear", filter_params=False,
         func = PAIRWISE_KERNEL_FUNCTIONS[metric]
     elif callable(metric):
         raise NotImplementedError()
-        func = partial(_pairwise_callable, metric=metric, **kwds)
     else:
         raise ValueError("Unknown kernel %r" % metric)
 

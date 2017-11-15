@@ -2,15 +2,18 @@
 """Algorithms for spectral clustering
 """
 import six
+import dask.array as da
 import numpy as np
-from scipy.linalg import pinv, svd
 import sklearn.cluster
-
+from dask import delayed
+from dask.array.linalg import svd
+from scipy.linalg import pinv
 from sklearn.base import BaseEstimator, ClusterMixin
 from sklearn.utils import check_random_state
 
+from .k_means import KMeans
+from ..metrics.pairwise import PAIRWISE_KERNEL_FUNCTIONS, pairwise_kernels
 from ..utils import check_array
-from ..metrics.pairwise import PAIRWISE_KERNEL_FUNCTIONS
 
 
 class SpectralClustering(BaseEstimator, ClusterMixin):
@@ -60,12 +63,13 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         Stopping criterion for eigendecomposition of the Laplacian matrix
         when using arpack eigen_solver.
 
-    assign_labels : {'kmeans', 'discretize'}, default: 'kmeans'
+    assign_labels : 'kmeans' or Estimator, default: 'kmeans'
         The strategy to use to assign labels in the embedding
-        space. There are two ways to assign labels after the laplacian
-        embedding. k-means can be applied and is a popular choice. But it can
-        also be sensitive to initialization. Discretization is another approach
-        which is less sensitive to random initialization.
+        space. By default creates an instance of
+        :class:`dask_ml.cluster.KMeans` and sets `n_clusters` to 2. For
+        further control over the hyperparameters of the final label
+        assignment, pass an instance of a ``KMeans`` estimator (either
+        scikit-learn or dask-ml).
 
     degree : float, default=3
         Degree of the polynomial kernel. Ignored by other kernels.
@@ -82,11 +86,25 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         The number of parallel jobs to run.
         If ``-1``, then the number of jobs is set to the number of CPU cores.
 
+    n_components : int, default 100
+        Number of rows from ``X`` to use for the Nyström approximation.
+        Larger ``n_components`` will improve the accuracy of the
+        approximation, at the cost of a longer training time.
+
+    kmeans_params : dictionary of string to any, optional
+        Keyword arguments for the KMeans clustering used for the final
+        clustering.
+
+
+    Attributes
+    ----------
+    basis_inds_ : ndarray
     """
     def __init__(self, n_clusters=8, eigen_solver=None, random_state=None,
                  n_init=10, gamma=1., affinity='rbf', n_neighbors=10,
                  eigen_tol=0.0, assign_labels='kmeans', degree=3, coef0=1,
-                 kernel_params=None, n_jobs=1, n_components=100):
+                 kernel_params=None, n_jobs=1, n_components=100,
+                 kmeans_params=None):
         self.n_clusters = n_clusters
         self.eigen_solver = eigen_solver
         self.random_state = random_state
@@ -101,13 +119,17 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         self.kernel_params = kernel_params
         self.n_jobs = n_jobs
         self.n_components = n_components
+        self.kmeans_params = kmeans_params
 
     def _check_array(self, X):
         return check_array(X)
 
     def fit(self, X, y=None):
         n_components = self.n_components
-        kernel = self.affinity
+        metric = self.affinity
+        if metric not in PAIRWISE_KERNEL_FUNCTIONS:
+            raise ValueError("Only kernel names")
+
         rng = check_random_state(self.random_state)
         n_clusters = self.n_clusters
         n = len(X)
@@ -122,26 +144,36 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         # recover the original order.
         inds_idx = np.argsort(inds)
 
-        if isinstance(kernel, six.string_types):
-            kernel = PAIRWISE_KERNEL_FUNCTIONS[kernel]
+        params = self.kernel_params or {}
+        params['gamma'] = self.gamma
+        params['degree'] = self.gamma
+        params['gamma'] = self.gamma
 
         # compute the exact blocks
-        A = kernel(X[keep])          # l x l
-        B = kernel(X[keep], X[rest])  # l x (n - l)
+        # these are done in parallel
+        A = pairwise_kernels(X[keep],
+                             metric=metric, filter_params=True, **params)
+        B = pairwise_kernels(X[keep], X[rest],
+                             metric=metric, filter_params=True, **params)
 
         # now the approximation of C
         a = A.sum(0)   # (l,)
         b1 = B.sum(1)  # (l,)
         b2 = B.sum(0)  # (n - l,)
 
-        d = np.hstack([a + b1,
+        A_inv = da.from_delayed(delayed(pinv)(A),
+                                shape=A.shape,
+                                dtype=A.dtype)
+        d = da.hstack([a + b1,
                        # do A^-1 @ b1 first to avoid
                        # a large temporary matrix
-                       b2 + B.T @ (pinv(A) @ b1)])
-        D_si = np.diag(1 / np.sqrt(d))
+                       # would be nice to avoid this inv
+                       b2 + B.T @ (A_inv @ b1)])
+        D_si = da.diag(1 / da.sqrt(d))
 
         A2 = (D_si[:n_components, :n_components] @ A @
               D_si[:n_components, :n_components])
+        A2 = A2.rechunk(A2.shape)
         B2 = (D_si[:n_components, :n_components] @ B @
               D_si[n_components:, n_components:])
 
@@ -153,12 +185,12 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
               np.diag(1 / np.sqrt(S_A[:n_clusters])))
 
         # otherwise use
-        # A_si = sqrtm(Ã).real
-        # R = Ã + A_si @ B @ B.T @ A_si
+        # A_si = sqrtm(A2).real
+        # R = A2 + A_si @ B @ B.T @ A_si
 
         # U_R, S_R, V_R = svd(R)
-        # Ṽ = (np.vstack([Ã, B̃.T]) @ A_si @ U_R[:, :k]) @
-        #      np.diag(1 / np.sqrt(S_R[:k]))
+        # V2 = (np.vstack([A2, B̃.T]) @ A_si @ U_R[:, :k]) @
+        #       np.diag(1 / np.sqrt(S_R[:k]))
 
         # normalize (Eq. 4)
         U2 = (V2.T / np.sqrt((V2 ** 2).sum(1))).T
@@ -166,10 +198,18 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         # Recover the original order so that labels match
         U2 = U2[inds_idx]
 
-        # kmeans
+        # kmeans for final clustering
+        if isinstance(self.assign_labels, six.string_types):
+            km = KMeans(n_clusters=n_components, random_state=rng)
+
+        if self.kmeans_params:
+            km.set_params(self.kmeans_params)
+
         km = sklearn.cluster.KMeans(n_clusters=n_components)
         km.fit(U2)
 
         # Now... what to keep?
+        self.basis_inds_ = inds
+        self.assign_labels_ = km
         self.labels_ = km.labels_
         self.eigenvalues_ = S_A[:n_clusters]  # TODO: better name
