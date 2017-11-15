@@ -13,6 +13,7 @@ X_ = X.compute()
 def test_basic(data):
     sc = SpectralClustering(n_components=25, random_state=0)
     sc.fit(data)
+    assert len(sc.labels_) == len(X)
 
 
 def test_sklearn_kmeans():
