@@ -179,10 +179,10 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
 
         U_A, S_A, V_A = svd(A2)
         # Eq 16. This is OK when V2 is orthogonal
-        V2 = (np.sqrt(n_components / n) *
-              np.vstack([A2, B2.T]) @
+        V2 = (da.sqrt(n_components / n) *
+              da.vstack([A2, B2.T]) @
               U_A[:, :n_clusters] @
-              np.diag(1 / np.sqrt(S_A[:n_clusters])))
+              np.diag(1 / da.sqrt(S_A[:n_clusters])))
 
         # otherwise use
         # A_si = sqrtm(A2).real
@@ -193,7 +193,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         #       np.diag(1 / np.sqrt(S_R[:k]))
 
         # normalize (Eq. 4)
-        U2 = (V2.T / np.sqrt((V2 ** 2).sum(1))).T
+        U2 = (V2.T / da.sqrt((V2 ** 2).sum(1))).T
 
         # Recover the original order so that labels match
         U2 = U2[inds_idx]
