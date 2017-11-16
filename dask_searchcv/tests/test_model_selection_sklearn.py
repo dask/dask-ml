@@ -35,7 +35,7 @@ import dask_searchcv as dcv
 from dask_searchcv.utils_test import (FailingClassifier, MockClassifier,
                                       CheckingClassifier, MockDataFrame,
                                       ignore_warnings)
-from dask_searchcv._compat import _HAS_MULTIPLE_METRICS
+from dask_searchcv._compat import _HAS_MULTIPLE_METRICS, _SK_VERSION
 
 
 class LinearSVCNoScore(LinearSVC):
@@ -190,6 +190,40 @@ def test_grid_search_groups():
         gs = dcv.GridSearchCV(clf, grid, cv=cv)
         # Should not raise an error
         gs.fit(X, y)
+
+
+@pytest.mark.skipif(_SK_VERSION < '0.19.1',
+                    reason='only deprecated for >= 0.19.1')
+def test_return_train_score_warn():
+    # Test that warnings are raised. Will be removed in sklearn 0.21
+    X = np.arange(100).reshape(10, 10)
+    y = np.array([0] * 5 + [1] * 5)
+    grid = {'C': [1, 2]}
+
+    for val in [True, False]:
+        est = dcv.GridSearchCV(LinearSVC(random_state=0), grid,
+                               return_train_score=val)
+        with pytest.warns(None) as warns:
+            results = est.fit(X, y).cv_results_
+        assert not warns
+        assert type(results) is dict
+
+    est = dcv.GridSearchCV(LinearSVC(random_state=0), grid)
+    with pytest.warns(None) as warns:
+        results = est.fit(X, y).cv_results_
+    assert not warns
+
+    train_keys = {'split0_train_score', 'split1_train_score',
+                  'split2_train_score', 'mean_train_score', 'std_train_score'}
+
+    for key in results:
+        if key in train_keys:
+            with pytest.warns(FutureWarning):
+                results[key]
+        else:
+            with pytest.warns(None) as warns:
+                results[key]
+            assert not warns
 
 
 def test_classes__property():
@@ -569,10 +603,10 @@ def test_grid_search_cv_results():
     params = [dict(kernel=['rbf', ], C=[1, 10], gamma=[0.1, 1]),
               dict(kernel=['poly', ], degree=[1, 2])]
     grid_search = dcv.GridSearchCV(SVC(), cv=n_splits, iid=False,
-                                   param_grid=params)
+                                   param_grid=params, return_train_score=True)
     grid_search.fit(X, y)
     grid_search_iid = dcv.GridSearchCV(SVC(), cv=n_splits, iid=True,
-                                       param_grid=params)
+                                       param_grid=params, return_train_score=True)
     grid_search_iid.fit(X, y)
 
     param_keys = ('param_C', 'param_degree', 'param_gamma', 'param_kernel')
@@ -628,11 +662,13 @@ def test_random_search_cv_results():
     params = dict(C=expon(scale=10), gamma=expon(scale=0.1))
     random_search = dcv.RandomizedSearchCV(SVC(), n_iter=n_search_iter,
                                            cv=n_splits, iid=False,
-                                           param_distributions=params)
+                                           param_distributions=params,
+                                           return_train_score=True)
     random_search.fit(X, y)
     random_search_iid = dcv.RandomizedSearchCV(SVC(), n_iter=n_search_iter,
                                                cv=n_splits, iid=True,
-                                               param_distributions=params)
+                                               param_distributions=params,
+                                               return_train_score=True)
     random_search_iid.fit(X, y)
 
     param_keys = ('param_C', 'param_gamma')
@@ -673,9 +709,11 @@ def test_search_iid_param():
     # create "cv" for splits
     cv = [[mask, ~mask], [~mask, mask]]
     # once with iid=True (default)
-    grid_search = dcv.GridSearchCV(SVC(), param_grid={'C': [1, 10]}, cv=cv)
+    grid_search = dcv.GridSearchCV(SVC(), param_grid={'C': [1, 10]}, cv=cv,
+                                   return_train_score=True)
     random_search = dcv.RandomizedSearchCV(SVC(), n_iter=2,
                                            param_distributions={'C': [1, 10]},
+                                           return_train_score=True,
                                            cv=cv)
     for search in (grid_search, random_search):
         search.fit(X, y)
@@ -717,10 +755,10 @@ def test_search_iid_param():
 
     # once with iid=False
     grid_search = dcv.GridSearchCV(SVC(), param_grid={'C': [1, 10]},
-                                   cv=cv, iid=False)
+                                   cv=cv, iid=False, return_train_score=True)
     random_search = dcv.RandomizedSearchCV(SVC(), n_iter=2,
                                            param_distributions={'C': [1, 10]},
-                                           cv=cv, iid=False)
+                                           cv=cv, iid=False, return_train_score=True)
 
     for search in (grid_search, random_search):
         search.fit(X, y)
@@ -758,9 +796,11 @@ def test_search_cv_results_rank_tie_breaking():
     # which would result in a tie of their mean cv-scores
     param_grid = {'C': [1, 1.001, 0.001]}
 
-    grid_search = dcv.GridSearchCV(SVC(), param_grid=param_grid)
+    grid_search = dcv.GridSearchCV(SVC(), param_grid=param_grid,
+                                   return_train_score=True)
     random_search = dcv.RandomizedSearchCV(SVC(), n_iter=3,
-                                           param_distributions=param_grid)
+                                           param_distributions=param_grid,
+                                           return_train_score=True)
 
     for search in (grid_search, random_search):
         search.fit(X, y)
@@ -980,6 +1020,8 @@ def test_search_train_scores_set_to_false():
     gs = dcv.GridSearchCV(clf, param_grid={'C': [0.1, 0.2]},
                           return_train_score=False)
     gs.fit(X, y)
+    for key in gs.cv_results_:
+        assert not key.endswith('train_score')
 
 
 @pytest.mark.skipif(not _HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
