@@ -372,9 +372,10 @@ def test_pipeline_sub_estimators():
                            SVC(kernel='linear', random_state=0, C=1),
                            SVC(kernel='linear', random_state=0, C=10)]}]
 
-    gs = GridSearchCV(pipe, param_grid=param_grid)
+    gs = GridSearchCV(pipe, param_grid=param_grid, return_train_score=True)
     gs.fit(X, y)
-    dgs = dcv.GridSearchCV(pipe, param_grid=param_grid, scheduler='sync')
+    dgs = dcv.GridSearchCV(pipe, param_grid=param_grid, scheduler='sync',
+                           return_train_score=True)
     dgs.fit(X, y)
 
     # Check best params match
