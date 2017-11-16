@@ -43,7 +43,7 @@ from sklearn.svm import SVC
 
 import dask_searchcv as dcv
 from dask_searchcv.model_selection import (compute_n_splits, check_cv,
-        _normalize_n_jobs, _normalize_scheduler)
+                                           _normalize_n_jobs, _normalize_scheduler)
 from dask_searchcv._compat import _HAS_MULTIPLE_METRICS
 from dask_searchcv.methods import CVCache
 from dask_searchcv.utils_test import (FailingClassifier, MockClassifier,
@@ -407,7 +407,7 @@ def check_scores_all_nan(gs, bad_param, score_key='score'):
 
 
 @pytest.mark.parametrize('weights',
-        [None, (None, {'tr0': 2, 'tr2': 3}, {'tr0': 2, 'tr2': 4})])
+                         [None, (None, {'tr0': 2, 'tr2': 3}, {'tr0': 2, 'tr2': 4})])
 def test_feature_union(weights):
     X = np.ones((10, 5))
     y = np.zeros(10)

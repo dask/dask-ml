@@ -127,7 +127,7 @@ def build_graph(estimator, cv, scorer, candidate_params, X, y=None,
         best_estimator = 'best-estimator-' + main_token
         if fit_params:
             fit_params = (dict, (zip, list(fit_params.keys()),
-                                list(pluck(1, fit_params.values()))))
+                                 list(pluck(1, fit_params.values()))))
         dsk[best_estimator] = (fit_best, clone(estimator), best_params,
                                X_name, y_name, fit_params)
         keys.append(best_estimator)
@@ -399,9 +399,9 @@ def _do_fit_step(dsk, next_token, step, cv, fields, tokens, params, Xs, ys,
                     new_fits.update(zip(ids, sub_fits))
                 else:
                     sub_fits = do_fit(dsk, next_token, sub_est, cv,
-                                        sub_fields, sub_tokens, sub_params,
-                                        sub_Xs, sub_ys, sub_fit_params,
-                                        n_splits, error_score)
+                                      sub_fields, sub_tokens, sub_params,
+                                      sub_Xs, sub_ys, sub_fit_params,
+                                      n_splits, error_score)
                     new_fits.update(zip(ids, sub_fits))
         # Extract lists of transformed Xs and fit steps
         all_ids = list(range(len(Xs)))
@@ -428,8 +428,8 @@ def _do_fit_step(dsk, next_token, step, cv, fields, tokens, params, Xs, ys,
                                         error_score)
         else:
             fits = do_fit(dsk, next_token, step, cv, sub_fields,
-                            sub_tokens, sub_params, Xs, ys, sub_fit_params,
-                            n_splits, error_score)
+                          sub_tokens, sub_params, Xs, ys, sub_fit_params,
+                          n_splits, error_score)
     return (fits, Xs) if is_transform else (fits, None)
 
 
@@ -1132,9 +1132,15 @@ class GridSearchCV(DaskBaseSearchCV):
                  return_train_score=True, scheduler=None, n_jobs=-1,
                  cache_cv=True):
         super(GridSearchCV, self).__init__(estimator=estimator,
-                scoring=scoring, iid=iid, refit=refit, cv=cv,
-                error_score=error_score, return_train_score=return_train_score,
-                scheduler=scheduler, n_jobs=n_jobs, cache_cv=cache_cv)
+                                           scoring=scoring,
+                                           iid=iid,
+                                           refit=refit,
+                                           cv=cv,
+                                           error_score=error_score,
+                                           return_train_score=return_train_score,
+                                           scheduler=scheduler,
+                                           n_jobs=n_jobs,
+                                           cache_cv=cache_cv)
 
         _check_param_grid(param_grid)
         self.param_grid = param_grid
@@ -1216,9 +1222,15 @@ class RandomizedSearchCV(DaskBaseSearchCV):
                  scheduler=None, n_jobs=-1, cache_cv=True):
 
         super(RandomizedSearchCV, self).__init__(estimator=estimator,
-                scoring=scoring, iid=iid, refit=refit, cv=cv,
-                error_score=error_score, return_train_score=return_train_score,
-                scheduler=scheduler, n_jobs=n_jobs, cache_cv=cache_cv)
+                                                 scoring=scoring,
+                                                 iid=iid,
+                                                 refit=refit,
+                                                 cv=cv,
+                                                 error_score=error_score,
+                                                 return_train_score=return_train_score,
+                                                 scheduler=scheduler,
+                                                 n_jobs=n_jobs,
+                                                 cache_cv=cache_cv)
 
         self.param_distributions = param_distributions
         self.n_iter = n_iter
@@ -1227,4 +1239,5 @@ class RandomizedSearchCV(DaskBaseSearchCV):
     def _get_param_iterator(self):
         """Return ParameterSampler instance for the given distributions"""
         return model_selection.ParameterSampler(self.param_distributions,
-                self.n_iter, random_state=self.random_state)
+                                                self.n_iter,
+                                                random_state=self.random_state)

@@ -605,13 +605,13 @@ def test_grid_search_cv_results():
         assert all((cv_results['param_C'].mask[i] and
                     cv_results['param_gamma'].mask[i] and
                     not cv_results['param_degree'].mask[i])
-                    for i in range(n_candidates)
-                    if cv_results['param_kernel'][i] == 'linear')
+                   for i in range(n_candidates)
+                   if cv_results['param_kernel'][i] == 'linear')
         assert all((not cv_results['param_C'].mask[i] and
                     not cv_results['param_gamma'].mask[i] and
                     cv_results['param_degree'].mask[i])
-                    for i in range(n_candidates)
-                    if cv_results['param_kernel'][i] == 'rbf')
+                   for i in range(n_candidates)
+                   if cv_results['param_kernel'][i] == 'rbf')
 
 
 def test_random_search_cv_results():

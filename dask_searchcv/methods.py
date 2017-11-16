@@ -113,7 +113,7 @@ class CVCache(object):
 
         if not hasattr(X, "shape"):
             raise ValueError("Precomputed kernels or affinity matrices have "
-                            "to be passed as arrays or sparse matrices.")
+                             "to be passed as arrays or sparse matrices.")
         if X.shape[0] != X.shape[1]:
             raise ValueError("X should be a square kernel matrix")
         train, test = self.splits[n]
