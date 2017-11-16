@@ -7,7 +7,6 @@ import six
 import dask.array as da
 import numpy as np
 import sklearn.cluster
-from dask import delayed
 # from dask.array.linalg import svd
 from scipy.linalg import pinv, svd
 from sklearn.base import BaseEstimator, ClusterMixin

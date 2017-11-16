@@ -1,8 +1,6 @@
 """
 Daskified versions of sklearn.metrics.pairwise
 """
-from functools import partial
-
 import dask.array as da
 import numpy as np
 from dask import delayed
