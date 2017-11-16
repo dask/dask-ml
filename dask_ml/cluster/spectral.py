@@ -1,19 +1,24 @@
 # -*- coding: utf-8 -*-
 """Algorithms for spectral clustering
 """
+import logging
+
 import six
 import dask.array as da
 import numpy as np
 import sklearn.cluster
 from dask import delayed
-from dask.array.linalg import svd
-from scipy.linalg import pinv
+# from dask.array.linalg import svd
+from scipy.linalg import pinv, svd
 from sklearn.base import BaseEstimator, ClusterMixin
 from sklearn.utils import check_random_state
 
 from .k_means import KMeans
 from ..metrics.pairwise import PAIRWISE_KERNEL_FUNCTIONS, pairwise_kernels
 from ..utils import check_array
+
+
+logger = logging.getLogger(__name__)
 
 
 class SpectralClustering(BaseEstimator, ClusterMixin):
@@ -122,9 +127,10 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         self.kmeans_params = kmeans_params
 
     def _check_array(self, X):
-        return check_array(X)
+        return check_array(X, accept_dask_dataframe=False)
 
     def fit(self, X, y=None):
+        X = self._check_array(X)
         n_components = self.n_components
         metric = self.affinity
         if metric not in PAIRWISE_KERNEL_FUNCTIONS:
@@ -132,6 +138,27 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
 
         rng = check_random_state(self.random_state)
         n_clusters = self.n_clusters
+
+        # kmeans for final clustering
+        if isinstance(self.assign_labels, six.string_types):
+            if self.assign_labels == 'kmeans':
+                km = KMeans(n_clusters=n_clusters,
+                            random_state=rng.randint(2**32 - 1))
+            elif self.assign_labels == 'sklearn-kmeans':
+                km = sklearn.cluster.KMeans(n_clusters=n_clusters,
+                                            random_state=rng)
+            else:
+                msg = "Unknown 'assign_labels' {!r}".foramt(self.assign_labels)
+                raise ValueError(msg)
+        elif isinstance(self.assign_labels, BaseEstimator):
+            km = self.assign_labels
+        else:
+            raise TypeError("Invalid type {} for 'assign_labels'".format(
+                type(self.assign_labels)))
+
+        if self.kmeans_params:
+            km.set_params(self.kmeans_params)
+
         n = len(X)
 
         inds = rng.permutation(np.arange(n))
@@ -161,28 +188,29 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         b1 = B.sum(1)  # (l,)
         b2 = B.sum(0)  # (n - l,)
 
-        A_inv = da.from_delayed(delayed(pinv)(A),
-                                shape=A.shape,
-                                dtype=A.dtype)
-        d = da.hstack([a + b1,
-                       # do A^-1 @ b1 first to avoid
-                       # a large temporary matrix
-                       # would be nice to avoid this inv
-                       b2 + B.T @ (A_inv @ b1)])
-        D_si = da.diag(1 / da.sqrt(d))
+        A_inv = pinv(A)
+        # d = da.hstack([a + b1,
+        #                # do A^-1 @ b1 first to avoid
+        #                # a large temporary matrix
+        #                # would be nice to avoid this inv
+        #                b2 + B.T @ (A_inv @ b1)])
 
-        A2 = (D_si[:n_components, :n_components] @ A @
-              D_si[:n_components, :n_components])
-        A2 = A2.rechunk(A2.shape)
-        B2 = (D_si[:n_components, :n_components] @ B @
-              D_si[n_components:, n_components:])
+        d1_si = 1 / da.sqrt(a + b1)
+        d2_si = 1 / da.sqrt(b2 + B.T @ (A_inv @ b1))
+
+        # d1, d2 are diagonal, so we can avoid large matrix multiplies
+        # Equivalent to diag(d1_si) @ A @ diag(d1_si)
+        A2 = d1_si.reshape(-1, 1) * A * d1_si.reshape(1, -1)
+        # A2 = A2.rechunk(A2.shape)
+        # Equivalent to diag(d1_si) @ B @ diag(d2_si)
+        B2 = d1_si.reshape(-1, 1) * B * d2_si
 
         U_A, S_A, V_A = svd(A2)
         # Eq 16. This is OK when V2 is orthogonal
         V2 = (da.sqrt(n_components / n) *
               da.vstack([A2, B2.T]) @
               U_A[:, :n_clusters] @
-              np.diag(1 / da.sqrt(S_A[:n_clusters])))
+              da.diag(1 / da.sqrt(S_A[:n_clusters])))
 
         # otherwise use
         # A_si = sqrtm(A2).real
@@ -198,15 +226,9 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         # Recover the original order so that labels match
         U2 = U2[inds_idx]
 
-        # kmeans for final clustering
-        if isinstance(self.assign_labels, six.string_types):
-            km = KMeans(n_clusters=n_components, random_state=rng)
-
-        if self.kmeans_params:
-            km.set_params(self.kmeans_params)
-
-        km = sklearn.cluster.KMeans(n_clusters=n_components)
+        logger.info("k-means for assign_labels[starting]")
         km.fit(U2)
+        logger.info("k-means for assign_labels[finished]")
 
         # Now... what to keep?
         self.basis_inds_ = inds
