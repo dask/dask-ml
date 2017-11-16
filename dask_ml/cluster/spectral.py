@@ -99,10 +99,29 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         Keyword arguments for the KMeans clustering used for the final
         clustering.
 
-
     Attributes
     ----------
     basis_inds_ : ndarray
+        The ordering used to partition X into the samples for the
+        Nyström approximation
+    assign_labels_ : Estimator
+        The instance of the KMeans estimator used to assign labels
+    labels_ : dask.array.Array, size (n_samples,)
+        The cluster labels assigned
+    eigenvalues_ : numpy.ndarray
+        The eigenvalues from the SVD of the sampled points
+
+    References
+    ----------
+    - Parallel Spectral Clustering in Distributed Systems, 2010
+      Chen, Song, Bai, Lin, and Chang
+      IEEE Transactions on Pattern Analysis and Machine Intelligence
+      http://ieeexplore.ieee.org/document/5444877/
+
+    - Spectral Grouping Using the Nystrom Method (2004)
+      Fowlkes, Belongie, Chung, Malik
+      IEEE Transactions on Pattern Analysis and Machine Intelligence
+      https://people.cs.umass.edu/~mahadeva/cs791bb/reading/fowlkes-nystrom.pdf
     """
     def __init__(self, n_clusters=8, eigen_solver=None, random_state=None,
                  n_init=10, gamma=1., affinity='rbf', n_neighbors=10,
@@ -185,33 +204,28 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         # now the approximation of C
         a = A.sum(0)   # (l,)
         b1 = B.sum(1)  # (l,)
-        b2 = B.sum(0)  # (n - l,)
+        b2 = B.sum(0)  # (m,)
 
         A_inv = pinv(A)
-        # d = da.hstack([a + b1,
-        #                # do A^-1 @ b1 first to avoid
-        #                # a large temporary matrix
-        #                # would be nice to avoid this inv
-        #                b2 + B.T @ (A_inv @ b1)])
 
-        d1_si = 1 / da.sqrt(a + b1)
-        d2_si = 1 / da.sqrt(b2 + B.T @ (A_inv @ b1))
+        d1_si = 1 / da.sqrt(a + b1)  # (l,)
+        d2_si = 1 / da.sqrt(b2 + B.T @ (A_inv @ b1))  # (m,), dask array
 
         # d1, d2 are diagonal, so we can avoid large matrix multiplies
         # Equivalent to diag(d1_si) @ A @ diag(d1_si)
-        A2 = d1_si.reshape(-1, 1) * A * d1_si.reshape(1, -1)
+        A2 = d1_si.reshape(-1, 1) * A * d1_si.reshape(1, -1)  # (n, n)
         # A2 = A2.rechunk(A2.shape)
         # Equivalent to diag(d1_si) @ B @ diag(d2_si)
-        B2 = d1_si.reshape(-1, 1) * B * d2_si
+        B2 = d1_si.reshape(-1, 1) * B * d2_si  # (m, m), so this is dask.
 
-        U_A, S_A, V_A = svd(A2)
+        U_A, S_A, V_A = svd(A2)  # (l, l), (l,), (l, l)
         # Eq 16. This is OK when V2 is orthogonal
         V2 = (da.sqrt(n_components / n) *
               da.vstack([A2, B2.T]) @
               U_A[:, :n_clusters] @
-              da.diag(1 / da.sqrt(S_A[:n_clusters])))
+              da.diag(1 / da.sqrt(S_A[:n_clusters])))  # (n, k)
 
-        # otherwise use
+        # When the kernel is not PSD, we need to fall back to this:
         # A_si = sqrtm(A2).real
         # R = A2 + A_si @ B @ B.T @ A_si
 
@@ -220,10 +234,10 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         #       np.diag(1 / np.sqrt(S_R[:k]))
 
         # normalize (Eq. 4)
-        U2 = (V2.T / da.sqrt((V2 ** 2).sum(1))).T
+        U2 = (V2.T / da.sqrt((V2 ** 2).sum(1))).T  # (n, k)
 
         # Recover the original order so that labels match
-        U2 = U2[inds_idx]
+        U2 = U2[inds_idx]  # (n, k)
 
         logger.info("k-means for assign_labels[starting]")
         km.fit(U2)
@@ -234,3 +248,4 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         self.assign_labels_ = km
         self.labels_ = km.labels_
         self.eigenvalues_ = S_A[:n_clusters]  # TODO: better name
+        return self
