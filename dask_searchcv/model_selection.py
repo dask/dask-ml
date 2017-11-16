@@ -39,6 +39,7 @@ from .methods import (fit, fit_transform, fit_and_score, pipeline, fit_best,
                       decompress_params, score, feature_union,
                       feature_union_concat, MISSING)
 from .utils import to_indexable, to_keys, unzip, is_dask_collection
+from ._compat import _HAS_MULTIPLE_METRICS
 
 try:
     from cytoolz import get, pluck
@@ -63,7 +64,8 @@ class TokenIterator(object):
 
 def build_graph(estimator, cv, scorer, candidate_params, X, y=None,
                 groups=None, fit_params=None, iid=True, refit=True,
-                error_score='raise', return_train_score=True, cache_cv=True):
+                error_score='raise', return_train_score=True, cache_cv=True,
+                multimetric=False):
 
     X, y, groups = to_indexable(X, y, groups)
     cv = check_cv(cv, y, is_classifier(estimator))
@@ -105,13 +107,23 @@ def build_graph(estimator, cv, scorer, candidate_params, X, y=None,
     cv_results = 'cv-results-' + main_token
     candidate_params_name = 'cv-parameters-' + main_token
     dsk[candidate_params_name] = (decompress_params, fields, params)
+    if multimetric:
+        metrics = list(scorer.keys())
+    else:
+        metrics = None
     dsk[cv_results] = (create_cv_results, scores, candidate_params_name,
-                       n_splits, error_score, weights)
+                       n_splits, error_score, weights, metrics)
     keys = [cv_results]
 
     if refit:
+        if multimetric:
+            scorer = refit
+        else:
+            scorer = 'score'
+
         best_params = 'best-params-' + main_token
-        dsk[best_params] = (get_best_params, candidate_params_name, cv_results)
+        dsk[best_params] = (get_best_params, candidate_params_name, cv_results,
+                            scorer)
         best_estimator = 'best-estimator-' + main_token
         if fit_params:
             fit_params = (dict, (zip, list(fit_params.keys()),
@@ -679,6 +691,11 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         self.n_jobs = n_jobs
         self.cache_cv = cache_cv
 
+    def _check_if_refit(self, attr):
+        if not self.refit:
+            raise AttributeError(
+                "'{}' is not a valid attribute with 'refit=False'.".format(attr))
+
     @property
     def _estimator_type(self):
         return self.estimator._estimator_type
@@ -686,12 +703,18 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
     @property
     def best_params_(self):
         check_is_fitted(self, 'cv_results_')
+        self._check_if_refit('best_params_')
         return self.cv_results_['params'][self.best_index_]
 
     @property
     def best_score_(self):
         check_is_fitted(self, 'cv_results_')
-        return self.cv_results_['mean_test_score'][self.best_index_]
+        self._check_if_refit('best_score_')
+        if _HAS_MULTIPLE_METRICS and self.multimetric_:
+            key = self.refit
+        else:
+            key = 'score'
+        return self.cv_results_['mean_test_{}'.format(key)][self.best_index_]
 
     def _check_is_fitted(self, method_name):
         if not self.refit:
@@ -769,7 +792,33 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             Parameters passed to the ``fit`` method of the estimator
         """
         estimator = self.estimator
-        self.scorer_ = check_scoring(estimator, scoring=self.scoring)
+        if _HAS_MULTIPLE_METRICS:
+            from sklearn.metrics.scorer import _check_multimetric_scoring
+            scorer, multimetric = _check_multimetric_scoring(estimator,
+                                                             scoring=self.scoring)
+            if not multimetric:
+                scorer = scorer['score']
+            self.multimetric_ = multimetric
+
+            if self.multimetric_:
+                if self.refit is not False and (
+                        not isinstance(self.refit, str) or
+                        # This will work for both dict / list (tuple)
+                        self.refit not in scorer):
+                    raise ValueError("For multi-metric scoring, the parameter "
+                                     "refit must be set to a scorer key "
+                                     "to refit an estimator with the best "
+                                     "parameter setting on the whole data and "
+                                     "make the best_* attributes "
+                                     "available for that metric. If this is not "
+                                     "needed, refit should be set to False "
+                                     "explicitly. %r was passed." % self.refit)
+        else:
+            scorer = check_scoring(estimator, scoring=self.scoring)
+            multimetric = False
+
+        self.scorer_ = scorer
+
         error_score = self.error_score
         if not (isinstance(error_score, numbers.Number) or
                 error_score == 'raise'):
@@ -783,7 +832,8 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
                                           refit=self.refit,
                                           error_score=error_score,
                                           return_train_score=self.return_train_score,
-                                          cache_cv=self.cache_cv)
+                                          cache_cv=self.cache_cv,
+                                          multimetric=multimetric)
         self.dask_graph_ = dsk
         self.n_splits_ = n_splits
 
@@ -793,9 +843,14 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         out = scheduler(dsk, keys, num_workers=n_jobs)
 
         self.cv_results_ = results = out[0]
-        self.best_index_ = np.flatnonzero(results["rank_test_score"] == 1)[0]
-
         if self.refit:
+            if _HAS_MULTIPLE_METRICS and self.multimetric_:
+                key = self.refit
+            else:
+                key = 'score'
+            self.best_index_ = np.flatnonzero(
+                results["rank_test_{}".format(key)] == 1)[0]
+
             self.best_estimator_ = out[1]
         return self
 
@@ -843,11 +898,18 @@ estimator : estimator object.
 
 {parameters}
 
-scoring : string, callable or None, default=None
-    A string (see model evaluation documentation) or
-    a scorer callable object / function with signature
-    ``scorer(estimator, X, y)``.
-    If ``None``, the ``score`` method of the estimator is used.
+scoring : string, callable, list/tuple, dict or None, default: None
+    A single string or a callable to evaluate the predictions on the test
+    set.
+
+    For evaluating multiple metrics, either give a list of (unique) strings
+    or a dict with names as keys and callables as values.
+
+    NOTE that when using custom scorers, each scorer should return a single
+    value. Metric functions returning a list/array of values can be wrapped
+    into multiple scorers that return one value each.
+
+    If None, the estimator's default scorer (if available) is used.
 
 iid : boolean, default=True
     If True, the data is assumed to be identically distributed across
@@ -866,10 +928,25 @@ cv : int, cross-validation generator or an iterable, optional
     either binary or multiclass, ``StratifiedKFold`` is used. In all
     other cases, ``KFold`` is used.
 
-refit : boolean, default=True
-    Refit the best estimator with the entire dataset.
-    If "False", it is impossible to make predictions using
-    this {name} instance after fitting.
+refit : boolean, or string, default=True
+    Refit an estimator using the best found parameters on the whole
+    dataset.
+
+    For multiple metric evaluation, this needs to be a string denoting the
+    scorer is used to find the best parameters for refitting the estimator
+    at the end.
+
+    The refitted estimator is made available at the ``best_estimator_``
+    attribute and permits using ``predict`` directly on this
+    ``GridSearchCV`` instance.
+
+    Also for multiple metric evaluation, the attributes ``best_index_``,
+    ``best_score_`` and ``best_parameters_`` will only be available if
+    ``refit`` is set and all of them will be determined w.r.t this specific
+    scorer.
+
+    See ``scoring`` parameter to know more about multiple metric
+    evaluation.
 
 error_score : 'raise' (default) or numeric
     Value to assign to the score if an error occurs in estimator fitting.
@@ -963,13 +1040,16 @@ best_estimator_ : estimator
     which gave highest score (or smallest loss if specified)
     on the left out data. Not available if refit=False.
 
-best_score_ : float
+best_score_ : float or dict of floats
     Score of best_estimator on the left out data.
+    When using multiple metrics, ``best_score_`` will be a dictionary
+    where the keys are the names of the scorers, and the values are
+    the mean test score for that scorer.
 
 best_params_ : dict
     Parameter setting that gave the best results on the hold out data.
 
-best_index_ : int
+best_index_ : int or dict of ints
     The index (of the ``cv_results_`` arrays) which corresponds to the best
     candidate parameter setting.
 
@@ -977,9 +1057,14 @@ best_index_ : int
     the parameter setting for the best model, that gives the highest
     mean score (``search.best_score_``).
 
-scorer_ : function
+    When using multiple metrics, ``best_index_`` will be a dictionary
+    where the keys are the names of the scorers, and the values are
+    the index with the best mean score for that scorer, as described above.
+
+scorer_ : function or dict of functions
     Scorer function used on the held out data to choose the best
-    parameters for the model.
+    parameters for the model. A dictionary of ``{{scorer_name: scorer}}``
+    when multiple metrics are used.
 
 n_splits_ : int
     The number of cross-validation splits (folds/iterations).
