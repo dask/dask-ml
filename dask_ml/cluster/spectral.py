@@ -111,6 +111,9 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
     eigenvalues_ : numpy.ndarray
         The eigenvalues from the SVD of the sampled points
 
+    Notes
+    -----
+
     References
     ----------
     - Parallel Spectral Clustering in Distributed Systems, 2010

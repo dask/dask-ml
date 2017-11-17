@@ -33,6 +33,7 @@ familiar NumPy, Pandas, and Scikit-Learn APIs.
    clustering.rst
    examples.rst
    modules/api.rst
+   auto_examples/index.rst
 
 Indices and tables
 ==================

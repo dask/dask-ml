@@ -19,7 +19,6 @@ API Reference
 
    model_selection.GridSearchCV
    model_selection.RandomizedSearchCV
-   sklearn.pipeline.make_pipeline
 
 
 :mod:`dask_ml.linear_model`: Generalized Linear Models
@@ -72,12 +71,13 @@ Incremental Learning
    :template: class.rst
 
    cluster.KMeans
+   cluster.SpectralClustering
 
 
 :mod:`dask_ml.decomposition`: Matrix Decomposition
 ====================================================
 
-.. automodule:: dask_ml.decompositoin
+.. automodule:: dask_ml.decomposition
    :no-members:
    :no-inherited-members:
 

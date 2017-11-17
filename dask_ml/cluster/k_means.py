@@ -197,6 +197,7 @@ class KMeans(BaseEstimator):
         In the vector quantization literature, `cluster_centers_` is called
         the code book and each value returned by `predict` is the index of
         the closest code in the code book.
+
         Parameters
         ----------
         X : array-like, shape = [n_samples, n_features]
