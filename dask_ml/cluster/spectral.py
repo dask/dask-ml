@@ -212,7 +212,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         A_inv = pinv(A)
 
         d1_si = 1 / da.sqrt(a + b1)  # (l,)
-        d2_si = 1 / da.sqrt(b2 + B.T @ (A_inv @ b1))  # (m,), dask array
+        d2_si = 1 / da.sqrt(b2 + B.T.dot(A_inv.dot(b1)))  # (m,), dask array
 
         # d1, d2 are diagonal, so we can avoid large matrix multiplies
         # Equivalent to diag(d1_si) @ A @ diag(d1_si)
@@ -224,9 +224,9 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         U_A, S_A, V_A = svd(A2)  # (l, l), (l,), (l, l)
         # Eq 16. This is OK when V2 is orthogonal
         V2 = (da.sqrt(n_components / n) *
-              da.vstack([A2, B2.T]) @
-              U_A[:, :n_clusters] @
-              da.diag(1 / da.sqrt(S_A[:n_clusters])))  # (n, k)
+              da.vstack([A2, B2.T]).dot(
+              U_A[:, :n_clusters]).dot(
+              da.diag(1 / da.sqrt(S_A[:n_clusters]))))  # (n, k)
 
         # When the kernel is not PSD, we need to fall back to this:
         # A_si = sqrtm(A2).real
