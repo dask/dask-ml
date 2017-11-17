@@ -1,6 +1,15 @@
 Changelog
 =========
 
+Version 0.3.2
+~~~~~~~~~~~~~
+
+Enhancements
+------------
+
+- Added :meth:`dask_ml.preprocessing.TruncatedSVD` and
+  :meth:`dask_ml.preprocessing.PCA` (:issue:`78`)
+
 Version 0.3.0
 ~~~~~~~~~~~~~
 
