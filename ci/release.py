@@ -14,12 +14,14 @@ def parse_args(args=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('version', help="Version to tag")
     parser.add_argument('-r', '--remote', default='upstream')
+    parser.add_argument('--no-push', action='store_false')
     return parser.parse_args(args)
 
 
 def check(version):
     v = parse(version)
     assert isinstance(v, Version), f'Invalid version: {version}'
+    assert not version.startswith('v')
 
 
 def main(args=None):
@@ -47,6 +49,10 @@ def main(args=None):
 
     print("Created commit: ", commit)
     print("Created tag   : ", tag)
+
+    if args.no_push:
+        print("--no-push. Exiting")
+        sys.exit(0)
 
     while True:
         confirm = input(f"Ready to push? [y/n]: ")[0].lower()
