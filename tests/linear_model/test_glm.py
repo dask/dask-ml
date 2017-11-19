@@ -6,6 +6,8 @@ from dask_ml.linear_model import (LogisticRegression,
 from dask_ml.datasets import make_classification, make_regression, make_poisson
 from dask_glm.regularizers import Regularizer
 
+from dask_ml.linear_model.utils import add_intercept
+
 
 @pytest.fixture(params=[r() for r in Regularizer.__subclasses__()])
 def solver(request):
@@ -103,3 +105,21 @@ def test_gridsearch():
     pipe = make_pipeline(DoNothingTransformer(), LogisticRegression())
     search = dcv.GridSearchCV(pipe, grid, cv=3)
     search.fit(X, y)
+
+
+def test_add_intercept_dask_dataframe():
+    dd = pytest.importorskip("dask.dataframe")
+    from dask.dataframe.utils import assert_eq
+    import pandas as pd
+
+    X = dd.from_pandas(pd.DataFrame({"A": [1, 2, 3]}), npartitions=2)
+    result = add_intercept(X)
+    expected = dd.from_pandas(pd.DataFrame({"intercept": [1, 1, 1],
+                                            "A": [1, 2, 3]},
+                                           columns=['intercept', 'A']),
+                              npartitions=2)
+    assert_eq(result, expected)
+
+    df = dd.from_pandas(pd.DataFrame({"intercept": [1, 2, 3]}), npartitions=2)
+    with pytest.raises(ValueError):
+        add_intercept(df)

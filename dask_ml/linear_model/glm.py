@@ -8,6 +8,8 @@ from dask_glm.utils import (
     poisson_deviance
 )
 
+from . import utils  # register multipledispatch
+
 
 class _GLM(BaseEstimator):
 
