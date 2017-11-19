@@ -100,7 +100,7 @@ def test_gridsearch():
 
     X, y = make_classification(n_samples=100, n_features=5, chunks=50)
     grid = {
-        'logisticregression__lamduh': [.001, .01, .1, .5]
+        'logisticregression__C': [1000, 100, 10, 2]
     }
     pipe = make_pipeline(DoNothingTransformer(), LogisticRegression())
     search = dcv.GridSearchCV(pipe, grid, cv=3)

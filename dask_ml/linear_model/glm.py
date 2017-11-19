@@ -8,7 +8,9 @@ from dask_glm.utils import (
     poisson_deviance
 )
 
-from . import utils  # register multipledispatch
+# register multipledispatch
+from . import utils  # noqa
+from ..utils import check_array
 
 
 class _GLM(BaseEstimator):
@@ -19,42 +21,61 @@ class _GLM(BaseEstimator):
         The family this estimator is for.
         """
 
-    def __init__(self, fit_intercept=True, solver='admm', regularizer='l2',
-                 max_iter=100, tol=1e-4, lamduh=1.0, rho=1,
-                 over_relax=1, abstol=1e-4, reltol=1e-2):
-        self.fit_intercept = fit_intercept
-        self.solver = solver
-        self.regularizer = regularizer
-        self.max_iter = max_iter
+    def __init__(self,
+                 penalty='l2',
+                 dual=False,
+                 tol=1e-4,
+                 C=1.0,
+                 fit_intercept=True,
+                 intercept_scaling=1.0,
+                 class_weight=None,
+                 random_state=None,
+                 solver='admm',
+                 multiclass='ovr',
+                 verbose=0,
+                 warm_start=False,
+                 n_jobs=1,
+                 max_iter=100):
+        """
+
+        """
+        self.penalty = penalty
+        self.dual = dual
         self.tol = tol
-        self.lamduh = lamduh
-        self.rho = rho
-        self.over_relax = over_relax
-        self.abstol = abstol
-        self.reltol = reltol
+        self.C = C
+        self.fit_intercept = fit_intercept
+        self.intercept_scaling = intercept_scaling
+        self.class_weight = class_weight
+        self.random_state = random_state
+        self.solver = solver
+        self.multiclass = multiclass
+        self.verbose = verbose
+        self.warm_start = warm_start
+        self.n_jobs = n_jobs
+        self.max_iter = max_iter
+        self.solver_kwargs = None
 
-        self.coef_ = None
-        self.intercept_ = None
-        self._coef = None  # coef, maybe with intercept
+    def _get_solver_kwargs(self):
+        fit_kwargs = {'max_iter': self.max_iter,
+                      'family': self.family,
+                      'tol': self.tol,
+                      'regularizer': self.penalty,
+                      'lamduh': 1 / self.C}
+        if self.solver_kwargs:
+            fit_kwargs.update(self.solver_kwargs)
+        if self.solver not in {'admm', 'proximal_grad', 'lbfgs'}:
+            msg = ("'solver' must be one of 'admm', 'proximal_grad' or "
+                   "'lbfgs'. Got {} instead.".format(self.solver))
+            raise ValueError(msg)
 
-        fit_kwargs = {'max_iter', 'tol', 'family'}
-
-        if solver == 'admm':
-            fit_kwargs.discard('tol')
-            fit_kwargs.update({
-                'regularizer', 'lamduh', 'rho', 'over_relax', 'abstol',
-                'reltol'
-            })
-        elif solver == 'proximal_grad' or solver == 'lbfgs':
-            fit_kwargs.update({'regularizer', 'lamduh'})
-
-        self._fit_kwargs = {k: getattr(self, k) for k in fit_kwargs}
+        return fit_kwargs
 
     def fit(self, X, y=None):
-        X_ = self._maybe_add_intercept(X)
-        self._coef = algorithms._solvers[self.solver](X_, y,
-                                                      **self._fit_kwargs)
+        X = self._check_array(X)
 
+        solver_kwargs = self._get_solver_kwargs()
+
+        self._coef = algorithms._solvers[self.solver](X, y, **solver_kwargs)
         if self.fit_intercept:
             self.coef_ = self._coef[:-1]
             self.intercept_ = self._coef[-1]
@@ -62,11 +83,11 @@ class _GLM(BaseEstimator):
             self.coef_ = self._coef
         return self
 
-    def _maybe_add_intercept(self, X):
+    def _check_array(self, X):
         if self.fit_intercept:
-            return add_intercept(X)
-        else:
-            return X
+            X = add_intercept(X)
+
+        return check_array(X)
 
 
 class LogisticRegression(_GLM):
@@ -87,7 +108,7 @@ class LogisticRegression(_GLM):
         Maximum number of iterations taken for the solvers to converge
     tol : float, default 1e-4
         Tolerance for stopping criteria. Ignored for ``admm`` solver
-    lambduh : float, default 1.0
+    C : float, default 1.0
         Only used with ``admm``, ``lbfgs`` and ``proximal_grad`` solvers.
     rho, over_relax, abstol, reltol : float
         Only used with the ``admm`` solver.
@@ -119,7 +140,7 @@ class LogisticRegression(_GLM):
         return self.predict_proba(X) > .5  # TODO: verify, multiclass broken
 
     def predict_proba(self, X):
-        X_ = self._maybe_add_intercept(X)
+        X_ = self._check_array(X)
         return sigmoid(dot(X_, self._coef))
 
     def score(self, X, y):
@@ -144,7 +165,7 @@ class LinearRegression(_GLM):
         Maximum number of iterations taken for the solvers to converge
     tol : float, default 1e-4
         Tolerance for stopping criteria. Ignored for ``admm`` solver
-    lambduh : float, default 1.0
+    C : float, default 1.0
         Only used with ``admm`` and ``proximal_grad`` solvers
     rho, over_relax, abstol, reltol : float
         Only used with the ``admm`` solver.
@@ -171,7 +192,7 @@ class LinearRegression(_GLM):
         return families.Normal
 
     def predict(self, X):
-        X_ = self._maybe_add_intercept(X)
+        X_ = self._check_array(X)
         return dot(X_, self._coef)
 
     def score(self, X, y):
@@ -196,7 +217,7 @@ class PoissonRegression(_GLM):
         Maximum number of iterations taken for the solvers to converge
     tol : float, default 1e-4
         Tolerance for stopping criteria. Ignored for ``admm`` solver
-    lambduh : float, default 1.0
+    C : float, default 1.0
         Only used with ``admm``, ``lbfgs`` and ``proximal_grad`` solvers.
     rho, over_relax, abstol, reltol : float
         Only used with the ``admm`` solver.
@@ -223,7 +244,7 @@ class PoissonRegression(_GLM):
         return families.Poisson
 
     def predict(self, X):
-        X_ = self._maybe_add_intercept(X)
+        X_ = self._check_array(X)
         return exp(dot(X_, self._coef))
 
     def get_deviance(self, X, y):
