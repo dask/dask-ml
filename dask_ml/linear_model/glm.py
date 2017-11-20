@@ -132,6 +132,14 @@ class _GLM(BaseEstimator):
                       'tol': self.tol,
                       'regularizer': self.penalty,
                       'lamduh': 1 / self.C}
+
+        if self.solver in ('gradient_descent', 'newton'):
+            fit_kwargs.pop('regularizer')
+            fit_kwargs.pop('lamduh')
+
+        if self.solver == 'admm':
+            fit_kwargs.pop('tol')  # uses reltol / abstol instead
+
         if self.solver_kwargs:
             fit_kwargs.update(self.solver_kwargs)
 
