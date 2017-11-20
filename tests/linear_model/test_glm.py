@@ -1,11 +1,14 @@
+import dask.dataframe as dd
+import dask_searchcv as dcv
+import pandas as pd
 import pytest
-
-from dask_ml.linear_model import (LogisticRegression,
-                                  LinearRegression,
-                                  PoissonRegression)
-from dask_ml.datasets import make_classification, make_regression, make_poisson
+from dask.dataframe.utils import assert_eq
 from dask_glm.regularizers import Regularizer
+from sklearn.pipeline import make_pipeline
 
+from dask_ml.datasets import make_classification, make_poisson, make_regression
+from dask_ml.linear_model import (LinearRegression, LogisticRegression,
+                                  PoissonRegression)
 from dask_ml.linear_model.utils import add_intercept
 
 
@@ -96,16 +99,12 @@ def test_poisson_fit(fit_intercept):
 
 
 def test_in_pipeline():
-    from sklearn.pipeline import make_pipeline
     X, y = make_classification(n_samples=100, n_features=5, chunks=50)
     pipe = make_pipeline(DoNothingTransformer(), LogisticRegression())
     pipe.fit(X, y)
 
 
 def test_gridsearch():
-    from sklearn.pipeline import make_pipeline
-    import dask_searchcv as dcv
-
     X, y = make_classification(n_samples=100, n_features=5, chunks=50)
     grid = {
         'logisticregression__C': [1000, 100, 10, 2]
@@ -116,10 +115,6 @@ def test_gridsearch():
 
 
 def test_add_intercept_dask_dataframe():
-    dd = pytest.importorskip("dask.dataframe")
-    from dask.dataframe.utils import assert_eq
-    import pandas as pd
-
     X = dd.from_pandas(pd.DataFrame({"A": [1, 2, 3]}), npartitions=2)
     result = add_intercept(X)
     expected = dd.from_pandas(pd.DataFrame({"intercept": [1, 1, 1],

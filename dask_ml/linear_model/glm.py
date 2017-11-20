@@ -1,14 +1,10 @@
 """Generalized Linear Models for large datasets."""
 import textwrap
 
+from dask_glm import algorithms, families
+from dask_glm.utils import (accuracy_score, add_intercept, dot, exp,
+                            mean_squared_error, poisson_deviance, sigmoid)
 from sklearn.base import BaseEstimator
-
-from dask_glm import algorithms
-from dask_glm import families
-from dask_glm.utils import (
-    sigmoid, dot, add_intercept, mean_squared_error, accuracy_score, exp,
-    poisson_deviance
-)
 
 # register multipledispatch
 from . import utils  # noqa
