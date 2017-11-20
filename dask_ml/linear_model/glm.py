@@ -90,22 +90,10 @@ class _GLM(BaseEstimator):
         The family this estimator is for.
         """
 
-    def __init__(self,
-                 penalty='l2',
-                 dual=False,
-                 tol=1e-4,
-                 C=1.0,
-                 fit_intercept=True,
-                 intercept_scaling=1.0,
-                 class_weight=None,
-                 random_state=None,
-                 solver='admm',
-                 multiclass='ovr',
-                 verbose=0,
-                 warm_start=False,
-                 n_jobs=1,
-                 max_iter=100,
-                 solver_kwargs=None):
+    def __init__(self, penalty='l2', dual=False, tol=1e-4, C=1.0,
+                 fit_intercept=True, intercept_scaling=1.0, class_weight=None,
+                 random_state=None, solver='admm', multiclass='ovr', verbose=0,
+                 warm_start=False, n_jobs=1, max_iter=100, solver_kwargs=None):
         self.penalty = penalty
         self.dual = dual
         self.tol = tol
