@@ -2,10 +2,9 @@ import os
 from codecs import open
 
 from setuptools import setup, find_packages, Extension
-from Cython.Build import cythonize
 import numpy as np
-
 here = os.path.dirname(__file__)
+
 
 # Get the long description from the README file
 with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
@@ -32,7 +31,6 @@ extra_requires = {
     'complete': complete_requires,
 }
 
-# C Extensions
 extensions = [
     Extension(
         "dask_ml.cluster._k_means",
@@ -40,6 +38,14 @@ extensions = [
         include_dirs=[np.get_include()],
     ),
 ]
+
+try:
+    from Cython.Build import cythonize
+except ImportError:
+    pass
+else:
+    extensions = cythonize(extensions)
+
 
 setup(
     name='dask-ml',
@@ -68,5 +74,5 @@ setup(
     setup_requires=['setuptools_scm'],
     install_requires=install_requires,
     extras_require=extra_requires,
-    ext_modules=cythonize(extensions),
+    ext_modules=extensions,
 )
