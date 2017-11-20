@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Generalized Linear Models for large datasets."""
 import textwrap
 
