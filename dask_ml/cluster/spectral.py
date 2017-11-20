@@ -148,7 +148,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         self.kmeans_params = kmeans_params
 
     def _check_array(self, X):
-        return check_array(X, accept_dask_dataframe=False)
+        return check_array(X, accept_dask_dataframe=False).astype(float)
 
     def fit(self, X, y=None):
         X = self._check_array(X)
