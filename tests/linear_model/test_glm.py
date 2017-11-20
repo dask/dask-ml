@@ -47,12 +47,20 @@ def test_pr_init(solver):
 
 
 @pytest.mark.parametrize('fit_intercept', [True, False])
-def test_fit(fit_intercept):
+def test_fit(fit_intercept, solver):
     X, y = make_classification(n_samples=100, n_features=5, chunks=50)
     lr = LogisticRegression(fit_intercept=fit_intercept)
     lr.fit(X, y)
     lr.predict(X)
     lr.predict_proba(X)
+
+
+@pytest.mark.parametrize('solver', ['admm', 'newton', 'lbfgs',
+                                    'proximal_grad', 'gradient_descent'])
+def test_fit_solver(solver):
+    X, y = make_classification(n_samples=100, n_features=5, chunks=50)
+    lr = LogisticRegression(solver=solver)
+    lr.fit(X, y)
 
 
 @pytest.mark.parametrize('fit_intercept', [True, False])

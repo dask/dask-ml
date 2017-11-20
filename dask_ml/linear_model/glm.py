@@ -1,4 +1,6 @@
 """Generalized Linear Models for large datasets."""
+import textwrap
+
 from sklearn.base import BaseEstimator
 
 from dask_glm import algorithms
@@ -11,6 +13,77 @@ from dask_glm.utils import (
 # register multipledispatch
 from . import utils  # noqa
 from ..utils import check_array
+
+
+_base_doc = textwrap.dedent("""\
+    Esimator for {regression_type}.
+
+    Parameters
+    ----------
+    penalty : str or Regularizer, default 'l2'
+        Regularizer to use. Only relevant for the 'admm', 'lbfgs' and
+        'proximal_grad' solvers.
+
+        For string values, only 'l1' or 'l2' are valid.
+
+    dual : bool
+        Ignored
+
+    tol : float, default 1e-4
+        The tolerance for convergence.
+
+    C : float
+        Regularization strength. Note that ``dask-glm`` solvers use
+        the parameterization :math:`lamduh = 1 / C`
+
+    fit_intercept : bool, default True
+        Specifies if a constant (a.k.a. bias or intercept) should be
+        added to the decision function.
+
+    intercept_scaling : bool
+        Ignored
+
+    class_weight : dict or 'balanced'
+        Ignored
+
+    random_state : int, RandomState, or None
+
+        The seed of the pseudo random number generator to use when shuffling
+        the data. If int, random_state is the seed used by the random number
+        generator; If RandomState instance, random_state is the random number
+        generator; If None, the random number generator is the RandomState
+        instance used by np.random. Used when solver == ‘sag’ or ‘liblinear’.
+
+    solver : {{'admm', 'gradient_descent', 'newton', 'lbfgs', 'proximal_grad'}}
+        Solver to use. See :ref:`api.algorithms` for details
+
+    multiclass : str, default 'ovr'
+        Ignored. Multiclass solvers not currently supported.
+
+    verbose : int, default 0
+        Ignored
+
+    warm_start : bool, default False
+        Ignored
+
+    n_jobs : int, default 1
+        Ignored
+
+    solver_kwargs : dict, optional, default None
+        Extra keyword arguments to pass through to the solver.
+
+    Attributes
+    ----------
+    coef_ : array, shape (n_classes, n_features)
+        The learned value for the model's coefficients
+    intercept_ : float of None
+        The learned value for the intercept, if one was added
+        to the model
+
+    Examples
+    --------
+    {examples}
+    """)
 
 
 class _GLM(BaseEstimator):
@@ -35,10 +108,8 @@ class _GLM(BaseEstimator):
                  verbose=0,
                  warm_start=False,
                  n_jobs=1,
-                 max_iter=100):
-        """
-
-        """
+                 max_iter=100,
+                 solver_kwargs=None):
         self.penalty = penalty
         self.dual = dual
         self.tol = tol
@@ -53,7 +124,7 @@ class _GLM(BaseEstimator):
         self.warm_start = warm_start
         self.n_jobs = n_jobs
         self.max_iter = max_iter
-        self.solver_kwargs = None
+        self.solver_kwargs = solver_kwargs
 
     def _get_solver_kwargs(self):
         fit_kwargs = {'max_iter': self.max_iter,
@@ -63,9 +134,13 @@ class _GLM(BaseEstimator):
                       'lamduh': 1 / self.C}
         if self.solver_kwargs:
             fit_kwargs.update(self.solver_kwargs)
-        if self.solver not in {'admm', 'proximal_grad', 'lbfgs'}:
-            msg = ("'solver' must be one of 'admm', 'proximal_grad' or "
-                   "'lbfgs'. Got {} instead.".format(self.solver))
+
+        solvers = {'admm', 'proximal_grad', 'lbfgs', 'newton',
+                   'proximal_grad', 'gradient_descent'}
+
+        if self.solver not in solvers:
+            msg = ("'solver' must be {}. Got '{}' instead".format(solvers,
+                                                                  self.solver))
             raise ValueError(msg)
 
         return fit_kwargs
@@ -91,46 +166,16 @@ class _GLM(BaseEstimator):
 
 
 class LogisticRegression(_GLM):
-    """
-    Esimator for logistic regression.
-
-    Parameters
-    ----------
-    fit_intercept : bool, default True
-        Specifies if a constant (a.k.a. bias or intercept) should be
-        added to the decision function.
-    solver : {'admm', 'gradient_descent', 'newton', 'lbfgs', 'proximal_grad'}
-        Solver to use. See :ref:`api.algorithms` for details
-    regularizer : {'l1', 'l2'}
-        Regularizer to use. See :ref:`api.regularizers` for details.
-        Only used with ``admm``, ``lbfgs``, and ``proximal_grad`` solvers.
-    max_iter : int, default 100
-        Maximum number of iterations taken for the solvers to converge
-    tol : float, default 1e-4
-        Tolerance for stopping criteria. Ignored for ``admm`` solver
-    C : float, default 1.0
-        Only used with ``admm``, ``lbfgs`` and ``proximal_grad`` solvers.
-    rho, over_relax, abstol, reltol : float
-        Only used with the ``admm`` solver.
-
-    Attributes
-    ----------
-    coef_ : array, shape (n_classes, n_features)
-        The learned value for the model's coefficients
-    intercept_ : float of None
-        The learned value for the intercept, if one was added
-        to the model
-
-    Examples
-    --------
-    >>> from dask_glm.datasets import make_classification
-    >>> X, y = make_classification()
-    >>> lr = LogisticRegression()
-    >>> lr.fit(X, y)
-    >>> lr.predict(X)
-    >>> lr.predict_proba(X)
-    >>> est.score(X, y)
-    """
+    __doc__ = _base_doc.format(
+        regression_type='logistic_regression',
+        examples=textwrap.dedent("""
+            >>> from dask_glm.datasets import make_classification
+            >>> X, y = make_classification()
+            >>> lr = LogisticRegression()
+            >>> lr.fit(X, y)
+            >>> lr.predict(X)
+            >>> lr.predict_proba(X)
+            >>> est.score(X, y)"""))
 
     @property
     def family(self):
@@ -148,45 +193,17 @@ class LogisticRegression(_GLM):
 
 
 class LinearRegression(_GLM):
-    """
-    Esimator for a linear model using Ordinary Least Squares.
+    __doc__ = _base_doc.format(
+        regression_type='linear_regression',
+        examples=textwrap.dedent("""
+            >>> from dask_glm.datasets import make_regression
+            >>> X, y = make_regression()
+            >>> lr = LinearRegression()
+            >>> lr.fit(X, y)
+            >>> lr.predict(X)
+            >>> lr.predict(X)
+            >>> est.score(X, y)"""))
 
-    Parameters
-    ----------
-    fit_intercept : bool, default True
-        Specifies if a constant (a.k.a. bias or intercept) should be
-        added to the decision function.
-    solver : {'admm', 'gradient_descent', 'newton', 'lbfgs', 'proximal_grad'}
-        Solver to use. See :ref:`api.algorithms` for details
-    regularizer : {'l1', 'l2'}
-        Regularizer to use. See :ref:`api.regularizers` for details.
-        Only used with ``admm`` and ``proximal_grad`` solvers.
-    max_iter : int, default 100
-        Maximum number of iterations taken for the solvers to converge
-    tol : float, default 1e-4
-        Tolerance for stopping criteria. Ignored for ``admm`` solver
-    C : float, default 1.0
-        Only used with ``admm`` and ``proximal_grad`` solvers
-    rho, over_relax, abstol, reltol : float
-        Only used with the ``admm`` solver.
-
-    Attributes
-    ----------
-    coef_ : array, shape (n_classes, n_features)
-        The learned value for the model's coefficients
-    intercept_ : float of None
-        The learned value for the intercept, if one was added
-        to the model
-
-    Examples
-    --------
-    >>> from dask_glm.datasets import make_regression
-    >>> X, y = make_regression()
-    >>> est = LinearRegression()
-    >>> est.fit(X, y)
-    >>> est.predict(X)
-    >>> est.score(X, y)
-    """
     @property
     def family(self):
         return families.Normal
@@ -200,45 +217,17 @@ class LinearRegression(_GLM):
 
 
 class PoissonRegression(_GLM):
-    """
-    Esimator for Poisson Regression.
+    __doc__ = _base_doc.format(
+        regression_type='poisson_regression',
+        examples=textwrap.dedent("""
+            >>> from dask_glm.datasets import make_counts
+            >>> X, y = make_counts()
+            >>> lr = PoissonRegression()
+            >>> lr.fit(X, y)
+            >>> lr.predict(X)
+            >>> lr.predict(X)
+            >>> lr.get_deviance(X, y)"""))
 
-    Parameters
-    ----------
-    fit_intercept : bool, default True
-        Specifies if a constant (a.k.a. bias or intercept) should be
-        added to the decision function.
-    solver : {'admm', 'gradient_descent', 'newton', 'lbfgs', 'proximal_grad'}
-        Solver to use. See :ref:`api.algorithms` for details
-    regularizer : {'l1', 'l2'}
-        Regularizer to use. See :ref:`api.regularizers` for details.
-        Only used with ``admm``, ``lbfgs``, and ``proximal_grad`` solvers.
-    max_iter : int, default 100
-        Maximum number of iterations taken for the solvers to converge
-    tol : float, default 1e-4
-        Tolerance for stopping criteria. Ignored for ``admm`` solver
-    C : float, default 1.0
-        Only used with ``admm``, ``lbfgs`` and ``proximal_grad`` solvers.
-    rho, over_relax, abstol, reltol : float
-        Only used with the ``admm`` solver.
-
-    Attributes
-    ----------
-    coef_ : array, shape (n_classes, n_features)
-        The learned value for the model's coefficients
-    intercept_ : float of None
-        The learned value for the intercept, if one was added
-        to the model
-
-    Examples
-    --------
-    >>> from dask_glm.datasets import make_poisson
-    >>> X, y = make_poisson()
-    >>> pr = PoissonRegression()
-    >>> pr.fit(X, y)
-    >>> pr.predict(X)
-    >>> pr.get_deviance(X, y)
-    """
     @property
     def family(self):
         return families.Poisson
