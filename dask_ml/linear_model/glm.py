@@ -30,7 +30,7 @@ _base_doc = textwrap.dedent("""\
 
     C : float
         Regularization strength. Note that ``dask-glm`` solvers use
-        the parameterization :math:`lamduh = 1 / C`
+        the parameterization :math:`\lambda = 1 / C`
 
     fit_intercept : bool, default True
         Specifies if a constant (a.k.a. bias or intercept) should be
@@ -150,6 +150,17 @@ class _GLM(BaseEstimator):
         return fit_kwargs
 
     def fit(self, X, y=None):
+        """Fit the model on the training data
+
+        Parameters
+        ----------
+        X: array-like, shape (n_samples, n_features)
+        y : array-like, shape (n_samples,)
+
+        Returns
+        -------
+        self : objectj
+        """
         X = self._check_array(X)
 
         solver_kwargs = self._get_solver_kwargs()
@@ -186,13 +197,49 @@ class LogisticRegression(_GLM):
         return families.Logistic
 
     def predict(self, X):
+        """Predict class labels for samples in X.
+
+        Parameters
+        ----------
+        X : array-like, shape = [n_samples, n_features]
+
+        Returns
+        -------
+        C : array, shape = [n_samples,]
+            Predicted class labels for each sample
+        """
         return self.predict_proba(X) > .5  # TODO: verify, multiclass broken
 
     def predict_proba(self, X):
+        """Probability estimates for samples in X.
+
+        Parameters
+        ----------
+        X : array-like, shape = [n_samples, n_features]
+
+        Returns
+        -------
+        T : array-like, shape = [n_samples, n_classes]
+            The probability of the sample for each class in the model.
+        """
         X_ = self._check_array(X)
         return sigmoid(dot(X_, self._coef))
 
     def score(self, X, y):
+        """The mean accuracy on the given data and labels
+
+        Parameters
+        ----------
+        X : array-like, shape = [n_samples, n_features]
+            Test samples.
+        y : array-like, shape = [n_samples,]
+            Test labels.
+
+        Returns
+        -------
+        score : float
+            Mean accuracy score
+        """
         return accuracy_score(y, self.predict(X))
 
 
@@ -213,10 +260,44 @@ class LinearRegression(_GLM):
         return families.Normal
 
     def predict(self, X):
+        """Predict values for samples in X.
+
+        Parameters
+        ----------
+        X : array-like, shape = [n_samples, n_features]
+
+        Returns
+        -------
+        C : array, shape = [n_samples,]
+            Predicted value for each sample
+        """
         X_ = self._check_array(X)
         return dot(X_, self._coef)
 
     def score(self, X, y):
+        """Returns the coefficient of determination R^2 of the prediction.
+
+        The coefficient R^2 is defined as (1 - u/v), where u is the residual
+        sum of squares ((y_true - y_pred) ** 2).sum() and v is the total
+        sum of squares ((y_true - y_true.mean()) ** 2).sum().
+        The best possible score is 1.0 and it can be negative (because the
+        model can be arbitrarily worse). A constant model that always
+        predicts the expected value of y, disregarding the input features,
+        would get a R^2 score of 0.0.
+
+        Parameters
+        ----------
+        X : array-like, shape = (n_samples, n_features)
+            Test samples.
+
+        y : array-like, shape = (n_samples) or (n_samples, n_outputs)
+            True values for X.
+
+        Returns
+        -------
+        score : float
+            R^2 of self.predict(X) wrt. y.
+        """
         return mean_squared_error(y, self.predict(X))
 
 
@@ -237,6 +318,17 @@ class PoissonRegression(_GLM):
         return families.Poisson
 
     def predict(self, X):
+        """Predict count for samples in X.
+
+        Parameters
+        ----------
+        X : array-like, shape = [n_samples, n_features]
+
+        Returns
+        -------
+        C : array, shape = [n_samples,]
+            Predicted count for each sample
+        """
         X_ = self._check_array(X)
         return exp(dot(X_, self._coef))
 
