@@ -6,7 +6,7 @@ from dask.dataframe.utils import assert_eq
 from dask_glm.regularizers import Regularizer
 from sklearn.pipeline import make_pipeline
 
-from dask_ml.datasets import make_classification, make_poisson, make_regression
+from dask_ml.datasets import make_classification, make_counts, make_regression
 from dask_ml.linear_model import (LinearRegression, LogisticRegression,
                                   PoissonRegression)
 from dask_ml.linear_model.utils import add_intercept
@@ -89,7 +89,7 @@ def test_big(fit_intercept):
 
 @pytest.mark.parametrize('fit_intercept', [True, False])
 def test_poisson_fit(fit_intercept):
-    X, y = make_poisson(n_samples=100, chunks=500)
+    X, y = make_counts(n_samples=100, chunks=500)
     pr = PoissonRegression(fit_intercept=fit_intercept)
     pr.fit(X, y)
     pr.predict(X)
