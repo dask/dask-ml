@@ -1,4 +1,6 @@
 """
+.. _plot_spectral_clustering_example.py:
+
 Spectral Clustering Example
 ===========================
 

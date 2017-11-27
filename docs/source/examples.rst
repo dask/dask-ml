@@ -16,3 +16,4 @@ This is a set of runnable Jupyter notebooks.
    examples/dask-glm
    examples/xgboost
    examples/tensorflow
+   auto_examples/index
