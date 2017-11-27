@@ -51,7 +51,7 @@ def test_assign_labels_raises():
     with pytest.raises(TypeError) as m:
         sc.fit(X)
 
-    assert m.match("Invalid type <class 'dict'> for 'assign_labels'")
+    assert m.match("Invalid type ")
 
 
 def test_affinity_raises():
