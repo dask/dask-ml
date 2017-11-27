@@ -2,6 +2,7 @@
 """Algorithms for spectral clustering
 """
 import logging
+from collections import Iterable
 
 import six
 import dask.array as da
@@ -154,9 +155,6 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         X = self._check_array(X)
         n_components = self.n_components
         metric = self.affinity
-        if metric not in PAIRWISE_KERNEL_FUNCTIONS:
-            raise ValueError("Only kernel names")
-
         rng = check_random_state(self.random_state)
         n_clusters = self.n_clusters
 
@@ -169,7 +167,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
                 km = sklearn.cluster.KMeans(n_clusters=n_clusters,
                                             random_state=rng)
             else:
-                msg = "Unknown 'assign_labels' {!r}".foramt(self.assign_labels)
+                msg = "Unknown 'assign_labels' {!r}".format(self.assign_labels)
                 raise ValueError(msg)
         elif isinstance(self.assign_labels, BaseEstimator):
             km = self.assign_labels
@@ -178,7 +176,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
                 type(self.assign_labels)))
 
         if self.kmeans_params:
-            km.set_params(self.kmeans_params)
+            km.set_params(**self.kmeans_params)
 
         n = len(X)
 
@@ -194,15 +192,29 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
 
         params = self.kernel_params or {}
         params['gamma'] = self.gamma
-        params['degree'] = self.gamma
-        params['gamma'] = self.gamma
+        params['degree'] = self.degree
+        params['coef0'] = self.coef0
 
         # compute the exact blocks
         # these are done in parallel
-        A = pairwise_kernels(X[keep],
-                             metric=metric, filter_params=True, **params)
-        B = pairwise_kernels(X[keep], X[rest],
-                             metric=metric, filter_params=True, **params)
+        if isinstance(metric, six.string_types):
+            if metric not in PAIRWISE_KERNEL_FUNCTIONS:
+                msg = ("Unknown affinity metric name '{}'. Expected one "
+                       "of '{}'".format(metric,
+                                        PAIRWISE_KERNEL_FUNCTIONS.keys()))
+                raise ValueError(msg)
+            A = pairwise_kernels(X[keep],
+                                 metric=metric, filter_params=True, **params)
+            B = pairwise_kernels(X[keep], X[rest],
+                                 metric=metric, filter_params=True, **params)
+
+        elif callable(metric):
+            A = metric(X[keep], **params)
+            B = metric(X, **params)
+        else:
+            msg = ("Unexpected type for 'affinity' '{}'. Must be string "
+                   "kernel name, array, or callable")
+            raise TypeError(msg)
 
         # now the approximation of C
         a = A.sum(0)   # (l,)

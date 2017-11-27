@@ -1,3 +1,5 @@
+from functools import partial
+
 import pytest
 import sklearn.cluster
 import numpy as np
@@ -5,6 +7,7 @@ from numpy.testing import assert_array_equal
 
 from dask_ml.datasets import make_blobs
 from dask_ml.cluster import SpectralClustering
+from dask_ml import metrics
 
 
 X, y = make_blobs(n_samples=100, chunks=50, random_state=0)
@@ -18,10 +21,50 @@ def test_basic(data):
     assert len(sc.labels_) == len(X)
 
 
-def test_sklearn_kmeans():
-    km = sklearn.cluster.KMeans(n_init=2)
-    sc = SpectralClustering(n_components=25, random_state=0, assign_labels=km)
+@pytest.mark.parametrize('assign_labels', [
+    sklearn.cluster.KMeans(n_init=2),
+    'sklearn-kmeans'])
+def test_sklearn_kmeans(assign_labels):
+    sc = SpectralClustering(n_components=25, random_state=0,
+                            assign_labels=assign_labels,
+                            kmeans_params={'n_clusters': 8})
     sc.fit(X)
+    assert isinstance(sc.assign_labels_, sklearn.cluster.KMeans)
+
+
+def test_callable_affinity():
+    affinity = partial(metrics.pairwise.pairwise_kernels,
+                       metric='rbf',
+                       filter_params=True)
+    sc = SpectralClustering(affinity=affinity)
+    sc.fit(X)
+
+
+def test_assign_labels_raises():
+    sc = SpectralClustering(assign_labels='foo')
+    with pytest.raises(ValueError) as m:
+        sc.fit(X)
+
+    assert m.match("Unknown 'assign_labels' 'foo'")
+
+    sc = SpectralClustering(assign_labels=dict())
+    with pytest.raises(TypeError) as m:
+        sc.fit(X)
+
+    assert m.match("Invalid type <class 'dict'> for 'assign_labels'")
+
+
+def test_affinity_raises():
+    sc = SpectralClustering(affinity='foo')
+    with pytest.raises(ValueError) as m:
+        sc.fit(X)
+
+    assert m.match("Unknown affinity metric name 'foo'")
+
+    sc = SpectralClustering(affinity=np.array([]))
+    with pytest.raises(TypeError) as m:
+        sc.fit(X)
+        assert m.match("Unexpected type for affinity 'ndarray'")
 
 
 def test_spectral_clustering():
