@@ -2,7 +2,6 @@
 """Algorithms for spectral clustering
 """
 import logging
-from collections import Iterable
 
 import six
 import dask.array as da
