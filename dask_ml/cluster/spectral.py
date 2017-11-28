@@ -7,7 +7,6 @@ import six
 import dask.array as da
 import numpy as np
 import sklearn.cluster
-# from dask.array.linalg import svd
 from scipy.linalg import pinv, svd
 from sklearn.base import BaseEstimator, ClusterMixin
 from sklearn.utils import check_random_state
@@ -238,14 +237,6 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
               da.vstack([A2, B2.T]).dot(
               U_A[:, :n_clusters]).dot(
               da.diag(1.0 / da.sqrt(S_A[:n_clusters]))))  # (n, k)
-
-        # When the kernel is not PSD, we need to fall back to this:
-        # A_si = sqrtm(A2).real
-        # R = A2 + A_si @ B @ B.T @ A_si
-
-        # U_R, S_R, V_R = svd(R)
-        # V2 = (np.vstack([A2, B̃.T]) @ A_si @ U_R[:, :k]) @
-        #       np.diag(1 / np.sqrt(S_R[:k]))
 
         # normalize (Eq. 4)
         U2 = (V2.T / da.sqrt((V2 ** 2).sum(1))).T  # (n, k)
