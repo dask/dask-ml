@@ -15,8 +15,9 @@ X_ = X.compute()
 
 
 @pytest.mark.parametrize('data', [X, X_])
-def test_basic(data):
-    sc = SpectralClustering(n_components=25, random_state=0)
+@pytest.mark.parametrize('persist', [True, False])
+def test_basic(data, persist):
+    sc = SpectralClustering(n_components=25, random_state=0, persist=persist)
     sc.fit(data)
     assert len(sc.labels_) == len(X)
 
@@ -38,6 +39,13 @@ def test_callable_affinity():
                        filter_params=True)
     sc = SpectralClustering(affinity=affinity)
     sc.fit(X)
+
+
+def test_n_components_raises():
+    sc = SpectralClustering(n_components=len(X))
+    with pytest.raises(ValueError) as m:
+        sc.fit(X)
+    assert m.match('n_components')
 
 
 def test_assign_labels_raises():
@@ -76,7 +84,8 @@ def test_spectral_clustering():
                   [0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0],
                   [0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]])
 
-    model = SpectralClustering(random_state=0, n_clusters=2).fit(S)
+    model = SpectralClustering(random_state=0, n_clusters=2,
+                               n_components=4).fit(S)
     labels = model.labels_.compute()
     if labels[0] == 0:
         labels = 1 - labels
