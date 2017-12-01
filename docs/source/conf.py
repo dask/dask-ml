@@ -41,6 +41,7 @@ extensions = [
     'IPython.sphinxext.ipython_directive',
     'nbsphinx',
     'numpydoc',
+    'sphinx_gallery.gen_gallery',
 ]
 
 intersphinx_mapping = {
@@ -50,6 +51,12 @@ intersphinx_mapping = {
     'distributed': ('http://distributed.readthedocs.io/en/latest/', None),
     'dask_searchcv': ('http://dask-searchcv.readthedocs.io/en/latest/', None),
     'dask_glm': ('http://dask-glm.readthedocs.io/en/latest/', None),
+}
+
+sphinx_gallery_conf = {
+    "examples_dir": "../examples",
+    "gallery_dirs": "auto_examples",
+    "backreferences_dir": False,
 }
 
 numpydoc_class_members_toctree = False

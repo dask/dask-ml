@@ -17,6 +17,7 @@ import dask_ml.preprocessing as dpp
 from dask_ml.datasets import make_classification
 from dask_ml.utils import assert_estimator_equal
 
+
 X, y = make_classification(chunks=50)
 df = X.to_dask_dataframe().rename(columns=str)
 df2 = dd.from_pandas(pd.DataFrame(5 * [range(42)]).T.rename(columns=str),
