@@ -5,7 +5,7 @@ import logging
 
 import six
 import dask.array as da
-from dask import delayed, persist
+from dask import delayed
 import numpy as np
 import sklearn.cluster
 from scipy.linalg import pinv, svd
