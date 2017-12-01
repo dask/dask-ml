@@ -1,8 +1,7 @@
-.. _examples:
+.. _examples-index:
 
-========
-Examples
-========
+Gallery of Examples
+===================
 
 This is a set of runnable Jupyter notebooks.
 
@@ -16,4 +15,3 @@ This is a set of runnable Jupyter notebooks.
    examples/dask-glm
    examples/xgboost
    examples/tensorflow
-   auto_examples/index
