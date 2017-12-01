@@ -4,7 +4,11 @@ Daskified versions of sklearn.metrics.pairwise
 import dask.array as da
 import numpy as np
 from dask import delayed
+from dask.array.random import doc_wraps
 from sklearn import metrics
+from sklearn.metrics.pairwise import (
+    KERNEL_PARAMS,
+)
 
 from ..utils import row_norms
 
@@ -64,8 +68,106 @@ def euclidean_distances(X, Y=None, Y_norm_squared=None, squared=False,
     else:
         YY = row_norms(Y, squared=True)[np.newaxis, :]
 
+    # TODO: this often emits a warning. Silence it here?
     distances = -2 * X.dot(Y.T) + XX + YY
     distances = da.maximum(distances, 0)
     # TODO: scikit-learn sets the diagonal to 0 when X is Y.
 
     return distances if squared else da.sqrt(distances)
+
+
+def check_pairwise_arrays(X, Y, precomputed=False):
+    # XXX
+    if Y is None:
+        Y = X
+
+    if precomputed:
+        if X.shape[1] != Y.shape[0]:
+            raise ValueError("Precomputed metric requires shape "
+                             "(n_queries, n_indexed). Got (%d, %d) "
+                             "for %d indexed." %
+                             (X.shape[0], X.shape[1], Y.shape[0]))
+    elif X.shape[1] != Y.shape[1]:
+        raise ValueError("Incompatible dimension for X and Y matrices: "
+                         "X.shape[1] == %d while Y.shape[1] == %d" % (
+                             X.shape[1], Y.shape[1]))
+    return X, Y
+
+# ----------------
+# Kernel functions
+# ----------------
+
+
+@doc_wraps(metrics.pairwise.linear_kernel)
+def linear_kernel(X, Y=None):
+    X, Y = check_pairwise_arrays(X, Y)
+    return X.dot(Y.T)
+
+
+@doc_wraps(metrics.pairwise.rbf_kernel)
+def rbf_kernel(X, Y=None, gamma=None):
+    X, Y = check_pairwise_arrays(X, Y)
+    if gamma is None:
+        gamma = 1.0 / X.shape[1]
+
+    K = euclidean_distances(X, Y, squared=True)
+    K = da.exp(-gamma * K)
+    return K
+
+
+@doc_wraps(metrics.pairwise.polynomial_kernel)
+def polynomial_kernel(X, Y=None, degree=3, gamma=None, coef0=1):
+    X, Y = check_pairwise_arrays(X, Y)
+    if gamma is None:
+        gamma = 1.0 / X.shape[1]
+
+    K = (gamma * X.dot(Y.T) + coef0)**degree
+    return K
+
+
+@doc_wraps(metrics.pairwise.sigmoid_kernel)
+def sigmoid_kernel(X, Y=None, gamma=None, coef0=1):
+    X, Y = check_pairwise_arrays(X, Y)
+    if gamma is None:
+        gamma = 1.0 / X.shape[1]
+
+    K = X.dot(Y.T)
+    K *= gamma
+    K += coef0
+    K = da.tanh(K)
+    return K
+
+
+PAIRWISE_KERNEL_FUNCTIONS = {
+    'rbf': rbf_kernel,
+    'linear': linear_kernel,
+    'polynomial': polynomial_kernel,
+    'sigmoid': sigmoid_kernel
+    # TODO:
+    # - cosine_similarity
+    # - laplacian
+    # - additive_chi2_kernel
+    # - chid2_kernel
+}
+
+
+def pairwise_kernels(X, Y=None, metric="linear", filter_params=False,
+                     n_jobs=1, **kwds):
+    from sklearn.gaussian_process.kernels import Kernel as GPKernel
+
+    if metric == "precomputed":
+        X, _ = check_pairwise_arrays(X, Y, precomputed=True)
+        return X
+    elif isinstance(metric, GPKernel):
+        raise NotImplementedError()
+    elif metric in PAIRWISE_KERNEL_FUNCTIONS:
+        if filter_params:
+            kwds = dict((k, kwds[k]) for k in kwds
+                        if k in KERNEL_PARAMS[metric])
+        func = PAIRWISE_KERNEL_FUNCTIONS[metric]
+    elif callable(metric):
+        raise NotImplementedError()
+    else:
+        raise ValueError("Unknown kernel %r" % metric)
+
+    return func(X, Y, **kwds)

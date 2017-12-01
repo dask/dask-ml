@@ -1,3 +1,4 @@
+import pytest
 import dask.array as da
 import numpy as np
 import numpy.testing as npt
@@ -48,3 +49,20 @@ def test_euclidean_distances_same():
 
     x_norm_squared = (X ** 2).sum(axis=1).compute()[:, np.newaxis]
     assert_eq(X, X, Y_norm_squared=x_norm_squared, atol=1e-4)
+
+
+@pytest.mark.parametrize('kernel', [
+    'linear',
+    'polynomial',
+    'rbf',
+    'sigmoid',
+])
+def test_pairwise_kernels(kernel):
+    X = da.random.uniform(size=(100, 4), chunks=(50, 4))
+    a = dm.pairwise.PAIRWISE_KERNEL_FUNCTIONS[kernel]
+    b = sm.pairwise.PAIRWISE_KERNEL_FUNCTIONS[kernel]
+
+    r1 = a(X)
+    r2 = b(X.compute())
+    assert isinstance(X, da.Array)
+    assert_eq(r1, r2)

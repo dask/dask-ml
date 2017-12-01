@@ -16,7 +16,6 @@ from dask.dataframe.utils import assert_eq as assert_eq_df
 import dask_ml.preprocessing as dpp
 from dask_ml.datasets import make_classification
 from dask_ml.utils import assert_estimator_equal
-from dask_ml.preprocessing.data import handle_zeros_in_scale
 
 
 X, y = make_classification(chunks=50)
