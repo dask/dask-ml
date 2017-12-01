@@ -5,7 +5,7 @@ import logging
 
 import six
 import dask.array as da
-from dask import delayed
+from dask import delayed, persist
 import numpy as np
 import sklearn.cluster
 from scipy.linalg import pinv, svd
@@ -100,7 +100,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         Larger ``n_components`` will improve the accuracy of the
         approximation, at the cost of a longer training time.
 
-    persist : bool
+    persist_embedding : bool
         Whether to persist the intermediate n_samples x n_components
         array used for clustering.
 
@@ -122,8 +122,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
 
     Notes
     -----
-    Using ``persist=True`` will avoid some redundant computation, at the
-    cost of storing an ``n_samples x n_components`` array in memory.
+    Using ``persist_embedding=True`` can be an important
 
     References
     ----------
@@ -140,7 +139,8 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
     def __init__(self, n_clusters=8, eigen_solver=None, random_state=None,
                  n_init=10, gamma=1., affinity='rbf', n_neighbors=10,
                  eigen_tol=0.0, assign_labels='kmeans', degree=3, coef0=1,
-                 kernel_params=None, n_jobs=1, n_components=100, persist=False,
+                 kernel_params=None, n_jobs=1, n_components=100,
+                 persist_embedding=False,
                  kmeans_params=None):
         self.n_clusters = n_clusters
         self.eigen_solver = eigen_solver
@@ -156,7 +156,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         self.kernel_params = kernel_params
         self.n_jobs = n_jobs
         self.n_components = n_components
-        self.persist = persist
+        self.persist_embedding = persist_embedding
         self.kmeans_params = kmeans_params
 
     def _check_array(self, X):
@@ -266,9 +266,16 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
 
         # normalize (Eq. 4)
         U2 = (V2.T / da.sqrt((V2 ** 2).sum(1))).T  # (n, k)
-        if self.persist and isinstance(U2, da.Array):
+        if self.persist_embedding and isinstance(U2, da.Array):
             logger.info("Persisting array for k-means")
             U2 = U2.persist()
+        elif isinstance(U2, da.Array):
+            # We can still persist the small things...
+            # TODO: we would need to update the task graphs
+            # for V2 to replace references to, e.g.
+            #  U_A, A2, etc. with references to persisted
+            # versions of those.
+            pass
 
         # Recover the original order so that labels match
         U2 = U2[inds_idx]  # (n, k)

@@ -15,9 +15,10 @@ X_ = X.compute()
 
 
 @pytest.mark.parametrize('data', [X, X_])
-@pytest.mark.parametrize('persist', [True, False])
-def test_basic(data, persist):
-    sc = SpectralClustering(n_components=25, random_state=0, persist=persist)
+@pytest.mark.parametrize('persist_embedding', [True, False])
+def test_basic(data, persist_embedding):
+    sc = SpectralClustering(n_components=25, random_state=0,
+                            persist_embedding=persist_embedding)
     sc.fit(data)
     assert len(sc.labels_) == len(X)
 
