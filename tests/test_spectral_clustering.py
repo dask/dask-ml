@@ -10,7 +10,7 @@ from dask_ml.cluster import SpectralClustering
 from dask_ml import metrics
 
 
-X, y = make_blobs(n_samples=100, chunks=50, random_state=0)
+X, y = make_blobs(n_samples=200, chunks=100, random_state=0)
 X_ = X.compute()
 
 

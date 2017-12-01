@@ -228,7 +228,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
 
         elif callable(metric):
             A = metric(X[keep], **params)
-            B = metric(X, **params)
+            B = metric(X[keep], X[rest], **params)
         else:
             msg = ("Unexpected type for 'affinity' '{}'. Must be string "
                    "kernel name, array, or callable")
