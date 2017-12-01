@@ -122,7 +122,10 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
 
     Notes
     -----
-    Using ``persist_embedding=True`` can be an important
+    Using ``persist_embedding=True`` can be an important optimization to
+    avoid some redundant computations. This persists the array being fed to
+    the clustering algorithm in (distributed) memory. The array is shape
+    ``n_samples x n_components``.
 
     References
     ----------
