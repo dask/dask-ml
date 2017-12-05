@@ -19,6 +19,7 @@ dependencies:
   - pytest
   - pytest-cov
   - python=2.7
+  - seaborn
   - sortedcontainers
   - scikit-learn
   - scipy
