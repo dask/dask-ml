@@ -59,6 +59,7 @@ sphinx_gallery_conf = {
     "backreferences_dir": False,
 }
 
+nbsphinx_execute = 'never'
 numpydoc_class_members_toctree = False
 autodoc_default_flags = ['members', 'inherited-members']
 autosummary_generate = True
