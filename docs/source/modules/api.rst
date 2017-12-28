@@ -4,6 +4,10 @@
 API Reference
 =============
 
+This page lists all of the estimators and top-level functions in ``dask_ml``.
+Unless otherwise noted, the estimators implemented in ``dask-ml`` are
+appropriate for parallel and distributed training.
+
 :mod:`dask_ml.model_selection`: Model Selection
 ===============================================
 
@@ -42,6 +46,12 @@ Incremental Learning
 ====================
 
 .. currentmodule:: dask_ml
+
+Some scikit-learn estimators support out-of-core training through the
+``partial_fit`` method. The following estimators wrap those scikit-learn
+estimators, allowing them to be used in Pipelines and on Dask arrays and
+dataframes. Training will still be serial, so these will not benefit from
+a paralell or distributed training any more than the underlying estimator.
 
 .. autosummary::
    :toctree: generated/
