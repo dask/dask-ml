@@ -32,6 +32,7 @@ familiar NumPy, Pandas, and Scikit-Learn APIs.
    tensorflow.rst
    clustering.rst
    examples.rst
+   history.rst
    modules/api.rst
 
 Indices and tables
