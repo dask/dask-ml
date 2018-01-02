@@ -51,7 +51,7 @@ Some scikit-learn estimators support out-of-core training through the
 ``partial_fit`` method. The following estimators wrap those scikit-learn
 estimators, allowing them to be used in Pipelines and on Dask arrays and
 dataframes. Training will still be serial, so these will not benefit from
-a paralell or distributed training any more than the underlying estimator.
+a parallel or distributed training any more than the underlying estimator.
 
 .. autosummary::
    :toctree: generated/
