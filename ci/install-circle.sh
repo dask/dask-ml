@@ -5,5 +5,5 @@ conda install conda-build anaconda-client --yes
 conda config --add channels conda-forge
 conda env create -f ci/environment-${PYTHON}.yml --name=${ENV_NAME}
 source activate ${ENV_NAME}
-pip install --no-deps -e .
+pip install --no-deps --quiet -e .
 conda list ${ENV_NAME}

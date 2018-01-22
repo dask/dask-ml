@@ -13,18 +13,71 @@ jobs:
       - run:
           name: configure conda
           command: ./ci/install-circle.sh
+      - run:
+          command: |
+            source activate ${ENV_NAME}
+            pytest tests
+      - run:
+          command: |
+            source activate ${ENV_NAME}
+            flake8 dask_ml
       - save_cache:
-          key: deps-{{ checksum "ci/environment.yml" }}
+          key: deps-{{ .Branch }}-36-{{ checksum "ci/environment.yml" }}
           paths:
             - "/opt/conda/envs/${ENV_NAME}/"
       - run:
           command: |
             source activate ${ENV_NAME}
-            pytest
+            pytest tests
       - run:
           command: |
             source activate ${ENV_NAME}
-            flake8
+            flake8 dask_ml
+      - save_cache:
+          key: deps-{{ .Branch }}-27-{{ checksum "ci/environment.yml" }}
+          paths:
+            - "/opt/conda/envs/${ENV_NAME}/"
+
+  # Now repeat for py27
+  py27:
+    docker:
+      - image: continuumio/miniconda:latest
+    environment:
+      PYTHON: "3.6"
+      ENV_NAME: "dask-ml-test"
+    steps:
+      - checkout
+      - restore_cache:
+          key: deps-{{ .Branch }}-36-{{ checksum "ci/environment.yml" }}
+      - run:
+          name: configure conda
+          command: ./ci/install-circle.sh
+      - run:
+          command: |
+            source activate ${ENV_NAME}
+            pytest tests
+      - run:
+          command: |
+            source activate ${ENV_NAME}
+            flake8 dask_ml
+      - save_cache:
+          key: deps-{{ .Branch }}-36-{{ checksum "ci/environment.yml" }}
+          paths:
+            - "/opt/conda/envs/${ENV_NAME}/"
+      - run:
+          command: |
+            source activate ${ENV_NAME}
+            pytest tests
+      - run:
+          command: |
+            source activate ${ENV_NAME}
+            flake8 dask_ml
+      - save_cache:
+          key: deps-{{ .Branch }}-27-{{ checksum "ci/environment.yml" }}
+          paths:
+            - "/opt/conda/envs/${ENV_NAME}/"
+
+  # scikit-learn dev build
   sklearn_dev:
     docker:
       - image: continuumio/miniconda:latest
@@ -34,7 +87,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: deps-{{ checksum "ci/environment.yml" }}
+          key: deps-{{ .Branch }}-sklearn_dev-{{ checksum "ci/environment.yml" }}
       - run:
           name: configure conda
           command: ./ci/install-circle.sh
@@ -47,7 +100,11 @@ jobs:
       - run:
           command: |
             source activate ${ENV_NAME}
-            pytest
+            pytest tests
+      - save_cache:
+          key: deps-{{ .Branch }}-sklearn_dev-{{ checksum "ci/environment.yml" }}
+          paths:
+            - "/opt/conda/envs/${ENV_NAME}/"
 
 workflows:
   version: 2
