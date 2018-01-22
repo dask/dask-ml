@@ -140,10 +140,11 @@ class RobustScaler(skdata.RobustScaler):
         if isinstance(X, dd.DataFrame):
             n_columns = len(X.columns)
             partition_lengths = X.map_partitions(len).compute()
+            dtype = np.find_common_type(X.dtypes, [])
             blocks = X.to_delayed()
             X = da.vstack(
                 [da.from_delayed(block.values, shape=(length, n_columns),
-                                 dtype='float64')
+                                 dtype=dtype)
                  for block, length in zip(blocks, partition_lengths)])
 
         quantiles = [da.percentile(col, [q_min, 50., q_max]) for col in X.T]

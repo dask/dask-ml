@@ -140,10 +140,10 @@ class TestRobustScaler(object):
     def test_df_values(self):
         est1 = dpp.RobustScaler()
         est2 = dpp.RobustScaler()
-        import dask
-        dask.set_options(get=dask.get)
+
         result_ar = est1.fit_transform(X)
         result_df = est2.fit_transform(df)
+        assert_eq_ar(result_ar, result_df.values)
 
         for attr in ['scale_', 'center_']:
             assert_eq_ar(getattr(est1, attr), getattr(est2, attr))
@@ -152,6 +152,10 @@ class TestRobustScaler(object):
         assert_eq_ar(est1.transform(df).values, est2.transform(X))
         assert_eq_ar(est1.transform(X), est2.transform(df).values)
 
+        # different data types
+        df['0'] = df['0'].astype('float32')
+        result_ar = est1.fit_transform(X)
+        result_df = est2.fit_transform(df)
         assert_eq_ar(result_ar, result_df.values)
 
 
