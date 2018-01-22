@@ -104,6 +104,56 @@ class TestMinMaxScaler(object):
                      df2.drop(mask, axis=1).compute())
 
 
+class TestRobustScaler(object):
+    def test_fit(self):
+        a = dpp.RobustScaler()
+        b = spp.RobustScaler()
+
+        # bigger data to make percentile more reliable
+        # and not centered around 0 to make rtol work
+        X, y = make_classification(n_samples=1000, chunks=200)
+        X = X + 3
+
+        a.fit(X)
+        b.fit(X.compute())
+        assert_estimator_equal(a, b, rtol=0.2)
+
+    def test_transform(self):
+        a = dpp.RobustScaler()
+        b = spp.RobustScaler()
+
+        a.fit(X)
+        b.fit(X.compute())
+
+        # overwriting dask-ml's fitted attributes to have them exactly equal
+        # (the approximate equality is tested above)
+        a.scale_ = b.scale_
+        a.center_ = b.center_
+
+        assert_eq_ar(a.transform(X).compute(), b.transform(X.compute()))
+
+    def test_inverse_transform(self):
+        a = dpp.RobustScaler()
+        assert_eq_ar(a.inverse_transform(a.fit_transform(X)).compute(),
+                     X.compute())
+
+    # def test_df_values(self):
+    #     est1 = dpp.RobustScaler()
+    #     est2 = dpp.RobustScaler()
+
+    #     result_ar = est1.fit_transform(X)
+    #     result_df = est2.fit_transform(df)
+
+    #     for attr in ['scale_', 'center_']:
+    #         assert_eq_ar(getattr(est1, attr), getattr(est2, attr).values)
+
+    #     assert_eq_ar(est1.transform(X), est2.transform(X))
+    #     assert_eq_ar(est1.transform(df).values, est2.transform(X))
+    #     assert_eq_ar(est1.transform(X), est2.transform(df).values)
+
+    #     assert_eq_ar(result_ar, result_df.values)
+
+
 class TestQuantileTransformer(object):
 
     def test_basic(self):

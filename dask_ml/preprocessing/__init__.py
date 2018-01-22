@@ -3,6 +3,7 @@
 from .data import (  # noqa
     StandardScaler,
     MinMaxScaler,
+    RobustScaler,
     QuantileTransformer,
     Categorizer,
     DummyEncoder,
