@@ -137,21 +137,22 @@ class TestRobustScaler(object):
         assert_eq_ar(a.inverse_transform(a.fit_transform(X)).compute(),
                      X.compute())
 
-    # def test_df_values(self):
-    #     est1 = dpp.RobustScaler()
-    #     est2 = dpp.RobustScaler()
+    def test_df_values(self):
+        est1 = dpp.RobustScaler()
+        est2 = dpp.RobustScaler()
+        import dask
+        dask.set_options(get=dask.get)
+        result_ar = est1.fit_transform(X)
+        result_df = est2.fit_transform(df)
 
-    #     result_ar = est1.fit_transform(X)
-    #     result_df = est2.fit_transform(df)
+        for attr in ['scale_', 'center_']:
+            assert_eq_ar(getattr(est1, attr), getattr(est2, attr))
 
-    #     for attr in ['scale_', 'center_']:
-    #         assert_eq_ar(getattr(est1, attr), getattr(est2, attr).values)
+        assert_eq_ar(est1.transform(X), est2.transform(X))
+        assert_eq_ar(est1.transform(df).values, est2.transform(X))
+        assert_eq_ar(est1.transform(X), est2.transform(df).values)
 
-    #     assert_eq_ar(est1.transform(X), est2.transform(X))
-    #     assert_eq_ar(est1.transform(df).values, est2.transform(X))
-    #     assert_eq_ar(est1.transform(X), est2.transform(df).values)
-
-    #     assert_eq_ar(result_ar, result_df.values)
+        assert_eq_ar(result_ar, result_df.values)
 
 
 class TestQuantileTransformer(object):

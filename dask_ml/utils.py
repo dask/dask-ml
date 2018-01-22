@@ -85,7 +85,7 @@ def check_array(array, *args, **kwargs):
     Parameters
     ----------
     accept_dask_array : bool, default True
-    accept_dask_dataframe : bool, default True
+    accept_dask_dataframe : bool, default False
     accept_unknown_chunks : bool, default False
         For dask Arrays, whether to allow the `.chunks` attribute to contain
         any unknown values
@@ -107,7 +107,7 @@ def check_array(array, *args, **kwargs):
     arguments.
     """
     accept_dask_array = kwargs.pop("accept_dask_array", True)
-    accept_dask_dataframe = kwargs.pop("accept_dask_dataframe", True)
+    accept_dask_dataframe = kwargs.pop("accept_dask_dataframe", False)
     accept_unknown_chunks = kwargs.pop("accept_unknown_chunks", False)
     accept_multiple_blocks = kwargs.pop("accept_multiple_blocks", False)
 
@@ -135,8 +135,6 @@ def check_array(array, *args, **kwargs):
 
     elif isinstance(array, dd.DataFrame):
         if not accept_dask_dataframe:
-            raise TypeError
-        if not accept_unknown_chunks:
             raise TypeError
 
         # TODO: sample?

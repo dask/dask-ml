@@ -128,7 +128,7 @@ class RobustScaler(skdata.RobustScaler):
     __doc__ = skdata.RobustScaler.__doc__
 
     def _check_array(self, X, *args, **kwargs):
-        X = check_array(X, **kwargs)
+        X = check_array(X, accept_dask_dataframe=True, **kwargs)
         return X
 
     def fit(self, X, y=None):
@@ -136,6 +136,15 @@ class RobustScaler(skdata.RobustScaler):
         if not 0 <= q_min <= q_max <= 100:
             raise ValueError("Invalid quantile range: %s" %
                              str(self.quantile_range))
+
+        if isinstance(X, dd.DataFrame):
+            n_columns = len(X.columns)
+            partition_lengths = X.map_partitions(len).compute()
+            blocks = X.to_delayed()
+            X = da.vstack(
+                [da.from_delayed(block.values, shape=(length, n_columns),
+                                 dtype='float64')
+                 for block, length in zip(blocks, partition_lengths)])
 
         quantiles = [da.percentile(col, [q_min, 50., q_max]) for col in X.T]
         quantiles = da.vstack(quantiles).compute()
