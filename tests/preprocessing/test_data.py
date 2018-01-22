@@ -111,7 +111,7 @@ class TestRobustScaler(object):
 
         # bigger data to make percentile more reliable
         # and not centered around 0 to make rtol work
-        X, y = make_classification(n_samples=1000, chunks=200)
+        X, y = make_classification(n_samples=1000, chunks=200, random_state=0)
         X = X + 3
 
         a.fit(X)
