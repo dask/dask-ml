@@ -19,6 +19,7 @@ scikit-learn counterparts.
 
    MinMaxScaler
    QuantileTransformer
+   RobustScaler
    StandardScaler
 
 These can be used just like the scikit-learn versions, except that:
