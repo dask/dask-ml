@@ -33,8 +33,8 @@ module                 Additional Dependencies
 ``dask_ml.tensorflow`` tensorflow, dask-tensorflow
 ====================== ===========================
 
-The conda-forge package will install all additional dependencies. With pip, the
-additional dependencies are not installed by default, but can be with
+These additional dependencies will need to be installed separately. With pip,
+they can be installed with
 
 .. code-block:: none
 

@@ -1,7 +1,10 @@
 from collections import namedtuple
-import pytest
+import inspect
 
+import pytest
 import pandas as pd
+import pandas.util.testing as tm
+import six
 import numpy as np
 import dask.dataframe as dd
 import dask.array as da
@@ -9,12 +12,14 @@ from dask.array.utils import assert_eq as assert_eq_ar
 from dask.dataframe.utils import assert_eq as assert_eq_df
 
 from dask_ml.utils import (
-    slice_columns, handle_zeros_in_scale, assert_estimator_equal
+    slice_columns, handle_zeros_in_scale, assert_estimator_equal,
+    check_random_state,
+    check_chunks,
 )
 from dask_ml.datasets import make_classification
 
 
-df = dd.from_pandas(pd.DataFrame(5*[range(42)]).T, npartitions=5)
+df = dd.from_pandas(pd.DataFrame(5 * [range(42)]).T, npartitions=5)
 s = dd.from_pandas(pd.Series([0, 1, 2, 3, 0]), npartitions=5)
 a = da.from_array(np.array([0, 1, 2, 3, 0]), chunks=3)
 X, y = make_classification(chunks=2)
@@ -39,6 +44,26 @@ def test_handle_zeros_in_scale():
 
     assert list(s2.compute()) == [1, 1, 2, 3, 1]
     assert list(a2.compute()) == [1, 1, 2, 3, 1]
+
+    x = np.array([1, 2, 3, 0], dtype='f8')
+    expected = np.array([1, 2, 3, 1], dtype='f8')
+    result = handle_zeros_in_scale(x)
+    np.testing.assert_array_equal(result, expected)
+
+    x = pd.Series(x)
+    expected = pd.Series(expected)
+    result = handle_zeros_in_scale(x)
+    tm.assert_series_equal(result, expected)
+
+    x = da.from_array(x.values, chunks=2)
+    expected = expected.values
+    result = handle_zeros_in_scale(x)
+    assert_eq_ar(result, expected)
+
+    x = dd.from_dask_array(x)
+    expected = pd.Series(expected)
+    result = handle_zeros_in_scale(x)
+    assert_eq_df(result, expected)
 
 
 def test_assert_estimator_passes():
@@ -81,3 +106,56 @@ def test_assert_estimator_different_dataframes(a):
     r = Foo(1, 2, 3, pd.DataFrame({"A": [0, 1]}))
     with pytest.raises(AssertionError):
         assert_estimator_equal(l, r)
+
+
+@pytest.mark.skipif(six.PY2, reason="No inspect.signature")
+def test_wrapper():
+    assert "chunks" in make_classification.__doc__
+    assert make_classification.__module__ == "dask_ml.datasets"
+
+    sig = inspect.signature(make_classification)
+    assert 'chunks' in sig.parameters
+
+
+def test_check_random_state():
+    for rs in [None, 0]:
+        result = check_random_state(rs)
+        assert isinstance(result, da.random.RandomState)
+
+    rs = da.random.RandomState(0)
+    result = check_random_state(rs)
+    assert result is rs
+
+    with pytest.raises(TypeError):
+        check_random_state(np.random.RandomState(0))
+
+
+@pytest.mark.parametrize('chunks', [
+    None, 4, (2000, 4), [2000, 4],
+])
+@pytest.mark.skipif(six.PY2, reason="No mock")
+def test_get_chunks(chunks):
+    from unittest import mock
+
+    with mock.patch("dask_ml.utils.cpu_count", return_value=4):
+        result = check_chunks(n_samples=8000, n_features=4, chunks=chunks)
+        expected = (2000, 4)
+        assert result == expected
+
+
+@pytest.mark.parametrize('chunks', [None, 8])
+def test_get_chunks_min(chunks):
+    result = check_chunks(n_samples=8, n_features=4, chunks=chunks)
+    expected = (100, 4)
+    assert result == expected
+
+
+def test_get_chunks_raises():
+    with pytest.raises(AssertionError):
+        check_chunks(1, 1, chunks=(1, 2, 3))
+
+    with pytest.raises(AssertionError):
+        check_chunks(1, 1, chunks=[1, 2, 3])
+
+    with pytest.raises(ValueError):
+        check_chunks(1, 1, chunks=object())

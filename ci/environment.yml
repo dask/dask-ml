@@ -7,8 +7,11 @@ dependencies:
   - Cython
   - flake8
   - heapdict
+  - ipython
+  - matplotlib
   - multipledispatch
   - nbsphinx
+  - nose
   - numpy
   - numpydoc
   - pandas
@@ -16,12 +19,14 @@ dependencies:
   - pytest
   - pytest-cov
   - python=3.6
+  - seaborn
   - sortedcontainers
   - scikit-learn
   - scipy
   - six
   - sphinx
   - sphinx_rtd_theme
+  - sphinx-gallery
   - tensorflow
   - tornado
   - toolz

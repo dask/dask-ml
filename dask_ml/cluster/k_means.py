@@ -17,7 +17,7 @@ from ._k_means import _centers_dense
 from ..metrics import (
     pairwise_distances_argmin_min, pairwise_distances, euclidean_distances
 )
-from ..utils import row_norms
+from ..utils import row_norms, check_array
 
 
 logger = logging.getLogger(__name__)
@@ -99,7 +99,6 @@ class KMeans(BaseEstimator):
 
     Notes
     -----
-
     This class implements a parallel and distributed version of k-Means.
 
     **Initialization with k-means||**
@@ -111,14 +110,19 @@ class KMeans(BaseEstimator):
     ``k-means||`` is designed to work well in a distributed environment. It's a
     variant of k-means++ that's designed to work in parallel (k-means++ is
     inherently sequential). Currently, the ``k-means||`` implementation here is
-    slower than scikit-learn's ``k-means++``. If your entire dataset fits in
-    memory, consider using ``init='k-means++'``.
+    slower than scikit-learn's ``k-means++`` if your entire dataset fits in
+    memory on a single machine. If that's the case, consider using
+    ``init='k-means++'``.
 
     **Parallel Lloyd's Algorithm**
 
     LLoyd's Algorithm (the default Expectation Maximization algorithm used in
     scikit-learn) is naturally parallelizable. In naive benchmarks, the
     implementation here achieves 2-3x speedups over scikit-learn.
+
+    Both the initialization step and the EM steps make multiple passes over the
+    data. If possible, persist your dask collections in (distributed) memory
+    before running ``.fit``.
     """
     def __init__(self, n_clusters=8, init='k-means||', oversampling_factor=2,
                  max_iter=300, tol=0.0001, precompute_distances='auto',
@@ -132,22 +136,43 @@ class KMeans(BaseEstimator):
         self.init_max_iter = init_max_iter
         self.algorithm = algorithm
         self.tol = tol
+        self.precompute_distances = precompute_distances
         self.n_jobs = n_jobs
         self.copy_x = copy_x
 
     def _check_array(self, X):
-        if isinstance(X, dd.DataFrame):
-            raise TypeError("Unable to fit K-Means on dataframe, since the "
-                            "chunk lengths are not known")
-        if isinstance(X,  pd.DataFrame):
+        t0 = tic()
+
+        if isinstance(X, pd.DataFrame):
             X = X.values
 
-        if isinstance(X, np.ndarray):
-            X = da.from_array(X, chunks=(len(X) // cpu_count(), X.shape[-1]))
+        elif isinstance(X, dd.DataFrame):
+            raise TypeError("Cannot fit on dask.dataframe due to unknown "
+                            "partition lengths.")
 
+        if X.dtype == 'int32':
+            X = X.astype('float32')
+        elif X.dtype == 'int64':
+            X = X.astype('float64')
+
+        X = check_array(X, accept_dask_dataframe=False,
+                        accept_unknown_chunks=False,
+                        accept_sparse=False)
+
+        if isinstance(X, np.ndarray):
+            X = da.from_array(X, chunks=(max(1, len(X) // cpu_count()),
+                                         X.shape[-1]))
+
+        bad = (da.isnull(X).any(), da.isinf(X).any())
+        if any(*compute(bad)):
+            msg = ("Input contains NaN, infinity or a value too large for "
+                   "dtype('float64').")
+            raise ValueError(msg)
+        t1 = tic()
+        logger.info("Finished check_array in %0.2f s", t1 - t0)
         return X
 
-    def fit(self, X):
+    def fit(self, X, y=None):
         X = self._check_array(X)
         labels, centroids, inertia, n_iter = k_means(
             X, self.n_clusters, oversampling_factor=self.oversampling_factor,
@@ -166,6 +191,28 @@ class KMeans(BaseEstimator):
         check_is_fitted(self, 'cluster_centers_')
         X = self._check_array(X)
         return euclidean_distances(X, self.cluster_centers_)
+
+    def predict(self, X):
+        """Predict the closest cluster each sample in X belongs to.
+        In the vector quantization literature, `cluster_centers_` is called
+        the code book and each value returned by `predict` is the index of
+        the closest code in the code book.
+
+        Parameters
+        ----------
+        X : array-like, shape = [n_samples, n_features]
+            New data to predict.
+
+        Returns
+        -------
+        labels : array, shape [n_samples,]
+            Index of the cluster each sample belongs to.
+        """
+        check_is_fitted(self, 'cluster_centers_')
+        X = self._check_array(X)
+        labels = (pairwise_distances_argmin_min(X, self.cluster_centers_)[0]
+                  .astype(np.int32))
+        return labels
 
 
 def k_means(X, n_clusters, init='k-means||', precompute_distances='auto',
@@ -256,6 +303,13 @@ def k_init(X, n_clusters, init='k-means||', random_state=None, max_iter=None,
             type(init)))
 
     valid = {'k-means||', 'k-means++', 'random'}
+
+    if isinstance(random_state, Integral) or random_state is None:
+        if init == 'k-means||':
+            random_state = da.random.RandomState(random_state)
+        else:
+            random_state = np.random.RandomState(random_state)
+
     if init == 'k-means||':
         return init_scalable(X, n_clusters, random_state, max_iter,
                              oversampling_factor)
@@ -291,9 +345,6 @@ def init_random(X, n_clusters, random_state):
     logger.info("Initializing randomly")
     t0 = tic()
 
-    if random_state is None or isinstance(random_state, Integral):
-        random_state = np.random.RandomState(random_state)
-
     idx = sorted(random_state.randint(0, len(X), size=n_clusters))
     centers = X[idx].compute()
 
@@ -308,8 +359,6 @@ def init_scalable(X, n_clusters, random_state=None, max_iter=None,
 
     This is algorithm 2 in Scalable K-Means++ (2012).
     """
-    if isinstance(random_state, Integral) or random_state is None:
-        random_state = da.random.RandomState(random_state)
 
     logger.info("Initializing with k-means||")
     init_start = tic()
@@ -319,9 +368,13 @@ def init_scalable(X, n_clusters, random_state=None, max_iter=None,
     c_idx = {idx}
 
     # Step 2: Initialize cost
-    cost = evaluate_cost(X, centers)
-    # TODO: natural log10? log2?
-    n_iter = int(np.round(np.log(cost)))
+    cost, = compute(evaluate_cost(X, centers))
+
+    if cost == 0:
+        n_iter = 0
+    else:
+        n_iter = int(np.round(np.log(cost)))
+
     if max_iter is not None:
         n_iter = min(max_iter, n_iter)
 
@@ -348,11 +401,20 @@ def init_scalable(X, n_clusters, random_state=None, max_iter=None,
     # original points closest to the candidate centers, would be a better way
     # to do that.
 
-    # Step 7, 8 without weights
-    km = sk_k_means.KMeans(n_clusters)
-    km.fit(centers)
-    logger.info("Finished initialization. %.2f s, %2d centers",
-                tic() - init_start, n_clusters)
+    if len(centers) < n_clusters:
+        logger.warning("Found fewer than %d clusters in init.", n_clusters)
+        # supplement with random
+        need = n_clusters - len(centers)
+        locs = sorted(np.random.choice(np.arange(0, len(X)),
+                                       size=need, replace=False))
+        extra = X[locs].compute()
+        return np.vstack([centers, extra])
+    else:
+        # Step 7, 8 without weights
+        km = sk_k_means.KMeans(n_clusters)
+        km.fit(centers)
+        logger.info("Finished initialization. %.2f s, %2d centers",
+                    tic() - init_start, n_clusters)
     return km.cluster_centers_
 
 
@@ -398,31 +460,31 @@ def _kmeans_single_lloyd(X, n_clusters, max_iter=300, init='k-means||',
                      oversampling_factor=oversampling_factor,
                      random_state=random_state, max_iter=init_max_iter)
     dt = X.dtype
-    X = X.astype(np.float32)
     P = X.shape[1]
     for i in range(max_iter):
         t0 = tic()
-        centers = centers.astype('f4')
         labels, distances = pairwise_distances_argmin_min(
             X, centers, metric='euclidean', metric_kwargs={"squared": True}
         )
 
         labels = labels.astype(np.int32)
-        distances = distances.astype(np.float32)
-
+        # distances is always float64, but we need it to match X.dtype
+        # for centers_dense, but remain float64 for inertia
         r = da.atop(_centers_dense, 'ij',
                     X, 'ij',
                     labels, 'i',
                     n_clusters, None,
-                    distances, 'i',
+                    distances.astype(X.dtype), 'i',
                     adjust_chunks={"i": n_clusters, "j": P},
-                    dtype='f8')
+                    dtype=X.dtype)
         new_centers = da.from_delayed(
             sum(r.to_delayed().flatten()),
             (n_clusters, P),
             X.dtype
         )
         counts = da.bincount(labels, minlength=n_clusters)
+        # Require at least one per bucket, to avoid division by 0.
+        counts = da.maximum(counts, 1)
         new_centers = new_centers / counts[:, None]
         new_centers, = compute(new_centers)
 
@@ -436,8 +498,9 @@ def _kmeans_single_lloyd(X, n_clusters, max_iter=300, init='k-means||',
 
     if shift > 1e-7:
         labels, distances = pairwise_distances_argmin_min(X, centers)
-    inertia = distances.astype(dt).sum()
+        labels = labels.astype(np.int32)
+
+    inertia = distances.sum()
     centers = centers.astype(dt)
-    labels = labels.astype(np.int64)
 
     return labels, inertia, centers, i + 1

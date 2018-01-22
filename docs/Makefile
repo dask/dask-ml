@@ -14,14 +14,16 @@ help:
 
 .PHONY: help Makefile
 
+clean:
+	rm -rf $(BUILDDIR)/*
+	rm -rf source/auto_examples/
+
+html-noplot:
+	$(SPHINXBUILD) -D plot_gallery=0 -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
+	@echo
+	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
+
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-
-day_1:
-	curl -O http://azuremlsampleexperiments.blob.core.windows.net/criteo/day_1.gz ;\
-	gunzip day_1.gz ;\
-
-day-1-bytes.parquet: day_1
-	python make_parquet.py

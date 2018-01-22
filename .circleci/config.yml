@@ -21,7 +21,7 @@ jobs:
             conda env create -q -f ci/environment.yml --name=${ENV_NAME} python=${PYTHON}
             source activate ${ENV_NAME}
             pip install --no-deps --quiet -e .
-            conda list ${ENV_NAME}
+            conda list
       - run:
           command: |
             source activate ${ENV_NAME}

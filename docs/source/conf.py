@@ -36,8 +36,12 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
+    'sphinx.ext.extlinks',
+    'IPython.sphinxext.ipython_console_highlighting',
+    'IPython.sphinxext.ipython_directive',
     'nbsphinx',
     'numpydoc',
+    'sphinx_gallery.gen_gallery',
 ]
 
 intersphinx_mapping = {
@@ -49,6 +53,13 @@ intersphinx_mapping = {
     'dask_glm': ('http://dask-glm.readthedocs.io/en/latest/', None),
 }
 
+sphinx_gallery_conf = {
+    "examples_dir": "../examples",
+    "gallery_dirs": "auto_examples",
+    "backreferences_dir": False,
+}
+
+nbsphinx_execute = 'never'
 numpydoc_class_members_toctree = False
 autodoc_default_flags = ['members', 'inherited-members']
 autosummary_generate = True
@@ -191,3 +202,8 @@ def generate_example_rst(app, what, name, obj, options, lines):
 
 def setup(app):
     app.connect('autodoc-process-docstring', generate_example_rst)
+
+
+extlinks = {
+    'issue': ('https://github.com/dask/dask-ml/issues/%s', 'GH#'),
+}

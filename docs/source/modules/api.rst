@@ -4,6 +4,27 @@
 API Reference
 =============
 
+This page lists all of the estimators and top-level functions in ``dask_ml``.
+Unless otherwise noted, the estimators implemented in ``dask-ml`` are
+appropriate for parallel and distributed training.
+
+:mod:`dask_ml.model_selection`: Model Selection
+===============================================
+
+.. automodule:: dask_ml.model_selection
+   :no-members:
+   :no-inherited-members:
+
+.. currentmodule:: dask_ml
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   model_selection.GridSearchCV
+   model_selection.RandomizedSearchCV
+
+
 :mod:`dask_ml.linear_model`: Generalized Linear Models
 ======================================================
 
@@ -19,12 +40,32 @@ API Reference
 
    linear_model.LinearRegression
    linear_model.LogisticRegression
+   linear_model.PoissonRegression
+
+Incremental Learning
+====================
+
+.. currentmodule:: dask_ml
+
+Some scikit-learn estimators support out-of-core training through the
+``partial_fit`` method. The following estimators wrap those scikit-learn
+estimators, allowing them to be used in Pipelines and on Dask arrays and
+dataframes. Training will still be serial, so these will not benefit from
+a parallel or distributed training any more than the underlying estimator.
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   cluster.PartialMiniBatchKMeans
    linear_model.PartialPassiveAggressiveClassifier
    linear_model.PartialPassiveAggressiveRegressor
    linear_model.PartialPerceptron
    linear_model.PartialSGDClassifier
    linear_model.PartialSGDRegressor
-   linear_model.PoissonRegression
+   naive_bayes.PartialBernoulliNB
+   naive_bayes.PartialMultinomialNB
+
 
 :mod:`dask_ml.cluster`: Clustering
 ==================================
@@ -40,7 +81,23 @@ API Reference
    :template: class.rst
 
    cluster.KMeans
-   cluster.PartialMiniBatchKMeans
+   cluster.SpectralClustering
+
+
+:mod:`dask_ml.decomposition`: Matrix Decomposition
+====================================================
+
+.. automodule:: dask_ml.decomposition
+   :no-members:
+   :no-inherited-members:
+
+.. currentmodule:: dask_ml
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   decomposition.TruncatedSVD
 
 
 :mod:`dask_ml.preprocessing`: Preprocessing Data
@@ -57,6 +114,8 @@ API Reference
    preprocessing.StandardScaler
    preprocessing.MinMaxScaler
    preprocessing.QuantileTransformer
+   preprocessing.Categorizer
+   preprocessing.DummyEncoder
 
 
 :mod:`dask_ml.tensorflow`: Tensorflow

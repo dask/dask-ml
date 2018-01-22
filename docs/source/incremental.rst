@@ -44,18 +44,12 @@ estimators are prefixed with ``Partial``, e.g.  :class:`PartialSGDClassifier`.
 Example
 -------
 
-.. code-block:: python
+.. ipython:: python
 
-   >>> from dask_ml.linear_model import PartialSGDRegressor
-   >>> from dask_ml.datasets import make_classification
-   >>> X, y = make_classification(n_samples=100000, chunks=10000)
-   >>> est = PartialSGDRegressor()
-   >>> est.fit(X, y)
-   >>> est
-   PartialSGDRegressor(alpha=0.0001, average=False, epsilon=0.1, eta0=0.01,
-             fit_intercept=True, l1_ratio=0.15, learning_rate='invscaling',
-             loss='squared_loss', n_iter=5, penalty='l2', power_t=0.25,
-             random_state=None, shuffle=True, verbose=0, warm_start=False)
-
+   from dask_ml.linear_model import PartialSGDRegressor
+   from dask_ml.datasets import make_classification
+   X, y = make_classification(n_samples=1000, chunks=500)
+   est = PartialSGDRegressor()
+   est.fit(X, y)
 
 .. _incremental learning: http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning

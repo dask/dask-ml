@@ -20,7 +20,10 @@ familiar NumPy, Pandas, and Scikit-Learn APIs.
    :maxdepth: 2
    :caption: Contents:
 
+   changelog.rst
    install.rst
+   contributing.rst
+   preprocessing.rst
    hyper-parameter-search.rst
    glm.rst
    incremental.rst
@@ -29,6 +32,7 @@ familiar NumPy, Pandas, and Scikit-Learn APIs.
    tensorflow.rst
    clustering.rst
    examples.rst
+   history.rst
    modules/api.rst
 
 Indices and tables
