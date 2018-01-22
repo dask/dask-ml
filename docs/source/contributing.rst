@@ -22,12 +22,12 @@ You may want to add ``https://github.com/dask/dask-ml`` as an upstream.
 Creating an environment
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-We have an conda ``environment.yaml`` with all the dependencies. If you're using
+We have a conda ``environment.yaml`` with all the dependencies. If you're using
 conda you can
 
 .. code-block:: none
 
-   conda env create -f ci/environment.yml --name=dask-ml-dev
+   conda env create -f ci/environment-3.6.yml --name=dask-ml-dev
 
 If you're using pip, check out the ``setup.py`` for the required and optional
 dependencies. You'll at lest need the build dependencies of NumPy, setuptools,
