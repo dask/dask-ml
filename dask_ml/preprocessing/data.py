@@ -639,4 +639,3 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
         else:
             df = pd.concat([non_cat] + cats, axis=1)[self.columns_]
         return df
-
