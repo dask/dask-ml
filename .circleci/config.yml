@@ -79,7 +79,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: deps-{{ .Branch }}-3.6-{{ checksum "ci/environment-3.6.yml" }}
+          key: deps-{{ .Branch }}-sklearn_dev-{{ checksum "ci/environment-3.6.yml" }}
       - run:
           name: configure conda
           command: ./ci/install-circle.sh
@@ -94,7 +94,7 @@ jobs:
             source activate ${ENV_NAME}
             pytest tests
       - save_cache:
-          key: deps-{{ .Branch }}-3.6-{{ checksum "ci/environment-3.6.yml" }}
+          key: deps-{{ .Branch }}-sklearn_dev-{{ checksum "ci/environment-3.6.yml" }}
           paths:
             - "/opt/conda/envs/${ENV_NAME}/"
 
