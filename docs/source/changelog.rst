@@ -1,6 +1,15 @@
 Changelog
 =========
 
+Version 0.?.?
+~~~~~~~~~~~~~
+
+Enhancements
+------------
+
+- Added :meth:`dask_ml.preprocessing.RobustScaler` (:issue:`62`)
+
+
 Version 0.4.0
 ~~~~~~~~~~~~~
 

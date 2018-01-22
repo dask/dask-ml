@@ -15,7 +15,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import data as skdata
 from sklearn.utils.validation import check_random_state, check_is_fitted
 
-from dask_ml.utils import handle_zeros_in_scale
+from dask_ml.utils import handle_zeros_in_scale, check_array
 
 _PANDAS_VERSION = LooseVersion(pd.__version__)
 _HAS_CTD = _PANDAS_VERSION >= '0.21.0'
@@ -121,6 +121,38 @@ class MinMaxScaler(skdata.MinMaxScaler):
             X /= self.scale_
 
         return X
+
+
+class RobustScaler(skdata.RobustScaler):
+
+    __doc__ = skdata.RobustScaler.__doc__
+
+    def _check_array(self, X, *args, **kwargs):
+        X = check_array(X, accept_dask_dataframe=True, **kwargs)
+        return X
+
+    def fit(self, X, y=None):
+        q_min, q_max = self.quantile_range
+        if not 0 <= q_min <= q_max <= 100:
+            raise ValueError("Invalid quantile range: %s" %
+                             str(self.quantile_range))
+
+        if isinstance(X, dd.DataFrame):
+            n_columns = len(X.columns)
+            partition_lengths = X.map_partitions(len).compute()
+            dtype = np.find_common_type(X.dtypes, [])
+            blocks = X.to_delayed()
+            X = da.vstack(
+                [da.from_delayed(block.values, shape=(length, n_columns),
+                                 dtype=dtype)
+                 for block, length in zip(blocks, partition_lengths)])
+
+        quantiles = [da.percentile(col, [q_min, 50., q_max]) for col in X.T]
+        quantiles = da.vstack(quantiles).compute()
+        self.center_ = quantiles[:, 1]
+        self.scale_ = quantiles[:, 2] - quantiles[:, 0]
+        self.scale_ = skdata._handle_zeros_in_scale(self.scale_, copy=False)
+        return self
 
 
 class QuantileTransformer(skdata.QuantileTransformer):
