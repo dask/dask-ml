@@ -648,27 +648,19 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
     Parameters
     ----------
     columns : sequence, optional
-        The columns to dummy encode. Must be categorical dtype.
-        Dummy encodes all categorical dtype columns by default.
+        The columns to encode. Must be categorical dtype.
+        Encodes all categorical dtype columns by default.
 
     Attributes
     ----------
     columns_ : Index
-        The columns in the training data before dummy encoding
-
-    transformed_columns_ : Index
-        The columns in the training data after dummy encoding
+        The columns in the training data before/after encoding
 
     categorical_columns_ : Index
         The categorical columns in the training data
 
     noncategorical_columns_ : Index
         The rest of the columns in the training data
-
-    categorical_blocks_ : dict
-        Mapping from column names to slice objects. The slices
-        represent the positions in the transformed array that the
-        categorical column ends up at
 
     dtypes_ : dict
         Dictionary mapping column name to either
@@ -687,44 +679,42 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
     --------
     >>> data = pd.DataFrame({"A": [1, 2, 3, 4],
     ...                      "B": pd.Categorical(['a', 'a', 'a', 'b'])})
-    >>> de = DummyEncoder()
-    >>> trn = de.fit_transform(data)
+    >>> enc = OrdinalEncoder()
+    >>> trn = enc.fit_transform(data)
     >>> trn
-    A  B_a  B_b
-    0  1    1    0
-    1  2    1    0
-    2  3    1    0
-    3  4    0    1
+       A  B
+    0  1  0
+    1  2  0
+    2  3  0
+    3  4  1
 
-    >>> de.columns_
+    >>> enc.columns_
     Index(['A', 'B'], dtype='object')
 
-    >>> de.non_categorical_columns_
+    >>> enc.non_categorical_columns_
     Index(['A'], dtype='object')
 
-    >>> de.categorical_columns_
+    >>> enc.categorical_columns_
     Index(['B'], dtype='object')
 
-    >>> de.dtypes_
+    >>> enc.dtypes_
     {'B': CategoricalDtype(categories=['a', 'b'], ordered=False)}
 
-    >>> de.categorical_blocks_
-    {'B': slice(1, 3, None)}
-
-    >>> de.fit_transform(dd.from_pandas(data, 2))
+    >>> enc.fit_transform(dd.from_pandas(data, 2))
     Dask DataFrame Structure:
-                    A    B_a    B_b
-    npartitions=2
-    0              int64  uint8  uint8
-    2                ...    ...    ...
-    3                ...    ...    ...
-    Dask Name: get_dummies, 4 tasks
+                       A     B
+    npartitions=2             
+    0              int64  int8
+    2                ...   ...
+    3                ...   ...
+    Dask Name: assign, 8 tasks
+
     """
     def __init__(self, columns=None):
         self.columns = columns
 
     def fit(self, X, y=None):
-        """Determine the categorical columns to be dummy encoded.
+        """Determine the categorical columns to be encoded.
 
         Parameters
         ----------
