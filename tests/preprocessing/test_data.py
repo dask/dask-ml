@@ -360,25 +360,28 @@ class TestOrdinalEncoder:
 
         tm.assert_frame_equal(result, df)
 
-    # def test_da(self):
-    #     a = dd.from_pandas(dummy, npartitions=2)
-    #     de = dpp.DummyEncoder()
-    #     result = de.fit_transform(a)
-    #     assert isinstance(result, dd.DataFrame)
+    def test_da(self):
+        a = dd.from_pandas(dummy, npartitions=2)
+        de = dpp.OrdinalEncoder()
+        result = de.fit_transform(a)
+        assert isinstance(result, dd.DataFrame)
 
-    # def test_transform_raises(self):
-    #     de = dpp.DummyEncoder()
-    #     de.fit(dummy)
-    #     with pytest.raises(ValueError) as rec:
-    #         de.transform(dummy.drop("B", axis='columns'))
-    #     assert rec.match("Columns of 'X' do not match the training")
+    def test_transform_raises(self):
+        de = dpp.OrdinalEncoder()
+        de.fit(dummy)
+        with pytest.raises(ValueError) as rec:
+            de.transform(dummy.drop("B", axis='columns'))
+        assert rec.match("Columns of 'X' do not match the training")
 
-    # def test_inverse_transform(self):
-    #     de = dpp.DummyEncoder()
-    #     df = dd.from_pandas(pd.DataFrame({"A": np.arange(10),
-    #                                       "B": pd.Categorical(['a'] * 4 +
-    #                                                           ['b'] * 6)}),
-    #                         npartitions=2)
-    #     de.fit(df)
-    #     assert_eq_df(df, de.inverse_transform(de.transform(df)))
-    #     assert_eq_df(df, de.inverse_transform(de.transform(df).values))
+    def test_inverse_transform(self):
+        enc = dpp.OrdinalEncoder()
+        df = dd.from_pandas(pd.DataFrame({"A": np.arange(10),
+                                          "B": pd.Categorical(['a'] * 4 +
+                                                              ['b'] * 6)}),
+                            npartitions=2)
+        enc.fit(df)
+        assert_eq_df(df, enc.inverse_transform(enc.transform(df)))
+        assert_eq_df(df, enc.inverse_transform(enc.transform(df).compute()))
+        assert_eq_df(df, enc.inverse_transform(enc.transform(df).values))
+        assert_eq_df(df, enc.inverse_transform(
+            enc.transform(df).values.compute()))
