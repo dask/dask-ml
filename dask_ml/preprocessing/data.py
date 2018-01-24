@@ -703,7 +703,7 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
     >>> enc.fit_transform(dd.from_pandas(data, 2))
     Dask DataFrame Structure:
                        A     B
-    npartitions=2             
+    npartitions=2
     0              int64  int8
     2                ...   ...
     3                ...   ...
