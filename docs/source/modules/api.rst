@@ -116,6 +116,7 @@ a parallel or distributed training any more than the underlying estimator.
    preprocessing.QuantileTransformer
    preprocessing.Categorizer
    preprocessing.DummyEncoder
+   preprocessing.OrdinalEncoder
 
 
 :mod:`dask_ml.tensorflow`: Tensorflow

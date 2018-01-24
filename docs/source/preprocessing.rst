@@ -40,6 +40,7 @@ Other transformers are specific to dask-ml.
 
    Categorizer
    DummyEncoder
+   OrdinalEncoder
 
 
 Both :class:`dask_ml.preprocessing.Categorizer` and
