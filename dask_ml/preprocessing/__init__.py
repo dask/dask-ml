@@ -7,4 +7,5 @@ from .data import (  # noqa
     QuantileTransformer,
     Categorizer,
     DummyEncoder,
+    OrdinalEncoder,
 )
