@@ -137,7 +137,8 @@ def check_array(array, *args, **kwargs):
         if not accept_dask_dataframe:
             raise TypeError
 
-        # TODO: sample?
+        sample = array.head()
+        sk_validation.check_array(sample, *args, **kwargs)
         return array
     else:
         return sk_validation.check_array(array, *args, **kwargs)
