@@ -235,9 +235,7 @@ class QuantileTransformer(skdata.QuantileTransformer):
                                            self.quantiles_[:, feature_idx],
                                            inverse)
                        for feature_idx in range(X.shape[1])]
-        transformed = da.concatenate(transformed, axis=0,
-                                     allow_unknown_chunksizes=True).T
-        return transformed
+        return da.vstack(transformed).T
 
     def _transform_col(self, X_col, quantiles, inverse):
         if self.output_distribution == 'normal':
