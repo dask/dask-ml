@@ -1,9 +1,13 @@
-from collections import Sequence
-from numbers import Integral
+from collections import Sequence, Mapping
+from numbers import Integral, Real
 from multiprocessing import cpu_count
 
 import pandas as pd
 import numpy as np
+import scipy.sparse
+import sklearn.base
+from sklearn.linear_model.sgd_fast import Classification
+import sklearn.cluster.birch
 
 import dask.array as da
 import dask.dataframe as dd
@@ -74,9 +78,18 @@ def assert_estimator_equal(left, right, exclude=None, **kwargs):
     assert (set(left_attrs) - exclude) == set(right_attrs) - exclude
 
     for attr in set(left_attrs) - exclude:
-        l = getattr(left, attr)
-        r = getattr(right, attr)
-        _assert_eq(l, r, **kwargs)
+        try:
+            # Some estimators may have '_', even if not fit yet.
+            l = getattr(left, attr)
+        except (sklearn.exceptions.NotFittedError, AttributeError):
+            import pytest
+
+            with pytest.raises((sklearn.exceptions.NotFittedError,
+                                AttributeError)):
+                getattr(right, attr)
+        else:
+            r = getattr(right, attr)
+            _assert_eq(l, r, **kwargs)
 
 
 def check_array(array, *args, **kwargs):
@@ -146,14 +159,66 @@ def check_array(array, *args, **kwargs):
 def _assert_eq(l, r, **kwargs):
     array_types = (np.ndarray, da.Array)
     frame_types = (pd.core.generic.NDFrame, dd._Frame)
-    if isinstance(l, array_types):
+
+    if isinstance(l, array_types) and l.dtype != object:
+        # TODO: think about object dtype. This may be an ndarray
+        # of estimators (or maybe just strings..)
         assert_eq_ar(l, r, **kwargs)
     elif isinstance(l, frame_types):
         assert_eq_df(l, r, **kwargs)
+
     elif (isinstance(l, Sequence) and
             any(isinstance(x, array_types + frame_types) for x in l)):
+        # recurse
         for a, b in zip(l, r):
             _assert_eq(a, b, **kwargs)
+
+    elif (isinstance(l, Sequence) and
+            any(isinstance(x, sklearn.base.BaseEstimator) for x in l) or
+          (hasattr(l, 'flatten') and
+           any(isinstance(x, sklearn.base.BaseEstimator)
+               for x in l.flatten()))):
+        # ughhhhhhhh
+        # recurse
+        for a, b in zip(l, r):
+            assert_estimator_equal(a, b, **kwargs)
+
+    elif (isinstance(l, Mapping) and
+          any(isinstance(v, array_types + frame_types)
+              for k, v in l.items())):
+        # recurse
+        for k in l:
+            _assert_eq(l[k], r[k], **kwargs)
+
+    elif isinstance(l, Integral) or isinstance(r, Integral):
+        assert l == r
+    elif isinstance(l, Real) or isinstance(r, Real):
+        assert (l - r) < kwargs.get('atol', 1e-5)
+    elif scipy.sparse.issparse(l):
+        assert scipy.sparse.issparse(r)
+        assert_eq_ar(l.todense(), r.todense())
+    elif isinstance(l, Classification):
+        # e.g. Hing
+        assert isinstance(r, Classification)
+        assert type(l) is type(r)
+    elif isinstance(l, sklearn.base.BaseEstimator):
+        assert isinstance(r, sklearn.base.BaseEstimator)
+        assert_estimator_equal(l, r)
+    elif isinstance(l, sklearn.cluster.birch._CFNode):
+        assert isinstance(r, sklearn.cluster.birch._CFNode)
+    elif isinstance(l, sklearn.tree.tree.Tree):
+        assert_eq_ar(l.value, r.value)
+    elif isinstance(l, (sklearn.ensemble.gradient_boosting.BinomialDeviance,
+                        sklearn.ensemble.gradient_boosting.LeastSquaresError)):
+        assert l.K == r.K
+    elif isinstance(l, sklearn.ensemble.gradient_boosting.MeanEstimator):
+        assert isinstance(r, type(l))
+    elif isinstance(l, sklearn.ensemble.gradient_boosting.LogOddsEstimator):
+        assert l.prior == r.prior
+    elif isinstance(l, sklearn.neighbors.KDTree):
+        assert isinstance(r, sklearn.neighbors.KDTree)
+        for l_arr, r_arr in zip(l.get_arrays(), r.get_arrays()):
+            assert_eq_ar(l_arr, r_arr, **kwargs)
     else:
         assert l == r
 
