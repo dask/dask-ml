@@ -49,6 +49,19 @@ class TestStandardScaler(object):
         assert_eq_ar(a.inverse_transform(a.fit_transform(X)).compute(),
                      X.compute())
 
+    def test_dataframe(self):
+
+        a = dpp.StandardScaler()
+        b = spp.StandardScaler()
+
+        a.fit(df)
+        b.fit(df.compute())
+        assert_estimator_equal(a, b)
+
+        tr1 = a.transform(df).compute()
+        tr2 = b.transform(df.compute())
+        assert_eq_ar(tr1.values, tr2)
+
 
 class TestMinMaxScaler(object):
     def test_basic(self):

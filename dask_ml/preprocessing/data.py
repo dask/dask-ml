@@ -29,20 +29,32 @@ class StandardScaler(skdata.StandardScaler):
         self._reset()
         attributes = OrderedDict()
 
+        attributes['n_samples_seen_'] = len(X)
+
         if self.with_mean:
             mean_ = X.mean(0)
             attributes['mean_'] = mean_
+
         if self.with_std:
-            var_ = X.var(0)
+            var_ = X.var(0, ddof=0)
             scale_ = var_.copy()
-            scale_[scale_ == 0] = 1
-            scale_ = da.sqrt(scale_)
             attributes['scale_'] = scale_
             attributes['var_'] = var_
 
-        attributes['n_samples_seen_'] = len(X)
-        values = compute(*attributes.values())
-        for k, v in zip(attributes, values):
+        # compute attributes
+        attributes = dict(
+            zip(attributes.keys(), compute(*attributes.values())))
+
+        if self.with_std:
+            # only calculate here as dask Series does not support assignment
+            scale_ = attributes['scale_']
+            scale_[scale_ == 0] = 1
+            scale_ = np.sqrt(scale_)
+            attributes['scale_'] = scale_
+
+        for k, v in attributes.items():
+            if isinstance(v, pd.Series):
+                v = v.values
             setattr(self, k, v)
         return self
 
