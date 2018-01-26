@@ -208,6 +208,7 @@ class QuantileTransformer(skdata.QuantileTransformer):
         if isinstance(X, pd.DataFrame):
             X = X.values
         if isinstance(X, dd.DataFrame):
+            # dask <=0.16.1 needs known chunks for da.percentile
             X = dask_array_from_dask_dataframe(X)
         if isinstance(X, np.ndarray):
             C = len(X) // min(multiprocessing.cpu_count(), 2)
