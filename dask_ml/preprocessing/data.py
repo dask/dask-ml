@@ -21,6 +21,30 @@ _PANDAS_VERSION = LooseVersion(pd.__version__)
 _HAS_CTD = _PANDAS_VERSION >= '0.21.0'
 
 
+def percentile(a, q):
+    """Percentile wrapper for dask/numpy arrays."""
+    if isinstance(a, da.Array):
+        quantiles = [da.percentile(col, q) for col in a.T]
+        quantiles = da.vstack(quantiles).compute().T
+    else:
+        quantiles = np.percentile(a, q, axis=0)
+
+    return quantiles
+
+
+def dask_array_from_dask_dataframe(X):
+    """Convert to dask array with known (computed) chunks """
+    n_columns = len(X.columns)
+    partition_lengths = X.map_partitions(len).compute()
+    dtype = np.find_common_type(X.dtypes, [])
+    blocks = X.to_delayed()
+    X = da.vstack(
+        [da.from_delayed(block.values, shape=(length, n_columns),
+                            dtype=dtype)
+            for block, length in zip(blocks, partition_lengths)])
+    return X
+
+
 class StandardScaler(skdata.StandardScaler):
 
     __doc__ = skdata.StandardScaler.__doc__
@@ -30,8 +54,8 @@ class StandardScaler(skdata.StandardScaler):
         return X
 
     def fit(self, X, y=None):
-        self._reset()
         X = self._check_array(X)
+        self._reset()
 
         attributes = OrderedDict()
 
@@ -86,7 +110,12 @@ class MinMaxScaler(skdata.MinMaxScaler):
 
     __doc__ = skdata.MinMaxScaler.__doc__
 
+    def _check_array(self, X, *args, **kwargs):
+        X = check_array(X, accept_dask_dataframe=True, **kwargs)
+        return X
+
     def fit(self, X, y=None):
+        X = self._check_array(X)
         self._reset()
         attributes = OrderedDict()
         feature_range = self.feature_range
@@ -150,25 +179,18 @@ class RobustScaler(skdata.RobustScaler):
         return X
 
     def fit(self, X, y=None):
+        X = self._check_array(X)
         q_min, q_max = self.quantile_range
         if not 0 <= q_min <= q_max <= 100:
             raise ValueError("Invalid quantile range: %s" %
                              str(self.quantile_range))
 
         if isinstance(X, dd.DataFrame):
-            n_columns = len(X.columns)
-            partition_lengths = X.map_partitions(len).compute()
-            dtype = np.find_common_type(X.dtypes, [])
-            blocks = X.to_delayed()
-            X = da.vstack(
-                [da.from_delayed(block.values, shape=(length, n_columns),
-                                 dtype=dtype)
-                 for block, length in zip(blocks, partition_lengths)])
+            X = dask_array_from_dask_dataframe(X)
 
-        quantiles = [da.percentile(col, [q_min, 50., q_max]) for col in X.T]
-        quantiles = da.vstack(quantiles).compute()
-        self.center_ = quantiles[:, 1]
-        self.scale_ = quantiles[:, 2] - quantiles[:, 0]
+        quantiles = percentile(X, [q_min, 50., q_max])
+        self.center_ = quantiles[1, :]
+        self.scale_ = quantiles[2, :] - quantiles[0, :]
         self.scale_ = skdata._handle_zeros_in_scale(self.scale_, copy=False)
         return self
 
@@ -183,8 +205,10 @@ class QuantileTransformer(skdata.QuantileTransformer):
         skdata.QuantileTransformer.__doc__.split("\n")[1:])
 
     def _check_inputs(self, X, accept_sparse_negative=False):
-        if isinstance(X, (pd.DataFrame, dd.DataFrame)):
+        if isinstance(X, pd.DataFrame):
             X = X.values
+        if isinstance(X, dd.DataFrame):
+            X = dask_array_from_dask_dataframe(X)
         if isinstance(X, np.ndarray):
             C = len(X) // min(multiprocessing.cpu_count(), 2)
             X = da.from_array(X, chunks=C)
@@ -203,8 +227,7 @@ class QuantileTransformer(skdata.QuantileTransformer):
 
     def _dense_fit(self, X, random_state):
         references = self.references_ * 100
-        quantiles = [da.percentile(col, references) for col in X.T]
-        self.quantiles_, = compute(da.vstack(quantiles).T)
+        self.quantiles_ = percentile(X, references)
 
     def _transform(self, X, inverse=False):
         X = X.copy()  # ...
@@ -212,7 +235,9 @@ class QuantileTransformer(skdata.QuantileTransformer):
                                            self.quantiles_[:, feature_idx],
                                            inverse)
                        for feature_idx in range(X.shape[1])]
-        return da.vstack(transformed).T
+        transformed = da.concatenate(transformed, axis=0,
+                                     allow_unknown_chunksizes=True).T
+        return transformed
 
     def _transform_col(self, X_col, quantiles, inverse):
         if self.output_distribution == 'normal':
