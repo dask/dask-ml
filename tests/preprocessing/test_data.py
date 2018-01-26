@@ -44,6 +44,40 @@ class TestStandardScaler(object):
         b.fit(X.compute())
         assert_estimator_equal(a, b)
 
+    def test_input(self):
+        a = dpp.StandardScaler()
+
+        # ensure dask/numpy array + dask/pandas dataframe all work
+        exp = a.fit_transform(X).compute()
+        res = a.fit(X).transform(X).compute()
+        assert_eq_ar(res, exp)
+
+        for X_in in [X.compute(), df, df.compute()]:
+
+            res = a.fit(X_in).transform(X_in)
+            res = res.compute() if hasattr(res, 'compute') else res
+            res = getattr(res, 'values', res)
+            assert_eq_ar(res, exp)
+
+            res = a.fit_transform(X_in)
+            res = res.compute() if hasattr(res, 'compute') else res
+            res = getattr(res, 'values', res)
+            assert_eq_ar(res, exp)
+
+        # ensure it raises correctly on non-numeric datatypes for dataframes
+        df_mixed = pd.DataFrame({'a': range(10),
+                                 'b': ['a', 'b', 'c', 'd', 'e'] * 2})
+        ddf_mixed = dd.from_pandas(df_mixed, npartitions=2)
+
+        with pytest.raises(ValueError):
+            a.fit(df_mixed)
+        with pytest.raises(ValueError):
+            a.fit(ddf_mixed)
+        with pytest.raises(ValueError):
+            a.fit_transform(df_mixed)
+        with pytest.raises(ValueError):
+            a.fit_transform(ddf_mixed)
+
     def test_inverse_transform(self):
         a = dpp.StandardScaler()
         assert_eq_ar(a.inverse_transform(a.fit_transform(X)).compute(),

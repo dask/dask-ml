@@ -25,8 +25,14 @@ class StandardScaler(skdata.StandardScaler):
 
     __doc__ = skdata.StandardScaler.__doc__
 
+    def _check_array(self, X, *args, **kwargs):
+        X = check_array(X, accept_dask_dataframe=True, **kwargs)
+        return X
+
     def fit(self, X, y=None):
         self._reset()
+        X = self._check_array(X)
+
         attributes = OrderedDict()
 
         attributes['n_samples_seen_'] = len(X)
