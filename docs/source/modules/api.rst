@@ -112,6 +112,7 @@ a parallel or distributed training any more than the underlying estimator.
    :template: class.rst
 
    preprocessing.StandardScaler
+   preprocessing.RobustScaler
    preprocessing.MinMaxScaler
    preprocessing.QuantileTransformer
    preprocessing.Categorizer
