@@ -42,6 +42,22 @@ appropriate for parallel and distributed training.
    linear_model.LogisticRegression
    linear_model.PoissonRegression
 
+Meta-estimators for IID Data
+============================
+
+dask-ml provides some meta-estimators that are appropriate for independent and
+identically distributed (IID) data. See :ref:`iid-estimators` for an
+introduction.
+
+.. currentmodule:: dask_ml
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   iid.FirstBlockFitter
+
+
 Incremental Learning
 ====================
 

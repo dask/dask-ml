@@ -26,6 +26,7 @@ familiar NumPy, Pandas, and Scikit-Learn APIs.
    preprocessing.rst
    hyper-parameter-search.rst
    glm.rst
+   iid.rst
    incremental.rst
    joblib.rst
    xgboost.rst
