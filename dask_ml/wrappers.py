@@ -23,12 +23,14 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
        on large datasets.
 
     This estimator does not parallelize the training step. This simply calls
-    the underlying estimators's ``fit`` method is called and copies over the
+    the underlying estimators's ``fit`` method called and copies over the
     learned attributes to ``self`` afterwards.
 
-    It is helpful for situations where your training data are relatively small
-    (fit on a single machine) but you need to predict or transform on a much
-    larger dataset.
+    It is helpful for situations where your training dataset is relatively
+    small (fits on a single machine) but you need to predict or transform
+    a much larger dataset. ``predict``, ``predict_proba`` and ``transform``
+    will be done in parallel (potentially distributed if you've connected
+    to a ``dask.distributed.Client``).
 
     Note that many scikit-learn estimators already predict and transform in
     parallel. This meta-estimator may still be useful in those cases when your
@@ -41,18 +43,13 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
     >>> import sklearn.datasets
     >>> import dask_ml.datasets
 
-    Make a small 1,000 sample 2 training dataset
+    Make a small 1,000 sample 2 training dataset and fit normally.
 
     >>> X, y = sklearn.datasets.make_classification(n_samples=1000,
     ...                                             random_state=0)
-
-    Wrap the regular classifier and fit normally.
-
-    >>> clf = ParallelPostFit(GradientBoostingClassifier())
+    >>> clf = ParallelPostFit(estimator=GradientBoostingClassifier())
     >>> clf.fit(X, y)
     ParallelPostFit(estimator=GradientBoostingClassifier(...))
-
-    Learned attributes are available
 
     >>> clf.classes_
     array([0, 1])
@@ -65,8 +62,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
     >>> clf.predict(X)
     dask.array<predict, shape=(10000,), dtype=int64, chunksize=(1000,)>
 
-    Which can be computed in parallel, using all the resources of your
-    cluster if you've attached a ``Client``.
+    Which can be computed in parallel.
 
     >>> clf.predict_proba(X).compute()
     array([[0.99141094, 0.00858906],
@@ -104,8 +100,20 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
     def transform(self, X):
         """Transform block or partition-wise for dask inputs.
 
+        For dask inputs, a dask array or dataframe is returned. For other
+        inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
+        regular return value is returned.
+
         If the underlying estimator does not have a ``transform`` method, then
         an ``AttributeError`` is raised.
+
+        Parameters
+        ----------
+        X : array-like
+
+        Returns
+        -------
+        transformed : array-like
         """
         transform = self._check_method('transform')
 
@@ -129,11 +137,11 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
 
         Parameters
         ----------
-        X : array or dataframe
+        X : array-like
 
         Returns
         -------
-        y : NumPy array, pandas DataFrame, or dask array or dataframe
+        y : array-like
         """
         predict = self._check_method('predict')
 
@@ -162,7 +170,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
 
         Returns
         -------
-        y : NumPy array, pandas DataFrame, or dask array or dataframe
+        y : array-like
         """
 
         predict_proba = self._check_method('predict_proba')

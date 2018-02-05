@@ -15,6 +15,9 @@ After training, we predict for successively larger datasets. We compare
 We see that the parallel version is faster, especially for larger datasets.
 Additionally, the parallel version from ``ParallelPostFit`` scales out to
 larger than memory datasets.
+
+While only ``predict`` is demonstrated here, :class:`wrappers.ParallelPostFit`
+is equally useful for ``predict_proba`` and ``transform``.
 """
 from timeit import default_timer as tic
 
