@@ -1,3 +1,5 @@
+.. _incremental-learning:
+
 Incremental Learning
 ====================
 

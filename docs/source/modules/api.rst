@@ -42,6 +42,20 @@ appropriate for parallel and distributed training.
    linear_model.LogisticRegression
    linear_model.PoissonRegression
 
+Meta-estimators for scikit-learn
+================================
+
+dask-ml provides some meta-estimators parallelize certain components.
+
+.. currentmodule:: dask_ml
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   wrappers.ParallelPostFit
+
+
 Incremental Learning
 ====================
 
