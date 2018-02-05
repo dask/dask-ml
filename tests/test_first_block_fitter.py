@@ -14,7 +14,7 @@ from dask_ml.datasets import make_classification
 def test_it_works():
     clf = FirstBlockFitter(GradientBoostingClassifier())
 
-    X, y = make_classification(n_samples=10_000, chunks=100)
+    X, y = make_classification(n_samples=1000, chunks=100)
     clf.fit(X, y)
 
     assert isinstance(clf.predict(X), da.Array)
