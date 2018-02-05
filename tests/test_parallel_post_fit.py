@@ -7,12 +7,12 @@ from sklearn.decomposition import PCA
 from sklearn.linear_model import LinearRegression, LogisticRegression
 
 from dask_ml.utils import assert_estimator_equal, assert_eq_ar
-from dask_ml.iid import FirstBlockFitter
+from dask_ml.wrappers import ParallelPostFit
 from dask_ml.datasets import make_classification
 
 
 def test_it_works():
-    clf = FirstBlockFitter(GradientBoostingClassifier())
+    clf = ParallelPostFit(GradientBoostingClassifier())
 
     X, y = make_classification(n_samples=1000, chunks=100)
     clf.fit(X, y)
@@ -22,7 +22,7 @@ def test_it_works():
 
 
 def test_no_method_raises():
-    clf = FirstBlockFitter(LinearRegression())
+    clf = ParallelPostFit(LinearRegression())
     X, y = make_classification(chunks=50)
     clf.fit(X, y)
 
@@ -43,7 +43,7 @@ def test_predict(kind):
         y = dd.from_dask_array(y)
 
     base = LogisticRegression(random_state=0)
-    wrap = FirstBlockFitter(LogisticRegression(random_state=0))
+    wrap = ParallelPostFit(LogisticRegression(random_state=0))
 
     base.fit(X, y)
     wrap.fit(X, y)
@@ -70,7 +70,7 @@ def test_transform(kind):
         y = dd.from_dask_array(y)
 
     base = PCA(random_state=0)
-    wrap = FirstBlockFitter(PCA(random_state=0))
+    wrap = ParallelPostFit(PCA(random_state=0))
 
     base.fit(X, y)
     wrap.fit(X, y)
@@ -84,7 +84,7 @@ def test_transform(kind):
 
 def test_multiclass():
     X, y = make_classification(chunks=50, n_classes=3, n_informative=4)
-    clf = FirstBlockFitter(LogisticRegression(random_state=0))
+    clf = ParallelPostFit(LogisticRegression(random_state=0))
 
     clf.fit(X, y)
     result = clf.predict(X)

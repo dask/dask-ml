@@ -1,4 +1,4 @@
-"""Wrappers for IID Learning"""
+"""Meta-estimators for parallelizing scikit-learn."""
 import dask.array as da
 import dask.dataframe as dd
 import dask.delayed
@@ -6,9 +6,8 @@ import numpy as np
 import sklearn.base
 
 
-class FirstBlockFitter(sklearn.base.BaseEstimator):
-    """Meta-estimator for fitting on just the first block of
-    a dask.array, or first partition of a dask.dataframe.
+class ParallelPostFit(sklearn.base.BaseEstimator):
+    """Meta-estimator for parallel predict and transform.
 
     Parameters
     ----------
@@ -17,32 +16,57 @@ class FirstBlockFitter(sklearn.base.BaseEstimator):
 
     Notes
     -----
-    The attributes learned by the underlying estimator are
-    copied over to the 'FirstBlockFitter' after fitting.
+
+    .. warning::
+
+       This class is not appropriate for parallel or distributed *training*
+       on large datasets.
+
+    This estimator does not parallelize the training step. This simply calls
+    the underlying estimators's ``fit`` method is called and copies over the
+    learned attributes to ``self`` afterwards.
+
+    It is helpful for situations where your training data are relatively small
+    (fit on a single machine) but you need to predict or transform on a much
+    larger dataset.
+
+    Note that many scikit-learn estimators already predict and transform in
+    parallel. This meta-estimator may still be useful in those cases when your
+    dataset is larger than memory, as the distributed scheduler will ensure the
+    data isn't all read into memory at once.
 
     Examples
     --------
     >>> from sklearn.ensemble import GradientBoostingClassifier
-    >>> from dask_ml.datasets import make_classification
-    >>> X, y = make_classification(n_samples=10000, chunks=1000)
+    >>> import sklearn.datasets
+    >>> import dask_ml.datasets
 
-    Wrap the regular classifier and fit on the first block (1000 samples).
+    Make a small 1,000 sample 2 training dataset
 
-    >>> clf = FirstBlockFitter(GradientBoostingClassifier())
+    >>> X, y = sklearn.datasets.make_classification(n_samples=1000,
+    ...                                             random_state=0)
+
+    Wrap the regular classifier and fit normally.
+
+    >>> clf = ParallelPostFit(GradientBoostingClassifier())
     >>> clf.fit(X, y)
-    FirstBlockFitter(estimator=GradientBoostingClassifier(...))
+    ParallelPostFit(estimator=GradientBoostingClassifier(...))
 
     Learned attributes are available
 
     >>> clf.classes_
     array([0, 1])
 
-    Transform, predict are block-wise and return dask objects
+    Transform and predict return dask outputs for dask inputs.
+
+    >>> X_big, y_big = dask_ml.datasets.make_classification(n_samples=100000,
+                                                            random_state=0)
 
     >>> clf.predict(X)
     dask.array<predict, shape=(10000,), dtype=int64, chunksize=(1000,)>
 
-    Which can be computed in parallel
+    Which can be computed in parallel, using all the resources of your
+    cluster if you've attached a ``Client``.
 
     >>> clf.predict_proba(X).compute()
     array([[0.99141094, 0.00858906],
@@ -54,33 +78,20 @@ class FirstBlockFitter(sklearn.base.BaseEstimator):
            [0.99407016, 0.00592984]])
     """
 
-    def __init__(self, estimator):
+    def __init__(self, estimator=None):
         self.estimator = estimator
 
     def fit(self, X, y=None, **kwargs):
-        """Fit the underlying estimator, using just the first block of data.
+        """Fit the underlying estimator.
 
         Parameters
         ----------
-        X, y : array or dataframe
-            For dask arrays, the arrays must be chunked only along the rows.
-            Just the first block of ``X`` and ``y`` are passed through to the
-            underlying estimator's fit method
-
-            For dask dataframes, just the first partition passed through.
-
-            For other inputs, the entire object is passed through.
-
-        \*\*kwargs : key-value pairs
-            All remaining arguments are passed through to the underlying
-            estimator's fit method.
+        X, y : array-like
 
         Returns
         -------
         self : object
         """
-        X = _first_block(X)
-        y = _first_block(y)
         result = self.estimator.fit(X, y, **kwargs)
 
         # Copy over learned attributes

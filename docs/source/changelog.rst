@@ -9,7 +9,7 @@ Enhancements
 
 - Added :meth:`dask_ml.preprocessing.RobustScaler` (:issue:`62`)
 - Added :meth:`dask_ml.preprocessing.OrdinalEncoder` (:issue:`119`)
-
+- Added :class:`dask_ml.wrappers.ParallelPostFit` (:issue:`132`)
 
 Version 0.4.0
 ~~~~~~~~~~~~~
