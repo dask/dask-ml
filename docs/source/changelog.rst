@@ -1,15 +1,31 @@
 Changelog
 =========
 
-Version 0.?.?
+Version 0.4.1
 ~~~~~~~~~~~~~
+
+This release added several new estimators.
 
 Enhancements
 ------------
 
-- Added :meth:`dask_ml.preprocessing.RobustScaler` (:issue:`62`)
-- Added :meth:`dask_ml.preprocessing.OrdinalEncoder` (:issue:`119`)
-- Added :class:`dask_ml.wrappers.ParallelPostFit` (:issue:`132`)
+Added :class:`dask_ml.preprocessing.RobustScaler`
+"""""""""""""""""""""""""""""""""""""""""""""""""
+
+Scale features using statistics that are robust to outliers. This mirrors
+:class:`sklearn.preprocessing.RobustScalar` (:issue:`62`).
+
+Added :class:`dask_ml.preprocessing.OrdinalEncoder`
+"""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Encodes categorical features as ordinal, in one ordered feature (:issue:`119`).
+
+Added :class:`dask_ml.wrappers.ParallelPostFit`
+"""""""""""""""""""""""""""""""""""""""""""""""
+
+A meta-estimator for fitting with any scikit-learn estimator, but post-processing
+(``predict``, ``transform``, etc.) in parallel on dask arrays.
+See :ref:`parallel-meta-estimators` for more (:issue:`132`).
 
 Version 0.4.0
 ~~~~~~~~~~~~~
