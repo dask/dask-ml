@@ -8,7 +8,7 @@ import pandas as pd
 import dask.array as da
 import dask.dataframe as dd
 from dask import compute
-from sklearn.base import BaseEstimator
+from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.cluster import k_means_ as sk_k_means
 from sklearn.utils.extmath import squared_norm
 from sklearn.utils.validation import check_is_fitted
@@ -23,7 +23,7 @@ from ..utils import row_norms, check_array
 logger = logging.getLogger(__name__)
 
 
-class KMeans(BaseEstimator):
+class KMeans(TransformerMixin, BaseEstimator):
     """
     Scalable KMeans for clustering
 
@@ -150,14 +150,14 @@ class KMeans(BaseEstimator):
             raise TypeError("Cannot fit on dask.dataframe due to unknown "
                             "partition lengths.")
 
+        X = check_array(X, accept_dask_dataframe=False,
+                        accept_unknown_chunks=False,
+                        accept_sparse=False)
+
         if X.dtype == 'int32':
             X = X.astype('float32')
         elif X.dtype == 'int64':
             X = X.astype('float64')
-
-        X = check_array(X, accept_dask_dataframe=False,
-                        accept_unknown_chunks=False,
-                        accept_sparse=False)
 
         if isinstance(X, np.ndarray):
             X = da.from_array(X, chunks=(max(1, len(X) // cpu_count()),
