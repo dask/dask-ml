@@ -53,7 +53,7 @@ expensive computation at the cost of some approximation error.
     sns.factorplot(x='Number of Samples', y='Fit Time', hue='method',
                    data=df, aspect=1.5)
 
-**Total running time of the script:** ( 0 minutes  37.568 seconds)
+**Total running time of the script:** ( 0 minutes  40.314 seconds)
 
 
 
