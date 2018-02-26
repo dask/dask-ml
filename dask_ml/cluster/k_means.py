@@ -405,13 +405,16 @@ def init_scalable(X, n_clusters, random_state=None, max_iter=None,
         logger.warning("Found fewer than %d clusters in init.", n_clusters)
         # supplement with random
         need = n_clusters - len(centers)
-        locs = sorted(np.random.choice(np.arange(0, len(X)),
-                                       size=need, replace=False))
+        locs = sorted(random_state.choice(np.arange(0, len(X)),
+                                          size=need, replace=False,
+                                          chunks=len(X)))
         extra = X[locs].compute()
         return np.vstack([centers, extra])
     else:
         # Step 7, 8 without weights
-        km = sk_k_means.KMeans(n_clusters)
+        # dask RandomState objects aren't valid for scikit-learn
+        rng2 = random_state.randint(0, 2 ** 32 - 1, chunks=()).compute().item()
+        km = sk_k_means.KMeans(n_clusters, random_state=rng2)
         km.fit(centers)
         logger.info("Finished initialization. %.2f s, %2d centers",
                     tic() - init_start, n_clusters)
