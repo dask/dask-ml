@@ -111,6 +111,7 @@ a parallel or distributed training any more than the underlying estimator.
    :toctree: generated/
    :template: class.rst
 
+   decomposition.PCA
    decomposition.TruncatedSVD
 
 

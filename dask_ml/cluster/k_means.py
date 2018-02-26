@@ -8,7 +8,7 @@ import pandas as pd
 import dask.array as da
 import dask.dataframe as dd
 from dask import compute
-from sklearn.base import BaseEstimator
+from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.cluster import k_means_ as sk_k_means
 from sklearn.utils.extmath import squared_norm
 from sklearn.utils.validation import check_is_fitted
@@ -23,7 +23,7 @@ from ..utils import row_norms, check_array
 logger = logging.getLogger(__name__)
 
 
-class KMeans(BaseEstimator):
+class KMeans(TransformerMixin, BaseEstimator):
     """
     Scalable KMeans for clustering
 
@@ -150,14 +150,14 @@ class KMeans(BaseEstimator):
             raise TypeError("Cannot fit on dask.dataframe due to unknown "
                             "partition lengths.")
 
+        X = check_array(X, accept_dask_dataframe=False,
+                        accept_unknown_chunks=False,
+                        accept_sparse=False)
+
         if X.dtype == 'int32':
             X = X.astype('float32')
         elif X.dtype == 'int64':
             X = X.astype('float64')
-
-        X = check_array(X, accept_dask_dataframe=False,
-                        accept_unknown_chunks=False,
-                        accept_sparse=False)
 
         if isinstance(X, np.ndarray):
             X = da.from_array(X, chunks=(max(1, len(X) // cpu_count()),
@@ -405,13 +405,16 @@ def init_scalable(X, n_clusters, random_state=None, max_iter=None,
         logger.warning("Found fewer than %d clusters in init.", n_clusters)
         # supplement with random
         need = n_clusters - len(centers)
-        locs = sorted(np.random.choice(np.arange(0, len(X)),
-                                       size=need, replace=False))
+        locs = sorted(random_state.choice(np.arange(0, len(X)),
+                                          size=need, replace=False,
+                                          chunks=len(X)))
         extra = X[locs].compute()
         return np.vstack([centers, extra])
     else:
         # Step 7, 8 without weights
-        km = sk_k_means.KMeans(n_clusters)
+        # dask RandomState objects aren't valid for scikit-learn
+        rng2 = random_state.randint(0, 2 ** 32 - 1, chunks=()).compute().item()
+        km = sk_k_means.KMeans(n_clusters, random_state=rng2)
         km.fit(centers)
         logger.info("Finished initialization. %.2f s, %2d centers",
                     tic() - init_start, n_clusters)
