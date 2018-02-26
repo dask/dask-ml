@@ -11,7 +11,7 @@ Spectral Clustering Example
 This example shows how dask-ml's ``SpectralClustering`` scales with the
 number of samples, compared to scikit-learn's implementation. The dask
 version uses an approximation to the affinity matrix, which avoids an
-avoids an expensive computation at the cost of some approximation error.
+expensive computation at the cost of some approximation error.
 
 
 
@@ -53,7 +53,7 @@ avoids an expensive computation at the cost of some approximation error.
     sns.factorplot(x='Number of Samples', y='Fit Time', hue='method',
                    data=df, aspect=1.5)
 
-**Total running time of the script:** ( 0 minutes  37.568 seconds)
+**Total running time of the script:** ( 0 minutes  40.314 seconds)
 
 
 
