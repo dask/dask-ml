@@ -11,7 +11,7 @@ Spectral Clustering Example
 This example shows how dask-ml's ``SpectralClustering`` scales with the
 number of samples, compared to scikit-learn's implementation. The dask
 version uses an approximation to the affinity matrix, which avoids an
-avoids an expensive computation at the cost of some approximation error.
+expensive computation at the cost of some approximation error.
 
 
 
