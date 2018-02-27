@@ -401,7 +401,7 @@ class Categorizer(BaseEstimator, TransformerMixin):
 
 
 class DummyEncoder(BaseEstimator, TransformerMixin):
-    """Dummy (one-hot) encode categorical columns
+    """Dummy (one-hot) encode categorical columns.
 
     Parameters
     ----------
