@@ -215,7 +215,10 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
 
         # compute the exact blocks
         # these are done in parallel for dask arrays
-        X_keep = X[keep].rechunk(self.n_components).persist()
+        if isinstance(X, da.Array):
+            X_keep = X[keep].rechunk(self.n_components).persist()
+        else:
+            X_keep = X[keep]
 
         if isinstance(metric, six.string_types):
             if metric not in PAIRWISE_KERNEL_FUNCTIONS:
