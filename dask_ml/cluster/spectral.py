@@ -215,20 +215,22 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
 
         # compute the exact blocks
         # these are done in parallel for dask arrays
+        X_keep = X[keep].rechunk(self.n_components).persist()
+
         if isinstance(metric, six.string_types):
             if metric not in PAIRWISE_KERNEL_FUNCTIONS:
                 msg = ("Unknown affinity metric name '{}'. Expected one "
                        "of '{}'".format(metric,
                                         PAIRWISE_KERNEL_FUNCTIONS.keys()))
                 raise ValueError(msg)
-            A = pairwise_kernels(X[keep],
+            A = pairwise_kernels(X_keep,
                                  metric=metric, filter_params=True, **params)
-            B = pairwise_kernels(X[keep], X[rest],
+            B = pairwise_kernels(X_keep, X[rest],
                                  metric=metric, filter_params=True, **params)
 
         elif callable(metric):
-            A = metric(X[keep], **params)
-            B = metric(X[keep], X[rest], **params)
+            A = metric(X_keep, **params)
+            B = metric(X_keep, X[rest], **params)
         else:
             msg = ("Unexpected type for 'affinity' '{}'. Must be string "
                    "kernel name, array, or callable")
