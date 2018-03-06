@@ -1,5 +1,6 @@
 import dask.dataframe as dd
 import dask_searchcv as dcv
+import numpy as np
 import pandas as pd
 import pytest
 from dask.dataframe.utils import assert_eq
@@ -126,3 +127,12 @@ def test_add_intercept_dask_dataframe():
     df = dd.from_pandas(pd.DataFrame({"intercept": [1, 2, 3]}), npartitions=2)
     with pytest.raises(ValueError):
         add_intercept(df)
+
+
+def test_unknown_chunks_ok():
+    # https://github.com/dask/dask-ml/issues/145
+    X = dd.from_pandas(pd.DataFrame(np.random.uniform(size=(10, 5))), 2).values
+    y = dd.from_pandas(pd.Series(np.random.uniform(size=(10,))), 2).values
+
+    reg = LinearRegression(fit_intercept=False)
+    reg.fit(X, y)
