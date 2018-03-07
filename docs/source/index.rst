@@ -48,3 +48,6 @@ familiar NumPy, Pandas, and Scikit-Learn APIs.
    changelog.rst
    contributing.rst
    history.rst
+
+.. _Dask: https://dask.pydata.org/
+.. _Scikit-Learn: http://scikit-learn.org/
