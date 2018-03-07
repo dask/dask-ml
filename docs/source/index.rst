@@ -18,30 +18,33 @@ familiar NumPy, Pandas, and Scikit-Learn APIs.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :hidden:
+   :caption: Get Started
 
-   changelog.rst
    install.rst
-   contributing.rst
+   examples.rst
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Use
+
    preprocessing.rst
    hyper-parameter-search.rst
    glm.rst
+   joblib.rst
    meta-estimators.rst
    incremental.rst
-   joblib.rst
+   clustering.rst
    xgboost.rst
    tensorflow.rst
-   clustering.rst
-   examples.rst
-   history.rst
    modules/api.rst
 
-Indices and tables
-==================
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Develop
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
-.. _Scikit-Learn: http://scikit-learn.org/stable/
-.. _Dask: https://dask.pydata.org/en/latest/
+   changelog.rst
+   contributing.rst
+   history.rst
