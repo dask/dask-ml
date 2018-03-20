@@ -5,7 +5,7 @@ import logging
 
 import six
 import dask.array as da
-from dask import delayed
+from dask import delayed, compute
 import numpy as np
 import sklearn.cluster
 from scipy.linalg import pinv, svd
@@ -163,7 +163,9 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         self.kmeans_params = kmeans_params
 
     def _check_array(self, X):
+        logger.info("Starting check array")
         return check_array(X, accept_dask_dataframe=False).astype(float)
+        logger.info("Finished check array")
 
     def fit(self, X, y=None):
         X = self._check_array(X)
@@ -198,6 +200,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
                    " Got {} components and {} samples".format(n_components, n))
             raise ValueError(msg)
 
+        logger.info("Starting indicators.")
         inds = rng.permutation(np.arange(n))
         keep = inds[:n_components]
         rest = inds[n_components:]
@@ -207,6 +210,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         # Those sorts modify `inds` inplace, so `argsort(inds)` will still
         # recover the original order.
         inds_idx = np.argsort(inds)
+        logger.info("Finished indicators.")
 
         params = self.kernel_params or {}
         params['gamma'] = self.gamma
@@ -216,7 +220,9 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         # compute the exact blocks
         # these are done in parallel for dask arrays
         if isinstance(X, da.Array):
+            logger.info("Starting small rechunk-persist")
             X_keep = X[keep].rechunk(self.n_components).persist()
+            logger.info("Finished small rechunk-persist")
         else:
             X_keep = X[keep]
 
@@ -250,7 +256,15 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         A_inv = da.from_delayed(delayed(pinv)(A), A.shape, A.dtype)
 
         d1_si = 1 / da.sqrt(a + b1)
-        d2_si = 1 / da.sqrt(b2 + B.T.dot(A_inv.dot(b1)))  # (m,), dask array
+
+        # The scheduler has trouble with the next computation, written naively
+        # To help, we'll get concrete results.
+        logger.info("Starting intermediate compute")
+        A_inv, b1 = compute(A_inv, b1)
+        inner = A_inv.dot(b1)
+        logger.info("Finished intermediate compute")
+
+        d2_si = 1 / da.sqrt(b2 + B.T.dot(inner))  # (m,), dask array
 
         # d1, d2 are diagonal, so we can avoid large matrix multiplies
         # Equivalent to diag(d1_si) @ A @ diag(d1_si)
@@ -278,6 +292,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
             logger.info("Persisting array for k-means")
             U2 = U2.persist()
         elif isinstance(U2, da.Array):
+            logger.warning("Consider persist_embedding.")
             # We can still persist the small things...
             # TODO: we would need to update the task graphs
             # for V2 to replace references to, e.g.
