@@ -253,6 +253,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         b1 = B.sum(1)  # (l,)
         b2 = B.sum(0)  # (m,)
 
+        # TODO: I think we have some unnecessary delayed wrapping of A here.
         A_inv = da.from_delayed(delayed(pinv)(A), A.shape, A.dtype)
 
         d1_si = 1 / da.sqrt(a + b1)
@@ -260,25 +261,28 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         # The scheduler has trouble with the next computation, written naively
         # To help, we'll get concrete results.
         logger.info("Starting intermediate compute")
-        A_inv, b1 = compute(A_inv, b1)
+        A_inv, b1, d1_si = compute(A_inv, b1, d1_si)
         inner = A_inv.dot(b1)
         logger.info("Finished intermediate compute")
 
         d2_si = 1 / da.sqrt(b2 + B.T.dot(inner))  # (m,), dask array
+        d2_si, = compute(d2_si,)
 
         # d1, d2 are diagonal, so we can avoid large matrix multiplies
         # Equivalent to diag(d1_si) @ A @ diag(d1_si)
+        # This is immediate.
         A2 = d1_si.reshape(-1, 1) * A * d1_si.reshape(1, -1)  # (n, n)
         # A2 = A2.rechunk(A2.shape)
         # Equivalent to diag(d1_si) @ B @ diag(d2_si)
-        B2 = d1_si.reshape(-1, 1) * B * d2_si  # (m, m), so this is dask.
 
-        U_A, S_A, V_A = delayed(svd, pure=True, nout=3)(A2)
-        U_A = da.from_delayed(U_A, (n_components, n_components), A2.dtype)
-        S_A = da.from_delayed(S_A, (n_components,), A2.dtype)
-        V_A = da.from_delayed(V_A, (n_components, n_components), A2.dtype)
+        B2 = da.multiply(da.multiply(d1_si.reshape(-1, 1), B),
+                         d2_si.reshape(1, -1))
+
+        U_A, S_A, V_A = svd(A2)
 
         # Eq 16. This is OK when V2 is orthogonal
+        # The only thing that should be delayed here is B2, else we hit
+        # memory pressures.
         V2 = (da.sqrt(float(n_components) / n) *
               da.vstack([A2, B2.T]).dot(
               U_A[:, :n_clusters]).dot(
