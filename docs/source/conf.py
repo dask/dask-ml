@@ -202,6 +202,7 @@ def generate_example_rst(app, what, name, obj, options, lines):
 
 def setup(app):
     app.connect('autodoc-process-docstring', generate_example_rst)
+    app.add_stylesheet('style.css')
 
 
 extlinks = {
