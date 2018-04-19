@@ -69,7 +69,7 @@ def euclidean_distances(X, Y=None, Y_norm_squared=None, squared=False,
         YY = row_norms(Y, squared=True)[np.newaxis, :]
 
     # TODO: this often emits a warning. Silence it here?
-    distances = -2 * X.dot(Y.T) + XX + YY
+    distances = -2 * da.dot(X, Y.T) + XX + YY
     distances = da.maximum(distances, 0)
     # TODO: scikit-learn sets the diagonal to 0 when X is Y.
 
