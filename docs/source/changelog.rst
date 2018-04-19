@@ -1,6 +1,27 @@
 Changelog
 =========
 
+Version 0.5.0
+~~~~~~~~~~~~~
+
+API Breaking Changes
+--------------------
+
+-
+-
+
+Enhancements
+------------
+
+-
+-
+
+Bug Fixes
+---------
+
+-
+-
+
 Version 0.4.1
 ~~~~~~~~~~~~~
 
