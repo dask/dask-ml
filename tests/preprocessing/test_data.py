@@ -35,7 +35,50 @@ dummy = pd.DataFrame({"A": pd.Categorical(['a', 'b', 'c', 'a'], ordered=True),
                      columns=['A', 'B', 'C', 'D'])
 
 
+@pytest.mark.parametrize('scaler', [dpp.StandardScaler, dpp.MinMaxScaler,
+                                    dpp.RobustScaler, dpp.QuantileTransformer])
+def test_scalers_input(scaler):
+    a = scaler()
+
+    if isinstance(a, (dpp.RobustScaler, dpp.QuantileTransformer)):
+        atol = 1.5
+    else:
+        atol=1e-08
+
+    # ensure dask/numpy array + dask/pandas dataframe all work
+    exp = a.fit_transform(X).compute()
+    res = a.fit(X).transform(X).compute()
+    assert_eq_ar(res, exp)
+
+    for X_in in [X.compute(), df, df.compute()]:
+
+        res = a.fit(X_in).transform(X_in)
+        res = res.compute() if hasattr(res, 'compute') else res
+        res = getattr(res, 'values', res)
+        assert_eq_ar(res, exp, atol=atol)
+
+        res = a.fit_transform(X_in)
+        res = res.compute() if hasattr(res, 'compute') else res
+        res = getattr(res, 'values', res)
+        assert_eq_ar(res, exp, atol=atol)
+
+    # ensure it raises correctly on non-numeric datatypes for dataframes
+    df_mixed = pd.DataFrame({'a': range(10),
+                             'b': ['a', 'b', 'c', 'd', 'e'] * 2})
+    ddf_mixed = dd.from_pandas(df_mixed, npartitions=2)
+
+    with pytest.raises(ValueError):
+        a.fit(df_mixed)
+    with pytest.raises(ValueError):
+        a.fit(ddf_mixed)
+    with pytest.raises(ValueError):
+        a.fit_transform(df_mixed)
+    with pytest.raises(ValueError):
+        a.fit_transform(ddf_mixed)
+
+
 class TestStandardScaler(object):
+
     def test_basic(self):
         a = dpp.StandardScaler()
         b = spp.StandardScaler()
@@ -48,6 +91,19 @@ class TestStandardScaler(object):
         a = dpp.StandardScaler()
         assert_eq_ar(a.inverse_transform(a.fit_transform(X)).compute(),
                      X.compute())
+
+    def test_dataframe(self):
+
+        a = dpp.StandardScaler()
+        b = spp.StandardScaler()
+
+        a.fit(df)
+        b.fit(df.compute())
+        assert_estimator_equal(a, b)
+
+        tr1 = a.transform(df).compute()
+        tr2 = b.transform(df.compute())
+        assert_eq_ar(tr1.values, tr2)
 
 
 class TestMinMaxScaler(object):
