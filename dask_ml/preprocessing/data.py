@@ -28,7 +28,7 @@ class StandardScaler(skdata.StandardScaler):
     def fit(self, X, y=None):
         self._reset()
         attributes = OrderedDict()
-        if isinstance(X, dd.DataFrame):
+        if isinstance(X, (pd.DataFrame, dd.DataFrame)):
             X = X.values
 
         if self.with_mean:
