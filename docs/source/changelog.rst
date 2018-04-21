@@ -7,7 +7,7 @@ Version 0.5.0
 API Breaking Changes
 --------------------
 
--
+- The `n_samples_seen_` attribute on :class:`dask_ml.preprocessing.StandardScalar` is now consistently ``numpy.nan`` (:issue:`157`).
 -
 
 Enhancements
@@ -19,7 +19,7 @@ Enhancements
 Bug Fixes
 ---------
 
--
+- :class:`dask_ml.preprocessing.StandardScalar` now works on DataFrame inputs (:issue:`157`).
 -
 
 Version 0.4.1
