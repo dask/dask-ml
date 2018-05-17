@@ -60,7 +60,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         by the clustering algorithm.
 
         Callables should expect arguments similar to
-       `sklearn.metrics.pairwise_kernels`: a required ``X``, an optional ``Y``,
+        `sklearn.metrics.pairwise_kernels`: a required ``X``, an optional ``Y``,
         and ``gamma``, ``degree``, ``coef0``, and any keywords passed in
         ``kernel_params``.
 
