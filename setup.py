@@ -15,7 +15,8 @@ install_requires = ['dask', 'numpy', 'pandas', 'scikit-learn',
                     'multipledispatch>=0.4.9']
 
 # Optional Requirements
-doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme', 'nbsphinx']
+doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme', 'nbsphinx',
+                'sphinx-gallery']
 test_requires = ['coverage', 'pytest']
 dev_requires = doc_requires + test_requires
 tensorflow_requires = ['dask-tensorflow', 'tensorflow']

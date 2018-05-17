@@ -3,7 +3,21 @@ Joblib
 
 Dask.distributed integrates with Joblib_ by providing an alternative
 cluster-computing backend, alongside Joblib's builtin threading and
-multiprocessing backends.
+multiprocessing backends. This enables training a scikit-learn model in
+parallel using a cluster of machines.
+
+The following video demonstrates how to use Dask to parallelize a grid
+search across a cluster.
+
+.. raw:: html
+
+    <iframe width="560"
+            height="315"
+            src="https://www.youtube.com/embed/5Zf6DQaf7jk"
+            frameborder="0"
+            allow="autoplay; encrypted-media"
+            allowfullscreen>
+    </iframe>
 
 Joblib_ is a library for simple parallel programming primarily developed and
 used by the Scikit Learn community.  As of version 0.10.0 it contains a plugin
