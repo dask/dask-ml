@@ -180,6 +180,7 @@ class KMeans(TransformerMixin, BaseEstimator):
             return_n_iter=True,
             max_iter=self.max_iter,
             init_max_iter=self.init_max_iter,
+            tol=self.tol,
         )
         self.cluster_centers_ = centroids
         self.labels_ = labels
