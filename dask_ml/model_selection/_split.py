@@ -93,15 +93,16 @@ class ShuffleSplit:
                                                       test_sizes)]
 
         train_objs, test_objs = zip(*objs)
-        offsets = np.cumsum(chunks) - chunks[0]
+        offsets = np.hstack([0, np.cumsum(chunks)])
         train_idx = da.concatenate([
             da.from_delayed(x + offset, (chunksize - test_size,), 'i8')
             for x, chunksize, test_size, offset in zip(train_objs, chunks,
                                                        test_sizes, offsets)
         ])
         test_idx = da.concatenate([
-            da.from_delayed(x, (test_size,), 'i8')
-            for x, chunksize, test_size in zip(test_objs, chunks, test_sizes)
+            da.from_delayed(x + offset, (test_size,), 'i8')
+            for x, chunksize, test_size, offset in zip(test_objs, chunks,
+                                                       test_sizes, offsets)
         ])
 
         return train_idx, test_idx
