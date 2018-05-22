@@ -13,7 +13,7 @@ API Breaking Changes
 Enhancements
 ------------
 
--
+- Added :func:`dask_ml.model_selection.train_test_split` and :class:`dask_ml.model_selection.ShuffleSplit` (:issue:`172`)
 -
 
 Bug Fixes
