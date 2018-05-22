@@ -28,7 +28,8 @@ def _normalize_test_sizes(X, test_size):
 
     elif isinstance(test_size, numbers.Real):
         # TODO: floor or  ceil?
-        test_sizes = [math.floor(chunksize * test_size) for chunksize in
+        # TODO(PY3): remove int
+        test_sizes = [int(math.floor(chunksize * test_size)) for chunksize in
                       chunk_sizes]
     else:
         raise TypeError("Expected float or integer. Got {} "
