@@ -4,15 +4,15 @@ from dask_ml import naive_bayes as nb
 from sklearn import naive_bayes as nb_
 
 X, y = make_classification(chunks=50)
-X_ = X.compute()
-y_ = y.compute()
 
 
 def test_smoke():
     a = nb.GaussianNB()
     b = nb_.GaussianNB()
     a.fit(X, y)
-    b.fit(X.compute(), y.compute())
+    X_ = X.compute()
+    y_ = y.compute()
+    b.fit(X_, y_)
 
     assert_eq(a.class_prior_.compute(), b.class_prior_)
     assert_eq(a.class_count_.compute(), b.class_count_)
