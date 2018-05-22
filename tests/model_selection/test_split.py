@@ -33,3 +33,15 @@ def test_blockwise_shufflesplit():
     np.testing.assert_array_equal(
         np.unique(da.concatenate([train_idx, test_idx])), np.arange(N)
     )
+
+
+def test_train_test_split():
+    X_train, X_test, y_train, y_test = (
+        dask_ml.model_selection.train_test_split(dX, dy, random_state=10)
+    )
+
+    assert len(X_train) == 99
+    assert len(X_test) == 11
+
+    assert X_train.chunks[0] == y_train.chunks[0]
+    assert X_test.chunks[0] == y_test.chunks[0]

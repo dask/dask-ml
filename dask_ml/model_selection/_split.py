@@ -2,6 +2,7 @@
 """
 import math
 import numbers
+import itertools
 
 import dask
 import dask.array as da
@@ -108,4 +109,52 @@ class ShuffleSplit:
         return train_idx, test_idx
 
     def _split(self, X):
-        pass
+        raise NotImplementedError
+
+
+def _blockwise_slice(arr, idx):
+    objs = []
+    offsets = np.hstack([0, np.cumsum(arr.chunks[0])[:-1]])
+
+    for i, (x, idx2) in enumerate(zip(arr.to_delayed().ravel(),
+                                      idx.to_delayed().ravel())):
+        idx3 = idx2 - offsets[i]
+        objs.append(x[idx3])
+
+    shapes = idx.chunks[0]
+    if arr.ndim == 2:
+        P = arr.shape[1]
+        shapes = [(x, P) for x in shapes]
+    else:
+        shapes = [(x,) for x in shapes]
+
+    sliced = da.concatenate([da.from_delayed(x, shape=shape, dtype=arr.dtype)
+                            for x, shape in zip(objs, shapes)])
+    return sliced
+
+
+def train_test_split(*arrays, **options):
+    test_size = options.pop('test_size', 0.1)
+    train_size = options.pop('train_size', 0.1)
+    random_state = options.pop('random_state', None)
+    shuffle = options.pop('shuffle', True)
+    blockwise = options.pop("blockwise", True)
+
+    if options:
+        raise TypeError("Unexpected options {}".format(options))
+
+    if not shuffle:
+        raise NotImplementedError
+
+    assert all(isinstance(arr, da.Array) for arr in arrays)
+
+    splitter = ShuffleSplit(n_splits=1, test_size=test_size,
+                            train_size=train_size, blockwise=blockwise,
+                            random_state=random_state)
+    train_idx, test_idx = next(splitter.split(*arrays))
+
+    train_test_pairs = ((_blockwise_slice(arr, train_idx),
+                         _blockwise_slice(arr, test_idx))
+                        for arr in arrays)
+
+    return list(itertools.chain.from_iterable(train_test_pairs))
