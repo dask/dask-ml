@@ -17,6 +17,24 @@ appropriate for parallel and distributed training.
 
 .. currentmodule:: dask_ml
 
+Dask-ML has a few cross validation utilities.
+
+.. autosummary::
+   :toctree: generated/
+
+   model_selection.train_test_split
+
+:func:`model_selection.train_test_split` is a simple helper that
+uses :class:`model_selection.ShuffleSplit` internally.
+
+.. autosummary::
+   :toctree: generated
+   :template: class.rst
+
+   model_selection.ShuffleSplit
+
+Dask-ML provides drop-in replacements for grid and randomized search.
+
 .. autosummary::
    :toctree: generated/
    :template: class.rst

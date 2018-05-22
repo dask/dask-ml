@@ -65,6 +65,48 @@ def _generate_idx(n, seed, n_test):
 
 
 class ShuffleSplit:
+    """Random permutation cross-validator.
+
+    Yields indices to split data into training and test sets.
+
+    .. warning::
+
+       By default, this performs a blockwise-shuffle. That is,
+       each block is shuffled internally, but data are not shuffled
+       between blocks. If your data is ordered, then set ``blockwise=False``.
+
+    Note: contrary to other cross-validation strategies, random splits
+    do not guarantee that all folds will be different, although this is
+    still very likely for sizeable datasets.
+
+    Parameters
+    ----------
+    n_splits : int, default 10
+        Number of re-shuffling & splitting iterations.
+
+    test_size : float, int, None, default=0.1
+        If float, should be between 0.0 and 1.0 and represent the proportion
+        of the dataset to include in the test split. If int, represents the
+        absolute number of test samples. If None, the value is set to the
+        complement of the train size.
+
+    train_size : float, int, or None, default=None
+        If float, should be between 0.0 and 1.0 and represent the
+        proportion of the dataset to include in the train split. If
+        int, represents the absolute number of train samples. If None,
+        the value is automatically set to the complement of the test size.
+
+    blockwise : bool, default True
+        Whether to shuffle data only within blocks (True), or allow data to
+        be shuffled between blocks (False). Shuffling between blocks can
+        be much more expensive, especially in distributed environments.
+
+    random_state : int, RandomState instance or None, optional (default=None)
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`.
+    """
     def __init__(self, n_splits=10, test_size=0.1, train_size=None,
                  blockwise=True,
                  random_state=None):
@@ -110,10 +152,27 @@ class ShuffleSplit:
         return train_idx, test_idx
 
     def _split(self, X):
-        raise NotImplementedError
+        raise NotImplementedError("ShuffleSplit with `blockwise=False` has "
+                                  "not been implemented yet.")
 
 
 def _blockwise_slice(arr, idx):
+    """Slice an array that is blockwise-aligned with idx.
+
+    Parameters
+    ----------
+    arr : Dask array
+    idx : Dask array
+        Should have the following properties
+
+        * Same blocks as `arr` along the first dimension
+        * Contains only integers
+        * Each block's values should be between ``[0, len(block))``
+
+    Returns
+    -------
+    sliced : dask.Array
+    """
     objs = []
     offsets = np.hstack([0, np.cumsum(arr.chunks[0])[:-1]])
 
@@ -135,8 +194,45 @@ def _blockwise_slice(arr, idx):
 
 
 def train_test_split(*arrays, **options):
+    """Split arrays into random train and test matricies.
+
+    Parameters
+    ----------
+    *arrays : Sequence of Dask Arrays
+    test_size : float or int, defualt 0.1
+    train_size: float or int, optional
+    random_state : int, RandomState instance or None, optional (default=None)
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`.
+    shuffle : bool, default True
+        Whether to shuffle the data before splitting.
+    blockwise : bool, default True
+        Whether to perform blockwise-shuffling.
+
+    Returns
+    -------
+    splitting : list, length=2 * len(arrays)
+        List containing train-test split of inputs
+
+    Examples
+    --------
+    import dask.array as da
+    from dask_ml.datasets import make_regression
+
+    >>> X, y = make_regression(n_samples=125, n_features=4, chunks=50,
+    ...                    random_state=0)
+    >>> X_train, X_test, y_train, y_test = train_test_split(X, y,
+    ...                                                     random_state=0)
+    >>> X_train
+    dask.array<concatenate, shape=(113, 4), dtype=float64, chunksize=(45, 4)>
+    >>> X_train.compute()[:2]
+    array([[ 0.12372191,  0.58222459,  0.92950511, -2.09460307],
+           [ 0.99439439, -0.70972797, -0.27567053,  1.73887268]])
+    """
     test_size = options.pop('test_size', 0.1)
-    train_size = options.pop('train_size', 0.1)
+    train_size = options.pop('train_size', None)
     random_state = options.pop('random_state', None)
     shuffle = options.pop('shuffle', True)
     blockwise = options.pop("blockwise", True)
