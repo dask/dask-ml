@@ -1,6 +1,7 @@
 import dask.array as da
 import numpy as np
 import pandas as pd
+import pytest
 from sklearn.datasets import make_regression
 
 import dask_ml.model_selection
@@ -45,3 +46,41 @@ def test_train_test_split():
 
     assert X_train.chunks[0] == y_train.chunks[0]
     assert X_test.chunks[0] == y_test.chunks[0]
+
+
+def test_train_test_split_test_size():
+    X_train, X_test, y_train, y_test = (
+        dask_ml.model_selection.train_test_split(dX, dy, random_state=10,
+                                                 test_size=0.8)
+    )
+
+
+@pytest.mark.parametrize('kwargs', [
+    {'train_size': 10},
+    {'test_size': 10},
+    {'test_size': 10, 'train_size': 0.1},
+])
+def test_absolute_raises(kwargs):
+    with pytest.raises(ValueError) as m:
+        dask_ml.model_selection.train_test_split(dX, **kwargs)
+    assert m.match("Dask-ML does not support absolute sizes")
+
+
+def test_non_complement_raises():
+    with pytest.raises(ValueError) as m:
+        dask_ml.model_selection._split._maybe_normalize_split_sizes(0.1, 0.2)
+    assert m.match("The sum of ")
+
+
+def test_complement():
+    train_size, test_size = (
+        dask_ml.model_selection._split._maybe_normalize_split_sizes(0.1, None)
+    )
+    assert train_size == 0.1
+    assert test_size == 0.9
+
+    train_size, test_size = (
+        dask_ml.model_selection._split._maybe_normalize_split_sizes(None, 0.2)
+    )
+    assert train_size == 0.8
+    assert test_size == 0.2

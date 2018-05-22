@@ -1,6 +1,5 @@
 """Utilities for splitting datasets.
 """
-import math
 import numbers
 import itertools
 
@@ -8,7 +7,10 @@ import dask
 import dask.array as da
 import numpy as np
 from sklearn.utils import check_random_state
-from sklearn.model_selection._split import _validate_shuffle_split_init
+from sklearn.model_selection._split import (
+    _validate_shuffle_split,
+    _validate_shuffle_split_init,
+)
 
 from dask_ml.utils import check_array
 
@@ -20,27 +22,38 @@ def _check_blockwise(blockwise):
     return blockwise
 
 
-def _normalize_test_sizes(X, test_size):
-    chunk_sizes = X.chunks[0]
+def _maybe_normalize_split_sizes(train_size, test_size):
+    # adopt scikit-learn's new behavior (complement) now.
+    if train_size is None and test_size is None:
+        msg = "test_size and train_size can not both be None"
+        raise ValueError(msg)
+    elif any(isinstance(x, numbers.Integral) for x in (train_size, test_size)):
+        raise ValueError("Dask-ML does not support absolute sizes for "
+                         "'train_size' and 'test_size'. Use floats between "
+                         "0 and 1 to specify the fraction of each block "
+                         "that should go to the train and test set.")
 
-    if isinstance(test_size, numbers.Integral):
-        test_sizes = [chunksize - test_size for chunksize in chunk_sizes]
+    if train_size is not None:
+        if (train_size < 0 or train_size > 1):
+            raise ValueError("'train_size' must be between 0 and 1. "
+                             "Got {}".format(train_size))
+        if test_size is None:
+            test_size = 1 - train_size
+    if test_size is not None:
+        if (test_size < 0 or test_size > 1):
+            raise ValueError("'test_size' be between 0 and 1. "
+                             "Got {}".format(test_size))
 
-    elif isinstance(test_size, numbers.Real):
-        # TODO: floor or  ceil?
-        # TODO(PY3): remove int
-        test_sizes = [int(math.floor(chunksize * test_size)) for chunksize in
-                      chunk_sizes]
-    else:
-        raise TypeError("Expected float or integer. Got {} "
-                        "instead".format(test_size))
-
-    pairs = zip(test_sizes, chunk_sizes)
-    assert all(0 < test_size < chunksize for test_size, chunksize in pairs)
-    return test_sizes
+        if train_size is None:
+            train_size = 1 - test_size
+    if abs(1 - (train_size + test_size)) > 0.001:
+        raise ValueError("The sum of 'train_size' and 'test_size' must be 1. "
+                         "train_size: {} test_size: {}".format(train_size,
+                                                               test_size))
+    return train_size, test_size
 
 
-def _generate_idx(n, seed, n_test):
+def _generate_idx(n, seed, n_train, n_test):
     """Generate train, test indices for a length-n array.
 
     Parameters
@@ -49,9 +62,9 @@ def _generate_idx(n, seed, n_test):
         The length of the array
     seed : int
         Seed for a RandomState
-    n_test : int, 0 < n_test < n
-        Number of samples to use for the test index.
-        The remainder are used for the train index.
+    n_train, n_test : int, 0 < n_train, n_test < n
+        Number of samples to use for the train or
+        test index.
 
     Notes
     -----
@@ -60,7 +73,7 @@ def _generate_idx(n, seed, n_test):
     idx = check_random_state(seed).permutation(n)
 
     ind_test = idx[:n_test]
-    ind_train = idx[n_test:]
+    ind_train = idx[n_test:n_train + n_test]
     return ind_train, ind_test
 
 
@@ -131,22 +144,28 @@ class ShuffleSplit:
         rng = check_random_state(self.random_state)
         seeds = rng.randint(0, 2**32 - 1, size=len(chunks))
 
-        test_sizes = _normalize_test_sizes(X, self.test_size)
-        objs = [dask.delayed(_generate_idx, nout=2)(chunksize, seed, test_size)
-                for chunksize, seed, test_size in zip(chunks, seeds,
-                                                      test_sizes)]
+        train_pct, test_pct = _maybe_normalize_split_sizes(self.train_size,
+                                                           self.test_size)
+        sizes = [_validate_shuffle_split(c, test_pct, train_pct)
+                 for c in chunks]
+
+        objs = [dask.delayed(_generate_idx, nout=2)(chunksize, seed,
+                                                    n_train, n_test)
+                for chunksize, seed, (n_train, n_test) in zip(chunks, seeds,
+                                                              sizes)]
 
         train_objs, test_objs = zip(*objs)
         offsets = np.hstack([0, np.cumsum(chunks)])
         train_idx = da.concatenate([
-            da.from_delayed(x + offset, (chunksize - test_size,), 'i8')
-            for x, chunksize, test_size, offset in zip(train_objs, chunks,
-                                                       test_sizes, offsets)
+            da.from_delayed(x + offset, (train_size,), 'i8')
+            for x, chunksize, (train_size, _), offset in zip(train_objs,
+                                                             chunks,
+                                                             sizes, offsets)
         ])
         test_idx = da.concatenate([
             da.from_delayed(x + offset, (test_size,), 'i8')
-            for x, chunksize, test_size, offset in zip(test_objs, chunks,
-                                                       test_sizes, offsets)
+            for x, chunksize, (_, test_size), offset in zip(test_objs, chunks,
+                                                            sizes, offsets)
         ])
 
         return train_idx, test_idx
@@ -231,11 +250,15 @@ def train_test_split(*arrays, **options):
     array([[ 0.12372191,  0.58222459,  0.92950511, -2.09460307],
            [ 0.99439439, -0.70972797, -0.27567053,  1.73887268]])
     """
-    test_size = options.pop('test_size', 0.1)
+    test_size = options.pop('test_size', None)
     train_size = options.pop('train_size', None)
     random_state = options.pop('random_state', None)
     shuffle = options.pop('shuffle', True)
     blockwise = options.pop("blockwise", True)
+
+    if train_size is None and test_size is None:
+        # all other validation dones elsewhere.
+        test_size = 0.1
 
     if options:
         raise TypeError("Unexpected options {}".format(options))
