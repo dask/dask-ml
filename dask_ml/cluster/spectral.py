@@ -216,31 +216,14 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         # compute the exact blocks
         # these are done in parallel for dask arrays
         if isinstance(X, da.Array):
-            X_keep = X[keep].rechunk(self.n_components).persist()
+            X_keep = X[keep].rechunk(X.shape).persist()
         else:
             X_keep = X[keep]
 
-        if isinstance(metric, six.string_types):
-            if metric not in PAIRWISE_KERNEL_FUNCTIONS:
-                msg = ("Unknown affinity metric name '{}'. Expected one "
-                       "of '{}'".format(metric,
-                                        PAIRWISE_KERNEL_FUNCTIONS.keys()))
-                raise ValueError(msg)
-            A = pairwise_kernels(X_keep,
-                                 metric=metric, filter_params=True, **params)
-            B = pairwise_kernels(X_keep, X[rest],
-                                 metric=metric, filter_params=True, **params)
+        X_rest = X[rest]
 
-        elif callable(metric):
-            A = metric(X_keep, **params)
-            B = metric(X_keep, X[rest], **params)
-        else:
-            msg = ("Unexpected type for 'affinity' '{}'. Must be string "
-                   "kernel name, array, or callable")
-            raise TypeError(msg)
-        if isinstance(A, da.Array):
-            A = A.rechunk((n_components, n_components))
-            B = B.rechunk((B.shape[0], B.chunks[1]))
+        A, B = embed(X_keep, X_rest, n_components, metric, params,
+                     random_state=rng)
 
         # now the approximation of C
         a = A.sum(0)   # (l,)
@@ -298,3 +281,29 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         self.labels_ = km.labels_
         self.eigenvalues_ = S_A[:n_clusters]  # TODO: better name
         return self
+
+
+def embed(X_keep, X_rest, n_components, metric, kernel_params, random_state=None):
+    if isinstance(metric, six.string_types):
+        if metric not in PAIRWISE_KERNEL_FUNCTIONS:
+            msg = ("Unknown affinity metric name '{}'. Expected one "
+                   "of '{}'".format(metric,
+                                    PAIRWISE_KERNEL_FUNCTIONS.keys()))
+            raise ValueError(msg)
+        A = pairwise_kernels(X_keep,
+                             metric=metric, filter_params=True,
+                             **kernel_params)
+        B = pairwise_kernels(X_keep, X_rest,
+                             metric=metric, filter_params=True,
+                             **kernel_params)
+    elif callable(metric):
+        A = metric(X_keep, **kernel_params)
+        B = metric(X_keep, X_rest, **kernel_params)
+    else:
+        msg = ("Unexpected type for 'affinity' '{}'. Must be string "
+               "kernel name, array, or callable")
+        raise TypeError(msg)
+    if isinstance(A, da.Array):
+        A = A.rechunk((n_components, n_components))
+        B = B.rechunk((B.shape[0], B.chunks[1]))
+    return A, B
