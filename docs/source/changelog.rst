@@ -8,7 +8,7 @@ API Breaking Changes
 --------------------
 
 - The `n_samples_seen_` attribute on :class:`dask_ml.preprocessing.StandardScalar` is now consistently ``numpy.nan`` (:issue:`157`).
--
+- Changed the algorithm for :meth:`dask_ml.datasets.make_blobs`, :meth:`dask_ml.datasets.make_regression` and :meth:`dask_ml.datasets.make_classfication` to reduce the single-machine peak memory usage (:issue:`67`)
 
 Enhancements
 ------------

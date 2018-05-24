@@ -11,15 +11,14 @@ from dask_ml import metrics
 
 
 X, y = make_blobs(n_samples=200, chunks=100, random_state=0)
-X_ = X.compute()
 
 
-@pytest.mark.parametrize('data', [X, X_])
+@pytest.mark.parametrize('as_ndarray', [False, True])
 @pytest.mark.parametrize('persist_embedding', [True, False])
-def test_basic(data, persist_embedding):
+def test_basic(as_ndarray, persist_embedding):
     sc = SpectralClustering(n_components=25, random_state=0,
                             persist_embedding=persist_embedding)
-    sc.fit(data)
+    sc.fit(X.compute())
     assert len(sc.labels_) == len(X)
 
 

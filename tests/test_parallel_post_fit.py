@@ -2,6 +2,7 @@ import dask
 import dask.array as da
 import dask.dataframe as dd
 import pytest
+import sklearn.datasets
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LinearRegression, LogisticRegression
@@ -83,7 +84,9 @@ def test_transform(kind):
 
 
 def test_multiclass():
-    X, y = make_classification(chunks=50, n_classes=3, n_informative=4)
+    X, y = sklearn.datasets.make_classification(n_classes=3, n_informative=4)
+    X = da.from_array(X, chunks=50)
+    y = da.from_array(y, chunks=50)
     clf = ParallelPostFit(LogisticRegression(random_state=0))
 
     clf.fit(X, y)
