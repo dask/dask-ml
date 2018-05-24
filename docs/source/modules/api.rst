@@ -169,6 +169,18 @@ Regression Metrics
    metrics.mean_absolute_error
    metrics.mean_squared_error
 
+
+Classification Metrics
+----------------------
+
+.. currentmodule:: dask_ml
+
+.. autosummary::
+   :toctree: generated/
+
+   metrics.accuracy_score
+
+
 :mod:`dask_ml.tensorflow`: Tensorflow
 =====================================
 

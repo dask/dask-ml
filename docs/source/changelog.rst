@@ -14,7 +14,8 @@ Enhancements
 ------------
 
 - Added :func:`dask_ml.model_selection.train_test_split` and :class:`dask_ml.model_selection.ShuffleSplit` (:issue:`172`)
--
+- Added :func:`dask_ml.metrics.classification_score`, :func:`dask_ml.metrics.mean_absolute_error`, and :func:`dask_ml.metrics.mean_squared_error`.
+
 
 Bug Fixes
 ---------
