@@ -153,6 +153,22 @@ a parallel or distributed training any more than the underlying estimator.
    preprocessing.OrdinalEncoder
 
 
+:mod:`dask_ml.metrics`: Metrics
+===============================
+
+Score functions, performance metrics, and pairwise distance computations.
+
+Regression Metrics
+------------------
+
+.. currentmodule:: dask_ml
+
+.. autosummary::
+   :toctree: generated/
+
+   metrics.mean_absolute_error
+   metrics.mean_squared_error
+
 :mod:`dask_ml.tensorflow`: Tensorflow
 =====================================
 
