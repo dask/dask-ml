@@ -2,6 +2,8 @@
 Mostly just smoke tests, and verifying that the parallel implementation is
 the same as the serial.
 """
+import warnings
+
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
@@ -20,7 +22,9 @@ from dask_ml.utils import row_norms
 
 
 def test_check_estimator():
-    check_estimator(DKKMeans)
+    with warnings.catch_warnings(record=True):
+        warnings.simplefilter('ignore', RuntimeWarning)
+        check_estimator(DKKMeans)
 
 
 def test_row_norms(X_blobs):
