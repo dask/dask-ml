@@ -1,5 +1,3 @@
-import contextlib
-
 import packaging.version
 import sklearn
 
