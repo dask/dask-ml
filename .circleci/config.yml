@@ -21,14 +21,6 @@ jobs:
           command: |
             source activate ${ENV_NAME}
             flake8 dask_ml
-      - run:
-          command: |
-            source activate ${ENV_NAME}
-            pytest tests
-      - run:
-          command: |
-            source activate ${ENV_NAME}
-            flake8 dask_ml
       - save_cache:
           key: deps-{{ .Branch }}-3.6-{{ checksum "ci/environment-3.6.yml" }}
           paths:
@@ -48,14 +40,6 @@ jobs:
       - run:
           name: configure conda
           command: ./ci/install-circle.sh
-      - run:
-          command: |
-            source activate ${ENV_NAME}
-            pytest tests
-      - run:
-          command: |
-            source activate ${ENV_NAME}
-            flake8 dask_ml
       - run:
           command: |
             source activate ${ENV_NAME}
