@@ -9,9 +9,6 @@ import sklearn.utils
 import dask_ml.utils
 
 
-__all__ = ['make_counts']
-
-
 def _check_axis_partitioning(chunks, n_features):
     c = chunks[1][0]
     if c != n_features:
