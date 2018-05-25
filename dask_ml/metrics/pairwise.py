@@ -14,7 +14,7 @@ from sklearn.metrics.pairwise import (
 )
 
 from ..utils import row_norms
-from ..compat import SK_VERSION
+from .._compat import SK_VERSION
 
 
 def pairwise_distances_argmin_min(X, Y, axis=1, metric="euclidean",
