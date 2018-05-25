@@ -1,11 +1,14 @@
+import packaging.version
 import pytest
 import dask.array as da
 import numpy as np
 import numpy.testing as npt
 from dask.array.utils import assert_eq
+import sklearn
 import sklearn.metrics as sm
 
 import dask_ml.metrics as dm
+from dask_ml.compat import SK_VERSION, dummy_context
 
 
 def test_pairwise_distances(X_blobs):
@@ -19,8 +22,18 @@ def test_pairwise_distances_argmin_min(X_blobs):
     centers = X_blobs[::100].compute()
     a_, b_ = sm.pairwise_distances_argmin_min(X_blobs.compute(), centers)
     a, b = dm.pairwise_distances_argmin_min(X_blobs, centers)
-    npt.assert_array_equal(a.compute(), a_)
-    npt.assert_array_equal(b.compute(), b_)
+
+    if SK_VERSION >= packaging.version.parse("0.20.0.dev0"):
+        ctx = sklearn.config_context
+    else:
+        ctx = dummy_context
+
+    with ctx(working_memory=max(X_blobs.chunks[0])):
+        a = a.compute()
+        b = b.compute()
+
+    npt.assert_array_equal(a, a_)
+    npt.assert_array_equal(b, b_)
 
 
 def test_euclidean_distances():
