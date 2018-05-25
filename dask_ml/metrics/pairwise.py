@@ -8,7 +8,6 @@ import numpy as np
 import packaging.version
 from dask import delayed
 from dask.array.random import doc_wraps
-import sklearn
 from sklearn import metrics
 from sklearn.metrics.pairwise import (
     KERNEL_PARAMS,
