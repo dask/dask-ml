@@ -2,6 +2,7 @@ import pytest
 
 import dask
 import dask.array as da
+from dask.array.utils import assert_eq
 import numpy as np
 
 import dask_ml.datasets
@@ -41,3 +42,16 @@ def test_make_regression():
 
     assert abs(mean - 1.0) <= 0.1
     assert abs(std - 2.0) <= 0.1
+
+
+@pytest.mark.parametrize('generator', [
+    dask_ml.datasets.make_blobs,
+    dask_ml.datasets.make_classification,
+    dask_ml.datasets.make_counts,
+    dask_ml.datasets.make_regression,
+])
+def test_deterministic(generator):
+    a, t = generator(chunks=100, random_state=10)
+    b, u = generator(chunks=100, random_state=10)
+    assert_eq(a, b)
+    assert_eq(t, u)

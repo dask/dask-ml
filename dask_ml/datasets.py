@@ -4,7 +4,10 @@ import dask
 import dask.array as da
 import numpy as np
 import sklearn.datasets
-from sklearn.utils import check_random_state
+import sklearn.utils
+
+import dask_ml.utils
+
 
 __all__ = ['make_counts']
 
@@ -20,7 +23,7 @@ def _check_axis_partitioning(chunks, n_features):
 
 
 def make_counts(n_samples=1000, n_features=100, n_informative=2, scale=1.0,
-                chunks=100):
+                chunks=100, random_state=None):
     """
     Generate a dummy dataset for modeling count data.
 
@@ -36,6 +39,10 @@ def make_counts(n_samples=1000, n_features=100, n_informative=2, scale=1.0,
         Scale the true coefficient array by this
     chunks : int
         Number of rows per dask array block.
+    random_state : int, RandomState instance or None (default)
+        Determines random number generation for dataset creation. Pass an int
+        for reproducible output across multiple function calls.
+        See :term:`Glossary <random_state>`.
 
     Returns
     -------
@@ -47,13 +54,19 @@ def make_counts(n_samples=1000, n_features=100, n_informative=2, scale=1.0,
     --------
     >>> X, y = make_counts()
     """
-    X = da.random.normal(0, 1, size=(n_samples, n_features),
-                         chunks=(chunks, n_features))
-    informative_idx = np.random.choice(n_features, n_informative)
-    beta = (np.random.random(n_features) - 1) * scale
+    rng = dask_ml.utils.check_random_state(random_state)
+
+    X = rng.normal(0, 1, size=(n_samples, n_features),
+                   chunks=(chunks, n_features))
+    informative_idx = rng.choice(n_features, n_informative,
+                                 chunks=n_informative)
+    beta = (rng.random(n_features, chunks=n_features) - 1) * scale
+
+    informative_idx, beta = dask.compute(informative_idx, beta)
+
     z0 = X[:, informative_idx].dot(beta[informative_idx])
     rate = da.exp(z0)
-    y = da.random.poisson(rate, size=1, chunks=(chunks,))
+    y = rng.poisson(rate, size=1, chunks=(chunks,))
     return X, y
 
 
@@ -260,7 +273,7 @@ def make_regression(n_samples=100, n_features=100, n_informative=10,
     chunks = da.core.normalize_chunks(chunks, (n_samples, n_features))
     _check_axis_partitioning(chunks, n_features)
 
-    rng = check_random_state(random_state)
+    rng = sklearn.utils.check_random_state(random_state)
     return_coef = coef is True
 
     if chunks[1][0] != n_features:
@@ -311,12 +324,18 @@ def make_classification(n_samples=100, n_features=20, n_informative=2,
     if n_classes != 2:
         raise NotImplementedError("n_classes != 2 is not yet supported.")
 
-    X = da.random.normal(0, 1, size=(n_samples, n_features),
-                         chunks=chunks)
-    informative_idx = np.random.choice(n_features, n_informative)
-    beta = (np.random.random(n_features) - 1) * scale
+    rng = dask_ml.utils.check_random_state(random_state)
+
+    X = rng.normal(0, 1, size=(n_samples, n_features),
+                   chunks=chunks)
+    informative_idx = rng.choice(n_features, n_informative,
+                                 chunks=n_informative)
+    beta = (rng.random(n_features, chunks=n_features) - 1) * scale
+
+    informative_idx, beta = dask.compute(informative_idx, beta)
+
     z0 = X[:, informative_idx].dot(beta[informative_idx])
-    y = da.random.random(z0.shape, chunks=chunks[0]) < 1 / (1 + da.exp(-z0))
+    y = rng.random(z0.shape, chunks=chunks[0]) < 1 / (1 + da.exp(-z0))
     y = y.astype(int)
 
     return X, y
