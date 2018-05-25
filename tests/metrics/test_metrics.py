@@ -8,7 +8,7 @@ import sklearn
 import sklearn.metrics as sm
 
 import dask_ml.metrics as dm
-from dask_ml.compat import SK_VERSION, dummy_context
+from dask_ml._compat import SK_VERSION, dummy_context
 
 
 def test_pairwise_distances(X_blobs):
@@ -24,11 +24,12 @@ def test_pairwise_distances_argmin_min(X_blobs):
     a, b = dm.pairwise_distances_argmin_min(X_blobs, centers)
 
     if SK_VERSION >= packaging.version.parse("0.20.0.dev0"):
-        ctx = sklearn.config_context
+        working_memory = X_blobs[:X_blobs.chunks[0][0]].nbytes / 1e6
+        ctx = sklearn.config_context(working_memory=working_memory)
     else:
-        ctx = dummy_context
+        ctx = dummy_context()
 
-    with ctx(working_memory=max(X_blobs.chunks[0])):
+    with ctx:
         a = a.compute()
         b = b.compute()
 
