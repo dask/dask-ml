@@ -23,7 +23,8 @@ def test_pairwise_distances_argmin_min(X_blobs):
     centers = X_blobs[::100].compute()
 
     if SK_VERSION >= packaging.version.parse("0.20.0.dev0"):
-        # working_memory = X_blobs[:X_blobs.chunks[0][0]].nbytes / 1e6
+        # X_blobs has 500 rows per block.
+        # Ensure 500 rows in the scikit-learn version too.
         working_memory = 80 * 500 / 2**20
 
         ctx = sklearn.config_context(working_memory=working_memory)
