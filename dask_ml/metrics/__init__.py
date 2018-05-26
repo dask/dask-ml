@@ -7,3 +7,6 @@ from .regression import (  # noqa
     mean_absolute_error,
     mean_squared_error,
 )
+from .classification import (  # noqa
+    accuracy_score,
+)
