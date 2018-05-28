@@ -119,7 +119,10 @@ def check_array(array, *args, **kwargs):
                 raise TypeError
         if not accept_multiple_blocks:
             if len(array.chunks[1]) > 1:
-                raise TypeError
+                msg = ("Chunking is only allowed on the first axis. "
+                       "Use 'array.rechunk({1: array.shape[1]})' to "
+                       "rechunk to a single block along the second axis.")
+                raise TypeError(msg)
 
         # hmmm, we want to catch things like shape errors.
         # I'd like to make a small sample somehow

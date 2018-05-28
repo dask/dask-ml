@@ -14,6 +14,7 @@ from dask_ml.utils import (
     slice_columns, handle_zeros_in_scale, assert_estimator_equal,
     check_random_state,
     check_chunks,
+    check_array,
 )
 from dask_ml.datasets import make_classification
 
@@ -149,3 +150,13 @@ def test_get_chunks_raises():
 
     with pytest.raises(ValueError):
         check_chunks(1, 1, chunks=object())
+
+
+def test_check_array_raises():
+    X = da.random.uniform(size=(10, 5), chunks=2)
+    with pytest.raises(TypeError) as m:
+        check_array(X)
+
+    assert m.match("Chunking is only allowed on the first axis.")
+
+
