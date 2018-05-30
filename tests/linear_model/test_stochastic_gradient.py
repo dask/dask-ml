@@ -17,6 +17,19 @@ class TestStochasticGradientClassifier(object):
         b.partial_fit(X, y, classes=[0, 1])
         assert_estimator_equal(a, b, exclude='loss_function_')
 
+    def test_numpy_arrays(self, single_chunk_classification):
+        # fit with dask arrays, test with numpy arrays
+        X, y = single_chunk_classification
+
+        a = lm.PartialSGDClassifier(classes=[0, 1], random_state=0,
+                                    max_iter=1000, tol=1e-3)
+
+        a.fit(X, y)
+        X = X.compute()
+        y = y.compute()
+        y_hat = a.predict(X)
+        a.score(X, y)
+
 
 class TestStochasticGradientRegressor(object):
 
@@ -29,3 +42,14 @@ class TestStochasticGradientRegressor(object):
         a.fit(X, y)
         b.partial_fit(X, y)
         assert_estimator_equal(a, b)
+
+    def test_numpy_arrays(self, single_chunk_regression):
+        X, y = single_chunk_regression
+        a = lm.PartialSGDRegressor(random_state=0,
+                                   max_iter=1000, tol=1e-3)
+
+        a.fit(X, y)
+        X = X.compute()
+        y = y.compute()
+        y_hat = a.predict(X)
+        a.score(X, y)

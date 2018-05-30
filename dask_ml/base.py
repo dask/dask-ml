@@ -69,6 +69,8 @@ class _BigPartialFitMixin(object):
         predict = super(_BigPartialFitMixin, self).predict
         if dtype is None:
             dtype = self._get_predict_dtype(X)
+        if isinstance(X, np.ndarray):
+            return predict(X)
         return X.map_blocks(predict, dtype=dtype, drop_axis=1)
 
     def _get_predict_dtype(self, X):
