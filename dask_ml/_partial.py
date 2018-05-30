@@ -55,16 +55,18 @@ class _BigPartialFitMixin(object):
         their_init = base._get_param_names()
         return my_init + their_init
 
-    def fit(self, X, y=None):
+    def fit(self, X, y=None, compute=True):
         fit_kwargs = {k: getattr(self, k) for k in self._fit_kwargs}
-        result = fit(self, X, y, **fit_kwargs)
+        result = fit(self, X, y, compute=compute, **fit_kwargs)
 
         # Copy the learned attributes over to self
         # It should go without saying that this is *not* threadsafe
-        attrs = {k: v for k, v in vars(result).items() if k.endswith('_')}
-        for k, v in attrs.items():
-            setattr(self, k, v)
-        return self
+        if compute:
+            attrs = {k: v for k, v in vars(result).items() if k.endswith('_')}
+            for k, v in attrs.items():
+                setattr(self, k, v)
+            return self
+        return result
 
     def predict(self, X, dtype=None):
         predict = super(_BigPartialFitMixin, self).predict
