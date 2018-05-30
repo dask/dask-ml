@@ -53,7 +53,11 @@ class _BigPartialFitMixin(object):
 
     def fit(self, X, y=None, get=None):
         if get is None:
-            get = dask.threaded.get
+            try:
+                from distributed import get_client
+                get = get_client().get
+            except (ImportError, ValueError, AttributeError):
+                get = dask.threaded.get
 
         fit_kwargs = {k: getattr(self, k) for k in self._fit_kwargs}
         result = learn.fit(self, X, y, get=get, **fit_kwargs)
