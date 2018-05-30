@@ -4,7 +4,7 @@ from abc import ABCMeta
 
 import numpy as np
 import dask
-from dask.array import learn
+from . import incremental
 
 
 class _WritableDoc(ABCMeta):
@@ -51,12 +51,9 @@ class _BigPartialFitMixin(object):
         their_init = base._get_param_names()
         return my_init + their_init
 
-    def fit(self, X, y=None, get=None):
-        if get is None:
-            get = dask.threaded.get
-
+    def fit(self, X, y=None):
         fit_kwargs = {k: getattr(self, k) for k in self._fit_kwargs}
-        result = learn.fit(self, X, y, get=get, **fit_kwargs)
+        result = incremental.fit(self, X, y, **fit_kwargs)
 
         # Copy the learned attributes over to self
         # It should go without saying that this is *not* threadsafe
