@@ -7,7 +7,7 @@ Version 0.5.1
 Bug Fixes
 ---------
 
-- Fixed training incremental learners on Dask Arrays that were persisted using the distributed scheduler (:pr:``).
+- Fixed training incremental learners on Dask Arrays that were persisted using the distributed scheduler (:pr:`185`).
 
 Version 0.5.0
 ~~~~~~~~~~~~~
