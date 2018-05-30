@@ -28,7 +28,7 @@ class TestStochasticGradientClassifier(object):
         a.fit(X, y)
         X = X.compute()
         y = y.compute()
-        y_hat = a.predict(X)
+        a.predict(X)
         a.score(X, y)
 
 
