@@ -5,7 +5,7 @@ from abc import ABCMeta
 
 import numpy as np
 import six
-from toolz import merge, partial
+from toolz import partial
 
 import dask
 from dask.delayed import Delayed
@@ -149,10 +149,10 @@ def fit(model, x, y, compute=True, **kwargs):
     dsk.update({(name, i): (_partial_fit, (name, i - 1),
                                           (x.name, i, 0),
                                           (getattr(y, 'name', ''), i), kwargs)
-                    for i in range(nblocks)})
+                for i in range(nblocks)})
 
-    value = Delayed((name, nblocks -1),
-                    dask.sharedict.merge((name, dsk), x.dask, getattr(y, 'dask', {})))
+    new_dsk = dask.sharedict.merge((name, dsk), x.dask, getattr(y, 'dask', {}))
+    value = Delayed((name, nblocks - 1), new_dsk)
 
     if compute:
         return value.compute()
