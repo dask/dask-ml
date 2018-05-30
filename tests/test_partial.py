@@ -1,7 +1,7 @@
 from sklearn.linear_model import SGDClassifier
 import numpy as np
 import dask
-from dask_ml.incremental import fit, predict
+from dask_ml._partial import fit, predict
 import dask.array as da
 
 
