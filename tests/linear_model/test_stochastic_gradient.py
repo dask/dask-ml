@@ -1,3 +1,4 @@
+from dask.delayed import Delayed
 from sklearn import linear_model as lm_
 from dask_ml import linear_model as lm
 
@@ -27,7 +28,7 @@ class TestStochasticGradientClassifier(object):
         a.fit(X, y)
         X = X.compute()
         y = y.compute()
-        y_hat = a.predict(X)
+        a.predict(X)
         a.score(X, y)
 
 
@@ -51,5 +52,14 @@ class TestStochasticGradientRegressor(object):
         a.fit(X, y)
         X = X.compute()
         y = y.compute()
-        y_hat = a.predict(X)
+        a.predict(X)
         a.score(X, y)
+
+
+def test_lazy(xy_classification):
+    X, y = xy_classification
+    sgd = lm.PartialSGDClassifier(classes=[0, 1])
+    r = sgd.fit(X, y, compute=False)
+    assert isinstance(r, Delayed)
+    result = r.compute()
+    assert isinstance(result, lm_.SGDClassifier)

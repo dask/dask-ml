@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Version 0.6.0
+-------------
+
+API Breaking Changes
+--------------------
+
+- Removed the `get` keyword from the incremental learner ``fit`` methods (:pr:`187`)
+
 Version 0.5.0
 ~~~~~~~~~~~~~
 

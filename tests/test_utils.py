@@ -158,5 +158,3 @@ def test_check_array_raises():
         check_array(X)
 
     assert m.match("Chunking is only allowed on the first axis.")
-
-
