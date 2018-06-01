@@ -3,55 +3,87 @@
 Incremental Learning
 ====================
 
+Some estimators can be trained incrementally -- without seeing the entire dataset at once.
+Scikit-Learn provdes the ``partial_fit`` API to let you stream batches of data
+to an estimator that can be fit in batches.
+
+Normally, if you pass a Dask Array to an estimator expecting a NumPy array,
+the Dask Array will be converted to a single, large NumPy array. On a single
+machine, you'll likely run out of RAM and crash the program. On a distributed
+cluster, all the workers will send their data to a single machine and crash it.
+
+The incremental learning tools in Dask-ML provide a bridge between Dask and
+Scikit-Learn estimators supporting the ``partial_fit`` API. Each individual
+chunk in a Dask Array can be passed to the estimator's ``partial_fit`` method.
+
+Dask-ML provides two ways to achieve this: :ref:`incremental.blockwise-metaestimator`, for wrapping any estimator with a `partial_fit` method, and :ref:`incremental.pre-wrapped` for estimators that have already been wrapped in the meta-estimator.
+
+.. _incremental.blockwise-metaestimator:
+
+Blockwise Metaestimator
+-----------------------
+
 .. currentmodule::  dask_ml
 
 .. autosummary::
-   naive_bayes.PartialBernoulliNB
-   naive_bayes.PartialMultinomialNB
-   linear_model.PartialSGDRegressor
-   linear_model.PartialSGDClassifier
-   linear_model.PartialPerceptron
-   linear_model.PartialPassiveAggressiveClassifier
-   linear_model.PartialPassiveAggressiveRegressor
-   cluster.PartialMiniBatchKMeans
-   base._BigPartialFitMixin
+   wrappers.Blockwise
 
-Scikit-Learn's Partial Fit
---------------------------
+:class:`dask_ml.wrappers.Blockwise` is a meta-estimator (an estimator that
+takes another estimator) that bridges scikit-learn estimators expecting
+NumPy arrays, and users with large Dask Arrays.
 
-Some scikit-learn models support `incremental learning`_ with the
-``.partial_fit`` API.  These models can see small batches of dataset and update
-their parameters as new data arrives.
+Each *block* of a Dask Array is fed to the underlying estiamtor's
+``partial_fit`` method. The training is entirely sequential, so you won't
+notice massive training time speedups from parallelism. In a distributed
+environment, you should notice some speeds from avoiding extra IO, and the
+fact that models are typically much smaller than data, and so faster to move
+between machines.
 
-.. code-block:: python
 
-    for X_block, y_block in iterator_of_numpy_arrays:
-        est.partial_fit(X_block, y_block)
+.. ipython:: python
 
-This block-wise learning fits nicely with Dask's block-wise nature: Dask
-arrays are composed of many smaller NumPy arrays.  Dask dataframes and arrays
-provides an intuitive way to preprocess your data and then intuitively send
-that data to an incremental model piece by piece.  Dask-ML will hide the
-``.partial_fit`` mechanics from you, so that the usual ``.fit`` API will work
-on larger-than-memory datasets. These wrappers can be dropped into a
-:class:`sklearn.pipeline.Pipeline` just like normal. In Dask-ml, all of these
-estimators are prefixed with ``Partial``, e.g.  :class:`PartialSGDClassifier`.
+   from dask_ml.datasets import make_classification
+   from dask_ml.wrappers import Blockwise
+   from sklearn.linear_model import SGDClassifier
 
-.. note::
+   X, y = make_classification(chunks=25)
+   X
 
-   While these wrappers are useful for fitting on larger than memory datasets
-   they do not offer any kind of parallelism while training.  Calls to
-   ``.fit()`` will be entirely sequential.
+   estimator = SGDClassifier(random_state=10)
+   clf = Blockwise(estimator, classes=[0, 1])
+   clf.fit(X, y)
 
-Example
--------
+In this example, we make a (small) random Dask Array. It has 100 samples,
+broken in the 4 blocks of 25 samples each. The chunking is only along the
+first axis (the samples). There is no chunking along the features.
+
+You instantite the underlying estimator as usual. It really is just a
+scikit-learn compatible estimator, and will be trained normally via its
+``partial_fit``.
+
+When wrapping the estimator in :class:`Blockwise`, you need to pass any
+keyword arguments that are expected by the underlying ``partial_fit`` method.
+With :class:`sklearn.linear_model.SGDClassifier`, we're required to provide
+the list of unique ``classes`` in ``y``.
+
+Notice that we call the regular ``.fit`` method for training. Dask-ML takes
+care of passing each block to the underlying estimator for you.
+
+.. _incremental.pre-wrapped:
+
+Pre-Wrapped Incremental Learners
+================================
+
+Dask-ML provides pre-wrapped versions of some common estimators. They'll be
+found in the same namespace as their scikit-learn counterparts they wrap.
 
 .. ipython:: python
 
    from dask_ml.linear_model import PartialSGDRegressor
    from dask_ml.datasets import make_classification
-   X, y = make_classification(n_samples=1000, chunks=500)
    est = PartialSGDRegressor()
    est.fit(X, y)
+
+See :ref:`api.incremental` for a full list of the wrapped estimators.
 
 .. _incremental learning: http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning

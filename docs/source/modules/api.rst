@@ -63,7 +63,8 @@ Dask-ML provides drop-in replacements for grid and randomized search.
 Meta-estimators for scikit-learn
 ================================
 
-dask-ml provides some meta-estimators parallelize certain components.
+dask-ml provides some meta-estimators that help use regular scikit-learn
+compatible estimators with Dask arrays.
 
 .. currentmodule:: dask_ml
 
@@ -72,7 +73,15 @@ dask-ml provides some meta-estimators parallelize certain components.
    :template: class.rst
 
    wrappers.ParallelPostFit
+   wrappers.Blockwise
 
+.. autosummary::
+   :toctree: generated/
+
+   wrappers.make_blockwise
+
+
+.. _api.incremental-learning:
 
 Incremental Learning
 ====================

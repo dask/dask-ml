@@ -199,6 +199,69 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         return getattr(self.estimator, method)
 
 
+class Blockwise(ParallelPostFit):
+    """Metaestimator for feeding Dask Arrays to an estimator blockwise.
+
+    This wrapper is provides a bridge between Dask objects and estimators
+    implementing the ``partial_fit`` API. These estimators can train on
+    batches of data, but simply passing a Dask array to their ``fit`` or
+    ``partial_fit`` methods would materialize the large Dask Array on a single
+    machine.
+
+    Calling :meth:`Streamable.fit` with a Dask Array will cause each block of
+    the Dask array to be passed to ``estimator.partial_fit`` *sequentially*.
+
+    Like :class:`ParallelPostFit`, the methods available after fitting (e.g.
+    `score`, `predcit`, etc.) are all parallel and delayed.
+
+    Parameters
+    ----------
+    estimator : Estimator
+        Any object supporting the scikit-learn `parital_fit` API.
+    **kwargs
+        Additional keyword arguments passed through the the underlying
+        estimator's `partial_fit` method.
+
+    Examples
+    --------
+    """
+
+    def __init__(self, estimator, **kwargs):
+        self.estimator = estimator
+        self.fit_kwargs = kwargs
+
+    def fit(self, X, y=None):
+        from ._partial import fit
+
+        fit_kwargs = self.fit_kwargs or {}
+        result = fit(self.estimator, X, y, **fit_kwargs)
+
+        # Copy the learned attributes over to self
+        attrs = {k: v for k, v in vars(result).items() if k.endswith('_')}
+        for k, v in attrs.items():
+            setattr(self, k, v)
+        return self
+
+
+def make_blockwise(estimator, **kwargs):
+    """Helper function for creating a :class:`Stremable` estimator.
+
+    Parameters
+    ----------
+    estimator : Estimator
+        Any object supporting the scikit-learn `parital_fit` API.
+    **kwargs
+        Additional keyword arguments passed through the the underlying
+        estimator's `partial_fit` method.
+
+    Returns
+    -------
+    Blockwise
+    """
+    blockwise = Blockwise(estimator, **kwargs)
+    return blockwise
+
+
 def _first_block(dask_object):
     """Extract the first block / partition from a dask object
     """
