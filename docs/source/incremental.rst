@@ -16,7 +16,7 @@ The incremental learning tools in Dask-ML provide a bridge between Dask and
 Scikit-Learn estimators supporting the ``partial_fit`` API. Each individual
 chunk in a Dask Array can be passed to the estimator's ``partial_fit`` method.
 
-Dask-ML provides two ways to achieve this: :ref:`incremental.blockwise-metaestimator`, for wrapping any estimator with a `partial_fit` method, and :ref:`incremental.pre-wrapped` for estimators that have already been wrapped in the meta-estimator.
+Dask-ML provides two ways to achieve this: :ref:`incremental.blockwise-metaestimator`, for wrapping any estimator with a `partial_fit` method, and some pre-daskified :ref:`incremental.dask-friendly` incremental.
 
 .. _incremental.blockwise-metaestimator:
 
@@ -71,17 +71,25 @@ care of passing each block to the underlying estimator for you.
 
 .. _incremental.pre-wrapped:
 
-Pre-Wrapped Incremental Learners
-================================
+Daskified Incremental Learners
+===============================
 
-Dask-ML provides pre-wrapped versions of some common estimators. They'll be
-found in the same namespace as their scikit-learn counterparts they wrap.
+Dask-ML provides a few estimators that effectively do the wrapping for you.
+The main differences from :class:`dask_ml.wrappers.Blockwise` is that
+
+1. They're found in the corresponding Dask-ML namespace (e.g.
+   :class:`dask_ml.linear_model.SGDClassifier`).
+2. They're regular estimators (not meta-estimators).
+
+Calling them is just like calling the scikit-learn estimator, except that you
+use Dask Arrays instead of NumPy arrays, and you pass all the ``fit_kwargs`` to
+the estimator itself.
 
 .. ipython:: python
 
-   from dask_ml.linear_model import PartialSGDRegressor
+   from dask_ml.linear_model import PartialSGDClassifier
    from dask_ml.datasets import make_classification
-   est = PartialSGDRegressor()
+   est = PartialSGDClassifier(classes=[0, 1])
    est.fit(X, y)
 
 See :ref:`api.incremental` for a full list of the wrapped estimators.

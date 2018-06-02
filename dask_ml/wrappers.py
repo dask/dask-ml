@@ -125,7 +125,27 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
             return transform(X)
 
     def score(self, X, y):
-        # TODO: re-implement some scoring functions.
+        """Returns the score on the given data.
+
+        This uses the scoring defined by ``estimator.score``. This is
+        currently immediate and sequential. In the future, this will be
+        delayed and parallel.
+
+        Parameters
+        ----------
+        X : array-like, shape = [n_samples, n_features]
+            Input data, where n_samples is the number of samples and
+            n_features is the number of features.
+
+        y : array-like, shape = [n_samples] or [n_samples, n_output], optional
+            Target relative to X for classification or regression;
+            None for unsupervised learning.
+
+        Returns
+        -------
+        score : float
+                return self.estimator.score(X, y)
+        """
         return self.estimator.score(X, y)
 
     def predict(self, X):
@@ -202,17 +222,18 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
 class Blockwise(ParallelPostFit):
     """Metaestimator for feeding Dask Arrays to an estimator blockwise.
 
-    This wrapper is provides a bridge between Dask objects and estimators
+    This wrapper provides a bridge between Dask objects and estimators
     implementing the ``partial_fit`` API. These estimators can train on
     batches of data, but simply passing a Dask array to their ``fit`` or
     ``partial_fit`` methods would materialize the large Dask Array on a single
     machine.
 
-    Calling :meth:`Streamable.fit` with a Dask Array will cause each block of
-    the Dask array to be passed to ``estimator.partial_fit`` *sequentially*.
+    Calling :meth:`Streamable.fit` with a Dask Array will pass each block of
+    the Dask array to to ``estimator.partial_fit`` *sequentially*.
 
     Like :class:`ParallelPostFit`, the methods available after fitting (e.g.
-    `score`, `predcit`, etc.) are all parallel and delayed.
+    :meth:`Blockwise.score`, :meth:`Blockwise.predcit`, etc.) are all parallel
+    and delayed.
 
     Parameters
     ----------
@@ -224,8 +245,14 @@ class Blockwise(ParallelPostFit):
 
     Examples
     --------
+    >>> from dask_ml.wrappers import Blockwise
+    >>> from dask_ml.datasets import make_classification
+    >>> import sklearn.linear_model
+    >>> X, y = make_classification(chunks=25)
+    >>> est = sklearn.linear_model.SGDClassifier()
+    >>> clf = Blockwise(est, classes=[0, 1])
+    >>> clf.fit(X, y)
     """
-
     def __init__(self, estimator, **kwargs):
         self.estimator = estimator
         self.fit_kwargs = kwargs
