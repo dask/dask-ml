@@ -29,6 +29,7 @@ _partial_deprecation = (
     "instead."
 )
 
+
 @six.add_metaclass(_WritableDoc)
 class _BigPartialFitMixin(object):
     """ Wraps a partial_fit enabled estimator for use with Dask arrays """

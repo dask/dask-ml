@@ -1,3 +1,5 @@
+import pytest
+
 from sklearn import neural_network as nn_
 from dask_ml import neural_network as nn
 
