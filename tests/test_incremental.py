@@ -36,3 +36,7 @@ def test_incremental_basic(xy_classification):
     expected = est2.score(X, y)
     # assert isinstance(result, da.Array)
     assert_eq(result, expected)
+
+    clf = Incremental(SGDClassifier(random_state=0), classes=[0, 1])
+    clf.partial_fit(X, y)
+    assert_estimator_equal(clf.estimator, est2, exclude=['loss_function_'])
