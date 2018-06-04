@@ -6,7 +6,7 @@ from dask_ml import neural_network as nn
 from dask_ml.utils import assert_estimator_equal
 
 
-@pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 class TestMLPClassifier(object):
 
     def test_basic(self, single_chunk_classification):
@@ -18,7 +18,7 @@ class TestMLPClassifier(object):
         assert_estimator_equal(a, b)
 
 
-@pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 class TestMLPRegressor(object):
 
     def test_basic(self, single_chunk_classification):

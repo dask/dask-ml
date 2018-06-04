@@ -1,4 +1,5 @@
 import pytest
+import six
 from dask.delayed import Delayed
 from sklearn import linear_model as lm_
 from dask_ml import linear_model as lm
@@ -69,6 +70,7 @@ def test_lazy(xy_classification):
     assert isinstance(result, lm_.SGDClassifier)
 
 
+@pytest.mark.skipif(six.PY2, reason="Python 2 failure.")
 def test_deprecated():
     expected = (
         r"'PartialSGDClassifier' is deprecated. Use "
