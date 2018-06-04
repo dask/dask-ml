@@ -7,7 +7,13 @@ Version 0.6.0
 API Breaking Changes
 --------------------
 
-- Removed the `get` keyword from the incremental learner ``fit`` methods (:pr:`187`)
+- Removed the `get` keyword from the incremental learner ``fit`` methods. (:pr:`187`)
+- Deprecated the various ``Partial*`` estimators in favor of the :class:`dask_ml.wrappers.Incremental` meta-estimator (:pr:`190`)
+  
+Enhancements
+------------
+
+- Added a new meta-estimator :class:`dask_ml.wrappers.Incremental` for wrapping any estimator with a `partial_fit` method. See :ref:`incremental.blockwise-metaestimator` for more. (:pr:`190`)
 
 Version 0.5.0
 ~~~~~~~~~~~~~

@@ -125,7 +125,27 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
             return transform(X)
 
     def score(self, X, y):
-        # TODO: re-implement some scoring functions.
+        """Returns the score on the given data.
+
+        This uses the scoring defined by ``estimator.score``. This is
+        currently immediate and sequential. In the future, this will be
+        delayed and parallel.
+
+        Parameters
+        ----------
+        X : array-like, shape = [n_samples, n_features]
+            Input data, where n_samples is the number of samples and
+            n_features is the number of features.
+
+        y : array-like, shape = [n_samples] or [n_samples, n_output], optional
+            Target relative to X for classification or regression;
+            None for unsupervised learning.
+
+        Returns
+        -------
+        score : float
+                return self.estimator.score(X, y)
+        """
         return self.estimator.score(X, y)
 
     def predict(self, X):
@@ -197,6 +217,78 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
                    "'{}' method.".format(self.estimator, method))
             raise AttributeError(msg)
         return getattr(self.estimator, method)
+
+
+class Incremental(ParallelPostFit):
+    """Metaestimator for feeding Dask Arrays to an estimator blockwise.
+
+    This wrapper provides a bridge between Dask objects and estimators
+    implementing the ``partial_fit`` API. These *incremental learners* can
+    train on batches of data. This fits well with Dask's blocked data
+    structures.
+
+    See the `list of incremental learners`_ in the scikit-learn documentation
+    for a list of estimators that implement the ``partial_fit`` API. Note that
+    `Incremental` is not limited to just these classes, it will work on any
+    estimator implementing ``partial_fit``, including those defined outside of
+    scikit-learn itself.
+
+    Calling :meth:`Incremental.fit` with a Dask Array will pass each block of
+    the Dask array or arrays to ``estimator.partial_fit`` *sequentially*.
+
+    Like :class:`ParallelPostFit`, the methods available after fitting (e.g.
+    :meth:`Incremental.predict`, etc.) are all parallel and delayed.
+
+    .. _list of incremental learners: http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning  # noqa
+
+    Parameters
+    ----------
+    estimator : Estimator
+        Any object supporting the scikit-learn ``parital_fit`` API.
+    **kwargs
+        Additional keyword arguments passed through the the underlying
+        estimator's `partial_fit` method.
+
+    Examples
+    --------
+    >>> from dask_ml.wrappers import Incremental
+    >>> from dask_ml.datasets import make_classification
+    >>> import sklearn.linear_model
+    >>> X, y = make_classification(chunks=25)
+    >>> est = sklearn.linear_model.SGDClassifier()
+    >>> clf = Incremental(est, classes=[0, 1])
+    >>> clf.fit(X, y)
+    """
+    def __init__(self, estimator, **kwargs):
+        self.estimator = estimator
+        self.fit_kwargs = kwargs
+
+    def fit(self, X, y=None):
+        from ._partial import fit
+
+        fit_kwargs = self.fit_kwargs or {}
+        result = fit(self.estimator, X, y, **fit_kwargs)
+
+        # Copy the learned attributes over to self
+        attrs = {k: v for k, v in vars(result).items() if k.endswith('_')}
+        for k, v in attrs.items():
+            setattr(self, k, v)
+        return self
+
+    def partial_fit(self, X, y=None):
+        """Fit the underlying estimator.
+
+        This is identical to ``fit``.
+
+        Parameters
+        ----------
+        X, y : array-like
+
+        Returns
+        -------
+        self : object
+        """
+        return self.fit(X, y)
 
 
 def _first_block(dask_object):

@@ -63,7 +63,8 @@ Dask-ML provides drop-in replacements for grid and randomized search.
 Meta-estimators for scikit-learn
 ================================
 
-dask-ml provides some meta-estimators parallelize certain components.
+dask-ml provides some meta-estimators that help use regular scikit-learn
+compatible estimators with Dask arrays.
 
 .. currentmodule:: dask_ml
 
@@ -72,32 +73,7 @@ dask-ml provides some meta-estimators parallelize certain components.
    :template: class.rst
 
    wrappers.ParallelPostFit
-
-
-Incremental Learning
-====================
-
-.. currentmodule:: dask_ml
-
-Some scikit-learn estimators support out-of-core training through the
-``partial_fit`` method. The following estimators wrap those scikit-learn
-estimators, allowing them to be used in Pipelines and on Dask arrays and
-dataframes. Training will still be serial, so these will not benefit from
-a parallel or distributed training any more than the underlying estimator.
-
-.. autosummary::
-   :toctree: generated/
-   :template: class.rst
-
-   cluster.PartialMiniBatchKMeans
-   linear_model.PartialPassiveAggressiveClassifier
-   linear_model.PartialPassiveAggressiveRegressor
-   linear_model.PartialPerceptron
-   linear_model.PartialSGDClassifier
-   linear_model.PartialSGDRegressor
-   naive_bayes.PartialBernoulliNB
-   naive_bayes.PartialMultinomialNB
-
+   wrappers.Incremental
 
 :mod:`dask_ml.cluster`: Clustering
 ==================================
