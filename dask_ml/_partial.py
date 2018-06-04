@@ -211,6 +211,9 @@ def _copy_partial_doc(cls):
 
     insert = """
 
+    .. deprecated:: 0.6.0
+       Use the :class:`dask_ml.wrappers.Incremental` meta-estimator instead.
+
     This class wraps scikit-learn's {classname}. When a dask-array is passed
     to our ``fit`` method, the array is passed block-wise to the scikit-learn
     class' ``partial_fit`` method. This will allow you to fit the estimator
