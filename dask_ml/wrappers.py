@@ -262,6 +262,11 @@ class Incremental(ParallelPostFit):
     >>> clf = Incremental(est)
     >>> clf.fit(X, y, classes=[0, 1])
     """
+    _estimator_clash_message = (
+        "The 'estimator' parameter is used by both 'Incremental' and the"
+        "underlying estimator, which will produce incorrect results."
+    )
+
     def __init__(self, estimator, **kwargs):
         estimator.set_params(**kwargs)
         self.estimator = estimator
@@ -286,10 +291,14 @@ class Incremental(ParallelPostFit):
 
     def get_params(self, deep=True):
         out = self.estimator.get_params(deep=deep)
+        if 'estimator' in out:
+            raise ValueError(self._estimator_clash_message)
         out['estimator'] = self.estimator
         return out
 
     def set_params(self, **kwargs):
+        if 'estimator' in kwargs:
+            raise ValueError(self._estimator_clash_message)
         self.estimator.set_params(**kwargs)
         return self
 
