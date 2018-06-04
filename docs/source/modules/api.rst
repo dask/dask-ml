@@ -73,12 +73,7 @@ compatible estimators with Dask arrays.
    :template: class.rst
 
    wrappers.ParallelPostFit
-   wrappers.Blockwise
-
-.. autosummary::
-   :toctree: generated/
-
-   wrappers.make_blockwise
+   wrappers.Incremental
 
 
 .. _api.incremental-learning:

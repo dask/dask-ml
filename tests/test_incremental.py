@@ -1,21 +1,19 @@
 import dask.array as da
 from dask.array.utils import assert_eq
 import numpy as np
-import pytest
 from sklearn.base import clone
 from sklearn.linear_model import SGDClassifier
 
-from dask_ml.wrappers import Blockwise, make_blockwise
+from dask_ml.wrappers import Incremental
 from dask_ml.utils import assert_estimator_equal
 
 
-@pytest.mark.parametrize('maker', [Blockwise, make_blockwise])
-def test_blockwise_basic(xy_classification, maker):
+def test_incremental_basic(xy_classification):
     X, y = xy_classification
     est1 = SGDClassifier(random_state=0)
     est2 = clone(est1)
 
-    clf = maker(est1, classes=[0, 1])
+    clf = Incremental(est1, classes=[0, 1])
     result = clf.fit(X, y)
     for slice_ in da.core.slices_from_chunks(X.chunks):
         est2.partial_fit(X[slice_], y[slice_[0]], classes=[0, 1])

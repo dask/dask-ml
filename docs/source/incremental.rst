@@ -20,15 +20,15 @@ Dask-ML provides two ways to achieve this: :ref:`incremental.blockwise-metaestim
 
 .. _incremental.blockwise-metaestimator:
 
-Blockwise Metaestimator
------------------------
+Incremental Metaestimator
+-------------------------
 
 .. currentmodule::  dask_ml
 
 .. autosummary::
-   wrappers.Blockwise
+   wrappers.Incremental
 
-:class:`dask_ml.wrappers.Blockwise` is a meta-estimator (an estimator that
+:class:`dask_ml.wrappers.Incremental` is a meta-estimator (an estimator that
 takes another estimator) that bridges scikit-learn estimators expecting
 NumPy arrays, and users with large Dask Arrays.
 
@@ -43,14 +43,14 @@ between machines.
 .. ipython:: python
 
    from dask_ml.datasets import make_classification
-   from dask_ml.wrappers import Blockwise
+   from dask_ml.wrappers import Incremental
    from sklearn.linear_model import SGDClassifier
 
    X, y = make_classification(chunks=25)
    X
 
    estimator = SGDClassifier(random_state=10)
-   clf = Blockwise(estimator, classes=[0, 1])
+   clf = Incremental(estimator, classes=[0, 1])
    clf.fit(X, y)
 
 In this example, we make a (small) random Dask Array. It has 100 samples,
@@ -61,37 +61,12 @@ You instantite the underlying estimator as usual. It really is just a
 scikit-learn compatible estimator, and will be trained normally via its
 ``partial_fit``.
 
-When wrapping the estimator in :class:`Blockwise`, you need to pass any
+When wrapping the estimator in :class:`Incremental`, you need to pass any
 keyword arguments that are expected by the underlying ``partial_fit`` method.
 With :class:`sklearn.linear_model.SGDClassifier`, we're required to provide
 the list of unique ``classes`` in ``y``.
 
 Notice that we call the regular ``.fit`` method for training. Dask-ML takes
 care of passing each block to the underlying estimator for you.
-
-.. _incremental.pre-wrapped:
-
-Daskified Incremental Learners
-===============================
-
-Dask-ML provides a few estimators that effectively do the wrapping for you.
-The main differences from :class:`dask_ml.wrappers.Blockwise` is that
-
-1. They're found in the corresponding Dask-ML namespace (e.g.
-   :class:`dask_ml.linear_model.SGDClassifier`).
-2. They're regular estimators (not meta-estimators).
-
-Calling them is just like calling the scikit-learn estimator, except that you
-use Dask Arrays instead of NumPy arrays, and you pass all the ``fit_kwargs`` to
-the estimator itself.
-
-.. ipython:: python
-
-   from dask_ml.linear_model import PartialSGDClassifier
-   from dask_ml.datasets import make_classification
-   est = PartialSGDClassifier(classes=[0, 1])
-   est.fit(X, y)
-
-See :ref:`api.incremental` for a full list of the wrapped estimators.
 
 .. _incremental learning: http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning

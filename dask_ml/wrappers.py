@@ -219,21 +219,27 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         return getattr(self.estimator, method)
 
 
-class Blockwise(ParallelPostFit):
+class Incremental(ParallelPostFit):
     """Metaestimator for feeding Dask Arrays to an estimator blockwise.
 
     This wrapper provides a bridge between Dask objects and estimators
-    implementing the ``partial_fit`` API. These estimators can train on
-    batches of data, but simply passing a Dask array to their ``fit`` or
-    ``partial_fit`` methods would materialize the large Dask Array on a single
-    machine.
+    implementing the ``partial_fit`` API. These *incremental learners* can
+    train on batches of data. This fits well with Dask's blocked data
+    structures.
 
-    Calling :meth:`Streamable.fit` with a Dask Array will pass each block of
-    the Dask array to to ``estimator.partial_fit`` *sequentially*.
+    See the `list of incremental learners`_ in the scikit-learn documentation
+    for a list of estimators that implement the ``partial_fit`` API. Note that
+    `Incremental` is not limited to just these classes, it will work on any
+    estimator implementing ``partial_fit``, including those defined outside of
+    scikit-learn itself.
+
+    Calling :meth:`Incremental.fit` with a Dask Array will pass each block of
+    the Dask array or arrays to ``estimator.partial_fit`` *sequentially*.
 
     Like :class:`ParallelPostFit`, the methods available after fitting (e.g.
-    :meth:`Blockwise.score`, :meth:`Blockwise.predcit`, etc.) are all parallel
-    and delayed.
+    :meth:`Incremental.predict`, etc.) are all parallel and delayed.
+
+    .. _list of incremental learners: http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning  # noqa
 
     Parameters
     ----------
@@ -245,12 +251,12 @@ class Blockwise(ParallelPostFit):
 
     Examples
     --------
-    >>> from dask_ml.wrappers import Blockwise
+    >>> from dask_ml.wrappers import Incremental
     >>> from dask_ml.datasets import make_classification
     >>> import sklearn.linear_model
     >>> X, y = make_classification(chunks=25)
     >>> est = sklearn.linear_model.SGDClassifier()
-    >>> clf = Blockwise(est, classes=[0, 1])
+    >>> clf = Incremental(est, classes=[0, 1])
     >>> clf.fit(X, y)
     """
     def __init__(self, estimator, **kwargs):
@@ -268,25 +274,6 @@ class Blockwise(ParallelPostFit):
         for k, v in attrs.items():
             setattr(self, k, v)
         return self
-
-
-def make_blockwise(estimator, **kwargs):
-    """Helper function for creating a :class:`Stremable` estimator.
-
-    Parameters
-    ----------
-    estimator : Estimator
-        Any object supporting the scikit-learn `parital_fit` API.
-    **kwargs
-        Additional keyword arguments passed through the the underlying
-        estimator's `partial_fit` method.
-
-    Returns
-    -------
-    Blockwise
-    """
-    blockwise = Blockwise(estimator, **kwargs)
-    return blockwise
 
 
 def _first_block(dask_object):
