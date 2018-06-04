@@ -1,6 +1,7 @@
 import dask.array as da
 from dask.array.utils import assert_eq
 import numpy as np
+import sklearn.model_selection
 from sklearn.base import clone
 from sklearn.linear_model import SGDClassifier
 
@@ -13,8 +14,8 @@ def test_incremental_basic(xy_classification):
     est1 = SGDClassifier(random_state=0)
     est2 = clone(est1)
 
-    clf = Incremental(est1, classes=[0, 1])
-    result = clf.fit(X, y)
+    clf = Incremental(est1)
+    result = clf.fit(X, y, classes=[0, 1])
     for slice_ in da.core.slices_from_chunks(X.chunks):
         est2.partial_fit(X[slice_], y[slice_[0]], classes=[0, 1])
 
@@ -37,6 +38,15 @@ def test_incremental_basic(xy_classification):
     # assert isinstance(result, da.Array)
     assert_eq(result, expected)
 
-    clf = Incremental(SGDClassifier(random_state=0), classes=[0, 1])
-    clf.partial_fit(X, y)
+    clf = Incremental(SGDClassifier(random_state=0))
+    clf.partial_fit(X, y, classes=[0, 1])
     assert_estimator_equal(clf.estimator, est2, exclude=['loss_function_'])
+
+
+def test_in_gridsearch(xy_classification):
+    X, y = xy_classification
+
+    clf = Incremental(SGDClassifier(random_state=0))
+    param_grid = {'alpha': [0.1, 10]}
+    gs = sklearn.model_selection.GridSearchCV(clf, param_grid)
+    gs.fit(X, y)

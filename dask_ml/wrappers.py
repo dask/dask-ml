@@ -83,6 +83,8 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         Parameters
         ----------
         X, y : array-like
+        **kwargs
+            Additional fit-kwargs for the underlying estimator.
 
         Returns
         -------
@@ -246,8 +248,9 @@ class Incremental(ParallelPostFit):
     estimator : Estimator
         Any object supporting the scikit-learn ``parital_fit`` API.
     **kwargs
-        Additional keyword arguments passed through the the underlying
-        estimator's `partial_fit` method.
+        Set the hyperparameters of `estimator`. This is used in, for example,
+        ``GridSearchCV``, to set the paramters of the underlying estimator.
+        Most of the time you will not need to use this.
 
     Examples
     --------
@@ -256,17 +259,16 @@ class Incremental(ParallelPostFit):
     >>> import sklearn.linear_model
     >>> X, y = make_classification(chunks=25)
     >>> est = sklearn.linear_model.SGDClassifier()
-    >>> clf = Incremental(est, classes=[0, 1])
-    >>> clf.fit(X, y)
+    >>> clf = Incremental(est)
+    >>> clf.fit(X, y, classes=[0, 1])
     """
     def __init__(self, estimator, **kwargs):
+        estimator.set_params(**kwargs)
         self.estimator = estimator
-        self.fit_kwargs = kwargs
 
-    def fit(self, X, y=None):
+    def fit(self, X, y=None, **fit_kwargs):
         from ._partial import fit
 
-        fit_kwargs = self.fit_kwargs or {}
         result = fit(self.estimator, X, y, **fit_kwargs)
 
         # Copy the learned attributes over to self
@@ -275,7 +277,23 @@ class Incremental(ParallelPostFit):
             setattr(self, k, v)
         return self
 
-    def partial_fit(self, X, y=None):
+    def __repr__(self):
+        # Have to override, else all the parameters of estimator
+        # are duplicated
+        estimator = repr(self.estimator)
+        class_name = self.__class__.__name__
+        return '{}({})'.format(class_name, estimator)
+
+    def get_params(self, deep=True):
+        out = self.estimator.get_params(deep=deep)
+        out['estimator'] = self.estimator
+        return out
+
+    def set_params(self, **kwargs):
+        self.estimator.set_params(**kwargs)
+        return self
+
+    def partial_fit(self, X, y=None, **fit_kwargs):
         """Fit the underlying estimator.
 
         This is identical to ``fit``.
@@ -283,12 +301,14 @@ class Incremental(ParallelPostFit):
         Parameters
         ----------
         X, y : array-like
+        **kwargs
+            Additional fit-kwargs for the underlying estimator.
 
         Returns
         -------
         self : object
         """
-        return self.fit(X, y)
+        return self.fit(X, y=y, **fit_kwargs)
 
 
 def _first_block(dask_object):
