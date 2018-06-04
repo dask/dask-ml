@@ -3,25 +3,24 @@
 Incremental Learning
 ====================
 
-Some estimators can be trained incrementally -- without seeing the entire dataset at once.
-Scikit-Learn provdes the ``partial_fit`` API to let you stream batches of data
-to an estimator that can be fit in batches.
+Some estimators can be trained incrementally -- without seeing the entire
+dataset at once. Scikit-Learn provdes the ``partial_fit`` API to stream batches
+of data to an estimator that can be fit in batches.
 
 Normally, if you pass a Dask Array to an estimator expecting a NumPy array,
 the Dask Array will be converted to a single, large NumPy array. On a single
 machine, you'll likely run out of RAM and crash the program. On a distributed
 cluster, all the workers will send their data to a single machine and crash it.
 
-The incremental learning tools in Dask-ML provide a bridge between Dask and
-Scikit-Learn estimators supporting the ``partial_fit`` API. Each individual
-chunk in a Dask Array can be passed to the estimator's ``partial_fit`` method.
-
-Dask-ML provides two ways to achieve this: :ref:`incremental.blockwise-metaestimator`, for wrapping any estimator with a `partial_fit` method, and some pre-daskified :ref:`incremental.dask-friendly` incremental.
+:class:`dask_ml.wrappers.Incremental` provides a bridge between Dask and
+Scikit-Learn estimators supporting the ``partial_fit`` API. You wrap the
+underlying estimator in ``Incremental``. Dask-ML will sequentially pass each
+block of a Dask Array to the underlying estimator's ``partial_fit`` method.
 
 .. _incremental.blockwise-metaestimator:
 
-Incremental Metaestimator
--------------------------
+Incremental Meta-estimator
+--------------------------
 
 .. currentmodule::  dask_ml
 
@@ -35,7 +34,7 @@ NumPy arrays, and users with large Dask Arrays.
 Each *block* of a Dask Array is fed to the underlying estiamtor's
 ``partial_fit`` method. The training is entirely sequential, so you won't
 notice massive training time speedups from parallelism. In a distributed
-environment, you should notice some speeds from avoiding extra IO, and the
+environment, you should notice some speedup from avoiding extra IO, and the
 fact that models are typically much smaller than data, and so faster to move
 between machines.
 

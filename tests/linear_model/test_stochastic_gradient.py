@@ -1,3 +1,4 @@
+import pytest
 from dask.delayed import Delayed
 from sklearn import linear_model as lm_
 from dask_ml import linear_model as lm
@@ -5,6 +6,7 @@ from dask_ml import linear_model as lm
 from dask_ml.utils import assert_estimator_equal
 
 
+@pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")
 class TestStochasticGradientClassifier(object):
 
     def test_basic(self, single_chunk_classification):
@@ -32,6 +34,7 @@ class TestStochasticGradientClassifier(object):
         a.score(X, y)
 
 
+@pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")
 class TestStochasticGradientRegressor(object):
 
     def test_basic(self, single_chunk_regression):
@@ -56,6 +59,7 @@ class TestStochasticGradientRegressor(object):
         a.score(X, y)
 
 
+@pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")
 def test_lazy(xy_classification):
     X, y = xy_classification
     sgd = lm.PartialSGDClassifier(classes=[0, 1])
@@ -63,3 +67,14 @@ def test_lazy(xy_classification):
     assert isinstance(r, Delayed)
     result = r.compute()
     assert isinstance(result, lm_.SGDClassifier)
+
+
+def test_deprecated():
+    expected = (
+        r"'PartialSGDClassifier' is deprecated. Use "
+        r"'dask_ml.wrappers.Incremental.*SGDClassifier.*"
+        r"instead."
+    )
+
+    with pytest.warns(FutureWarning, match=expected):
+        lm.PartialSGDClassifier(classes=[0, 1])

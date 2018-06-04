@@ -244,7 +244,7 @@ class Incremental(ParallelPostFit):
     Parameters
     ----------
     estimator : Estimator
-        Any object supporting the scikit-learn `parital_fit` API.
+        Any object supporting the scikit-learn ``parital_fit`` API.
     **kwargs
         Additional keyword arguments passed through the the underlying
         estimator's `partial_fit` method.
@@ -274,6 +274,21 @@ class Incremental(ParallelPostFit):
         for k, v in attrs.items():
             setattr(self, k, v)
         return self
+
+    def partial_fit(self, X, y=None):
+        """Fit the underlying estimator.
+
+        This is identical to ``fit``.
+
+        Parameters
+        ----------
+        X, y : array-like
+
+        Returns
+        -------
+        self : object
+        """
+        return self.fit(X, y)
 
 
 def _first_block(dask_object):

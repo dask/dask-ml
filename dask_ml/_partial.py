@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 import os
+import warnings
 from abc import ABCMeta
 
 import numpy as np
@@ -22,6 +23,12 @@ class _WritableDoc(ABCMeta):
     # TODO: Py2: remove all this
 
 
+_partial_deprecation = (
+    "'{cls.__name__}' is deprecated. Use "
+    "'dask_ml.wrappers.Incremental({base.__name__}(), **kwargs)' "
+    "instead."
+)
+
 @six.add_metaclass(_WritableDoc)
 class _BigPartialFitMixin(object):
     """ Wraps a partial_fit enabled estimator for use with Dask arrays """
@@ -30,6 +37,7 @@ class _BigPartialFitMixin(object):
     _fit_kwargs = []
 
     def __init__(self, **kwargs):
+        self._deprecated()
         missing = set(self._init_kwargs) - set(kwargs)
 
         if missing:
@@ -39,6 +47,15 @@ class _BigPartialFitMixin(object):
         for kwarg in self._init_kwargs:
             setattr(self, kwarg, kwargs.pop(kwarg))
         super(_BigPartialFitMixin, self).__init__(**kwargs)
+
+    @classmethod
+    def _deprecated(cls):
+        for base in cls.mro():
+            if base.__module__.startswith('sklearn'):
+                break
+
+        warnings.warn(_partial_deprecation.format(cls=cls, base=base),
+                      FutureWarning)
 
     @classmethod
     def _get_param_names(cls):
