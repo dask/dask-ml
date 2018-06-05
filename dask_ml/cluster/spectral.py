@@ -270,12 +270,10 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         logger.info("A2: %s %s", A2.nbytes / 1e9, getattr(A2, 'numblocks'))
         # A2 = A2.rechunk(A2.shape)
         # Equivalent to diag(d1_si) @ B @ diag(d2_si)
-        B2 = d1_si.reshape(-1, 1) * B * d2_si  # (m, m), so this is dask.
-        logger.info("B2: %s %s", B2.nbytes / 1e9, getattr(B2, 'numblocks'))
-
         # XXX: this is the problem at the moment...
         B2 = da.multiply(da.multiply(d1_si.reshape(-1, 1), B),
                          d2_si.reshape(1, -1))
+        logger.info("B2: %s %s", B2.nbytes / 1e9, getattr(B2, 'numblocks'))
 
         U_A, S_A, V_A = svd(A2)
 
@@ -311,7 +309,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
             logger.info("Persisting array for k-means")
             U2 = U2.persist()
         elif isinstance(U2, da.Array):
-            logger.warning("Consider persist_embedding.")
+            logger.info("Consider persist_embedding.")
             # We can still persist the small things...
             # TODO: we would need to update the task graphs
             # for V2 to replace references to, e.g.
