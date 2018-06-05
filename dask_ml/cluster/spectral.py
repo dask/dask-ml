@@ -4,6 +4,7 @@
 import logging
 
 import six
+import dask
 import dask.array as da
 from dask import delayed, compute
 import numpy as np
@@ -144,7 +145,9 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
                  eigen_tol=0.0, assign_labels='kmeans', degree=3, coef0=1,
                  kernel_params=None, n_jobs=1, n_components=100,
                  persist_embedding=False,
-                 kmeans_params=None):
+                 kmeans_params=None,
+                 rechunk_strategy=None,
+                 precompute_inner=True):
         self.n_clusters = n_clusters
         self.eigen_solver = eigen_solver
         self.random_state = random_state
@@ -161,6 +164,8 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         self.n_components = n_components
         self.persist_embedding = persist_embedding
         self.kmeans_params = kmeans_params
+        self.rechunk_strategy = rechunk_strategy
+        self.precompute_inner = precompute_inner
 
     def _check_array(self, X):
         logger.info("Starting check array")
@@ -173,6 +178,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         metric = self.affinity
         rng = check_random_state(self.random_state)
         n_clusters = self.n_clusters
+        rechunk_strategy = self.rechunk_strategy or {}
 
         # kmeans for final clustering
         if isinstance(self.assign_labels, six.string_types):
@@ -220,33 +226,24 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         # compute the exact blocks
         # these are done in parallel for dask arrays
         if isinstance(X, da.Array):
-            logger.info("Starting small rechunk-persist")
-            X_keep = X[keep].rechunk(self.n_components).persist()
-            logger.info("Finished small rechunk-persist")
+            X_keep = X[keep].rechunk(X.shape).persist()
         else:
             X_keep = X[keep]
 
-        if isinstance(metric, six.string_types):
-            if metric not in PAIRWISE_KERNEL_FUNCTIONS:
-                msg = ("Unknown affinity metric name '{}'. Expected one "
-                       "of '{}'".format(metric,
-                                        PAIRWISE_KERNEL_FUNCTIONS.keys()))
-                raise ValueError(msg)
-            A = pairwise_kernels(X_keep,
-                                 metric=metric, filter_params=True, **params)
-            B = pairwise_kernels(X_keep, X[rest],
-                                 metric=metric, filter_params=True, **params)
+        X_rest = X[rest]
 
-        elif callable(metric):
-            A = metric(X_keep, **params)
-            B = metric(X_keep, X[rest], **params)
-        else:
-            msg = ("Unexpected type for 'affinity' '{}'. Must be string "
-                   "kernel name, array, or callable")
-            raise TypeError(msg)
-        if isinstance(A, da.Array):
-            A = A.rechunk((n_components, n_components))
-            B = B.rechunk((B.shape[0], B.chunks[1]))
+        chunks = rechunk_strategy.get('kernel')
+        if chunks:
+            logger.info("Rechunking for kernel %s -> %s",
+                        X_rest.numblocks, chunks)
+            X_rest = X_rest.rechunk(chunks)
+
+        A, B = embed(X_keep, X_rest, n_components, metric, params,
+                     random_state=rng)
+        logger.info("Kernel info: [A], memory: %sGB, blocks: %s",
+                    A.nbytes / 1e9, getattr(A, 'numblocks'))
+        logger.info("Kernel info: [B], memory: %sGB, blocks: %s",
+                    B.nbytes / 1e9, B.numblocks)
 
         # now the approximation of C
         a = A.sum(0)   # (l,)
@@ -256,24 +253,25 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         # TODO: I think we have some unnecessary delayed wrapping of A here.
         A_inv = da.from_delayed(delayed(pinv)(A), A.shape, A.dtype)
 
+        inner = A_inv.dot(b1)
         d1_si = 1 / da.sqrt(a + b1)
 
-        # The scheduler has trouble with the next computation, written naively
-        # To help, we'll get concrete results.
-        logger.info("Starting intermediate compute")
-        A_inv, b1, d1_si = compute(A_inv, b1, d1_si)
-        inner = A_inv.dot(b1)
-        logger.info("Finished intermediate compute")
+        if self.precompute_inner:
+            logger.info("starting intermediate pre-compute")
+            b1, inner, d1_si = dask.compute(b1, inner, d1_si)
+            logger.info("finished intermediate pre-compute")
 
         d2_si = 1 / da.sqrt(b2 + B.T.dot(inner))  # (m,), dask array
-        d2_si, = compute(d2_si,)
 
         # d1, d2 are diagonal, so we can avoid large matrix multiplies
         # Equivalent to diag(d1_si) @ A @ diag(d1_si)
         # This is immediate.
         A2 = d1_si.reshape(-1, 1) * A * d1_si.reshape(1, -1)  # (n, n)
+        logger.info("A2: %s %s", A2.nbytes / 1e9, getattr(A2, 'numblocks'))
         # A2 = A2.rechunk(A2.shape)
         # Equivalent to diag(d1_si) @ B @ diag(d2_si)
+        B2 = d1_si.reshape(-1, 1) * B * d2_si  # (m, m), so this is dask.
+        logger.info("B2: %s %s", B2.nbytes / 1e9, getattr(B2, 'numblocks'))
 
         # XXX: this is the problem at the moment...
         B2 = da.multiply(da.multiply(d1_si.reshape(-1, 1), B),
@@ -288,11 +286,27 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
               da.vstack([A2, B2.T]).dot(
               U_A[:, :n_clusters]).dot(
               da.diag(1.0 / da.sqrt(S_A[:n_clusters]))))  # (n, k)
+        logger.info("V2.1: %s %s", V2.nbytes / 1e9, getattr(V2, 'numblocks'))
         if isinstance(B2, da.Array):
             V2 = V2.rechunk((B2.chunks[1][0], n_clusters))
+            logger.info("V2.2: %s %s", V2.nbytes / 1e9, V2.numblocks)
 
         # normalize (Eq. 4)
         U2 = (V2.T / da.sqrt((V2 ** 2).sum(1))).T  # (n, k)
+        logger.info("U2.1: %s %s", U2.nbytes / 1e9, U2.numblocks)
+
+        # Recover the original order so that labels match
+        U2 = U2[inds_idx]  # (n, k)
+        logger.info("U2.2: %s %s", U2.nbytes / 1e9, U2.numblocks)
+
+        chunks = rechunk_strategy.get("cluster")
+        if chunks:
+            logger.info("Rechunking for cluster %s -> %s",
+                        U2.numblocks, chunks)
+            U2 = U2.rechunk(chunks)
+        logger.info("Embedding info: [U], memory: %sGB, blocks: %s",
+                    U2.nbytes / 1e9, getattr(U2, 'numblocks'))
+
         if self.persist_embedding and isinstance(U2, da.Array):
             logger.info("Persisting array for k-means")
             U2 = U2.persist()
@@ -304,10 +318,6 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
             #  U_A, A2, etc. with references to persisted
             # versions of those.
             pass
-
-        # Recover the original order so that labels match
-        U2 = U2[inds_idx]  # (n, k)
-
         logger.info("k-means for assign_labels[starting]")
         km.fit(U2)
         logger.info("k-means for assign_labels[finished]")
@@ -318,3 +328,30 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         self.labels_ = km.labels_
         self.eigenvalues_ = S_A[:n_clusters]  # TODO: better name
         return self
+
+
+def embed(X_keep, X_rest, n_components, metric, kernel_params,
+          random_state=None):
+    if isinstance(metric, six.string_types):
+        if metric not in PAIRWISE_KERNEL_FUNCTIONS:
+            msg = ("Unknown affinity metric name '{}'. Expected one "
+                   "of '{}'".format(metric,
+                                    PAIRWISE_KERNEL_FUNCTIONS.keys()))
+            raise ValueError(msg)
+        A = pairwise_kernels(X_keep,
+                             metric=metric, filter_params=True,
+                             **kernel_params)
+        B = pairwise_kernels(X_keep, X_rest,
+                             metric=metric, filter_params=True,
+                             **kernel_params)
+    elif callable(metric):
+        A = metric(X_keep, **kernel_params)
+        B = metric(X_keep, X_rest, **kernel_params)
+    else:
+        msg = ("Unexpected type for 'affinity' '{}'. Must be string "
+               "kernel name, array, or callable")
+        raise TypeError(msg)
+    if isinstance(A, da.Array):
+        A = A.rechunk((n_components, n_components))
+        B = B.rechunk((B.shape[0], B.chunks[1]))
+    return A, B

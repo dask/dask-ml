@@ -116,7 +116,7 @@ def check_pairwise_arrays(X, Y, precomputed=False):
 @doc_wraps(metrics.pairwise.linear_kernel)
 def linear_kernel(X, Y=None):
     X, Y = check_pairwise_arrays(X, Y)
-    return X.dot(Y.T)
+    return da.dot(X, Y.T)
 
 
 @doc_wraps(metrics.pairwise.rbf_kernel)
@@ -136,7 +136,7 @@ def polynomial_kernel(X, Y=None, degree=3, gamma=None, coef0=1):
     if gamma is None:
         gamma = 1.0 / X.shape[1]
 
-    K = (gamma * X.dot(Y.T) + coef0)**degree
+    K = (gamma * da.dot(X, Y.T) + coef0)**degree
     return K
 
 
@@ -146,7 +146,7 @@ def sigmoid_kernel(X, Y=None, gamma=None, coef0=1):
     if gamma is None:
         gamma = 1.0 / X.shape[1]
 
-    K = X.dot(Y.T)
+    K = da.dot(X, Y.T)
     K *= gamma
     K += coef0
     K = da.tanh(K)
