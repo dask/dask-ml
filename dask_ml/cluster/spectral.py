@@ -275,6 +275,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         # A2 = A2.rechunk(A2.shape)
         # Equivalent to diag(d1_si) @ B @ diag(d2_si)
 
+        # XXX: this is the problem at the moment...
         B2 = da.multiply(da.multiply(d1_si.reshape(-1, 1), B),
                          d2_si.reshape(1, -1))
 
