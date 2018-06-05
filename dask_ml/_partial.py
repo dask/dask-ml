@@ -11,6 +11,8 @@ from toolz import partial
 import dask
 from dask.delayed import Delayed
 
+from ._utils import copy_learned_attributes
+
 
 class _WritableDoc(ABCMeta):
     """In py27, classes inheriting from `object` do not have
@@ -77,12 +79,8 @@ class _BigPartialFitMixin(object):
         fit_kwargs = {k: getattr(self, k) for k in self._fit_kwargs}
         result = fit(self, X, y, compute=compute, **fit_kwargs)
 
-        # Copy the learned attributes over to self
-        # It should go without saying that this is *not* threadsafe
         if compute:
-            attrs = {k: v for k, v in vars(result).items() if k.endswith('_')}
-            for k, v in attrs.items():
-                setattr(self, k, v)
+            copy_learned_attributes(result, self)
             return self
         return result
 

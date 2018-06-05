@@ -1,4 +1,6 @@
+import dask
 import dask.array as da
+import distributed
 import numpy as np
 import pytest
 import sklearn.model_selection
@@ -10,7 +12,19 @@ from dask_ml.wrappers import Incremental
 from dask_ml.utils import assert_estimator_equal
 
 
-def test_incremental_basic(xy_classification):
+@pytest.fixture(scope='module', params=['threads', 'distributed'])
+def scheduler(request):
+    if request.param == 'distributed':
+        client = distributed.Client(set_as_default=False)
+
+    with dask.config.set(scheduler=request.param):
+        yield
+
+    if request.param == 'distributed':
+        client.close()
+
+
+def test_incremental_basic(scheduler, xy_classification):
     X, y = xy_classification
     est1 = SGDClassifier(random_state=0)
     est2 = clone(est1)
@@ -54,6 +68,7 @@ def test_in_gridsearch(xy_classification):
 
 
 def test_estimator_param_raises():
+
     class Dummy(sklearn.base.BaseEstimator):
         def __init__(self, estimator=42):
             self.estimator = estimator

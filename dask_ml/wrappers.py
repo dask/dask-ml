@@ -5,6 +5,9 @@ import dask.delayed
 import numpy as np
 import sklearn.base
 
+from ._partial import fit
+from ._utils import copy_learned_attributes
+
 
 class ParallelPostFit(sklearn.base.BaseEstimator):
     """Meta-estimator for parallel predict and transform.
@@ -93,10 +96,8 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         result = self.estimator.fit(X, y, **kwargs)
 
         # Copy over learned attributes
-        attrs = {k: v for k, v in vars(result).items() if k.endswith('_')}
-        for k, v in attrs.items():
-            setattr(self, k, v)
-
+        copy_learned_attributes(result, self)
+        copy_learned_attributes(result, self.estimator)
         return self
 
     def transform(self, X):
@@ -272,14 +273,12 @@ class Incremental(ParallelPostFit):
         self.estimator = estimator
 
     def fit(self, X, y=None, **fit_kwargs):
-        from ._partial import fit
-
         result = fit(self.estimator, X, y, **fit_kwargs)
 
         # Copy the learned attributes over to self
-        attrs = {k: v for k, v in vars(result).items() if k.endswith('_')}
-        for k, v in attrs.items():
-            setattr(self, k, v)
+        copy_learned_attributes(result, self)
+        copy_learned_attributes(result, self.estimator)
+        assert hasattr(self.estimator, 'coef_')
         return self
 
     def __repr__(self):
