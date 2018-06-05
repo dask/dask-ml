@@ -35,6 +35,16 @@ dummy = pd.DataFrame({"A": pd.Categorical(['a', 'b', 'c', 'a'], ordered=True),
                      columns=['A', 'B', 'C', 'D'])
 
 
+@pytest.fixture
+def pandas_df():
+    return pd.DataFrame(5 * [range(42)]).T.rename(columns=str)
+
+
+@pytest.fixture
+def dask_df(pandas_df):
+    return dd.from_pandas(pandas_df, npartitions=5)
+
+
 class TestStandardScaler(object):
     def test_basic(self):
         a = dpp.StandardScaler()
@@ -42,7 +52,33 @@ class TestStandardScaler(object):
 
         a.fit(X)
         b.fit(X.compute())
-        assert_estimator_equal(a, b)
+        assert_estimator_equal(a, b, exclude='n_samples_seen_')
+
+    @pytest.mark.filterwarnings(
+        'ignore::sklearn.exceptions.DataConversionWarning')
+    def test_input_types(self, dask_df, pandas_df):
+        a = dpp.StandardScaler()
+        b = spp.StandardScaler()
+
+        assert_estimator_equal(a.fit(dask_df.values),
+                               a.fit(dask_df),
+                               exclude='n_samples_seen_')
+
+        assert_estimator_equal(a.fit(dask_df),
+                               b.fit(pandas_df),
+                               exclude='n_samples_seen_')
+
+        assert_estimator_equal(a.fit(dask_df.values),
+                               b.fit(pandas_df),
+                               exclude='n_samples_seen_')
+
+        assert_estimator_equal(a.fit(dask_df),
+                               b.fit(pandas_df.values),
+                               exclude='n_samples_seen_')
+
+        assert_estimator_equal(a.fit(dask_df.values),
+                               b.fit(pandas_df.values),
+                               exclude='n_samples_seen_')
 
     def test_inverse_transform(self):
         a = dpp.StandardScaler()

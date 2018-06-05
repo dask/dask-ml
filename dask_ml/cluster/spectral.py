@@ -60,9 +60,9 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         by the clustering algorithm.
 
         Callables should expect arguments similar to
-       `sklearn.metrics.pairwise_kernels`: a required ``X``, an optional ``Y``,
-        and ``gamma``, ``degree``, ``coef0``, and any keywords passed in
-        ``kernel_params``.
+        `sklearn.metrics.pairwise_kernels`: a required ``X``, an optional
+        ``Y``, and ``gamma``, ``degree``, ``coef0``, and any keywords passed
+        in ``kernel_params``.
 
     n_neighbors : integer
         Number of neighbors to use when constructing the affinity matrix using
@@ -219,6 +219,21 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
             X_keep = X[keep].rechunk(X.shape).persist()
         else:
             X_keep = X[keep]
+
+        if isinstance(metric, six.string_types):
+            if metric not in PAIRWISE_KERNEL_FUNCTIONS:
+                msg = ("Unknown affinity metric name '{}'. Expected one "
+                       "of '{}'".format(metric,
+                                        PAIRWISE_KERNEL_FUNCTIONS.keys()))
+                raise ValueError(msg)
+            A = pairwise_kernels(X_keep,
+                                 metric=metric, filter_params=True, **params)
+            B = pairwise_kernels(X_keep, X[rest],
+                                 metric=metric, filter_params=True, **params)
+
+        elif callable(metric):
+            A = metric(X_keep, **params)
+            B = metric(X_keep, X[rest], **params)
 
         X_rest = X[rest]
 

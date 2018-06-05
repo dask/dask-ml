@@ -1,8 +1,11 @@
 """
 Daskified versions of sklearn.metrics.pairwise
 """
+import warnings
+
 import dask.array as da
 import numpy as np
+import packaging.version
 from dask import delayed
 from dask.array.random import doc_wraps
 from sklearn import metrics
@@ -11,17 +14,29 @@ from sklearn.metrics.pairwise import (
 )
 
 from ..utils import row_norms
+from .._compat import SK_VERSION
 
 
 def pairwise_distances_argmin_min(X, Y, axis=1, metric="euclidean",
                                   batch_size=None,
                                   metric_kwargs=None):
-    if batch_size is None:
-        batch_size = max(X.chunks[0])
+    if SK_VERSION >= packaging.version.parse("0.20.0.dev0"):
+        if batch_size is not None:
+            msg = ("'batch_size' is deprecated. Use sklearn.config_context "
+                   "instead.'")
+            warnings.warn(msg, FutureWarning)
+    else:
+        if batch_size is None:
+            batch_size = max(X.chunks[0])
+
+    if batch_size is not None:
+        kwargs = {'batch_size': batch_size}
+    else:
+        kwargs = {}
+
     XD = X.to_delayed().flatten().tolist()
     func = delayed(metrics.pairwise_distances_argmin_min, pure=True, nout=2)
-    blocks = [func(x, Y, metric=metric, batch_size=batch_size,
-                   metric_kwargs=metric_kwargs)
+    blocks = [func(x, Y, metric=metric, metric_kwargs=metric_kwargs, **kwargs)
               for x in XD]
     argmins, mins = zip(*blocks)
 

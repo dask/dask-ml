@@ -2,7 +2,7 @@ Preprocessing
 =============
 
 :mod:`dask_ml.preprocessing` contains some scikit-learn style transformers that
-can be used in ``Pipelines`` s to perform various data transformations as part
+can be used in ``Pipelines`` to perform various data transformations as part
 of the model fitting process. These transformers will work well on dask
 collections (``dask.array``, ``dask.dataframe``), NumPy arrays, or pandas
 dataframes. They'll fit and transform in parallel.
@@ -49,7 +49,7 @@ data to numeric data. They are useful as a preprocessing step in a pipeline
 where you start with heterogenous data (a mix of numeric and non-numeric), but
 the estimator requires all numeric data.
 
-In this toy example, we make a dataset with two columns. ``'A'`` is numeric and
+In this toy example, we use a dataset with two columns. ``'A'`` is numeric and
 ``'B'`` contains text data. We make a small pipeline to
 
 1. Categorize the text data
@@ -93,13 +93,13 @@ Wherever the original was ``'a'``, the transformed now has a ``1`` in the ``a``
 column and a ``0`` everywhere else.
 
 Why was the ``Categorizizer`` step necessary? Why couldn't we operate directly
-on a the ``object`` (string) dtype column? Doing this would be fragile,
+on the ``object`` (string) dtype column? Doing this would be fragile,
 especially when using ``dask.dataframe``, since *the shape of the output would
 depend on the values present*. For example, suppose that we just saw the first
 two rows in the training, and the last two rows in the tests datasets. Then,
 when training, our transformed columns would be:
 
-.. ipython::python
+.. ipython:: python
 
    pd.get_dummies(df.loc[[0, 1], 'B'])
 

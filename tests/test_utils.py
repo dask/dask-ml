@@ -1,5 +1,4 @@
 from collections import namedtuple
-import inspect
 
 import pytest
 import pandas as pd
@@ -15,6 +14,7 @@ from dask_ml.utils import (
     slice_columns, handle_zeros_in_scale, assert_estimator_equal,
     check_random_state,
     check_chunks,
+    check_array,
 )
 from dask_ml.datasets import make_classification
 
@@ -22,7 +22,7 @@ from dask_ml.datasets import make_classification
 df = dd.from_pandas(pd.DataFrame(5 * [range(42)]).T, npartitions=5)
 s = dd.from_pandas(pd.Series([0, 1, 2, 3, 0]), npartitions=5)
 a = da.from_array(np.array([0, 1, 2, 3, 0]), chunks=3)
-X, y = make_classification(chunks=2)
+X, y = make_classification(chunks=(2, 20))
 
 Foo = namedtuple('Foo', 'a_ b_ c_ d_')
 Bar = namedtuple("Bar", 'a_ b_ d_ e_')
@@ -108,15 +108,6 @@ def test_assert_estimator_different_dataframes(a):
         assert_estimator_equal(l, r)
 
 
-@pytest.mark.skipif(six.PY2, reason="No inspect.signature")
-def test_wrapper():
-    assert "chunks" in make_classification.__doc__
-    assert make_classification.__module__ == "dask_ml.datasets"
-
-    sig = inspect.signature(make_classification)
-    assert 'chunks' in sig.parameters
-
-
 def test_check_random_state():
     for rs in [None, 0]:
         result = check_random_state(rs)
@@ -159,3 +150,11 @@ def test_get_chunks_raises():
 
     with pytest.raises(ValueError):
         check_chunks(1, 1, chunks=object())
+
+
+def test_check_array_raises():
+    X = da.random.uniform(size=(10, 5), chunks=2)
+    with pytest.raises(TypeError) as m:
+        check_array(X)
+
+    assert m.match("Chunking is only allowed on the first axis.")

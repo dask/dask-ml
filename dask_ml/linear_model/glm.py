@@ -166,7 +166,7 @@ class _GLM(BaseEstimator):
         if self.fit_intercept:
             X = add_intercept(X)
 
-        return check_array(X)
+        return check_array(X, accept_unknown_chunks=True)
 
 
 class LogisticRegression(_GLM):

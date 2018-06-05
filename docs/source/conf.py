@@ -41,7 +41,7 @@ extensions = [
     'IPython.sphinxext.ipython_directive',
     'nbsphinx',
     'numpydoc',
-    'sphinx_gallery.gen_gallery',
+    # 'sphinx_gallery.gen_gallery',
 ]
 
 intersphinx_mapping = {
@@ -55,7 +55,7 @@ intersphinx_mapping = {
 
 sphinx_gallery_conf = {
     "examples_dir": "../examples",
-    "gallery_dirs": "auto_examples",
+    "gallery_dirs": "source/auto_examples",
     "backreferences_dir": False,
 }
 
@@ -202,6 +202,7 @@ def generate_example_rst(app, what, name, obj, options, lines):
 
 def setup(app):
     app.connect('autodoc-process-docstring', generate_example_rst)
+    app.add_stylesheet('style.css')
 
 
 extlinks = {

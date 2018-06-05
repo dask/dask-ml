@@ -188,7 +188,8 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
     def transform(self, X, y=None):
         """Perform dimensionality reduction on X.
 
-        Parameters ----------
+        Parameters
+        ----------
         X : array-like, shape (n_samples, n_features)
              Data to be transformed.
 

@@ -3,7 +3,21 @@ Joblib
 
 Dask.distributed integrates with Joblib_ by providing an alternative
 cluster-computing backend, alongside Joblib's builtin threading and
-multiprocessing backends.
+multiprocessing backends. This enables training a scikit-learn model in
+parallel using a cluster of machines.
+
+The following video demonstrates how to use Dask to parallelize a grid
+search across a cluster.
+
+.. raw:: html
+
+    <iframe width="560"
+            height="315"
+            src="https://www.youtube.com/embed/5Zf6DQaf7jk"
+            frameborder="0"
+            allow="autoplay; encrypted-media"
+            allowfullscreen>
+    </iframe>
 
 Joblib_ is a library for simple parallel programming primarily developed and
 used by the Scikit Learn community.  As of version 0.10.0 it contains a plugin
@@ -17,9 +31,14 @@ context manager as follows:
 .. code-block:: python
 
    import dask_ml.joblib  # registers joblib plugin
+   from dask.distributed import Client
+
+   client = Client(processes=False)             # create local cluster
+   # client = Client("scheduler-address:8786")  # or connect to remote cluster
+
    from joblib import Parallel, parallel_backend
 
-   with parallel_backend('dask.distributed', scheduler_host='HOST:PORT'):
+   with parallel_backend('dask'):
        # normal Joblib code
 
 Note that scikit-learn bundles joblib internally, so if you want to specify the
@@ -50,7 +69,7 @@ validated parameter search as follows.
    model = SVC(kernel='rbf')
    search = RandomizedSearchCV(model, param_space, cv=3, n_iter=50, verbose=10)
 
-   with parallel_backend('dask.distributed', scheduler_host='localhost:8786'):
+   with parallel_backend('dask'):
        search.fit(digits.data, digits.target)
 
 
@@ -62,8 +81,7 @@ takes an iterable of objects to send to each worker.
 .. code-block:: python
 
    # Serialize the training data only once to each worker
-   with parallel_backend('dask.distributed', scheduler_host='localhost:8786',
-                         scatter=[digits.data, digits.target]):
+   with parallel_backend('dask', scatter=[digits.data, digits.target]):
        search.fit(digits.data, digits.target)
 
 

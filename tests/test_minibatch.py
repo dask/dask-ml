@@ -1,9 +1,12 @@
+import pytest
+
 from sklearn import cluster as cluster_
 from dask_ml import cluster
 
 from dask_ml.utils import assert_estimator_equal
 
 
+@pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")
 class TestMiniBatchKMeans(object):
 
     def test_basic(self, single_chunk_blobs):

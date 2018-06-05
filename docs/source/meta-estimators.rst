@@ -1,6 +1,6 @@
 .. _parallel-meta-estimators:
 
-.. currentmodule:: dask_ml 
+.. currentmodule:: dask_ml
 
 Parallel Meta-estimators
 ========================
@@ -71,7 +71,7 @@ cluster of machines.
 
    clf.predict_proba(X_big).compute()[:10]
 
-See :ref:`plot_parallel_prediction_example.py` for an example of how this
+See `parallelizing prediction`_ for an example of how this
 scales for a support vector classifier.
 
 Comparison to other Estimators in dask-ml
@@ -86,3 +86,4 @@ training data. In general, if your training data is small, you should be fine
 wrapping the scikit-learn version with a ``dask-ml`` meta-estimator.
 
 .. _learning curve: http://scikit-learn.org/stable/modules/learning_curve.html
+.. _parallelizing prediction: http://dask-ml-benchmarks.readthedocs.io/en/latest/auto_examples/plot_parallel_post_fit_scaling.html

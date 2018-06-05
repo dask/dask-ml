@@ -4,7 +4,7 @@ from dask import delayed
 from sklearn.base import BaseEstimator
 from sklearn import naive_bayes as _naive_bayes
 
-from dask_ml.base import _BigPartialFitMixin, _copy_partial_doc
+from ._partial import _BigPartialFitMixin, _copy_partial_doc
 
 
 class GaussianNB(BaseEstimator):
