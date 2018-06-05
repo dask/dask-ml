@@ -1,6 +1,6 @@
 from sklearn import neural_network as _nn
 
-from dask_ml.base import _BigPartialFitMixin, _copy_partial_doc
+from ._partial import _BigPartialFitMixin, _copy_partial_doc
 
 
 @_copy_partial_doc

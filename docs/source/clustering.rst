@@ -47,5 +47,7 @@ Where :math:`A` is the :math:`n \times n` affinity matrix of the
 rest of the dataset. Instead of computing :math:`C` directly, we approximate it
 with :math:`B^T A^{-1} B`.
 
-See :doc:`auto_examples/plot_spectral_clustering` for an example showing how
+See the `spectral clustering benchmark`_ for an example showing how
 :class:`dask_ml.cluster.SpectralClustering` scales in the number of samples.
+
+.. _spectral clustering benchmark: http://dask-ml-benchmarks.readthedocs.io/en/latest/auto_examples/plot_spectral_clustering.html

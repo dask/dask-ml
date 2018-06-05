@@ -8,9 +8,9 @@ dependencies:
   - flake8
   - heapdict
   - ipython
-  - matplotlib
   - multipledispatch
   - nbsphinx
+  - nomkl
   - nose
   - numpy
   - numpydoc
@@ -19,7 +19,6 @@ dependencies:
   - pytest
   - pytest-cov
   - python=3.6
-  - seaborn
   - sortedcontainers
   - scikit-learn
   - scipy

@@ -6,21 +6,20 @@ from dask_ml.datasets import (make_classification,
                               make_blobs,
                               make_counts)
 
-pytest.register_assert_rewrite('dask_ml.utils')
-pytest.register_assert_rewrite('dask.array.utils')
+# pytest.register_assert_rewrite('dask_ml.utils')
 
 
 @pytest.fixture
 def xy_classification():
     """X, y pair for classification"""
-    X, y = make_classification(chunks=10, random_state=0)
+    X, y = make_classification(chunks=(10, 20), random_state=0)
     return X, y
 
 
 @pytest.fixture
 def xy_regression():
     """X, y pair for classification"""
-    X, y = make_regression(chunks=10, random_state=0)
+    X, y = make_regression(chunks=(10, 20), random_state=0)
     return X, y
 
 

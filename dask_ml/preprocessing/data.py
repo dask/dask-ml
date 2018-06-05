@@ -28,6 +28,8 @@ class StandardScaler(skdata.StandardScaler):
     def fit(self, X, y=None):
         self._reset()
         attributes = OrderedDict()
+        if isinstance(X, (pd.DataFrame, dd.DataFrame)):
+            X = X.values
 
         if self.with_mean:
             mean_ = X.mean(0)
@@ -40,7 +42,7 @@ class StandardScaler(skdata.StandardScaler):
             attributes['scale_'] = scale_
             attributes['var_'] = var_
 
-        attributes['n_samples_seen_'] = len(X)
+        attributes['n_samples_seen_'] = np.nan
         values = compute(*attributes.values())
         for k, v in zip(attributes, values):
             setattr(self, k, v)

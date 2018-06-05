@@ -1,9 +1,12 @@
+import pytest
+
 from sklearn import linear_model as lm_
 from dask_ml import linear_model as lm
 
 from dask_ml.utils import assert_estimator_equal
 
 
+@pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")
 class TestPassiveAggressiveClassifier(object):
 
     def test_basic(self, single_chunk_classification):
@@ -18,6 +21,7 @@ class TestPassiveAggressiveClassifier(object):
         assert_estimator_equal(a, b, exclude=['loss_function_'])
 
 
+@pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")
 class TestPassiveAggressiveRegressor(object):
 
     def test_basic(self, single_chunk_regression):
