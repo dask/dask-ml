@@ -6,6 +6,7 @@ from .pairwise import (  # noqa
 from .regression import (  # noqa
     mean_absolute_error,
     mean_squared_error,
+    r2_score,
 )
 from .classification import (  # noqa
     accuracy_score,
