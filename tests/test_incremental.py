@@ -7,14 +7,12 @@ from dask.array.utils import assert_eq
 from sklearn.base import clone
 from sklearn.linear_model import SGDClassifier
 
-import dask_ml.datasets
 from dask_ml.wrappers import Incremental
 from dask_ml.utils import assert_estimator_equal
 
-X, y = dask_ml.datasets.make_classification(random_state=0, chunks=25)
 
-
-def test_incremental_basic(scheduler):
+def test_incremental_basic(scheduler, xy_classification):
+    X, y = xy_classification
     with scheduler() as (s, [a, b]):
         est1 = SGDClassifier(random_state=0)
         est2 = clone(est1)
@@ -49,7 +47,8 @@ def test_incremental_basic(scheduler):
         assert_estimator_equal(clf.estimator, est2, exclude=['loss_function_'])
 
 
-def test_in_gridsearch(scheduler):
+def test_in_gridsearch(scheduler, xy_classification):
+    X, y = xy_classification
     with scheduler() as (s, [a, b]):
         clf = Incremental(SGDClassifier(random_state=0))
         param_grid = {'alpha': [0.1, 10]}
