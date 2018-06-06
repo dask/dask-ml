@@ -305,11 +305,14 @@ class Incremental(ParallelPostFit):
         if 'estimator' in out:
             raise ValueError(self._estimator_clash_message)
         out['estimator'] = self.estimator
+        out['scoring'] = self.scoring
         return out
 
     def set_params(self, **kwargs):
         if 'estimator' in kwargs:
             raise ValueError(self._estimator_clash_message)
+        if 'scoring' in kwargs:
+            self.scoring = kwargs['scoring']
         self.estimator.set_params(**kwargs)
         return self
 
