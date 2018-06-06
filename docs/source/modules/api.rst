@@ -144,6 +144,7 @@ Regression Metrics
 
    metrics.mean_absolute_error
    metrics.mean_squared_error
+   metrics.r2_score
 
 
 Classification Metrics

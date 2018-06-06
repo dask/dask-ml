@@ -14,6 +14,7 @@ Enhancements
 ------------
 
 - Added a new meta-estimator :class:`dask_ml.wrappers.Incremental` for wrapping any estimator with a `partial_fit` method. See :ref:`incremental.blockwise-metaestimator` for more. (:pr:`190`)
+- Added an R2-score metric :meth:`dask_ml.metrics.r2_score`.
 
 Version 0.5.0
 ~~~~~~~~~~~~~
