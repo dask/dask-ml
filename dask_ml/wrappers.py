@@ -1,9 +1,19 @@
 """Meta-estimators for parallelizing scikit-learn."""
+import logging
+from timeit import default_timer as tic
+
 import dask.array as da
 import dask.dataframe as dd
 import dask.delayed
 import numpy as np
 import sklearn.base
+
+from ._partial import fit
+from ._utils import copy_learned_attributes
+from .metrics import get_scorer
+
+
+logger = logging.getLogger(__name__)
 
 
 class ParallelPostFit(sklearn.base.BaseEstimator):
@@ -74,8 +84,9 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
            [0.99407016, 0.00592984]])
     """
 
-    def __init__(self, estimator=None):
+    def __init__(self, estimator=None, scoring=None):
         self.estimator = estimator
+        self.scoring = scoring
 
     def fit(self, X, y=None, **kwargs):
         """Fit the underlying estimator.
@@ -83,18 +94,22 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         Parameters
         ----------
         X, y : array-like
+        **kwargs
+            Additional fit-kwargs for the underlying estimator.
 
         Returns
         -------
         self : object
         """
+        start = tic()
+        logger.info("Starting fit")
         result = self.estimator.fit(X, y, **kwargs)
+        stop = tic()
+        logger.info("Finished fit, %0.2f", stop - start)
 
         # Copy over learned attributes
-        attrs = {k: v for k, v in vars(result).items() if k.endswith('_')}
-        for k, v in attrs.items():
-            setattr(self, k, v)
-
+        copy_learned_attributes(result, self)
+        copy_learned_attributes(result, self.estimator)
         return self
 
     def transform(self, X):
@@ -127,10 +142,6 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
     def score(self, X, y):
         """Returns the score on the given data.
 
-        This uses the scoring defined by ``estimator.score``. This is
-        currently immediate and sequential. In the future, this will be
-        delayed and parallel.
-
         Parameters
         ----------
         X : array-like, shape = [n_samples, n_features]
@@ -146,7 +157,12 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         score : float
                 return self.estimator.score(X, y)
         """
-        return self.estimator.score(X, y)
+        if self.scoring:
+            scoring = self.scoring
+            scorer = get_scorer(scoring)
+            return scorer(self.estimator, X, y)
+        else:
+            return self.estimator.score(X, y)
 
     def predict(self, X):
         """Predict for X.
@@ -246,8 +262,9 @@ class Incremental(ParallelPostFit):
     estimator : Estimator
         Any object supporting the scikit-learn ``parital_fit`` API.
     **kwargs
-        Additional keyword arguments passed through the the underlying
-        estimator's `partial_fit` method.
+        Set the hyperparameters of `estimator`. This is used in, for example,
+        ``GridSearchCV``, to set the paramters of the underlying estimator.
+        Most of the time you will not need to use this.
 
     Examples
     --------
@@ -256,26 +273,50 @@ class Incremental(ParallelPostFit):
     >>> import sklearn.linear_model
     >>> X, y = make_classification(chunks=25)
     >>> est = sklearn.linear_model.SGDClassifier()
-    >>> clf = Incremental(est, classes=[0, 1])
-    >>> clf.fit(X, y)
+    >>> clf = Incremental(est)
+    >>> clf.fit(X, y, classes=[0, 1])
     """
-    def __init__(self, estimator, **kwargs):
-        self.estimator = estimator
-        self.fit_kwargs = kwargs
+    _estimator_clash_message = (
+        "The 'estimator' parameter is used by both 'Incremental' and the"
+        "underlying estimator, which will produce incorrect results."
+    )
 
-    def fit(self, X, y=None):
-        from ._partial import fit
+    def __init__(self, estimator, scoring=None, **kwargs):
+        estimator.set_params(**kwargs)
+        super(Incremental, self).__init__(estimator=estimator, scoring=scoring)
 
-        fit_kwargs = self.fit_kwargs or {}
+    def fit(self, X, y=None, **fit_kwargs):
         result = fit(self.estimator, X, y, **fit_kwargs)
 
         # Copy the learned attributes over to self
-        attrs = {k: v for k, v in vars(result).items() if k.endswith('_')}
-        for k, v in attrs.items():
-            setattr(self, k, v)
+        copy_learned_attributes(result, self)
+        copy_learned_attributes(result, self.estimator)
         return self
 
-    def partial_fit(self, X, y=None):
+    def __repr__(self):
+        # Have to override, else all the parameters of estimator
+        # are duplicated
+        estimator = repr(self.estimator)
+        class_name = self.__class__.__name__
+        return '{}({})'.format(class_name, estimator)
+
+    def get_params(self, deep=True):
+        out = self.estimator.get_params(deep=deep)
+        if 'estimator' in out:
+            raise ValueError(self._estimator_clash_message)
+        out['estimator'] = self.estimator
+        out['scoring'] = self.scoring
+        return out
+
+    def set_params(self, **kwargs):
+        if 'estimator' in kwargs:
+            raise ValueError(self._estimator_clash_message)
+        if 'scoring' in kwargs:
+            self.scoring = kwargs['scoring']
+        self.estimator.set_params(**kwargs)
+        return self
+
+    def partial_fit(self, X, y=None, **fit_kwargs):
         """Fit the underlying estimator.
 
         This is identical to ``fit``.
@@ -283,12 +324,14 @@ class Incremental(ParallelPostFit):
         Parameters
         ----------
         X, y : array-like
+        **kwargs
+            Additional fit-kwargs for the underlying estimator.
 
         Returns
         -------
         self : object
         """
-        return self.fit(X, y)
+        return self.fit(X, y=y, **fit_kwargs)
 
 
 def _first_block(dask_object):

@@ -1,6 +1,7 @@
-import pytest
+import numbers
 
 import dask.array as da
+import pytest
 import sklearn.metrics
 
 import dask_ml.metrics
@@ -22,12 +23,17 @@ def metric_pairs(request):
     )
 
 
-def test_ok(metric_pairs):
+@pytest.mark.parametrize('compute', [True, False])
+def test_ok(metric_pairs, compute):
     m1, m2 = metric_pairs
 
     a = da.random.uniform(size=(100,), chunks=(25,))
     b = da.random.uniform(size=(100,), chunks=(25,))
 
-    result = m1(a, b)
+    result = m1(a, b, compute=compute)
+    if compute:
+        assert isinstance(result, numbers.Real)
+    else:
+        assert isinstance(result, da.Array)
     expected = m2(a, b)
     assert abs(result - expected) < 1e-5

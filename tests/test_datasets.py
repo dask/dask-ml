@@ -50,7 +50,7 @@ def test_make_regression():
     dask_ml.datasets.make_counts,
     dask_ml.datasets.make_regression,
 ])
-def test_deterministic(generator):
+def test_deterministic(generator, scheduler):
     a, t = generator(chunks=100, random_state=10)
     b, u = generator(chunks=100, random_state=10)
     assert_eq(a, b)

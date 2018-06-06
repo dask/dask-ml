@@ -1,4 +1,5 @@
-def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None):
+def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None,
+                   compute=True):
     """Accuracy classification score.
 
     In multilabel classification, this function computes subset accuracy:
@@ -68,6 +69,10 @@ def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None):
         score = y_true == y_pred
 
     if normalize:
-        return score.mean()
+        score = score.mean()
     else:
-        return score.sum()
+        score = score.sum()
+
+    if compute:
+        score = score.compute()
+    return score
