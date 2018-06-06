@@ -1,4 +1,7 @@
 """Meta-estimators for parallelizing scikit-learn."""
+import logging
+from timeit import default_timer as tic
+
 import dask.array as da
 import dask.dataframe as dd
 import dask.delayed
@@ -7,6 +10,10 @@ import sklearn.base
 
 from ._partial import fit
 from ._utils import copy_learned_attributes
+from .metrics import get_scorer
+
+
+logger = logging.getLogger(__name__)
 
 
 class ParallelPostFit(sklearn.base.BaseEstimator):
@@ -77,8 +84,9 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
            [0.99407016, 0.00592984]])
     """
 
-    def __init__(self, estimator=None):
+    def __init__(self, estimator=None, scoring=None):
         self.estimator = estimator
+        self.scoring = scoring
 
     def fit(self, X, y=None, **kwargs):
         """Fit the underlying estimator.
@@ -93,7 +101,11 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         -------
         self : object
         """
+        start = tic()
+        logger.info("Starting fit")
         result = self.estimator.fit(X, y, **kwargs)
+        stop = tic()
+        logger.info("Finished fit, %0.2f", stop - start)
 
         # Copy over learned attributes
         copy_learned_attributes(result, self)
@@ -130,10 +142,6 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
     def score(self, X, y):
         """Returns the score on the given data.
 
-        This uses the scoring defined by ``estimator.score``. This is
-        currently immediate and sequential. In the future, this will be
-        delayed and parallel.
-
         Parameters
         ----------
         X : array-like, shape = [n_samples, n_features]
@@ -149,7 +157,12 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         score : float
                 return self.estimator.score(X, y)
         """
-        return self.estimator.score(X, y)
+        if self.scoring:
+            scoring = self.scoring
+            scorer = get_scorer(scoring)
+            return scorer(self.estimator, X, y)
+        else:
+            return self.estimator.score(X, y)
 
     def predict(self, X):
         """Predict for X.
@@ -268,9 +281,9 @@ class Incremental(ParallelPostFit):
         "underlying estimator, which will produce incorrect results."
     )
 
-    def __init__(self, estimator, **kwargs):
+    def __init__(self, estimator, scoring=None, **kwargs):
         estimator.set_params(**kwargs)
-        self.estimator = estimator
+        super(Incremental, self).__init__(estimator=estimator, scoring=scoring)
 
     def fit(self, X, y=None, **fit_kwargs):
         result = fit(self.estimator, X, y, **fit_kwargs)
@@ -278,7 +291,6 @@ class Incremental(ParallelPostFit):
         # Copy the learned attributes over to self
         copy_learned_attributes(result, self)
         copy_learned_attributes(result, self.estimator)
-        assert hasattr(self.estimator, 'coef_')
         return self
 
     def __repr__(self):

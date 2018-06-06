@@ -1,8 +1,10 @@
 from __future__ import absolute_import, division, print_function
 
+import logging
 import os
 import warnings
 from abc import ABCMeta
+from timeit import default_timer as tic
 
 import numpy as np
 import six
@@ -12,6 +14,9 @@ import dask
 from dask.delayed import Delayed
 
 from ._utils import copy_learned_attributes
+
+
+logger = logging.getLogger(__name__)
 
 
 class _WritableDoc(ABCMeta):
@@ -99,7 +104,12 @@ class _BigPartialFitMixin(object):
 
 def _partial_fit(model, x, y, kwargs=None):
     kwargs = kwargs or dict()
+    start = tic()
+    logger.info("Starting partial-fit %s", dask.base.tokenize(model, x, y))
     model.partial_fit(x, y, **kwargs)
+    stop = tic()
+    logger.info("Finished partial-fit %s [%0.2f]",
+                dask.base.tokenize(model, x, y), stop - start)
     return model
 
 
