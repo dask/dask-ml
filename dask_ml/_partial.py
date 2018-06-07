@@ -160,7 +160,7 @@ def fit(model, x, y, compute=True, **kwargs):
         assert x.chunks[0] == y.chunks[0]
     assert hasattr(model, 'partial_fit')
     if len(x.chunks[1]) > 1:
-        x = x.reblock(chunks=(x.chunks[0], sum(x.chunks[1])))
+        x = x.rechunk(chunks=(x.chunks[0], sum(x.chunks[1])))
 
     nblocks = len(x.chunks[0])
 
@@ -196,7 +196,7 @@ def predict(model, x):
     """
     assert x.ndim == 2
     if len(x.chunks[1]) > 1:
-        x = x.reblock(chunks=(x.chunks[0], sum(x.chunks[1])))
+        x = x.rechunk(chunks=(x.chunks[0], sum(x.chunks[1])))
     func = partial(_predict, model)
     xx = np.zeros((1, x.shape[1]), dtype=x.dtype)
     dt = model.predict(xx).dtype
