@@ -1,3 +1,4 @@
+from __future__ import division
 import dask.array as da
 import numpy as np
 import numpy.linalg as LA
@@ -73,22 +74,17 @@ def test_estimator_param_raises():
         clf.get_params()
 
 
-@pytest.mark.parametrize('warm_start', [True, False])
 @pytest.mark.parametrize('func', ['partial_fit', 'fit'])
-def test_warm_start(warm_start, func, seed=42):
+def test_warm_start_improves(func, seed=42):
     n, d = 400, 200
     X, y = make_classification(n_features=d, n_samples=n, chunks=(n // 10, d),
                                random_state=seed)
 
-    model = SGDClassifier(max_iter=1, warm_start=warm_start, random_state=seed)
-    if not warm_start:
-        with pytest.raises(ValueError, match='requires warm_start'):
-            model = Incremental(model)
-        return
+    model = SGDClassifier(max_iter=1, warm_start=True, random_state=seed)
     model = Incremental(model)
 
     scores = []
-    num_iter = 40
+    num_iter = 10
     for iter in range(num_iter):
         getattr(model, func)(X, y, classes=[0, 1])
         score = model.score(X, y)
@@ -97,6 +93,11 @@ def test_warm_start(warm_start, func, seed=42):
 
     assert scores[0] < scores[-1]
     prob_increase = (np.diff(scores) >= 0).sum() / len(scores)
-    avg_increase = np.diff(scores).sum() / num_iter
-    assert prob_increase > 0.65
-    assert avg_increase > 0.004
+    assert prob_increase >= 0.80
+    assert (scores[-1] - scores[0]) / num_iter > 0.01
+
+@pytest.mark.parametrize('func', ['partial_fit', 'fit'])
+def test_warm_start_raises(func):
+    model = SGDClassifier(warm_start=False)
+    with pytest.raises(ValueError, match='requires warm_start'):
+        model = Incremental(model)
