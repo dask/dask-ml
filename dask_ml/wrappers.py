@@ -285,6 +285,11 @@ class Incremental(ParallelPostFit):
         estimator.set_params(**kwargs)
         super(Incremental, self).__init__(estimator=estimator, scoring=scoring)
 
+        if hasattr(estimator, 'warm_start') and not estimator.warm_start:
+            raise ValueError('Incremental requires warm_start=True so '
+                             'calls to est.fit will reuse results from '
+                             'previous calls')
+
     def fit(self, X, y=None, **fit_kwargs):
         result = fit(self.estimator, X, y, **fit_kwargs)
 
