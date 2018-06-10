@@ -8,6 +8,7 @@ import sklearn.datasets
 from dask.array.utils import assert_eq
 from sklearn.base import clone
 from sklearn.linear_model import SGDClassifier
+from sklearn.utils.testing import all_estimators
 
 from dask_ml.wrappers import Incremental
 from dask_ml.utils import assert_estimator_equal
@@ -96,8 +97,12 @@ def test_warm_start_improves(func, seed=42):
     assert prob_increase >= 0.80
     assert (scores[-1] - scores[0]) / num_iter > 0.01
 
-@pytest.mark.parametrize('func', ['partial_fit', 'fit'])
-def test_warm_start_raises(func):
-    model = SGDClassifier(warm_start=False)
-    with pytest.raises(ValueError, match='requires warm_start'):
-        model = Incremental(model)
+
+def test_incremental_warm_start_raises():
+    for name, model in all_estimators():
+        if hasattr(model, 'warm_start'):
+            assert hasattr(model, 'partial_fit')
+
+            m = model(warm_start=False)
+            with pytest.raises(ValueError, match='requires warm_start'):
+                m = Incremental(m)
