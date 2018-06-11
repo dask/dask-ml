@@ -10,6 +10,7 @@ from sklearn.linear_model import SGDClassifier
 from dask_ml.wrappers import Incremental
 from dask_ml.utils import assert_estimator_equal
 import dask_ml.metrics
+from dask_ml.metrics.scorer import make_scorer
 
 
 def test_incremental_basic(scheduler, xy_classification):
@@ -76,11 +77,8 @@ def test_scoring(scheduler, xy_classification, scoring=dask_ml.metrics.accuracy_
     X, y = xy_classification
     with scheduler() as (s, [a, b]):
         clf = Incremental(SGDClassifier(), scoring=scoring)
-        clf.fit(X, y, classes=np.unique(y))
-        s1 = clf.score(X, y)
-        s2 = clf.estimator.score(X, y)
-        if scoring == dask_ml.metrics.accuracy_score:
-            assert s1 and s2
+        with pytest.raises(ValueError, match='metric function rather than a scorer'):
+            clf.fit(X, y, classes=np.unique(y))
 
 
 @pytest.mark.parametrize("scoring", [
@@ -90,8 +88,8 @@ def test_scoring_string(scheduler, xy_classification, scoring):
     X, y = xy_classification
     with scheduler() as (s, [a, b]):
         clf = Incremental(SGDClassifier(), scoring=scoring)
+        if scoring:
+            make_scorer(clf.scoring) == dask_ml.metrics.scorer.SCORERS[scoring]
         clf.fit(X, y, classes=np.unique(y))
-        r1 = clf.score(X, y)
-        r2 = clf.estimator.score(X, y)
-        if scoring == 'accuracy':
-            assert r1 == r2
+        clf.score(X, y)
+        clf.estimator.score(X, y)
