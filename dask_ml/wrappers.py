@@ -158,9 +158,8 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
                 return self.estimator.score(X, y)
         """
         if self.scoring:
-            scoring = self.scoring
-            scorer = get_scorer(scoring)
-            return scorer(self.estimator, X, y)
+            scorer = get_scorer(self.scoring)
+            return scorer(self, X, y)
         else:
             return self.estimator.score(X, y)
 

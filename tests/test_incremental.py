@@ -9,6 +9,7 @@ from sklearn.linear_model import SGDClassifier
 
 from dask_ml.wrappers import Incremental
 from dask_ml.utils import assert_estimator_equal
+from dask_ml.metrics import accuracy_score
 
 
 def test_incremental_basic(scheduler, xy_classification):
@@ -69,3 +70,21 @@ def test_estimator_param_raises():
 
     with pytest.raises(ValueError, match='used by both'):
         clf.get_params()
+
+
+def test_scoring(scheduler, xy_classification):
+    X, y = xy_classification
+    with scheduler() as (s, [a, b]):
+        clf = Incremental(SGDClassifier(), scoring=accuracy_score)
+        clf.fit(X, y, classes=np.unique(y))
+        clf.score(X, y)
+        clf.estimator.score(X, y)
+
+
+def test_scoring_string(scheduler, xy_classification):
+    X, y = xy_classification
+    with scheduler() as (s, [a, b]):
+        clf = Incremental(SGDClassifier(), scoring='accuracy')
+        clf.fit(X, y, classes=np.unique(y))
+        clf.score(X, y)
+        clf.estimator.score(X, y)

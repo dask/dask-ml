@@ -38,12 +38,13 @@ def get_scorer(scoring, compute=True):
     # and don't have back-compat code
     if isinstance(scoring, six.string_types):
         try:
-            scorer = SCORERS[scoring]
+            func = SCORERS[scoring]
+            scorer = lambda est, X, y: func(est, X, y)
         except KeyError:
             raise ValueError('{} is not a valid scoring value. '
                              'Valid options are {}'.format(scoring,
                                                            sorted(SCORERS)))
     else:
-        scorer = scoring
+        scorer = lambda est, X, y: scoring(est.predict(X), y)
 
     return scorer
