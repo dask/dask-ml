@@ -133,7 +133,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         transform = self._check_method('transform')
 
         if isinstance(X, da.Array):
-            return X.map_blocks(transform)
+            return X.map_blocks(transform, dtype=X.dtype)
         elif isinstance(X, dd._Frame):
             return _apply_partitionwise(X, transform)
         else:
