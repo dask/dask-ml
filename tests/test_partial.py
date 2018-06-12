@@ -40,15 +40,12 @@ def test_fit():
         assert result.compute().tolist() == sol.tolist()
 
 
-
 def test_fit_rechunking():
-    with dask.config.set(scheduler='single-threaded'):
-        n_classes = 2
-        X, y = make_classification(chunks=20, n_classes=n_classes)
-        X = X.rechunk({1: 10})
-        print(y.compute()[:100])
+    n_classes = 2
+    X, y = make_classification(chunks=20, n_classes=n_classes)
+    X = X.rechunk({1: 10})
 
-        assert X.numblocks[1] > 1
+    assert X.numblocks[1] > 1
 
-        clf = Incremental(SGDClassifier(max_iter=5), classes=list(range(n_classes)))
-        clf.fit(X, y)
+    clf = Incremental(SGDClassifier(max_iter=5))
+    clf.fit(X, y, classes=list(range(n_classes)))
