@@ -10,7 +10,7 @@ import sklearn.base
 
 from ._partial import fit
 from ._utils import copy_learned_attributes
-from .metrics import get_scorer
+from .metrics import get_scorer, check_scoring
 
 
 logger = logging.getLogger(__name__)
@@ -158,9 +158,8 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
                 return self.estimator.score(X, y)
         """
         if self.scoring:
-            scoring = self.scoring
-            scorer = get_scorer(scoring)
-            return scorer(self.estimator, X, y)
+            scorer = get_scorer(self.scoring)
+            return scorer(self, X, y)
         else:
             return self.estimator.score(X, y)
 
@@ -286,6 +285,7 @@ class Incremental(ParallelPostFit):
         super(Incremental, self).__init__(estimator=estimator, scoring=scoring)
 
     def fit(self, X, y=None, **fit_kwargs):
+        check_scoring(self.estimator, self.scoring)
         result = fit(self.estimator, X, y, **fit_kwargs)
 
         # Copy the learned attributes over to self

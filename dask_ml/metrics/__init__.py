@@ -14,5 +14,6 @@ from .classification import (  # noqa
 
 from .scorer import (  # noqa
     get_scorer,
+    check_scoring,
     SCORERS,
 )
