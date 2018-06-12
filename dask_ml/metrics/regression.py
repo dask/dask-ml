@@ -26,7 +26,8 @@ def _check_reg_targets(y_true, y_pred, multioutput):
 @doc_wraps(sklearn.metrics.mean_squared_error)
 def mean_squared_error(y_true, y_pred,
                        sample_weight=None,
-                       multioutput='uniform_average'):
+                       multioutput='uniform_average',
+                       compute=True):
     _check_sample_weight(sample_weight)
     output_errors = ((y_pred - y_true) ** 2).mean(axis=0)
 
@@ -38,13 +39,17 @@ def mean_squared_error(y_true, y_pred,
             multioutput = None
     else:
         raise ValueError("Weighted 'multioutput' not supported.")
-    return output_errors.mean()
+    result = output_errors.mean()
+    if compute:
+        result = result.compute()
+    return result
 
 
 @doc_wraps(sklearn.metrics.mean_squared_error)
 def mean_absolute_error(y_true, y_pred,
                         sample_weight=None,
-                        multioutput='uniform_average'):
+                        multioutput='uniform_average',
+                        compute=True):
     _check_sample_weight(sample_weight)
     output_errors = abs(y_pred - y_true).mean(axis=0)
 
@@ -56,12 +61,16 @@ def mean_absolute_error(y_true, y_pred,
             multioutput = None
     else:
         raise ValueError("Weighted 'multioutput' not supported.")
-    return output_errors.mean()
+    result = output_errors.mean()
+    if compute:
+        result = result.compute()
+    return result
 
 
 @doc_wraps(sklearn.metrics.r2_score)
 def r2_score(y_true, y_pred, sample_weight=None,
-             multioutput="uniform_average"):
+             multioutput="uniform_average",
+             compute=True):
     _check_sample_weight(sample_weight)
     _, y_true, y_pred, multioutput = _check_reg_targets(
         y_true, y_pred, multioutput
@@ -79,4 +88,7 @@ def r2_score(y_true, y_pred, sample_weight=None,
     output_scores[valid_score] = 1 - (numerator[valid_score] /
                                       denominator[valid_score])
     output_scores[nonzero_numerator & ~nonzero_denominator] = 0.
-    return output_scores.mean(axis=0)
+    result = output_scores.mean(axis=0)
+    if compute:
+        result = result.compute()
+    return result

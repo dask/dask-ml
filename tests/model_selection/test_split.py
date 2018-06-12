@@ -14,6 +14,7 @@ dy = da.from_array(y, 50)
 
 def test_blockwise_shufflesplit():
     splitter = dask_ml.model_selection.ShuffleSplit(random_state=0)
+    assert splitter.get_n_splits() == 10
     gen = splitter.split(dX)
 
     train_idx, test_idx = next(gen)

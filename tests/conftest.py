@@ -1,3 +1,6 @@
+import contextlib
+
+from distributed.utils_test import cluster
 import pytest
 import numpy as np
 
@@ -123,3 +126,16 @@ def single_chunk_blobs():
     """
     X, y = make_blobs(chunks=100, random_state=0)
     return X, y
+
+
+@contextlib.contextmanager
+def not_cluster(nworkers=2, **kwargs):
+    yield (None, [None] * nworkers)
+
+
+@pytest.fixture(scope='module', params=['threads', 'distributed'])
+def scheduler(request):
+    if request.param == 'distributed':
+        yield cluster
+    else:
+        yield not_cluster

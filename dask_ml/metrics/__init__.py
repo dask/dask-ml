@@ -11,3 +11,9 @@ from .regression import (  # noqa
 from .classification import (  # noqa
     accuracy_score,
 )
+
+from .scorer import (  # noqa
+    get_scorer,
+    check_scoring,
+    SCORERS,
+)

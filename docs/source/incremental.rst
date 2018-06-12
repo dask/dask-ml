@@ -49,8 +49,8 @@ between machines.
    X
 
    estimator = SGDClassifier(random_state=10)
-   clf = Incremental(estimator, classes=[0, 1])
-   clf.fit(X, y)
+   clf = Incremental(estimator)
+   clf.fit(X, y, classes=[0, 1])
 
 In this example, we make a (small) random Dask Array. It has 100 samples,
 broken in the 4 blocks of 25 samples each. The chunking is only along the
@@ -60,12 +60,13 @@ You instantite the underlying estimator as usual. It really is just a
 scikit-learn compatible estimator, and will be trained normally via its
 ``partial_fit``.
 
-When wrapping the estimator in :class:`Incremental`, you need to pass any
-keyword arguments that are expected by the underlying ``partial_fit`` method.
-With :class:`sklearn.linear_model.SGDClassifier`, we're required to provide
-the list of unique ``classes`` in ``y``.
+Notice that we call the regular ``.fit`` method, not ``partial_fit`` for
+training. Dask-ML takes care of passing each block to the underlying estimator
+for you.
 
-Notice that we call the regular ``.fit`` method for training. Dask-ML takes
-care of passing each block to the underlying estimator for you.
+Just like :meth:`sklearn.linear_model.SGDClassifier.partial_fit`, we need to
+pass the ``classes`` argument to ``fit``. In general, any argument that is
+requierd for the underlying estimators ``parital_fit`` becomes required for
+the wrapped ``fit``.
 
 .. _incremental learning: http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning
