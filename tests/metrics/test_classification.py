@@ -1,6 +1,7 @@
 import numbers
 
 import dask.array as da
+import numpy as np
 import pytest
 import sklearn.metrics
 
@@ -36,11 +37,14 @@ def test_ok(size, metric_pairs, normalize, compute):
         hi = 1
     a = da.random.random_integers(0, hi, size=size, chunks=25)
     b = da.random.random_integers(0, hi, size=size, chunks=25)
+    sample_weight_np = np.random.random_sample(size[0])
+    sample_weight_da = da.from_array(sample_weight_np, chunks=25)
 
-    result = m1(a, b, normalize=normalize, compute=compute)
+    result = m1(a, b, sample_weight=sample_weight_da, normalize=normalize, compute=compute)
+
     if compute:
         assert isinstance(result, numbers.Real)
     else:
         assert isinstance(result, da.Array)
-    expected = m2(a, b, normalize=normalize)
+    expected = m2(a, b, sample_weight=sample_weight_np, normalize=normalize)
     assert abs(result - expected) < 1e-5

@@ -1,3 +1,7 @@
+
+import dask.array as da
+
+
 def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None,
                    compute=True):
     """Accuracy classification score.
@@ -20,9 +24,8 @@ def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None,
         If ``False``, return the number of correctly classified samples.
         Otherwise, return the fraction of correctly classified samples.
 
-    sample_weight : None
-        For compatibility with scikit-learn. This is currently not
-        supported.
+    sample_weight : 1d array-like, optional
+        Sample weights.
 
     Returns
     -------
@@ -59,9 +62,6 @@ def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None,
     0.5
     """
 
-    if sample_weight is not None:
-        raise ValueError("'sample_weight' is not supported.")
-
     if y_true.ndim > 1:
         differing_labels = ((y_true - y_pred) == 0).all(1)
         score = differing_labels != 0
@@ -69,7 +69,9 @@ def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None,
         score = y_true == y_pred
 
     if normalize:
-        score = score.mean()
+        score = da.average(score, weights=sample_weight)
+    elif sample_weight is not None:
+        score = da.dot(score, sample_weight)
     else:
         score = score.sum()
 
