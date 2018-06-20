@@ -28,7 +28,8 @@ def normalize(request):
 
 @pytest.mark.parametrize('size', [(100,), (100, 2)])
 @pytest.mark.parametrize('compute', [True, False])
-def test_ok(size, metric_pairs, normalize, compute):
+@pytest.mark.parametrize('sample_weight', [True, False])
+def test_ok(size, metric_pairs, normalize, compute, sample_weight):
     m1, m2 = metric_pairs
 
     if len(size) == 1:
@@ -37,8 +38,11 @@ def test_ok(size, metric_pairs, normalize, compute):
         hi = 1
     a = da.random.random_integers(0, hi, size=size, chunks=25)
     b = da.random.random_integers(0, hi, size=size, chunks=25)
-    sample_weight_np = np.random.random_sample(size[0])
-    sample_weight_da = da.from_array(sample_weight_np, chunks=25)
+
+    sample_weight_np, sample_weight_da = None, None
+    if sample_weight:
+        sample_weight_np = np.random.random_sample(size[0])
+        sample_weight_da = da.from_array(sample_weight_np, chunks=25)
 
     result = m1(a, b, sample_weight=sample_weight_da, normalize=normalize, compute=compute)
 
