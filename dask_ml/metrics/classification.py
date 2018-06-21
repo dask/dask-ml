@@ -1,5 +1,8 @@
 
+import packaging.version
 import dask.array as da
+
+from .._compat import DASK_VERSION
 
 
 def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None,
@@ -26,6 +29,8 @@ def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None,
 
     sample_weight : 1d array-like, optional
         Sample weights.
+
+        .. versionadded:: 0.7.0
 
     Returns
     -------
@@ -62,6 +67,11 @@ def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None,
     0.5
     """
 
+    no_average = DASK_VERSION <= packaging.version.parse("0.18.0")
+    if no_average and sample_weight is not None:
+        raise NotImplementedError("'sample_weight' is only supported for "
+                                  "dask versions > 0.18.0.")
+
     if y_true.ndim > 1:
         differing_labels = ((y_true - y_pred) == 0).all(1)
         score = differing_labels != 0
@@ -69,7 +79,10 @@ def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None,
         score = y_true == y_pred
 
     if normalize:
-        score = da.average(score, weights=sample_weight)
+        if no_average:
+            score = score.mean()
+        else:
+            score = da.average(score, weights=sample_weight)
     elif sample_weight is not None:
         score = da.dot(score, sample_weight)
     else:
