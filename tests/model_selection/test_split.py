@@ -4,6 +4,7 @@ import pandas as pd
 import pytest
 from sklearn.datasets import make_regression
 from sklearn.datasets import fetch_20newsgroups
+import six
 
 import dask_ml.model_selection
 
@@ -20,7 +21,7 @@ def test_20_newsgroups():
     X_train, X_test, y_train, y_test = r
     for X in [X_train, X_test]:
         assert isinstance(X, list)
-        assert isinstance(X[0], str)
+        assert isinstance(X[0], six.string_types)
     for y in [y_train, y_test]:
         assert isinstance(y, np.ndarray)
         assert y.dtype == int
