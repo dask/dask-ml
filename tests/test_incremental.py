@@ -10,13 +10,13 @@ from sklearn.linear_model import SGDClassifier
 from dask_ml.wrappers import Incremental
 from dask_ml.utils import assert_estimator_equal
 import dask_ml.metrics
-from dask_ml.metrics.scorer import make_scorer
+from dask_ml.metrics.scorer import make_scorer, check_scoring
 
 
 def test_incremental_basic(scheduler, xy_classification):
     X, y = xy_classification
     with scheduler() as (s, [a, b]):
-        est1 = SGDClassifier(random_state=0)
+        est1 = SGDClassifier(random_state=0, tol=1e-3)
         est2 = clone(est1)
 
         clf = Incremental(est1)
@@ -44,7 +44,7 @@ def test_incremental_basic(scheduler, xy_classification):
         # assert isinstance(result, da.Array)
         assert_eq(result, expected)
 
-        clf = Incremental(SGDClassifier(random_state=0))
+        clf = Incremental(SGDClassifier(random_state=0, tol=1e-3))
         clf.partial_fit(X, y, classes=[0, 1])
         assert_estimator_equal(clf.estimator, est2, exclude=['loss_function_'])
 
@@ -52,7 +52,7 @@ def test_incremental_basic(scheduler, xy_classification):
 def test_in_gridsearch(scheduler, xy_classification):
     X, y = xy_classification
     with scheduler() as (s, [a, b]):
-        clf = Incremental(SGDClassifier(random_state=0))
+        clf = Incremental(SGDClassifier(random_state=0, tol=1e-3))
         param_grid = {'alpha': [0.1, 10]}
         gs = sklearn.model_selection.GridSearchCV(clf, param_grid, iid=False)
         gs.fit(X, y, classes=[0, 1])
@@ -77,7 +77,7 @@ def test_scoring(scheduler, xy_classification,
                  scoring=dask_ml.metrics.accuracy_score):
     X, y = xy_classification
     with scheduler() as (s, [a, b]):
-        clf = Incremental(SGDClassifier(), scoring=scoring)
+        clf = Incremental(SGDClassifier(tol=1e-3), scoring=scoring)
         with pytest.raises(ValueError,
                            match='metric function rather than a scorer'):
             clf.fit(X, y, classes=np.unique(y))
@@ -89,9 +89,11 @@ def test_scoring(scheduler, xy_classification,
 def test_scoring_string(scheduler, xy_classification, scoring):
     X, y = xy_classification
     with scheduler() as (s, [a, b]):
-        clf = Incremental(SGDClassifier(), scoring=scoring)
+        clf = Incremental(SGDClassifier(tol=1e-3), scoring=scoring)
         if scoring:
-            make_scorer(clf.scoring) == dask_ml.metrics.scorer.SCORERS[scoring]
+            assert (dask_ml.metrics.scorer.SCORERS[scoring] ==
+                    check_scoring(clf, scoring=scoring))
+        assert callable(check_scoring(clf, scoring=scoring))
         clf.fit(X, y, classes=np.unique(y))
         clf.score(X, y)
         clf.estimator.score(X, y)
