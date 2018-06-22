@@ -10,7 +10,7 @@ from sklearn.linear_model import SGDClassifier
 from dask_ml.wrappers import Incremental
 from dask_ml.utils import assert_estimator_equal
 import dask_ml.metrics
-from dask_ml.metrics.scorer import make_scorer, check_scoring
+from dask_ml.metrics.scorer import check_scoring
 
 
 def test_incremental_basic(scheduler, xy_classification):
