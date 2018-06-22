@@ -86,7 +86,7 @@ In addition to running tests, dask-ml verifies code style uniformity with the
 .. code-block:: none
 
     pip install flake8
-    flake8 dask_ml
+    flake8
 
 
 Conventions

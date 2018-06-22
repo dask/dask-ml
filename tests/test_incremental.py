@@ -73,11 +73,13 @@ def test_estimator_param_raises():
         clf.get_params()
 
 
-def test_scoring(scheduler, xy_classification, scoring=dask_ml.metrics.accuracy_score):
+def test_scoring(scheduler, xy_classification,
+                 scoring=dask_ml.metrics.accuracy_score):
     X, y = xy_classification
     with scheduler() as (s, [a, b]):
         clf = Incremental(SGDClassifier(), scoring=scoring)
-        with pytest.raises(ValueError, match='metric function rather than a scorer'):
+        with pytest.raises(ValueError,
+                           match='metric function rather than a scorer'):
             clf.fit(X, y, classes=np.unique(y))
 
 
