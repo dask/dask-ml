@@ -51,7 +51,7 @@ def get_scorer(scoring, compute=True):
 
 
 def check_scoring(estimator, scoring=None, **kwargs):
-    sklearn_check_scoring(estimator, scoring=scoring, **kwargs)
+    res = sklearn_check_scoring(estimator, scoring=scoring, **kwargs)
     if callable(scoring):
         # Heuristic to ensure user has not passed a metric
         module = getattr(scoring, '__module__', None)
@@ -64,3 +64,6 @@ def check_scoring(estimator, scoring=None, **kwargs):
                              'require an estimator as its first parameter. '
                              'Please use `make_scorer` to convert a metric '
                              'to a scorer.' % scoring)
+    if scoring in SCORERS.keys():
+        return SCORERS[scoring]
+    return res
