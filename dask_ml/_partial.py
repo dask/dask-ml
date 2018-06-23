@@ -167,7 +167,7 @@ def fit(model, x, y, compute=True, **kwargs):
     if isinstance(x, np.ndarray) and isinstance(y, np.ndarray):
         if hasattr(model, 'estimator'):
             estimator = _partial_fit(model.estimator, x, y, kwargs=kwargs)
-            model.estimator = estimator
+            copy_learned_attributes(estimator, model)
             return model
         return _partial_fit(model, x, y, kwargs=kwargs)
     if not (isinstance(x, da.Array) and

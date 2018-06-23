@@ -55,6 +55,7 @@ def test_fit(array_lib, model_lib):
         else:
             raise ValueError
 
+        assert hasattr(est, "coef_")
         if model_lib == "dask-ml":
             assert isinstance(est, Incremental)
             assert hasattr(est.estimator, "coef_")
@@ -63,8 +64,6 @@ def test_fit(array_lib, model_lib):
             assert hasattr(est, "coef_")
         else:
             raise ValueError
-
-        assert hasattr(est, "coef_")
 
 
 @pytest.mark.parametrize("model_lib", ["dask-ml", "sklearn"])
