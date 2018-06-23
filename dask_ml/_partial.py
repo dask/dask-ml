@@ -11,6 +11,7 @@ import six
 from toolz import partial
 
 import dask
+import dask.array as da
 from dask.delayed import Delayed
 
 from ._utils import copy_learned_attributes
@@ -163,6 +164,10 @@ def fit(model, x, y, compute=True, **kwargs):
     dask.array<x_11, shape=(400,), chunks=((100, 100, 100, 100),), dtype=int64>
     """
     assert x.ndim == 2
+    if isinstance(x, np.ndarray):
+        x = da.from_array(x, chunks=x.shape)
+    if isinstance(y, np.ndarray):
+        y = da.from_array(y, chunks=y.shape)
     if y is not None:
         assert y.ndim == 1
         assert x.chunks[0] == y.chunks[0]
@@ -203,12 +208,19 @@ def predict(model, x):
     See docstring for ``da.learn.fit``
     """
     assert x.ndim == 2
+    converted = False
+    if isinstance(x, np.ndarray):
+        converted = True
+        x = da.from_array(x, chunks=x.shape)
     if len(x.chunks[1]) > 1:
         x = x.rechunk(chunks=(x.chunks[0], sum(x.chunks[1])))
     func = partial(_predict, model)
     xx = np.zeros((1, x.shape[1]), dtype=x.dtype)
     dt = model.predict(xx).dtype
-    return x.map_blocks(func, chunks=(x.chunks[0], (1,)), dtype=dt).squeeze()
+    res = x.map_blocks(func, chunks=(x.chunks[0], (1,)), dtype=dt).squeeze()
+    if converted:
+        return res.compute()
+    return res
 
 
 def _copy_partial_doc(cls):
