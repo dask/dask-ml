@@ -55,6 +55,17 @@ def test_fit(array_lib, model_lib):
         else:
             raise ValueError
 
+        if model_lib == "dask-ml":
+            assert isinstance(est, Incremental)
+            assert hasattr(est.estimator, "coef_")
+        elif model_lib == "sklearn":
+            assert isinstance(est, SGDClassifier)
+            assert hasattr(est, "coef_")
+        else:
+            raise ValueError
+
+        assert hasattr(est, "coef_")
+
 
 @pytest.mark.parametrize("model_lib", ["dask-ml", "sklearn"])
 def test_fit_need_same_input_types(model_lib):
