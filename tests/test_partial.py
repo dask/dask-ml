@@ -75,6 +75,7 @@ def test_fit_need_same_input_types(model_lib):
         with pytest.raises(ValueError, match='X and y should be both'):
             est = fit(est, X, y, classes=np.array([-1, 0, 1]))
 
+
 def test_fit_rechunking():
     n_classes = 2
     X, y = make_classification(chunks=20, n_classes=n_classes)
