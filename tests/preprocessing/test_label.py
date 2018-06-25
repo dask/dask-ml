@@ -64,8 +64,9 @@ class TestLabelEncoder(object):
         assert_eq_ar(a.transform(array).compute(),
                      b.transform(array.compute()))
 
-    def test_inverse_transform(self):
+    @pytest.mark.parametrize('array', [y, s])
+    def test_inverse_transform(self, array):
 
         a = dpp.LabelEncoder()
-        assert_eq_ar(a.inverse_transform(a.fit_transform(y)).compute(),
-                     y.compute())
+        assert_eq_ar(a.inverse_transform(a.fit_transform(array)).compute(),
+                     array.compute())
