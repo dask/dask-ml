@@ -13,9 +13,13 @@ class LabelEncoder(sklabel.LabelEncoder):
 
     __doc__ = sklabel.LabelEncoder.__doc__
 
-    def fit(self, y):
+    def _check_array(self, y):
         if isinstance(y, dd.Series):
             y = da.asarray(y)
+        return y
+
+    def fit(self, y):
+        y = self._check_array(y)
 
         if isinstance(y, da.Array):
             classes_ = da.unique(y)
@@ -32,23 +36,21 @@ class LabelEncoder(sklabel.LabelEncoder):
 
     def transform(self, y):
         check_is_fitted(self, 'classes_')
-        if isinstance(y, dd.Series):
-            y = da.asarray(y)
+        y = self._check_array(y)
 
         if isinstance(y, da.Array):
-            return y.map_blocks(lambda b: np.searchsorted(self.classes_, b),
-                                dtype=self.classes_.dtype)
+            return da.map_blocks(np.searchsorted, self.classes_, y,
+                                 dtype=self.classes_.dtype)
         else:
             return np.searchsorted(self.classes_, y)
 
     def inverse_transform(self, y):
         check_is_fitted(self, 'classes_')
-        if isinstance(y, dd.Series):
-            y = da.asarray(y)
+        y = self._check_array(y)
 
         if isinstance(y, da.Array):
-            return y.map_blocks(lambda block: getitem(self.classes_, block),
-                                dtype=self.classes_.dtype)
+            return da.map_blocks(getitem, self.classes_, y,
+                                 dtype=self.classes_.dtype)
         else:
             y = np.asarray(y)
             return self.classes_[y]
