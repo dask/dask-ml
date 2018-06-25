@@ -8,6 +8,7 @@ Enhancements
 ------------
 
 - Added ``sample_weight`` support for :meth:`dask_ml.metrics.accuracy_score`. (:pr:`217`)
+- Added :class:`dask_ml.preprocessing.LabelEncoder`. (:pr:`226`)
 
 
 Version 0.6.0
