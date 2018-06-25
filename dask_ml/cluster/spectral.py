@@ -225,13 +225,9 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         params['degree'] = self.degree
         params['coef0'] = self.coef0
 
-        logger.info("Starting indicators.")
-
         inds = np.arange(n)
         keep = rng.choice(inds, n_components, replace=False)
         rest = ~np.isin(inds, keep)
-
-        logger.info("Finished indicators.")
 
         # compute the exact blocks
         # these are done in parallel for dask arrays
@@ -272,12 +268,10 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
 
         # d1, d2 are diagonal, so we can avoid large matrix multiplies
         # Equivalent to diag(d1_si) @ A @ diag(d1_si)
-        # This is immediate.
         A2 = d1_si.reshape(-1, 1) * A * d1_si.reshape(1, -1)  # (n, n)
         _log_array(logger, A2, 'A2')
         # A2 = A2.rechunk(A2.shape)
         # Equivalent to diag(d1_si) @ B @ diag(d2_si)
-        # XXX: this is the problem at the moment...
         B2 = da.multiply(da.multiply(d1_si.reshape(-1, 1), B),
                          d2_si.reshape(1, -1))
         _log_array(logger, B2, 'B2')
@@ -285,8 +279,6 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         U_A, S_A, V_A = svd(A2)
 
         # Eq 16. This is OK when V2 is orthogonal
-        # The only thing that should be delayed here is B2, else we hit
-        # memory pressures.
         V2 = (da.sqrt(float(n_components) / n) *
               da.vstack([A2, B2.T]).dot(
               U_A[:, :n_clusters]).dot(
