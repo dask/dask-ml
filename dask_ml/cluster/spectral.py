@@ -109,24 +109,11 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         Keyword arguments for the KMeans clustering used for the final
         clustering.
 
-    rechunk_strategy : dict, optional
-        Chunks to rechunk to for the two main stages of SpectralClustering.
-        This should be a dictionary whose keys are
-
-        * 'kernel'
-        * 'cluster'
-
-        The values are the chunks to use for that stage. The array is
-        rechunked with :meth:`dask.array.rechunk`, so any value that is
-        valid there is valid.
-
-    precompute_inner : bool, default False
-        Whether to precompute small, intermediate results. Depending on
-        the ratio of IO time to compute time, setting to True can improve
-        performance and memory usage.
-
     Attributes
     ----------
+    basis_inds_ : ndarray
+        The ordering used to partition X into the samples for the
+        Nyström approximation
     assign_labels_ : Estimator
         The instance of the KMeans estimator used to assign labels
     labels_ : dask.array.Array, size (n_samples,)
@@ -158,9 +145,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
                  eigen_tol=0.0, assign_labels='kmeans', degree=3, coef0=1,
                  kernel_params=None, n_jobs=1, n_components=100,
                  persist_embedding=False,
-                 kmeans_params=None,
-                 rechunk_strategy=None,
-                 precompute_inner=False):
+                 kmeans_params=None):
         self.n_clusters = n_clusters
         self.eigen_solver = eigen_solver
         self.random_state = random_state
@@ -177,8 +162,6 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         self.n_components = n_components
         self.persist_embedding = persist_embedding
         self.kmeans_params = kmeans_params
-        self.rechunk_strategy = rechunk_strategy
-        self.precompute_inner = precompute_inner
 
     def _check_array(self, X):
         logger.info("Starting check array")
@@ -192,7 +175,6 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         metric = self.affinity
         rng = check_random_state(self.random_state)
         n_clusters = self.n_clusters
-        rechunk_strategy = self.rechunk_strategy or {}
 
         # kmeans for final clustering
         if isinstance(self.assign_labels, six.string_types):
@@ -226,7 +208,6 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         params['coef0'] = self.coef0
 
         inds = np.arange(n)
-
         inds = rng.permutation(inds)
         keep = inds[:n_components]
         rest = inds[n_components:]
@@ -246,12 +227,6 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
 
         X_rest = X[rest]
 
-        chunks = rechunk_strategy.get('kernel')
-        if chunks:
-            logger.info("Rechunking for kernel %s -> %s",
-                        X_rest.numblocks, chunks)
-            X_rest = X_rest.rechunk(chunks)
-
         A, B = embed(X_keep, X_rest, n_components, metric, params)
         _log_array(logger, A, 'A')
         _log_array(logger, B, 'B')
@@ -267,11 +242,6 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         inner = A_inv.dot(b1)
         d1_si = 1 / da.sqrt(a + b1)
 
-        if self.precompute_inner:
-            logger.info("starting intermediate pre-compute")
-            b1, inner, d1_si = dask.compute(b1, inner, d1_si)
-            logger.info("finished intermediate pre-compute")
-
         d2_si = 1 / da.sqrt(b2 + B.T.dot(inner))  # (m,), dask array
 
         # d1, d2 are diagonal, so we can avoid large matrix multiplies
@@ -284,7 +254,12 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
                          d2_si.reshape(1, -1))
         _log_array(logger, B2, 'B2')
 
-        U_A, S_A, V_A = svd(A2)
+        # U_A, S_A, V_A = svd(A2)
+        U_A, S_A, V_A = delayed(svd, pure=True, nout=3)(A2)
+
+        U_A = da.from_delayed(U_A, (n_components, n_components), A2.dtype)
+        S_A = da.from_delayed(S_A, (n_components,), A2.dtype)
+        V_A = da.from_delayed(V_A, (n_components, n_components), A2.dtype)
 
         # Eq 16. This is OK when V2 is orthogonal
         V2 = (da.sqrt(float(n_components) / n) *
@@ -301,12 +276,6 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         U2 = (V2.T / da.sqrt((V2 ** 2).sum(1))).T  # (n, k)
 
         _log_array(logger, U2, 'U2.2')
-
-        chunks = rechunk_strategy.get("cluster")
-        if chunks:
-            logger.info("Rechunking for cluster %s -> %s",
-                        U2.numblocks, chunks)
-            U2 = U2.rechunk(chunks)
 
         # Recover original indices
         U2 = U2[inds_idx]  # (n, k)
@@ -325,6 +294,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         logger.info("k-means for assign_labels[finished]")
 
         # Now... what to keep?
+        self.basis_inds_ = inds
         self.assign_labels_ = km
         self.labels_ = km.labels_
         self.eigenvalues_ = S_A[:n_clusters]  # TODO: better name

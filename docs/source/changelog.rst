@@ -10,10 +10,6 @@ Enhancements
 - Added ``sample_weight`` support for :meth:`dask_ml.metrics.accuracy_score`. (:pr:`217`)
 - Improved performance of training on :class:`dask_ml.cluster.SpectralClustering` (:pr:`152`)
 
-API Breaking Changes
---------------------
-
-- Removed the ``basis_inds_`` attribute from :class:`dask_ml.cluster.SpectralClustering` as its no longer used (:pr:`152`)
 
 Version 0.6.0
 ~~~~~~~~~~~~~
