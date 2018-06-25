@@ -164,10 +164,16 @@ def fit(model, x, y, compute=True, **kwargs):
     dask.array<x_11, shape=(400,), chunks=((100, 100, 100, 100),), dtype=int64>
     """
     assert x.ndim == 2
-    if isinstance(x, np.ndarray):
-        x = da.from_array(x, chunks=x.shape)
-    if isinstance(y, np.ndarray):
-        y = da.from_array(y, chunks=y.shape)
+    if isinstance(x, np.ndarray) and isinstance(y, np.ndarray):
+        if hasattr(model, 'estimator'):
+            estimator = _partial_fit(model.estimator, x, y, kwargs=kwargs)
+            copy_learned_attributes(estimator, model)
+            return model
+        return _partial_fit(model, x, y, kwargs=kwargs)
+    if not (isinstance(x, da.Array) and
+            (y is None or isinstance(y, da.Array))):
+        raise ValueError("X and y should be both np.ndarrays or both "
+                         "dask.array.Arrays, not a mix.")
     if y is not None:
         assert y.ndim == 1
         assert x.chunks[0] == y.chunks[0]

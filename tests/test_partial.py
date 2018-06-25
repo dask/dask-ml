@@ -5,6 +5,7 @@ import dask.array as da
 from dask_ml._partial import fit, predict
 from dask_ml.datasets import make_classification
 from dask_ml.wrappers import Incremental
+from dask.array.utils import assert_eq
 
 import pytest
 
@@ -30,24 +31,49 @@ Y = da.from_array(y, chunks=(3,))
 Z = da.from_array(z, chunks=(2, 2))
 
 
-@pytest.mark.parametrize("x_,y_,z_", [(x, y, z), (X, Y, Z)])
-def test_fit(x_, y_, z_):
+@pytest.mark.parametrize("array_lib", ['numpy', 'dask.array'])
+@pytest.mark.parametrize("model_lib", ["dask-ml", "sklearn"])
+def test_fit(array_lib, model_lib):
     with dask.config.set(scheduler='single-threaded'):
-        sgd = SGDClassifier(max_iter=5)
-        sgd = fit(sgd, x_, y_, classes=np.array([-1, 0, 1]))
+        arrays = {'numpy': [x, y, z], 'dask.array': [X, Y, Z]}
+        models = {'sklearn': SGDClassifier(max_iter=5),
+                  'dask-ml': Incremental(SGDClassifier(max_iter=5))}
+        x_, y_, z_ = arrays[array_lib]
+        est = models[model_lib]
+        est = fit(est, x_, y_, classes=np.array([-1, 0, 1]))
 
-        sol = sgd.predict(z)
-        result = predict(sgd, z_)
+        sol = est.predict(z)
+        result = predict(est, z_)
 
-        if isinstance(z_, da.Array):
+        if array_lib == "dask.array":
             assert result.chunks == ((2, 2),)
             assert isinstance(result, da.Array)
-            assert result.compute().tolist() == sol.tolist()
-        elif isinstance(z_, np.ndarray):
+            assert assert_eq(result, sol)
+        elif array_lib == "numpy":
             assert isinstance(result, np.ndarray)
-            assert result.tolist() == sol.tolist()
+            assert assert_eq(result, sol)
         else:
             raise ValueError
+
+        assert hasattr(est, "coef_")
+        if model_lib == "dask-ml":
+            assert isinstance(est, Incremental)
+            assert hasattr(est.estimator, "coef_")
+        elif model_lib == "sklearn":
+            assert isinstance(est, SGDClassifier)
+            assert hasattr(est, "coef_")
+        else:
+            raise ValueError
+
+
+@pytest.mark.parametrize("model_lib", ["dask-ml", "sklearn"])
+def test_fit_need_same_input_types(model_lib):
+    with dask.config.set(scheduler='single-threaded'):
+        models = {'sklearn': SGDClassifier(max_iter=5),
+                  'dask-ml': Incremental(SGDClassifier(max_iter=5))}
+        est = models[model_lib]
+        with pytest.raises(ValueError, match='X and y should be both'):
+            est = fit(est, X, y, classes=np.array([-1, 0, 1]))
 
 
 def test_fit_rechunking():
