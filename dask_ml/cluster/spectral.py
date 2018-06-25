@@ -109,6 +109,22 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         Keyword arguments for the KMeans clustering used for the final
         clustering.
 
+    rechunk_strategy : dict, optional
+        Chunks to rechunk to for the two main stages of SpectralClustering.
+        This should be a dictionary whose keys are
+
+        * 'kernel'
+        * 'cluster'
+
+        The values are the chunks to use for that stage. The array is
+        rechunked with :meth:`dask.array.rechunk`, so any value that is
+        valid there is valid.
+
+    precompute_inner : bool, default False
+        Whether to precompute small, intermediate results. Depending on
+        the ratio of IO time to compute time, setting to True can improve
+        performance and memory usage.
+
     Attributes
     ----------
     assign_labels_ : Estimator
@@ -144,8 +160,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
                  persist_embedding=False,
                  kmeans_params=None,
                  rechunk_strategy=None,
-                 precompute_inner=True,
-                 shuffle=False):
+                 precompute_inner=False):
         self.n_clusters = n_clusters
         self.eigen_solver = eigen_solver
         self.random_state = random_state
@@ -164,7 +179,6 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         self.kmeans_params = kmeans_params
         self.rechunk_strategy = rechunk_strategy
         self.precompute_inner = precompute_inner
-        self.shuffle = shuffle
 
     def _check_array(self, X):
         logger.info("Starting check array")
@@ -179,7 +193,6 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         rng = check_random_state(self.random_state)
         n_clusters = self.n_clusters
         rechunk_strategy = self.rechunk_strategy or {}
-        shuffle = self.shuffle
 
         # kmeans for final clustering
         if isinstance(self.assign_labels, six.string_types):
@@ -213,21 +226,10 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         params['coef0'] = self.coef0
 
         logger.info("Starting indicators.")
-        if self.shuffle:
-            inds = rng.permutation(np.arange(n))
-            keep = inds[:n_components]
-            rest = inds[n_components:]
-            # distributed slice perf.
-            keep.sort()
-            rest.sort()
-            # Those sorts modify `inds` inplace, so `argsort(inds)` will still
-            # recover the original order.
-            inds_idx = np.argsort(inds)
-        else:
-            inds = np.arange(n)
-            keep = rng.choice(inds, n_components, replace=False)
-            rest = ~np.isin(inds, keep)
-            inds_idx = None
+
+        inds = np.arange(n)
+        keep = rng.choice(inds, n_components, replace=False)
+        rest = ~np.isin(inds, keep)
 
         logger.info("Finished indicators.")
 
@@ -297,9 +299,6 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         # normalize (Eq. 4)
         U2 = (V2.T / da.sqrt((V2 ** 2).sum(1))).T  # (n, k)
 
-        # Recover the original order so that labels match
-        if shuffle:
-            U2 = U2[inds_idx]  # (n, k)
         _log_array(logger, U2, 'U2.2')
 
         chunks = rechunk_strategy.get("cluster")
