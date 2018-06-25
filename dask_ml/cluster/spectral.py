@@ -226,8 +226,16 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         params['coef0'] = self.coef0
 
         inds = np.arange(n)
-        keep = rng.choice(inds, n_components, replace=False)
-        rest = ~np.isin(inds, keep)
+
+        inds = rng.permutation(inds)
+        keep = inds[:n_components]
+        rest = inds[n_components:]
+        # distributed slice perf.
+        keep.sort()
+        rest.sort()
+        # Those sorts modify `inds` inplace, so `argsort(inds)` will still
+        # recover the original order.
+        inds_idx = np.argsort(inds)
 
         # compute the exact blocks
         # these are done in parallel for dask arrays
@@ -284,6 +292,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
               U_A[:, :n_clusters]).dot(
               da.diag(1.0 / da.sqrt(S_A[:n_clusters]))))  # (n, k)
         _log_array(logger, V2, 'V2.1')
+
         if isinstance(B2, da.Array):
             V2 = V2.rechunk((B2.chunks[1][0], n_clusters))
             _log_array(logger, V2, 'V2.2')
@@ -298,6 +307,10 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
             logger.info("Rechunking for cluster %s -> %s",
                         U2.numblocks, chunks)
             U2 = U2.rechunk(chunks)
+
+        # Recover original indices
+        U2 = U2[inds_idx]  # (n, k)
+
         _log_array(logger, U2, 'U2.3')
 
         if self.persist_embedding and isinstance(U2, da.Array):

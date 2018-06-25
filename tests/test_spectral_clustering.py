@@ -78,7 +78,7 @@ def test_spectral_clustering(Xl_blobs_easy):
     X, y = Xl_blobs_easy
     X = (X - X.mean(0)) / X.std(0)
     model = SpectralClustering(random_state=0, n_clusters=3,
-                               n_components=75, shuffle=True, gamma=None).fit(X)
+                               n_components=5, gamma=None).fit(X)
     labels = model.labels_.compute()
     y = y.compute()
 
