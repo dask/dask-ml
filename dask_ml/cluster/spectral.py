@@ -15,7 +15,7 @@ from sklearn.utils import check_random_state
 
 from .k_means import KMeans
 from ..metrics.pairwise import PAIRWISE_KERNEL_FUNCTIONS, pairwise_kernels
-from ..utils import check_array, _log_array
+from ..utils import check_array, _log_array, _format_bytes
 
 
 logger = logging.getLogger(__name__)
@@ -305,12 +305,8 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
             logger.info("Persisting array for k-means")
             U2 = U2.persist()
         elif isinstance(U2, da.Array):
-            logger.info("Consider persist_embedding.")
-            # We can still persist the small things...
-            # TODO: we would need to update the task graphs
-            # for V2 to replace references to, e.g.
-            #  U_A, A2, etc. with references to persisted
-            # versions of those.
+            logger.info("Consider persist_embedding. This will require %s",
+                        _format_bytes(U2.nbytes))
             pass
         logger.info("k-means for assign_labels[starting]")
         km.fit(U2)
