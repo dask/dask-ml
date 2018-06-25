@@ -1,15 +1,24 @@
 Changelog
 =========
 
+Version 0.7.0
+~~~~~~~~~~~~~
+
+Enhancements
+------------
+
+- Added ``sample_weight`` support for :meth:`dask_ml.metrics.accuracy_score`. (:pr:`217`)
+
+
 Version 0.6.0
--------------
+~~~~~~~~~~~~~
 
 API Breaking Changes
 --------------------
 
 - Removed the `get` keyword from the incremental learner ``fit`` methods. (:pr:`187`)
 - Deprecated the various ``Partial*`` estimators in favor of the :class:`dask_ml.wrappers.Incremental` meta-estimator (:pr:`190`)
-  
+
 Enhancements
 ------------
 
