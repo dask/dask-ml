@@ -4,7 +4,6 @@
 import logging
 
 import six
-import dask
 import dask.array as da
 from dask import delayed
 import numpy as np
