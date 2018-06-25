@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 import pytest
 from sklearn.datasets import make_regression
+from sklearn.datasets import fetch_20newsgroups
+import six
 
 import dask_ml.model_selection
 
@@ -12,8 +14,22 @@ dX = da.from_array(X, 50)
 dy = da.from_array(y, 50)
 
 
+def test_20_newsgroups():
+    data = fetch_20newsgroups()
+    X, y = data.data, data.target
+    r = dask_ml.model_selection.train_test_split(X, y)
+    X_train, X_test, y_train, y_test = r
+    for X in [X_train, X_test]:
+        assert isinstance(X, list)
+        assert isinstance(X[0], six.string_types)
+    for y in [y_train, y_test]:
+        assert isinstance(y, np.ndarray)
+        assert y.dtype == int
+
+
 def test_blockwise_shufflesplit():
     splitter = dask_ml.model_selection.ShuffleSplit(random_state=0)
+    assert splitter.get_n_splits() == 10
     gen = splitter.split(dX)
 
     train_idx, test_idx = next(gen)

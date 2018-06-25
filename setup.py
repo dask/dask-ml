@@ -23,7 +23,7 @@ tensorflow_requires = ['dask-tensorflow', 'tensorflow']
 xgboost_requires = ['dask-xgboost', 'xgboost']
 complete_requires = tensorflow_requires + xgboost_requires
 
-extra_requires = {
+extras_require = {
     'docs': doc_requires,
     'test': test_requires,
     'dev': dev_requires,
@@ -74,6 +74,6 @@ setup(
     use_scm_version=True,
     setup_requires=['setuptools_scm'],
     install_requires=install_requires,
-    extras_require=extra_requires,
+    extras_require=extras_require,
     ext_modules=extensions,
 )

@@ -207,4 +207,5 @@ def setup(app):
 
 extlinks = {
     'issue': ('https://github.com/dask/dask-ml/issues/%s', 'GH#'),
+    'pr': ('https://github.com/dask/dask-ml/pull/%s', 'GH#'),
 }

@@ -20,7 +20,7 @@ jobs:
       - run:
           command: |
             source activate ${ENV_NAME}
-            flake8 dask_ml
+            flake8
       - save_cache:
           key: deps-{{ .Branch }}-3.6-{{ checksum "ci/environment-3.6.yml" }}
           paths:
@@ -47,7 +47,7 @@ jobs:
       - run:
           command: |
             source activate ${ENV_NAME}
-            flake8 dask_ml
+            flake8
       - save_cache:
           key: deps-{{ .Branch }}-2.7-{{ checksum "ci/environment-2.7.yml" }}
           paths:

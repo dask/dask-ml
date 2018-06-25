@@ -10,7 +10,9 @@ from sklearn.utils import check_random_state
 from sklearn.model_selection._split import (
     _validate_shuffle_split,
     _validate_shuffle_split_init,
+    BaseCrossValidator,
 )
+import sklearn.model_selection as ms
 
 from dask_ml.utils import check_array
 
@@ -77,7 +79,7 @@ def _generate_idx(n, seed, n_train, n_test):
     return ind_train, ind_test
 
 
-class ShuffleSplit:
+class ShuffleSplit(BaseCrossValidator):
     """Random permutation cross-validator.
 
     Yields indices to split data into training and test sets.
@@ -174,6 +176,9 @@ class ShuffleSplit:
         raise NotImplementedError("ShuffleSplit with `blockwise=False` has "
                                   "not been implemented yet.")
 
+    def get_n_splits(self, X=None, y=None, groups=None):
+        return self.n_splits
+
 
 def _blockwise_slice(arr, idx):
     """Slice an array that is blockwise-aligned with idx.
@@ -266,7 +271,11 @@ def train_test_split(*arrays, **options):
     if not shuffle:
         raise NotImplementedError
 
-    assert all(isinstance(arr, da.Array) for arr in arrays)
+    if not all(isinstance(arr, da.Array) for arr in arrays):
+        return ms.train_test_split(*arrays, test_size=test_size,
+                                   train_size=train_size,
+                                   random_state=random_state,
+                                   shuffle=shuffle)
 
     splitter = ShuffleSplit(n_splits=1, test_size=test_size,
                             train_size=train_size, blockwise=blockwise,

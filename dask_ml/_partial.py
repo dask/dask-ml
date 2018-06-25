@@ -1,15 +1,23 @@
 from __future__ import absolute_import, division, print_function
 
+import logging
 import os
 import warnings
 from abc import ABCMeta
+from timeit import default_timer as tic
 
 import numpy as np
 import six
 from toolz import partial
 
 import dask
+import dask.array as da
 from dask.delayed import Delayed
+
+from ._utils import copy_learned_attributes
+
+
+logger = logging.getLogger(__name__)
 
 
 class _WritableDoc(ABCMeta):
@@ -77,12 +85,8 @@ class _BigPartialFitMixin(object):
         fit_kwargs = {k: getattr(self, k) for k in self._fit_kwargs}
         result = fit(self, X, y, compute=compute, **fit_kwargs)
 
-        # Copy the learned attributes over to self
-        # It should go without saying that this is *not* threadsafe
         if compute:
-            attrs = {k: v for k, v in vars(result).items() if k.endswith('_')}
-            for k, v in attrs.items():
-                setattr(self, k, v)
+            copy_learned_attributes(result, self)
             return self
         return result
 
@@ -101,7 +105,12 @@ class _BigPartialFitMixin(object):
 
 def _partial_fit(model, x, y, kwargs=None):
     kwargs = kwargs or dict()
+    start = tic()
+    logger.info("Starting partial-fit %s", dask.base.tokenize(model, x, y))
     model.partial_fit(x, y, **kwargs)
+    stop = tic()
+    logger.info("Finished partial-fit %s [%0.2f]",
+                dask.base.tokenize(model, x, y), stop - start)
     return model
 
 
@@ -155,12 +164,16 @@ def fit(model, x, y, compute=True, **kwargs):
     dask.array<x_11, shape=(400,), chunks=((100, 100, 100, 100),), dtype=int64>
     """
     assert x.ndim == 2
+    if isinstance(x, np.ndarray):
+        x = da.from_array(x, chunks=x.shape)
+    if isinstance(y, np.ndarray):
+        y = da.from_array(y, chunks=y.shape)
     if y is not None:
         assert y.ndim == 1
         assert x.chunks[0] == y.chunks[0]
     assert hasattr(model, 'partial_fit')
     if len(x.chunks[1]) > 1:
-        x = x.reblock(chunks=(x.chunks[0], sum(x.chunks[1])))
+        x = x.rechunk(chunks=(x.chunks[0], sum(x.chunks[1])))
 
     nblocks = len(x.chunks[0])
 
@@ -195,12 +208,19 @@ def predict(model, x):
     See docstring for ``da.learn.fit``
     """
     assert x.ndim == 2
+    converted = False
+    if isinstance(x, np.ndarray):
+        converted = True
+        x = da.from_array(x, chunks=x.shape)
     if len(x.chunks[1]) > 1:
-        x = x.reblock(chunks=(x.chunks[0], sum(x.chunks[1])))
+        x = x.rechunk(chunks=(x.chunks[0], sum(x.chunks[1])))
     func = partial(_predict, model)
     xx = np.zeros((1, x.shape[1]), dtype=x.dtype)
     dt = model.predict(xx).dtype
-    return x.map_blocks(func, chunks=(x.chunks[0], (1,)), dtype=dt).squeeze()
+    res = x.map_blocks(func, chunks=(x.chunks[0], (1,)), dtype=dt).squeeze()
+    if converted:
+        return res.compute()
+    return res
 
 
 def _copy_partial_doc(cls):
