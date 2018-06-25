@@ -169,8 +169,9 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
 
     def _check_array(self, X):
         logger.info("Starting check array")
-        return check_array(X, accept_dask_dataframe=False).astype(float)
+        result = check_array(X, accept_dask_dataframe=False).astype(float)
         logger.info("Finished check array")
+        return result
 
     def fit(self, X, y=None):
         X = self._check_array(X)
@@ -238,8 +239,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
                         X_rest.numblocks, chunks)
             X_rest = X_rest.rechunk(chunks)
 
-        A, B = embed(X_keep, X_rest, n_components, metric, params,
-                     random_state=rng)
+        A, B = embed(X_keep, X_rest, n_components, metric, params)
         _log_array(logger, A, 'A')
         _log_array(logger, B, 'B')
 
@@ -324,8 +324,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         return self
 
 
-def embed(X_keep, X_rest, n_components, metric, kernel_params,
-          random_state=None):
+def embed(X_keep, X_rest, n_components, metric, kernel_params):
     if isinstance(metric, six.string_types):
         if metric not in PAIRWISE_KERNEL_FUNCTIONS:
             msg = ("Unknown affinity metric name '{}'. Expected one "

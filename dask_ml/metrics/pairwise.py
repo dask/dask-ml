@@ -79,7 +79,7 @@ def euclidean_distances(X, Y=None, Y_norm_squared=None, squared=False,
             YY = Y_norm_squared
         if YY.shape != (1, Y.shape[0]):
             raise ValueError(
-                "Incompatiable dimensions for Y and Y_norm_squared")
+                "Incompatible dimensions for Y and Y_norm_squared")
     else:
         YY = row_norms(Y, squared=True)[np.newaxis, :]
 
