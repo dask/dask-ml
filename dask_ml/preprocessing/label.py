@@ -43,6 +43,8 @@ class LabelEncoder(sklabel.LabelEncoder):
 
     def inverse_transform(self, y):
         check_is_fitted(self, 'classes_')
+        if isinstance(y, dd.Series):
+            y = da.asarray(y)
 
         if isinstance(y, da.Array):
             return y.map_blocks(lambda block: getitem(self.classes_, block),

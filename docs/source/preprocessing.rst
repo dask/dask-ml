@@ -21,6 +21,7 @@ scikit-learn counterparts.
    QuantileTransformer
    RobustScaler
    StandardScaler
+   LabelEncoder
 
 These can be used just like the scikit-learn versions, except that:
 
