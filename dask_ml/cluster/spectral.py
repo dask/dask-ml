@@ -6,7 +6,7 @@ import logging
 import six
 import dask
 import dask.array as da
-from dask import delayed, compute
+from dask import delayed
 import numpy as np
 import sklearn.cluster
 from scipy.linalg import pinv, svd
@@ -15,7 +15,7 @@ from sklearn.utils import check_random_state
 
 from .k_means import KMeans
 from ..metrics.pairwise import PAIRWISE_KERNEL_FUNCTIONS, pairwise_kernels
-from ..utils import check_array
+from ..utils import check_array, _log_array
 
 
 logger = logging.getLogger(__name__)
@@ -240,10 +240,8 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
 
         A, B = embed(X_keep, X_rest, n_components, metric, params,
                      random_state=rng)
-        logger.info("Kernel info: [A], memory: %sGB, blocks: %s",
-                    A.nbytes / 1e9, getattr(A, 'numblocks'))
-        logger.info("Kernel info: [B], memory: %sGB, blocks: %s",
-                    B.nbytes / 1e9, B.numblocks)
+        _log_array(logger, A, 'A')
+        _log_array(logger, B, 'B')
 
         # now the approximation of C
         a = A.sum(0)   # (l,)
@@ -267,13 +265,13 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         # Equivalent to diag(d1_si) @ A @ diag(d1_si)
         # This is immediate.
         A2 = d1_si.reshape(-1, 1) * A * d1_si.reshape(1, -1)  # (n, n)
-        logger.info("A2: %s %s", A2.nbytes / 1e9, getattr(A2, 'numblocks'))
+        _log_array(logger, A2, 'A2')
         # A2 = A2.rechunk(A2.shape)
         # Equivalent to diag(d1_si) @ B @ diag(d2_si)
         # XXX: this is the problem at the moment...
         B2 = da.multiply(da.multiply(d1_si.reshape(-1, 1), B),
                          d2_si.reshape(1, -1))
-        logger.info("B2: %s %s", B2.nbytes / 1e9, getattr(B2, 'numblocks'))
+        _log_array(logger, B2, 'B2')
 
         U_A, S_A, V_A = svd(A2)
 
@@ -284,26 +282,24 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
               da.vstack([A2, B2.T]).dot(
               U_A[:, :n_clusters]).dot(
               da.diag(1.0 / da.sqrt(S_A[:n_clusters]))))  # (n, k)
-        logger.info("V2.1: %s %s", V2.nbytes / 1e9, getattr(V2, 'numblocks'))
+        _log_array(logger, V2, 'V2.1')
         if isinstance(B2, da.Array):
             V2 = V2.rechunk((B2.chunks[1][0], n_clusters))
-            logger.info("V2.2: %s %s", V2.nbytes / 1e9, V2.numblocks)
+            _log_array(logger, V2, 'V2.2')
 
         # normalize (Eq. 4)
         U2 = (V2.T / da.sqrt((V2 ** 2).sum(1))).T  # (n, k)
-        logger.info("U2.1: %s %s", U2.nbytes / 1e9, U2.numblocks)
 
         # Recover the original order so that labels match
         U2 = U2[inds_idx]  # (n, k)
-        logger.info("U2.2: %s %s", U2.nbytes / 1e9, U2.numblocks)
+        _log_array(logger, U2, 'U2.2')
 
         chunks = rechunk_strategy.get("cluster")
         if chunks:
             logger.info("Rechunking for cluster %s -> %s",
                         U2.numblocks, chunks)
             U2 = U2.rechunk(chunks)
-        logger.info("Embedding info: [U], memory: %sGB, blocks: %s",
-                    U2.nbytes / 1e9, getattr(U2, 'numblocks'))
+        _log_array(logger, U2, 'U2.3')
 
         if self.persist_embedding and isinstance(U2, da.Array):
             logger.info("Persisting array for k-means")
