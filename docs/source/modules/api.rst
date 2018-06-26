@@ -127,6 +127,7 @@ compatible estimators with Dask arrays.
    preprocessing.Categorizer
    preprocessing.DummyEncoder
    preprocessing.OrdinalEncoder
+   preprocessing.LabelEncoder
 
 
 :mod:`dask_ml.metrics`: Metrics

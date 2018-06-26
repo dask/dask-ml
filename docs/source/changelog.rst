@@ -9,6 +9,7 @@ Enhancements
 
 - Added ``sample_weight`` support for :meth:`dask_ml.metrics.accuracy_score`. (:pr:`217`)
 - Improved performance of training on :class:`dask_ml.cluster.SpectralClustering` (:pr:`152`)
+- Added :class:`dask_ml.preprocessing.LabelEncoder`. (:pr:`226`)
 
 
 Version 0.6.0
