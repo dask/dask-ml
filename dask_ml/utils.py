@@ -214,6 +214,33 @@ def check_chunks(n_samples, n_features, chunks=None):
     return chunks
 
 
+def _log_array(logger, arr, name):
+    logger.info("%s: %s, %s blocks", name, _format_bytes(arr.nbytes),
+                getattr(arr, 'numblocks', 'No'))
+
+
+def _format_bytes(n):
+    # TODO: just import from distributed if / when required
+    """ Format bytes as text
+
+    >>> format_bytes(1)
+    '1 B'
+    >>> format_bytes(1234)
+    '1.23 kB'
+    >>> format_bytes(12345678)
+    '12.35 MB'
+    >>> format_bytes(1234567890)
+    '1.23 GB'
+    """
+    if n > 1e9:
+        return '%0.2f GB' % (n / 1e9)
+    if n > 1e6:
+        return '%0.2f MB' % (n / 1e6)
+    if n > 1e3:
+        return '%0.2f kB' % (n / 1000)
+    return '%d B' % n
+
+
 __all__ = ['assert_estimator_equal',
            'check_array',
            'check_random_state',

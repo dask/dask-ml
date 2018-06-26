@@ -14,7 +14,7 @@ from sklearn.utils import check_random_state
 
 from .k_means import KMeans
 from ..metrics.pairwise import PAIRWISE_KERNEL_FUNCTIONS, pairwise_kernels
-from ..utils import check_array
+from ..utils import check_array, _log_array, _format_bytes
 
 
 logger = logging.getLogger(__name__)
@@ -163,7 +163,10 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         self.kmeans_params = kmeans_params
 
     def _check_array(self, X):
-        return check_array(X, accept_dask_dataframe=False).astype(float)
+        logger.info("Starting check array")
+        result = check_array(X, accept_dask_dataframe=False).astype(float)
+        logger.info("Finished check array")
+        return result
 
     def fit(self, X, y=None):
         X = self._check_array(X)
@@ -198,7 +201,13 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
                    " Got {} components and {} samples".format(n_components, n))
             raise ValueError(msg)
 
-        inds = rng.permutation(np.arange(n))
+        params = self.kernel_params or {}
+        params['gamma'] = self.gamma
+        params['degree'] = self.degree
+        params['coef0'] = self.coef0
+
+        inds = np.arange(n)
+        inds = rng.permutation(inds)
         keep = inds[:n_components]
         rest = inds[n_components:]
         # distributed slice perf.
@@ -208,58 +217,45 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         # recover the original order.
         inds_idx = np.argsort(inds)
 
-        params = self.kernel_params or {}
-        params['gamma'] = self.gamma
-        params['degree'] = self.degree
-        params['coef0'] = self.coef0
-
         # compute the exact blocks
         # these are done in parallel for dask arrays
         if isinstance(X, da.Array):
-            X_keep = X[keep].rechunk(self.n_components).persist()
+            X_keep = X[keep].rechunk(X.shape).persist()
         else:
             X_keep = X[keep]
 
-        if isinstance(metric, six.string_types):
-            if metric not in PAIRWISE_KERNEL_FUNCTIONS:
-                msg = ("Unknown affinity metric name '{}'. Expected one "
-                       "of '{}'".format(metric,
-                                        PAIRWISE_KERNEL_FUNCTIONS.keys()))
-                raise ValueError(msg)
-            A = pairwise_kernels(X_keep,
-                                 metric=metric, filter_params=True, **params)
-            B = pairwise_kernels(X_keep, X[rest],
-                                 metric=metric, filter_params=True, **params)
+        X_rest = X[rest]
 
-        elif callable(metric):
-            A = metric(X_keep, **params)
-            B = metric(X_keep, X[rest], **params)
-        else:
-            msg = ("Unexpected type for 'affinity' '{}'. Must be string "
-                   "kernel name, array, or callable")
-            raise TypeError(msg)
-        if isinstance(A, da.Array):
-            A = A.rechunk((n_components, n_components))
-            B = B.rechunk((B.shape[0], B.chunks[1]))
+        A, B = embed(X_keep, X_rest, n_components, metric, params)
+        _log_array(logger, A, 'A')
+        _log_array(logger, B, 'B')
 
         # now the approximation of C
         a = A.sum(0)   # (l,)
         b1 = B.sum(1)  # (l,)
         b2 = B.sum(0)  # (m,)
 
+        # TODO: I think we have some unnecessary delayed wrapping of A here.
         A_inv = da.from_delayed(delayed(pinv)(A), A.shape, A.dtype)
 
+        inner = A_inv.dot(b1)
         d1_si = 1 / da.sqrt(a + b1)
-        d2_si = 1 / da.sqrt(b2 + B.T.dot(A_inv.dot(b1)))  # (m,), dask array
+
+        d2_si = 1 / da.sqrt(b2 + B.T.dot(inner))  # (m,), dask array
 
         # d1, d2 are diagonal, so we can avoid large matrix multiplies
         # Equivalent to diag(d1_si) @ A @ diag(d1_si)
         A2 = d1_si.reshape(-1, 1) * A * d1_si.reshape(1, -1)  # (n, n)
+        _log_array(logger, A2, 'A2')
         # A2 = A2.rechunk(A2.shape)
         # Equivalent to diag(d1_si) @ B @ diag(d2_si)
-        B2 = d1_si.reshape(-1, 1) * B * d2_si  # (m, m), so this is dask.
+        B2 = da.multiply(da.multiply(d1_si.reshape(-1, 1), B),
+                         d2_si.reshape(1, -1))
+        _log_array(logger, B2, 'B2')
 
+        # U_A, S_A, V_A = svd(A2)
         U_A, S_A, V_A = delayed(svd, pure=True, nout=3)(A2)
+
         U_A = da.from_delayed(U_A, (n_components, n_components), A2.dtype)
         S_A = da.from_delayed(S_A, (n_components,), A2.dtype)
         V_A = da.from_delayed(V_A, (n_components, n_components), A2.dtype)
@@ -269,25 +265,29 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
               da.vstack([A2, B2.T]).dot(
               U_A[:, :n_clusters]).dot(
               da.diag(1.0 / da.sqrt(S_A[:n_clusters]))))  # (n, k)
+        _log_array(logger, V2, 'V2.1')
+
         if isinstance(B2, da.Array):
             V2 = V2.rechunk((B2.chunks[1][0], n_clusters))
+            _log_array(logger, V2, 'V2.2')
 
         # normalize (Eq. 4)
         U2 = (V2.T / da.sqrt((V2 ** 2).sum(1))).T  # (n, k)
+
+        _log_array(logger, U2, 'U2.2')
+
+        # Recover original indices
+        U2 = U2[inds_idx]  # (n, k)
+
+        _log_array(logger, U2, 'U2.3')
+
         if self.persist_embedding and isinstance(U2, da.Array):
             logger.info("Persisting array for k-means")
             U2 = U2.persist()
         elif isinstance(U2, da.Array):
-            # We can still persist the small things...
-            # TODO: we would need to update the task graphs
-            # for V2 to replace references to, e.g.
-            #  U_A, A2, etc. with references to persisted
-            # versions of those.
+            logger.info("Consider persist_embedding. This will require %s",
+                        _format_bytes(U2.nbytes))
             pass
-
-        # Recover the original order so that labels match
-        U2 = U2[inds_idx]  # (n, k)
-
         logger.info("k-means for assign_labels[starting]")
         km.fit(U2)
         logger.info("k-means for assign_labels[finished]")
@@ -298,3 +298,29 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         self.labels_ = km.labels_
         self.eigenvalues_ = S_A[:n_clusters]  # TODO: better name
         return self
+
+
+def embed(X_keep, X_rest, n_components, metric, kernel_params):
+    if isinstance(metric, six.string_types):
+        if metric not in PAIRWISE_KERNEL_FUNCTIONS:
+            msg = ("Unknown affinity metric name '{}'. Expected one "
+                   "of '{}'".format(metric,
+                                    PAIRWISE_KERNEL_FUNCTIONS.keys()))
+            raise ValueError(msg)
+        A = pairwise_kernels(X_keep,
+                             metric=metric, filter_params=True,
+                             **kernel_params)
+        B = pairwise_kernels(X_keep, X_rest,
+                             metric=metric, filter_params=True,
+                             **kernel_params)
+    elif callable(metric):
+        A = metric(X_keep, **kernel_params)
+        B = metric(X_keep, X_rest, **kernel_params)
+    else:
+        msg = ("Unexpected type for 'affinity' '{}'. Must be string "
+               "kernel name, array, or callable")
+        raise TypeError(msg)
+    if isinstance(A, da.Array):
+        A = A.rechunk((n_components, n_components))
+        B = B.rechunk((B.shape[0], B.chunks[1]))
+    return A, B
