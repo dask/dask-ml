@@ -225,16 +225,11 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         params['degree'] = self.degree
         params['coef0'] = self.coef0
 
+        # indices for our exact / approximate blocks
         inds = np.arange(n)
-        inds = rng.permutation(inds)
-        keep = inds[:n_components]
-        rest = inds[n_components:]
-        # distributed slice perf.
+        keep = rng.choice(inds, n_components, replace=False)
         keep.sort()
-        rest.sort()
-        # Those sorts modify `inds` inplace, so `argsort(inds)` will still
-        # recover the original order.
-        inds_idx = np.argsort(inds)
+        rest = ~np.isin(inds, keep)
 
         # compute the exact blocks
         # these are done in parallel for dask arrays
@@ -306,7 +301,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         _log_array(logger, U2, 'U2.2')
 
         # Recover original indices
-        U2 = U2[inds_idx]  # (n, k)
+        U2 = _slice_mostly_sorted(U2, keep, rest, inds)  # (n, k)
 
         _log_array(logger, U2, 'U2.3')
 
@@ -352,3 +347,25 @@ def embed(X_keep, X_rest, n_components, metric, kernel_params):
         A = A.rechunk((n_components, n_components))
         B = B.rechunk((B.shape[0], B.chunks[1]))
     return A, B
+
+
+def _slice_mostly_sorted(array, keep, rest, ind=None):
+    if ind is None:
+        ind = np.arange(len(array))
+    idx = np.argsort(np.concatenate([keep, ind[rest]]))
+
+    slices = []
+    if keep[0] > 0:  # avoid creating empty slices
+        slices.append(slice(None, keep[0]))
+    slices.append([keep[0]])
+    windows = zip(keep[:-1], keep[1:])
+
+    for l, r in windows:
+        if r > l + 1:  # avoid creating empty slices
+            slices.append(slice(l + 1, r))
+        slices.append([r])
+
+    if keep[-1] < len(array) - 1:  # avoid creating empty slices
+        slices.append(slice(keep[-1] + 1, None))
+    result = da.concatenate([array[idx[[slice_]]] for slice_ in slices])
+    return result
