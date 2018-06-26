@@ -226,7 +226,6 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         params['coef0'] = self.coef0
 
         inds = np.arange(n)
-
         inds = rng.permutation(inds)
         keep = inds[:n_components]
         rest = inds[n_components:]
@@ -284,7 +283,11 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
                          d2_si.reshape(1, -1))
         _log_array(logger, B2, 'B2')
 
-        U_A, S_A, V_A = svd(A2)
+        U_A, S_A, V_A = delayed(svd, pure=True, nout=3)(A2)
+
+        U_A = da.from_delayed(U_A, (n_components, n_components), A2.dtype)
+        S_A = da.from_delayed(S_A, (n_components,), A2.dtype)
+        V_A = da.from_delayed(V_A, (n_components, n_components), A2.dtype)
 
         # Eq 16. This is OK when V2 is orthogonal
         V2 = (da.sqrt(float(n_components) / n) *
@@ -301,12 +304,6 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         U2 = (V2.T / da.sqrt((V2 ** 2).sum(1))).T  # (n, k)
 
         _log_array(logger, U2, 'U2.2')
-
-        chunks = rechunk_strategy.get("cluster")
-        if chunks:
-            logger.info("Rechunking for cluster %s -> %s",
-                        U2.numblocks, chunks)
-            U2 = U2.rechunk(chunks)
 
         # Recover original indices
         U2 = U2[inds_idx]  # (n, k)
