@@ -68,5 +68,5 @@ class TestLabelEncoder(object):
     def test_inverse_transform(self, array):
 
         a = dpp.LabelEncoder()
-        assert_eq_ar(a.inverse_transform(a.fit_transform(array)).compute(),
-                     array.compute())
+        assert_eq_ar(a.inverse_transform(a.fit_transform(array)),
+                     da.asarray(array))
