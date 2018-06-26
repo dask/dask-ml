@@ -317,6 +317,24 @@ def embed(X_keep, X_rest, n_components, metric, kernel_params):
 
 
 def _slice_mostly_sorted(array, keep, rest, ind=None):
+    """Slice dask array `array` that is almost entirely sorted already.
+
+    We perform approximately `2 * len(keep)` slices on `array`.
+    This is OK, since `keep` is small. Individually, each of these slices
+    is entirely sorted.
+
+    Parameters
+    ----------
+    array : dask.array.Array
+    keep : ndarray[Int]
+        This must be sorted.
+    rest : ndarray[Bool]
+    ind : ndarray[Int], optional
+
+    Returns
+    -------
+    sliced : dask.array.Array
+    """
     if ind is None:
         ind = np.arange(len(array))
     idx = np.argsort(np.concatenate([keep, ind[rest]]))
