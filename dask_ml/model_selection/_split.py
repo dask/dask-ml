@@ -144,7 +144,7 @@ class ShuffleSplit(BaseCrossValidator):
     def _split_blockwise(self, X):
         chunks = X.chunks[0]
         rng = check_random_state(self.random_state)
-        seeds = rng.randint(0, 2**32 - 1, size=len(chunks))
+        seeds = rng.randint(0, 2**32 - 1, size=len(chunks), dtype='u8')
 
         train_pct, test_pct = _maybe_normalize_split_sizes(self.train_size,
                                                            self.test_size)
