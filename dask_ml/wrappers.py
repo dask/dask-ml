@@ -331,7 +331,11 @@ class Incremental(ParallelPostFit):
         -------
         self : object
         """
-        return self.fit(X, y=y, **fit_kwargs)
+        if not dask.is_dask_collection(X) and not dask.is_dask_collection(y):
+            self.estimator.partial_fit(X=X, y=y, **fit_kwargs)
+            return self
+        else:
+            return self.fit(X, y=y, **fit_kwargs)
 
 
 def _first_block(dask_object):
