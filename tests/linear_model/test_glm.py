@@ -1,5 +1,4 @@
 import dask.dataframe as dd
-import dask_searchcv as dcv
 import numpy as np
 import pandas as pd
 import pytest
@@ -11,6 +10,7 @@ from dask_ml.datasets import make_classification, make_counts, make_regression
 from dask_ml.linear_model import (LinearRegression, LogisticRegression,
                                   PoissonRegression)
 from dask_ml.linear_model.utils import add_intercept
+from dask_ml.model_selection import GridSearchCV
 
 
 @pytest.fixture(params=[r() for r in Regularizer.__subclasses__()])
@@ -111,7 +111,7 @@ def test_gridsearch():
         'logisticregression__C': [1000, 100, 10, 2]
     }
     pipe = make_pipeline(DoNothingTransformer(), LogisticRegression())
-    search = dcv.GridSearchCV(pipe, grid, cv=3)
+    search = GridSearchCV(pipe, grid, cv=3)
     search.fit(X, y)
 
 

@@ -1,6 +1,6 @@
 # NOTE: These tests were copied (with modification) from the equivalent
 # scikit-learn testing code. The scikit-learn license has been included at
-# dask_searchcv/SCIKIT_LEARN_LICENSE.txt.
+# dask_ml/licences/COPY
 
 import pickle
 import pytest
@@ -31,11 +31,13 @@ from sklearn.preprocessing import Imputer
 from sklearn.svm import LinearSVC, SVC
 from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
 
-import dask_searchcv as dcv
-from dask_searchcv.utils_test import (FailingClassifier, MockClassifier,
-                                      CheckingClassifier, MockDataFrame,
-                                      ignore_warnings)
-from dask_searchcv._compat import _HAS_MULTIPLE_METRICS, _SK_VERSION
+from dask_ml import model_selection as dcv
+from dask_ml.model_selection.utils_test import (
+    FailingClassifier, MockClassifier,
+    CheckingClassifier, MockDataFrame,
+    ignore_warnings
+)
+from dask_ml.model_selection._compat import _HAS_MULTIPLE_METRICS, _SK_VERSION
 
 
 class LinearSVCNoScore(LinearSVC):

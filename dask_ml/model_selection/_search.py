@@ -1140,7 +1140,7 @@ param_grid : dict or list of dictionaries
     of parameter settings.\
 """
 _grid_example = """\
->>> import dask_searchcv as dcv
+>>> import dask_ml.model_selection as dcv
 >>> from sklearn import svm, datasets
 >>> iris = datasets.load_iris()
 >>> parameters = {'kernel': ['linear', 'rbf'], 'C': [1, 10]}
@@ -1229,7 +1229,7 @@ random_state : int or RandomState
     from lists of possible values instead of scipy.stats distributions.\
 """
 _randomized_example = """\
->>> import dask_searchcv as dcv
+>>> import dask_ml.model_selection as dcv
 >>> from scipy.stats import expon
 >>> from sklearn import svm, datasets
 >>> iris = datasets.load_iris()

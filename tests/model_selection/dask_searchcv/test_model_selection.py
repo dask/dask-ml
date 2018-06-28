@@ -41,14 +41,18 @@ from sklearn.model_selection._split import _CVIterableWrapper
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.svm import SVC
 
-import dask_searchcv as dcv
-from dask_searchcv.model_selection import (compute_n_splits, check_cv,
-                                           _normalize_n_jobs, _normalize_scheduler)
-from dask_searchcv._compat import _HAS_MULTIPLE_METRICS
-from dask_searchcv.methods import CVCache
-from dask_searchcv.utils_test import (FailingClassifier, MockClassifier,
-                                      ScalingTransformer, CheckXClassifier,
-                                      ignore_warnings)
+import dask_ml.model_selection as dcv
+from dask_ml.model_selection import compute_n_splits, check_cv
+from dask_ml.model_selection._search import (
+    _normalize_n_jobs, _normalize_scheduler
+)
+from dask_ml.model_selection._compat import _HAS_MULTIPLE_METRICS
+from dask_ml.model_selection.methods import CVCache
+from dask_ml.model_selection.utils_test import (
+    FailingClassifier, MockClassifier,
+    ScalingTransformer, CheckXClassifier,
+    ignore_warnings
+)
 
 try:
     from distributed import Client
