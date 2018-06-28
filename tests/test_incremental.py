@@ -99,7 +99,7 @@ def test_scoring_string(scheduler, xy_classification, scoring):
         clf.estimator.score(X, y)
 
 
-def test_partial_fit():
+def test_ndarrays():
     X = np.ones((10, 5))
     y = np.ones(10)
 
@@ -107,6 +107,7 @@ def test_partial_fit():
     inc = Incremental(sgd)
 
     inc.partial_fit(X, y, classes=[0, 1])
+    inc.fit(X, y)
 
     assert inc.estimator is sgd
     assert (sgd.predict(X) == y).all()

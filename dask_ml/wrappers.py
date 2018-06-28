@@ -286,12 +286,17 @@ class Incremental(ParallelPostFit):
 
     def fit(self, X, y=None, **fit_kwargs):
         check_scoring(self.estimator, self.scoring)
-        result = fit(self.estimator, X, y, **fit_kwargs)
+        if not dask.is_dask_collection(X) and not dask.is_dask_collection(y):
+            self.estimator.partial_fit(X=X, y=y, **fit_kwargs)
+            copy_learned_attributes(self.estimator, self)
+            return self
+        else:
+            result = fit(self.estimator, X, y, **fit_kwargs)
 
-        # Copy the learned attributes over to self
-        copy_learned_attributes(result, self)
-        copy_learned_attributes(result, self.estimator)
-        return self
+            # Copy the learned attributes over to self
+            copy_learned_attributes(result, self)
+            copy_learned_attributes(result, self.estimator)
+            return self
 
     def __repr__(self):
         # Have to override, else all the parameters of estimator
@@ -331,12 +336,7 @@ class Incremental(ParallelPostFit):
         -------
         self : object
         """
-        if not dask.is_dask_collection(X) and not dask.is_dask_collection(y):
-            self.estimator.partial_fit(X=X, y=y, **fit_kwargs)
-            copy_learned_attributes(self.estimator, self)
-            return self
-        else:
-            return self.fit(X, y=y, **fit_kwargs)
+        return self.fit(X, y=y, **fit_kwargs)
 
 
 def _first_block(dask_object):
