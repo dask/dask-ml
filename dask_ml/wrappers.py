@@ -159,7 +159,8 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
                 return self.estimator.score(X, y)
         """
         if self.scoring:
-            if not dask.is_dask_collection(X) and not dask.is_dask_collection(y):
+            if (not dask.is_dask_collection(X) and
+                    not dask.is_dask_collection(y)):
                 scorer = sklearn_get_scorer(self.scoring)
             else:
                 scorer = get_scorer(self.scoring)
