@@ -1,0 +1,6 @@
+[run]
+omit =
+    dask_searchcv/_version.py
+    */test_*.py
+source =
+    dask_searchcv

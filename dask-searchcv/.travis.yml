@@ -1,0 +1,37 @@
+language: python
+sudo: false
+
+env:
+  matrix:
+    - PYTHON=2.7 SKLEARN=0.18.1 DASK_DEV='false' TEST_FLAGS=
+    - PYTHON=3.5 SKLEARN=0.18.0 DASK_DEV='false' TEST_FLAGS=
+    - PYTHON=3.6 SKLEARN=0.19.1 DASK_DEV='true' TEST_FLAGS=--doctest-modules
+
+addons:
+    apt:
+        packages:
+        - graphviz
+
+install:
+  # Install conda
+  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update conda
+
+  # Install dependencies
+  - conda create -n test-environment python=$PYTHON
+  - source activate test-environment
+  - conda install dask distributed numpy scikit-learn=$SKLEARN cytoolz pytest
+  - if [[ $DASK_DEV == 'true' ]]; then pip install -U git+https://github.com/dask/dask.git; fi
+  - if [[ $DASK_DEV == 'true' ]]; then pip install -U git+https://github.com/dask/distributed.git; fi
+  - pip install -q graphviz flake8
+  - pip install --no-deps -e .
+
+script:
+  - py.test dask_searchcv --verbose $TEST_FLAGS
+  - flake8 dask_searchcv
+
+notifications:
+  email: false
