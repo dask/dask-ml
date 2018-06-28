@@ -389,6 +389,9 @@ def test_pipeline_sub_estimators():
     res = pd.DataFrame(dgs.cv_results_)
     sol = pd.DataFrame(gs.cv_results_)
 
+    # TODO: Failures on Py36 / sklearn dev with order here.
+    res = res.reindex(columns=sol.columns)
+
     pd.util.testing.assert_index_equal(
         res.columns,
         sol.columns
