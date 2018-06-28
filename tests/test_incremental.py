@@ -97,3 +97,17 @@ def test_scoring_string(scheduler, xy_classification, scoring):
         clf.fit(X, y, classes=np.unique(y))
         clf.score(X, y)
         clf.estimator.score(X, y)
+
+
+def test_partial_fit():
+    X = np.ones((10, 5))
+    y = np.ones(10)
+
+    sgd = SGDClassifier()
+    inc = Incremental(sgd)
+
+    inc.partial_fit(X, y, classes=[0, 1])
+
+    assert inc.estimator is sgd
+    assert (sgd.predict(X) == y).all()
+    assert_eq(inc.coef_, inc.estimator.coef_)
