@@ -110,3 +110,4 @@ def test_partial_fit():
 
     assert inc.estimator is sgd
     assert (sgd.predict(X) == y).all()
+    assert_eq(inc.coef_, inc.estimator.coef_)

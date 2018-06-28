@@ -333,6 +333,7 @@ class Incremental(ParallelPostFit):
         """
         if not dask.is_dask_collection(X) and not dask.is_dask_collection(y):
             self.estimator.partial_fit(X=X, y=y, **fit_kwargs)
+            copy_learned_attributes(self.estimator, self)
             return self
         else:
             return self.fit(X, y=y, **fit_kwargs)
