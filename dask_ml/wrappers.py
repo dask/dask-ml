@@ -11,6 +11,7 @@ import sklearn.base
 from ._partial import fit
 from ._utils import copy_learned_attributes
 from .metrics import get_scorer, check_scoring
+from sklearn.metrics import get_scorer as sklearn_get_scorer
 
 
 logger = logging.getLogger(__name__)
@@ -158,7 +159,10 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
                 return self.estimator.score(X, y)
         """
         if self.scoring:
-            scorer = get_scorer(self.scoring)
+            if not dask.is_dask_collection(X) and not dask.is_dask_collection(y):
+                scorer = sklearn_get_scorer(self.scoring)
+            else:
+                scorer = get_scorer(self.scoring)
             return scorer(self, X, y)
         else:
             return self.estimator.score(X, y)

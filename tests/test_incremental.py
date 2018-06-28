@@ -10,7 +10,7 @@ from sklearn.linear_model import SGDClassifier
 from dask_ml.wrappers import Incremental
 from dask_ml.utils import assert_estimator_equal
 import dask_ml.metrics
-from dask_ml.metrics.scorer import check_scoring
+from dask_ml.metrics.scorer import check_scoring, SCORERS
 
 
 def test_incremental_basic(scheduler, xy_classification):
@@ -99,11 +99,11 @@ def test_scoring_string(scheduler, xy_classification, scoring):
         clf.estimator.score(X, y)
 
 
-def test_ndarrays():
+def test_fit_ndarrays():
     X = np.ones((10, 5))
     y = np.ones(10)
 
-    sgd = SGDClassifier()
+    sgd = SGDClassifier(tol=1e-3)
     inc = Incremental(sgd)
 
     inc.partial_fit(X, y, classes=[0, 1])
@@ -112,3 +112,20 @@ def test_ndarrays():
     assert inc.estimator is sgd
     assert (sgd.predict(X) == y).all()
     assert_eq(inc.coef_, inc.estimator.coef_)
+
+
+def test_score_ndarrays():
+    X = np.ones((10, 5))
+    y = np.ones(10)
+
+    sgd = SGDClassifier(tol=1e-3)
+    inc = Incremental(sgd, scoring='accuracy')
+
+    inc.partial_fit(X, y, classes=[0, 1])
+    inc.fit(X, y)
+
+    assert inc.score(X, y) == 1
+
+    dX = da.from_array(X, chunks=(2, 5))
+    dy = da.from_array(y, chunks=2)
+    assert inc.score(dX, dy) == 1
