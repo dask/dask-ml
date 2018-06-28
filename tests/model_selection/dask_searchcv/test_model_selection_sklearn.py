@@ -536,8 +536,10 @@ def test_pandas_input():
     for InputFeatureType, TargetType in types:
         # X dataframe, y series
         X_df, y_ser = InputFeatureType(X), TargetType(y)
-        clf = CheckingClassifier(check_X=lambda x: isinstance(x, InputFeatureType),
-                                 check_y=lambda x: isinstance(x, TargetType))
+        clf = CheckingClassifier(
+            check_X=lambda x: isinstance(x, InputFeatureType),
+            check_y=lambda x: isinstance(x, TargetType)
+        )
 
         grid_search = dcv.GridSearchCV(clf, {'foo_param': [1, 2, 3]})
         grid_search.fit(X_df, y_ser).score(X_df, y_ser)
@@ -608,7 +610,8 @@ def test_grid_search_cv_results():
                                    param_grid=params, return_train_score=True)
     grid_search.fit(X, y)
     grid_search_iid = dcv.GridSearchCV(SVC(), cv=n_splits, iid=True,
-                                       param_grid=params, return_train_score=True)
+                                       param_grid=params,
+                                       return_train_score=True)
     grid_search_iid.fit(X, y)
 
     param_keys = ('param_C', 'param_degree', 'param_gamma', 'param_kernel')
@@ -760,7 +763,8 @@ def test_search_iid_param():
                                    cv=cv, iid=False, return_train_score=True)
     random_search = dcv.RandomizedSearchCV(SVC(), n_iter=2,
                                            param_distributions={'C': [1, 10]},
-                                           cv=cv, iid=False, return_train_score=True)
+                                           cv=cv, iid=False,
+                                           return_train_score=True)
 
     for search in (grid_search, random_search):
         search.fit(X, y)

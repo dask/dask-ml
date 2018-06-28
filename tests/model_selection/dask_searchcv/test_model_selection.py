@@ -389,7 +389,8 @@ def test_pipeline_sub_estimators():
     res = pd.DataFrame(dgs.cv_results_)
     sol = pd.DataFrame(gs.cv_results_)
     assert res.columns.equals(sol.columns)
-    skip = ['mean_fit_time', 'std_fit_time', 'mean_score_time', 'std_score_time']
+    skip = ['mean_fit_time', 'std_fit_time',
+            'mean_score_time', 'std_score_time']
     res = res.drop(skip, axis=1)
     sol = sol.drop(skip, axis=1)
     assert res.equals(sol)
@@ -411,8 +412,9 @@ def check_scores_all_nan(gs, bad_param, score_key='score'):
                FailingClassifier.FAILING_PARAMETER)
 
 
-@pytest.mark.parametrize('weights',
-                         [None, (None, {'tr0': 2, 'tr2': 3}, {'tr0': 2, 'tr2': 4})])
+@pytest.mark.parametrize('weights', [
+    None, (None, {'tr0': 2, 'tr2': 3}, {'tr0': 2, 'tr2': 4})
+])
 def test_feature_union(weights):
     X = np.ones((10, 5))
     y = np.zeros(10)
