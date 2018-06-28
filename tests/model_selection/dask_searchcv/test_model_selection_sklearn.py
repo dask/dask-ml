@@ -200,10 +200,11 @@ def test_return_train_score_warn():
     # Test that warnings are raised. Will be removed in sklearn 0.21
     X = np.arange(100).reshape(10, 10)
     y = np.array([0] * 5 + [1] * 5)
-    grid = {'C': [1, 2]}
+    X = (X - X.mean(0)) / X.std(0)  # help convergence
+    grid = {'C': [0.1, 0.5]}
 
     for val in [True, False]:
-        est = dcv.GridSearchCV(LinearSVC(random_state=0), grid,
+        est = dcv.GridSearchCV(LinearSVC(random_state=0, tol=0.5), grid,
                                return_train_score=val)
         with pytest.warns(None) as warns:
             results = est.fit(X, y).cv_results_
