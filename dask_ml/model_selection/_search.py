@@ -13,7 +13,8 @@ from dask.delayed import delayed
 from dask.threaded import get as threaded_get
 from dask.utils import derived_from
 from sklearn import model_selection
-from sklearn.base import is_classifier, clone, BaseEstimator, MetaEstimatorMixin
+from sklearn.base import (is_classifier, clone, BaseEstimator,
+                          MetaEstimatorMixin)
 from sklearn.exceptions import NotFittedError
 from sklearn.metrics.scorer import check_scoring
 from sklearn.model_selection._search import _check_param_grid, BaseSearchCV
@@ -63,7 +64,8 @@ if _SK_VERSION >= '0.19.1':
                        'set return_train_score=True')
             for key in results:
                 if key.endswith('_train_score'):
-                    results.add_warning(key, message.format(key), FutureWarning)
+                    results.add_warning(key, message.format(key),
+                                        FutureWarning)
         return results
 else:
     _RETURN_TRAIN_SCORE_DEFAULT = True
@@ -413,7 +415,8 @@ def _do_fit_step(dsk, next_token, step, cv, fields, tokens, params, Xs, ys,
 
                 if is_transform:
                     sub_fits, sub_Xs = do_fit_transform(dsk, next_token,
-                                                        sub_est, cv, sub_fields,
+                                                        sub_est, cv,
+                                                        sub_fields,
                                                         sub_tokens, sub_params,
                                                         sub_Xs, sub_ys,
                                                         sub_fit_params,
@@ -572,7 +575,8 @@ def _do_featureunion(dsk, next_token, est, cv, fields, tokens, params, Xs, ys,
     m = 0
     seen = {}
     for steps, Xs, wt, (w, wl), nsamp in zip(zip(*fit_steps), zip(*tr_Xs),
-                                             weight_tokens, weights, n_samples):
+                                             weight_tokens, weights,
+                                             n_samples):
         if (steps, wt) in seen:
             out_append(seen[steps, wt])
         else:
@@ -638,7 +642,8 @@ def compute_n_splits(cv, X, y=None, groups=None):
     elif isinstance(cv, _CVIterableWrapper):
         return len(cv.cv)
 
-    elif isinstance(cv, (LeaveOneOut, LeavePOut)) and not is_dask_collection(X):
+    elif (isinstance(cv, (LeaveOneOut, LeavePOut)) and
+            not is_dask_collection(X)):
         # Only `X` is referenced for these classes
         return cv.get_n_splits(X, None, None)
 
@@ -702,7 +707,8 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
 
     def __init__(self, estimator, scoring=None, iid=True, refit=True, cv=None,
                  error_score='raise',
-                 return_train_score=_RETURN_TRAIN_SCORE_DEFAULT, scheduler=None,
+                 return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
+                 scheduler=None,
                  n_jobs=-1, cache_cv=True):
         self.scoring = scoring
         self.estimator = estimator
@@ -718,7 +724,8 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
     def _check_if_refit(self, attr):
         if not self.refit:
             raise AttributeError(
-                "'{}' is not a valid attribute with 'refit=False'.".format(attr))
+                "'{}' is not a valid attribute with "
+                "'refit=False'.".format(attr))
 
     @property
     def _estimator_type(self):
@@ -818,8 +825,10 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         estimator = self.estimator
         if _HAS_MULTIPLE_METRICS:
             from sklearn.metrics.scorer import _check_multimetric_scoring
-            scorer, multimetric = _check_multimetric_scoring(estimator,
-                                                             scoring=self.scoring)
+            scorer, multimetric = _check_multimetric_scoring(
+                estimator,
+                scoring=self.scoring
+            )
             if not multimetric:
                 scorer = scorer['score']
             self.multimetric_ = multimetric
@@ -834,9 +843,10 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
                                      "to refit an estimator with the best "
                                      "parameter setting on the whole data and "
                                      "make the best_* attributes "
-                                     "available for that metric. If this is not "
-                                     "needed, refit should be set to False "
-                                     "explicitly. %r was passed." % self.refit)
+                                     "available for that metric. If this is "
+                                     "not needed, refit should be set to "
+                                     "False explicitly. %r was ."
+                                     "passed." % self.refit)
         else:
             scorer = check_scoring(estimator, scoring=self.scoring)
             multimetric = False
@@ -849,15 +859,17 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             raise ValueError("error_score must be the string 'raise' or a"
                              " numeric value.")
 
-        dsk, keys, n_splits = build_graph(estimator, self.cv, self.scorer_,
-                                          list(self._get_param_iterator()),
-                                          X, y, groups, fit_params,
-                                          iid=self.iid,
-                                          refit=self.refit,
-                                          error_score=error_score,
-                                          return_train_score=self.return_train_score,
-                                          cache_cv=self.cache_cv,
-                                          multimetric=multimetric)
+        dsk, keys, n_splits = build_graph(
+            estimator, self.cv, self.scorer_,
+            list(self._get_param_iterator()),
+            X, y, groups, fit_params,
+            iid=self.iid,
+            refit=self.refit,
+            error_score=error_score,
+            return_train_score=self.return_train_score,
+            cache_cv=self.cache_cv,
+            multimetric=multimetric
+        )
         self.dask_graph_ = dsk
         self.n_splits_ = n_splits
 
@@ -866,7 +878,8 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
 
         out = scheduler(dsk, keys, num_workers=n_jobs)
 
-        results = handle_deprecated_train_score(out[0], self.return_train_score)
+        results = handle_deprecated_train_score(out[0],
+                                                self.return_train_score)
         self.cv_results_ = results
 
         if self.refit:
@@ -895,7 +908,8 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         format : {'png', 'pdf', 'dot', 'svg', 'jpeg', 'jpg'}, optional
             Format in which to write output file.  Default is 'png'.
         **kwargs
-            Additional keyword arguments to forward to ``dask.dot.to_graphviz``.
+            Additional keyword arguments to forward to
+            ``dask.dot.to_graphviz``.
 
         Returns
         -------
@@ -1162,16 +1176,18 @@ class GridSearchCV(DaskBaseSearchCV):
                  refit=True, cv=None, error_score='raise',
                  return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
                  scheduler=None, n_jobs=-1, cache_cv=True):
-        super(GridSearchCV, self).__init__(estimator=estimator,
-                                           scoring=scoring,
-                                           iid=iid,
-                                           refit=refit,
-                                           cv=cv,
-                                           error_score=error_score,
-                                           return_train_score=return_train_score,
-                                           scheduler=scheduler,
-                                           n_jobs=n_jobs,
-                                           cache_cv=cache_cv)
+        super(GridSearchCV, self).__init__(
+            estimator=estimator,
+            scoring=scoring,
+            iid=iid,
+            refit=refit,
+            cv=cv,
+            error_score=error_score,
+            return_train_score=return_train_score,
+            scheduler=scheduler,
+            n_jobs=n_jobs,
+            cache_cv=cache_cv
+        )
 
         _check_param_grid(param_grid)
         self.param_grid = param_grid
@@ -1253,16 +1269,17 @@ class RandomizedSearchCV(DaskBaseSearchCV):
                  return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
                  scheduler=None, n_jobs=-1, cache_cv=True):
 
-        super(RandomizedSearchCV, self).__init__(estimator=estimator,
-                                                 scoring=scoring,
-                                                 iid=iid,
-                                                 refit=refit,
-                                                 cv=cv,
-                                                 error_score=error_score,
-                                                 return_train_score=return_train_score,
-                                                 scheduler=scheduler,
-                                                 n_jobs=n_jobs,
-                                                 cache_cv=cache_cv)
+        super(RandomizedSearchCV, self).__init__(
+            estimator=estimator,
+            scoring=scoring,
+            iid=iid,
+            refit=refit,
+            cv=cv,
+            error_score=error_score,
+            return_train_score=return_train_score,
+            scheduler=scheduler,
+            n_jobs=n_jobs,
+            cache_cv=cache_cv)
 
         self.param_distributions = param_distributions
         self.n_iter = n_iter

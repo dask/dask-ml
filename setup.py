@@ -11,7 +11,7 @@ with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 install_requires = ['dask', 'numpy', 'pandas', 'scikit-learn',
-                    'scipy', 'dask-glm', 'dask-searchcv', 'six',
+                    'scipy', 'dask-glm', 'six',
                     'multipledispatch>=0.4.9']
 
 # Optional Requirements
