@@ -47,11 +47,14 @@ class LinearSVCNoScore(LinearSVC):
         raise AttributeError
 
 
+rng = np.random.RandomState(0)
+
+
 X = np.array([[-1, -1], [-2, -1], [1, 1], [2, 1]])
 y = np.array([1, 1, 2, 2])
 
-da_X = da.from_array(np.random.normal(size=(20, 3)), chunks=(3, 3))
-da_y = da.from_array(np.random.randint(2, size=20), chunks=3)
+da_X = da.from_array(rng.normal(size=(20, 3)), chunks=(3, 3))
+da_y = da.from_array(rng.randint(2, size=20), chunks=3)
 
 
 def assert_grid_iter_equals_getitem(grid):
