@@ -6,8 +6,6 @@ from dask_ml._partial import fit, predict
 from dask_ml.datasets import make_classification
 from dask_ml.wrappers import Incremental
 
-import pytest
-
 
 x = np.array([[1, 0],
               [2, 0],
@@ -30,24 +28,16 @@ Y = da.from_array(y, chunks=(3,))
 Z = da.from_array(z, chunks=(2, 2))
 
 
-@pytest.mark.parametrize("x_,y_,z_", [(x, y, z), (X, Y, Z)])
-def test_fit(x_, y_, z_):
+def test_fit():
     with dask.config.set(scheduler='single-threaded'):
         sgd = SGDClassifier(max_iter=5)
-        sgd = fit(sgd, x_, y_, classes=np.array([-1, 0, 1]))
+
+        sgd = fit(sgd, X, Y, classes=np.array([-1, 0, 1]))
 
         sol = sgd.predict(z)
-        result = predict(sgd, z_)
-
-        if isinstance(z_, da.Array):
-            assert result.chunks == ((2, 2),)
-            assert isinstance(result, da.Array)
-            assert result.compute().tolist() == sol.tolist()
-        elif isinstance(z_, np.ndarray):
-            assert isinstance(result, np.ndarray)
-            assert result.tolist() == sol.tolist()
-        else:
-            raise ValueError
+        result = predict(sgd, Z)
+        assert result.chunks == ((2, 2),)
+        assert result.compute().tolist() == sol.tolist()
 
 
 def test_fit_rechunking():
