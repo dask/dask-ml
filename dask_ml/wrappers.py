@@ -7,11 +7,11 @@ import dask.dataframe as dd
 import dask.delayed
 import numpy as np
 import sklearn.base
+import sklearn.metrics
 
 from ._partial import fit
 from ._utils import copy_learned_attributes
 from .metrics import get_scorer, check_scoring
-from sklearn.metrics import get_scorer as sklearn_get_scorer
 
 
 logger = logging.getLogger(__name__)
@@ -161,7 +161,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         if self.scoring:
             if (not dask.is_dask_collection(X) and
                     not dask.is_dask_collection(y)):
-                scorer = sklearn_get_scorer(self.scoring)
+                scorer = sklearn.metrics.get_scorer(self.scoring)
             else:
                 scorer = get_scorer(self.scoring)
             return scorer(self, X, y)
@@ -292,16 +292,12 @@ class Incremental(ParallelPostFit):
     def fit(self, X, y=None, **fit_kwargs):
         check_scoring(self.estimator, self.scoring)
         if not dask.is_dask_collection(X) and not dask.is_dask_collection(y):
-            self.estimator.partial_fit(X=X, y=y, **fit_kwargs)
-            copy_learned_attributes(self.estimator, self)
-            return self
+            result = self.estimator.partial_fit(X=X, y=y, **fit_kwargs)
         else:
             result = fit(self.estimator, X, y, **fit_kwargs)
-
-            # Copy the learned attributes over to self
-            copy_learned_attributes(result, self)
             copy_learned_attributes(result, self.estimator)
-            return self
+        copy_learned_attributes(result, self)
+        return self
 
     def __repr__(self):
         # Have to override, else all the parameters of estimator
