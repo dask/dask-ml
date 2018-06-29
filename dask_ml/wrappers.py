@@ -24,13 +24,34 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
     estimator : Estimator
         The underlying estimator that is fit.
 
+    scoring : string or callable, optional
+        A single string (see :ref:`scoring_parameter`) or a callable
+        (see :ref:`scoring`) to evaluate the predictions on the test set.
+
+        For evaluating multiple metrics, either give a list of (unique)
+        strings or a dict with names as keys and callables as values.
+
+        NOTE that when using custom scorers, each scorer should return a
+        single value. Metric functions returning a list/array of values
+        can be wrapped into multiple scorers that return one value each.
+
+        See :ref:`multimetric_grid_search` for an example.
+
+        .. warning::
+
+           If None, the estimator's default scorer (if available) is used.
+           Most scikit-learn estimators will convert large Dask arrays to
+           a single NumPy array, which may exhaust the memory of your worker.
+           You probably want to always specify `scoring`.
+
     Notes
     -----
 
     .. warning::
 
        This class is not appropriate for parallel or distributed *training*
-       on large datasets.
+       on large datasets. For that, see :class:`Incremental`, which provides
+       distributed (but sequential) training.
 
     This estimator does not parallelize the training step. This simply calls
     the underlying estimators's ``fit`` method called and copies over the
@@ -47,6 +68,10 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
     dataset is larger than memory, as the distributed scheduler will ensure the
     data isn't all read into memory at once.
 
+    See Also
+    --------
+    Incremental
+
     Examples
     --------
     >>> from sklearn.ensemble import GradientBoostingClassifier
@@ -57,7 +82,8 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
 
     >>> X, y = sklearn.datasets.make_classification(n_samples=1000,
     ...                                             random_state=0)
-    >>> clf = ParallelPostFit(estimator=GradientBoostingClassifier())
+    >>> clf = ParallelPostFit(estimator=GradientBoostingClassifier(),
+    ...                       scoring='accuracy')
     >>> clf.fit(X, y)
     ParallelPostFit(estimator=GradientBoostingClassifier(...))
 
@@ -260,10 +286,35 @@ class Incremental(ParallelPostFit):
     ----------
     estimator : Estimator
         Any object supporting the scikit-learn ``parital_fit`` API.
+
+    scoring : string or callable, optional
+        A single string (see :ref:`scoring_parameter`) or a callable
+        (see :ref:`scoring`) to evaluate the predictions on the test set.
+
+        For evaluating multiple metrics, either give a list of (unique)
+        strings or a dict with names as keys and callables as values.
+
+        NOTE that when using custom scorers, each scorer should return a
+        single value. Metric functions returning a list/array of values
+        can be wrapped into multiple scorers that return one value each.
+
+        See :ref:`multimetric_grid_search` for an example.
+
+        .. warning::
+
+           If None, the estimator's default scorer (if available) is used.
+           Most scikit-learn estimators will convert large Dask arrays to
+           a single NumPy array, which may exhaust the memory of your worker.
+           You probably want to always specify `scoring`.
+
     **kwargs
         Set the hyperparameters of `estimator`. This is used in, for example,
         ``GridSearchCV``, to set the paramters of the underlying estimator.
         Most of the time you will not need to use this.
+
+    See Also
+    --------
+    ParallelPostFit
 
     Examples
     --------
