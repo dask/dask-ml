@@ -7,6 +7,7 @@ import dask.dataframe as dd
 import dask.delayed
 import numpy as np
 import sklearn.base
+import sklearn.metrics
 
 from ._partial import fit
 from ._utils import copy_learned_attributes
@@ -184,7 +185,11 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
                 return self.estimator.score(X, y)
         """
         if self.scoring:
-            scorer = get_scorer(self.scoring)
+            if (not dask.is_dask_collection(X) and
+                    not dask.is_dask_collection(y)):
+                scorer = sklearn.metrics.get_scorer(self.scoring)
+            else:
+                scorer = get_scorer(self.scoring)
             return scorer(self, X, y)
         else:
             return self.estimator.score(X, y)
@@ -337,11 +342,12 @@ class Incremental(ParallelPostFit):
 
     def fit(self, X, y=None, **fit_kwargs):
         check_scoring(self.estimator, self.scoring)
-        result = fit(self.estimator, X, y, **fit_kwargs)
-
-        # Copy the learned attributes over to self
+        if not dask.is_dask_collection(X) and not dask.is_dask_collection(y):
+            result = self.estimator.partial_fit(X=X, y=y, **fit_kwargs)
+        else:
+            result = fit(self.estimator, X, y, **fit_kwargs)
+            copy_learned_attributes(result, self.estimator)
         copy_learned_attributes(result, self)
-        copy_learned_attributes(result, self.estimator)
         return self
 
     def __repr__(self):
@@ -382,12 +388,7 @@ class Incremental(ParallelPostFit):
         -------
         self : object
         """
-        if not dask.is_dask_collection(X) and not dask.is_dask_collection(y):
-            self.estimator.partial_fit(X=X, y=y, **fit_kwargs)
-            copy_learned_attributes(self.estimator, self)
-            return self
-        else:
-            return self.fit(X, y=y, **fit_kwargs)
+        return self.fit(X, y=y, **fit_kwargs)
 
 
 def _first_block(dask_object):
