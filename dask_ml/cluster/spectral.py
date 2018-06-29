@@ -110,9 +110,6 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
 
     Attributes
     ----------
-    basis_inds_ : ndarray
-        The ordering used to partition X into the samples for the
-        Nyström approximation
     assign_labels_ : Estimator
         The instance of the KMeans estimator used to assign labels
     labels_ : dask.array.Array, size (n_samples,)
@@ -206,16 +203,11 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         params['degree'] = self.degree
         params['coef0'] = self.coef0
 
+        # indices for our exact / approximate blocks
         inds = np.arange(n)
-        inds = rng.permutation(inds)
-        keep = inds[:n_components]
-        rest = inds[n_components:]
-        # distributed slice perf.
+        keep = rng.choice(inds, n_components, replace=False)
         keep.sort()
-        rest.sort()
-        # Those sorts modify `inds` inplace, so `argsort(inds)` will still
-        # recover the original order.
-        inds_idx = np.argsort(inds)
+        rest = ~np.isin(inds, keep)
 
         # compute the exact blocks
         # these are done in parallel for dask arrays
@@ -253,7 +245,6 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
                          d2_si.reshape(1, -1))
         _log_array(logger, B2, 'B2')
 
-        # U_A, S_A, V_A = svd(A2)
         U_A, S_A, V_A = delayed(svd, pure=True, nout=3)(A2)
 
         U_A = da.from_delayed(U_A, (n_components, n_components), A2.dtype)
@@ -277,7 +268,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         _log_array(logger, U2, 'U2.2')
 
         # Recover original indices
-        U2 = U2[inds_idx]  # (n, k)
+        U2 = _slice_mostly_sorted(U2, keep, rest, inds)  # (n, k)
 
         _log_array(logger, U2, 'U2.3')
 
@@ -293,7 +284,6 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         logger.info("k-means for assign_labels[finished]")
 
         # Now... what to keep?
-        self.basis_inds_ = inds
         self.assign_labels_ = km
         self.labels_ = km.labels_
         self.eigenvalues_ = S_A[:n_clusters]  # TODO: better name
@@ -324,3 +314,43 @@ def embed(X_keep, X_rest, n_components, metric, kernel_params):
         A = A.rechunk((n_components, n_components))
         B = B.rechunk((B.shape[0], B.chunks[1]))
     return A, B
+
+
+def _slice_mostly_sorted(array, keep, rest, ind=None):
+    """Slice dask array `array` that is almost entirely sorted already.
+
+    We perform approximately `2 * len(keep)` slices on `array`.
+    This is OK, since `keep` is small. Individually, each of these slices
+    is entirely sorted.
+
+    Parameters
+    ----------
+    array : dask.array.Array
+    keep : ndarray[Int]
+        This must be sorted.
+    rest : ndarray[Bool]
+    ind : ndarray[Int], optional
+
+    Returns
+    -------
+    sliced : dask.array.Array
+    """
+    if ind is None:
+        ind = np.arange(len(array))
+    idx = np.argsort(np.concatenate([keep, ind[rest]]))
+
+    slices = []
+    if keep[0] > 0:  # avoid creating empty slices
+        slices.append(slice(None, keep[0]))
+    slices.append([keep[0]])
+    windows = zip(keep[:-1], keep[1:])
+
+    for l, r in windows:
+        if r > l + 1:  # avoid creating empty slices
+            slices.append(slice(l + 1, r))
+        slices.append([r])
+
+    if keep[-1] < len(array) - 1:  # avoid creating empty slices
+        slices.append(slice(keep[-1] + 1, None))
+    result = da.concatenate([array[idx[[slice_]]] for slice_ in slices])
+    return result

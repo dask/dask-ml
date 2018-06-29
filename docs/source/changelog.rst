@@ -11,6 +11,10 @@ Enhancements
 - Improved performance of training on :class:`dask_ml.cluster.SpectralClustering` (:pr:`152`)
 - Added :class:`dask_ml.preprocessing.LabelEncoder`. (:pr:`226`)
 
+API Breaking Changes
+--------------------
+
+- Removed the ``basis_inds_`` attribute from :class:`dask_ml.cluster.SpectralClustering` as its no longer used (:pr:`152`)
 
 Version 0.6.0
 ~~~~~~~~~~~~~
