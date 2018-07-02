@@ -121,7 +121,7 @@ Scikit-Learn should feel at home with Dask-ML.
    cross_validation.rst
    hyper-parameter-search.rst
    glm.rst
-   joblib.rst
+   Distributed Scikit-Learn <joblib>
    meta-estimators.rst
    incremental.rst
    clustering.rst

@@ -347,7 +347,7 @@ class Incremental(ParallelPostFit):
 
     >>> from sklearn.model_selection import GridSearchCV
     >>> param_grid = {"estimator__alpha": [0.1, 1.0, 10.0]}
-    >>> gs = GridSearchCV(Incremental(), param_grid)
+    >>> gs = GridSearchCV(clf, param_grid)
     >>> gs.fit(X, y, classes=[0, 1])
     """
 

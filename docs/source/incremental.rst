@@ -56,7 +56,7 @@ In this example, we make a (small) random Dask Array. It has 100 samples,
 broken in the 4 blocks of 25 samples each. The chunking is only along the
 first axis (the samples). There is no chunking along the features.
 
-You instantite the underlying estimator as usual. It really is just a
+You instantiate the underlying estimator as usual. It really is just a
 scikit-learn compatible estimator, and will be trained normally via its
 ``partial_fit``.
 
@@ -107,3 +107,22 @@ If necessary, the actual estimator trained is available as ``Incremental.estimat
    clf.estimator_
 
 .. _incremental learning: http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning
+
+Incremental Learning and Hyper-parameter Optimization
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+:class:`Incremental` is a meta-estimator.
+To search over the hyper-parameters of the underlying estimator, use the usual scikit-learn convention of
+prefixing the parameter name with ``<name>__``. For ``Incremental``, ``name`` is always ``estimator``.
+
+
+.. ipython:: python
+
+   from sklearn.model_selection import GridSearchCV
+
+   param_grid = {'estimator__alpha': [0.10, 10.0]}
+   gs = GridSearchCV(clf, param_grid, n_jobs=-1)
+   gs.fit(X, y, classes=[0, 1])
+
+
+This can be mixed with :ref:`joblib` to use a cluster for training in parallel, even if you're RAM-bound.
