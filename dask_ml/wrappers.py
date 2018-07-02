@@ -166,7 +166,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         else:
             return transform(X)
 
-    def score(self, X, y):
+    def score(self, X, y=None, compute=True):
         """Returns the score on the given data.
 
         Parameters
@@ -179,6 +179,9 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
             Target relative to X for classification or regression;
             None for unsupervised learning.
 
+        compute : bool, optional
+            Whether to compute the score or create the dask graph.
+
         Returns
         -------
         score : float
@@ -189,7 +192,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
                     not dask.is_dask_collection(y)):
                 scorer = sklearn.metrics.get_scorer(self.scoring)
             else:
-                scorer = get_scorer(self.scoring)
+                scorer = get_scorer(self.scoring, compute=compute)
             return scorer(self, X, y)
         else:
             return self.estimator.score(X, y)
