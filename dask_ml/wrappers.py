@@ -116,6 +116,11 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         self.estimator = estimator
         self.scoring = scoring
 
+    @property
+    def _postfit_estimator(self):
+        # The estimator instance to use for postfit tasks like score
+        return self.estimator
+
     def fit(self, X, y=None, **kwargs):
         """Fit the underlying estimator.
 
@@ -266,9 +271,6 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
             raise AttributeError(msg)
         return getattr(estimator, method)
 
-    @property
-    def _postfit_estimator(self):
-        return self.estimator
 
 
 class Incremental(ParallelPostFit):
@@ -291,7 +293,7 @@ class Incremental(ParallelPostFit):
     Like :class:`ParallelPostFit`, the methods available after fitting (e.g.
     :meth:`Incremental.predict`, etc.) are all parallel and delayed.
 
-    The ``estimator_`` attributes is a clone of `estimator` that was actually
+    The ``estimator_`` attribute is a clone of `estimator` that was actually
     used during the call to ``fit``. All attributes learned during training
     are available on ``Incremental`` directly.
 
