@@ -8,11 +8,15 @@ from . import (
     r2_score,
 )
 
+accuracy_scorer = make_scorer(accuracy_score)
+neg_mean_squared_error_scorer = make_scorer(mean_squared_error,
+                                            greater_is_better=False)
+r2_scorer = make_scorer(r2_score)
+
 SCORERS = dict(
-    r2=make_scorer(r2_score),
-    neg_mean_squared_error=make_scorer(mean_squared_error,
-                                       greater_is_better=False),
-    accuracy=make_scorer(accuracy_score)
+    r2=r2_scorer,
+    neg_mean_squared_error=neg_mean_squared_error_scorer,
+    accuracy=accuracy_scorer,
 )
 
 
