@@ -44,7 +44,7 @@ from sklearn.svm import SVC
 import dask_ml.model_selection as dcv
 from dask_ml.model_selection import compute_n_splits, check_cv
 from dask_ml.model_selection._search import (
-    _normalize_n_jobs, _normalize_scheduler
+    _normalize_n_jobs,
 )
 from dask_ml.model_selection._compat import _HAS_MULTIPLE_METRICS
 from dask_ml.model_selection.methods import CVCache
@@ -632,9 +632,7 @@ def test_normalize_n_jobs():
 @pytest.mark.parametrize('scheduler,n_jobs,get',
                          [(None, 4, get_threading),
                           ('threading', 4, get_threading),
-                          ('threaded', 4, get_threading),
                           ('threading', 1, dask.get),
-                          ('sequential', 4, dask.get),
                           ('synchronous', 4, dask.get),
                           ('sync', 4, dask.get),
                           ('multiprocessing', 4, None),
@@ -643,8 +641,6 @@ def test_scheduler_param(scheduler, n_jobs, get):
     if scheduler == 'multiprocessing':
         mp = pytest.importorskip('dask.multiprocessing')
         get = mp.get
-
-    assert _normalize_scheduler(scheduler, n_jobs) is get
 
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
     gs = dcv.GridSearchCV(MockClassifier(), {'foo_param': [0, 1, 2]}, cv=3,
@@ -656,15 +652,15 @@ def test_scheduler_param(scheduler, n_jobs, get):
 def test_scheduler_param_distributed(loop):
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
     with cluster() as (s, [a, b]):
-        with Client(s['address'], loop=loop, set_as_default=False) as client:
+        with Client(s['address'], loop=loop) as client:
             gs = dcv.GridSearchCV(MockClassifier(), {'foo_param': [0, 1, 2]},
-                                  cv=3, scheduler=client)
+                                  cv=3)
             gs.fit(X, y)
 
+            def f(dask_scheduler):
+                return len(dask_scheduler.transition_log)
 
-def test_scheduler_param_bad():
-    with pytest.raises(ValueError):
-        _normalize_scheduler('threeding', 4)
+            assert client.run_on_scheduler(f)  # some work happened on cluster
 
 
 @pytest.mark.skipif(not _HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
