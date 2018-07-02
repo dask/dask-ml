@@ -8,6 +8,7 @@ import dask.delayed
 import numpy as np
 import sklearn.base
 import sklearn.metrics
+from sklearn.utils.validation import check_is_fitted
 
 from ._partial import fit
 from ._utils import copy_learned_attributes
@@ -192,7 +193,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
                 scorer = get_scorer(self.scoring)
             return scorer(self, X, y)
         else:
-            return self.estimator.score(X, y)
+            return self._postfit_estimator.score(X, y)
 
     def predict(self, X):
         """Predict for X.
@@ -258,11 +259,16 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         ------
         AttributeError
         """
-        if not hasattr(self.estimator, method):
+        estimator = self._postfit_estimator
+        if not hasattr(estimator, method):
             msg = ("The wrapped estimator '{}' does not have a "
-                   "'{}' method.".format(self.estimator, method))
+                   "'{}' method.".format(estimator, method))
             raise AttributeError(msg)
-        return getattr(self.estimator, method)
+        return getattr(estimator, method)
+
+    @property
+    def _postfit_estimator(self):
+        return self.estimator
 
 
 class Incremental(ParallelPostFit):
@@ -284,6 +290,10 @@ class Incremental(ParallelPostFit):
 
     Like :class:`ParallelPostFit`, the methods available after fitting (e.g.
     :meth:`Incremental.predict`, etc.) are all parallel and delayed.
+
+    The ``estimator_`` attributes is a clone of `estimator` that was actually
+    used during the call to ``fit``. All attributes learned during training
+    are available on ``Incremental`` directly.
 
     .. _list of incremental learners: http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning  # noqa
 
@@ -317,6 +327,11 @@ class Incremental(ParallelPostFit):
         ``GridSearchCV``, to set the paramters of the underlying estimator.
         Most of the time you will not need to use this.
 
+    Attributes
+    ----------
+    estimator_ : Estimator
+        A clone of `estimator` that was actually fit during the ``.fit`` call.
+
     See Also
     --------
     ParallelPostFit
@@ -340,15 +355,47 @@ class Incremental(ParallelPostFit):
         estimator.set_params(**kwargs)
         super(Incremental, self).__init__(estimator=estimator, scoring=scoring)
 
-    def fit(self, X, y=None, **fit_kwargs):
-        check_scoring(self.estimator, self.scoring)
+    @property
+    def _postfit_estimator(self):
+        check_is_fitted(self, 'estimator_')
+        return self.estimator_
+
+    def _fit_for_estimator(self, estimator, X, y, **fit_kwargs):
+        check_scoring(estimator, self.scoring)
         if not dask.is_dask_collection(X) and not dask.is_dask_collection(y):
-            result = self.estimator.partial_fit(X=X, y=y, **fit_kwargs)
+            result = estimator.partial_fit(X=X, y=y, **fit_kwargs)
         else:
-            result = fit(self.estimator, X, y, **fit_kwargs)
-            copy_learned_attributes(result, self.estimator)
+            result = fit(estimator, X, y, **fit_kwargs)
+
         copy_learned_attributes(result, self)
+        self.estimator_ = estimator
         return self
+
+    def fit(self, X, y=None, **fit_kwargs):
+        estimator = sklearn.base.clone(self.estimator)
+        return self._fit_for_estimator(estimator, X, y, **fit_kwargs)
+
+    def partial_fit(self, X, y=None, **fit_kwargs):
+        """Fit the underlying estimator.
+
+        If this estimator has not been previously fit, this is identical to
+        :meth:`Incremental.fit`. If it has been previously fit,
+        ``self.estimator_`` is used as the starting point.
+
+        Parameters
+        ----------
+        X, y : array-like
+        **kwargs
+            Additional fit-kwargs for the underlying estimator.
+
+        Returns
+        -------
+        self : object
+        """
+        estimator = getattr(self, 'estimator_', None)
+        if estimator is None:
+            estimator = sklearn.base.clone(self.estimator)
+        return self._fit_for_estimator(estimator, X, y, **fit_kwargs)
 
     def __repr__(self):
         # Have to override, else all the parameters of estimator
@@ -372,23 +419,6 @@ class Incremental(ParallelPostFit):
             self.scoring = kwargs['scoring']
         self.estimator.set_params(**kwargs)
         return self
-
-    def partial_fit(self, X, y=None, **fit_kwargs):
-        """Fit the underlying estimator.
-
-        This is identical to ``fit``.
-
-        Parameters
-        ----------
-        X, y : array-like
-        **kwargs
-            Additional fit-kwargs for the underlying estimator.
-
-        Returns
-        -------
-        self : object
-        """
-        return self.fit(X, y=y, **fit_kwargs)
 
 
 def _first_block(dask_object):

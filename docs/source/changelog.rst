@@ -15,6 +15,14 @@ API Breaking Changes
 --------------------
 
 - Removed the ``basis_inds_`` attribute from :class:`dask_ml.cluster.SpectralClustering` as its no longer used (:pr:`152`)
+- Change :meth:`Incremental.fit` to clone the underlying estimator before training (:pr:``). This induces a few changes
+
+  1. The underlying estimator no longer gives access to learned attributes like ``coef_``. We recommend using
+     ``Incremental.coef_``.
+  2. State no longer leaks between successive ``fit`` calls. Note that :meth:`Incremental.partial_fit` is still available
+     if you want state, like learned attributes or random seeds, to be re-used. This is useful if you're making multiple
+     passes over the training data.
+
 
 Version 0.6.0
 ~~~~~~~~~~~~~

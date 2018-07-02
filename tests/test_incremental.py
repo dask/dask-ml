@@ -15,7 +15,8 @@ from dask_ml.metrics.scorer import check_scoring
 
 def test_incremental_basic(scheduler, xy_classification):
     X, y = xy_classification
-    with scheduler() as (s, [a, b]):
+
+    with scheduler() as (s, [_, _]):
         est1 = SGDClassifier(random_state=0, tol=1e-3)
         est2 = clone(est1)
 
@@ -26,11 +27,12 @@ def test_incremental_basic(scheduler, xy_classification):
 
         assert result is clf
 
-        assert isinstance(result.estimator.coef_, np.ndarray)
-        np.testing.assert_array_almost_equal(result.estimator.coef_,
+        assert isinstance(result.estimator_.coef_, np.ndarray)
+        np.testing.assert_array_almost_equal(result.estimator_.coef_,
                                              est2.coef_)
 
-        assert_estimator_equal(clf.estimator, est2, exclude=['loss_function_'])
+        assert_estimator_equal(clf.estimator_, est2,
+                               exclude=['loss_function_'])
 
         #  Predict
         result = clf.predict(X)
@@ -46,7 +48,8 @@ def test_incremental_basic(scheduler, xy_classification):
 
         clf = Incremental(SGDClassifier(random_state=0, tol=1e-3))
         clf.partial_fit(X, y, classes=[0, 1])
-        assert_estimator_equal(clf.estimator, est2, exclude=['loss_function_'])
+        assert_estimator_equal(clf.estimator_, est2,
+                               exclude=['loss_function_'])
 
 
 def test_in_gridsearch(scheduler, xy_classification):
@@ -96,22 +99,20 @@ def test_scoring_string(scheduler, xy_classification, scoring):
         assert callable(check_scoring(clf, scoring=scoring))
         clf.fit(X, y, classes=np.unique(y))
         clf.score(X, y)
-        clf.estimator.score(X, y)
 
 
 def test_fit_ndarrays():
     X = np.ones((10, 5))
-    y = np.ones(10)
+    y = np.concatenate([np.zeros(5), np.ones(5)])
 
     sgd = SGDClassifier(tol=1e-3)
     inc = Incremental(sgd)
 
     inc.partial_fit(X, y, classes=[0, 1])
-    inc.fit(X, y)
+    sgd.fit(X, y)
 
     assert inc.estimator is sgd
-    assert (sgd.predict(X) == y).all()
-    assert_eq(inc.coef_, inc.estimator.coef_)
+    assert_eq(inc.coef_, inc.estimator_.coef_)
 
 
 def test_score_ndarrays():
@@ -122,7 +123,7 @@ def test_score_ndarrays():
     inc = Incremental(sgd, scoring='accuracy')
 
     inc.partial_fit(X, y, classes=[0, 1])
-    inc.fit(X, y)
+    inc.fit(X, y, classes=[0, 1])
 
     assert inc.score(X, y) == 1
 

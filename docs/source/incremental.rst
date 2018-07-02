@@ -66,7 +66,7 @@ for you.
 
 Just like :meth:`sklearn.linear_model.SGDClassifier.partial_fit`, we need to
 pass the ``classes`` argument to ``fit``. In general, any argument that is
-requierd for the underlying estimators ``parital_fit`` becomes required for
+required for the underlying estimators ``parital_fit`` becomes required for
 the wrapped ``fit``.
 
 
@@ -92,5 +92,18 @@ Because we specified ``scoring='accuracy'``, this uses
 :meth:`dask_ml.metrics.accuracy_score`, which safely computes the accuracy
 score using the Dask array (on your cluster or out-of-core), rather than
 converting to a NumPy array.
+
+All of the attributes learned durning training, like ``coef_``, are available
+on the ``Incremental`` instance.
+
+.. ipython:: python
+
+   clf.coef_
+
+If necessary, the actual estimator trained is available as ``Incremental.estimator_``
+
+.. ipython:: python
+
+   clf.estimator_
 
 .. _incremental learning: http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning
