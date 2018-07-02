@@ -46,6 +46,12 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
            a single NumPy array, which may exhaust the memory of your worker.
            You probably want to always specify `scoring`.
 
+    name : string, default 'estimator'
+        The name to use for the underlying estimator. This is useful in
+        settings using ``get_params`` and ``set_param``, for example when
+        performing grid search. To target the parameters of the underlying
+        estimator, use ``<name>__<parameter>``.
+
     Notes
     -----
 
@@ -322,10 +328,12 @@ class Incremental(ParallelPostFit):
            a single NumPy array, which may exhaust the memory of your worker.
            You probably want to always specify `scoring`.
 
-    **kwargs
-        Set the hyperparameters of `estimator`. This is used in, for example,
-        ``GridSearchCV``, to set the paramters of the underlying estimator.
-        Most of the time you will not need to use this.
+    name : string, default 'estimator'
+        The name to use for the underlying estimator. This is useful in
+        settings using ``get_params`` and ``set_param``, for example when
+        performing grid search. To target the parameters of the underlying
+        estimator, use ``<name>__<parameter>``.
+
 
     Attributes
     ----------
@@ -343,17 +351,17 @@ class Incremental(ParallelPostFit):
     >>> import sklearn.linear_model
     >>> X, y = make_classification(chunks=25)
     >>> est = sklearn.linear_model.SGDClassifier()
-    >>> clf = Incremental(est)
+    >>> clf = Incremental(est, scoring='accuracy')
     >>> clf.fit(X, y, classes=[0, 1])
-    """
-    _estimator_clash_message = (
-        "The 'estimator' parameter is used by both 'Incremental' and the"
-        "underlying estimator, which will produce incorrect results."
-    )
 
-    def __init__(self, estimator, scoring=None, **kwargs):
-        estimator.set_params(**kwargs)
-        super(Incremental, self).__init__(estimator=estimator, scoring=scoring)
+    When used inside a grid search, prefix the underlying estimator's
+    parameter names with `name`.
+
+    >>> from sklearn.model_selection import GridSearchCV
+    >>> param_grid = {"estimator__alpha": [0.1, 1.0, 10.0]}
+    >>> gs = GridSearchCV(Incremental(), param_grid)
+    >>> gs.fit(X, y, classes=[0, 1])
+    """
 
     @property
     def _postfit_estimator(self):
@@ -396,29 +404,6 @@ class Incremental(ParallelPostFit):
         if estimator is None:
             estimator = sklearn.base.clone(self.estimator)
         return self._fit_for_estimator(estimator, X, y, **fit_kwargs)
-
-    def __repr__(self):
-        # Have to override, else all the parameters of estimator
-        # are duplicated
-        estimator = repr(self.estimator)
-        class_name = self.__class__.__name__
-        return '{}({})'.format(class_name, estimator)
-
-    def get_params(self, deep=True):
-        out = self.estimator.get_params(deep=deep)
-        if 'estimator' in out:
-            raise ValueError(self._estimator_clash_message)
-        out['estimator'] = self.estimator
-        out['scoring'] = self.scoring
-        return out
-
-    def set_params(self, **kwargs):
-        if 'estimator' in kwargs:
-            raise ValueError(self._estimator_clash_message)
-        if 'scoring' in kwargs:
-            self.scoring = kwargs['scoring']
-        self.estimator.set_params(**kwargs)
-        return self
 
 
 def _first_block(dask_object):

@@ -13,6 +13,24 @@ import dask_ml.metrics
 from dask_ml.metrics.scorer import check_scoring
 
 
+def test_get_params():
+    clf = Incremental(SGDClassifier())
+    result = clf.get_params()
+
+    assert 'estimator__alpha' in result
+    assert result['scoring'] is None
+
+
+def test_set_params():
+    clf = Incremental(SGDClassifier())
+    clf.set_params(**{'scoring': 'accuracy',
+                      'estimator__alpha': 0.1})
+    result = clf.get_params()
+
+    assert result['estimator__alpha'] == 0.1
+    assert result['scoring'] == 'accuracy'
+
+
 def test_incremental_basic(scheduler, xy_classification):
     X, y = xy_classification
 
@@ -54,26 +72,12 @@ def test_incremental_basic(scheduler, xy_classification):
 
 def test_in_gridsearch(scheduler, xy_classification):
     X, y = xy_classification
+    clf = Incremental(SGDClassifier(random_state=0, tol=1e-3))
+    param_grid = {'estimator__alpha': [0.1, 10]}
+    gs = sklearn.model_selection.GridSearchCV(clf, param_grid, iid=False)
+
     with scheduler() as (s, [a, b]):
-        clf = Incremental(SGDClassifier(random_state=0, tol=1e-3))
-        param_grid = {'alpha': [0.1, 10]}
-        gs = sklearn.model_selection.GridSearchCV(clf, param_grid, iid=False)
         gs.fit(X, y, classes=[0, 1])
-
-
-def test_estimator_param_raises():
-
-    class Dummy(sklearn.base.BaseEstimator):
-        def __init__(self, estimator=42):
-            self.estimator = estimator
-
-        def fit(self, X):
-            return self
-
-    clf = Incremental(Dummy(estimator=1))
-
-    with pytest.raises(ValueError, match='used by both'):
-        clf.get_params()
 
 
 def test_scoring(scheduler, xy_classification,
