@@ -272,7 +272,6 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         return getattr(estimator, method)
 
 
-
 class Incremental(ParallelPostFit):
     """Metaestimator for feeding Dask Arrays to an estimator blockwise.
 
