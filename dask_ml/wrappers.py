@@ -46,12 +46,6 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
            a single NumPy array, which may exhaust the memory of your worker.
            You probably want to always specify `scoring`.
 
-    name : string, default 'estimator'
-        The name to use for the underlying estimator. This is useful in
-        settings using ``get_params`` and ``set_param``, for example when
-        performing grid search. To target the parameters of the underlying
-        estimator, use ``<name>__<parameter>``.
-
     Notes
     -----
 
@@ -328,12 +322,6 @@ class Incremental(ParallelPostFit):
            a single NumPy array, which may exhaust the memory of your worker.
            You probably want to always specify `scoring`.
 
-    name : string, default 'estimator'
-        The name to use for the underlying estimator. This is useful in
-        settings using ``get_params`` and ``set_param``, for example when
-        performing grid search. To target the parameters of the underlying
-        estimator, use ``<name>__<parameter>``.
-
 
     Attributes
     ----------
@@ -355,7 +343,7 @@ class Incremental(ParallelPostFit):
     >>> clf.fit(X, y, classes=[0, 1])
 
     When used inside a grid search, prefix the underlying estimator's
-    parameter names with `name`.
+    parameter names with ``estimator__``.
 
     >>> from sklearn.model_selection import GridSearchCV
     >>> param_grid = {"estimator__alpha": [0.1, 1.0, 10.0]}
