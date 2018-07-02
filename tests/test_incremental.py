@@ -17,17 +17,20 @@ def test_get_params():
     clf = Incremental(SGDClassifier())
     result = clf.get_params()
 
-    assert 'estimator__alpha' in result
+    assert 'estimator__max_iter' in result
+    assert 'max_iter' in result
     assert result['scoring'] is None
 
 
 def test_set_params():
     clf = Incremental(SGDClassifier())
     clf.set_params(**{'scoring': 'accuracy',
-                      'estimator__alpha': 0.1})
+                      'max_iter': 10,
+                      'estimator__max_iter': 20})
     result = clf.get_params()
 
-    assert result['estimator__alpha'] == 0.1
+    assert result['estimator__max_iter'] == 20
+    assert result['max_iter'] == 10
     assert result['scoring'] == 'accuracy'
 
 
@@ -68,6 +71,16 @@ def test_incremental_basic(scheduler, xy_classification):
         clf.partial_fit(X, y, classes=[0, 1])
         assert_estimator_equal(clf.estimator_, est2,
                                exclude=['loss_function_'])
+
+
+def test_max_iter(scheduler, xy_classification):
+    X, y = xy_classification
+
+    est = SGDClassifier(random_state=0, tol=1e-3)
+    clf = Incremental(est, max_iter=5)
+
+    with scheduler():
+        clf.fit(X, y, classes=[0, 1])
 
 
 def test_in_gridsearch(scheduler, xy_classification):

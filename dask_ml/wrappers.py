@@ -322,6 +322,10 @@ class Incremental(ParallelPostFit):
            a single NumPy array, which may exhaust the memory of your worker.
            You probably want to always specify `scoring`.
 
+    max_iter : int, default 1
+        The maximum number of passes over the training data (aka epochs).
+        It only impacts the behavior in the ``fit`` method, and not
+        `partial_fit`.
 
     Attributes
     ----------
@@ -351,6 +355,10 @@ class Incremental(ParallelPostFit):
     >>> gs.fit(X, y, classes=[0, 1])
     """
 
+    def __init__(self, estimator=None, scoring=None, max_iter=1):
+        self.max_iter = max_iter
+        super().__init__(estimator=estimator, scoring=scoring)
+
     @property
     def _postfit_estimator(self):
         check_is_fitted(self, 'estimator_')
@@ -369,7 +377,15 @@ class Incremental(ParallelPostFit):
 
     def fit(self, X, y=None, **fit_kwargs):
         estimator = sklearn.base.clone(self.estimator)
-        return self._fit_for_estimator(estimator, X, y, **fit_kwargs)
+
+        for i in range(self.max_iter):
+            logger.info("Starting iteration %d", i)
+            start = tic()
+            self._fit_for_estimator(estimator, X, y, **fit_kwargs)
+            stop = tic()
+            logger.info("Finished iteration %d, %0.2f", i, stop - start)
+
+        return self
 
     def partial_fit(self, X, y=None, **fit_kwargs):
         """Fit the underlying estimator.
