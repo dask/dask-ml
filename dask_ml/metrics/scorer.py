@@ -1,7 +1,6 @@
 import six
 from sklearn.metrics import make_scorer
 from sklearn.metrics.scorer import check_scoring as sklearn_check_scoring
-import toolz
 
 from . import (
     accuracy_score,
@@ -9,18 +8,15 @@ from . import (
     r2_score,
 )
 
-# Scorers
-_accuracy_scorer = make_scorer(accuracy_score)
-_neg_mean_squared_error_scorer = make_scorer(mean_squared_error,
-                                             greater_is_better=False)
-_r2_scorer = make_scorer(r2_score)
-
-
-SCORERS = dict(
-    accuracy=_accuracy_scorer,
-    neg_mean_squared_error=_neg_mean_squared_error_scorer,
-    r2=_r2_scorer,
+_scorers = dict(
+    r2=(r2_score, {}),
+    neg_mean_squared_error=(mean_squared_error, {'greater_is_better': False}),
+    accuracy=(accuracy_score, {})
 )
+
+
+SCORERS = {k: make_scorer(fn, **kwargs)
+           for k, (fn, kwargs) in _scorers.items()}
 
 
 def get_scorer(scoring, compute=True):
@@ -40,18 +36,8 @@ def get_scorer(scoring, compute=True):
     # and don't have back-compat code
     if isinstance(scoring, six.string_types):
         try:
-            _accuracy_scorer = make_scorer(accuracy_score, compute=compute)
-            _neg_mean_squared_error = make_scorer(mean_squared_error,
-                                                  greater_is_better=False,
-                                                  compute=compute)
-            _r2_scorer = make_scorer(r2_score, compute=compute)
-
-            SCORERS = dict(
-                accuracy=_accuracy_scorer,
-                neg_mean_squared_error=_neg_mean_squared_error,
-                r2=_r2_scorer,
-            )
-            scorer = SCORERS[scoring]
+            fn, kwargs = _scorers[scoring]
+            scorer = make_scorer(fn, compute=compute, **kwargs)
         except KeyError:
             raise ValueError('{} is not a valid scoring value. '
                              'Valid options are {}'.format(scoring,
