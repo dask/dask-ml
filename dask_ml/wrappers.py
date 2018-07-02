@@ -358,7 +358,7 @@ class Incremental(ParallelPostFit):
 
     def __init__(self, estimator=None, scoring=None, max_iter=1):
         self.max_iter = max_iter
-        super().__init__(estimator=estimator, scoring=scoring)
+        super(Incremental, self).__init__(estimator=estimator, scoring=scoring)
 
     @property
     def _postfit_estimator(self):
