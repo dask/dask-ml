@@ -8,15 +8,12 @@ from . import (
     r2_score,
 )
 
-_scorers = dict(
-    r2=(r2_score, {}),
-    neg_mean_squared_error=(mean_squared_error, {'greater_is_better': False}),
-    accuracy=(accuracy_score, {})
+SCORERS = dict(
+    r2=make_scorer(r2_score),
+    neg_mean_squared_error=make_scorer(mean_squared_error,
+                                       greater_is_better=False),
+    accuracy=make_scorer(accuracy_score)
 )
-
-
-SCORERS = {k: make_scorer(fn, **kwargs)
-           for k, (fn, kwargs) in _scorers.items()}
 
 
 def get_scorer(scoring, compute=True):
@@ -36,8 +33,7 @@ def get_scorer(scoring, compute=True):
     # and don't have back-compat code
     if isinstance(scoring, six.string_types):
         try:
-            fn, kwargs = _scorers[scoring]
-            scorer = make_scorer(fn, compute=compute, **kwargs)
+            scorer = SCORERS[scoring]
         except KeyError:
             raise ValueError('{} is not a valid scoring value. '
                              'Valid options are {}'.format(scoring,

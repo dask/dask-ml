@@ -12,8 +12,8 @@ def test_score_compute_basic():
     inc = Incremental(est, scoring='accuracy')
 
     inc.partial_fit(X, y, classes=da.unique(y))
-    r = inc.score(X, y, compute=False)
-    assert isinstance(r.compute(), float)
+    r = inc.score(X, y)
+    assert isinstance(r, float)
 
 
 def test_score_delayed_fit_and_score():
