@@ -32,46 +32,50 @@ def test_set_params():
     assert result['scoring'] == 'accuracy'
 
 
-def test_incremental_basic(scheduler, xy_classification):
-    X, y = xy_classification
+def test_incremental_basic(scheduler):
+    # Create observations that we know linear models can recover
+    n, d = 100, 3
+    rng = da.random.RandomState(42)
+    X = rng.normal(size=(n, d), chunks=30)
+    coef_star = rng.uniform(size=d, chunks=d)
+    y = da.sign(X @ coef_star)
+    y = (y + 1) / 2
 
     with scheduler() as (s, [_, _]):
-        est1 = SGDClassifier(random_state=0, tol=1e-3)
+        est1 = SGDClassifier(random_state=0, tol=1e-3, average=True)
         est2 = clone(est1)
 
         clf = Incremental(est1)
-        result = clf.fit(X, y, classes=[0, 1])
-        for slice_ in da.core.slices_from_chunks(X.chunks):
-            est2.partial_fit(X[slice_], y[slice_[0]], classes=[0, 1])
+        for i in range(40):
+            result = clf.fit(X, y, classes=[0, 1])
+            for slice_ in da.core.slices_from_chunks(X.chunks):
+                est2.partial_fit(X[slice_], y[slice_[0]], classes=[0, 1])
 
         assert result is clf
 
         assert isinstance(result.estimator_.coef_, np.ndarray)
-        #  np.testing.assert_array_almost_equal(result.estimator_.coef_,
-                                             #  est2.coef_)
         rel_error = LA.norm(clf.coef_ - est2.coef_) / LA.norm(clf.coef_)
+        assert rel_error < 0.5
 
-        assert_estimator_equal(clf.estimator_, est2,
-                               exclude=['loss_function_', 'coef_',
-                                        't_', 'n_iter_', 'intercept_'])
+        trained_attrs = {x for x in dir(est2) + dir(clf.estimator_)
+                         if x[-1] == '_'}
+        assert_estimator_equal(clf.estimator_, est2, exclude=trained_attrs)
 
         #  Predict
         result = clf.predict(X)
         expected = est2.predict(X)
         assert isinstance(result, da.Array)
         rel_error = LA.norm(result - expected) / LA.norm(expected)
-        #  assert_eq(result, expected)
+        assert rel_error < 0.5
 
         # score
         result = clf.score(X, y)
         expected = est2.score(X, y)
-        rel_error = LA.norm(result - expected) / LA.norm(expected)
+        assert abs(result - expected) < 0.2
 
         clf = Incremental(SGDClassifier(random_state=0, tol=1e-3))
         clf.partial_fit(X, y, classes=[0, 1])
-        assert_estimator_equal(clf.estimator_, est2,
-                               exclude=['loss_function_', 'coef_',
-                                        't_', 'n_iter_', 'intercept_'])
+        assert_estimator_equal(clf.estimator_, est2, exclude=trained_attrs)
 
 
 def test_in_gridsearch(scheduler, xy_classification):
