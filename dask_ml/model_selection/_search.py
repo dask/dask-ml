@@ -10,7 +10,6 @@ import numpy as np
 import dask
 from dask.base import tokenize
 from dask.delayed import delayed
-from dask.threaded import get as threaded_get
 from dask.utils import derived_from
 from sklearn import model_selection
 from sklearn.base import (is_classifier, clone, BaseEstimator,
@@ -839,9 +838,13 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
 
         n_jobs = _normalize_n_jobs(self.n_jobs)
         scheduler = dask.base.get_scheduler(
-                scheduler=self.scheduler if isinstance(self.scheduler, str) else None,
-                get=self.scheduler if callable(self.scheduler) else None
-            ) or dask.threaded.get
+            scheduler=(self.scheduler
+                       if isinstance(self.scheduler, str)
+                       else None),
+            get=self.scheduler if callable(self.scheduler) else None)
+
+        if not scheduler:
+            scheduler = dask.threaded.get
         if scheduler is dask.threaded.get and n_jobs == 1:
             scheduler = dask.local.get_sync
 
