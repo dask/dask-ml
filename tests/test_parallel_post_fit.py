@@ -21,6 +21,10 @@ def test_it_works():
     assert isinstance(clf.predict(X), da.Array)
     assert isinstance(clf.predict_proba(X), da.Array)
 
+    result = clf.score(X, y)
+    expected = clf.estimator.score(X, y)
+    assert result == expected
+
 
 def test_no_method_raises():
     clf = ParallelPostFit(LinearRegression())

@@ -1,8 +1,10 @@
 from sklearn.linear_model import SGDClassifier
 import numpy as np
 import dask
-from dask_ml._partial import fit, predict
 import dask.array as da
+from dask_ml._partial import fit, predict
+from dask_ml.datasets import make_classification
+from dask_ml.wrappers import Incremental
 
 
 x = np.array([[1, 0],
@@ -28,7 +30,7 @@ Z = da.from_array(z, chunks=(2, 2))
 
 def test_fit():
     with dask.config.set(scheduler='single-threaded'):
-        sgd = SGDClassifier()
+        sgd = SGDClassifier(max_iter=5)
 
         sgd = fit(sgd, X, Y, classes=np.array([-1, 0, 1]))
 
@@ -36,3 +38,14 @@ def test_fit():
         result = predict(sgd, Z)
         assert result.chunks == ((2, 2),)
         assert result.compute().tolist() == sol.tolist()
+
+
+def test_fit_rechunking():
+    n_classes = 2
+    X, y = make_classification(chunks=20, n_classes=n_classes)
+    X = X.rechunk({1: 10})
+
+    assert X.numblocks[1] > 1
+
+    clf = Incremental(SGDClassifier(max_iter=5))
+    clf.fit(X, y, classes=list(range(n_classes)))

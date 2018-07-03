@@ -12,6 +12,7 @@ from sklearn.model_selection._split import (
     _validate_shuffle_split_init,
     BaseCrossValidator,
 )
+import sklearn.model_selection as ms
 
 from dask_ml.utils import check_array
 
@@ -143,7 +144,7 @@ class ShuffleSplit(BaseCrossValidator):
     def _split_blockwise(self, X):
         chunks = X.chunks[0]
         rng = check_random_state(self.random_state)
-        seeds = rng.randint(0, 2**32 - 1, size=len(chunks))
+        seeds = rng.randint(0, 2**32 - 1, size=len(chunks), dtype='u8')
 
         train_pct, test_pct = _maybe_normalize_split_sizes(self.train_size,
                                                            self.test_size)
@@ -270,7 +271,11 @@ def train_test_split(*arrays, **options):
     if not shuffle:
         raise NotImplementedError
 
-    assert all(isinstance(arr, da.Array) for arr in arrays)
+    if not all(isinstance(arr, da.Array) for arr in arrays):
+        return ms.train_test_split(*arrays, test_size=test_size,
+                                   train_size=train_size,
+                                   random_state=random_state,
+                                   shuffle=shuffle)
 
     splitter = ShuffleSplit(n_splits=1, test_size=test_size,
                             train_size=train_size, blockwise=blockwise,

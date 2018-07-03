@@ -3,7 +3,6 @@ from functools import partial
 import pytest
 import sklearn.cluster
 import numpy as np
-from numpy.testing import assert_array_equal
 
 from dask_ml.datasets import make_blobs
 from dask_ml.cluster import SpectralClustering
@@ -18,8 +17,12 @@ X, y = make_blobs(n_samples=200, chunks=100, random_state=0)
 def test_basic(as_ndarray, persist_embedding):
     sc = SpectralClustering(n_components=25, random_state=0,
                             persist_embedding=persist_embedding)
-    sc.fit(X.compute())
-    assert len(sc.labels_) == len(X)
+    if as_ndarray:
+        X_ = X.compute()
+    else:
+        X_ = X
+    sc.fit(X_)
+    assert len(sc.labels_) == len(X_)
 
 
 @pytest.mark.parametrize('assign_labels', [
@@ -75,19 +78,42 @@ def test_affinity_raises():
         assert m.match("Unexpected type for affinity 'ndarray'")
 
 
-def test_spectral_clustering():
-    S = np.array([[1.0, 1.0, 1.0, 0.2, 0.0, 0.0, 0.0],
-                  [1.0, 1.0, 1.0, 0.2, 0.0, 0.0, 0.0],
-                  [1.0, 1.0, 1.0, 0.2, 0.0, 0.0, 0.0],
-                  [0.2, 0.2, 0.2, 1.0, 1.0, 1.0, 1.0],
-                  [0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0],
-                  [0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0],
-                  [0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]])
-
-    model = SpectralClustering(random_state=0, n_clusters=2,
-                               n_components=4).fit(S)
+def test_spectral_clustering(Xl_blobs_easy):
+    X, y = Xl_blobs_easy
+    X = (X - X.mean(0)) / X.std(0)
+    model = SpectralClustering(random_state=0, n_clusters=3,
+                               n_components=5, gamma=None).fit(X)
     labels = model.labels_.compute()
-    if labels[0] == 0:
-        labels = 1 - labels
+    y = y.compute()
 
-    assert_array_equal(labels, [1, 1, 1, 0, 0, 0, 0])
+    idx = [(y == i).argmax() for i in range(3)]
+    grouped_idx = [np.where(y == y[idx[i]])[0] for i in range(3)]
+
+    for indices in grouped_idx:
+        assert len(set(labels[indices])) == 1
+
+
+@pytest.mark.parametrize('keep', [
+    [4, 7],
+    [4, 5],
+    [0, 3],
+    [1, 9],
+    [0, 1, 5, 8, 9],
+])
+def test_slice_mostly_sorted(keep):
+    import numpy as np
+    import dask.array as da
+    from dask.array.utils import assert_eq
+    from dask_ml.cluster.spectral import _slice_mostly_sorted
+
+    X = np.arange(10).reshape(-1, 1)
+
+    dX = da.from_array(X, chunks=5)
+    keep = np.array(keep).ravel()
+    rest = ~np.isin(X, keep).ravel()
+
+    array = dX[np.concatenate([X[keep], X[rest]]).ravel()]
+    result = _slice_mostly_sorted(array, keep, rest)
+
+    assert_eq(result, X)
+    assert all(x > 0 for x in result.chunks[0])

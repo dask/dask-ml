@@ -9,3 +9,4 @@ from .data import (  # noqa
     DummyEncoder,
     OrdinalEncoder,
 )
+from .label import LabelEncoder # noqa

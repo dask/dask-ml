@@ -49,7 +49,6 @@ intersphinx_mapping = {
     'sklearn': ('http://scikit-learn.org/stable/', None),
     'dask': ('http://dask.pydata.org/en/latest/', None),
     'distributed': ('http://distributed.readthedocs.io/en/latest/', None),
-    'dask_searchcv': ('http://dask-searchcv.readthedocs.io/en/latest/', None),
     'dask_glm': ('http://dask-glm.readthedocs.io/en/latest/', None),
 }
 
@@ -105,7 +104,7 @@ exclude_patterns = [
 exclude_trees = ['_build', 'includes']
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'default'
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
@@ -207,4 +206,5 @@ def setup(app):
 
 extlinks = {
     'issue': ('https://github.com/dask/dask-ml/issues/%s', 'GH#'),
+    'pr': ('https://github.com/dask/dask-ml/pull/%s', 'GH#'),
 }

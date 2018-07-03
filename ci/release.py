@@ -20,7 +20,7 @@ def parse_args(args=None):
 
 def check(version):
     v = parse(version)
-    assert isinstance(v, Version), f'Invalid version: {version}'
+    assert isinstance(v, Version), 'Invalid version: {}'.format(version)
     assert not version.startswith('v')
 
 
@@ -36,16 +36,18 @@ def main(args=None):
     assert repo.active_branch.name == "master"
 
     check(args.version)
-    print(f"Releasing for version {args.version}")
+    print("Releasing for version {}".format(args.version))
     while True:
-        confirm = input(f"Confirm for {args.version} [y/n]: ")[0].lower()
+        confirm = input("Confirm for {} [y/n]: ".format(args.version)
+                        )[0].lower()
         if confirm == 'y':
             break
         elif confirm == 'n':
             sys.exit(1)
 
-    commit = repo.index.commit(f"RLS: {args.version}")
-    tag = repo.create_tag(f"v{args.version}", message=f"RLS: {args.version}")
+    commit = repo.index.commit("RLS: {}".format(args.version))
+    tag = repo.create_tag("v{}".format(args.version),
+                          message="RLS: {}".format(args.version))
 
     print("Created commit: ", commit)
     print("Created tag   : ", tag)
@@ -55,7 +57,7 @@ def main(args=None):
         sys.exit(0)
 
     while True:
-        confirm = input(f"Ready to push? [y/n]: ")[0].lower()
+        confirm = input("Ready to push? [y/n]: ")[0].lower()
         if confirm == 'y':
             break
         elif confirm == 'n':

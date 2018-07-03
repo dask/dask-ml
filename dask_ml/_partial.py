@@ -4,7 +4,6 @@ import logging
 import os
 import warnings
 from abc import ABCMeta
-from timeit import default_timer as tic
 
 import numpy as np
 import six
@@ -104,12 +103,7 @@ class _BigPartialFitMixin(object):
 
 def _partial_fit(model, x, y, kwargs=None):
     kwargs = kwargs or dict()
-    start = tic()
-    logger.info("Starting partial-fit %s", dask.base.tokenize(model, x, y))
     model.partial_fit(x, y, **kwargs)
-    stop = tic()
-    logger.info("Finished partial-fit %s [%0.2f]",
-                dask.base.tokenize(model, x, y), stop - start)
     return model
 
 
@@ -168,7 +162,7 @@ def fit(model, x, y, compute=True, **kwargs):
         assert x.chunks[0] == y.chunks[0]
     assert hasattr(model, 'partial_fit')
     if len(x.chunks[1]) > 1:
-        x = x.reblock(chunks=(x.chunks[0], sum(x.chunks[1])))
+        x = x.rechunk(chunks=(x.chunks[0], sum(x.chunks[1])))
 
     nblocks = len(x.chunks[0])
 
@@ -204,7 +198,7 @@ def predict(model, x):
     """
     assert x.ndim == 2
     if len(x.chunks[1]) > 1:
-        x = x.reblock(chunks=(x.chunks[0], sum(x.chunks[1])))
+        x = x.rechunk(chunks=(x.chunks[0], sum(x.chunks[1])))
     func = partial(_predict, model)
     xx = np.zeros((1, x.shape[1]), dtype=x.dtype)
     dt = model.predict(xx).dtype
