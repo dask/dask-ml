@@ -104,14 +104,7 @@ class _BigPartialFitMixin(object):
 
 def _partial_fit(model, x, y, kwargs=None):
     kwargs = kwargs or dict()
-    start = tic()
-    if logger.getEffectiveLevel() == logging.DEBUG:
-        token = dask.base.tokenize(model, x, y)
-        logger.debug("Starting partial-fit %s", token)
     model.partial_fit(x, y, **kwargs)
-    stop = tic()
-    if logger.getEffectiveLevel() == 'debug':
-        logger.debug("Finished partial-fit %s [%0.2f]", token, stop - start)
     return model
 
 
