@@ -4,7 +4,6 @@ import logging
 import os
 import warnings
 from abc import ABCMeta
-from timeit import default_timer as tic
 
 import numpy as np
 import six
