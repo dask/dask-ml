@@ -46,7 +46,7 @@ from dask_ml.model_selection import compute_n_splits, check_cv
 from dask_ml.model_selection._search import (
     _normalize_n_jobs, _normalize_scheduler
 )
-from dask_ml.model_selection._compat import _HAS_MULTIPLE_METRICS
+from dask_ml._compat import _HAS_MULTIPLE_METRICS
 from dask_ml.model_selection.methods import CVCache
 from dask_ml.model_selection.utils_test import (
     FailingClassifier, MockClassifier,

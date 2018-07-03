@@ -40,7 +40,7 @@ from .methods import (fit, fit_transform, fit_and_score, pipeline, fit_best,
                       decompress_params, score, feature_union,
                       feature_union_concat, MISSING)
 from .utils import to_indexable, to_keys, unzip, is_dask_collection
-from ._compat import _HAS_MULTIPLE_METRICS, _SK_VERSION
+from .._compat import _HAS_MULTIPLE_METRICS, _SK_VERSION
 
 try:
     from cytoolz import get, pluck

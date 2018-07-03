@@ -37,7 +37,7 @@ from dask_ml.model_selection.utils_test import (
     CheckingClassifier, MockDataFrame,
     ignore_warnings
 )
-from dask_ml.model_selection._compat import _HAS_MULTIPLE_METRICS, _SK_VERSION
+from dask_ml._compat import _HAS_MULTIPLE_METRICS, _SK_VERSION
 
 
 class LinearSVCNoScore(LinearSVC):
