@@ -179,7 +179,8 @@ def fit(model, x, y, compute=True, **kwargs):
     dsk = {(name, -1): model}
     dsk.update({(name, i): (_partial_fit, (name, i - 1),
                                           (x.name, order[i], 0),
-                                          (getattr(y, 'name', ''), i), kwargs)
+                                          (getattr(y, 'name', ''), order[i]),
+                            kwargs)
                 for i in range(nblocks)})
 
     new_dsk = dask.sharedict.merge((name, dsk), x.dask, getattr(y, 'dask', {}))
