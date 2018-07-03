@@ -134,3 +134,19 @@ def test_score_ndarrays():
     dX = da.from_array(X, chunks=(2, 5))
     dy = da.from_array(y, chunks=2)
     assert inc.score(dX, dy) == 1
+
+
+def test_score(xy_classification):
+    distributed = pytest.importorskip('distributed')
+    client = distributed.Client(n_workers=2)
+
+    X, y = xy_classification
+    inc = Incremental(SGDClassifier(max_iter=1000, random_state=0),
+                      scoring='accuracy')
+
+    with client:
+        inc.fit(X, y, classes=[0, 1])
+        result = inc.score(X, y)
+        expected = inc.estimator_.score(X, y)
+
+    assert result == expected

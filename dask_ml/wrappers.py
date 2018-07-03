@@ -364,7 +364,7 @@ class Incremental(ParallelPostFit):
             result = fit(estimator, X, y, **fit_kwargs)
 
         copy_learned_attributes(result, self)
-        self.estimator_ = estimator
+        self.estimator_ = result
         return self
 
     def fit(self, X, y=None, **fit_kwargs):
