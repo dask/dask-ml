@@ -6,6 +6,7 @@ from itertools import repeat
 from multiprocessing import cpu_count
 import numbers
 
+import packaging.version
 import numpy as np
 import dask
 from dask.base import tokenize
@@ -40,7 +41,7 @@ from .methods import (fit, fit_transform, fit_and_score, pipeline, fit_best,
                       decompress_params, score, feature_union,
                       feature_union_concat, MISSING)
 from .utils import to_indexable, to_keys, unzip, is_dask_collection
-from ._compat import _HAS_MULTIPLE_METRICS, _SK_VERSION
+from .._compat import HAS_MULTIPLE_METRICS, SK_VERSION
 
 try:
     from cytoolz import get, pluck
@@ -51,7 +52,7 @@ except ImportError:  # pragma: no cover
 __all__ = ['GridSearchCV', 'RandomizedSearchCV']
 
 
-if _SK_VERSION >= '0.19.1':
+if SK_VERSION >= packaging.version.parse('0.19.1'):
     from sklearn.utils.deprecation import DeprecationDict
     _RETURN_TRAIN_SCORE_DEFAULT = 'warn'
 
@@ -741,7 +742,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
     def best_score_(self):
         check_is_fitted(self, 'cv_results_')
         self._check_if_refit('best_score_')
-        if _HAS_MULTIPLE_METRICS and self.multimetric_:
+        if HAS_MULTIPLE_METRICS and self.multimetric_:
             key = self.refit
         else:
             key = 'score'
@@ -823,7 +824,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             Parameters passed to the ``fit`` method of the estimator
         """
         estimator = self.estimator
-        if _HAS_MULTIPLE_METRICS:
+        if HAS_MULTIPLE_METRICS:
             from sklearn.metrics.scorer import _check_multimetric_scoring
             scorer, multimetric = _check_multimetric_scoring(
                 estimator,
@@ -883,7 +884,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         self.cv_results_ = results
 
         if self.refit:
-            if _HAS_MULTIPLE_METRICS and self.multimetric_:
+            if HAS_MULTIPLE_METRICS and self.multimetric_:
                 key = self.refit
             else:
                 key = 'score'

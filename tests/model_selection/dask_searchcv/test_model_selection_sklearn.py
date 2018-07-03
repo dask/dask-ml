@@ -4,6 +4,7 @@
 
 import pickle
 import pytest
+import packaging.version
 
 import dask
 import dask.array as da
@@ -37,7 +38,7 @@ from dask_ml.model_selection.utils_test import (
     CheckingClassifier, MockDataFrame,
     ignore_warnings
 )
-from dask_ml.model_selection._compat import _HAS_MULTIPLE_METRICS, _SK_VERSION
+from dask_ml._compat import HAS_MULTIPLE_METRICS, SK_VERSION
 
 
 class LinearSVCNoScore(LinearSVC):
@@ -197,7 +198,7 @@ def test_grid_search_groups():
         gs.fit(X, y)
 
 
-@pytest.mark.skipif(_SK_VERSION < '0.19.1',
+@pytest.mark.skipif(SK_VERSION < packaging.version.parse('0.19.1'),
                     reason='only deprecated for >= 0.19.1')
 def test_return_train_score_warn():
     # Test that warnings are raised. Will be removed in sklearn 0.21
@@ -291,7 +292,7 @@ def test_no_refit():
                  'best parameters' % fn_name) in str(exc.value))
 
 
-@pytest.mark.skipif(not _HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
+@pytest.mark.skipif(not HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
 def test_no_refit_multiple_metrics():
     clf = DecisionTreeClassifier()
     scoring = {'score_1': 'accuracy', 'score_2': 'accuracy'}
@@ -1034,7 +1035,7 @@ def test_search_train_scores_set_to_false():
         assert not key.endswith('train_score')
 
 
-@pytest.mark.skipif(not _HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
+@pytest.mark.skipif(not HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
 def test_multiple_metrics():
     scoring = {'AUC': 'roc_auc', 'Accuracy': make_scorer(accuracy_score)}
 
