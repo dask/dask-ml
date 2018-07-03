@@ -11,7 +11,6 @@ import numpy as np
 import dask
 from dask.base import tokenize
 from dask.delayed import delayed
-from dask.threaded import get as threaded_get
 from dask.utils import derived_from
 from sklearn import model_selection
 from sklearn.base import (is_classifier, clone, BaseEstimator,
@@ -667,42 +666,6 @@ def _normalize_n_jobs(n_jobs):
     return n_jobs
 
 
-_scheduler_aliases = {'sync': 'synchronous',
-                      'sequential': 'synchronous',
-                      'threaded': 'threading'}
-
-
-def _normalize_scheduler(scheduler, n_jobs):
-    # Default
-    if scheduler is None:
-        scheduler = dask.context._globals.get('get')
-        if scheduler is None:
-            scheduler = dask.get if n_jobs == 1 else threaded_get
-        return scheduler
-
-    # Get-functions
-    if callable(scheduler):
-        return scheduler
-
-    # Support name aliases
-    if isinstance(scheduler, str):
-        scheduler = _scheduler_aliases.get(scheduler, scheduler)
-
-    if scheduler in ('threading', 'multiprocessing') and n_jobs == 1:
-        scheduler = dask.get
-    elif scheduler == 'threading':
-        scheduler = threaded_get
-    elif scheduler == 'multiprocessing':
-        from dask.multiprocessing import get as scheduler
-    elif scheduler == 'synchronous':
-        scheduler = dask.get
-    elif hasattr(scheduler, 'get'):
-        scheduler = scheduler.get
-    else:
-        raise ValueError("Unknown scheduler: %r." % scheduler)
-    return scheduler
-
-
 class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
     """Base class for hyper parameter search with cross-validation."""
 
@@ -875,7 +838,16 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         self.n_splits_ = n_splits
 
         n_jobs = _normalize_n_jobs(self.n_jobs)
-        scheduler = _normalize_scheduler(self.scheduler, n_jobs)
+        scheduler = dask.base.get_scheduler(
+            scheduler=(self.scheduler
+                       if isinstance(self.scheduler, str)
+                       else None),
+            get=self.scheduler if callable(self.scheduler) else None)
+
+        if not scheduler:
+            scheduler = dask.threaded.get
+        if scheduler is dask.threaded.get and n_jobs == 1:
+            scheduler = dask.local.get_sync
 
         out = scheduler(dsk, keys, num_workers=n_jobs)
 
