@@ -48,7 +48,7 @@ between machines.
    X, y = make_classification(chunks=25)
    X
 
-   estimator = SGDClassifier(random_state=10)
+   estimator = SGDClassifier(random_state=10, max_iter=1000)
    clf = Incremental(estimator, scoring='accuracy')
    clf.fit(X, y, classes=[0, 1])
 
@@ -109,7 +109,7 @@ If necessary, the actual estimator trained is available as ``Incremental.estimat
 .. _incremental learning: http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning
 
 Incremental Learning and Hyper-parameter Optimization
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 :class:`Incremental` is a meta-estimator.
 To search over the hyper-parameters of the underlying estimator, use the usual scikit-learn convention of
