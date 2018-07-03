@@ -5,6 +5,7 @@ import os
 import warnings
 from abc import ABCMeta
 from timeit import default_timer as tic
+import random
 
 import numpy as np
 import six
@@ -171,11 +172,13 @@ def fit(model, x, y, compute=True, **kwargs):
         x = x.rechunk(chunks=(x.chunks[0], sum(x.chunks[1])))
 
     nblocks = len(x.chunks[0])
+    order = list(range(nblocks))
+    random.shuffle(order)
 
-    name = 'fit-' + dask.base.tokenize(model, x, y, kwargs)
+    name = 'fit-' + dask.base.tokenize(model, x, y, kwargs, order)
     dsk = {(name, -1): model}
     dsk.update({(name, i): (_partial_fit, (name, i - 1),
-                                          (x.name, i, 0),
+                                          (x.name, order[i], 0),
                                           (getattr(y, 'name', ''), i), kwargs)
                 for i in range(nblocks)})
 
