@@ -42,6 +42,18 @@ Dask-ML provides drop-in replacements for grid and randomized search.
    model_selection.GridSearchCV
    model_selection.RandomizedSearchCV
 
+Dask-ML provides the following drop-in replacements for cross validation when
+the data fits in memory. When it doesn't fit in memory, the functions can still
+be used by using ``X, y = dask.compute(X, y)``
+
+.. autosummary::
+   :toctree: generated
+   :template: function.rst
+
+   model_selection.cross_validate
+   model_selection.cross_val_score
+   model_selection.cross_val_predict
+
 
 :mod:`dask_ml.linear_model`: Generalized Linear Models
 ======================================================
