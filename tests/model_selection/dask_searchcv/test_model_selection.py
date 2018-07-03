@@ -15,7 +15,6 @@ import dask.array as da
 from dask.base import tokenize
 from dask.callbacks import Callback
 from dask.delayed import delayed
-from dask.threaded import get as get_threading
 from dask.utils import tmpdir
 
 from sklearn.datasets import make_classification, load_iris
@@ -629,19 +628,15 @@ def test_normalize_n_jobs():
         _normalize_n_jobs('not an integer')
 
 
-@pytest.mark.parametrize('scheduler,n_jobs,get',
-                         [(None, 4, get_threading),
-                          ('threading', 4, get_threading),
-                          ('threading', 1, dask.get),
-                          ('synchronous', 4, dask.get),
-                          ('sync', 4, dask.get),
-                          ('multiprocessing', 4, None),
-                          (dask.get, 4, dask.get)])
-def test_scheduler_param(scheduler, n_jobs, get):
-    if scheduler == 'multiprocessing':
-        mp = pytest.importorskip('dask.multiprocessing')
-        get = mp.get
-
+@pytest.mark.parametrize('scheduler,n_jobs',
+                         [(None, 4),
+                          ('threading', 4),
+                          ('threading', 1),
+                          ('synchronous', 4),
+                          ('sync', 4),
+                          ('multiprocessing', 4),
+                          (dask.get, 4)])
+def test_scheduler_param(scheduler, n_jobs):
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
     gs = dcv.GridSearchCV(MockClassifier(), {'foo_param': [0, 1, 2]}, cv=3,
                           scheduler=scheduler, n_jobs=n_jobs)
