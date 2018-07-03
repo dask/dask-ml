@@ -46,7 +46,7 @@ from dask_ml.model_selection import compute_n_splits, check_cv
 from dask_ml.model_selection._search import (
     _normalize_n_jobs, _normalize_scheduler
 )
-from dask_ml._compat import _HAS_MULTIPLE_METRICS
+from dask_ml._compat import HAS_MULTIPLE_METRICS
 from dask_ml.model_selection.methods import CVCache
 from dask_ml.model_selection.utils_test import (
     FailingClassifier, MockClassifier,
@@ -487,7 +487,7 @@ def test_feature_union_fit_failure():
 
 
 @ignore_warnings
-@pytest.mark.skipif(not _HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
+@pytest.mark.skipif(not HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
 def test_feature_union_fit_failure_multiple_metrics():
     scoring = {"score_1": _passthrough_scorer, "score_2": _passthrough_scorer}
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
@@ -667,7 +667,7 @@ def test_scheduler_param_bad():
         _normalize_scheduler('threeding', 4)
 
 
-@pytest.mark.skipif(not _HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
+@pytest.mark.skipif(not HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
 def test_cv_multiplemetrics():
     X, y = make_classification(random_state=0)
 
@@ -684,7 +684,7 @@ def test_cv_multiplemetrics():
     assert isinstance(a.best_params_, type(b.best_params_))
 
 
-@pytest.mark.skipif(not _HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
+@pytest.mark.skipif(not HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
 def test_cv_multiplemetrics_requires_refit_metric():
     X, y = make_classification(random_state=0)
 
@@ -696,7 +696,7 @@ def test_cv_multiplemetrics_requires_refit_metric():
         a.fit(X, y)
 
 
-@pytest.mark.skipif(not _HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
+@pytest.mark.skipif(not HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
 def test_cv_multiplemetrics_no_refit():
     X, y = make_classification(random_state=0)
 
