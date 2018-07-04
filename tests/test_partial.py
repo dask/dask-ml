@@ -54,18 +54,25 @@ def test_fit_rechunking():
 
 
 def test_fit_shuffle_blocks():
+    N = 10
+    X = da.from_array(1 + np.arange(N).reshape(-1, 1), chunks=1)
+    y = da.from_array(np.ones(N), chunks=1)
+    classes = [0, 1]
+
+    sgd = SGDClassifier(max_iter=5, random_state=0, fit_intercept=False,
+                        shuffle=False)
+
+    sgd1 = fit(clone(sgd), X, y, random_state=0, classes=classes)
+    sgd2 = fit(clone(sgd), X, y, random_state=42, classes=classes)
+    assert len(sgd1.coef_) == len(sgd2.coef_) == 1
+    assert not np.allclose(sgd1.coef_, sgd2.coef_)
+
     X, y = make_classification(random_state=0, chunks=20)
-    sgd = SGDClassifier(max_iter=5)
-
-    fit(clone(sgd), X, y, classes=np.array([-1, 0, 1]),
-        shuffle_blocks=False)
-    fit(clone(sgd), X, y, classes=np.array([-1, 0, 1]),
-        shuffle_blocks=True)
-
-    fit(clone(sgd), X, y, classes=np.array([-1, 0, 1]),
-        shuffle_blocks=True, random_state=42)
-    fit(clone(sgd), X, y, classes=np.array([-1, 0, 1]),
-        shuffle_blocks=True, random_state=np.random.RandomState(42))
+    sgd_a = fit(clone(sgd), X, y, random_state=0, classes=classes,
+                shuffle_blocks=False)
+    sgd_b = fit(clone(sgd), X, y, random_state=42, classes=classes,
+                shuffle_blocks=False)
+    assert np.allclose(sgd_a.coef_, sgd_b.coef_)
 
     with pytest.raises(ValueError, match='cannot be used to seed'):
         fit(sgd, X, y, classes=np.array([-1, 0, 1]),
