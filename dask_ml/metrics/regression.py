@@ -47,7 +47,7 @@ def mean_squared_error(y_true, y_pred,
 
     if isinstance(multioutput, six.string_types):
         if multioutput == 'raw_values':
-            return output_errors
+            return output_errors.compute() if compute else output_errors
         elif multioutput == 'uniform_average':
             # pass None as weights to da.average: uniform mean
             multioutput = None
@@ -72,7 +72,7 @@ def mean_absolute_error(y_true, y_pred,
 
     if isinstance(multioutput, six.string_types):
         if multioutput == 'raw_values':
-            return output_errors
+            return output_errors.compute() if compute else output_errors
         elif multioutput == 'uniform_average':
             # pass None as weights to da.average: uniform mean
             multioutput = None
