@@ -145,7 +145,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         copy_learned_attributes(result, self.estimator)
         return self
 
-    def transform(self, X):
+    def transform(self, X, dtype=None):
         """Transform block or partition-wise for dask inputs.
 
         For dask inputs, a dask array or dataframe is returned. For other
@@ -158,6 +158,8 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         Parameters
         ----------
         X : array-like
+        dtype : numpy.dtype, optional
+            The dtype of the output array.
 
         Returns
         -------
@@ -166,7 +168,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         transform = self._check_method('transform')
 
         if isinstance(X, da.Array):
-            return X.map_blocks(transform)
+            return X.map_blocks(transform, dtype=dtype)
         elif isinstance(X, dd._Frame):
             return _apply_partitionwise(X, transform)
         else:
@@ -200,7 +202,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         else:
             return self._postfit_estimator.score(X, y)
 
-    def predict(self, X):
+    def predict(self, X, dtype=None):
         """Predict for X.
 
         For dask inputs, a dask array or dataframe is returned. For other
@@ -210,6 +212,8 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         Parameters
         ----------
         X : array-like
+        dtype : numpy.dtype, optional
+            The dtype of the output array.
 
         Returns
         -------
@@ -218,7 +222,9 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         predict = self._check_method('predict')
 
         if isinstance(X, da.Array):
-            return X.map_blocks(predict, dtype='int', drop_axis=1)
+            if dtype is None:
+                dtype = 'int'
+            return X.map_blocks(predict, dtype=dtype, drop_axis=1)
 
         elif isinstance(X, dd._Frame):
             return _apply_partitionwise(X, predict)
@@ -226,7 +232,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         else:
             return predict(X)
 
-    def predict_proba(self, X):
+    def predict_proba(self, X, dtype=None):
         """Predict for X.
 
         For dask inputs, a dask array or dataframe is returned. For other
@@ -239,6 +245,8 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         Parameters
         ----------
         X : array or dataframe
+        dtype : numpy.dtype, optional
+            The dtype of the output array.
 
         Returns
         -------
@@ -249,8 +257,10 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
 
         if isinstance(X, da.Array):
             # XXX: multiclass
+            if dtype is None:
+                dtype = 'float'
             return X.map_blocks(predict_proba,
-                                dtype='float',
+                                dtype=dtype,
                                 chunks=(X.chunks[0], len(self.classes_)))
         elif isinstance(X, dd._Frame):
             return _apply_partitionwise(X, predict_proba)

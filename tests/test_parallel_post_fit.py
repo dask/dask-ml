@@ -2,6 +2,7 @@ import dask
 import dask.array as da
 import dask.dataframe as dd
 import pytest
+import numpy as np
 import sklearn.datasets
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.decomposition import PCA
@@ -105,3 +106,32 @@ def test_multiclass():
 
     assert isinstance(result, da.Array)
     assert_eq_ar(result, expected)
+
+
+
+def test_transform_dtype(xy_classification):
+    X, y = xy_classification
+
+    clf = ParallelPostFit(PCA())
+    clf.fit(X)
+
+    # we lie about the dtype here, just to ensure that
+    # it's passed through correctly
+    result = clf.transform(X, dtype=np.float32)
+    assert result.dtype == np.float32
+
+
+
+def test_transform_dtype(xy_classification):
+    X, y = xy_classification
+
+    clf = ParallelPostFit(LogisticRegression())
+    clf.fit(X, y)
+
+    # we lie about the dtype here, just to ensure that
+    # it's passed through correctly
+    result = clf.predict(X, dtype=np.float32)
+    assert result.dtype == np.float32
+
+    result = clf.predict_proba(X, dtype=np.float32)
+    assert result.dtype == np.float32
