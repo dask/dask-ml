@@ -45,37 +45,35 @@ def test_incremental_basic(scheduler):
         est1 = SGDClassifier(random_state=0, tol=1e-3, average=True)
         est2 = clone(est1)
 
-        clf = Incremental(est1)
-        for i in range(40):
-            result = clf.fit(X, y, classes=[0, 1])
-            for slice_ in da.core.slices_from_chunks(X.chunks):
-                est2.partial_fit(X[slice_], y[slice_[0]], classes=[0, 1])
+        clf = Incremental(est1, random_state=0)
+        result = clf.fit(X, y, classes=[0, 1])
+        for slice_ in da.core.slices_from_chunks(X.chunks):
+            est2.partial_fit(X[slice_], y[slice_[0]], classes=[0, 1])
 
         assert result is clf
 
         assert isinstance(result.estimator_.coef_, np.ndarray)
         rel_error = LA.norm(clf.coef_ - est2.coef_) / LA.norm(clf.coef_)
-        assert rel_error < 0.5
+        assert rel_error < 0.9
 
-        trained_attrs = {x for x in dir(est2) + dir(clf.estimator_)
-                         if x[-1] == '_'}
-        assert_estimator_equal(clf.estimator_, est2, exclude=trained_attrs)
+        assert set(dir(clf.estimator_)) == set(dir(est2))
 
         #  Predict
         result = clf.predict(X)
         expected = est2.predict(X)
         assert isinstance(result, da.Array)
         rel_error = LA.norm(result - expected) / LA.norm(expected)
-        assert rel_error < 0.5
+        assert rel_error < 0.2
 
         # score
         result = clf.score(X, y)
         expected = est2.score(X, y)
-        assert abs(result - expected) < 0.2
+        assert abs(result - expected) < 0.1
 
-        clf = Incremental(SGDClassifier(random_state=0, tol=1e-3))
+        clf = Incremental(SGDClassifier(random_state=0, tol=1e-3,
+                                        average=True))
         clf.partial_fit(X, y, classes=[0, 1])
-        assert_estimator_equal(clf.estimator_, est2, exclude=trained_attrs)
+        assert set(dir(clf.estimator_)) == set(dir(est2))
 
 
 def test_in_gridsearch(scheduler, xy_classification):

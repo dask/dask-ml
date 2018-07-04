@@ -1,10 +1,12 @@
 from sklearn.linear_model import SGDClassifier
+from sklearn.base import clone
 import numpy as np
 import dask
 import dask.array as da
 from dask_ml._partial import fit, predict
 from dask_ml.datasets import make_classification
 from dask_ml.wrappers import Incremental
+import pytest
 
 
 x = np.array([[1, 0],
@@ -49,3 +51,22 @@ def test_fit_rechunking():
 
     clf = Incremental(SGDClassifier(max_iter=5))
     clf.fit(X, y, classes=list(range(n_classes)))
+
+
+def test_fit_shuffle_blocks():
+    X, y = make_classification(random_state=0, chunks=20)
+    sgd = SGDClassifier(max_iter=5)
+
+    fit(clone(sgd), X, y, classes=np.array([-1, 0, 1]),
+        shuffle_blocks=False)
+    fit(clone(sgd), X, y, classes=np.array([-1, 0, 1]),
+        shuffle_blocks=True)
+
+    fit(clone(sgd), X, y, classes=np.array([-1, 0, 1]),
+        shuffle_blocks=True, random_state=42)
+    fit(clone(sgd), X, y, classes=np.array([-1, 0, 1]),
+        shuffle_blocks=True, random_state=np.random.RandomState(42))
+
+    with pytest.raises(ValueError, match='cannot be used to seed'):
+        fit(sgd, X, y, classes=np.array([-1, 0, 1]),
+            shuffle_blocks=True, random_state=da.random.RandomState(42))

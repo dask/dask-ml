@@ -323,6 +323,12 @@ class Incremental(ParallelPostFit):
            a single NumPy array, which may exhaust the memory of your worker.
            You probably want to always specify `scoring`.
 
+    random_state : int or numpy.random.RandomState
+        Random object that determines how to shuffle blocks.
+
+    shuffle_blocks : bool
+        Whether to randomly shuffle the blocks or now
+
     Attributes
     ----------
     estimator_ : Estimator
@@ -350,6 +356,11 @@ class Incremental(ParallelPostFit):
     >>> gs = GridSearchCV(clf, param_grid)
     >>> gs.fit(X, y, classes=[0, 1])
     """
+    def __init__(self, estimator=None, scoring=None, shuffle_blocks=True,
+                 random_state=None):
+        self.shuffle_blocks = shuffle_blocks
+        self.random_state = random_state
+        super(Incremental, self).__init__(estimator=estimator, scoring=scoring)
 
     @property
     def _postfit_estimator(self):
@@ -361,7 +372,10 @@ class Incremental(ParallelPostFit):
         if not dask.is_dask_collection(X) and not dask.is_dask_collection(y):
             result = estimator.partial_fit(X=X, y=y, **fit_kwargs)
         else:
-            result = fit(estimator, X, y, **fit_kwargs)
+            result = fit(estimator, X, y,
+                         random_state=self.random_state,
+                         shuffle_blocks=self.shuffle_blocks,
+                         **fit_kwargs)
 
         copy_learned_attributes(result, self)
         self.estimator_ = result

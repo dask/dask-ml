@@ -5,14 +5,15 @@ import os
 import warnings
 from abc import ABCMeta
 from timeit import default_timer as tic
-import random
 
 import numpy as np
 import six
 from toolz import partial
+import sklearn.utils
 
 import dask
 from dask.delayed import Delayed
+import dask.array as da
 
 from ._utils import copy_learned_attributes
 
@@ -114,7 +115,8 @@ def _partial_fit(model, x, y, kwargs=None):
     return model
 
 
-def fit(model, x, y, compute=True, **kwargs):
+def fit(model, x, y, compute=True, shuffle_blocks=True, random_state=None,
+        **kwargs):
     """ Fit scikit learn model against dask arrays
 
     Model must support the ``partial_fit`` interface for online or batch
@@ -131,6 +133,12 @@ def fit(model, x, y, compute=True, **kwargs):
         Two dimensional array, likely tall and skinny
     y: dask Array
         One dimensional array with same chunks as x's rows
+    compute : bool
+        Whether to compute this result
+    shuffle_blocks : bool
+        Whether to shuffle the blocks with ``random_state`` or not
+    random_state : int or numpy.random.RandomState
+        Random state to use when shuffling blocks
     kwargs:
         options to pass to partial_fit
 
@@ -173,7 +181,9 @@ def fit(model, x, y, compute=True, **kwargs):
 
     nblocks = len(x.chunks[0])
     order = list(range(nblocks))
-    random.shuffle(order)
+    if shuffle_blocks:
+        rng = sklearn.utils.check_random_state(random_state)
+        rng.shuffle(order)
 
     name = 'fit-' + dask.base.tokenize(model, x, y, kwargs, order)
     dsk = {(name, -1): model}
