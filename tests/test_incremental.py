@@ -9,7 +9,6 @@ from sklearn.linear_model import SGDClassifier
 import numpy.linalg as LA
 
 from dask_ml.wrappers import Incremental
-from dask_ml.utils import assert_estimator_equal
 import dask_ml.metrics
 from dask_ml.metrics.scorer import check_scoring
 
@@ -38,7 +37,7 @@ def test_incremental_basic(scheduler):
     rng = da.random.RandomState(42)
     X = rng.normal(size=(n, d), chunks=30)
     coef_star = rng.uniform(size=d, chunks=d)
-    y = da.sign(X @ coef_star)
+    y = da.sign(X.dot(coef_star))
     y = (y + 1) / 2
 
     with scheduler() as (s, [_, _]):

@@ -13,7 +13,6 @@ import sklearn.utils
 
 import dask
 from dask.delayed import Delayed
-import dask.array as da
 
 from ._utils import copy_learned_attributes
 
