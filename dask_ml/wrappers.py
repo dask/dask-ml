@@ -172,7 +172,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         else:
             return transform(X)
 
-    def score(self, X, y):
+    def score(self, X, y=None):
         """Returns the score on the given data.
 
         Parameters
