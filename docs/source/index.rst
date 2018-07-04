@@ -40,11 +40,10 @@ Parallelize Scikit-Learn Directly
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Scikit-Learn already provides parallel computing on a single machine with
-Joblib_.  Dask can now step in and take over this parallelism for many
+`Joblib <http://joblib.readthedocs.io/en/latest/>`__.
+Dask can now step in and take over this parallelism for many
 Scikit-Learn estimators.  This works well for modest data sizes but large
 computations, such as random forests, hyper-parameter optimization, and more.
-
-.. _Joblib: https://pythonhosted.org/joblib/
 
 .. code-block:: python
 

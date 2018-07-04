@@ -3,7 +3,8 @@
 Joblib
 ======
 
-Dask.distributed integrates with Joblib_ by providing an alternative
+Dask.distributed integrates with `Joblib <http://joblib.readthedocs.io/en/latest/>`__
+by providing an alternative
 cluster-computing backend, alongside Joblib's builtin threading and
 multiprocessing backends. This enables training a scikit-learn model in
 parallel using a cluster of machines.
@@ -21,7 +22,8 @@ search across a cluster.
             allowfullscreen>
     </iframe>
 
-Joblib_ is a library for simple parallel programming primarily developed and
+`Joblib <http://joblib.readthedocs.io/en/latest/>`__
+is a library for simple parallel programming primarily developed and
 used by the Scikit Learn community.  As of version 0.10.0 it contains a plugin
 mechanism to allow Joblib code to use other parallel frameworks to execute
 computations.  The ``dask.distributed`` scheduler implements such a plugin in
@@ -85,6 +87,3 @@ takes an iterable of objects to send to each worker.
    # Serialize the training data only once to each worker
    with parallel_backend('dask', scatter=[digits.data, digits.target]):
        search.fit(digits.data, digits.target)
-
-
-.. _Joblib: https://pythonhosted.org/joblib/
