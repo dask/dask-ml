@@ -28,6 +28,21 @@ Foo = namedtuple('Foo', 'a_ b_ c_ d_')
 Bar = namedtuple("Bar", 'a_ b_ d_ e_')
 
 
+def test_shuffle():
+    X = np.arange(9*9).reshape(9, 9) // 9
+    X = da.from_array(X, chunks=(1, 9))
+    y = da.arange(9, chunks=1)
+    X2, y2 = dask_ml.datasets.shuffle(X, y, random_state=42)
+
+    assert X2.shape == X.shape
+    assert X2.chunks == X.chunks
+    assert y2.shape == y.shape
+    assert y2.chunks == y.chunks
+    X2 = X2.compute()
+    y2 = y2.compute()
+    assert np.allclose(X2.mean(axis=1), y2)
+
+
 def test_slice_columns():
     columns = [2, 3]
     df2 = slice_columns(df, columns)
