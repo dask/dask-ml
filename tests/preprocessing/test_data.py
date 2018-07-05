@@ -119,7 +119,9 @@ class TestMinMaxScaler(object):
         assert_eq_ar(est1.transform(df).values, est2.transform(X))
         assert_eq_ar(est1.transform(X), est2.transform(df).values)
 
-        assert_eq_ar(result_ar, result_df.values)
+        if hasattr(result_df, 'values'):
+            result_df = result_df.values
+        assert_eq_ar(result_ar, result_df)
 
     @pytest.mark.xfail(reason="removed columns")
     def test_df_column_slice(self):
