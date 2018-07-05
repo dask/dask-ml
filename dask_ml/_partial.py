@@ -121,8 +121,8 @@ def fit(model, x, y, compute=True, shuffle_blocks=True, random_state=None,
     Model must support the ``partial_fit`` interface for online or batch
     learning.
 
-    This method will be called on dask arrays in sequential order.  Ideally
-    your rows are independent and identically distributed.
+    Ideally your rows are independent and identically distributed. By default,
+    this function will step through chunks of the arrays in random order.
 
     Parameters
     ----------
