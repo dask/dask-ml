@@ -2,6 +2,7 @@ import pytest
 import sklearn.preprocessing as spp
 from sklearn.exceptions import NotFittedError
 
+import dask
 import dask.array as da
 import dask.dataframe as dd
 from dask.dataframe.utils import assert_eq
@@ -82,7 +83,9 @@ class TestStandardScaler(object):
 
     def test_inverse_transform(self):
         a = dpp.StandardScaler()
-        assert_eq_ar(a.inverse_transform(a.fit_transform(X)), X)
+        result = a.inverse_transform(a.fit_transform(X))
+        assert dask.is_dask_collection(result)
+        assert_eq_ar(result, X)
 
 
 class TestMinMaxScaler(object):
@@ -96,13 +99,17 @@ class TestMinMaxScaler(object):
 
     def test_inverse_transform(self):
         a = dpp.MinMaxScaler()
-        assert_eq_ar(a.inverse_transform(a.fit_transform(X)), X)
+        result = a.inverse_transform(a.fit_transform(X))
+        assert dask.is_dask_collection(result)
+        assert_eq_ar(result, X)
 
     @pytest.mark.xfail(reason="removed columns")
     def test_df_inverse_transform(self):
         mask = ["3", "4"]
         a = dpp.MinMaxScaler(columns=mask)
-        assert_eq_df(a.inverse_transform(a.fit_transform(df2)), df2)
+        result = a.inverse_transform(a.fit_transform(df2))
+        assert dask.is_dask_colelction(result)
+        assert_eq_df(result, df2)
 
     def test_df_values(self):
         est1 = dpp.MinMaxScaler()
@@ -130,10 +137,10 @@ class TestMinMaxScaler(object):
         a = dpp.MinMaxScaler(columns=mask)
         b = spp.MinMaxScaler()
 
-        dfa = a.fit_transform(df2).compute()
+        dfa = a.fit_transform(df2)
         mxb = b.fit_transform(df2.compute())
 
-        assert isinstance(dfa, pd.DataFrame)
+        assert isinstance(dfa, dd.DataFrame)
         assert_eq_ar(dfa[mask].values, mxb[:, mask_ix])
         assert_eq_df(dfa.drop(mask, axis=1),
                      df2.drop(mask, axis=1))
@@ -165,11 +172,14 @@ class TestRobustScaler(object):
         a.scale_ = b.scale_
         a.center_ = b.center_
 
+        assert dask.is_dask_collection(a.transform(X))
         assert_eq_ar(a.transform(X), b.transform(X.compute()))
 
     def test_inverse_transform(self):
         a = dpp.RobustScaler()
-        assert_eq_ar(a.inverse_transform(a.fit_transform(X)), X)
+        result = a.inverse_transform(a.fit_transform(X))
+        assert dask.is_dask_collection(result)
+        assert_eq_ar(result, X)
 
     def test_df_values(self):
         est1 = dpp.RobustScaler()
@@ -177,7 +187,9 @@ class TestRobustScaler(object):
 
         result_ar = est1.fit_transform(X)
         result_df = est2.fit_transform(df)
-        assert_eq_ar(result_ar, result_df.values)
+        if hasattr(result_df, 'values'):
+            result_df = result_df.values
+        assert_eq_ar(result_ar, result_df)
 
         for attr in ['scale_', 'center_']:
             assert_eq_ar(getattr(est1, attr), getattr(est2, attr))
@@ -190,7 +202,9 @@ class TestRobustScaler(object):
         df['0'] = df['0'].astype('float32')
         result_ar = est1.fit_transform(X)
         result_df = est2.fit_transform(df)
-        assert_eq_ar(result_ar, result_df.values)
+        if hasattr(result_df, 'values'):
+            result_df = result_df.values
+        assert_eq_ar(result_ar, result_df)
 
 
 class TestQuantileTransformer(object):
@@ -414,6 +428,12 @@ class TestOrdinalEncoder:
                                                               ['b'] * 6)}),
                             npartitions=2)
         enc.fit(df)
+
+        assert dask.is_dask_collection(
+            enc.inverse_transform(enc.transform(df).values))
+        assert dask.is_dask_collection(
+            enc.inverse_transform(enc.transform(df)))
+
         assert_eq_df(df, enc.inverse_transform(enc.transform(df)))
         assert_eq_df(df, enc.inverse_transform(enc.transform(df)))
         assert_eq_df(df, enc.inverse_transform(enc.transform(df).values))
