@@ -82,8 +82,7 @@ class TestStandardScaler(object):
 
     def test_inverse_transform(self):
         a = dpp.StandardScaler()
-        assert_eq_ar(a.inverse_transform(a.fit_transform(X)).compute(),
-                     X.compute())
+        assert_eq_ar(a.inverse_transform(a.fit_transform(X)), X)
 
 
 class TestMinMaxScaler(object):
@@ -97,15 +96,13 @@ class TestMinMaxScaler(object):
 
     def test_inverse_transform(self):
         a = dpp.MinMaxScaler()
-        assert_eq_ar(a.inverse_transform(a.fit_transform(X)).compute(),
-                     X.compute())
+        assert_eq_ar(a.inverse_transform(a.fit_transform(X)), X)
 
     @pytest.mark.xfail(reason="removed columns")
     def test_df_inverse_transform(self):
         mask = ["3", "4"]
         a = dpp.MinMaxScaler(columns=mask)
-        assert_eq_df(a.inverse_transform(a.fit_transform(df2)).compute(),
-                     df2.compute())
+        assert_eq_df(a.inverse_transform(a.fit_transform(df2)), df2)
 
     def test_df_values(self):
         est1 = dpp.MinMaxScaler()
@@ -137,7 +134,7 @@ class TestMinMaxScaler(object):
         assert isinstance(dfa, pd.DataFrame)
         assert_eq_ar(dfa[mask].values, mxb[:, mask_ix])
         assert_eq_df(dfa.drop(mask, axis=1),
-                     df2.drop(mask, axis=1).compute())
+                     df2.drop(mask, axis=1))
 
 
 class TestRobustScaler(object):
@@ -166,12 +163,11 @@ class TestRobustScaler(object):
         a.scale_ = b.scale_
         a.center_ = b.center_
 
-        assert_eq_ar(a.transform(X).compute(), b.transform(X.compute()))
+        assert_eq_ar(a.transform(X), b.transform(X.compute()))
 
     def test_inverse_transform(self):
         a = dpp.RobustScaler()
-        assert_eq_ar(a.inverse_transform(a.fit_transform(X)).compute(),
-                     X.compute())
+        assert_eq_ar(a.inverse_transform(a.fit_transform(X)), X)
 
     def test_df_values(self):
         est1 = dpp.RobustScaler()
@@ -417,7 +413,6 @@ class TestOrdinalEncoder:
                             npartitions=2)
         enc.fit(df)
         assert_eq_df(df, enc.inverse_transform(enc.transform(df)))
-        assert_eq_df(df, enc.inverse_transform(enc.transform(df).compute()))
+        assert_eq_df(df, enc.inverse_transform(enc.transform(df)))
         assert_eq_df(df, enc.inverse_transform(enc.transform(df).values))
-        assert_eq_df(df, enc.inverse_transform(
-            enc.transform(df).values.compute()))
+        assert_eq_df(df, enc.inverse_transform(enc.transform(df).values))
