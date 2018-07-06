@@ -156,6 +156,38 @@ class RobustScaler(skdata.RobustScaler):
         self.scale_ = skdata._handle_zeros_in_scale(self.scale_, copy=False)
         return self
 
+    def transform(self, X):
+        """Center and scale the data.
+
+        Can be called on sparse input, provided that ``RobustScaler`` has been
+        fitted to dense input and ``with_centering=False``.
+
+        Parameters
+        ----------
+        X : {array-like, sparse matrix}
+            The data used to scale along the specified axis.
+
+        This implementation was copied and modified from Scikit-Learn.
+
+        See License information here:
+        https://github.com/scikit-learn/scikit-learn/blob/master/README.rst
+        """
+        if self.with_centering:
+            check_is_fitted(self, 'center_')
+        if self.with_scaling:
+            check_is_fitted(self, 'scale_')
+        X = self._check_array(X, self.copy)
+
+        # if sparse.issparse(X):
+        #     if self.with_scaling:
+        #         inplace_column_scale(X, 1.0 / self.scale_)
+        # else:
+        if self.with_centering:
+            X -= self.center_
+        if self.with_scaling:
+            X /= self.scale_
+        return X
+
 
 class QuantileTransformer(skdata.QuantileTransformer):
     """Transforms features using quantile information.
