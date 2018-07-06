@@ -13,6 +13,7 @@ import sklearn.utils.validation as sk_validation
 from dask import delayed
 from dask.array.utils import assert_eq as assert_eq_ar
 from dask.dataframe.utils import assert_eq as assert_eq_df
+import sklearn.utils
 
 
 def svd_flip(u, v):
@@ -241,7 +242,27 @@ def _format_bytes(n):
     return '%d B' % n
 
 
+def shuffle(X, y, random_state=None, compute=False):
+    assert len(X) == len(y), "Arrays must be same size"
+
+    rng = sklearn.utils.check_random_state(random_state)
+    i = da.from_array(rng.permutation(len(y)), chunks=y.chunks)
+
+    X_df = dd.from_dask_array(X)
+    X_df = X_df.set_index(dd.from_dask_array(i))
+
+    rng = sklearn.utils.check_random_state(random_state)
+    i = da.from_array(rng.permutation(len(y)), chunks=y.chunks)
+
+    y = y.reshape(-1, 1)
+    y_df = dd.from_dask_array(y)
+    y_df = y_df.set_index(dd.from_dask_array(i))
+
+    return X_df.values, y_df.values
+
+
 __all__ = ['assert_estimator_equal',
            'check_array',
            'check_random_state',
-           'check_chunks']
+           'check_chunks',
+           'shuffle']

@@ -2,6 +2,7 @@ import numbers
 
 import dask
 import dask.array as da
+import dask.dataframe as dd
 import numpy as np
 import sklearn.datasets
 import sklearn.utils
