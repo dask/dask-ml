@@ -188,6 +188,31 @@ class RobustScaler(skdata.RobustScaler):
             X /= self.scale_
         return X
 
+    def inverse_transform(self, X):
+        """Scale back the data to the original representation
+
+        Parameters
+        ----------
+        X : array-like
+            The data used to scale along the specified axis.
+
+        This implementation was copied and modified from Scikit-Learn.
+
+        See License information here:
+        https://github.com/scikit-learn/scikit-learn/blob/master/README.rst
+        """
+        check_is_fitted(self, 'center_', 'scale_')
+
+        # if sparse.issparse(X):
+        #     if self.with_scaling:
+        #         inplace_column_scale(X, self.scale_)
+        # else:
+        if self.with_scaling:
+            X *= self.scale_
+        if self.with_centering:
+            X += self.center_
+        return X
+
 
 class QuantileTransformer(skdata.QuantileTransformer):
     """Transforms features using quantile information.
