@@ -6,7 +6,6 @@ import sklearn.datasets
 from dask.array.utils import assert_eq
 from sklearn.base import clone
 from sklearn.linear_model import SGDClassifier
-import numpy.linalg as LA
 
 from dask_ml.wrappers import Incremental
 import dask_ml.metrics
@@ -52,7 +51,8 @@ def test_incremental_basic(scheduler):
         assert result is clf
 
         assert isinstance(result.estimator_.coef_, np.ndarray)
-        rel_error = LA.norm(clf.coef_ - est2.coef_) / LA.norm(clf.coef_)
+        rel_error = np.linalg.norm(clf.coef_ - est2.coef_)
+        rel_error /= np.linalg.norm(clf.coef_)
         assert rel_error < 0.9
 
         assert set(dir(clf.estimator_)) == set(dir(est2))

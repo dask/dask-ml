@@ -323,11 +323,13 @@ class Incremental(ParallelPostFit):
            a single NumPy array, which may exhaust the memory of your worker.
            You probably want to always specify `scoring`.
 
-    random_state : int or numpy.random.RandomState
+    random_state : int or numpy.random.RandomState, optional
         Random object that determines how to shuffle blocks.
 
-    shuffle_blocks : bool
-        Whether to randomly shuffle the blocks or now
+    shuffle_blocks : bool, default True
+        Determines whether to call ``partial_fit`` on a randomly selected chunk
+        of the Dask arrays (default), or to fit in sequential order. This does
+        not control shuffle between blocks or shuffling each block.
 
     Attributes
     ----------
