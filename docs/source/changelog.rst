@@ -10,6 +10,7 @@ Enhancements
 - Added ``sample_weight`` support for :meth:`dask_ml.metrics.accuracy_score`. (:pr:`217`)
 - Improved performance of training on :class:`dask_ml.cluster.SpectralClustering` (:pr:`152`)
 - Added :class:`dask_ml.preprocessing.LabelEncoder`. (:pr:`226`)
+- Added the ``max_iter`` parameter to :class:`dask_ml.wrappers.Incremental` to make multiple passes over the training data (:pr:`258`)
 
 API Breaking Changes
 --------------------
