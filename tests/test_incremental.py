@@ -61,7 +61,8 @@ def test_incremental_basic(scheduler):
         result = clf.predict(X)
         expected = est2.predict(X)
         assert isinstance(result, da.Array)
-        rel_error = LA.norm(result - expected) / LA.norm(expected)
+        rel_error = np.linalg.norm(result - expected)
+        rel_error /= np.linalg.norm(expected)
         assert rel_error < 0.2
 
         # score
