@@ -367,7 +367,8 @@ def make_classification(
     informative_idx = rng.choice(n_features, n_informative, chunks=n_informative)
     beta = (rng.random(n_features, chunks=n_features) - 1) * scale
 
-    informative_idx, beta = dask.compute(informative_idx, beta)
+    informative_idx, beta = dask.compute(informative_idx, beta,
+                                         scheduler='single-threaded')
 
     z0 = X[:, informative_idx].dot(beta[informative_idx])
     y = rng.random(z0.shape, chunks=chunks[0]) < 1 / (1 + da.exp(-z0))
