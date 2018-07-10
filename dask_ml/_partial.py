@@ -8,6 +8,7 @@ from abc import ABCMeta
 import numpy as np
 import six
 from toolz import partial
+import sklearn.utils
 
 import dask
 from dask.delayed import Delayed
@@ -107,14 +108,15 @@ def _partial_fit(model, x, y, kwargs=None):
     return model
 
 
-def fit(model, x, y, compute=True, **kwargs):
+def fit(model, x, y, compute=True, shuffle_blocks=True, random_state=None,
+        **kwargs):
     """ Fit scikit learn model against dask arrays
 
     Model must support the ``partial_fit`` interface for online or batch
     learning.
 
-    This method will be called on dask arrays in sequential order.  Ideally
-    your rows are independent and identically distributed.
+    Ideally your rows are independent and identically distributed. By default,
+    this function will step through chunks of the arrays in random order.
 
     Parameters
     ----------
@@ -124,6 +126,12 @@ def fit(model, x, y, compute=True, **kwargs):
         Two dimensional array, likely tall and skinny
     y: dask Array
         One dimensional array with same chunks as x's rows
+    compute : bool
+        Whether to compute this result
+    shuffle_blocks : bool
+        Whether to shuffle the blocks with ``random_state`` or not
+    random_state : int or numpy.random.RandomState
+        Random state to use when shuffling blocks
     kwargs:
         options to pass to partial_fit
 
@@ -165,12 +173,17 @@ def fit(model, x, y, compute=True, **kwargs):
         x = x.rechunk(chunks=(x.chunks[0], sum(x.chunks[1])))
 
     nblocks = len(x.chunks[0])
+    order = list(range(nblocks))
+    if shuffle_blocks:
+        rng = sklearn.utils.check_random_state(random_state)
+        rng.shuffle(order)
 
-    name = 'fit-' + dask.base.tokenize(model, x, y, kwargs)
+    name = 'fit-' + dask.base.tokenize(model, x, y, kwargs, order)
     dsk = {(name, -1): model}
     dsk.update({(name, i): (_partial_fit, (name, i - 1),
-                                          (x.name, i, 0),
-                                          (getattr(y, 'name', ''), i), kwargs)
+                                          (x.name, order[i], 0),
+                                          (getattr(y, 'name', ''), order[i]),
+                            kwargs)
                 for i in range(nblocks)})
 
     new_dsk = dask.sharedict.merge((name, dsk), x.dask, getattr(y, 'dask', {}))
