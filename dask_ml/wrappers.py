@@ -190,12 +190,24 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         score : float
                 return self.estimator.score(X, y)
         """
-        if self.scoring:
+        scoring = self.scoring
+
+        if not scoring:
+            if (type(self._postfit_estimator).score is
+                    sklearn.base.RegressorMixin.score):
+                scoring = 'r2'
+            elif (type(self._postfit_estimator).score is
+                    sklearn.base.ClassifierMixin.score):
+                scoring = 'accuracy'
+        else:
+            scoring = self.scoring
+
+        if scoring:
             if (not dask.is_dask_collection(X) and
                     not dask.is_dask_collection(y)):
-                scorer = sklearn.metrics.get_scorer(self.scoring)
+                scorer = sklearn.metrics.get_scorer(scoring)
             else:
-                scorer = get_scorer(self.scoring)
+                scorer = get_scorer(scoring)
             return scorer(self, X, y)
         else:
             return self._postfit_estimator.score(X, y)

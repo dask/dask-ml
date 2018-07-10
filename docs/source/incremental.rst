@@ -49,7 +49,7 @@ between machines.
    X
 
    estimator = SGDClassifier(random_state=10, max_iter=1000)
-   clf = Incremental(estimator, scoring='accuracy')
+   clf = Incremental(estimator)
    clf.fit(X, y, classes=[0, 1])
 
 In this example, we make a (small) random Dask Array. It has 100 samples,
@@ -72,26 +72,20 @@ the wrapped ``fit``.
 
 .. note::
 
-   Note that we specified ``scoring='accuracy'`` when creating the
-   :class:`dask_ml.wrappers.Incremental`. Specifing `scoring` is vital
-   when working with large datasets.
+   Take care with the behavior or :meth:`Incremental.score`. Most estimators
+   inherit the default scoring methods of R2 score for regressors and accuracy
+   score for classifiers. For these estimators, we automatically use Dask-ML's
+   scoring methods, which are able to operate on Dask arrays.
 
-   The default behavior, if `scoring` is *not* specified, is to use the
-   ``score`` method of the underlying estimator. Most Scikit-Learn estimators
-   will accept Dask arrays, but convert them to a single, large NumPy array.
-   For large datasets, this will likely exhaust the memory of your worker.
-
+   If your underlying estimator uses a different scoring method, you'll need
+   to ensure that the scoring method is able to operate on Dask arrays. You
+   can also explicitly pass ``scoring=`` to pass a dask-aware scorer.
 
 We can get the accuracy score on our dataset.
 
 .. ipython:: python
 
    clf.score(X, y)
-
-Because we specified ``scoring='accuracy'``, this uses
-:meth:`dask_ml.metrics.accuracy_score`, which safely computes the accuracy
-score using the Dask array (on your cluster or out-of-core), rather than
-converting to a NumPy array.
 
 All of the attributes learned durning training, like ``coef_``, are available
 on the ``Incremental`` instance.
