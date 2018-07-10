@@ -12,7 +12,7 @@ with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 install_requires = ['dask', 'numpy', 'pandas', 'scikit-learn',
                     'scipy', 'dask-glm', 'six',
-                    'multipledispatch>=0.4.9']
+                    'multipledispatch>=0.4.9', 'packaging']
 
 # Optional Requirements
 doc_requires = ['sphinx', 'numpydoc', 'sphinx-rtd-theme', 'nbsphinx',
