@@ -193,10 +193,10 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         scoring = self.scoring
 
         if not scoring:
-            if (type(self._postfit_estimator).score is
+            if (type(self._postfit_estimator).score ==
                     sklearn.base.RegressorMixin.score):
                 scoring = 'r2'
-            elif (type(self._postfit_estimator).score is
+            elif (type(self._postfit_estimator).score ==
                     sklearn.base.ClassifierMixin.score):
                 scoring = 'accuracy'
         else:
