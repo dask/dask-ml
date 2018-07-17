@@ -72,3 +72,52 @@ def test_partial_fit_doesnt_mutate_inputs():
     assert new_meta["iterations"] == 1
     assert not np.allclose(model.coef_, new_model.coef_)
     assert model.t_ < new_model.t_
+
+
+@gen_cluster(client=True, timeout=None)
+def test_explicit(c, s, a, b):
+    X, y = make_classification(n_samples=1000, n_features=10, chunks=(200, 10))
+    model = SGDClassifier(tol=1e-3, penalty='elasticnet')
+    params = [{'alpha': .1}, {'alpha': .2}]
+
+    def update(scores):
+        """ Progress through predefined updates, checking along the way """
+        ts = scores[0][-1]['time_step']
+        if ts == 0:
+            assert len(scores) == len(params)
+            assert len(scores[0]) == 1
+            assert len(scores[1]) == 1
+            return {k: 2 for k in scores}
+        if ts == 2:
+            assert len(scores) == len(params)
+            assert len(scores[0]) == 2
+            assert len(scores[1]) == 2
+            return {0: 1, 1: 0}
+        elif ts == 3:
+            assert len(scores) == len(params)
+            assert len(scores[0]) == 3
+            assert len(scores[1]) == 2
+            return {0: 3}
+        elif ts == 6:
+            assert len(scores) == 1
+            assert len(scores[0]) == 4
+            return {0: 0}
+        else:
+            raise Exception()
+
+    info, models, history = yield fit(model, params, X, y,
+                                      X.blocks[-1], y.blocks[-1],
+                                      update=update, scorer=None,
+                                      fit_params={'classes': [0, 1]})
+    assert all(model.done() for model in models.values())
+
+    models = yield models
+    model, meta = models[0]
+
+    assert meta['params'] == {'alpha': 0.1}
+    assert meta['time_step'] == 6
+    assert len(models) == len(info) == 1
+    assert meta['time_step'] == history[-1]['time_step']
+
+    while s.tasks or c.futures:  # all data clears out
+        yield gen.sleep(0.01)

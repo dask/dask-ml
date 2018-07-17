@@ -1,14 +1,10 @@
 from __future__ import division
 
-from collections import defaultdict
 from copy import deepcopy
-import functools
 
 from sklearn.base import clone
-from sklearn.model_selection import ParameterSampler
 from sklearn.utils import check_random_state
 from tornado import gen
-import toolz
 
 import dask
 import dask.array as da
@@ -66,15 +62,6 @@ def _create_model(model, ident, **params):
         return model, {'ident': ident, 'params': params, 'time_step': -1}
 
 
-def inverse(start, batch):
-    """ Decrease target number of models inversely with time
-
-    This means that we train many models to start for a brief time and a few
-    models at the end for a long time
-    """
-    return int(start / (1 + batch))
-
-
 @gen.coroutine
 def _fit(
     model,
@@ -83,28 +70,23 @@ def _fit(
     y_train,
     X_test,
     y_test,
-    start=1000,
+    update,
     fit_params=None,
-    random_state=None,
     scorer=None,
-    target=inverse,
+    random_state=None,
 ):
     original_model = model
     fit_params = fit_params or {}
     client = default_client()
     rng = check_random_state(random_state)
-    param_iterator = iter(ParameterSampler(params, start, random_state=rng))
-    target = functools.partial(target, start)
 
     info = {}
     models = {}
     scores = {}
 
-    for ident in range(start):
-        params = next(param_iterator)
-        model = client.submit(_create_model, original_model, ident,
-                              random_state=rng.randint(2**31), **params)
-        info[ident] = {'params': params, 'param_index': ident}
+    for ident, param in enumerate(params):
+        model = client.submit(_create_model, original_model, ident, **param)
+        info[ident] = []
         models[ident] = model
 
     # assume everything in fit_params is small and make it concrete
@@ -130,31 +112,41 @@ def _fit(
         y_train = y_train.squeeze()
     X_train, y_train = dask.optimize(X_train.tolist(), y_train.tolist())
 
-    # Create order by which we process batches
-    # TODO: create a non-repetitive random and uniform ordering
-    order = list(range(len(X_train)))
-    rng.shuffle(order)
+    # Order by which we process training data futures
+    order = []
     seen = {}
     tokens = {}
 
     def get_futures(time_step):
-        j = order[time_step % len(order)]
+        """ Policy to get training data futures
 
-        if time_step < len(order) and j not in seen:  # new future, need to tell scheduler about it
+        Currently we compute once, and then keep in memory.
+        Presumably in the future we'll want to let data drop and recompute.
+        This function handles that policy internally, and also controls random
+        access to training data.
+        """
+        # Shuffle blocks going forward to get uniform-but-random access
+        while time_step >= len(order):
+            L = list(range(len(X_train)))
+            rng.shuffle(L)
+            order.extend(L)
+
+        j = order[time_step]
+
+        if j in seen:
+            x_key, y_key = seen[j]
+            return Future(x_key), Future(y_key)
+        else:
+            # new future, need to tell scheduler about it
             X_future = client.compute(X_train[j])
             y_future = client.compute(y_train[j])
             seen[j] = (X_future.key, y_future.key)
 
-            # This is a hack to keep the futures in the scheduler but not in memory
+            # Hack to keep the futures in the scheduler but not in memory
             X_token = client.submit(len, X_future)
             y_token = client.submit(len, y_future)
-            tokens[time_step] = (X_token, y_token)
-
+            tokens[j] = (X_token, y_token)
             return X_future, y_future
-
-        else:
-            x_key, y_key = seen[j]
-            return Future(x_key), Future(y_key)
 
     # Submit initial partial_fit and score computations on first batch of data
     X_future, y_future = get_futures(0)
@@ -164,69 +156,65 @@ def _fit(
         models[ident] = model
         scores[ident] = score
 
-    done = defaultdict(set)
     seq = as_completed(scores.values(), with_results=True)
-    current_time_step = 0
-    next_time_step = current_time_step + 1
-    optimistic = set()  # set of fits that we might or might not want to keep
+    speculative = dict()  # models that we might or might not want to keep
     history = []
+    number_to_complete = len(models)
 
     # async for future, result in seq:
     while not seq.is_empty():
         future, meta = yield seq.__anext__()
         if future.cancelled():
             continue
-        time_step = meta['time_step']
         ident = meta['ident']
 
-        done[time_step].add(ident)
-        info[ident].update(meta)
+        info[ident].append(meta)
         history.append(meta)
 
-        # Evolve the model by a few time steps, then call score on the last one
+        # Evolve the model one more step
         model = models[ident]
-        for i in range(time_step, next_time_step):
-            X_future, y_future = get_futures(i + 1)
-            model = client.submit(_partial_fit, model, X_future, y_future,
-                                  fit_params, priority=-i + meta['score'])
-        score = client.submit(_score, model, X_test, y_test, scorer,
-                              priority=-time_step + meta['score'])
-        models[ident] = model
-        scores[ident] = score
-        optimistic.add(ident)  # we're not yet sure that we want to do this
+        X_future, y_future = get_futures(meta['time_step'] + 1)
+        model = client.submit(_partial_fit, model, X_future, y_future,
+                              fit_params)
+        speculative[ident] = model
 
-        # We've now finished a full set of models
-        # It's time to select the ones that get to survive and remove the rest
-        if time_step == current_time_step and len(done[time_step]) >= len(models):
+        # Have we finished a full set of models?
+        if len(speculative) == number_to_complete:
+            instructions = update(info)
 
-            # Step forward in time until we'll want to contract models again
-            current_time_step = next_time_step
-            next_time_step = current_time_step + 1
-            while target(current_time_step) == target(next_time_step):
-                next_time_step += 1
+            bad = set(models) - set(instructions)
 
-            # Select the best models by score
-            good = set(toolz.topk(target(current_time_step), models, key=lambda i: info[i]['score']))
-            bad = set(models) - good
-
-            # Delete the futures of the other models.  This cancels optimistically submitted tasks
+            # Delete the futures of bad models.  This cancels speculative tasks
             for ident in bad:
                 del models[ident]
                 del scores[ident]
+                del info[ident]
 
-            # Add back into the as_completed iterator
-            for ident in optimistic & good:
-                seq.add(scores[ident])
-            optimistic.clear()
-
-            assert len(models) == target(current_time_step)
-
-            if len(good) == 1:  # found the best one?  Break.
+            if not any(instructions.values()):
                 break
 
-    [best] = good
-    model, meta = yield models[best]
-    raise gen.Return((info[best], model, history))
+            for ident, k in instructions.items():
+                start = info[ident][-1]['time_step'] + 1
+                if k:
+                    if ident in speculative:
+                        model = speculative.pop(ident)
+                        k -= 1
+                    else:
+                        model = models[ident]
+                    for i in range(k):
+                        X_future, y_future = get_futures(start + i)
+                        model = client.submit(_partial_fit, model, X_future, y_future, fit_params)
+                    score = client.submit(_score, model, X_test, y_test, scorer)
+                    models[ident] = model
+                    scores[ident] = score
+
+                    seq.add(score)
+
+            number_to_complete = len([v for v in instructions.values() if v])
+
+            speculative.clear()
+
+    raise gen.Return((info, models, history))
 
 
 def fit(*args, **kwargs):
