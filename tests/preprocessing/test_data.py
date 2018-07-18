@@ -339,6 +339,32 @@ class TestDummyEncoder:
 
         tm.assert_frame_equal(result, df)
 
+    @pytest.mark.parametrize('daskify', [False, True])
+    def test_encode_subset_of_columns(self, daskify):
+        de = dpp.DummyEncoder(columns=['B'])
+        df = dummy[['A', 'B']]
+        if daskify:
+            df = dd.from_pandas(df, 2)
+        de = de.fit(df)
+        trn = de.transform(df)
+
+        expected = pd.DataFrame({
+            "A": pd.Categorical(['a', 'b', 'c', 'a'], ordered=True),
+            "B_a": np.array([1, 0, 0, 1], dtype='uint8'),
+            "B_b": np.array([0, 1, 0, 0], dtype='uint8'),
+            "B_c": np.array([0, 0, 1, 0], dtype='uint8'),
+        }, columns=['A', 'B_a', 'B_b', 'B_c'])
+
+        assert_eq(trn, expected)
+
+        result = de.inverse_transform(trn)
+
+        if daskify:
+            df = df.compute()
+            result = result.compute()
+
+        tm.assert_frame_equal(result, df)
+
     @pytest.mark.parametrize("daskify", [False, True])
     def test_drop_first(self, daskify):
         if daskify:
