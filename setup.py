@@ -21,6 +21,7 @@ install_requires = [
     "six",
     "multipledispatch>=0.4.9",
     "packaging",
+    "toolz",
 ]
 
 # Optional Requirements
