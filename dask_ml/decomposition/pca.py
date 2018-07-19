@@ -2,6 +2,7 @@ import dask.array as da
 import numpy as np
 import scipy.sparse as sp
 from dask import compute
+
 from sklearn.decomposition.base import _BasePCA
 from sklearn.utils.extmath import fast_logdet
 from sklearn.utils.validation import check_is_fitted, check_random_state
@@ -163,9 +164,16 @@ class PCA(_BasePCA):
       Fractional ``n_components`` between 0 and 1 is not allowed.
     """
 
-    def __init__(self, n_components=None, copy=True, whiten=False,
-                 svd_solver="auto", tol=0.0, iterated_power=0,
-                 random_state=None):
+    def __init__(
+        self,
+        n_components=None,
+        copy=True,
+        whiten=False,
+        svd_solver="auto",
+        tol=0.0,
+        iterated_power=0,
+        random_state=None,
+    ):
         self.n_components = n_components
         self.copy = copy
         self.whiten = whiten
@@ -183,44 +191,46 @@ class PCA(_BasePCA):
         solver = self.svd_solver
 
         if solver not in solvers:
-            raise ValueError("Invalid solver '{}'. Must be one of {}".format(
-                solver, solvers
-            ))
+            raise ValueError(
+                "Invalid solver '{}'. Must be one of {}".format(solver, solvers)
+            )
 
         # Handle n_components==None
         if self.n_components is None:
             # TODO: handle nan shapes
             n_components = min(X.shape)
         elif 0 < self.n_components < 1:
-            raise NotImplementedError("Fractional 'n_components' is not "
-                                      "currently supported")
+            raise NotImplementedError(
+                "Fractional 'n_components' is not " "currently supported"
+            )
         else:
             n_components = self.n_components
 
         n_samples, n_features = X.shape
 
-        if solver == 'auto':
+        if solver == "auto":
             # Small problem, just call full PCA
             if max(X.shape) <= 500:
-                solver = 'full'
+                solver = "full"
             elif n_components >= 1 and n_components < .8 * min(X.shape):
-                solver = 'randomized'
+                solver = "randomized"
             # This is also the case of n_components in (0,1)
             else:
-                solver = 'full'
+                solver = "full"
 
-        if solver == 'randomized':
+        if solver == "randomized":
             lower_limit = 1
         else:
             lower_limit = 0
 
         if not (min(n_samples, n_features) >= n_components >= lower_limit):
-            msg = ("n_components={} must be between {} and "
-                   "min(n_samples, n_features)={} with "
-                   "svd_solver='{}'".format(n_components,
-                                            lower_limit,
-                                            min(n_samples, n_features),
-                                            solver))
+            msg = (
+                "n_components={} must be between {} and "
+                "min(n_samples, n_features)={} with "
+                "svd_solver='{}'".format(
+                    n_components, lower_limit, min(n_samples, n_features), solver
+                )
+            )
             raise ValueError(msg)
 
         if sp.issparse(X):
@@ -229,22 +239,22 @@ class PCA(_BasePCA):
         self.mean_ = X.mean(0)
         X -= self.mean_
 
-        if solver in {'full', 'tsqr'}:
+        if solver in {"full", "tsqr"}:
             U, S, V = da.linalg.svd(X)
         else:
             # randomized
             random_state = check_random_state(self.random_state)
-            seed = random_state.randint(np.iinfo('int32').max)
+            seed = random_state.randint(np.iinfo("int32").max)
             n_power_iter = self.iterated_power
-            U, S, V = da.linalg.svd_compressed(X, n_components,
-                                               n_power_iter=n_power_iter,
-                                               seed=seed)
+            U, S, V = da.linalg.svd_compressed(
+                X, n_components, n_power_iter=n_power_iter, seed=seed
+            )
         U, V = svd_flip(U, V)
 
         explained_variance = (S ** 2) / (n_samples - 1)
         components, singular_values = V, S
 
-        if solver == 'randomized':
+        if solver == "randomized":
             # total_var = X.var(ddof=1, axis=0)[:n_components].sum()
             total_var = X.var(ddof=1, axis=0).sum()
         else:
@@ -263,10 +273,9 @@ class PCA(_BasePCA):
         # Compute noise covariance using Probabilistic PCA model
         # The sigma2 maximum likelihood (cf. eq. 12.46)
         if n_components < min(n_features, n_samples):
-            if solver == 'randomized':
-                noise_variance = (
-                    (total_var.sum() - explained_variance.sum()) /
-                    (min(n_features, n_samples) - n_components)
+            if solver == "randomized":
+                noise_variance = (total_var.sum() - explained_variance.sum()) / (
+                    min(n_features, n_samples) - n_components
                 )
 
                 pass
@@ -275,27 +284,34 @@ class PCA(_BasePCA):
         else:
             noise_variance = 0.
 
-        (self.n_samples_, self.n_features_, self.n_components_,
-            self.components_, self.explained_variance_,
-            self.explained_variance_ratio_, self.singular_values_,
+        (
+            self.n_samples_,
+            self.n_features_,
+            self.n_components_,
+            self.components_,
+            self.explained_variance_,
+            self.explained_variance_ratio_,
+            self.singular_values_,
             self.noise_variance_,
-            self.singular_values_) = compute(
-                n_samples,
-                n_features,
-                n_components,
-                components,
-                explained_variance,
-                explained_variance_ratio,
-                singular_values,
-                noise_variance,
-                singular_values,
+            self.singular_values_,
+        ) = compute(
+            n_samples,
+            n_features,
+            n_components,
+            components,
+            explained_variance,
+            explained_variance_ratio,
+            singular_values,
+            noise_variance,
+            singular_values,
         )
 
-        if solver != 'randomized':
+        if solver != "randomized":
             self.components_ = self.components_[:n_components]
             self.explained_variance_ = self.explained_variance_[:n_components]
-            self.explained_variance_ratio_ = \
-                self.explained_variance_ratio_[:n_components]
+            self.explained_variance_ratio_ = self.explained_variance_ratio_[
+                :n_components
+            ]
             self.singular_values_ = self.singular_values_[:n_components]
 
         return U, S, V
@@ -317,7 +333,7 @@ class PCA(_BasePCA):
         X_new : array-like, shape (n_samples, n_components)
 
         """
-        check_is_fitted(self, ['mean_', 'components_'], all_or_any=all)
+        check_is_fitted(self, ["mean_", "components_"], all_or_any=all)
 
         # X = check_array(X)
         if self.mean_ is not None:
@@ -345,14 +361,14 @@ class PCA(_BasePCA):
         """
         # X = check_array(X)
         U, S, V = self._fit(X)
-        U = U[:, :self.n_components_]
+        U = U[:, : self.n_components_]
 
         if self.whiten:
             # X_new = X * V / S * sqrt(n_samples) = U * sqrt(n_samples)
             U *= np.sqrt(X.shape[0] - 1)
         else:
             # X_new = X * V = U * S * V^T * V = U * S
-            U *= S[:self.n_components_]
+            U *= S[: self.n_components_]
 
         return U
 
@@ -376,11 +392,16 @@ class PCA(_BasePCA):
         If whitening is enabled, inverse_transform does not compute the
         exact inverse operation of transform.
         """
-        check_is_fitted(self, 'mean_')
+        check_is_fitted(self, "mean_")
 
         if self.whiten:
-            return da.dot(X, np.sqrt(self.explained_variance_[:, np.newaxis]) *
-                          self.components_) + self.mean_
+            return (
+                da.dot(
+                    X,
+                    np.sqrt(self.explained_variance_[:, np.newaxis]) * self.components_,
+                )
+                + self.mean_
+            )
         else:
             return da.dot(X, self.components_) + self.mean_
 
@@ -401,15 +422,14 @@ class PCA(_BasePCA):
         ll : array, shape (n_samples,)
             Log-likelihood of each sample under the current model
         """
-        check_is_fitted(self, 'mean_')
+        check_is_fitted(self, "mean_")
 
         # X = check_array(X)
         Xr = X - self.mean_
         n_features = X.shape[1]
         precision = self.get_precision()  # [n_features, n_features]
         log_like = -.5 * (Xr * (da.dot(Xr, precision))).sum(axis=1)
-        log_like -= .5 * (n_features * da.log(2. * np.pi) -
-                          fast_logdet(precision))
+        log_like -= .5 * (n_features * da.log(2. * np.pi) - fast_logdet(precision))
         return log_like
 
     def score(self, X, y=None):

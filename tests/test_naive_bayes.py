@@ -1,7 +1,8 @@
 import pytest
 from dask.array.utils import assert_eq
-from dask_ml.datasets import make_classification
+
 from dask_ml import naive_bayes as nb
+from dask_ml.datasets import make_classification
 from sklearn import naive_bayes as nb_
 
 X, y = make_classification(chunks=50)

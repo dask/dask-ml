@@ -1,8 +1,8 @@
-import six
-
-import packaging.version
 import dask.array as da
+import packaging.version
+import six
 from dask.array.random import doc_wraps
+
 import sklearn.metrics
 
 from .._compat import DASK_VERSION
@@ -26,6 +26,7 @@ def _check_reg_targets(y_true, y_pred, multioutput):
                 "You provided multioutput={!r}"
                 "".format(allowed_multioutput_str, multioutput)
             )
+
     if y_true.ndim == 1:
         y_true = y_true.reshape((-1, 1))
     if y_pred.ndim == 1:
@@ -82,6 +83,7 @@ def r2_score(
 ):
     _check_sample_weight(sample_weight)
     _, y_true, y_pred, multioutput = _check_reg_targets(y_true, y_pred, multioutput)
+
     if sample_weight is not None:
         weight = sample_weight
         if weight.ndim == 1:

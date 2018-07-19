@@ -3,7 +3,9 @@ channels:
   - defaults
   - conda-forge
 dependencies:
+  - black
   - coverage
+  - codecov
   - Cython
   - flake8
   - heapdict
@@ -18,6 +20,7 @@ dependencies:
   - psutil
   - pytest
   - pytest-cov
+  - pytest-mock
   - python=3.6
   - sortedcontainers
   - scikit-learn

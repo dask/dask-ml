@@ -1,17 +1,13 @@
 import six
+
 from sklearn.metrics import make_scorer
 from sklearn.metrics.scorer import check_scoring as sklearn_check_scoring
 
-from . import (
-    accuracy_score,
-    mean_squared_error,
-    r2_score,
-)
+from . import accuracy_score, mean_squared_error, r2_score
 
 # Scorers
 accuracy_scorer = make_scorer(accuracy_score)
-neg_mean_squared_error_scorer = make_scorer(mean_squared_error,
-                                            greater_is_better=False)
+neg_mean_squared_error_scorer = make_scorer(mean_squared_error, greater_is_better=False)
 r2_scorer = make_scorer(r2_score)
 
 
@@ -41,9 +37,10 @@ def get_scorer(scoring, compute=True):
         try:
             scorer = SCORERS[scoring]
         except KeyError:
-            raise ValueError('{} is not a valid scoring value. '
-                             'Valid options are {}'.format(scoring,
-                                                           sorted(SCORERS)))
+            raise ValueError(
+                "{} is not a valid scoring value. "
+                "Valid options are {}".format(scoring, sorted(SCORERS))
+            )
     else:
         scorer = scoring
 
@@ -54,16 +51,20 @@ def check_scoring(estimator, scoring=None, **kwargs):
     res = sklearn_check_scoring(estimator, scoring=scoring, **kwargs)
     if callable(scoring):
         # Heuristic to ensure user has not passed a metric
-        module = getattr(scoring, '__module__', None)
-        if hasattr(module, 'startswith') and \
-           module.startswith('dask_ml.metrics.') and \
-           not module.startswith('dask_ml.metrics.scorer') and \
-           not module.startswith('dask_ml.metrics.tests.'):
-            raise ValueError('scoring value %r looks like it is a metric '
-                             'function rather than a scorer. A scorer should '
-                             'require an estimator as its first parameter. '
-                             'Please use `make_scorer` to convert a metric '
-                             'to a scorer.' % scoring)
+        module = getattr(scoring, "__module__", None)
+        if (
+            hasattr(module, "startswith")
+            and module.startswith("dask_ml.metrics.")
+            and not module.startswith("dask_ml.metrics.scorer")
+            and not module.startswith("dask_ml.metrics.tests.")
+        ):
+            raise ValueError(
+                "scoring value %r looks like it is a metric "
+                "function rather than a scorer. A scorer should "
+                "require an estimator as its first parameter. "
+                "Please use `make_scorer` to convert a metric "
+                "to a scorer." % scoring
+            )
     if scoring in SCORERS.keys():
         return SCORERS[scoring]
     return res

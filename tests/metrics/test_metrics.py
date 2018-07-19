@@ -1,14 +1,14 @@
-import packaging.version
-import pytest
 import dask
 import dask.array as da
 import numpy as np
 import numpy.testing as npt
-import sklearn
-import sklearn.metrics as sm
+import packaging.version
+import pytest
 from dask.array.utils import assert_eq
 
 import dask_ml.metrics as dm
+import sklearn
+import sklearn.metrics as sm
 from dask_ml._compat import SK_VERSION, dummy_context
 
 
@@ -25,7 +25,7 @@ def test_pairwise_distances_argmin_min(X_blobs):
     if SK_VERSION >= packaging.version.parse("0.20.0.dev0"):
         # X_blobs has 500 rows per block.
         # Ensure 500 rows in the scikit-learn version too.
-        working_memory = 80 * 500 / 2**20
+        working_memory = 80 * 500 / 2 ** 20
 
         ctx = sklearn.config_context(working_memory=working_memory)
     else:
@@ -68,12 +68,7 @@ def test_euclidean_distances_same():
     assert_eq(X, X, Y_norm_squared=x_norm_squared, atol=1e-4)
 
 
-@pytest.mark.parametrize('kernel', [
-    'linear',
-    'polynomial',
-    'rbf',
-    'sigmoid',
-])
+@pytest.mark.parametrize("kernel", ["linear", "polynomial", "rbf", "sigmoid"])
 def test_pairwise_kernels(kernel):
     X = da.random.uniform(size=(100, 4), chunks=(50, 4))
     a = dm.pairwise.PAIRWISE_KERNEL_FUNCTIONS[kernel]

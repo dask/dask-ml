@@ -3,19 +3,19 @@
 """
 import logging
 
-import six
 import dask.array as da
-from dask import delayed
 import numpy as np
-import sklearn.cluster
+import six
+from dask import delayed
 from scipy.linalg import pinv, svd
+
+import sklearn.cluster
 from sklearn.base import BaseEstimator, ClusterMixin
 from sklearn.utils import check_random_state
 
-from .k_means import KMeans
 from ..metrics.pairwise import PAIRWISE_KERNEL_FUNCTIONS, pairwise_kernels
-from ..utils import check_array, _log_array, _format_bytes
-
+from ..utils import _format_bytes, _log_array, check_array
+from .k_means import KMeans
 
 logger = logging.getLogger(__name__)
 
@@ -136,12 +136,26 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
       IEEE Transactions on Pattern Analysis and Machine Intelligence
       https://people.cs.umass.edu/~mahadeva/cs791bb/reading/fowlkes-nystrom.pdf
     """
-    def __init__(self, n_clusters=8, eigen_solver=None, random_state=None,
-                 n_init=10, gamma=1., affinity='rbf', n_neighbors=10,
-                 eigen_tol=0.0, assign_labels='kmeans', degree=3, coef0=1,
-                 kernel_params=None, n_jobs=1, n_components=100,
-                 persist_embedding=False,
-                 kmeans_params=None):
+
+    def __init__(
+        self,
+        n_clusters=8,
+        eigen_solver=None,
+        random_state=None,
+        n_init=10,
+        gamma=1.,
+        affinity="rbf",
+        n_neighbors=10,
+        eigen_tol=0.0,
+        assign_labels="kmeans",
+        degree=3,
+        coef0=1,
+        kernel_params=None,
+        n_jobs=1,
+        n_components=100,
+        persist_embedding=False,
+        kmeans_params=None,
+    ):
         self.n_clusters = n_clusters
         self.eigen_solver = eigen_solver
         self.random_state = random_state
@@ -174,34 +188,37 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
 
         # kmeans for final clustering
         if isinstance(self.assign_labels, six.string_types):
-            if self.assign_labels == 'kmeans':
-                km = KMeans(n_clusters=n_clusters,
-                            random_state=rng.randint(2**32 - 1))
-            elif self.assign_labels == 'sklearn-kmeans':
-                km = sklearn.cluster.KMeans(n_clusters=n_clusters,
-                                            random_state=rng)
+            if self.assign_labels == "kmeans":
+                km = KMeans(
+                    n_clusters=n_clusters, random_state=rng.randint(2 ** 32 - 1)
+                )
+            elif self.assign_labels == "sklearn-kmeans":
+                km = sklearn.cluster.KMeans(n_clusters=n_clusters, random_state=rng)
             else:
                 msg = "Unknown 'assign_labels' {!r}".format(self.assign_labels)
                 raise ValueError(msg)
         elif isinstance(self.assign_labels, BaseEstimator):
             km = self.assign_labels
         else:
-            raise TypeError("Invalid type {} for 'assign_labels'".format(
-                type(self.assign_labels)))
+            raise TypeError(
+                "Invalid type {} for 'assign_labels'".format(type(self.assign_labels))
+            )
 
         if self.kmeans_params:
             km.set_params(**self.kmeans_params)
 
         n = len(X)
         if n <= n_components:
-            msg = ("'n_components' must be smaller than the number of samples."
-                   " Got {} components and {} samples".format(n_components, n))
+            msg = (
+                "'n_components' must be smaller than the number of samples."
+                " Got {} components and {} samples".format(n_components, n)
+            )
             raise ValueError(msg)
 
         params = self.kernel_params or {}
-        params['gamma'] = self.gamma
-        params['degree'] = self.degree
-        params['coef0'] = self.coef0
+        params["gamma"] = self.gamma
+        params["degree"] = self.degree
+        params["coef0"] = self.coef0
 
         # indices for our exact / approximate blocks
         inds = np.arange(n)
@@ -219,11 +236,11 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         X_rest = X[rest]
 
         A, B = embed(X_keep, X_rest, n_components, metric, params)
-        _log_array(logger, A, 'A')
-        _log_array(logger, B, 'B')
+        _log_array(logger, A, "A")
+        _log_array(logger, B, "B")
 
         # now the approximation of C
-        a = A.sum(0)   # (l,)
+        a = A.sum(0)  # (l,)
         b1 = B.sum(1)  # (l,)
         b2 = B.sum(0)  # (m,)
 
@@ -238,12 +255,11 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         # d1, d2 are diagonal, so we can avoid large matrix multiplies
         # Equivalent to diag(d1_si) @ A @ diag(d1_si)
         A2 = d1_si.reshape(-1, 1) * A * d1_si.reshape(1, -1)  # (n, n)
-        _log_array(logger, A2, 'A2')
+        _log_array(logger, A2, "A2")
         # A2 = A2.rechunk(A2.shape)
         # Equivalent to diag(d1_si) @ B @ diag(d2_si)
-        B2 = da.multiply(da.multiply(d1_si.reshape(-1, 1), B),
-                         d2_si.reshape(1, -1))
-        _log_array(logger, B2, 'B2')
+        B2 = da.multiply(da.multiply(d1_si.reshape(-1, 1), B), d2_si.reshape(1, -1))
+        _log_array(logger, B2, "B2")
 
         U_A, S_A, V_A = delayed(svd, pure=True, nout=3)(A2)
 
@@ -252,32 +268,35 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         V_A = da.from_delayed(V_A, (n_components, n_components), A2.dtype)
 
         # Eq 16. This is OK when V2 is orthogonal
-        V2 = (da.sqrt(float(n_components) / n) *
-              da.vstack([A2, B2.T]).dot(
-              U_A[:, :n_clusters]).dot(
-              da.diag(1.0 / da.sqrt(S_A[:n_clusters]))))  # (n, k)
-        _log_array(logger, V2, 'V2.1')
+        V2 = da.sqrt(float(n_components) / n) * da.vstack([A2, B2.T]).dot(
+            U_A[:, :n_clusters]
+        ).dot(
+            da.diag(1.0 / da.sqrt(S_A[:n_clusters]))
+        )  # (n, k)
+        _log_array(logger, V2, "V2.1")
 
         if isinstance(B2, da.Array):
             V2 = V2.rechunk((B2.chunks[1][0], n_clusters))
-            _log_array(logger, V2, 'V2.2')
+            _log_array(logger, V2, "V2.2")
 
         # normalize (Eq. 4)
         U2 = (V2.T / da.sqrt((V2 ** 2).sum(1))).T  # (n, k)
 
-        _log_array(logger, U2, 'U2.2')
+        _log_array(logger, U2, "U2.2")
 
         # Recover original indices
         U2 = _slice_mostly_sorted(U2, keep, rest, inds)  # (n, k)
 
-        _log_array(logger, U2, 'U2.3')
+        _log_array(logger, U2, "U2.3")
 
         if self.persist_embedding and isinstance(U2, da.Array):
             logger.info("Persisting array for k-means")
             U2 = U2.persist()
         elif isinstance(U2, da.Array):
-            logger.info("Consider persist_embedding. This will require %s",
-                        _format_bytes(U2.nbytes))
+            logger.info(
+                "Consider persist_embedding. This will require %s",
+                _format_bytes(U2.nbytes),
+            )
             pass
         logger.info("k-means for assign_labels[starting]")
         km.fit(U2)
@@ -293,22 +312,22 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
 def embed(X_keep, X_rest, n_components, metric, kernel_params):
     if isinstance(metric, six.string_types):
         if metric not in PAIRWISE_KERNEL_FUNCTIONS:
-            msg = ("Unknown affinity metric name '{}'. Expected one "
-                   "of '{}'".format(metric,
-                                    PAIRWISE_KERNEL_FUNCTIONS.keys()))
+            msg = "Unknown affinity metric name '{}'. Expected one " "of '{}'".format(
+                metric, PAIRWISE_KERNEL_FUNCTIONS.keys()
+            )
             raise ValueError(msg)
-        A = pairwise_kernels(X_keep,
-                             metric=metric, filter_params=True,
-                             **kernel_params)
-        B = pairwise_kernels(X_keep, X_rest,
-                             metric=metric, filter_params=True,
-                             **kernel_params)
+        A = pairwise_kernels(X_keep, metric=metric, filter_params=True, **kernel_params)
+        B = pairwise_kernels(
+            X_keep, X_rest, metric=metric, filter_params=True, **kernel_params
+        )
     elif callable(metric):
         A = metric(X_keep, **kernel_params)
         B = metric(X_keep, X_rest, **kernel_params)
     else:
-        msg = ("Unexpected type for 'affinity' '{}'. Must be string "
-               "kernel name, array, or callable")
+        msg = (
+            "Unexpected type for 'affinity' '{}'. Must be string "
+            "kernel name, array, or callable"
+        )
         raise TypeError(msg)
     if isinstance(A, da.Array):
         A = A.rechunk((n_components, n_components))

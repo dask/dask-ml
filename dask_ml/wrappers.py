@@ -6,14 +6,14 @@ import dask.array as da
 import dask.dataframe as dd
 import dask.delayed
 import numpy as np
+
 import sklearn.base
 import sklearn.metrics
 from sklearn.utils.validation import check_is_fitted
 
 from ._partial import fit
 from ._utils import copy_learned_attributes
-from .metrics import get_scorer, check_scoring
-
+from .metrics import check_scoring, get_scorer
 
 logger = logging.getLogger(__name__)
 
@@ -163,7 +163,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         -------
         transformed : array-like
         """
-        transform = self._check_method('transform')
+        transform = self._check_method("transform")
 
         if isinstance(X, da.Array):
             return X.map_blocks(transform)
@@ -190,12 +190,24 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         score : float
                 return self.estimator.score(X, y)
         """
-        if self.scoring:
-            if (not dask.is_dask_collection(X) and
-                    not dask.is_dask_collection(y)):
-                scorer = sklearn.metrics.get_scorer(self.scoring)
+        scoring = self.scoring
+
+        if not scoring:
+            if type(self._postfit_estimator).score == sklearn.base.RegressorMixin.score:
+                scoring = "r2"
+            elif (
+                type(self._postfit_estimator).score
+                == sklearn.base.ClassifierMixin.score
+            ):
+                scoring = "accuracy"
+        else:
+            scoring = self.scoring
+
+        if scoring:
+            if not dask.is_dask_collection(X) and not dask.is_dask_collection(y):
+                scorer = sklearn.metrics.get_scorer(scoring)
             else:
-                scorer = get_scorer(self.scoring)
+                scorer = get_scorer(scoring)
             return scorer(self, X, y)
         else:
             return self._postfit_estimator.score(X, y)
@@ -215,10 +227,10 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         -------
         y : array-like
         """
-        predict = self._check_method('predict')
+        predict = self._check_method("predict")
 
         if isinstance(X, da.Array):
-            return X.map_blocks(predict, dtype='int', drop_axis=1)
+            return X.map_blocks(predict, dtype="int", drop_axis=1)
 
         elif isinstance(X, dd._Frame):
             return _apply_partitionwise(X, predict)
@@ -245,13 +257,13 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         y : array-like
         """
 
-        predict_proba = self._check_method('predict_proba')
+        predict_proba = self._check_method("predict_proba")
 
         if isinstance(X, da.Array):
             # XXX: multiclass
-            return X.map_blocks(predict_proba,
-                                dtype='float',
-                                chunks=(X.chunks[0], len(self.classes_)))
+            return X.map_blocks(
+                predict_proba, dtype="float", chunks=(X.chunks[0], len(self.classes_))
+            )
         elif isinstance(X, dd._Frame):
             return _apply_partitionwise(X, predict_proba)
         else:
@@ -266,8 +278,9 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         """
         estimator = self._postfit_estimator
         if not hasattr(estimator, method):
-            msg = ("The wrapped estimator '{}' does not have a "
-                   "'{}' method.".format(estimator, method))
+            msg = "The wrapped estimator '{}' does not have a '{}' method.".format(
+                estimator, method
+            )
             raise AttributeError(msg)
         return getattr(estimator, method)
 
@@ -323,6 +336,14 @@ class Incremental(ParallelPostFit):
            a single NumPy array, which may exhaust the memory of your worker.
            You probably want to always specify `scoring`.
 
+    random_state : int or numpy.random.RandomState, optional
+        Random object that determines how to shuffle blocks.
+
+    shuffle_blocks : bool, default True
+        Determines whether to call ``partial_fit`` on a randomly selected chunk
+        of the Dask arrays (default), or to fit in sequential order. This does
+        not control shuffle between blocks or shuffling each block.
+
     Attributes
     ----------
     estimator_ : Estimator
@@ -351,9 +372,16 @@ class Incremental(ParallelPostFit):
     >>> gs.fit(X, y, classes=[0, 1])
     """
 
+    def __init__(
+        self, estimator=None, scoring=None, shuffle_blocks=True, random_state=None
+    ):
+        self.shuffle_blocks = shuffle_blocks
+        self.random_state = random_state
+        super(Incremental, self).__init__(estimator=estimator, scoring=scoring)
+
     @property
     def _postfit_estimator(self):
-        check_is_fitted(self, 'estimator_')
+        check_is_fitted(self, "estimator_")
         return self.estimator_
 
     def _fit_for_estimator(self, estimator, X, y, **fit_kwargs):
@@ -361,7 +389,14 @@ class Incremental(ParallelPostFit):
         if not dask.is_dask_collection(X) and not dask.is_dask_collection(y):
             result = estimator.partial_fit(X=X, y=y, **fit_kwargs)
         else:
-            result = fit(estimator, X, y, **fit_kwargs)
+            result = fit(
+                estimator,
+                X,
+                y,
+                random_state=self.random_state,
+                shuffle_blocks=self.shuffle_blocks,
+                **fit_kwargs
+            )
 
         copy_learned_attributes(result, self)
         self.estimator_ = result
@@ -389,7 +424,7 @@ class Incremental(ParallelPostFit):
         -------
         self : object
         """
-        estimator = getattr(self, 'estimator_', None)
+        estimator = getattr(self, "estimator_", None)
         if estimator is None:
             estimator = sklearn.base.clone(self.estimator)
         return self._fit_for_estimator(estimator, X, y, **fit_kwargs)
@@ -400,16 +435,18 @@ def _first_block(dask_object):
     """
     if isinstance(dask_object, da.Array):
         if dask_object.ndim > 1 and dask_object.numblocks[-1] != 1:
-            raise NotImplementedError("IID estimators require that the array "
-                                      "blocked only along the first axis. "
-                                      "Rechunk your array before fitting.")
+            raise NotImplementedError(
+                "IID estimators require that the array "
+                "blocked only along the first axis. "
+                "Rechunk your array before fitting."
+            )
         shape = (dask_object.chunks[0][0],)
         if dask_object.ndim > 1:
             shape = shape + (dask_object.chunks[1][0],)
 
-        return da.from_delayed(dask_object.to_delayed().flatten()[0],
-                               shape,
-                               dask_object.dtype)
+        return da.from_delayed(
+            dask_object.to_delayed().flatten()[0], shape, dask_object.dtype
+        )
 
     if isinstance(dask_object, dd._Frame):
         return dask_object.get_partition(0)
@@ -429,9 +466,9 @@ def _apply_partitionwise(X, func):
     if isinstance(sample, np.ndarray):
         blocks = X.to_delayed()
         arrays = [
-            da.from_delayed(dask.delayed(func)(block),
-                            shape=(np.nan,) + p,
-                            dtype=sample.dtype)
+            da.from_delayed(
+                dask.delayed(func)(block), shape=(np.nan,) + p, dtype=sample.dtype
+            )
             for block in blocks
         ]
         return da.concatenate(arrays)
