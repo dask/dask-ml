@@ -9,6 +9,11 @@ Enhancements
 
 - Automatically replace default scikit-learn scorers with dask-aware versions in Incremental (:issue:`200`)
 
+Bug Fixes
+---------
+
+- Fixed dtype in :meth:`LabelEncoder.fit_transform` to be integer, rather than the dtype of the classes for dask arrays (:pr:``)
+
 Version 0.7.0
 ~~~~~~~~~~~~~
 
