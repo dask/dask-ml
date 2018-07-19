@@ -32,6 +32,13 @@ These can be used just like the scikit-learn versions, except that:
 See :mod:`sklearn.preprocessing` for more information about any particular
 transformer.
 
+.. note::
+
+   :class:`dask_ml.preprocessing.LabelEncoder` will use the categorical dtype
+   information for a dask or pandas Series with a :class:`pandas.api.types.CategoricalDtype`.
+   This improves performance, but may lead to different encodings depending on the
+   categories. See the class docstring for more.
+
 Additional Tranformers
 ----------------------
 
