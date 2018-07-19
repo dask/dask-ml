@@ -4,8 +4,8 @@ from operator import getitem
 
 import dask.array as da
 import dask.dataframe as dd
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 from sklearn.preprocessing import label as sklabel
 from sklearn.utils.validation import check_is_fitted
