@@ -278,7 +278,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         """
         estimator = self._postfit_estimator
         if not hasattr(estimator, method):
-            msg = "The wrapped estimator '{}' does not have a " "'{}' method.".format(
+            msg = "The wrapped estimator '{}' does not have a '{}' method.".format(
                 estimator, method
             )
             raise AttributeError(msg)

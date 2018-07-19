@@ -34,7 +34,7 @@ def test_no_method_raises():
     with pytest.raises(AttributeError) as m:
         clf.predict_proba(X)
 
-    assert m.match("The wrapped estimator .* 'predict_proba' method.")
+    assert m.match("The wrapped estimator (.|\n)* 'predict_proba' method.")
 
 
 @pytest.mark.parametrize("kind", ["numpy", "dask.dataframe", "dask.array"])

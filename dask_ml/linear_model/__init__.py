@@ -10,12 +10,12 @@ from .passive_aggressive import (
 from .glm import LogisticRegression, LinearRegression, PoissonRegression
 
 __all__ = [
-    'PartialPassiveAggressiveClassifier',
-    'PartialPassiveAggressiveRegressor',
-    'PartialPerceptron',
-    'PartialSGDClassifier',
-    'PartialSGDRegressor',
-    'LogisticRegression',
-    'LinearRegression',
-    'PoissonRegression',
+    "PartialPassiveAggressiveClassifier",
+    "PartialPassiveAggressiveRegressor",
+    "PartialPerceptron",
+    "PartialSGDClassifier",
+    "PartialSGDRegressor",
+    "LogisticRegression",
+    "LinearRegression",
+    "PoissonRegression",
 ]
