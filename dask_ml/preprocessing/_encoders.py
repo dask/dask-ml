@@ -1,10 +1,11 @@
 import numpy as np
 import six
+
 import sklearn.preprocessing
 
-from .label import LabelEncoder
-from ..utils import check_array
 from .._compat import hstack, ones_like, zeros_like
+from ..utils import check_array
+from .label import LabelEncoder
 
 
 class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):

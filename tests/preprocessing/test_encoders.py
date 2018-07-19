@@ -1,5 +1,6 @@
-import numpy as np
 import dask.array as da
+import numpy as np
+
 import dask_ml.preprocessing
 import sklearn.preprocessing
 
