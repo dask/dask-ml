@@ -2,14 +2,12 @@ import numbers
 
 import dask.array as da
 import pytest
-import sklearn.metrics
 
 import dask_ml.metrics
+import sklearn.metrics
 
 
-@pytest.fixture(params=[
-    'mean_squared_error', 'mean_absolute_error', 'r2_score',
-])
+@pytest.fixture(params=["mean_squared_error", "mean_absolute_error", "r2_score"])
 def metric_pairs(request):
     """Pairs of (dask-ml, sklearn) regression metrics.
 
@@ -19,11 +17,11 @@ def metric_pairs(request):
     """
     return (
         getattr(dask_ml.metrics, request.param),
-        getattr(sklearn.metrics, request.param)
+        getattr(sklearn.metrics, request.param),
     )
 
 
-@pytest.mark.parametrize('compute', [True, False])
+@pytest.mark.parametrize("compute", [True, False])
 def test_ok(metric_pairs, compute):
     m1, m2 = metric_pairs
 

@@ -1,16 +1,14 @@
 """Test truncated SVD transformer."""
-# Copied from scikit-learn
-import pytest
-
 import dask.array as da
 import numpy as np
+import pytest
 import scipy.sparse as sp
 from numpy.testing import assert_array_almost_equal
 
-from sklearn.utils import check_random_state
-from sklearn import decomposition as sd
 from dask_ml import decomposition as dd
 from dask_ml.utils import assert_estimator_equal
+from sklearn import decomposition as sd
+from sklearn.utils import check_random_state
 
 # Make an X that looks somewhat like a small tf-idf matrix.
 # XXX newer versions of SciPy have scipy.sparse.rand for this.
@@ -25,7 +23,7 @@ Xdense = X.A
 dXdense = da.from_array(Xdense, chunks=(30, 55))
 
 
-@pytest.mark.parametrize("algorithm", ['tsqr', 'randomized'])
+@pytest.mark.parametrize("algorithm", ["tsqr", "randomized"])
 def test_basic(algorithm):
     a = dd.TruncatedSVD(random_state=0, algorithm=algorithm)
     b = sd.TruncatedSVD(random_state=0)
@@ -33,13 +31,12 @@ def test_basic(algorithm):
     a.fit(dXdense)
 
     np.testing.assert_allclose(a.components_, b.components_, atol=1e-3)
-    assert_estimator_equal(a, b, exclude=['components_',
-                                          'explained_variance_'],
-                           atol=1e-3)
+    assert_estimator_equal(
+        a, b, exclude=["components_", "explained_variance_"], atol=1e-3
+    )
     assert a.explained_variance_.shape == b.explained_variance_.shape
-    np.testing.assert_allclose(a.explained_variance_,
-                               b.explained_variance_,
-                               rtol=0.01)
+    np.testing.assert_allclose(a.explained_variance_, b.explained_variance_, rtol=0.01)
+
 
 # The rest come straight from scikit-learn, with dask arrays substituted
 
@@ -101,25 +98,27 @@ def test_singular_values():
     X = rng.randn(n_samples, n_features)
     dX = da.from_array(X, chunks=(n_samples // 2, n_features))
 
-    apca = dd.TruncatedSVD(n_components=2, algorithm='tsqr',
-                           random_state=rng).fit(dX)
-    rpca = sd.TruncatedSVD(n_components=2, algorithm='arpack',
-                           random_state=rng).fit(X)
+    apca = dd.TruncatedSVD(n_components=2, algorithm="tsqr", random_state=rng).fit(dX)
+    rpca = sd.TruncatedSVD(n_components=2, algorithm="arpack", random_state=rng).fit(X)
     assert_array_almost_equal(apca.singular_values_, rpca.singular_values_, 12)
 
     # Compare to the Frobenius norm
     X_apca = apca.transform(X)
     X_rpca = rpca.transform(X)
-    assert_array_almost_equal(np.sum(apca.singular_values_**2.0),
-                              np.linalg.norm(X_apca, "fro")**2.0, 12)
-    assert_array_almost_equal(np.sum(rpca.singular_values_**2.0),
-                              np.linalg.norm(X_rpca, "fro")**2.0, 12)
+    assert_array_almost_equal(
+        np.sum(apca.singular_values_ ** 2.0), np.linalg.norm(X_apca, "fro") ** 2.0, 12
+    )
+    assert_array_almost_equal(
+        np.sum(rpca.singular_values_ ** 2.0), np.linalg.norm(X_rpca, "fro") ** 2.0, 12
+    )
 
     # Compare to the 2-norms of the score vectors
-    assert_array_almost_equal(apca.singular_values_,
-                              np.sqrt(np.sum(X_apca**2.0, axis=0)), 12)
-    assert_array_almost_equal(rpca.singular_values_,
-                              np.sqrt(np.sum(X_rpca**2.0, axis=0)), 12)
+    assert_array_almost_equal(
+        apca.singular_values_, np.sqrt(np.sum(X_apca ** 2.0, axis=0)), 12
+    )
+    assert_array_almost_equal(
+        rpca.singular_values_, np.sqrt(np.sum(X_rpca ** 2.0, axis=0)), 12
+    )
 
     # Set the singular values and see what we get back
     rng = np.random.RandomState(0)
@@ -129,15 +128,13 @@ def test_singular_values():
     X = rng.randn(n_samples, n_features)
     dX = da.from_array(X, chunks=(50, n_features))
 
-    apca = dd.TruncatedSVD(n_components=3, algorithm='randomized',
-                           random_state=0)
-    rpca = sd.TruncatedSVD(n_components=3, algorithm='randomized',
-                           random_state=0)
+    apca = dd.TruncatedSVD(n_components=3, algorithm="randomized", random_state=0)
+    rpca = sd.TruncatedSVD(n_components=3, algorithm="randomized", random_state=0)
     X_apca = apca.fit_transform(dX).compute()
     X_rpca = rpca.fit_transform(X)
 
-    X_apca /= np.sqrt(np.sum(X_apca**2.0, axis=0))
-    X_rpca /= np.sqrt(np.sum(X_rpca**2.0, axis=0))
+    X_apca /= np.sqrt(np.sum(X_apca ** 2.0, axis=0))
+    X_rpca /= np.sqrt(np.sum(X_rpca ** 2.0, axis=0))
     X_apca[:, 0] *= 3.142
     X_apca[:, 1] *= 2.718
     X_rpca[:, 0] *= 3.142

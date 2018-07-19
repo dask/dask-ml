@@ -1,8 +1,8 @@
 """
 """
-from multipledispatch import dispatch
-import dask.dataframe as dd
 import dask.array as da
+import dask.dataframe as dd
+from multipledispatch import dispatch
 
 
 @dispatch(dd._Frame)
@@ -33,6 +33,6 @@ def log1p(A):
 @dispatch(dd.DataFrame)
 def add_intercept(X):
     columns = X.columns
-    if 'intercept' in columns:
+    if "intercept" in columns:
         raise ValueError("'intercept' column already in 'X'")
-    return X.assign(intercept=1)[['intercept'] + list(columns)]
+    return X.assign(intercept=1)[["intercept"] + list(columns)]

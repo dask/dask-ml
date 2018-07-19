@@ -5,16 +5,15 @@ import os
 import warnings
 from abc import ABCMeta
 
+import dask
 import numpy as np
 import six
+from dask.delayed import Delayed
 from toolz import partial
+
 import sklearn.utils
 
-import dask
-from dask.delayed import Delayed
-
 from ._utils import copy_learned_attributes
-
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +26,7 @@ class _WritableDoc(ABCMeta):
     conflicts, since some sklearn estimators (eventually) subclass
     ABCMeta
     """
+
     # TODO: Py2: remove all this
 
 
@@ -49,8 +49,8 @@ class _BigPartialFitMixin(object):
         missing = set(self._init_kwargs) - set(kwargs)
 
         if missing:
-            raise TypeError("{} requires the keyword arguments {}".format(
-                type(self), missing)
+            raise TypeError(
+                "{} requires the keyword arguments {}".format(type(self), missing)
             )
         for kwarg in self._init_kwargs:
             setattr(self, kwarg, kwargs.pop(kwarg))
@@ -59,11 +59,10 @@ class _BigPartialFitMixin(object):
     @classmethod
     def _deprecated(cls):
         for base in cls.mro():
-            if base.__module__.startswith('sklearn'):
+            if base.__module__.startswith("sklearn"):
                 break
 
-        warnings.warn(_partial_deprecation.format(cls=cls, base=base),
-                      FutureWarning)
+        warnings.warn(_partial_deprecation.format(cls=cls, base=base), FutureWarning)
 
     @classmethod
     def _get_param_names(cls):
@@ -108,8 +107,7 @@ def _partial_fit(model, x, y, kwargs=None):
     return model
 
 
-def fit(model, x, y, compute=True, shuffle_blocks=True, random_state=None,
-        **kwargs):
+def fit(model, x, y, compute=True, shuffle_blocks=True, random_state=None, **kwargs):
     """ Fit scikit learn model against dask arrays
 
     Model must support the ``partial_fit`` interface for online or batch
@@ -168,7 +166,7 @@ def fit(model, x, y, compute=True, shuffle_blocks=True, random_state=None,
     if y is not None:
         assert y.ndim == 1
         assert x.chunks[0] == y.chunks[0]
-    assert hasattr(model, 'partial_fit')
+    assert hasattr(model, "partial_fit")
     if len(x.chunks[1]) > 1:
         x = x.rechunk(chunks=(x.chunks[0], sum(x.chunks[1])))
 
@@ -178,15 +176,22 @@ def fit(model, x, y, compute=True, shuffle_blocks=True, random_state=None,
         rng = sklearn.utils.check_random_state(random_state)
         rng.shuffle(order)
 
-    name = 'fit-' + dask.base.tokenize(model, x, y, kwargs, order)
+    name = "fit-" + dask.base.tokenize(model, x, y, kwargs, order)
     dsk = {(name, -1): model}
-    dsk.update({(name, i): (_partial_fit, (name, i - 1),
-                                          (x.name, order[i], 0),
-                                          (getattr(y, 'name', ''), order[i]),
-                            kwargs)
-                for i in range(nblocks)})
+    dsk.update(
+        {
+            (name, i): (
+                _partial_fit,
+                (name, i - 1),
+                (x.name, order[i], 0),
+                (getattr(y, "name", ""), order[i]),
+                kwargs,
+            )
+            for i in range(nblocks)
+        }
+    )
 
-    new_dsk = dask.sharedict.merge((name, dsk), x.dask, getattr(y, 'dask', {}))
+    new_dsk = dask.sharedict.merge((name, dsk), x.dask, getattr(y, "dask", {}))
     value = Delayed((name, nblocks - 1), new_dsk)
 
     if compute:
@@ -220,7 +225,7 @@ def predict(model, x):
 
 def _copy_partial_doc(cls):
     for base in cls.mro():
-        if base.__module__.startswith('sklearn'):
+        if base.__module__.startswith("sklearn"):
             break
     lines = base.__doc__.split(os.linesep)
     header, rest = lines[0], lines[1:]
@@ -235,9 +240,10 @@ def _copy_partial_doc(cls):
     class' ``partial_fit`` method. This will allow you to fit the estimator
     on larger-than memory datasets sequentially (block-wise), but without an
     parallelism, or any ability to distribute across a cluster.""".format(
-        classname=base.__name__)
+        classname=base.__name__
+    )
 
-    doc = '\n'.join([header + insert] + rest)
+    doc = "\n".join([header + insert] + rest)
 
     cls.__doc__ = doc
     return cls

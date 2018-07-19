@@ -2,14 +2,14 @@ import dask
 import dask.array as da
 import dask.dataframe as dd
 import pytest
-import sklearn.datasets
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.decomposition import PCA
-from sklearn.linear_model import LinearRegression, LogisticRegression
 
-from dask_ml.utils import assert_estimator_equal, assert_eq_ar
-from dask_ml.wrappers import ParallelPostFit
+import sklearn.datasets
 from dask_ml.datasets import make_classification
+from dask_ml.utils import assert_eq_ar, assert_estimator_equal
+from dask_ml.wrappers import ParallelPostFit
+from sklearn.decomposition import PCA
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.linear_model import LinearRegression, LogisticRegression
 
 
 def test_it_works():
@@ -37,13 +37,13 @@ def test_no_method_raises():
     assert m.match("The wrapped estimator .* 'predict_proba' method.")
 
 
-@pytest.mark.parametrize('kind', ['numpy', 'dask.dataframe', 'dask.array'])
+@pytest.mark.parametrize("kind", ["numpy", "dask.dataframe", "dask.array"])
 def test_predict(kind):
     X, y = make_classification(chunks=100)
 
-    if kind == 'numpy':
+    if kind == "numpy":
         X, y = dask.compute(X, y)
-    elif kind == 'dask.dataframe':
+    elif kind == "dask.dataframe":
         X = dd.from_dask_array(X)
         y = dd.from_dask_array(y)
 
@@ -64,13 +64,13 @@ def test_predict(kind):
     assert_eq_ar(result, expected)
 
 
-@pytest.mark.parametrize('kind', ['numpy', 'dask.dataframe', 'dask.array'])
+@pytest.mark.parametrize("kind", ["numpy", "dask.dataframe", "dask.array"])
 def test_transform(kind):
     X, y = make_classification(chunks=100)
 
-    if kind == 'numpy':
+    if kind == "numpy":
         X, y = dask.compute(X, y)
-    elif kind == 'dask.dataframe':
+    elif kind == "dask.dataframe":
         X = dd.from_dask_array(X)
         y = dd.from_dask_array(y)
 

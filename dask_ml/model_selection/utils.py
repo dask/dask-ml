@@ -4,12 +4,11 @@ from distutils.version import LooseVersion
 import dask
 import dask.array as da
 from dask.base import tokenize
-from dask.delayed import delayed, Delayed
+from dask.delayed import Delayed, delayed
 
-from sklearn.utils.validation import indexable, _is_arraylike
+from sklearn.utils.validation import _is_arraylike, indexable
 
-
-if LooseVersion(dask.__version__) > '0.15.4':
+if LooseVersion(dask.__version__) > "0.15.4":
     from dask.base import is_dask_collection
 else:
     from dask.base import Base
@@ -37,7 +36,7 @@ def to_indexable(*args, **kwargs):
     allow_scalars : bool, optional
         Whether to allow scalars in args. Default is False.
     """
-    if kwargs.get('allow_scalars', False):
+    if kwargs.get("allow_scalars", False):
         indexable = _maybe_indexable
     else:
         indexable = _indexable
@@ -63,7 +62,7 @@ def to_keys(dsk, *args):
             yield x.key
         else:
             assert not is_dask_collection(x)
-            key = 'array-' + tokenize(x)
+            key = "array-" + tokenize(x)
             dsk[key] = x
             yield key
 
