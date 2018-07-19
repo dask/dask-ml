@@ -48,7 +48,7 @@ between machines.
    X, y = make_classification(chunks=25)
    X
 
-   estimator = SGDClassifier(random_state=10, max_iter=1000)
+   estimator = SGDClassifier(random_state=10, max_iter=100)
    clf = Incremental(estimator)
    clf.fit(X, y, classes=[0, 1])
 
@@ -115,7 +115,7 @@ prefixing the parameter name with ``<name>__``. For ``Incremental``, ``name`` is
    from sklearn.model_selection import GridSearchCV
 
    param_grid = {'estimator__alpha': [0.10, 10.0]}
-   gs = GridSearchCV(clf, param_grid, n_jobs=-1)
+   gs = GridSearchCV(clf, param_grid)
    gs.fit(X, y, classes=[0, 1])
 
 
