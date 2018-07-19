@@ -72,7 +72,7 @@ the wrapped ``fit``.
 
 .. note::
 
-   Take care with the behavior or :meth:`Incremental.score`. Most estimators
+   Take care with the behavior of :meth:`Incremental.score`. Most estimators
    inherit the default scoring methods of R2 score for regressors and accuracy
    score for classifiers. For these estimators, we automatically use Dask-ML's
    scoring methods, which are able to operate on Dask arrays.
