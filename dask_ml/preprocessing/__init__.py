@@ -26,7 +26,7 @@ __all__ = [
 
 # Requires scikit-learn >= 0.20.0
 try:
-    from ._encoders import OneHotEncoder
+    from ._encoders import OneHotEncoder  # noqa
 except ImportError:
     pass
 else:
