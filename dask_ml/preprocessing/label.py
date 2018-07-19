@@ -137,7 +137,7 @@ class LabelEncoder(sklabel.LabelEncoder):
 
         if isinstance(y, da.Array):
             return da.map_blocks(
-                np.searchsorted, self.classes_, y, dtype=self.classes_.dtype
+                np.searchsorted, self.classes_, y, dtype=np.intp,
             )
         elif isinstance(y, (pd.Series, dd.Series)):
             assert y.dtype.categories.equals(self.dtype_.categories)
