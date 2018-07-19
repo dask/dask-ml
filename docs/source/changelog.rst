@@ -12,7 +12,7 @@ Enhancements
 Bug Fixes
 ---------
 
-- Fixed dtype in :meth:`LabelEncoder.fit_transform` to be integer, rather than the dtype of the classes for dask arrays (:pr:``)
+- Fixed dtype in :meth:`LabelEncoder.fit_transform` to be integer, rather than the dtype of the classes for dask arrays (:pr:`311`)
 
 Version 0.7.0
 ~~~~~~~~~~~~~
