@@ -5,6 +5,7 @@ from operator import getitem
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
+
 from sklearn.preprocessing import label as sklabel
 from sklearn.utils.validation import check_is_fitted
 
@@ -35,22 +36,22 @@ class LabelEncoder(sklabel.LabelEncoder):
         return self.fit(y).transform(y)
 
     def transform(self, y):
-        check_is_fitted(self, 'classes_')
+        check_is_fitted(self, "classes_")
         y = self._check_array(y)
 
         if isinstance(y, da.Array):
-            return da.map_blocks(np.searchsorted, self.classes_, y,
-                                 dtype=self.classes_.dtype)
+            return da.map_blocks(
+                np.searchsorted, self.classes_, y, dtype=self.classes_.dtype
+            )
         else:
             return np.searchsorted(self.classes_, y)
 
     def inverse_transform(self, y):
-        check_is_fitted(self, 'classes_')
+        check_is_fitted(self, "classes_")
         y = self._check_array(y)
 
         if isinstance(y, da.Array):
-            return da.map_blocks(getitem, self.classes_, y,
-                                 dtype=self.classes_.dtype)
+            return da.map_blocks(getitem, self.classes_, y, dtype=self.classes_.dtype)
         else:
             y = np.asarray(y)
             return self.classes_[y]

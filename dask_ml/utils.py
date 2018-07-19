@@ -1,18 +1,17 @@
 from collections import Sequence
-from numbers import Integral
 from multiprocessing import cpu_count
-
-import pandas as pd
-import numpy as np
+from numbers import Integral
 
 import dask.array as da
 import dask.dataframe as dd
-import sklearn.utils.extmath as skm
-import sklearn.utils.validation as sk_validation
-
+import numpy as np
+import pandas as pd
 from dask import delayed
 from dask.array.utils import assert_eq as assert_eq_ar
 from dask.dataframe.utils import assert_eq as assert_eq_df
+
+import sklearn.utils.extmath as skm
+import sklearn.utils.validation as sk_validation
 
 
 def svd_flip(u, v):
@@ -44,8 +43,9 @@ def handle_zeros_in_scale(scale):
 def row_norms(X, squared=False):
     if isinstance(X, np.ndarray):
         return skm.row_norms(X, squared=squared)
-    return X.map_blocks(skm.row_norms, chunks=(X.chunks[0],),
-                        drop_axis=1, squared=squared)
+    return X.map_blocks(
+        skm.row_norms, chunks=(X.chunks[0],), drop_axis=1, squared=squared
+    )
 
 
 def assert_estimator_equal(left, right, exclude=None, **kwargs):
@@ -60,10 +60,8 @@ def assert_estimator_equal(left, right, exclude=None, **kwargs):
         Passed through to the dask `assert_eq` method.
 
     """
-    left_attrs = [x for x in dir(left) if x.endswith('_') and
-                  not x.startswith('_')]
-    right_attrs = [x for x in dir(right) if x.endswith('_') and
-                   not x.startswith('_')]
+    left_attrs = [x for x in dir(left) if x.endswith("_") and not x.startswith("_")]
+    right_attrs = [x for x in dir(right) if x.endswith("_") and not x.startswith("_")]
     if exclude is None:
         exclude = set()
     elif isinstance(exclude, str):
@@ -119,9 +117,11 @@ def check_array(array, *args, **kwargs):
                 raise TypeError
         if not accept_multiple_blocks:
             if len(array.chunks[1]) > 1:
-                msg = ("Chunking is only allowed on the first axis. "
-                       "Use 'array.rechunk({1: array.shape[1]})' to "
-                       "rechunk to a single block along the second axis.")
+                msg = (
+                    "Chunking is only allowed on the first axis. "
+                    "Use 'array.rechunk({1: array.shape[1]})' to "
+                    "rechunk to a single block along the second axis."
+                )
                 raise TypeError(msg)
 
         # hmmm, we want to catch things like shape errors.
@@ -153,8 +153,9 @@ def _assert_eq(l, r, **kwargs):
         assert_eq_ar(l, r, **kwargs)
     elif isinstance(l, frame_types):
         assert_eq_df(l, r, **kwargs)
-    elif (isinstance(l, Sequence) and
-            any(isinstance(x, array_types + frame_types) for x in l)):
+    elif isinstance(l, Sequence) and any(
+        isinstance(x, array_types + frame_types) for x in l
+    ):
         for a, b in zip(l, r):
             _assert_eq(a, b, **kwargs)
     else:
@@ -215,8 +216,12 @@ def check_chunks(n_samples, n_features, chunks=None):
 
 
 def _log_array(logger, arr, name):
-    logger.info("%s: %s, %s blocks", name, _format_bytes(arr.nbytes),
-                getattr(arr, 'numblocks', 'No'))
+    logger.info(
+        "%s: %s, %s blocks",
+        name,
+        _format_bytes(arr.nbytes),
+        getattr(arr, "numblocks", "No"),
+    )
 
 
 def _format_bytes(n):
@@ -233,15 +238,17 @@ def _format_bytes(n):
     '1.23 GB'
     """
     if n > 1e9:
-        return '%0.2f GB' % (n / 1e9)
+        return "%0.2f GB" % (n / 1e9)
     if n > 1e6:
-        return '%0.2f MB' % (n / 1e6)
+        return "%0.2f MB" % (n / 1e6)
     if n > 1e3:
-        return '%0.2f kB' % (n / 1000)
-    return '%d B' % n
+        return "%0.2f kB" % (n / 1000)
+    return "%d B" % n
 
 
-__all__ = ['assert_estimator_equal',
-           'check_array',
-           'check_random_state',
-           'check_chunks']
+__all__ = [
+    "assert_estimator_equal",
+    "check_array",
+    "check_random_state",
+    "check_chunks",
+]

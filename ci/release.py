@@ -5,23 +5,23 @@ import argparse
 import subprocess
 import sys
 
-from git import Repo
-from packaging.version import parse, Version
 import twine  # noqa
+from git import Repo
+from packaging.version import Version, parse
 
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('version', help="Version to tag")
-    parser.add_argument('-r', '--remote', default='upstream')
-    parser.add_argument('--no-push', action='store_false')
+    parser.add_argument("version", help="Version to tag")
+    parser.add_argument("-r", "--remote", default="upstream")
+    parser.add_argument("--no-push", action="store_false")
     return parser.parse_args(args)
 
 
 def check(version):
     v = parse(version)
-    assert isinstance(v, Version), 'Invalid version: {}'.format(version)
-    assert not version.startswith('v')
+    assert isinstance(v, Version), "Invalid version: {}".format(version)
+    assert not version.startswith("v")
 
 
 def main(args=None):
@@ -38,16 +38,16 @@ def main(args=None):
     check(args.version)
     print("Releasing for version {}".format(args.version))
     while True:
-        confirm = input("Confirm for {} [y/n]: ".format(args.version)
-                        )[0].lower()
-        if confirm == 'y':
+        confirm = input("Confirm for {} [y/n]: ".format(args.version))[0].lower()
+        if confirm == "y":
             break
-        elif confirm == 'n':
+        elif confirm == "n":
             sys.exit(1)
 
     commit = repo.index.commit("RLS: {}".format(args.version))
-    tag = repo.create_tag("v{}".format(args.version),
-                          message="RLS: {}".format(args.version))
+    tag = repo.create_tag(
+        "v{}".format(args.version), message="RLS: {}".format(args.version)
+    )
 
     print("Created commit: ", commit)
     print("Created tag   : ", tag)
@@ -58,9 +58,9 @@ def main(args=None):
 
     while True:
         confirm = input("Ready to push? [y/n]: ")[0].lower()
-        if confirm == 'y':
+        if confirm == "y":
             break
-        elif confirm == 'n':
+        elif confirm == "n":
             sys.exit(1)
 
     remote.push("master:master")
@@ -70,5 +70,5 @@ def main(args=None):
     subprocess.check_call(["twine", "upload", "dist/*", "--skip-existing"])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main(None))

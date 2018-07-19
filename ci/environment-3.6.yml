@@ -3,7 +3,9 @@ channels:
   - defaults
   - conda-forge
 dependencies:
+  - black
   - coverage
+  - codecov
   - Cython
   - flake8
   - heapdict

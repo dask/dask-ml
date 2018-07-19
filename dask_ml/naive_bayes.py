@@ -1,8 +1,9 @@
-import numpy as np
 import dask.array as da
+import numpy as np
 from dask import delayed
-from sklearn.base import BaseEstimator
+
 from sklearn import naive_bayes as _naive_bayes
+from sklearn.base import BaseEstimator
 
 from ._partial import _BigPartialFitMixin, _copy_partial_doc
 
@@ -48,8 +49,9 @@ class GaussianNB(BaseEstimator):
 
         thetas = da.from_delayed(delayed(np.array)(thetas), (K, P), np.float64)
         sigmas = da.from_delayed(delayed(np.array)(sigmas), (K, P), np.float64)
-        counts = da.from_delayed(delayed(np.array)(counts, np.float64),
-                                 (P,), np.float64)
+        counts = da.from_delayed(
+            delayed(np.array)(counts, np.float64), (P,), np.float64
+        )
         priors = counts / N
 
         # Should these be explicitly cached on self?
@@ -90,7 +92,7 @@ class GaussianNB(BaseEstimator):
         jll = self._joint_log_likelihood(X)
         # normalize by P(x) = P(f_1, ..., f_n)
         log_prob_x = logsumexp(jll, axis=1)
-        return (jll - log_prob_x.reshape(-1, 1))
+        return jll - log_prob_x.reshape(-1, 1)
 
     def predict_proba(self, X):
         """
@@ -111,9 +113,10 @@ class GaussianNB(BaseEstimator):
         jll = []
         for i in range(np.size(self.classes_)):
             jointi = da.log(self.class_prior_[i])
-            n_ij = - 0.5 * da.sum(da.log(2. * np.pi * self.sigma_[i, :]))
-            n_ij -= 0.5 * da.sum(((X - self.theta_[i, :]) ** 2) /
-                                 (self.sigma_[i, :]), 1)
+            n_ij = -0.5 * da.sum(da.log(2. * np.pi * self.sigma_[i, :]))
+            n_ij -= 0.5 * da.sum(
+                ((X - self.theta_[i, :]) ** 2) / (self.sigma_[i, :]), 1
+            )
             jll.append(jointi + n_ij)
 
         joint_log_likelihood = da.stack(jll).T
@@ -122,14 +125,14 @@ class GaussianNB(BaseEstimator):
 
 @_copy_partial_doc
 class PartialMultinomialNB(_BigPartialFitMixin, _naive_bayes.MultinomialNB):
-    _init_kwargs = ['classes']
-    _fit_kwargs = ['classes']
+    _init_kwargs = ["classes"]
+    _fit_kwargs = ["classes"]
 
 
 @_copy_partial_doc
 class PartialBernoulliNB(_BigPartialFitMixin, _naive_bayes.BernoulliNB):
-    _init_kwargs = ['classes']
-    _fit_kwargs = ['classes']
+    _init_kwargs = ["classes"]
+    _fit_kwargs = ["classes"]
 
 
 def logsumexp(arr, axis=0):

@@ -1,31 +1,32 @@
 from collections import namedtuple
 
-import pytest
+import dask.array as da
+import dask.dataframe as dd
+import numpy as np
 import pandas as pd
 import pandas.util.testing as tm
+import pytest
 import six
-import numpy as np
-import dask.dataframe as dd
-import dask.array as da
 from dask.array.utils import assert_eq as assert_eq_ar
 from dask.dataframe.utils import assert_eq as assert_eq_df
 
-from dask_ml.utils import (
-    slice_columns, handle_zeros_in_scale, assert_estimator_equal,
-    check_random_state,
-    check_chunks,
-    check_array,
-)
 from dask_ml.datasets import make_classification
-
+from dask_ml.utils import (
+    assert_estimator_equal,
+    check_array,
+    check_chunks,
+    check_random_state,
+    handle_zeros_in_scale,
+    slice_columns,
+)
 
 df = dd.from_pandas(pd.DataFrame(5 * [range(42)]).T, npartitions=5)
 s = dd.from_pandas(pd.Series([0, 1, 2, 3, 0]), npartitions=5)
 a = da.from_array(np.array([0, 1, 2, 3, 0]), chunks=3)
 X, y = make_classification(chunks=(2, 20))
 
-Foo = namedtuple('Foo', 'a_ b_ c_ d_')
-Bar = namedtuple("Bar", 'a_ b_ d_ e_')
+Foo = namedtuple("Foo", "a_ b_ c_ d_")
+Bar = namedtuple("Bar", "a_ b_ d_ e_")
 
 
 def test_slice_columns():
@@ -45,8 +46,8 @@ def test_handle_zeros_in_scale():
     assert list(s2.compute()) == [1, 1, 2, 3, 1]
     assert list(a2.compute()) == [1, 1, 2, 3, 1]
 
-    x = np.array([1, 2, 3, 0], dtype='f8')
-    expected = np.array([1, 2, 3, 1], dtype='f8')
+    x = np.array([1, 2, 3, 0], dtype="f8")
+    expected = np.array([1, 2, 3, 1], dtype="f8")
     result = handle_zeros_in_scale(x)
     np.testing.assert_array_equal(result, expected)
 
@@ -86,10 +87,9 @@ def test_assert_estimator_different_scalers():
         assert_estimator_equal(l, r)
 
 
-@pytest.mark.parametrize('a', [
-    np.array([1, 2]),
-    da.from_array(np.array([1, 2]), chunks=1),
-])
+@pytest.mark.parametrize(
+    "a", [np.array([1, 2]), da.from_array(np.array([1, 2]), chunks=1)]
+)
 def test_assert_estimator_different_arrays(a):
     l = Foo(1, 2, 3, a)
     r = Foo(1, 2, 3, np.array([1, 0]))
@@ -97,10 +97,13 @@ def test_assert_estimator_different_arrays(a):
         assert_estimator_equal(l, r)
 
 
-@pytest.mark.parametrize('a', [
-    pd.DataFrame({"A": [1, 2]}),
-    dd.from_pandas(pd.DataFrame({"A": [1, 2]}), npartitions=2),
-])
+@pytest.mark.parametrize(
+    "a",
+    [
+        pd.DataFrame({"A": [1, 2]}),
+        dd.from_pandas(pd.DataFrame({"A": [1, 2]}), npartitions=2),
+    ],
+)
 def test_assert_estimator_different_dataframes(a):
     l = Foo(1, 2, 3, a)
     r = Foo(1, 2, 3, pd.DataFrame({"A": [0, 1]}))
@@ -121,9 +124,7 @@ def test_check_random_state():
         check_random_state(np.random.RandomState(0))
 
 
-@pytest.mark.parametrize('chunks', [
-    None, 4, (2000, 4), [2000, 4],
-])
+@pytest.mark.parametrize("chunks", [None, 4, (2000, 4), [2000, 4]])
 @pytest.mark.skipif(six.PY2, reason="No mock")
 def test_get_chunks(chunks):
     from unittest import mock
@@ -134,7 +135,7 @@ def test_get_chunks(chunks):
         assert result == expected
 
 
-@pytest.mark.parametrize('chunks', [None, 8])
+@pytest.mark.parametrize("chunks", [None, 8])
 def test_get_chunks_min(chunks):
     result = check_chunks(n_samples=8, n_features=4, chunks=chunks)
     expected = (100, 4)

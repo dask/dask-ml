@@ -1,8 +1,8 @@
 import warnings
-
 from functools import wraps
 
 import numpy as np
+
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import _num_samples, check_array
 
@@ -11,6 +11,7 @@ from sklearn.utils.validation import _num_samples, check_array
 # on user-defined classifiers.
 class MockClassifier(object):
     """Dummy classifier to test the parameter search algorithms"""
+
     def __init__(self, foo_param=0):
         self.foo_param = foo_param
 
@@ -38,10 +39,10 @@ class MockClassifier(object):
         return score
 
     def get_params(self, deep=False):
-        return {'foo_param': self.foo_param}
+        return {"foo_param": self.foo_param}
 
     def set_params(self, **params):
-        self.foo_param = params['foo_param']
+        self.foo_param = params["foo_param"]
         return self
 
 
@@ -58,6 +59,7 @@ class ScalingTransformer(BaseEstimator):
 
 class CheckXClassifier(BaseEstimator):
     """Used to check output of featureunions"""
+
     def __init__(self, expected_X=None):
         self.expected_X = expected_X
 
@@ -95,16 +97,19 @@ class FailingClassifier(BaseEstimator):
 
 def ignore_warnings(f):
     """A super simple version of `sklearn.utils.testing.ignore_warnings"""
+
     @wraps(f)
     def _(*args, **kwargs):
         with warnings.catch_warnings(record=True):
             f(*args, **kwargs)
+
     return _
 
 
 # XXX: Mocking classes copied from sklearn.utils.mocking to remove nose
 # dependency.  Can be removed when scikit-learn switches to pytest. See issue
 # here: https://github.com/scikit-learn/scikit-learn/issues/7319
+
 
 class ArraySlicingWrapper(object):
     def __init__(self, array):
@@ -141,8 +146,10 @@ class CheckingClassifier(BaseEstimator, ClassifierMixin):
     This allows testing whether pipelines / cross-validation or metaestimators
     changed the input.
     """
-    def __init__(self, check_y=None, check_X=None, foo_param=0,
-                 expected_fit_params=None):
+
+    def __init__(
+        self, check_y=None, check_X=None, foo_param=0, expected_fit_params=None
+    ):
         self.check_y = check_y
         self.check_X = check_X
         self.foo_param = foo_param
@@ -154,17 +161,17 @@ class CheckingClassifier(BaseEstimator, ClassifierMixin):
             assert self.check_X(X)
         if self.check_y is not None:
             assert self.check_y(y)
-        self.classes_ = np.unique(check_array(y, ensure_2d=False,
-                                              allow_nd=True))
+        self.classes_ = np.unique(check_array(y, ensure_2d=False, allow_nd=True))
         if self.expected_fit_params:
             missing = set(self.expected_fit_params) - set(fit_params)
-            assert len(missing) == 0, ('Expected fit parameter(s) %s not '
-                                       'seen.' % list(missing))
+            assert (
+                len(missing) == 0
+            ), "Expected fit parameter(s) %s not " "seen." % list(missing)
             for key, value in fit_params.items():
-                assert len(value) == len(X), ('Fit parameter %s has length'
-                                              '%d; expected %d.' % (key,
-                                                                    len(value),
-                                                                    len(X)))
+                assert len(value) == len(X), (
+                    "Fit parameter %s has length"
+                    "%d; expected %d." % (key, len(value), len(X))
+                )
         return self
 
     def predict(self, T):

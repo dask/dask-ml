@@ -1,32 +1,33 @@
 import pytest
 import six
 from dask.delayed import Delayed
-from sklearn import linear_model as lm_
-from dask_ml import linear_model as lm
 
+from dask_ml import linear_model as lm
 from dask_ml.utils import assert_estimator_equal
+from sklearn import linear_model as lm_
 
 
 @pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")
 class TestStochasticGradientClassifier(object):
-
     def test_basic(self, single_chunk_classification):
         X, y = single_chunk_classification
 
-        a = lm.PartialSGDClassifier(classes=[0, 1], random_state=0,
-                                    max_iter=1000, tol=1e-3)
+        a = lm.PartialSGDClassifier(
+            classes=[0, 1], random_state=0, max_iter=1000, tol=1e-3
+        )
         b = lm_.SGDClassifier(random_state=0, max_iter=1000, tol=1e-3)
 
         a.fit(X, y)
         b.partial_fit(X, y, classes=[0, 1])
-        assert_estimator_equal(a, b, exclude='loss_function_')
+        assert_estimator_equal(a, b, exclude="loss_function_")
 
     def test_numpy_arrays(self, single_chunk_classification):
         # fit with dask arrays, test with numpy arrays
         X, y = single_chunk_classification
 
-        a = lm.PartialSGDClassifier(classes=[0, 1], random_state=0,
-                                    max_iter=1000, tol=1e-3)
+        a = lm.PartialSGDClassifier(
+            classes=[0, 1], random_state=0, max_iter=1000, tol=1e-3
+        )
 
         a.fit(X, y)
         X = X.compute()
@@ -37,11 +38,9 @@ class TestStochasticGradientClassifier(object):
 
 @pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")
 class TestStochasticGradientRegressor(object):
-
     def test_basic(self, single_chunk_regression):
         X, y = single_chunk_regression
-        a = lm.PartialSGDRegressor(random_state=0,
-                                   max_iter=1000, tol=1e-3)
+        a = lm.PartialSGDRegressor(random_state=0, max_iter=1000, tol=1e-3)
         b = lm_.SGDRegressor(random_state=0, max_iter=1000, tol=1e-3)
 
         a.fit(X, y)
@@ -50,8 +49,7 @@ class TestStochasticGradientRegressor(object):
 
     def test_numpy_arrays(self, single_chunk_regression):
         X, y = single_chunk_regression
-        a = lm.PartialSGDRegressor(random_state=0,
-                                   max_iter=1000, tol=1e-3)
+        a = lm.PartialSGDRegressor(random_state=0, max_iter=1000, tol=1e-3)
 
         a.fit(X, y)
         X = X.compute()

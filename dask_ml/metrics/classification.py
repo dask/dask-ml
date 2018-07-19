@@ -1,12 +1,11 @@
 
-import packaging.version
 import dask.array as da
+import packaging.version
 
 from .._compat import DASK_VERSION
 
 
-def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None,
-                   compute=True):
+def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None, compute=True):
     """Accuracy classification score.
 
     In multilabel classification, this function computes subset accuracy:
@@ -69,8 +68,9 @@ def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None,
 
     no_average = DASK_VERSION <= packaging.version.parse("0.18.0")
     if no_average and sample_weight is not None:
-        raise NotImplementedError("'sample_weight' is only supported for "
-                                  "dask versions > 0.18.0.")
+        raise NotImplementedError(
+            "'sample_weight' is only supported for " "dask versions > 0.18.0."
+        )
 
     if y_true.ndim > 1:
         differing_labels = ((y_true - y_pred) == 0).all(1)
