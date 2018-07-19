@@ -612,9 +612,13 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
                                  X.columns, self.columns
                              ))
         if isinstance(X, pd.DataFrame):
-            return pd.get_dummies(X, drop_first=self.drop_first)
+            return pd.get_dummies(X,
+                                  drop_first=self.drop_first,
+                                  columns=self.columns)
         elif isinstance(X, dd.DataFrame):
-            return dd.get_dummies(X, drop_first=self.drop_first)
+            return dd.get_dummies(X,
+                                  drop_first=self.drop_first,
+                                  columns=self.columns)
         else:
             raise TypeError("Unexpected type {}".format(type(X)))
 
