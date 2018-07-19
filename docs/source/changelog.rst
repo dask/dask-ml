@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Version 0.8.0
+~~~~~~~~~~~~~
+
+Enhancements
+------------
+
+- Automatically replace default scikit-learn scorers with dask-aware versions in Incremental (:issue:`200`)
+
 Version 0.7.0
 ~~~~~~~~~~~~~
 

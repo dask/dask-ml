@@ -18,6 +18,7 @@ dependencies:
   - psutil
   - pytest
   - pytest-cov
+  - pytest-mock
   - python=2.7
   - sortedcontainers
   - scikit-learn

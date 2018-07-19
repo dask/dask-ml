@@ -5,7 +5,7 @@ import sklearn.model_selection
 import sklearn.datasets
 from dask.array.utils import assert_eq
 from sklearn.base import clone
-from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import SGDClassifier, SGDRegressor
 
 from dask_ml.wrappers import Incremental
 import dask_ml.metrics
@@ -156,3 +156,21 @@ def test_score(xy_classification):
         expected = inc.estimator_.score(X, y)
 
     assert result == expected
+
+
+@pytest.mark.parametrize("estimator, fit_kwargs, scoring", [
+    (SGDClassifier, {'classes': [0, 1]}, 'accuracy'),
+    (SGDRegressor, {}, 'r2'),
+])
+def test_replace_scoring(estimator, fit_kwargs, scoring, xy_classification,
+                         mocker):
+    X, y = xy_classification
+    inc = Incremental(estimator(max_iter=1000, random_state=0))
+    inc.fit(X, y, **fit_kwargs)
+
+    patch = mocker.patch.object(dask_ml.wrappers, 'get_scorer')
+    with patch:
+        inc.score(X, y)
+
+    assert patch.call_count == 1
+    patch.assert_called_with(scoring)
