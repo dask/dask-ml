@@ -25,7 +25,15 @@ install_requires = [
 
 # Optional Requirements
 doc_requires = ["sphinx", "numpydoc", "sphinx-rtd-theme", "nbsphinx", "sphinx-gallery"]
-test_requires = ["coverage", "pytest", "pytest-mock"]
+test_requires = [
+    "black",
+    "coverage",
+    "flake8",
+    "isort",
+    "pytest",
+    "pytest-cover",
+    "pytest-mock",
+]
 dev_requires = doc_requires + test_requires
 tensorflow_requires = ["dask-tensorflow", "tensorflow"]
 xgboost_requires = ["dask-xgboost", "xgboost"]

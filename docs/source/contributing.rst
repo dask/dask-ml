@@ -80,13 +80,23 @@ example to test only the preprocessing submodule we would run tests as follows:
     py.test tests/preprocessing
 
 
-In addition to running tests, dask-ml verifies code style uniformity with the
-``flake8`` tool:
+Style
+~~~~~
+
+Dask-ML uses `black <http://black.readthedocs.io/en/stable/>`_ for formatting
+and `flake8 <http://flake8.pycqa.org/en/latest/>`_ for linting. If you installed
+dask-ml with ``python -m pip install -e ".[dev]"`` these tools will already be
+installed.
 
 .. code-block:: none
 
-    pip install flake8
+    black .
     flake8
+    isort -rc dask_ml tests
+
+You may wish to setup a
+`pre-commit hook <https://black.readthedocs.io/en/stable/version_control_integration.html>`_
+to run black when you commit changes.
 
 
 Conventions
