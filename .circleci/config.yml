@@ -16,11 +16,13 @@ jobs:
       - run:
           command: |
             source activate ${ENV_NAME}
-            pytest tests
+            pytest --cov=dask_ml tests
       - run:
           command: |
             source activate ${ENV_NAME}
             flake8
+            black --check .
+            codecov
       - save_cache:
           key: deps-{{ .Branch }}-3.6-{{ checksum "ci/environment-3.6.yml" }}
           paths:
@@ -47,7 +49,6 @@ jobs:
       - run:
           command: |
             source activate ${ENV_NAME}
-            flake8
       - save_cache:
           key: deps-{{ .Branch }}-2.7-{{ checksum "ci/environment-2.7.yml" }}
           paths:
