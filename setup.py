@@ -12,7 +12,7 @@ with open(os.path.join(here, "README.rst"), encoding="utf-8") as f:
     long_description = f.read()
 
 install_requires = [
-    "dask",
+    "dask[array]",
     "numpy",
     "pandas",
     "scikit-learn",
@@ -21,7 +21,6 @@ install_requires = [
     "six",
     "multipledispatch>=0.4.9",
     "packaging",
-    "toolz",
 ]
 
 # Optional Requirements
