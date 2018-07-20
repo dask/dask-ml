@@ -10,14 +10,16 @@ from .label import LabelEncoder
 
 
 class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
+    _legacy_mode = False
+
     def fit(self, X, y=None):
-        if self.handle_unknown != 'error':
-            msg = (
-                "handle_unknown must be 'error'."
-                "got {0}.".format(self.handle_unknown)
+        if self.handle_unknown == "ignore":
+            raise NotImplementedError("handle_unkown='ignore' is not implemented yet.")
+        if self.handle_unknown != "error":
+            msg = "handle_unknown must be 'error'." "got {0}.".format(
+                self.handle_unknown
             )
             raise ValueError(msg)
-
         self._fit(X, handle_unknown=self.handle_unknown)
         return self
 
@@ -66,7 +68,7 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
         """New implementation assuming categorical input"""
         X_temp = check_array(X, dtype=None)
 
-        if not hasattr(X, 'dtype') and np.issubdtype(X_temp.dtype, np.str_):
+        if not hasattr(X, "dtype") and np.issubdtype(X_temp.dtype, np.str_):
             X = check_array(X, dtype=np.object)
         else:
             X = X_temp
@@ -89,10 +91,14 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
         indptr = np.insert(indptr, 0, 0)
 
         data = np.ones(n_samples * n_features)[mask]
-        out = sparse.csr_matrix((data, indices, indptr),
-                                shape=(n_samples, feature_indices[-1]),
-                                dtype=self.dtype)
-        import pdb; pdb.set_trace()
+        out = sparse.csr_matrix(
+            (data, indices, indptr),
+            shape=(n_samples, feature_indices[-1]),
+            dtype=self.dtype,
+        )
+        import pdb
+
+        pdb.set_trace()
         if not self.sparse:
             return out.toarray()
         else:
@@ -108,14 +114,14 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
         _, n_features = X.shape
 
         if dask.is_dask_collection(X):
-            X_int = hstack([
-                self._label_encoders_[i].transform(X[:, i]).reshape(-1, 1)
-                for i in range(n_features)
-            ])
+            X_int = hstack(
+                [
+                    self._label_encoders_[i].transform(X[:, i]).reshape(-1, 1)
+                    for i in range(n_features)
+                ]
+            )
             return X_int, ones_like(X, dtype=np.bool)
         else:
-            return super(OneHotEncoder, self)._transform(X, handle_unknown=handle_unknown)
-
-
-
-__all__ = ["OneHotEncoder"]
+            return super(OneHotEncoder, self)._transform(
+                X, handle_unknown=handle_unknown
+            )
