@@ -62,24 +62,6 @@ And then
 If you have any trouble with the build step, please open an issue in the
 `dask-ml issue tracker <https://github.com/dask/dask-ml/issues>`_.
 
-Running tests
-~~~~~~~~~~~~~
-
-Dask-ml uses `py.test <https://docs.pytest.org/en/latest/>`_ for testing. You
-can run tests from the main dask-ml directory as follows:
-
-.. code-block:: none
-
-    py.test tests
-
-Alternatively you may choose to run only a subset of the full test suite. For
-example to test only the preprocessing submodule we would run tests as follows:
-
-.. code-block:: none
-
-    py.test tests/preprocessing
-
-
 Style
 ~~~~~
 
@@ -98,6 +80,35 @@ You may wish to setup a
 `pre-commit hook <https://black.readthedocs.io/en/stable/version_control_integration.html>`_
 to run black when you commit changes.
 
+Running tests
+~~~~~~~~~~~~~
+
+Dask-ml uses `py.test <https://docs.pytest.org/en/latest/>`_ for testing. You
+can run tests from the main dask-ml directory as follows:
+
+.. code-block:: none
+
+    pytest tests
+
+Alternatively you may choose to run only a subset of the full test suite. For
+example to test only the preprocessing submodule we would run tests as follows:
+
+.. code-block:: none
+
+    pytest tests/preprocessing
+
+Coverage
+~~~~~~~~
+
+If your Pull Request decreases the lines of code covered, the CI may fail.
+Sometimes this is OK, and a maintainer will merge it anyway. To check the coverage locally,
+use
+
+.. code-block:: none
+
+   pytest --cov --cov-report=html
+
+You can still use all the usual pytest command-line options in addition to those.
 
 Conventions
 ~~~~~~~~~~~

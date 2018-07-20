@@ -197,20 +197,13 @@ def _encode_categorical(values, encode=False):
         return uniques
 
 
-def _encode_dask_array(values, uniques=None, encode=False):
-    # type: (da.Array, bool, bool) -> Any
-    if uniques is None:
-        if encode:
-            uniques, encoded = da.unique(values, return_inverse=True)
-            return uniques, encoded
-        else:
-            return da.unique(values)
+def _encode_dask_array(values, encode=False):
+    # type: (da.Array, bool) -> Any
     if encode:
-        # TODO: validate new labels in `values`
-        encoded = da.map_blocks(np.searchsorted, uniques, values, dtype=np.intp)
+        uniques, encoded = da.unique(values, return_inverse=True)
         return uniques, encoded
     else:
-        return uniques
+        return da.unique(values)
 
 
 def _is_categorical(y):
