@@ -139,7 +139,7 @@ class LabelEncoder(sklabel.LabelEncoder):
         return y
 
     def transform(self, y):
-        check_is_fitted(selfte, "classes_")
+        check_is_fitted(self, "classes_")
         y = self._check_array(y)
 
         if isinstance(y, da.Array):
