@@ -114,13 +114,23 @@ class TestLabelEncoder(object):
         with pytest.raises(ValueError):
             dpp.LabelEncoder().fit(df)
 
-    def test_use_categorical(self):
+    @pytest.mark.parametrize('daskify', [True, False])
+    def test_use_categorical(self, daskify):
         data = pd.Series(
             ["b", "c"], dtype=pd.api.types.CategoricalDtype(["c", "a", "b"])
         )
+        if daskify:
+            data = dd.from_pandas(data, npartitions=2)
         a = dpp.LabelEncoder(use_categorical=False).fit(data)
         b = spp.LabelEncoder().fit(data)
         assert_estimator_equal(a, b, exclude={"dtype_"})
         assert a.dtype_ is None
 
         da.utils.assert_eq(a.transform(data), b.transform(data))
+        a_trn = a.transform(data)
+        b_trn = b.transform(data)
+        da.utils.assert_eq(a_trn, b_trn)
+
+        da.utils.assert_eq(a.inverse_transform(a_trn),
+                           b.inverse_transform(b_trn))
+
