@@ -1,3 +1,4 @@
+import dask
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
@@ -10,8 +11,8 @@ import sklearn.preprocessing as spp
 from dask_ml.utils import assert_estimator_equal
 
 choices = np.array(["a", "b", "c"], dtype=str)
-y = np.random.choice(choices, 100)
-y = da.from_array(y, chunks=13)
+np_y = np.random.choice(choices, 100)
+y = da.from_array(np_y, chunks=13)
 s = dd.from_array(y)
 
 
@@ -65,10 +66,17 @@ class TestLabelEncoder(object):
 
         assert_eq_ar(a.transform(array).compute(), b.transform(array.compute()))
 
-    @pytest.mark.parametrize("array", [y, s])
+    @pytest.mark.parametrize("array", [np_y, y, s])
     def test_transform_dtypes(self, array):
         result = dpp.LabelEncoder().fit_transform(array)
         assert result.dtype == np.intp
+        if dask.is_dask_collection(array):
+            assert result.dtype == result.compute().dtype
+
+    def test_fit_transform_categorical(self):
+        cat = dd.from_pandas(pd.Series(choices, dtype="category"), npartitions=4)
+        result = dpp.LabelEncoder().fit_transform(cat)
+        assert result.dtype == "int8"
         assert result.dtype == result.compute().dtype
 
     @pytest.mark.parametrize("array", [y, s])
