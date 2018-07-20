@@ -40,9 +40,7 @@ class LabelEncoder(sklabel.LabelEncoder):
         y = self._check_array(y)
 
         if isinstance(y, da.Array):
-            return da.map_blocks(
-                np.searchsorted, self.classes_, y, dtype=self.classes_.dtype
-            )
+            return da.map_blocks(np.searchsorted, self.classes_, y, dtype=np.intp)
         else:
             return np.searchsorted(self.classes_, y)
 
