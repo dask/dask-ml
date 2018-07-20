@@ -66,6 +66,12 @@ class TestLabelEncoder(object):
         assert_eq_ar(a.transform(array).compute(), b.transform(array.compute()))
 
     @pytest.mark.parametrize("array", [y, s])
+    def test_transform_dtypes(self, array):
+        result = dpp.LabelEncoder().fit_transform(array)
+        assert result.dtype == np.intp
+        assert result.dtype == result.compute().dtype
+
+    @pytest.mark.parametrize("array", [y, s])
     def test_inverse_transform(self, array):
 
         a = dpp.LabelEncoder()
@@ -114,7 +120,7 @@ class TestLabelEncoder(object):
         with pytest.raises(ValueError):
             dpp.LabelEncoder().fit(df)
 
-    @pytest.mark.parametrize('daskify', [True, False])
+    @pytest.mark.parametrize("daskify", [True, False])
     def test_use_categorical(self, daskify):
         data = pd.Series(
             ["b", "c"], dtype=pd.api.types.CategoricalDtype(["c", "a", "b"])
@@ -131,6 +137,4 @@ class TestLabelEncoder(object):
         b_trn = b.transform(data)
         da.utils.assert_eq(a_trn, b_trn)
 
-        da.utils.assert_eq(a.inverse_transform(a_trn),
-                           b.inverse_transform(b_trn))
-
+        da.utils.assert_eq(a.inverse_transform(a_trn), b.inverse_transform(b_trn))
