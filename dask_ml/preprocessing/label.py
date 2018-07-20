@@ -112,33 +112,38 @@ class LabelEncoder(sklabel.LabelEncoder):
         y = self._check_array(y)
 
         if isinstance(y, da.Array):
-            classes_ = da.unique(y)
-            classes_ = classes_.compute()
-            dtype = None
+            classes_ = _encode_dask_array(y)
+            self.classes_ = classes_.compute()
+            self.dtype_ = None
         elif _is_categorical(y):
-            # This may not be sorted.
-            classes_ = np.array(y.cat.categories)
-            dtype = y.dtype
+            self.classes_ = _encode_categorical(y)
+            self.dtype_ = y.dtype
         else:
-            classes_ = np.unique(y)
-            dtype = None
-
-        self.classes_ = classes_
-        self.dtype_ = dtype
+            self.dtype_ = None
+            return super(LabelEncoder, self).fit(y)
 
         return self
 
     def fit_transform(self, y):
-        return self.fit(y).transform(y)
-
-    def transform(self, y):
-        check_is_fitted(self, "classes_")
         y = self._check_array(y)
 
         if isinstance(y, da.Array):
-            return da.map_blocks(
-                np.searchsorted, self.classes_, y, dtype=np.intp,
-            )
+            self.classes_, y = _encode_dask_array(y, encode=True)
+            self.dtype_ = None
+        elif _is_categorical(y):
+            self.classes_, y = _encode_categorical(y, encode=True)
+            self.dtype_ = y.dtype
+        else:
+            return super(LabelEncoder, self).fit_transform(y)
+
+        return y
+
+    def transform(self, y):
+        check_is_fitted(selfte, "classes_")
+        y = self._check_array(y)
+
+        if isinstance(y, da.Array):
+            return da.map_blocks(np.searchsorted, self.classes_, y, dtype=np.intp)
         elif isinstance(y, (pd.Series, dd.Series)):
             assert y.dtype.categories.equals(self.dtype_.categories)
             return y.cat.codes.values
@@ -163,7 +168,11 @@ class LabelEncoder(sklabel.LabelEncoder):
                 return result
             else:
                 return da.map_blocks(
-                    getitem, self.classes_, y, dtype=self.classes_.dtype
+                    getitem,
+                    self.classes_,
+                    y,
+                    dtype=self.classes_.dtype,
+                    chunks=y.chunks,
                 )
         else:
             y = np.asarray(y)
@@ -177,6 +186,31 @@ class LabelEncoder(sklabel.LabelEncoder):
                 )
             else:
                 return self.classes_[y]
+
+
+def _encode_categorical(values, encode=False):
+    # type: (Union[dd.Series['category'], pd.Series['category']], bool) -> Any
+    uniques = np.asarray(values.cat.categories)
+    if encode:
+        return uniques, values.cat.codes
+    else:
+        return uniques
+
+
+def _encode_dask_array(values, uniques=None, encode=False):
+    # type: (da.Array, bool, bool) -> Any
+    if uniques is None:
+        if encode:
+            uniques, encoded = da.unique(values, return_inverse=True)
+            return uniques, encoded
+        else:
+            return da.unique(values)
+    if encode:
+        # TODO: validate new labels in `values`
+        encoded = da.map_blocks(np.searchsorted, uniques, values, dtype=np.intp)
+        return uniques, encoded
+    else:
+        return uniques
 
 
 def _is_categorical(y):
