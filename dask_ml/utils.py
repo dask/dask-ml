@@ -114,7 +114,9 @@ def check_array(array, *args, **kwargs):
             raise TypeError
         if not accept_unknown_chunks:
             if np.isnan(array.shape[0]):
-                raise TypeError
+                raise TypeError(
+                    "Cannot operate on Dask array with unknown chunk sizes."
+                )
         if not accept_multiple_blocks:
             if len(array.chunks[1]) > 1:
                 msg = (
