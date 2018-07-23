@@ -1,3 +1,5 @@
+from packaging import version
+
 import dask
 import dask.array as da
 import numpy as np
@@ -7,7 +9,13 @@ import scipy.sparse
 import sklearn.preprocessing
 
 from ..utils import check_array
+from .._compat import SK_VERSION
 from .label import _encode
+
+# scikit-learn pre 0.20 had OneHotEncoder but we don't support its semantics.
+
+if SK_VERSION < version.Version("0.20.0dev0"):
+    raise ImportError("scikit-learn>= 0.20 required from OneHotEncoder")
 
 
 class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
