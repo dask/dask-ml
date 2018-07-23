@@ -188,22 +188,45 @@ class LabelEncoder(sklabel.LabelEncoder):
                 return self.classes_[y]
 
 
-def _encode_categorical(values, encode=False):
+def _encode_categorical(values, uniques=None, encode=False):
     # type: (Union[dd.Series['category'], pd.Series['category']], bool) -> Any
-    uniques = np.asarray(values.cat.categories)
+    new_uniques = np.asarray(values.cat.categories)
+
+    if uniques is not None:
+        diff = list(np.setdiff1d(uniques, new_uniques, assume_unique=True))
+        if diff:
+            raise ValueError("y comtains previously unseen labels: {}".format(diff))
+
+    uniques = new_uniques
+
     if encode:
         return uniques, values.cat.codes
     else:
         return uniques
 
 
-def _encode_dask_array(values, encode=False):
+def _encode_dask_array(values, uniques=None, encode=False):
     # type: (da.Array, bool) -> Any
+    if uniques is None:
+        if encode:
+            uniques, encoded = da.unique(values, return_inverse=True)
+            return uniques, encoded
+        else:
+            return da.unique(values)
     if encode:
-        uniques, encoded = da.unique(values, return_inverse=True)
-        return uniques, encoded
+        # TODO: validate
+        return uniques, da.map_blocks(np.searchsorted, uniques, values, dtype=np.intp)
     else:
-        return da.unique(values)
+        return uniques
+
+
+def _encode(values, uniques=None, encode=False):
+    if isinstance(values, (pd.Series, dd.Series)) and _is_categorical(values):
+        return _encode_categorical(values, uniques=uniques, encode=encode)
+    elif isinstance(values, da.Array):
+        return _encode_dask_array(values, uniques=uniques, encode=encode)
+    else:
+        raise ValueError("Unknown type {}".format(type(values)))
 
 
 def _is_categorical(y):

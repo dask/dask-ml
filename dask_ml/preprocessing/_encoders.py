@@ -1,16 +1,30 @@
 import dask
+import dask.array as da
 import numpy as np
-from scipy import sparse
+import pandas as pd
+import scipy.sparse
 
 import sklearn.preprocessing
 
-from .._compat import hstack, ones_like
 from ..utils import check_array
-from .label import LabelEncoder
+from .label import _encode
 
 
 class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
     _legacy_mode = False
+
+    def __init__(
+        self,
+        n_values=None,
+        categorical_features=None,
+        categories="auto",
+        sparse=True,
+        dtype=np.float64,
+        handle_unknown="error",
+    ):
+        super().__init__(
+            n_values, categorical_features, categories, sparse, dtype, handle_unknown
+        )
 
     def fit(self, X, y=None):
         if self.handle_unknown == "ignore":
@@ -20,108 +34,147 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
                 self.handle_unknown
             )
             raise ValueError(msg)
-        self._fit(X, handle_unknown=self.handle_unknown)
+
+        if isinstance(X, (pd.Series, pd.DataFrame)) or dask.is_dask_collection(X):
+            self._fit(X, handle_unknown=self.handle_unknown)
+        else:
+            super(OneHotEncoder, self).fit(X, y=y)
+
         return self
 
     def _fit(self, X, handle_unknown="error"):
-        X_temp = check_array(X, accept_dask_dataframe=True)
+        X = check_array(X, accept_dask_dataframe=True, dtype=None)
+        # TODO
+        # X_temp = check_array(X, accept_dask_dataframe=True, dtype=None)
+        # if not hasattr(X, "dtype") and np.issubdtype(X_temp.dtype, np.str_):
+        #     X = check_array(X, dtype=np.object)
+        # else:
+        #     X = X_temp
+        is_array = isinstance(X, da.Array)
 
-        if not hasattr(X, "dtype") and np.issubdtype(X_temp.dtype, np.str_):
-            X = check_array(X, dtype=np.object)
+        if is_array:
+            _, n_features = X.shape
         else:
-            X = X_temp
-
-        _, n_features = X.shape
+            if X.ndim == 1:
+                X = X.to_frame()
+            n_features = len(X.columns)
 
         if self.categories != "auto":
+            # TODO
             for cats in self.categories:
                 if not np.all(np.sort(cats) == np.array(cats)):
-                    raise ValueError("Unsorted categories are not yet " "supported")
+                    raise ValueError("Unsorted categories are not yet supported")
             if len(self.categories) != n_features:
                 raise ValueError(
                     "Shape mismatch: if n_values is an array,"
                     " it has to be of shape (n_features,)."
                 )
 
-        self._label_encoders_ = [LabelEncoder() for _ in range(n_features)]
+        self.categories_ = []
+        self.dtypes_ = []  # TODO: document
 
-        for i in range(n_features):
-            le = self._label_encoders_[i]
-            Xi = X[:, i]
+        if is_array:
+            for i in range(n_features):
+                Xi = X[:, i]
+                if self.categories == "auto":
+                    cats = _encode(Xi)
+                else:
+                    cats = np.array(self._categories[i], dtype=X.dtype)
+                    if self.handle_unknown == "error":
+                        diff = _encode_check_unknown(Xi, cats)
+                        if diff:
+                            msg = (
+                                "Found unknown categories {0} in column {1}"
+                                " during fit".format(diff, i)
+                            )
+                            raise ValueError(msg)
+                self.categories_.append(cats)
+                self.dtypes_.append(None)
+        else:
+            if not (X.dtypes == "category").all():
+                raise ValueError("All columns must be Categorical dtype.")
             if self.categories == "auto":
-                le.fit(Xi)
-            else:
-                if handle_unknown == "error":
-                    valid_mask = np.in1d(Xi, self.categories[i])
-                    if not np.all(valid_mask):
-                        diff = np.unique(Xi[~valid_mask])
-                        msg = (
-                            "Found unknown categories {0} in column {1}"
-                            " during fit".format(diff, i)
-                        )
-                        raise ValueError(msg)
-                le.classes_ = np.array(self.categories[i])
+                for col in X.columns:
+                    Xi = X[col]
+                    cats = _encode(Xi, uniques=Xi.cat.categories)
+                self.categories_.append(cats)
+                self.dtypes_.append(Xi.dtype)
 
-        self.categories_ = [le.classes_ for le in self._label_encoders_]
+        self.categories_ = dask.compute(self.categories_)[0]
 
     def _transform_new(self, X):
-        """New implementation assuming categorical input"""
-        X_temp = check_array(X, dtype=None)
+        # TODO
+        # X_temp = check_array(X, accept_dask_dataframe=True, dtype=None)
+        #
+        # if isinstance(X, np.ndarray):
+        #     super(OneHotEncoder, self)._transform_new(X)
+        #
+        # if not hasattr(X, "dtype") and np.issubdtype(X_temp.dtype, np.str_):
+        #     X = check_array(X, dtype=np.object)
+        # else:
+        #     X = X_temp
 
-        if not hasattr(X, "dtype") and np.issubdtype(X_temp.dtype, np.str_):
-            X = check_array(X, dtype=np.object)
+        is_array = isinstance(X, da.Array)
+
+        if is_array:
+            _, n_features = X.shape
         else:
-            X = X_temp
+            if X.ndim == 1:
+                X = X.to_frame()
+            n_features = len(X.columns)
 
-        n_samples, n_features = X.shape
+        # handle pandas and dask array / dataframe here.
+        # X_int = zeros_like(X, dtype=np.int)
+        if is_array:
+            Xs = [
+                _encode(X[:, i], self.categories_[i], encode=True)[1]
+                for i in range(n_features)
+            ]
 
-        X_int, X_mask = self._transform(X, handle_unknown=self.handle_unknown)
+            objs = [
+                [dask.delayed(construct)(block, categories) for block in x.to_delayed()]
+                for x, categories in zip(Xs, self.categories_)
+            ]
+            arrs = []
 
-        if dask.is_dask_collection(X):
-            X_int = X_int.compute().ravel()
-            X_mask = X_mask.compute()
-
-        mask = X_mask.ravel()
-        n_values = [cats.shape[0] for cats in self.categories_]
-        n_values = np.array([0] + n_values)
-        feature_indices = np.cumsum(n_values)
-
-        indices = (X_int + feature_indices[:-1]).ravel()[mask]
-        indptr = X_mask.sum(axis=1).cumsum(axis=0)
-        indptr = np.insert(indptr, 0, 0)
-
-        data = np.ones(n_samples * n_features)[mask]
-        out = sparse.csr_matrix(
-            (data, indices, indptr),
-            shape=(n_samples, feature_indices[-1]),
-            dtype=self.dtype,
-        )
-        import pdb
-
-        pdb.set_trace()
-        if not self.sparse:
-            return out.toarray()
-        else:
-            return out
-
-    def _transform(self, X, handle_unknown="error"):
-        X_temp = check_array(X, accept_dask_dataframe=True, dtype=None)
-        if not hasattr(X, "dtype") and np.issubdtype(X_temp.dtype, np.str_):
-            X = check_array(X, dtype=np.object)
-        else:
-            X = X_temp
-
-        _, n_features = X.shape
-
-        if dask.is_dask_collection(X):
-            X_int = hstack(
-                [
-                    self._label_encoders_[i].transform(X[:, i]).reshape(-1, 1)
-                    for i in range(n_features)
+            for i, (objs, x, categories) in enumerate(zip(objs, Xs, self.categories_)):
+                inner_ars = [
+                    # TODO: dtype
+                    da.from_delayed(obj, (n_rows, len(categories)), dtype="f8")
+                    for j, (obj, n_rows) in enumerate(zip(objs, x.chunks[0]))
                 ]
-            )
-            return X_int, ones_like(X, dtype=np.bool)
+                arrs.append(da.concatenate(inner_ars))
+                # TODO: this check fails. See why.
+                # da.utils._check_dsk(arrs[-1].dask)
+
+            X = da.concatenate(arrs, axis=1)
+
+            if not self.sparse:
+                X = X.map_blocks(lambda x: x.toarray(), dtype="f8")
+
         else:
-            return super(OneHotEncoder, self)._transform(
-                X, handle_unknown=handle_unknown
-            )
+            import dask.dataframe as dd
+
+            # Validate that all are categorical.
+            if not (X.dtypes == "category").all():
+                raise ValueError("Must be all categorical.")
+
+            if not len(X.columns) == len(self.categories_):
+                raise ValueError
+
+            for col, dtype in zip(X.columns, self.dtypes_):
+                if not (X[col].dtype == dtype):
+                    raise ValueError
+
+            return dd.get_dummies(X, sparse=self.sparse, dtype=self.dtype)
+
+        return X
+
+
+def construct(x, categories):
+    data = np.ones(len(x))
+    rows = np.arange(len(x))
+    columns = x.ravel()
+    return scipy.sparse.csr_matrix(
+        (data, (rows, columns)), shape=(len(x), len(categories))
+    )
