@@ -1,3 +1,8 @@
+import contextlib
+import datetime
+import functools
+import logging
+from timeit import default_timer as tic
 from collections import Sequence
 from multiprocessing import cpu_count
 from numbers import Integral
@@ -12,6 +17,8 @@ from dask.dataframe.utils import assert_eq as assert_eq_df
 
 import sklearn.utils.extmath as skm
 import sklearn.utils.validation as sk_validation
+
+logger = logging.getLogger()
 
 
 def svd_flip(u, v):
@@ -244,6 +251,53 @@ def _format_bytes(n):
     if n > 1e3:
         return "%0.2f kB" % (n / 1000)
     return "%d B" % n
+
+
+@contextlib.contextmanager
+def _timer(name, _logger=None, level="info"):
+    """
+    Output execution time of a function to the given logger level
+
+    Parameters
+    ----------
+    name : str
+        How to name the timer (will be in the logs)
+    logger : logging.logger
+        The optional logger where to write
+    level : str
+        On which level to log the performance measurement
+    """
+    start = tic()
+    _logger = _logger or logger
+    _logger.info("Starting %s", name)
+    yield
+    stop = tic()
+    delta = datetime.timedelta(seconds=stop - start)
+    _logger_level = getattr(_logger, level)
+    _logger_level("Finished %s in %s", name, delta)  # nicer formatting for time.
+
+
+def _timed(_logger=None, level="info"):
+    """
+    Output execution time of a function to the given logger level
+
+    level : str
+        On which level to log the performance measurement
+    Returns
+    -------
+    fun_wrapper : Callable
+    """
+
+    def fun_wrapper(f):
+        @functools.wraps(f)
+        def wraps(*args, **kwargs):
+            with _timer(f.__name__, _logger=logger, level=level):
+                results = f(*args, **kwargs)
+            return results
+
+        return wraps
+
+    return fun_wrapper
 
 
 __all__ = [
