@@ -1,18 +1,31 @@
 import dask.array as da
+import packaging.version
 import six
 from dask.array.random import doc_wraps
 
 import sklearn.metrics
 
+from .._compat import DASK_VERSION
+
 
 def _check_sample_weight(sample_weight):
     if sample_weight is not None:
-        raise ValueError("'sample_weight' is not supported.")
+        no_average = DASK_VERSION <= packaging.version.parse("0.18.0")
+        if no_average:
+            raise NotImplementedError(
+                "'sample_weight' is only supported for " "dask versions > 0.18.0."
+            )
 
 
 def _check_reg_targets(y_true, y_pred, multioutput):
-    if multioutput != "uniform_average":
-        raise NotImplementedError("'multioutput' must be 'uniform_average'")
+    allowed_multioutput_str = ("raw_values", "uniform_average", "variance_weighted")
+    if isinstance(multioutput, six.string_types):
+        if multioutput not in allowed_multioutput_str:
+            raise ValueError(
+                "Allowed 'multioutput' string values are {}. "
+                "You provided multioutput={!r}"
+                "".format(allowed_multioutput_str, multioutput)
+            )
 
     if y_true.ndim == 1:
         y_true = y_true.reshape((-1, 1))
@@ -28,17 +41,17 @@ def mean_squared_error(
     y_true, y_pred, sample_weight=None, multioutput="uniform_average", compute=True
 ):
     _check_sample_weight(sample_weight)
-    output_errors = ((y_pred - y_true) ** 2).mean(axis=0)
+    _, y_true, y_pred, multioutput = _check_reg_targets(y_true, y_pred, multioutput)
+    output_errors = da.average((y_pred - y_true) ** 2, axis=0, weights=sample_weight)
 
     if isinstance(multioutput, six.string_types):
         if multioutput == "raw_values":
-            return output_errors
+            return output_errors.compute() if compute else output_errors
         elif multioutput == "uniform_average":
-            # pass None as weights to np.average: uniform mean
+            # pass None as weights to da.average: uniform mean
             multioutput = None
-    else:
-        raise ValueError("Weighted 'multioutput' not supported.")
-    result = output_errors.mean()
+    result = da.average(output_errors, weights=multioutput)
+
     if compute:
         result = result.compute()
     return result
@@ -49,17 +62,16 @@ def mean_absolute_error(
     y_true, y_pred, sample_weight=None, multioutput="uniform_average", compute=True
 ):
     _check_sample_weight(sample_weight)
-    output_errors = abs(y_pred - y_true).mean(axis=0)
+    _, y_true, y_pred, multioutput = _check_reg_targets(y_true, y_pred, multioutput)
+    output_errors = da.average(abs(y_pred - y_true), axis=0, weights=sample_weight)
 
     if isinstance(multioutput, six.string_types):
         if multioutput == "raw_values":
-            return output_errors
+            return output_errors.compute() if compute else output_errors
         elif multioutput == "uniform_average":
-            # pass None as weights to np.average: uniform mean
+            # pass None as weights to da.average: uniform mean
             multioutput = None
-    else:
-        raise ValueError("Weighted 'multioutput' not supported.")
-    result = output_errors.mean()
+    result = da.average(output_errors, weights=multioutput)
     if compute:
         result = result.compute()
     return result
@@ -71,10 +83,18 @@ def r2_score(
 ):
     _check_sample_weight(sample_weight)
     _, y_true, y_pred, multioutput = _check_reg_targets(y_true, y_pred, multioutput)
-    weight = 1.0
+
+    if sample_weight is not None:
+        weight = sample_weight
+        if weight.ndim == 1:
+            weight = weight.reshape((-1, 1))
+    else:
+        weight = 1.0
 
     numerator = (weight * (y_true - y_pred) ** 2).sum(axis=0, dtype="f8")
-    denominator = (weight * (y_true - y_true.mean(axis=0)) ** 2).sum(axis=0, dtype="f8")
+    denominator = (
+        weight * (y_true - da.average(y_true, axis=0, weights=sample_weight)) ** 2
+    ).sum(axis=0, dtype="f8")
 
     nonzero_denominator = denominator != 0
     nonzero_numerator = numerator != 0
@@ -82,7 +102,20 @@ def r2_score(
     output_scores = da.ones([y_true.shape[1]], chunks=y_true.chunks[1])
     output_scores[valid_score] = 1 - (numerator[valid_score] / denominator[valid_score])
     output_scores[nonzero_numerator & ~nonzero_denominator] = 0.
-    result = output_scores.mean(axis=0)
+
+    if isinstance(multioutput, six.string_types):
+        if multioutput == "raw_values":
+            # return scores individually
+            return output_scores.compute() if compute else output_scores
+        elif multioutput == "uniform_average":
+            # passing None as weights results is uniform mean
+            avg_weights = None
+        elif multioutput == "variance_weighted":
+            avg_weights = denominator
+    else:
+        avg_weights = multioutput
+
+    result = da.average(output_scores, weights=avg_weights)
     if compute:
         result = result.compute()
     return result
