@@ -19,16 +19,24 @@ ddf = dd.from_pandas(df, npartitions=2)
 
 
 @pytest.mark.parametrize("sparse", [True, False])
-def test_basic(sparse):
+@pytest.mark.parametrize("method", ["fit", "fit_transform"])
+def test_basic_array(sparse, method):
     a = sklearn.preprocessing.OneHotEncoder(sparse=sparse)
     b = dask_ml.preprocessing.OneHotEncoder(sparse=sparse)
+
+    if method == "fit":
+        a.fit(X)
+        b.fit(dX)
+        expected = a.transform(X)
+        result = b.transform(dX)
+    else:
+        expected = a.fit_transform(X)
+        result = b.fit_transform(dX)
 
     assert_estimator_equal(
         a, b, exclude={"n_values_", "feature_indices_", "active_features_", "dtypes_"}
     )
 
-    expected = a.fit_transform(X)
-    result = b.fit_transform(dX)
     assert isinstance(result, da.Array)
 
     # can't use assert_eq since we're apparently making bad graphs
@@ -58,17 +66,26 @@ def test_basic(sparse):
         False,
     ],
 )
-def test_basic_dataframe(sparse):
+@pytest.mark.parametrize("method", ["fit", "fit_transform"])
+@pytest.mark.parametrize("dask_data", [df, ddf])  # we handle pandas and dask dataframes
+def test_basic_dataframe(sparse, method, dask_data):
     a = sklearn.preprocessing.OneHotEncoder(sparse=sparse)
     b = dask_ml.preprocessing.OneHotEncoder(sparse=sparse)
-    expected = a.fit_transform(df)
-    result = b.fit_transform(ddf)
+
+    if method == "fit":
+        a.fit(df)
+        b.fit(dask_data)
+        expected = a.transform(df)
+        result = b.transform(dask_data)
+    else:
+        expected = a.fit_transform(df)
+        result = b.fit_transform(dask_data)
 
     assert_estimator_equal(
         a, b, exclude={"n_values_", "feature_indices_", "active_features_", "dtypes_"}
     )
 
-    assert isinstance(result, type(ddf))
+    assert isinstance(result, type(dask_data))
     assert len(result.columns) == expected.shape[1]
     assert (result.dtypes == np.float).all()  # TODO: dtypes
 

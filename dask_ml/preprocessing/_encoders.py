@@ -51,7 +51,9 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
         return self
 
     def _fit(self, X, handle_unknown="error"):
-        X = check_array(X, accept_dask_dataframe=True, dtype=None)
+        X = check_array(
+            X, accept_dask_dataframe=True, dtype=None, preserve_pandas_dataframe=True
+        )
         # TODO
         # X_temp = check_array(X, accept_dask_dataframe=True, dtype=None)
         # if not hasattr(X, "dtype") and np.issubdtype(X_temp.dtype, np.str_):
@@ -107,8 +109,8 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
                 for col in X.columns:
                     Xi = X[col]
                     cats = _encode(Xi, uniques=Xi.cat.categories)
-                self.categories_.append(cats)
-                self.dtypes_.append(Xi.dtype)
+                    self.categories_.append(cats)
+                    self.dtypes_.append(Xi.dtype)
 
         self.categories_ = dask.compute(self.categories_)[0]
 
@@ -163,7 +165,11 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
                 raise ValueError("Must be all categorical.")
 
             if not len(X.columns) == len(self.categories_):
-                raise ValueError
+                raise ValueError(
+                    "Number of columns ({}) does not match number of categories_ ({})".format(
+                        len(X.columns), len(self.categories_)
+                    )
+                )
 
             for col, dtype in zip(X.columns, self.dtypes_):
                 if not (X[col].dtype == dtype):
