@@ -1,15 +1,14 @@
-from packaging import version
-
 import dask
 import dask.array as da
 import numpy as np
 import pandas as pd
 import scipy.sparse
+from packaging import version
 
 import sklearn.preprocessing
 
-from ..utils import check_array
 from .._compat import SK_VERSION
+from ..utils import check_array
 from .label import _encode
 
 # scikit-learn pre 0.20 had OneHotEncoder but we don't support its semantics.
