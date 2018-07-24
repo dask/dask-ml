@@ -112,7 +112,8 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
                     self.dtypes_.append(Xi.dtype)
             else:
                 raise ValueError(
-                    "Cannot specify 'categories' with DataFrame input. Use a categorical dtype instead."
+                    "Cannot specify 'categories' with DataFrame input. "
+                    "Use a categorical dtype instead."
                 )
 
         self.categories_ = dask.compute(self.categories_)[0]
@@ -167,17 +168,15 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
 
             if not len(X.columns) == len(self.categories_):
                 raise ValueError(
-                    "Number of columns ({}) does not match number of categories_ ({})".format(
-                        len(X.columns), len(self.categories_)
-                    )
+                    "Number of columns ({}) does not match number "
+                    "of categories_ ({})".format(len(X.columns), len(self.categories_))
                 )
 
             for col, dtype in zip(X.columns, self.dtypes_):
                 if not (X[col].dtype == dtype):
                     raise ValueError(
-                        "Different CategoricalDtype for fit and transform. '{}' != {}'".format(
-                            dtype, X[col].dtype
-                        )
+                        "Different CategoricalDtype for fit and "
+                        "transform. '{}' != {}'".format(dtype, X[col].dtype)
                     )
 
             return dd.get_dummies(X, sparse=self.sparse, dtype=self.dtype)
