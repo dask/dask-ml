@@ -18,6 +18,91 @@ if SK_VERSION < version.Version("0.20.0dev0"):
 
 
 class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
+    """Encode categorical integer features as a one-hot numeric array.
+
+    The input to this transformer should be an array-like of integers, strings,
+    or categoricals, denoting the values taken on by categorical (discrete)
+    features. The features are encoded using a one-hot (aka 'one-of-K' or
+    'dummy') encoding scheme. This creates a binary column for each category
+    and returns a sparse matrix or dense array.
+
+    By default, the encoder derives the categories based on
+
+    1. For arrays, the unique values in each feature
+    2. For DataFrames, the CategoricalDtype information for each feature
+
+    Alternatively, for arrays, you can also specify the `categories` manually.
+
+    This encoding is needed for feeding categorical data to many scikit-learn
+    estimators, notably linear models and SVMs with the standard kernels.
+
+    Note: a one-hot encoding of y labels should use a LabelBinarizer
+    instead.
+
+    Read more in the :ref:`User Guide <preprocessing_categorical_features>`.
+
+    Parameters
+    ----------
+    categories : 'auto' or a list of lists/arrays of values.
+        Categories (unique values) per feature:
+
+        - 'auto' : Determine categories automatically from the training data.
+        - list : ``categories[i]`` holds the categories expected in the ith
+          column. The passed categories should not mix strings and numeric
+          values within a single feature, and should be sorted in case of
+          numeric values.
+
+        The used categories can be found in the ``categories_`` attribute.
+
+    sparse : boolean, default=True
+        Will return sparse matrix if set True else will return an array.
+
+    dtype : number type, default=np.float
+        Desired dtype of output.
+
+    handle_unknown : 'error'
+        Whether to raise an error or ignore if an unknown categorical feature
+        is present during transform (default is to raise). The option to
+        ignore unknown categories is not currently implemented.
+
+    Attributes
+    ----------
+    categories_ : list of arrays
+        The categories of each feature determined during fitting
+        (in order of the features in X and corresponding with the output
+        of ``transform``).
+
+    dtypes_ : list of dtypes
+        For DataFrame input, the CategoricalDtype information associated
+        with each feature. For arrays, this is a list of Nones.
+
+    Notes
+    -----
+    There are a few differences from scikit-learn.
+
+    Examples
+    --------
+    Given a dataset with two features, we let the encoder find the unique
+    values per feature and transform the data to a binary one-hot encoding.
+
+    >>> from dask_ml.preprocessing import OneHotEncoder
+    >>> import numpy as np
+    >>> import dask.array as da
+    >>> enc = OneHotEncoder()
+    >>> X = da.from_array(np.array([['A'], ['B'], ['A'], ['C']]), chunks=2)
+    >>> enc.fit(X)
+    ... # doctest: +ELLIPSIS
+    OneHotEncoder(categorical_features=None, categories=None,
+           dtype=<... 'numpy.float64'>, handle_unknown='error',
+           n_values=None, sparse=True)
+
+    >>> enc.categories_
+    [array(['A', 'B', 'C'], dtype='<U1')]
+
+    >>> enc.transform(X)
+    dask.array<concatenate, shape=(4, 3), dtype=float64, chunksize=(2, 3)>
+    """
+
     _legacy_mode = False
 
     def __init__(
