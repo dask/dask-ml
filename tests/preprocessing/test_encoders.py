@@ -138,3 +138,17 @@ def test_unknown_category_transform():
         enc.transform(df2)
 
     assert e.match("Different CategoricalDtype for fit and transform")
+
+
+def test_unknown_category_transform_array():
+    x2 = da.from_array(np.array([["a"], ["b"], ["c"], ["d"]]), chunks=2)
+    enc = dask_ml.preprocessing.OneHotEncoder()
+    enc.fit(dX)
+
+    result = enc.transform(x2)
+    with pytest.raises(ValueError) as e:
+        result.compute()
+
+    assert e.match("Block contains previously")
+    assert "d" in str(e)
+    assert "Block info" in str(e)

@@ -205,6 +205,19 @@ def _encode_categorical(values, uniques=None, encode=False):
         return uniques
 
 
+def _check_and_search_block(arr, uniques, block_info=None):
+    diff = list(np.setdiff1d(arr, uniques, assume_unique=True))
+
+    if diff:
+        msg = (
+            "Block contains previously unseen values {}.\nBlock info:\n\n"
+            "{}".format(diff, block_info)
+        )
+        raise ValueError(msg)
+
+    return np.searchsorted(uniques, arr)
+
+
 def _encode_dask_array(values, uniques=None, encode=False):
     # type: (da.Array, bool) -> Any
     if uniques is None:
@@ -214,8 +227,10 @@ def _encode_dask_array(values, uniques=None, encode=False):
         else:
             return da.unique(values)
     if encode:
-        # TODO: validate
-        return uniques, da.map_blocks(np.searchsorted, uniques, values, dtype=np.intp)
+        return (
+            uniques,
+            values.map_blocks(_check_and_search_block, uniques, dtype=np.intp),
+        )
     else:
         return uniques
 
