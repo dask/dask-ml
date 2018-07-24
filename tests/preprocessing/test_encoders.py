@@ -20,9 +20,10 @@ ddf = dd.from_pandas(df, npartitions=2)
 
 @pytest.mark.parametrize("sparse", [True, False])
 @pytest.mark.parametrize("method", ["fit", "fit_transform"])
-def test_basic_array(sparse, method):
-    a = sklearn.preprocessing.OneHotEncoder(sparse=sparse)
-    b = dask_ml.preprocessing.OneHotEncoder(sparse=sparse)
+@pytest.mark.parametrize("categories", ["auto", [["a", "b", "c"]]])
+def test_basic_array(sparse, method, categories):
+    a = sklearn.preprocessing.OneHotEncoder(categories=categories, sparse=sparse)
+    b = dask_ml.preprocessing.OneHotEncoder(categories=categories, sparse=sparse)
 
     if method == "fit":
         a.fit(X)
@@ -90,3 +91,50 @@ def test_basic_dataframe(sparse, method, dask_data):
     assert (result.dtypes == np.float).all()  # TODO: dtypes
 
     da.utils.assert_eq(result.values, expected)
+
+
+def test_invalid_handle_input():
+    enc = dask_ml.preprocessing.OneHotEncoder(handle_unknown="ignore")
+    with pytest.raises(NotImplementedError):
+        enc.fit(dX)
+
+    enc = dask_ml.preprocessing.OneHotEncoder(handle_unknown="invalid")
+    with pytest.raises(ValueError):
+        enc.fit(dX)
+
+
+def test_handles_numpy():
+    enc = dask_ml.preprocessing.OneHotEncoder()
+    enc.fit(X)
+
+
+@pytest.mark.parametrize("data", [df, ddf])
+def test_dataframe_requires_all_categorical(data):
+    data = data.assign(B=1)
+    enc = dask_ml.preprocessing.OneHotEncoder()
+    with pytest.raises(ValueError) as e:
+        enc.fit(data)
+
+    assert e.match("All columns must be Categorical dtype")
+
+
+@pytest.mark.parametrize("data", [df, ddf])
+def test_dataframe_prohibits_categories(data):
+    enc = dask_ml.preprocessing.OneHotEncoder(categories=[["a", "b"]])
+    with pytest.raises(ValueError) as e:
+        enc.fit(data)
+
+    assert e.match("Cannot specify 'categories'")
+
+
+def test_unknown_category_transform():
+    df2 = ddf.copy()
+    df2["A"] = ddf.A.cat.add_categories("new!")
+
+    enc = dask_ml.preprocessing.OneHotEncoder()
+    enc.fit(ddf)
+
+    with pytest.raises(ValueError) as e:
+        enc.transform(df2)
+
+    assert e.match("Different CategoricalDtype for fit and transform")

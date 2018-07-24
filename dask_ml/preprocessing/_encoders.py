@@ -59,17 +59,17 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
         #     X = check_array(X, dtype=np.object)
         # else:
         #     X = X_temp
+        if isinstance(X, np.ndarray):
+            return super(OneHotEncoder, self)._fit(X, handle_unknown=handle_unknown)
+
         is_array = isinstance(X, da.Array)
 
         if is_array:
             _, n_features = X.shape
         else:
-            if X.ndim == 1:
-                X = X.to_frame()
             n_features = len(X.columns)
 
         if self.categories != "auto":
-            # TODO
             for cats in self.categories:
                 if not np.all(np.sort(cats) == np.array(cats)):
                     raise ValueError("Unsorted categories are not yet supported")
@@ -88,7 +88,7 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
                 if self.categories == "auto":
                     cats = _encode(Xi)
                 else:
-                    cats = np.array(self._categories[i], dtype=X.dtype)
+                    cats = np.array(self.categories[i], dtype=X.dtype)
                     if self.handle_unknown == "error":
                         # TODO: check unknown
                         # diff = _encode_check_unknown(Xi, cats)
@@ -110,6 +110,10 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
                     cats = _encode(Xi, uniques=Xi.cat.categories)
                     self.categories_.append(cats)
                     self.dtypes_.append(Xi.dtype)
+            else:
+                raise ValueError(
+                    "Cannot specify 'categories' with DataFrame input. Use a categorical dtype instead."
+                )
 
         self.categories_ = dask.compute(self.categories_)[0]
 
@@ -120,8 +124,6 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
         if is_array:
             _, n_features = X.shape
         else:
-            if X.ndim == 1:
-                X = X.to_frame()
             n_features = len(X.columns)
 
         if is_array:
@@ -172,7 +174,11 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
 
             for col, dtype in zip(X.columns, self.dtypes_):
                 if not (X[col].dtype == dtype):
-                    raise ValueError
+                    raise ValueError(
+                        "Different CategoricalDtype for fit and transform. '{}' != {}'".format(
+                            dtype, X[col].dtype
+                        )
+                    )
 
             return dd.get_dummies(X, sparse=self.sparse, dtype=self.dtype)
 
