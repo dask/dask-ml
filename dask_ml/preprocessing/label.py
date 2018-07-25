@@ -240,6 +240,33 @@ def _construct(x, categories):
 
 
 def _encode_dask_array(values, uniques=None, encode=False, onehot_dtype=None):
+    """One-hot or label encode a dask array.
+
+    Parameters
+    ----------
+    values : da.Array, shape [n_samples,]
+    unqiques : np.ndarray, shape [n_uniques,]
+    encode : bool, default False
+        Whether to encode the values (True) or just discover the uniques.
+    onehot_dtype : np.dtype, optional
+        Optional dtype for the resulting one-hot encoded array. This changes
+        the shape, dtype, and underlying storage of the returned dask array.
+
+        ======= ================= =========================
+        thing   onehot_dtype=None onehot_dtype=onehot_dtype
+        ======= ================= =========================
+        shape   (n_samples,)      (n_samples, len(uniques))
+        dtype   np.intp           onehot_dtype
+        storage np.ndarray        scipy.sparse.csr_matrix
+        ======= ================= =========================
+
+    Returns
+    -------
+    uniques : ndarray
+        The discovered uniques (uniques=None) or just `uniques`
+    encoded : da.Array, optional
+        The encoded values. Only returend when ``encode=True``.
+    """
 
     if uniques is None:
         if encode and onehot_dtype:
