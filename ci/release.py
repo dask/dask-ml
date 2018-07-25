@@ -5,8 +5,9 @@ import argparse
 import subprocess
 import sys
 
-from git import Repo
 from packaging.version import Version, parse
+
+from git import Repo
 
 
 def parse_args(args=None):
