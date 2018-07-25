@@ -1,7 +1,6 @@
 import logging
 from multiprocessing import cpu_count
 from numbers import Integral
-from timeit import default_timer as tic
 
 import dask.array as da
 import dask.dataframe as dd
@@ -19,7 +18,8 @@ from ..metrics import (
     pairwise_distances,
     pairwise_distances_argmin_min,
 )
-from ..utils import check_array, row_norms
+from ..utils import _timed, _timer, check_array, row_norms
+
 from ._k_means import _centers_dense
 
 logger = logging.getLogger(__name__)
@@ -153,9 +153,8 @@ class KMeans(TransformerMixin, BaseEstimator):
         self.n_jobs = n_jobs
         self.copy_x = copy_x
 
+    @_timed(_logger=logger)
     def _check_array(self, X):
-        t0 = tic()
-
         if isinstance(X, pd.DataFrame):
             X = X.values
 
@@ -186,8 +185,6 @@ class KMeans(TransformerMixin, BaseEstimator):
                 "dtype('float64')."
             )
             raise ValueError(msg)
-        t1 = tic()
-        logger.info("Finished check_array in %0.2f s", t1 - t0)
         return X
 
     def fit(self, X, y=None):
@@ -381,27 +378,24 @@ def init_pp(X, n_clusters, random_state):
     """
     x_squared_norms = row_norms(X, squared=True).compute()
     logger.info("Initializing with k-means++")
-    t0 = tic()
-    centers = sk_k_means._k_init(
-        X, n_clusters, random_state=random_state, x_squared_norms=x_squared_norms
-    )
-    logger.info("Finished initialization. %.2f s, %2d centers", tic() - t0, n_clusters)
+    with _timer("initialization of %2d centers" % n_clusters, _logger=logger):
+        centers = sk_k_means._k_init(
+            X, n_clusters, random_state=random_state, x_squared_norms=x_squared_norms
+        )
 
     return centers
 
 
+@_timed(_logger=logger)
 def init_random(X, n_clusters, random_state):
     """K-means initialization using randomly chosen points"""
     logger.info("Initializing randomly")
-    t0 = tic()
-
     idx = sorted(random_state.randint(0, len(X), size=n_clusters))
     centers = X[idx].compute()
-
-    logger.info("Finished initialization. %.2f s, %2d centers", tic() - t0, n_clusters)
     return centers
 
 
+@_timed(_logger=logger)
 def init_scalable(
     X, n_clusters, random_state=None, max_iter=None, oversampling_factor=2
 ):
@@ -411,7 +405,6 @@ def init_scalable(
     """
 
     logger.info("Initializing with k-means||")
-    init_start = tic()
     # Step 1: Initialize Centers
     idx = 0
     centers = da.compute(X[idx, np.newaxis])[0]
@@ -430,18 +423,14 @@ def init_scalable(
 
     # Steps 3 - 6: update candidate Centers
     for i in range(n_iter):
-        t0 = tic()
-        new_idxs = _sample_points(X, centers, oversampling_factor, random_state)
-        new_idxs = set(*compute(new_idxs))
-        c_idx |= new_idxs
-        t1 = tic()
-        logger.info(
-            "init iteration %2d/%2d %.2f s, %2d centers",
-            i + 1,
-            n_iter,
-            t1 - t0,
-            len(c_idx),
-        )
+        with _timer(
+            "init iteration %2d/%2d , %2d centers" % (i + 1, n_iter, len(c_idx)),
+            _logger=logger,
+        ):
+            new_idxs = _sample_points(X, centers, oversampling_factor, random_state)
+            new_idxs = set(*compute(new_idxs))
+            c_idx |= new_idxs
+
         # Sort before slicing, for better performance / memory
         # usage with the scheduler.
         # See https://github.com/dask/dask-ml/issues/39
@@ -472,11 +461,7 @@ def init_scalable(
         rng2 = random_state.randint(0, 2 ** 32 - 1, chunks=()).compute().item()
         km = sk_k_means.KMeans(n_clusters, random_state=rng2)
         km.fit(centers)
-        logger.info(
-            "Finished initialization. %.2f s, %2d centers",
-            tic() - init_start,
-            n_clusters,
-        )
+
     return km.cluster_centers_
 
 
@@ -537,44 +522,44 @@ def _kmeans_single_lloyd(
     dt = X.dtype
     P = X.shape[1]
     for i in range(max_iter):
-        t0 = tic()
-        labels, distances = pairwise_distances_argmin_min(
-            X, centers, metric="euclidean", metric_kwargs={"squared": True}
-        )
+        with _timer("Lloyd loop %2d." % i, _logger=logger):
+            labels, distances = pairwise_distances_argmin_min(
+                X, centers, metric="euclidean", metric_kwargs={"squared": True}
+            )
 
-        labels = labels.astype(np.int32)
-        # distances is always float64, but we need it to match X.dtype
-        # for centers_dense, but remain float64 for inertia
-        r = da.atop(
-            _centers_dense,
-            "ij",
-            X,
-            "ij",
-            labels,
-            "i",
-            n_clusters,
-            None,
-            distances.astype(X.dtype),
-            "i",
-            adjust_chunks={"i": n_clusters, "j": P},
-            dtype=X.dtype,
-        )
-        new_centers = da.from_delayed(
-            sum(r.to_delayed().flatten()), (n_clusters, P), X.dtype
-        )
-        counts = da.bincount(labels, minlength=n_clusters)
-        # Require at least one per bucket, to avoid division by 0.
-        counts = da.maximum(counts, 1)
-        new_centers = new_centers / counts[:, None]
-        new_centers, = compute(new_centers)
+            labels = labels.astype(np.int32)
+            # distances is always float64, but we need it to match X.dtype
+            # for centers_dense, but remain float64 for inertia
+            r = da.atop(
+                _centers_dense,
+                "ij",
+                X,
+                "ij",
+                labels,
+                "i",
+                n_clusters,
+                None,
+                distances.astype(X.dtype),
+                "i",
+                adjust_chunks={"i": n_clusters, "j": P},
+                dtype=X.dtype,
+            )
+            new_centers = da.from_delayed(
+                sum(r.to_delayed().flatten()), (n_clusters, P), X.dtype
+            )
+            counts = da.bincount(labels, minlength=n_clusters)
+            # Require at least one per bucket, to avoid division by 0.
+            counts = da.maximum(counts, 1)
+            new_centers = new_centers / counts[:, None]
+            new_centers, = compute(new_centers)
 
-        # Convergence check
-        shift = squared_norm(centers - new_centers)
-        t1 = tic()
-        logger.info("Lloyd loop %2d. Shift: %0.4f [%.2f s]", i, shift, t1 - t0)
-        if shift < tol:
-            break
-        centers = new_centers
+            # Convergence check
+            shift = squared_norm(centers - new_centers)
+
+            logger.info("Shift: %0.4f", shift)
+            if shift < tol:
+                break
+            centers = new_centers
 
     if shift > 1e-7:
         labels, distances = pairwise_distances_argmin_min(X, centers)

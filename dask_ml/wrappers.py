@@ -1,6 +1,5 @@
 """Meta-estimators for parallelizing scikit-learn."""
 import logging
-from timeit import default_timer as tic
 
 import dask.array as da
 import dask.dataframe as dd
@@ -9,6 +8,7 @@ import numpy as np
 
 import sklearn.base
 import sklearn.metrics
+from dask_ml.utils import _timer
 from sklearn.utils.validation import check_is_fitted
 
 from ._partial import fit
@@ -134,11 +134,9 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         -------
         self : object
         """
-        start = tic()
         logger.info("Starting fit")
-        result = self.estimator.fit(X, y, **kwargs)
-        stop = tic()
-        logger.info("Finished fit, %0.2f", stop - start)
+        with _timer("fit", _logger=logger):
+            result = self.estimator.fit(X, y, **kwargs)
 
         # Copy over learned attributes
         copy_learned_attributes(result, self)
