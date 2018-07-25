@@ -1,16 +1,15 @@
 import dask.array as da
 import dask.dataframe as dd
-import packaging.version
 import numpy as np
+import packaging.version
 import pandas as pd
 import pytest
 import scipy.sparse
+import sklearn.preprocessing
 
 import dask_ml.preprocessing
-import sklearn.preprocessing
-from dask_ml.utils import assert_estimator_equal
 from dask_ml._compat import DASK_VERSION, SK_VERSION
-
+from dask_ml.utils import assert_estimator_equal
 
 pytestmark = pytest.mark.skipif(
     SK_VERSION < packaging.version.parse("0.20.0.dev0"),

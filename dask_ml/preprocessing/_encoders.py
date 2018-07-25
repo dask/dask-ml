@@ -2,9 +2,8 @@ import dask
 import dask.array as da
 import numpy as np
 import pandas as pd
-from packaging import version
-
 import sklearn.preprocessing
+from packaging import version
 
 from .._compat import SK_VERSION
 from ..utils import check_array
