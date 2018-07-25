@@ -2,14 +2,13 @@ import dask
 import dask.array as da
 import numpy as np
 import pandas as pd
-import scipy.sparse
 from packaging import version
 
 import sklearn.preprocessing
 
 from .._compat import SK_VERSION
 from ..utils import check_array
-from .label import _encode
+from .label import _encode, _encode_dask_array
 
 # scikit-learn pre 0.20 had OneHotEncoder but we don't support its semantics.
 
@@ -19,6 +18,8 @@ if SK_VERSION < version.Version("0.20.0dev0"):
 
 class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
     """Encode categorical integer features as a one-hot numeric array.
+
+    .. versionadded:: 0.8.0
 
     The input to this transformer should be an array-like of integers, strings,
     or categoricals, denoting the values taken on by categorical (discrete)
@@ -218,28 +219,17 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
             #     encoded dask array ->
             #     List[Delayed[sparse]] ->
             #     Array[sparse] -> (optionally Array[Dense]).
+            # so let's fuse all of that together...
             Xs = [
-                _encode(X[:, i], self.categories_[i], encode=True)[1]
+                _encode_dask_array(
+                    X[:, i],
+                    uniques=self.categories_[i],
+                    encode=True,
+                    onehot_dtype=self.dtype,
+                )[1]
                 for i in range(n_features)
             ]
-
-            objs = [
-                [dask.delayed(construct)(block, categories) for block in x.to_delayed()]
-                for x, categories in zip(Xs, self.categories_)
-            ]
-            arrs = []
-
-            for i, (objs, x, categories) in enumerate(zip(objs, Xs, self.categories_)):
-                inner_ars = [
-                    # TODO: dtype
-                    da.from_delayed(obj, (n_rows, len(categories)), dtype=self.dtype)
-                    for j, (obj, n_rows) in enumerate(zip(objs, x.chunks[0]))
-                ]
-                arrs.append(da.concatenate(inner_ars))
-                # TODO: this check fails. See why.
-                # da.utils._check_dsk(arrs[-1].dask)
-
-            X = da.concatenate(arrs, axis=1)
+            X = da.concatenate(Xs, axis=1)
 
             if not self.sparse:
                 X = X.map_blocks(lambda x: x.toarray(), dtype=self.dtype)
@@ -267,12 +257,3 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
             return dd.get_dummies(X, sparse=self.sparse, dtype=self.dtype)
 
         return X
-
-
-def construct(x, categories):
-    data = np.ones(len(x))
-    rows = np.arange(len(x))
-    columns = x.ravel()
-    return scipy.sparse.csr_matrix(
-        (data, (rows, columns)), shape=(len(x), len(categories))
-    )

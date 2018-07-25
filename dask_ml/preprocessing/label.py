@@ -6,7 +6,7 @@ import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
-
+import scipy.sparse
 from sklearn.preprocessing import label as sklabel
 from sklearn.utils.validation import check_is_fitted
 
@@ -205,7 +205,7 @@ def _encode_categorical(values, uniques=None, encode=False):
         return uniques
 
 
-def _check_and_search_block(arr, uniques, block_info=None):
+def _check_and_search_block(arr, uniques, onehot_dtype=None, block_info=None):
     diff = list(np.setdiff1d(arr, uniques, assume_unique=True))
 
     if diff:
@@ -215,21 +215,61 @@ def _check_and_search_block(arr, uniques, block_info=None):
         )
         raise ValueError(msg)
 
-    return np.searchsorted(uniques, arr)
+    label_encoded = np.searchsorted(uniques, arr)
+    if onehot_dtype:
+        return _construct(label_encoded, uniques)
+    else:
+        return label_encoded
 
 
-def _encode_dask_array(values, uniques=None, encode=False):
-    # type: (da.Array, bool) -> Any
+def _construct(x, categories):
+    """Make a sparse matrix from an encoded array.
+
+    >>> construct(np.array([0, 1, 0]), np.array([0, 1])).toarray()
+    array([[1., 0.],
+           [0., 1.],
+           [1., 0.]])
+    """
+    # type: (np.ndarray, np.ndarray) -> scipy.sparse.csr_matrix
+    data = np.ones(len(x))
+    rows = np.arange(len(x))
+    columns = x.ravel()
+    return scipy.sparse.csr_matrix(
+        (data, (rows, columns)), shape=(len(x), len(categories))
+    )
+
+
+def _encode_dask_array(values, uniques=None, encode=False, onehot_dtype=None):
+
     if uniques is None:
+        if encode and onehot_dtype:
+            raise ValueError("Cannot use 'encode` and 'onehot_dtype' simultaneously.")
         if encode:
             uniques, encoded = da.unique(values, return_inverse=True)
             return uniques, encoded
         else:
             return da.unique(values)
+
     if encode:
+        if onehot_dtype:
+            dtype = onehot_dtype
+            new_axis = 1
+            chunks = values.chunks + (len(uniques),)
+        else:
+            dtype = np.intp
+            new_axis = None
+            chunks = values.chunks
+
         return (
             uniques,
-            values.map_blocks(_check_and_search_block, uniques, dtype=np.intp),
+            values.map_blocks(
+                _check_and_search_block,
+                uniques,
+                onehot_dtype=onehot_dtype,
+                dtype=dtype,
+                new_axis=new_axis,
+                chunks=chunks,
+            ),
         )
     else:
         return uniques

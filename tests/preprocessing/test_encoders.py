@@ -1,4 +1,3 @@
-import dask
 import dask.array as da
 import dask.dataframe as dd
 import packaging.version
@@ -10,6 +9,7 @@ import scipy.sparse
 import dask_ml.preprocessing
 import sklearn.preprocessing
 from dask_ml.utils import assert_estimator_equal
+from dask_ml.preprocessing.label import _encode_dask_array
 from dask_ml._compat import DASK_VERSION
 
 X = np.array([["a"], ["a"], ["b"], ["c"]])
