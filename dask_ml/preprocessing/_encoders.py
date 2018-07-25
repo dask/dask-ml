@@ -21,6 +21,10 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
 
     .. versionadded:: 0.8.0
 
+    .. note::
+
+       This requires scikit-learn 0.20.0 or newer.
+
     The input to this transformer should be an array-like of integers, strings,
     or categoricals, denoting the values taken on by categorical (discrete)
     features. The features are encoded using a one-hot (aka 'one-of-K' or
@@ -139,12 +143,6 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
         X = check_array(
             X, accept_dask_dataframe=True, dtype=None, preserve_pandas_dataframe=True
         )
-        # TODO
-        # X_temp = check_array(X, accept_dask_dataframe=True, dtype=None)
-        # if not hasattr(X, "dtype") and np.issubdtype(X_temp.dtype, np.str_):
-        #     X = check_array(X, dtype=np.object)
-        # else:
-        #     X = X_temp
         if isinstance(X, np.ndarray):
             return super(OneHotEncoder, self)._fit(X, handle_unknown=handle_unknown)
 
@@ -166,7 +164,7 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
                 )
 
         self.categories_ = []
-        self.dtypes_ = []  # TODO: document
+        self.dtypes_ = []
 
         if is_array:
             for i in range(n_features):
@@ -175,16 +173,6 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
                     cats = _encode(Xi)
                 else:
                     cats = np.array(self.categories[i], dtype=X.dtype)
-                    if self.handle_unknown == "error":
-                        # TODO: check unknown
-                        # diff = _encode_check_unknown(Xi, cats)
-                        # if diff:
-                        #     msg = (
-                        #         "Found unknown categories {0} in column {1}"
-                        #         " during fit".format(diff, i)
-                        #     )
-                        #     raise ValueError(msg)
-                        pass
                 self.categories_.append(cats)
                 self.dtypes_.append(None)
         else:
@@ -205,7 +193,10 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
         self.categories_ = dask.compute(self.categories_)[0]
 
     def _transform_new(self, X):
-        # TODO: check_array
+        X = check_array(
+            X, accept_dask_dataframe=True, dtype=None, preserve_pandas_dataframe=True
+        )
+
         is_array = isinstance(X, da.Array)
 
         if is_array:
@@ -214,12 +205,7 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
             n_features = len(X.columns)
 
         if is_array:
-            # For arrays, the basic plan is:
-            # User-array -> for each column:
-            #     encoded dask array ->
-            #     List[Delayed[sparse]] ->
-            #     Array[sparse] -> (optionally Array[Dense]).
-            # so let's fuse all of that together...
+            # We encode each column independently, as they have different categories.
             Xs = [
                 _encode_dask_array(
                     X[:, i],
