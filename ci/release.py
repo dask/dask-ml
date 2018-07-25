@@ -5,7 +5,6 @@ import argparse
 import subprocess
 import sys
 
-import twine  # noqa
 from git import Repo
 from packaging.version import Version, parse
 

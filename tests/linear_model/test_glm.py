@@ -1,11 +1,11 @@
 import dask.dataframe as dd
-import numpy as np
 import pandas as pd
-import pytest
 from dask.dataframe.utils import assert_eq
+from dask_glm.regularizers import Regularizer
 from sklearn.pipeline import make_pipeline
 
-from dask_glm.regularizers import Regularizer
+import numpy as np
+import pytest
 from dask_ml.datasets import make_classification, make_counts, make_regression
 from dask_ml.linear_model import LinearRegression, LogisticRegression, PoissonRegression
 from dask_ml.linear_model.utils import add_intercept
