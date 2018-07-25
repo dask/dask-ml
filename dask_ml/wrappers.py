@@ -5,11 +5,11 @@ import dask.array as da
 import dask.dataframe as dd
 import dask.delayed
 import numpy as np
-
 import sklearn.base
 import sklearn.metrics
-from dask_ml.utils import _timer
 from sklearn.utils.validation import check_is_fitted
+
+from dask_ml.utils import _timer
 
 from ._partial import fit
 from ._utils import copy_learned_attributes

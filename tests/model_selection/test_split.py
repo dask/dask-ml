@@ -3,9 +3,9 @@ import numpy as np
 import pandas as pd
 import pytest
 import six
+from sklearn.datasets import fetch_20newsgroups, make_regression
 
 import dask_ml.model_selection
-from sklearn.datasets import fetch_20newsgroups, make_regression
 
 X, y = make_regression(n_samples=110, n_features=5)
 dX = da.from_array(X, 50)

@@ -3,10 +3,10 @@ import numbers
 import dask
 import dask.array as da
 import numpy as np
-
-import dask_ml.utils
 import sklearn.datasets
 import sklearn.utils
+
+import dask_ml.utils
 
 
 def _check_axis_partitioning(chunks, n_features):

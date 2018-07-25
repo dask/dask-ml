@@ -1,8 +1,8 @@
 import pytest
+from sklearn import cluster as cluster_
 
 from dask_ml import cluster
 from dask_ml.utils import assert_estimator_equal
-from sklearn import cluster as cluster_
 
 
 @pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")

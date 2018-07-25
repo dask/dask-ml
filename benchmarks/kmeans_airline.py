@@ -6,7 +6,6 @@ import logging
 import sys
 from timeit import default_timer as tic
 
-import coloredlogs
 import dask.array as da
 import dask.dataframe as dd
 import pandas as pd
@@ -17,7 +16,6 @@ from dask_ml.cluster import KMeans
 from dask_ml.utils import _timer
 
 logger = logging.getLogger(__name__)
-coloredlogs.install()
 
 
 def parse_args(args=None):

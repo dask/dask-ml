@@ -6,10 +6,9 @@ import logging
 import dask.array as da
 import numpy as np
 import six
+import sklearn.cluster
 from dask import delayed
 from scipy.linalg import pinv, svd
-
-import sklearn.cluster
 from sklearn.base import BaseEstimator, ClusterMixin
 from sklearn.utils import check_random_state
 

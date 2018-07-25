@@ -1,8 +1,7 @@
 import dask.array as da
 import six
-from dask.array.random import doc_wraps
-
 import sklearn.metrics
+from dask.array.random import doc_wraps
 
 
 def _check_sample_weight(sample_weight):

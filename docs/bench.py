@@ -4,7 +4,6 @@ from time import time
 
 import distributed.joblib
 import numpy as np
-
 import sklearn.ensemble.forest
 from sklearn.datasets import fetch_covtype
 from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier

@@ -9,13 +9,13 @@ import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import pytest
-from dask.array.utils import assert_eq
-
 import sklearn.datasets
-from dask_ml.cluster import KMeans as DKKMeans, k_means
-from dask_ml.utils import assert_estimator_equal, row_norms
+from dask.array.utils import assert_eq
 from sklearn.cluster import KMeans as SKKMeans, k_means_
 from sklearn.utils.estimator_checks import check_estimator
+
+from dask_ml.cluster import KMeans as DKKMeans, k_means
+from dask_ml.utils import assert_estimator_equal, row_norms
 
 
 def test_check_estimator():

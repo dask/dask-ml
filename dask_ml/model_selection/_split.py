@@ -6,15 +6,15 @@ import numbers
 import dask
 import dask.array as da
 import numpy as np
-
 import sklearn.model_selection as ms
-from dask_ml.utils import check_array
 from sklearn.model_selection._split import (
     BaseCrossValidator,
     _validate_shuffle_split,
     _validate_shuffle_split_init,
 )
 from sklearn.utils import check_random_state
+
+from dask_ml.utils import check_array
 
 
 def _check_blockwise(blockwise):

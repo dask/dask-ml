@@ -4,11 +4,8 @@ import dask.array as da
 import numpy as np
 import pytest
 import scipy as sp
-from dask.array.utils import assert_eq
-
-import dask_ml.decomposition as dd
 import sklearn.decomposition as sd
-from dask_ml.utils import assert_estimator_equal
+from dask.array.utils import assert_eq
 from sklearn import datasets
 from sklearn.decomposition.pca import _assess_dimension_, _infer_dimension_
 from sklearn.utils.testing import (
@@ -22,6 +19,9 @@ from sklearn.utils.testing import (
     assert_true,
     ignore_warnings,
 )
+
+import dask_ml.decomposition as dd
+from dask_ml.utils import assert_estimator_equal
 
 iris = datasets.load_iris()
 solver_list = ["full", "randomized", "auto"]

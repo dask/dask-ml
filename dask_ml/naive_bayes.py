@@ -1,7 +1,6 @@
 import dask.array as da
 import numpy as np
 from dask import delayed
-
 from sklearn import naive_bayes as _naive_bayes
 from sklearn.base import BaseEstimator
 

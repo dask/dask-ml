@@ -4,11 +4,11 @@ import numpy as np
 import pytest
 import scipy.sparse as sp
 from numpy.testing import assert_array_almost_equal
+from sklearn import decomposition as sd
+from sklearn.utils import check_random_state
 
 from dask_ml import decomposition as dd
 from dask_ml.utils import assert_estimator_equal
-from sklearn import decomposition as sd
-from sklearn.utils import check_random_state
 
 # Make an X that looks somewhat like a small tf-idf matrix.
 # XXX newer versions of SciPy have scipy.sparse.rand for this.

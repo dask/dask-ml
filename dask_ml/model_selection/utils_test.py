@@ -2,7 +2,6 @@ import warnings
 from functools import wraps
 
 import numpy as np
-
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import _num_samples, check_array
 

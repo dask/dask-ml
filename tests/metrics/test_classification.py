@@ -4,9 +4,9 @@ import dask.array as da
 import numpy as np
 import packaging.version
 import pytest
+import sklearn.metrics
 
 import dask_ml.metrics
-import sklearn.metrics
 from dask_ml._compat import DASK_VERSION
 
 
