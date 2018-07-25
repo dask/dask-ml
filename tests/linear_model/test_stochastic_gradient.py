@@ -1,10 +1,10 @@
 import pytest
 import six
 from dask.delayed import Delayed
+from sklearn import linear_model as lm_
 
 from dask_ml import linear_model as lm
 from dask_ml.utils import assert_estimator_equal
-from sklearn import linear_model as lm_
 
 
 @pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")

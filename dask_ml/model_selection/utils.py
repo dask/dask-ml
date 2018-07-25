@@ -5,7 +5,6 @@ import dask
 import dask.array as da
 from dask.base import tokenize
 from dask.delayed import Delayed, delayed
-
 from sklearn.utils.validation import _is_arraylike, indexable
 
 if LooseVersion(dask.__version__) > "0.15.4":

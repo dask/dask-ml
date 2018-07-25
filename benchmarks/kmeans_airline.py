@@ -6,7 +6,6 @@ import logging
 import sys
 from timeit import default_timer as tic
 
-import coloredlogs
 import dask.array as da
 import dask.dataframe as dd
 import pandas as pd
@@ -14,9 +13,9 @@ from dask import persist
 from distributed import Client
 
 from dask_ml.cluster import KMeans
+from dask_ml.utils import _timer
 
-logger = logging.getLogger()
-coloredlogs.install()
+logger = logging.getLogger(__name__)
 
 
 def parse_args(args=None):
@@ -99,9 +98,9 @@ def main(args=None):
     for n_clusters in range(args.start, args.stop, args.step):
         logger.info("Starting %02d", n_clusters)
         t0 = tic()
-        km = do(X, n_clusters, factor=args.factor)
+        with _timer(n_clusters, _logger=logger):
+            km = do(X, n_clusters, factor=args.factor)
         t1 = tic()
-        logger.info("Finished %02d, [%.2f]", n_clusters, t1 - t0)
         logger.info("Cluster Centers [%s]:\n%s", n_clusters, km.cluster_centers_)
         inertia = km.inertia_.compute()
         logger.info("Inertia [%s]: %s", km.cluster_centers_, inertia)

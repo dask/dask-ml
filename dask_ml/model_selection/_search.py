@@ -12,7 +12,6 @@ import packaging.version
 from dask.base import tokenize
 from dask.delayed import delayed
 from dask.utils import derived_from
-
 from sklearn import model_selection
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, clone, is_classifier
 from sklearn.exceptions import NotFittedError

@@ -10,6 +10,7 @@ dependencies:
   - flake8
   - heapdict
   - ipython
+  - isort
   - multipledispatch
   - nbsphinx
   - nomkl

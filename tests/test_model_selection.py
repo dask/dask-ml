@@ -1,7 +1,7 @@
 from scipy import stats
+from sklearn.svm import SVC
 
 import dask_ml.model_selection as dms
-from sklearn.svm import SVC
 
 
 def test_search_basic(xy_classification):

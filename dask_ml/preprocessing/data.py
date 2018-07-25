@@ -11,11 +11,11 @@ import pandas as pd
 from dask import compute
 from pandas.api.types import is_categorical_dtype
 from scipy import stats
-
-from dask_ml.utils import check_array, handle_zeros_in_scale
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import data as skdata
 from sklearn.utils.validation import check_is_fitted, check_random_state
+
+from dask_ml.utils import check_array, handle_zeros_in_scale
 
 _PANDAS_VERSION = LooseVersion(pd.__version__)
 _HAS_CTD = _PANDAS_VERSION >= "0.21.0"

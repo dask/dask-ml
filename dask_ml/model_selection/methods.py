@@ -10,12 +10,11 @@ import numpy as np
 from dask.base import normalize_token
 from scipy import sparse
 from scipy.stats import rankdata
-from toolz import pluck
-
 from sklearn.exceptions import FitFailedWarning
 from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.utils import safe_indexing
 from sklearn.utils.validation import _is_arraylike, check_consistent_length
+from toolz import pluck
 
 from .utils import copy_estimator
 

@@ -1,8 +1,8 @@
 import pytest
+from sklearn.linear_model import Perceptron
 
 from dask_ml.linear_model import PartialPerceptron
 from dask_ml.utils import assert_estimator_equal
-from sklearn.linear_model import Perceptron
 
 
 @pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")

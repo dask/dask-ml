@@ -2,7 +2,6 @@ import dask.array as da
 import numpy as np
 import scipy.sparse as sp
 from dask import compute
-
 from sklearn.decomposition.base import _BasePCA
 from sklearn.utils.extmath import fast_logdet
 from sklearn.utils.validation import check_is_fitted, check_random_state

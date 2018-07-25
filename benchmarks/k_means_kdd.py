@@ -7,22 +7,22 @@ import logging
 import os
 import string
 import sys
-from timeit import default_timer as tic
 
 import dask.array as da
 import dask.dataframe as dd
 import pandas as pd
 import requests
+import sklearn.cluster as sk
 from distributed import Client
+from sklearn.datasets import get_data_home
 
 import s3fs
-import sklearn.cluster as sk
 from dask_ml.cluster import KMeans
-from sklearn.datasets import get_data_home
+from dask_ml.utils import _timer
 
 from .base import make_parser
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 try:
     import coloredlogs
@@ -117,15 +117,13 @@ def fit(data, use_scikit_learn=False):
             oversampling_factor=oversampling_factor,
             random_state=0,
         )
-    t0 = tic()
     logger.info(
         "Starting n_clusters=%2d, oversampling_factor=%2d",
         n_clusters,
         oversampling_factor,
     )
-    km.fit(data)
-    t1 = tic()
-    logger.info("Finished in %.2f", t1 - t0)
+    with _timer("km.fit", _logger=logger):
+        km.fit(data)
 
 
 def main(args=None):

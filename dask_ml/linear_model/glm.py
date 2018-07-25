@@ -14,7 +14,7 @@ from dask_glm.utils import (
 )
 from sklearn.base import BaseEstimator
 
-# register multipledispatch
+# Register multiple dispatch
 from . import utils  # noqa
 from ..utils import check_array
 

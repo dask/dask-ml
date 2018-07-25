@@ -2,8 +2,8 @@ from functools import partial
 
 import numpy as np
 import pytest
-
 import sklearn.cluster
+
 from dask_ml import metrics
 from dask_ml.cluster import SpectralClustering
 from dask_ml.datasets import make_blobs
