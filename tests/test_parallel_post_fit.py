@@ -2,14 +2,14 @@ import dask
 import dask.array as da
 import dask.dataframe as dd
 import pytest
-
 import sklearn.datasets
-from dask_ml.datasets import make_classification
-from dask_ml.utils import assert_eq_ar, assert_estimator_equal
-from dask_ml.wrappers import ParallelPostFit
 from sklearn.decomposition import PCA
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.linear_model import LinearRegression, LogisticRegression
+
+from dask_ml.datasets import make_classification
+from dask_ml.utils import assert_eq_ar, assert_estimator_equal
+from dask_ml.wrappers import ParallelPostFit
 
 
 def test_it_works():

@@ -16,16 +16,6 @@ from numpy.testing import (
     assert_array_equal,
 )
 from scipy.stats import expon
-
-from dask_ml import model_selection as dcv
-from dask_ml._compat import HAS_MULTIPLE_METRICS, SK_VERSION
-from dask_ml.model_selection.utils_test import (
-    CheckingClassifier,
-    FailingClassifier,
-    MockClassifier,
-    MockDataFrame,
-    ignore_warnings,
-)
 from sklearn.base import BaseEstimator
 from sklearn.cluster import KMeans
 from sklearn.datasets import (
@@ -50,6 +40,16 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import Imputer
 from sklearn.svm import SVC, LinearSVC
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
+
+from dask_ml import model_selection as dcv
+from dask_ml._compat import HAS_MULTIPLE_METRICS, SK_VERSION
+from dask_ml.model_selection.utils_test import (
+    CheckingClassifier,
+    FailingClassifier,
+    MockClassifier,
+    MockDataFrame,
+    ignore_warnings,
+)
 
 
 class LinearSVCNoScore(LinearSVC):

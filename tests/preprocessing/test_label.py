@@ -4,10 +4,10 @@ import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import pytest
+import sklearn.preprocessing as spp
 from dask.array.utils import assert_eq as assert_eq_ar
 
 import dask_ml.preprocessing as dpp
-import sklearn.preprocessing as spp
 from dask_ml.utils import assert_estimator_equal
 
 choices = np.array(["a", "b", "c"], dtype=str)

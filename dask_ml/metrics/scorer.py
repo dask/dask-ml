@@ -1,5 +1,4 @@
 import six
-
 from sklearn.metrics import make_scorer
 from sklearn.metrics.scorer import check_scoring as sklearn_check_scoring
 

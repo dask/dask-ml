@@ -2,12 +2,12 @@ import dask
 import dask.array as da
 import numpy as np
 import pytest
+from sklearn.base import clone
+from sklearn.linear_model import SGDClassifier
 
 from dask_ml._partial import fit, predict
 from dask_ml.datasets import make_classification
 from dask_ml.wrappers import Incremental
-from sklearn.base import clone
-from sklearn.linear_model import SGDClassifier
 
 x = np.array([[1, 0], [2, 0], [3, 0], [4, 0], [0, 1], [0, 2], [3, 3], [4, 4]])
 

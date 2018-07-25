@@ -2,9 +2,9 @@ import numbers
 
 import dask.array as da
 import pytest
+import sklearn.metrics
 
 import dask_ml.metrics
-import sklearn.metrics
 
 
 @pytest.fixture(params=["mean_squared_error", "mean_absolute_error", "r2_score"])

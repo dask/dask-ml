@@ -11,12 +11,11 @@ import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
+import sklearn.utils.extmath as skm
+import sklearn.utils.validation as sk_validation
 from dask import delayed
 from dask.array.utils import assert_eq as assert_eq_ar
 from dask.dataframe.utils import assert_eq as assert_eq_df
-
-import sklearn.utils.extmath as skm
-import sklearn.utils.validation as sk_validation
 
 logger = logging.getLogger()
 

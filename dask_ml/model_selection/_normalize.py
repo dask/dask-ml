@@ -2,7 +2,6 @@ from __future__ import absolute_import, division, print_function
 
 import numpy as np
 from dask.base import normalize_token
-
 from sklearn.base import BaseEstimator
 from sklearn.model_selection._split import (
     BaseShuffleSplit,

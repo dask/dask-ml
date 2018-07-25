@@ -15,19 +15,6 @@ from dask.base import tokenize
 from dask.callbacks import Callback
 from dask.delayed import delayed
 from dask.utils import tmpdir
-
-import dask_ml.model_selection as dcv
-from dask_ml._compat import HAS_MULTIPLE_METRICS
-from dask_ml.model_selection import check_cv, compute_n_splits
-from dask_ml.model_selection._search import _normalize_n_jobs
-from dask_ml.model_selection.methods import CVCache
-from dask_ml.model_selection.utils_test import (
-    CheckXClassifier,
-    FailingClassifier,
-    MockClassifier,
-    ScalingTransformer,
-    ignore_warnings,
-)
 from sklearn.datasets import load_iris, make_classification
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
@@ -52,6 +39,19 @@ from sklearn.model_selection import (
 from sklearn.model_selection._split import _CVIterableWrapper
 from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.svm import SVC
+
+import dask_ml.model_selection as dcv
+from dask_ml._compat import HAS_MULTIPLE_METRICS
+from dask_ml.model_selection import check_cv, compute_n_splits
+from dask_ml.model_selection._search import _normalize_n_jobs
+from dask_ml.model_selection.methods import CVCache
+from dask_ml.model_selection.utils_test import (
+    CheckXClassifier,
+    FailingClassifier,
+    MockClassifier,
+    ScalingTransformer,
+    ignore_warnings,
+)
 
 try:
     from distributed import Client

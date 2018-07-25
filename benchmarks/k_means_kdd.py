@@ -12,13 +12,13 @@ import dask.array as da
 import dask.dataframe as dd
 import pandas as pd
 import requests
+import sklearn.cluster as sk
 from distributed import Client
+from sklearn.datasets import get_data_home
 
 import s3fs
-import sklearn.cluster as sk
 from dask_ml.cluster import KMeans
 from dask_ml.utils import _timer
-from sklearn.datasets import get_data_home
 
 from .base import make_parser
 

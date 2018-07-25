@@ -4,11 +4,11 @@ import numpy as np
 import numpy.testing as npt
 import packaging.version
 import pytest
+import sklearn
+import sklearn.metrics as sm
 from dask.array.utils import assert_eq
 
 import dask_ml.metrics as dm
-import sklearn
-import sklearn.metrics as sm
 from dask_ml._compat import SK_VERSION, dummy_context
 
 

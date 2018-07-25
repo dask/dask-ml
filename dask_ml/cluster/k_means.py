@@ -7,7 +7,6 @@ import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 from dask import compute
-
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.cluster import k_means_ as sk_k_means
 from sklearn.utils.extmath import squared_norm

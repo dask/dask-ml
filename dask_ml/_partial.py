@@ -8,10 +8,9 @@ from abc import ABCMeta
 import dask
 import numpy as np
 import six
+import sklearn.utils
 from dask.delayed import Delayed
 from toolz import partial
-
-import sklearn.utils
 
 from ._utils import copy_learned_attributes
 

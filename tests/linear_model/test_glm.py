@@ -3,13 +3,13 @@ import numpy as np
 import pandas as pd
 import pytest
 from dask.dataframe.utils import assert_eq
+from sklearn.pipeline import make_pipeline
 
 from dask_glm.regularizers import Regularizer
 from dask_ml.datasets import make_classification, make_counts, make_regression
 from dask_ml.linear_model import LinearRegression, LogisticRegression, PoissonRegression
 from dask_ml.linear_model.utils import add_intercept
 from dask_ml.model_selection import GridSearchCV
-from sklearn.pipeline import make_pipeline
 
 
 @pytest.fixture(params=[r() for r in Regularizer.__subclasses__()])

@@ -1,15 +1,15 @@
 import dask.array as da
 import numpy as np
 import pytest
-from dask.array.utils import assert_eq
-
-import dask_ml.metrics
 import sklearn.datasets
 import sklearn.model_selection
-from dask_ml.metrics.scorer import check_scoring
-from dask_ml.wrappers import Incremental
+from dask.array.utils import assert_eq
 from sklearn.base import clone
 from sklearn.linear_model import SGDClassifier, SGDRegressor
+
+import dask_ml.metrics
+from dask_ml.metrics.scorer import check_scoring
+from dask_ml.wrappers import Incremental
 
 
 def test_get_params():
