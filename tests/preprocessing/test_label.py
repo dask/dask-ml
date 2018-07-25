@@ -146,3 +146,11 @@ class TestLabelEncoder(object):
         da.utils.assert_eq(a_trn, b_trn)
 
         da.utils.assert_eq(a.inverse_transform(a_trn), b.inverse_transform(b_trn))
+
+    def test_unseen_raises_array(self):
+        enc = dpp.LabelEncoder().fit(y)
+        new = da.from_array(np.array(["a", "a", "z"]), chunks=2)
+        result = enc.transform(new)
+
+        with pytest.raises(ValueError):
+            result.compute()

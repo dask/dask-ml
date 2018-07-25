@@ -143,7 +143,7 @@ class LabelEncoder(sklabel.LabelEncoder):
         y = self._check_array(y)
 
         if isinstance(y, da.Array):
-            return da.map_blocks(np.searchsorted, self.classes_, y, dtype=np.intp)
+            return _encode_dask_array(y, self.classes_, encode=True)[1]
         elif isinstance(y, (pd.Series, dd.Series)):
             assert y.dtype.categories.equals(self.dtype_.categories)
             return y.cat.codes.values
