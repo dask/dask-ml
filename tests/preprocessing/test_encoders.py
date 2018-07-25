@@ -74,7 +74,7 @@ def test_basic_array(sparse, method, categories):
 )
 @pytest.mark.parametrize("method", ["fit", "fit_transform"])
 @pytest.mark.parametrize("dask_data", [df, ddf])  # we handle pandas and dask dataframes
-@pytest.mark.parametrize("dtpe", [np.float, np.uint8])
+@pytest.mark.parametrize("dtype", [np.float, np.uint8])
 def test_basic_dataframe(sparse, method, dask_data, dtype):
     a = sklearn.preprocessing.OneHotEncoder(sparse=sparse, dtype=dtype)
     b = dask_ml.preprocessing.OneHotEncoder(sparse=sparse, dtype=dtype)
