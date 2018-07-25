@@ -111,6 +111,7 @@ def check_array(array, *args, **kwargs):
     arguments.
     """
     accept_dask_array = kwargs.pop("accept_dask_array", True)
+    preserve_pandas_dataframe = kwargs.pop("preserve_pandas_dataframe", False)
     accept_dask_dataframe = kwargs.pop("accept_dask_dataframe", False)
     accept_unknown_chunks = kwargs.pop("accept_unknown_chunks", False)
     accept_multiple_blocks = kwargs.pop("accept_multiple_blocks", False)
@@ -120,7 +121,9 @@ def check_array(array, *args, **kwargs):
             raise TypeError
         if not accept_unknown_chunks:
             if np.isnan(array.shape[0]):
-                raise TypeError
+                raise TypeError(
+                    "Cannot operate on Dask array with unknown chunk sizes."
+                )
         if not accept_multiple_blocks:
             if len(array.chunks[1]) > 1:
                 msg = (
@@ -144,9 +147,11 @@ def check_array(array, *args, **kwargs):
 
     elif isinstance(array, dd.DataFrame):
         if not accept_dask_dataframe:
-            raise TypeError
-
+            raise TypeError("This estimator does not support dask dataframes.")
         # TODO: sample?
+        return array
+    elif isinstance(array, pd.DataFrame) and preserve_pandas_dataframe:
+        # TODO: validation?
         return array
     else:
         return sk_validation.check_array(array, *args, **kwargs)

@@ -27,6 +27,7 @@ dependencies:
   - scikit-learn
   - scipy
   - six
+  - sparse
   - sphinx
   - sphinx_rtd_theme
   - sphinx-gallery

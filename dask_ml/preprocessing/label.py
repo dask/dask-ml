@@ -6,6 +6,7 @@ import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
+import scipy.sparse
 from sklearn.preprocessing import label as sklabel
 from sklearn.utils.validation import check_is_fitted
 
@@ -142,7 +143,7 @@ class LabelEncoder(sklabel.LabelEncoder):
         y = self._check_array(y)
 
         if isinstance(y, da.Array):
-            return da.map_blocks(np.searchsorted, self.classes_, y, dtype=np.intp)
+            return _encode_dask_array(y, self.classes_, encode=True)[1]
         elif isinstance(y, (pd.Series, dd.Series)):
             assert y.dtype.categories.equals(self.dtype_.categories)
             return y.cat.codes.values
@@ -187,22 +188,127 @@ class LabelEncoder(sklabel.LabelEncoder):
                 return self.classes_[y]
 
 
-def _encode_categorical(values, encode=False):
+def _encode_categorical(values, uniques=None, encode=False):
     # type: (Union[dd.Series['category'], pd.Series['category']], bool) -> Any
-    uniques = np.asarray(values.cat.categories)
+    new_uniques = np.asarray(values.cat.categories)
+
+    if uniques is not None:
+        diff = list(np.setdiff1d(uniques, new_uniques, assume_unique=True))
+        if diff:
+            raise ValueError("y comtains previously unseen labels: {}".format(diff))
+
+    uniques = new_uniques
+
     if encode:
         return uniques, values.cat.codes
     else:
         return uniques
 
 
-def _encode_dask_array(values, encode=False):
-    # type: (da.Array, bool) -> Any
-    if encode:
-        uniques, encoded = da.unique(values, return_inverse=True)
-        return uniques, encoded
+def _check_and_search_block(arr, uniques, onehot_dtype=None, block_info=None):
+    diff = list(np.setdiff1d(arr, uniques, assume_unique=True))
+
+    if diff:
+        msg = (
+            "Block contains previously unseen values {}.\nBlock info:\n\n"
+            "{}".format(diff, block_info)
+        )
+        raise ValueError(msg)
+
+    label_encoded = np.searchsorted(uniques, arr)
+    if onehot_dtype:
+        return _construct(label_encoded, uniques)
     else:
-        return da.unique(values)
+        return label_encoded
+
+
+def _construct(x, categories):
+    """Make a sparse matrix from an encoded array.
+
+    >>> construct(np.array([0, 1, 0]), np.array([0, 1])).toarray()
+    array([[1., 0.],
+           [0., 1.],
+           [1., 0.]])
+    """
+    # type: (np.ndarray, np.ndarray) -> scipy.sparse.csr_matrix
+    data = np.ones(len(x))
+    rows = np.arange(len(x))
+    columns = x.ravel()
+    return scipy.sparse.csr_matrix(
+        (data, (rows, columns)), shape=(len(x), len(categories))
+    )
+
+
+def _encode_dask_array(values, uniques=None, encode=False, onehot_dtype=None):
+    """One-hot or label encode a dask array.
+
+    Parameters
+    ----------
+    values : da.Array, shape [n_samples,]
+    unqiques : np.ndarray, shape [n_uniques,]
+    encode : bool, default False
+        Whether to encode the values (True) or just discover the uniques.
+    onehot_dtype : np.dtype, optional
+        Optional dtype for the resulting one-hot encoded array. This changes
+        the shape, dtype, and underlying storage of the returned dask array.
+
+        ======= ================= =========================
+        thing   onehot_dtype=None onehot_dtype=onehot_dtype
+        ======= ================= =========================
+        shape   (n_samples,)      (n_samples, len(uniques))
+        dtype   np.intp           onehot_dtype
+        storage np.ndarray        scipy.sparse.csr_matrix
+        ======= ================= =========================
+
+    Returns
+    -------
+    uniques : ndarray
+        The discovered uniques (uniques=None) or just `uniques`
+    encoded : da.Array, optional
+        The encoded values. Only returend when ``encode=True``.
+    """
+
+    if uniques is None:
+        if encode and onehot_dtype:
+            raise ValueError("Cannot use 'encode` and 'onehot_dtype' simultaneously.")
+        if encode:
+            uniques, encoded = da.unique(values, return_inverse=True)
+            return uniques, encoded
+        else:
+            return da.unique(values)
+
+    if encode:
+        if onehot_dtype:
+            dtype = onehot_dtype
+            new_axis = 1
+            chunks = values.chunks + (len(uniques),)
+        else:
+            dtype = np.intp
+            new_axis = None
+            chunks = values.chunks
+
+        return (
+            uniques,
+            values.map_blocks(
+                _check_and_search_block,
+                uniques,
+                onehot_dtype=onehot_dtype,
+                dtype=dtype,
+                new_axis=new_axis,
+                chunks=chunks,
+            ),
+        )
+    else:
+        return uniques
+
+
+def _encode(values, uniques=None, encode=False):
+    if isinstance(values, (pd.Series, dd.Series)) and _is_categorical(values):
+        return _encode_categorical(values, uniques=uniques, encode=encode)
+    elif isinstance(values, da.Array):
+        return _encode_dask_array(values, uniques=uniques, encode=encode)
+    else:
+        raise ValueError("Unknown type {}".format(type(values)))
 
 
 def _is_categorical(y):
