@@ -9,8 +9,13 @@ import scipy.sparse
 import dask_ml.preprocessing
 import sklearn.preprocessing
 from dask_ml.utils import assert_estimator_equal
-from dask_ml.preprocessing.label import _encode_dask_array
-from dask_ml._compat import DASK_VERSION
+from dask_ml._compat import DASK_VERSION, SK_VERSION
+
+
+pytestmark = pytest.mark.skipif(
+    SK_VERSION < packaging.version.parse("0.20.0.dev0"),
+    reason="OneHotEncoder requires sklear>=0.20.0",
+)
 
 X = np.array([["a"], ["a"], ["b"], ["c"]])
 dX = da.from_array(X, 2)
