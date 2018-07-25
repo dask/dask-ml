@@ -16,18 +16,27 @@ jobs:
       - run:
           command: |
             source activate ${ENV_NAME}
-            pytest --cov=dask_ml tests
+            mkdir test-reports
+            pytest --cov=dask_ml --junitxml=test-reports/junit.xml tests
       - run:
           command: |
             source activate ${ENV_NAME}
+            echo "[flake8]"
             flake8
+            echo "[black]"
             black --check .
+            echo "[isort]"
             isort --recursive --check-only
+            echo "[codecov]"
             codecov
       - save_cache:
           key: deps-{{ .Branch }}-3.6-{{ checksum "ci/environment-3.6.yml" }}
           paths:
             - "/opt/conda/envs/${ENV_NAME}/"
+      - store_test_results:
+          path: test-reports
+      - store_artifacts:
+          path: test-reports
 
   # Python 2.7 build
   py27:
@@ -46,7 +55,7 @@ jobs:
       - run:
           command: |
             source activate ${ENV_NAME}
-            pytest tests
+            pytest --junitxml=test-reports/junit.xml tests
       - run:
           command: |
             source activate ${ENV_NAME}
@@ -54,6 +63,10 @@ jobs:
           key: deps-{{ .Branch }}-2.7-{{ checksum "ci/environment-2.7.yml" }}
           paths:
             - "/opt/conda/envs/${ENV_NAME}/"
+      - store_test_results:
+          path: test-reports
+      - store_artifacts:
+          path: test-reports
 
   # scikit-learn dev build
   sklearn_dev:
@@ -78,11 +91,15 @@ jobs:
       - run:
           command: |
             source activate ${ENV_NAME}
-            pytest tests
+            pytest --junitxml=test-reports/junit.xml tests
       - save_cache:
           key: deps-{{ .Branch }}-sklearn_dev-{{ checksum "ci/environment-3.6.yml" }}
           paths:
             - "/opt/conda/envs/${ENV_NAME}/"
+      - store_test_results:
+          path: test-reports
+      - store_artifacts:
+          path: test-reports
 
 workflows:
   version: 2
