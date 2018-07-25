@@ -1,8 +1,7 @@
-from distutils.version import LooseVersion
-
 import dask
 import dask.array as da
 import dask.dataframe as dd
+import packaging.version
 import numpy as np
 import pandas as pd
 import pytest
@@ -11,6 +10,7 @@ import scipy.sparse
 import dask_ml.preprocessing
 import sklearn.preprocessing
 from dask_ml.utils import assert_estimator_equal
+from dask_ml._compat import DASK_VERSION
 
 X = np.array([["a"], ["a"], ["b"], ["c"]])
 dX = da.from_array(X, 2)
@@ -60,7 +60,7 @@ def test_basic_array(sparse, method, categories):
         pytest.param(
             True,
             marks=pytest.mark.skipif(
-                dask.__version__ <= LooseVersion("0.18.1"),
+                DASK_VERSION <= packaging.version.parse("0.18.1"),
                 reason="Requires sparse get_dummies.",
             ),
         ),
@@ -151,4 +151,4 @@ def test_unknown_category_transform_array():
 
     assert e.match("Block contains previously")
     assert "d" in str(e)
-    assert "Block info" in str(e)
+    assert "Block info" in str(e.value)
