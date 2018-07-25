@@ -19,7 +19,6 @@ from ..metrics import (
     pairwise_distances_argmin_min,
 )
 from ..utils import _timed, _timer, check_array, row_norms
-
 from ._k_means import _centers_dense
 
 logger = logging.getLogger(__name__)

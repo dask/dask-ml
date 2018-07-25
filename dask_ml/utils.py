@@ -2,10 +2,10 @@ import contextlib
 import datetime
 import functools
 import logging
-from timeit import default_timer as tic
 from collections import Sequence
 from multiprocessing import cpu_count
 from numbers import Integral
+from timeit import default_timer as tic
 
 import dask.array as da
 import dask.dataframe as dd
