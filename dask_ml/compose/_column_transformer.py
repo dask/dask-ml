@@ -7,14 +7,14 @@ from sklearn.compose._column_transformer import _get_transformer_list
 
 
 class ColumnTransformer(sklearn.compose.ColumnTransformer):
-    def _hstack(self, X, sparse_):
+    def _hstack(self, X):
         """
         Stacks X horizontally.
 
         Supports input types (X): list of
             numpy arrays, sparse arrays and DataFrames
         """
-        if sparse_:
+        if self.sparse_output_:
             return sparse.hstack(X).tocsr()
         elif any(isinstance(f, (dd.Series, dd.DataFrame)) for f in X):
             return dd.concat(X, axis="columns")
@@ -35,3 +35,8 @@ def make_column_transformer(*transformers, **kwargs):
         )
     transformer_list = _get_transformer_list(transformers)
     return ColumnTransformer(transformer_list, n_jobs=n_jobs, remainder=remainder)
+
+
+make_column_transformer.__doc__ = getattr(
+    sklearn.compose.make_column_transformer, "__doc__"
+)
