@@ -8,14 +8,14 @@ from sklearn.compose._column_transformer import _get_transformer_list
 
 class ColumnTransformer(sklearn.compose.ColumnTransformer):
     @staticmethod
-    def _hstack(X):
+    def _hstack(X, sparse_):
         """
         Stacks X horizontally.
 
         Supports input types (X): list of
             numpy arrays, sparse arrays and DataFrames
         """
-        if any(sparse.issparse(f) for f in X):
+        if sparse_:
             return sparse.hstack(X).tocsr()
         elif any(isinstance(f, (dd.Series, dd.DataFrame)) for f in X):
             return dd.concat(X, axis="columns")
