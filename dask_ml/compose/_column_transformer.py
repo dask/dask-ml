@@ -7,8 +7,7 @@ from sklearn.compose._column_transformer import _get_transformer_list
 
 
 class ColumnTransformer(sklearn.compose.ColumnTransformer):
-    @staticmethod
-    def _hstack(X, sparse_):
+    def _hstack(self, X, sparse_):
         """
         Stacks X horizontally.
 
