@@ -1,6 +1,7 @@
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
+import six
 import sklearn.compose
 from scipy import sparse
 from sklearn.compose._column_transformer import (
@@ -10,8 +11,6 @@ from sklearn.compose._column_transformer import (
     _transform_one,
 )
 from sklearn.utils.validation import check_is_fitted
-
-import six
 
 
 class ColumnTransformer(sklearn.compose.ColumnTransformer):
