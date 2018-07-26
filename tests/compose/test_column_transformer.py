@@ -1,11 +1,23 @@
 import dask.dataframe as dd
+import packaging.version
 import pandas as pd
-import sklearn.compose
+import pytest
 import sklearn.preprocessing
 from sklearn.base import clone
 
-import dask_ml.compose
 import dask_ml.preprocessing
+
+try:
+    import sklearn.compose
+    import dask_ml.compose
+except ImportError:
+    from dask_ml._compat import SK_VERSION
+
+    pytestmark = pytest.mark.skipif(
+        SK_VERSION < packaging.version.parse("0.20.0.dev0"),
+        reason="sklearn.compose added in 0.20.0",
+    )
+
 
 df = pd.DataFrame({"A": pd.Categorical(["a", "a", "b", "a"]), "B": [1.0, 2, 4, 5]})
 ddf = dd.from_pandas(df, npartitions=2)
