@@ -145,6 +145,10 @@ Meta-estimators for building composite models with transformers.
    :template: class.rst
 
    compose.ColumnTransformer
+
+.. autosummary::
+   :toctree: generted/
+
    compose.make_column_transformer
 
 
