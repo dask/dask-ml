@@ -31,7 +31,27 @@ These can be used just like the scikit-learn versions, except that:
    when the input is a dask collection
 
 See :mod:`sklearn.preprocessing` for more information about any particular
-transformer.
+transformer. Scikit-learn does have some transforms that are alternatives to
+the large-memory tasks that Dask serves. These include `FeatureHasher`_ (a
+good alternative to `DictVectorizer`_ and `CountVectorizer`_) and `HashingVectorizer`_
+(best suited for use in text over `CountVectorizer`_). They are not
+stateful, which allows easy use with Dask with ``map_partitions``:
+
+.. ipython:: python
+
+    import dask.bag as db
+    from sklearn.feature_extraction import FeatureHasher
+
+    D = [{'dog': 1, 'cat':2, 'elephant':4}, {'dog': 2, 'run': 5}]
+    b = db.from_sequence(D)
+    h = FeatureHasher()
+
+    b.map_partitions(h.transform).compute()
+
+.. _FeatureHasher: http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.FeatureHasher.html
+.. _HashingVectorizer: http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.HashingVectorizer.html
+.. _DictVectorizer: http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.DictVectorizer.html
+.. _CountVectorizer: http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html
 
 .. note::
 
