@@ -60,11 +60,13 @@ Dask-ML provides drop-in replacements for grid and randomized search.
    linear_model.LogisticRegression
    linear_model.PoissonRegression
 
-Meta-estimators for scikit-learn
-================================
+:mod:`dask_ml.wrappers`: Meta-Estimators
+========================================
 
-dask-ml provides some meta-estimators that help use regular scikit-learn
-compatible estimators with Dask arrays.
+dask-ml provides some meta-estimators that help use regular
+estimators that follow the scikit-learn API.
+These meta-estimators make the underlying estimator work well
+with Dask Arrays or DataFrames.
 
 .. currentmodule:: dask_ml
 
@@ -128,6 +130,22 @@ compatible estimators with Dask arrays.
    preprocessing.DummyEncoder
    preprocessing.OrdinalEncoder
    preprocessing.LabelEncoder
+
+:mod:`dask_ml.compose`: Composite Estimators
+============================================
+
+Meta-estimators for building composite models with transformers.
+
+.. automodule:: dask_ml.compose
+
+.. currentmodule:: dask_ml
+
+.. autosummary::
+   :toctree: generted/
+   :template: class.rst
+
+   compose.ColumnTransformer
+   compose.make_column_transformer
 
 
 :mod:`dask_ml.metrics`: Metrics

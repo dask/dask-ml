@@ -1,4 +1,4 @@
-"""Meta-estimators for parallelizing scikit-learn."""
+"""Meta-estimators for parallelizing estimators using the scikit-learn API."""
 import logging
 
 import dask.array as da
