@@ -108,11 +108,7 @@ class CVCache(object):
         if self.cache is not None and (n, key) in self.cache:
             return self.cache[n, key]
 
-        out = (
-            safe_indexing(x, self.splits[n][0])
-            if _should_pack_fit_param(x) and not isinstance(x, list)
-            else x
-        )
+        out = safe_indexing(x, self.splits[n][0]) if _should_pack_fit_param(x) else x
 
         if self.cache is not None:
             self.cache[n, key] = out
