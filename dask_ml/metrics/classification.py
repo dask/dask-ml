@@ -104,7 +104,6 @@ def _log_loss_inner(x, y, **kwargs):
 def log_loss(
     y_true, y_pred, eps=1e-15, normalize=True, sample_weight=None, labels=None
 ):
-    # TODO: verify sample_weight doesn't invalidate this approach...
     if y_true.ndim == 1:
         y_true = y_true.reshape(-1, 1)
     if sample_weight is not None:

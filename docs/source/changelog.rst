@@ -8,7 +8,7 @@ Enhancements
 ------------
 
 - Automatically replace default scikit-learn scorers with dask-aware versions in Incremental (:issue:`200`)
-- Added the :func:`dask_ml.metrics.log_loss` loss function and ``neg_log_loss`` scorer.
+- Added the :func:`dask_ml.metrics.log_loss` loss function and ``neg_log_loss`` scorer (:pr:`318`)
 
 Bug Fixes
 ---------

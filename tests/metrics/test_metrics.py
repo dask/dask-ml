@@ -122,5 +122,4 @@ def test_log_loss(labels, normalize, sample_weight):
         sample_weight=dsample_weight,
     )
 
-    dask.config.set(scheduler="single-threaded")
     assert_eq(a, b)
