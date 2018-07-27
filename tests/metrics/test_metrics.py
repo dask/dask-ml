@@ -82,15 +82,7 @@ def test_pairwise_kernels(kernel):
     assert_eq(r1, r2)
 
 
-@pytest.mark.parametrize(
-    "sample_weight",
-    [
-        pytest.param(
-            True, marks=pytest.mark.xfail(reason="sample_weight not implemented")
-        ),
-        False,
-    ],
-)
+@pytest.mark.parametrize("sample_weight", [True, False])
 @pytest.mark.parametrize("normalize", [True, False])
 @pytest.mark.parametrize("labels", [[0, 1], [0, 1, 3], [1, 0]])
 def test_log_loss(labels, normalize, sample_weight):
