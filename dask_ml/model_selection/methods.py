@@ -16,7 +16,7 @@ from sklearn.utils import safe_indexing
 from sklearn.utils.validation import _is_arraylike, check_consistent_length
 from toolz import pluck
 
-from .utils import copy_estimator
+from .utils import _should_pack_fit_param, copy_estimator
 
 # Copied from scikit-learn/sklearn/utils/fixes.py, can be removed once we drop
 # support for scikit-learn < 0.18.1 or numpy < 1.12.0.
@@ -108,7 +108,11 @@ class CVCache(object):
         if self.cache is not None and (n, key) in self.cache:
             return self.cache[n, key]
 
-        out = safe_indexing(x, self.splits[n][0]) if _is_arraylike(x) else x
+        out = (
+            safe_indexing(x, self.splits[n][0])
+            if _should_pack_fit_param(x) and not isinstance(x, list)
+            else x
+        )
 
         if self.cache is not None:
             self.cache[n, key] = out

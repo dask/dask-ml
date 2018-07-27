@@ -49,6 +49,7 @@ from dask_ml.model_selection.utils_test import (
     CheckXClassifier,
     FailingClassifier,
     MockClassifier,
+    MockClassifierWithFitParam,
     ScalingTransformer,
     ignore_warnings,
 )
@@ -807,3 +808,19 @@ def test_cv_multiplemetrics_no_refit():
     assert hasattr(a, "best_index_") is hasattr(b, "best_index_")
     assert hasattr(a, "best_estimator_") is hasattr(b, "best_estimator_")
     assert hasattr(a, "best_score_") is hasattr(b, "best_score_")
+
+
+def test_gridsearch_pipeline_with_arraylike_fit_param():
+    # https://github.com/dask/dask-ml/issues/319
+    X, y = make_classification(random_state=0)
+    param_grid = {"foo_param": [0.0001, 0.1]}
+
+    a = dcv.GridSearchCV(
+        MockClassifierWithFitParam(), param_grid, cv=3, iid=False, refit=False
+    )
+    b = GridSearchCV(
+        MockClassifierWithFitParam(), param_grid, cv=3, iid=False, refit=False
+    )
+
+    b.fit(X, y, mock_fit_param=[0, 1])
+    a.fit(X, y, mock_fit_param=[0, 1])

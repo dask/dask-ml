@@ -21,7 +21,7 @@ def _indexable(x):
 
 
 def _maybe_indexable(x):
-    return indexable(x)[0] if _is_arraylike(x) else x
+    return indexable(x)[0] if _should_pack_fit_param(x) else x
 
 
 def to_indexable(*args, **kwargs):
@@ -46,6 +46,16 @@ def to_indexable(*args, **kwargs):
             yield delayed(indexable, pure=True)(x)
         else:
             yield indexable(x)
+
+
+def _is_arraylike(x):
+    """Returns whether the input is array-like"""
+    # from scikit-learn
+    return hasattr(x, "__len__") or hasattr(x, "shape") or hasattr(x, "__array__")
+
+
+def _should_pack_fit_param(x):
+    return _is_arraylike(x) and not isinstance(x, list)
 
 
 def to_keys(dsk, *args):
