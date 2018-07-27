@@ -824,3 +824,12 @@ def test_gridsearch_pipeline_with_arraylike_fit_param():
 
     b.fit(X, y, mock_fit_param=[0, 1])
     a.fit(X, y, mock_fit_param=[0, 1])
+
+
+def test_mock_with_fit_param_raises():
+    X, y = make_classification(random_state=0)
+
+    clf = MockClassifierWithFitParam()
+
+    with pytest.raises(ValueError):
+        clf.fit(X, y)
