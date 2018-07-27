@@ -18,7 +18,7 @@ Some algorithms are especially (or only) useful with large datasets, and so may
 not be implemented in scikit-learn, e.g. [High Cardinality Encoders](https://github.com/dask/dask-ml/issues/120).
 
 Others scalable algorithms might be unique to Dask Array and Dask DataFrame's
-blocked structure (https://github.com/dask/dask-ml/issues/135).
+blocked structure (e.g. https://github.com/dask/dask-ml/issues/135).
 
 Text Processing
 ---------------
@@ -36,3 +36,10 @@ is not interested in re-implementing everything these libraries too. Rather,
 we'd like to provide integrations so that Dask's collections can be seamlessly
 transferred from a Dask cluster to one of those framework's distributed runtime.
 This should be as seamless as using, say, a NumPy array on a single machine.
+
+Asynchronous Training
+---------------------
+
+Dask's distributed scheduler allows for asynchonously submitting tasks, and
+later awaiting the results. We explore user-APIs and optimization algorithms
+that can take advantage of this.
