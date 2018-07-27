@@ -48,12 +48,6 @@ def to_indexable(*args, **kwargs):
             yield indexable(x)
 
 
-def _is_arraylike(x):
-    """Returns whether the input is array-like"""
-    # from scikit-learn
-    return hasattr(x, "__len__") or hasattr(x, "shape") or hasattr(x, "__array__")
-
-
 def _should_pack_fit_param(x):
     return _is_arraylike(x) and not isinstance(x, list)
 

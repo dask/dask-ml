@@ -13,7 +13,7 @@ from scipy.stats import rankdata
 from sklearn.exceptions import FitFailedWarning
 from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.utils import safe_indexing
-from sklearn.utils.validation import _is_arraylike, check_consistent_length
+from sklearn.utils.validation import check_consistent_length
 from toolz import pluck
 
 from .utils import _should_pack_fit_param, copy_estimator
