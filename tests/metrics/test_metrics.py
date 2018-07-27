@@ -5,17 +5,17 @@ import numpy.testing as npt
 import packaging.version
 import pytest
 import sklearn
-import sklearn.metrics as sm
+import sklearn.metrics
 from dask.array.utils import assert_eq
 
-import dask_ml.metrics as dm
+import dask_ml.metrics
 from dask_ml._compat import SK_VERSION, dummy_context
 
 
 def test_pairwise_distances(X_blobs):
     centers = X_blobs[::100].compute()
-    result = dm.pairwise_distances(X_blobs, centers)
-    expected = sm.pairwise_distances(X_blobs.compute(), centers)
+    result = dask_ml.metrics.pairwise_distances(X_blobs, centers)
+    expected = sklearn.metrics.pairwise_distances(X_blobs.compute(), centers)
     assert_eq(result, expected, atol=1e-4)
 
 
@@ -32,8 +32,10 @@ def test_pairwise_distances_argmin_min(X_blobs):
         ctx = dummy_context()
 
     with ctx:
-        a_, b_ = sm.pairwise_distances_argmin_min(X_blobs.compute(), centers)
-        a, b = dm.pairwise_distances_argmin_min(X_blobs, centers)
+        a_, b_ = sklearn.metrics.pairwise_distances_argmin_min(
+            X_blobs.compute(), centers
+        )
+        a, b = dask_ml.metrics.pairwise_distances_argmin_min(X_blobs, centers)
         a, b = dask.compute(a, b)
 
     npt.assert_array_equal(a, a_)
@@ -43,25 +45,25 @@ def test_pairwise_distances_argmin_min(X_blobs):
 def test_euclidean_distances():
     X = da.random.uniform(size=(100, 4), chunks=50)
     Y = da.random.uniform(size=(100, 4), chunks=50)
-    a = dm.euclidean_distances(X, Y)
-    b = sm.euclidean_distances(X, Y)
+    a = dask_ml.metrics.euclidean_distances(X, Y)
+    b = sklearn.metrics.euclidean_distances(X, Y)
     assert_eq(a, b)
 
     x_norm_squared = (X ** 2).sum(axis=1).compute()[:, np.newaxis]
-    a = dm.euclidean_distances(X, Y, X_norm_squared=x_norm_squared)
-    b = sm.euclidean_distances(X, Y, X_norm_squared=x_norm_squared)
+    a = dask_ml.metrics.euclidean_distances(X, Y, X_norm_squared=x_norm_squared)
+    b = sklearn.metrics.euclidean_distances(X, Y, X_norm_squared=x_norm_squared)
     assert_eq(a, b)
 
     y_norm_squared = (Y ** 2).sum(axis=1).compute()[np.newaxis, :]
-    a = dm.euclidean_distances(X, Y, Y_norm_squared=y_norm_squared)
-    b = sm.euclidean_distances(X, Y, Y_norm_squared=y_norm_squared)
+    a = dask_ml.metrics.euclidean_distances(X, Y, Y_norm_squared=y_norm_squared)
+    b = sklearn.metrics.euclidean_distances(X, Y, Y_norm_squared=y_norm_squared)
     assert_eq(a, b)
 
 
 def test_euclidean_distances_same():
     X = da.random.uniform(size=(100, 4), chunks=50)
-    a = dm.euclidean_distances(X, X)
-    b = sm.euclidean_distances(X, X)
+    a = dask_ml.metrics.euclidean_distances(X, X)
+    b = sklearn.metrics.euclidean_distances(X, X)
     assert_eq(a, b, atol=1e-4)
 
     x_norm_squared = (X ** 2).sum(axis=1).compute()[:, np.newaxis]
@@ -71,10 +73,54 @@ def test_euclidean_distances_same():
 @pytest.mark.parametrize("kernel", ["linear", "polynomial", "rbf", "sigmoid"])
 def test_pairwise_kernels(kernel):
     X = da.random.uniform(size=(100, 4), chunks=(50, 4))
-    a = dm.pairwise.PAIRWISE_KERNEL_FUNCTIONS[kernel]
-    b = sm.pairwise.PAIRWISE_KERNEL_FUNCTIONS[kernel]
+    a = dask_ml.metrics.pairwise.PAIRWISE_KERNEL_FUNCTIONS[kernel]
+    b = sklearn.metrics.pairwise.PAIRWISE_KERNEL_FUNCTIONS[kernel]
 
     r1 = a(X)
     r2 = b(X.compute())
     assert isinstance(X, da.Array)
     assert_eq(r1, r2)
+
+
+@pytest.mark.parametrize(
+    "sample_weight",
+    [
+        pytest.param(
+            True, marks=pytest.mark.xfail(reason="sample_weight not implemented")
+        ),
+        False,
+    ],
+)
+@pytest.mark.parametrize("normalize", [True, False])
+@pytest.mark.parametrize("labels", [[0, 1], [0, 1, 3], [1, 0]])
+def test_log_loss(labels, normalize, sample_weight):
+    n = 100
+    c = 25
+    y_true = np.random.choice(labels, size=n)
+    y_pred = np.random.uniform(size=(n, len(labels)))
+    y_pred /= y_pred.sum(1, keepdims=True)
+
+    if sample_weight:
+        sample_weight = np.random.uniform(size=n)
+        sample_weight /= sample_weight.sum()
+        dsample_weight = da.from_array(sample_weight, chunks=c)
+    else:
+        sample_weight = None
+        dsample_weight = None
+
+    dy_true = da.from_array(y_true, chunks=c)
+    dy_pred = da.from_array(y_pred, chunks=c)
+
+    a = sklearn.metrics.log_loss(
+        y_true, y_pred, normalize=normalize, sample_weight=sample_weight
+    )
+    b = dask_ml.metrics.log_loss(
+        dy_true,
+        dy_pred,
+        labels=labels,
+        normalize=normalize,
+        sample_weight=dsample_weight,
+    )
+
+    dask.config.set(scheduler="single-threaded")
+    assert_eq(a, b)
