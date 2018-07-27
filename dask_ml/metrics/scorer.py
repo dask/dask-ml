@@ -2,18 +2,20 @@ import six
 from sklearn.metrics import make_scorer
 from sklearn.metrics.scorer import check_scoring as sklearn_check_scoring
 
-from . import accuracy_score, mean_squared_error, r2_score
+from . import accuracy_score, log_loss, mean_squared_error, r2_score
 
 # Scorers
 accuracy_scorer = make_scorer(accuracy_score)
 neg_mean_squared_error_scorer = make_scorer(mean_squared_error, greater_is_better=False)
 r2_scorer = make_scorer(r2_score)
+neg_log_loss_scorer = make_scorer(log_loss, greater_is_better=False, needs_proba=True)
 
 
 SCORERS = dict(
     accuracy=accuracy_scorer,
     neg_mean_squared_error=neg_mean_squared_error_scorer,
     r2=r2_scorer,
+    neg_log_loss=neg_log_loss_scorer,
 )
 
 
