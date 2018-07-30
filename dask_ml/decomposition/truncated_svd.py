@@ -6,8 +6,9 @@ from ..utils import svd_flip
 
 
 class TruncatedSVD(BaseEstimator, TransformerMixin):
-    def __init__(self, n_components=2, algorithm="tsqr", n_iter=5,
-                 random_state=None, tol=0.):
+    def __init__(
+        self, n_components=2, algorithm="tsqr", n_iter=5, random_state=None, tol=0.
+    ):
         """Dimensionality reduction using truncated SVD (aka LSA).
 
         This transformer performs linear dimensionality reduction by means of
@@ -134,9 +135,10 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
 
     def _check_array(self, X):
         if self.n_components >= X.shape[1]:
-            raise ValueError("n_components must be < n_features; "
-                             "got {} >= {}".format(self.n_components,
-                                                   X.shape[1]))
+            raise ValueError(
+                "n_components must be < n_features; "
+                "got {} >= {}".format(self.n_components, X.shape[1])
+            )
         return X
 
     def fit_transform(self, X, y=None):
@@ -158,17 +160,17 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
             first dimension.
         """
         X = self._check_array(X)
-        if self.algorithm not in {'tsqr', 'randomized'}:
+        if self.algorithm not in {"tsqr", "randomized"}:
             raise ValueError()
-        if self.algorithm == 'tsqr':
+        if self.algorithm == "tsqr":
             u, s, v = da.linalg.svd(X)
-            u = u[:, :self.n_components]
-            s = s[:self.n_components]
-            v = v[:self.n_components]
+            u = u[:, : self.n_components]
+            s = s[: self.n_components]
+            v = v[: self.n_components]
         else:
-            u, s, v = da.linalg.svd_compressed(X, self.n_components,
-                                               self.n_iter,
-                                               seed=self.random_state)
+            u, s, v = da.linalg.svd_compressed(
+                X, self.n_components, self.n_iter, seed=self.random_state
+            )
         u, v = svd_flip(u, v)
 
         X_transformed = u * s
@@ -176,9 +178,7 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
         full_var = X.var(axis=0).sum()
         explained_variance_ratio = explained_var / full_var
 
-        components, ev, evr, sv = compute(
-            v, explained_var, explained_variance_ratio, s
-        )
+        components, ev, evr, sv = compute(v, explained_var, explained_variance_ratio, s)
         self.components_ = components
         self.explained_variance_ = ev
         self.explained_variance_ratio_ = evr

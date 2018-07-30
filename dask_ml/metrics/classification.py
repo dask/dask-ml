@@ -1,12 +1,14 @@
-
-import packaging.version
+import dask
 import dask.array as da
+import numpy as np
+import packaging.version
+import sklearn.metrics
+import sklearn.utils.multiclass
 
 from .._compat import DASK_VERSION
 
 
-def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None,
-                   compute=True):
+def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None, compute=True):
     """Accuracy classification score.
 
     In multilabel classification, this function computes subset accuracy:
@@ -69,8 +71,9 @@ def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None,
 
     no_average = DASK_VERSION <= packaging.version.parse("0.18.0")
     if no_average and sample_weight is not None:
-        raise NotImplementedError("'sample_weight' is only supported for "
-                                  "dask versions > 0.18.0.")
+        raise NotImplementedError(
+            "'sample_weight' is only supported for " "dask versions > 0.18.0."
+        )
 
     if y_true.ndim > 1:
         differing_labels = ((y_true - y_pred) == 0).all(1)
@@ -91,3 +94,60 @@ def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None,
     if compute:
         score = score.compute()
     return score
+
+
+def _log_loss_inner(x, y, sample_weight, **kwargs):
+    # da.map_blocks wasn't able to concatenate together the results
+    # when we reduce down to a scalar per block. So we make an
+    # array with 1 element.
+    if sample_weight is not None:
+        sample_weight = sample_weight.ravel()
+    return np.array(
+        [sklearn.metrics.log_loss(x, y, sample_weight=sample_weight, **kwargs)]
+    )
+
+
+def log_loss(
+    y_true, y_pred, eps=1e-15, normalize=True, sample_weight=None, labels=None
+):
+    if not (dask.is_dask_collection(y_true) and dask.is_dask_collection(y_pred)):
+        return sklearn.metrics.log_loss(
+            y_true,
+            y_pred,
+            eps=eps,
+            normalize=normalize,
+            sample_weight=sample_weight,
+            labels=labels,
+        )
+
+    if y_pred.ndim > 1 and y_true.ndim == 1:
+        y_true = y_true.reshape(-1, 1)
+        drop_axis = 1
+        if sample_weight is not None:
+            sample_weight = sample_weight.reshape(-1, 1)
+    else:
+        drop_axis = None
+
+    result = da.map_blocks(
+        _log_loss_inner,
+        y_true,
+        y_pred,
+        sample_weight,
+        chunks=(1,),
+        drop_axis=drop_axis,
+        dtype="f8",
+        eps=eps,
+        normalize=normalize,
+        labels=labels,
+    )
+    if normalize and sample_weight is not None:
+        sample_weight = sample_weight.ravel()
+        block_weights = sample_weight.map_blocks(np.sum, chunks=(1,), keepdims=True)
+        return da.average(result, 0, weights=block_weights)
+    elif normalize:
+        return result.mean()
+    else:
+        return result.sum()
+
+
+log_loss.__doc__ = getattr(sklearn.metrics.log_loss, "__doc__")

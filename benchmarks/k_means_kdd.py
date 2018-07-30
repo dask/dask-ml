@@ -7,21 +7,22 @@ import logging
 import os
 import string
 import sys
-from timeit import default_timer as tic
 
 import dask.array as da
 import dask.dataframe as dd
 import pandas as pd
 import requests
-import s3fs
 import sklearn.cluster as sk
-from dask_ml.cluster import KMeans
 from distributed import Client
 from sklearn.datasets import get_data_home
 
+import s3fs
+from dask_ml.cluster import KMeans
+from dask_ml.utils import _timer
+
 from .base import make_parser
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 try:
     import coloredlogs
@@ -35,8 +36,11 @@ URL = "http://archive.ics.uci.edu/ml/machine-learning-databases/kddcup99-mld/kdd
 
 def parse_args(args=None):
     parser = make_parser()
-    parser.add_argument('--path', default="s3://dask-data/kddcup/kdd.parq/",
-                        help="Path for the data (potentially an S3 Key")
+    parser.add_argument(
+        "--path",
+        default="s3://dask-data/kddcup/kdd.parq/",
+        help="Path for the data (potentially an S3 Key",
+    )
 
     return parser.parse_args(args)
 
@@ -57,17 +61,12 @@ def split(p):
     output = os.path.join(get_data_home(), "kddcup.parq")
     if not os.path.exists(output):
 
-        dtype = {
-            1: 'category',
-            2: 'category',
-            3: 'category',
-            41: 'category',
-        }
+        dtype = {1: "category", 2: "category", 3: "category", 41: "category"}
 
         df = pd.read_csv(p, header=None, dtype=dtype)
-        cat_cols = df.select_dtypes(include=['category']).columns
+        cat_cols = df.select_dtypes(include=["category"]).columns
         df[cat_cols] = df[cat_cols].apply(lambda col: col.cat.codes)
-        df.columns = list(string.ascii_letters[:len(df.columns)])
+        df.columns = list(string.ascii_letters[: len(df.columns)])
 
         ddf = dd.from_pandas(df, npartitions=16)
         ddf.to_parquet(output)
@@ -76,9 +75,9 @@ def split(p):
 
 
 def upload(p, fs):
-    fs.mkdir('dask-data/kddcup/kdd.parq')
-    for file in glob(os.path.join(p, '*')):
-        fs.put(file, 'dask-data/kddcup/kdd.parq/' + file.split('/')[-1])
+    fs.mkdir("dask-data/kddcup/kdd.parq")
+    for file in glob(os.path.join(p, "*")):
+        fs.put(file, "dask-data/kddcup/kdd.parq/" + file.split("/")[-1])
         print(file)
 
 
@@ -113,15 +112,18 @@ def fit(data, use_scikit_learn=False):
     if use_scikit_learn:
         km = sk.KMeans(n_clusters=n_clusters, random_state=0)
     else:
-        km = KMeans(n_clusters=n_clusters,
-                    oversampling_factor=oversampling_factor,
-                    random_state=0)
-    t0 = tic()
-    logger.info("Starting n_clusters=%2d, oversampling_factor=%2d",
-                n_clusters, oversampling_factor)
-    km.fit(data)
-    t1 = tic()
-    logger.info("Finished in %.2f", t1 - t0)
+        km = KMeans(
+            n_clusters=n_clusters,
+            oversampling_factor=oversampling_factor,
+            random_state=0,
+        )
+    logger.info(
+        "Starting n_clusters=%2d, oversampling_factor=%2d",
+        n_clusters,
+        oversampling_factor,
+    )
+    with _timer("km.fit", _logger=logger):
+        km.fit(data)
 
 
 def main(args=None):
@@ -151,5 +153,5 @@ def main(args=None):
     fit(data, args.scikit_learn)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main(None))

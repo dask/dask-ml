@@ -1,13 +1,15 @@
 import contextlib
 
-from distributed.utils_test import cluster
-import pytest
 import numpy as np
+import pytest
+from distributed.utils_test import cluster
 
-from dask_ml.datasets import (make_classification,
-                              make_regression,
-                              make_blobs,
-                              make_counts)
+from dask_ml.datasets import (
+    make_blobs,
+    make_classification,
+    make_counts,
+    make_regression,
+)
 
 # pytest.register_assert_rewrite('dask_ml.utils')
 
@@ -39,8 +41,7 @@ def Xl_blobs():
     Tuple of (X, labels) for a classification task. `X`
     and `l` are both dask arrays
     """
-    X, l = make_classification(n_samples=1000, n_features=4, chunks=500,
-                               random_state=1)
+    X, l = make_classification(n_samples=1000, n_features=4, chunks=500, random_state=1)
     return X, l
 
 
@@ -51,13 +52,8 @@ def Xl_blobs_easy():
 
     The centers are very spread out, so the clustering is easy.
     """
-    centers = np.array([
-        [-7, -7],
-        [0, 0],
-        [7, 7],
-    ])
-    X, y = make_blobs(cluster_std=0.1, centers=centers, chunks=50,
-                      random_state=0)
+    centers = np.array([[-7, -7], [0, 0], [7, 7]])
+    X, y = make_blobs(cluster_std=0.1, centers=centers, chunks=50, random_state=0)
     return X, y
 
 
@@ -133,9 +129,9 @@ def not_cluster(nworkers=2, **kwargs):
     yield (None, [None] * nworkers)
 
 
-@pytest.fixture(scope='module', params=['threads', 'distributed'])
+@pytest.fixture(scope="module", params=["threads", "distributed"])
 def scheduler(request):
-    if request.param == 'distributed':
+    if request.param == "distributed":
         yield cluster
     else:
         yield not_cluster

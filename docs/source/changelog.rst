@@ -1,6 +1,21 @@
 Changelog
 =========
 
+Version 0.8.0
+~~~~~~~~~~~~~
+
+Enhancements
+------------
+
+- Automatically replace default scikit-learn scorers with dask-aware versions in Incremental (:issue:`200`)
+- Added the :func:`dask_ml.metrics.log_loss` loss function and ``neg_log_loss`` scorer (:pr:`318`)
+- Fixed handling of array-like fit-parameters to GridSearchCV and BaseSearchCV (:pr:`320`)
+
+Bug Fixes
+---------
+
+- Fixed dtype in :meth:`LabelEncoder.fit_transform` to be integer, rather than the dtype of the classes for dask arrays (:pr:`311`)
+
 Version 0.7.0
 ~~~~~~~~~~~~~
 

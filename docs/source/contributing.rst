@@ -62,6 +62,24 @@ And then
 If you have any trouble with the build step, please open an issue in the
 `dask-ml issue tracker <https://github.com/dask/dask-ml/issues>`_.
 
+Style
+~~~~~
+
+Dask-ML uses `black <http://black.readthedocs.io/en/stable/>`_ for formatting
+and `flake8 <http://flake8.pycqa.org/en/latest/>`_ for linting. If you installed
+dask-ml with ``python -m pip install -e ".[dev]"`` these tools will already be
+installed.
+
+.. code-block:: none
+
+    black .
+    flake8
+    isort -rc dask_ml tests
+
+You may wish to setup a
+`pre-commit hook <https://black.readthedocs.io/en/stable/version_control_integration.html>`_
+to run black when you commit changes.
+
 Running tests
 ~~~~~~~~~~~~~
 
@@ -70,24 +88,50 @@ can run tests from the main dask-ml directory as follows:
 
 .. code-block:: none
 
-    py.test tests
+    pytest tests
 
 Alternatively you may choose to run only a subset of the full test suite. For
 example to test only the preprocessing submodule we would run tests as follows:
 
 .. code-block:: none
 
-    py.test tests/preprocessing
+    pytest tests/preprocessing
 
+Coverage
+~~~~~~~~
 
-In addition to running tests, dask-ml verifies code style uniformity with the
-``flake8`` tool:
+If your Pull Request decreases the lines of code covered, the CI may fail.
+Sometimes this is OK, and a maintainer will merge it anyway. To check the coverage locally,
+use
 
 .. code-block:: none
 
-    pip install flake8
-    flake8
+   pytest --cov --cov-report=html
 
+You can still use all the usual pytest command-line options in addition to those.
+
+Pre-Commit Hooks
+~~~~~~~~~~~~~~~~
+
+Here's an example pre-commit configuration, which goes at ``.pre-commit-config.yaml``
+in the root of your git repository.
+
+.. code-block:: yaml
+
+   repos:
+   -   repo: https://github.com/ambv/black
+       rev: stable
+       hooks:
+       - id: black
+         language_version: python3.6
+   
+   -   repo: https://github.com/pre-commit/mirrors-isort
+       rev: "f35773e46d096de5c45365f1a47eeeef36fc83ed"
+       hooks:
+       - id: isort
+
+Then install `pre commit <https://github.com/pre-commit/pre-commit>`_ and
+install with ``pre-commit install``.
 
 Conventions
 ~~~~~~~~~~~
