@@ -45,6 +45,15 @@ class MockClassifier(object):
         return self
 
 
+class MockClassifierWithFitParam(MockClassifier):
+    """A mock classifier with a required fit param."""
+
+    def fit(self, X, y, mock_fit_param=None):
+        if mock_fit_param is None:
+            raise ValueError("Requires non-None 'mock_fit_param'")
+        return super(MockClassifierWithFitParam, self)
+
+
 class ScalingTransformer(BaseEstimator):
     def __init__(self, factor=1):
         self.factor = factor

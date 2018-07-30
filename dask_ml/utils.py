@@ -7,6 +7,7 @@ from multiprocessing import cpu_count
 from numbers import Integral
 from timeit import default_timer as tic
 
+import dask
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
@@ -302,6 +303,14 @@ def _timed(_logger=None, level="info"):
         return wraps
 
     return fun_wrapper
+
+
+def _num_samples(X):
+    result = sk_validation._num_samples(X)
+    if dask.is_dask_collection(result):
+        # dask dataframe
+        result = result.compute()
+    return result
 
 
 __all__ = [

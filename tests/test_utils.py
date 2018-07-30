@@ -12,6 +12,7 @@ from dask.dataframe.utils import assert_eq as assert_eq_df
 
 from dask_ml.datasets import make_classification
 from dask_ml.utils import (
+    _num_samples,
     assert_estimator_equal,
     check_array,
     check_chunks,
@@ -159,3 +160,17 @@ def test_check_array_raises():
         check_array(X)
 
     assert m.match("Chunking is only allowed on the first axis.")
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        np.random.uniform(size=10),
+        da.random.uniform(size=10, chunks=5),
+        da.random.uniform(size=(10, 4), chunks=5),
+        dd.from_pandas(pd.DataFrame({"A": range(10)}), npartitions=2),
+        dd.from_pandas(pd.Series(range(10)), npartitions=2),
+    ],
+)
+def test_num_samples(data):
+    assert _num_samples(data) == 10
