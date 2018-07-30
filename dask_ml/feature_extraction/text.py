@@ -1,5 +1,7 @@
 import dask
 import dask.array as da
+import dask.bag as db
+import dask.dataframe as dd
 import numpy as np
 import sklearn.feature_extraction.text
 from sklearn.feature_extraction.hashing import FeatureHasher
@@ -149,18 +151,29 @@ class HashingVectorizer(sklearn.feature_extraction.text.HashingVectorizer):
         if not dask.is_dask_collection(X):
             return transformer(X)
 
-        if hasattr(X, "map_partitions"):
-            return X.map_partitions(transformer)
+        if isinstance(X, db.Bag):
+            bag2 = X.map_partitions(transformer)
+            objs = bag2.to_delayed()
+            arrs = [
+                da.from_delayed(obj, (np.nan, self.n_features), self.dtype)
+                for obj in objs
+            ]
+            result = da.concatenate(arrs, axis=0)
+        elif isinstance(X, dd.Series):
+            result = X.map_partitions(transformer)
         else:
             # dask.Array
-            if X.ndim > 1:
-                return X.map_blocks(transformer)
-            elif X.ndim == 2:
-                if X.numblocks[1] > 1:
-                    raise ValueError("'X' should be chunked only along the samples.")
-                return X.map_blocks(transformer)
+            chunks = ((np.nan,) * X.numblocks[0], (self.n_features,))
+            if X.ndim == 1:
+                result = X.map_blocks(
+                    transformer, dtype="f8", chunks=chunks, new_axis=1
+                )
             else:
-                raise ValueError("'X' should be either 1 or 2 dimensions.")
+                raise ValueError(
+                    "'X' should be a 1-dimensional array with length 'num_samples'."
+                )
+
+        return result
 
     def _get_hasher(self):
         return FeatureHasher(

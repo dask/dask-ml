@@ -1,11 +1,12 @@
+import dask.array as da
+import dask.bag as db
+import numpy as np
+import pytest
 import scipy.sparse
-from numpy.testing import assert_array_equal
 import sklearn.feature_extraction.text
 
-import dask.bag as db
-import dask.multiprocessing
-from dask_ml.feature_extraction.text import HashingVectorizer
-import pytest
+import dask_ml.feature_extraction.text
+from dask_ml.utils import assert_estimator_equal
 
 JUNK_FOOD_DOCS = (
     "the pizza pizza beer copyright",
@@ -17,21 +18,29 @@ JUNK_FOOD_DOCS = (
 )
 
 
-@pytest.mark.parametrize('get', (dask.get, dask.multiprocessing.get))
-def test_hashing_vectorizer(get):
+@pytest.mark.parametrize("container", ["bag", "series", "array"])
+def test_hashing_vectorizer(container):
+    b = db.from_sequence(JUNK_FOOD_DOCS, npartitions=2)
+    if container == "series":
+        b = b.to_dataframe(columns=["text"])["text"]
+    elif container == "array":
+        b = b.to_dataframe(columns=["text"])["text"].values
+
     vect_ref = sklearn.feature_extraction.text.HashingVectorizer()
+    vect = dask_ml.feature_extraction.text.HashingVectorizer()
 
-    X_ref = vect_ref.fit_transform(JUNK_FOOD_DOCS)
+    X_ref = vect_ref.fit_transform(b.compute())
+    X_da = vect.fit_transform(b)
 
-    with dask.set_options(get=get):
-        b = db.from_sequence(JUNK_FOOD_DOCS, npartitions=2)
-        vect = HashingVectorizer()
-        X_da = vect.fit_transform(b)
+    assert_estimator_equal(vect_ref, vect)
 
-        X = scipy.sparse.vstack(X_da.compute()).asformat('csr')
+    assert isinstance(X_da, da.Array)
+    assert isinstance(X_da.blocks[0].compute(), scipy.sparse.csr_matrix)
 
-    assert X_ref.shape == X.shape
-    assert X_ref.nnz == X.nnz
-    assert_array_equal(X.data, X_ref.data)
-    assert_array_equal(X.indices, X_ref.indices)
-    assert_array_equal(X.indptr, X_ref.indptr)
+    result = X_da.map_blocks(lambda x: x.toarray(), dtype=X_da.dtype)
+    expected = X_ref.toarray()
+    # TODO: use dask.utils.assert_eq
+    # Currently this fails chk_dask, as we end up with an integer key in the
+    # dask graph.
+
+    np.testing.assert_array_equal(result, expected)
