@@ -16,7 +16,7 @@ from sklearn.utils import safe_indexing
 from sklearn.utils.validation import check_consistent_length
 from toolz import pluck
 
-from .utils import _should_pack_fit_param, copy_estimator
+from .utils import _index_param_value, _num_samples, copy_estimator
 
 # Copied from scikit-learn/sklearn/utils/fixes.py, can be removed once we drop
 # support for scikit-learn < 0.18.1 or numpy < 1.12.0.
@@ -82,13 +82,22 @@ def warn_fit_failure(error_score, e):
 
 
 class CVCache(object):
-    def __init__(self, splits, pairwise=False, cache=True):
+    def __init__(self, splits, pairwise=False, cache=True, num_train_samples=None):
         self.splits = splits
         self.pairwise = pairwise
         self.cache = {} if cache else None
+        self.num_train_samples = num_train_samples
 
     def __reduce__(self):
-        return (CVCache, (self.splits, self.pairwise, self.cache is not None))
+        return (
+            CVCache,
+            (
+                self.splits,
+                self.pairwise,
+                self.cache is not None,
+                self.num_train_samples,
+            ),
+        )
 
     def num_test_samples(self):
         return np.array(
@@ -108,7 +117,7 @@ class CVCache(object):
         if self.cache is not None and (n, key) in self.cache:
             return self.cache[n, key]
 
-        out = safe_indexing(x, self.splits[n][0]) if _should_pack_fit_param(x) else x
+        out = _index_param_value(self.num_train_samples, x, self.splits[n][0])
 
         if self.cache is not None:
             self.cache[n, key] = out
@@ -146,7 +155,7 @@ class CVCache(object):
 
 def cv_split(cv, X, y, groups, is_pairwise, cache):
     check_consistent_length(X, y, groups)
-    return CVCache(list(cv.split(X, y, groups)), is_pairwise, cache)
+    return CVCache(list(cv.split(X, y, groups)), is_pairwise, cache, _num_samples(X))
 
 
 def cv_n_samples(cvs):

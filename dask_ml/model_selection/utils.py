@@ -3,9 +3,13 @@ from distutils.version import LooseVersion
 
 import dask
 import dask.array as da
+import scipy.sparse as sp
 from dask.base import tokenize
 from dask.delayed import Delayed, delayed
+from sklearn.utils import safe_indexing
 from sklearn.utils.validation import _is_arraylike, indexable
+
+from ..utils import _num_samples
 
 if LooseVersion(dask.__version__) > "0.15.4":
     from dask.base import is_dask_collection
@@ -21,7 +25,7 @@ def _indexable(x):
 
 
 def _maybe_indexable(x):
-    return indexable(x)[0] if _should_pack_fit_param(x) else x
+    return indexable(x)[0] if _is_arraylike(x) else x
 
 
 def to_indexable(*args, **kwargs):
@@ -48,8 +52,14 @@ def to_indexable(*args, **kwargs):
             yield indexable(x)
 
 
-def _should_pack_fit_param(x):
-    return _is_arraylike(x) and not isinstance(x, list)
+def _index_param_value(num_samples, v, indices):
+    """Private helper function for parameter value indexing."""
+    if not _is_arraylike(v) or _num_samples(v) != num_samples:
+        # pass through: skip indexing
+        return v
+    if sp.issparse(v):
+        v = v.tocsr()
+    return safe_indexing(v, indices)
 
 
 def to_keys(dsk, *args):
