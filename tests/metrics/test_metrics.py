@@ -87,7 +87,8 @@ def test_pairwise_kernels(kernel):
 @pytest.mark.parametrize("sample_weight", [True, False])
 @pytest.mark.parametrize("normalize", [True, False])
 @pytest.mark.parametrize("labels", [[0, 1], [0, 1, 3], [1, 0]])
-def test_log_loss(labels, normalize, sample_weight):
+@pytest.mark.parametrize("daskify", [True, False])
+def test_log_loss(labels, normalize, sample_weight, daskify):
     n = 100
     c = 25
     y_true = np.random.choice(labels, size=n)
@@ -102,8 +103,13 @@ def test_log_loss(labels, normalize, sample_weight):
         sample_weight = None
         dsample_weight = None
 
-    dy_true = da.from_array(y_true, chunks=c)
-    dy_pred = da.from_array(y_pred, chunks=c)
+    if daskify:
+        dy_true = da.from_array(y_true, chunks=c)
+        dy_pred = da.from_array(y_pred, chunks=c)
+    else:
+        dy_true = y_true
+        dy_pred = y_pred
+        dsample_weight, = dask.compute(dsample_weight)
 
     a = sklearn.metrics.log_loss(
         y_true, y_pred, normalize=normalize, sample_weight=sample_weight

@@ -1,3 +1,4 @@
+import dask
 import dask.array as da
 import numpy as np
 import packaging.version
@@ -109,6 +110,16 @@ def _log_loss_inner(x, y, sample_weight, **kwargs):
 def log_loss(
     y_true, y_pred, eps=1e-15, normalize=True, sample_weight=None, labels=None
 ):
+    if not (dask.is_dask_collection(y_true) and dask.is_dask_collection(y_pred)):
+        return sklearn.metrics.log_loss(
+            y_true,
+            y_pred,
+            eps=eps,
+            normalize=normalize,
+            sample_weight=sample_weight,
+            labels=labels,
+        )
+
     if y_pred.ndim > 1 and y_true.ndim == 1:
         y_true = y_true.reshape(-1, 1)
         drop_axis = 1
