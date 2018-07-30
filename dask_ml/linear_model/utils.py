@@ -37,7 +37,7 @@ def _add_intercept(x):
     return np.concatenate([ones, x], axis=1)
 
 
-@dispatch(da.Array)
+@dispatch(da.Array)  # noqa: F811
 def add_intercept(X):
     if X.ndim != 2:
         raise ValueError("'X' should have 2 dimensions, not {}".format(X.ndim))
@@ -54,7 +54,7 @@ def add_intercept(X):
     return X.map_blocks(_add_intercept, dtype=X.dtype, chunks=chunks)
 
 
-@dispatch(dd.DataFrame)
+@dispatch(dd.DataFrame)  # noqa: F811
 def add_intercept(X):
     columns = X.columns
     if "intercept" in columns:
