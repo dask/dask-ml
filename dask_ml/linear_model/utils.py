@@ -3,7 +3,6 @@
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
-
 from multipledispatch import dispatch
 
 
@@ -50,7 +49,7 @@ def add_intercept(X):
         )
         raise ValueError(msg)
 
-    chunks = (X.chunks[0], (X.chunks[1][0] + 1))
+    chunks = ((X.chunks[0], (X.chunks[1][0] + 1)),)
     return X.map_blocks(_add_intercept, dtype=X.dtype, chunks=chunks)
 
 
