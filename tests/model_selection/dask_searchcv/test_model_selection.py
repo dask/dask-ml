@@ -810,13 +810,19 @@ def test_cv_multiplemetrics_no_refit():
     assert hasattr(a, "best_score_") is hasattr(b, "best_score_")
 
 
-def test_gridsearch_pipeline_with_arraylike_fit_param():
+@pytest.mark.parametrize("cache_cv", [True, False])
+def test_gridsearch_with_arraylike_fit_param(cache_cv):
     # https://github.com/dask/dask-ml/issues/319
     X, y = make_classification(random_state=0)
     param_grid = {"foo_param": [0.0001, 0.1]}
 
     a = dcv.GridSearchCV(
-        MockClassifierWithFitParam(), param_grid, cv=3, iid=False, refit=False
+        MockClassifierWithFitParam(),
+        param_grid,
+        cv=3,
+        iid=False,
+        refit=False,
+        cache_cv=cache_cv,
     )
     b = GridSearchCV(
         MockClassifierWithFitParam(), param_grid, cv=3, iid=False, refit=False

@@ -53,7 +53,13 @@ def to_indexable(*args, **kwargs):
 
 
 def _index_param_value(num_samples, v, indices):
-    """Private helper function for parameter value indexing."""
+    """Private helper function for parameter value indexing.
+
+    This determines whether a fit parameter `v` to a SearchCV.fit
+    should be indexed along with `X` and `y`. Note that this differs
+    from the scikit-learn version. They pass `X` and compute num_samples.
+    We pass `num_samples` instead.
+    """
     if not _is_arraylike(v) or _num_samples(v) != num_samples:
         # pass through: skip indexing
         return v
