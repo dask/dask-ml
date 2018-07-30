@@ -10,6 +10,7 @@ import sklearn.metrics
 from dask.array.utils import assert_eq
 
 import dask_ml.metrics
+import dask_ml.wrappers
 from dask_ml._compat import SK_VERSION, dummy_context
 
 
@@ -157,10 +158,10 @@ def test_log_loss_scoring(y):
         labels=labels,
     )
 
-    clf = sklearn.linear_model.LogisticRegression()
+    clf = dask_ml.wrappers.ParallelPostFit(sklearn.linear_model.LogisticRegression())
     clf.fit(X, y)
 
     result = b_scorer(clf, X, y)
-    expected = b_scorer(clf, X, y)
+    expected = a_scorer(clf, X, y)
 
     assert_eq(result, expected)
