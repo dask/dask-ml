@@ -109,10 +109,6 @@ def _log_loss_inner(x, y, sample_weight, **kwargs):
 def log_loss(
     y_true, y_pred, eps=1e-15, normalize=True, sample_weight=None, labels=None
 ):
-    if isinstance(y_true, da.Array):
-        if not isinstance(y_pred, da.Array):
-            y_pred = da.from_array(y_pred, y_true.chunks)
-
     if y_pred.ndim > 1 and y_true.ndim == 1:
         y_true = y_true.reshape(-1, 1)
         drop_axis = 1
