@@ -2,6 +2,7 @@ import dask.array as da
 import numpy as np
 import packaging.version
 import sklearn.metrics
+import sklearn.utils.multiclass
 
 from .._compat import DASK_VERSION
 
@@ -108,11 +109,11 @@ def _log_loss_inner(x, y, sample_weight, **kwargs):
 def log_loss(
     y_true, y_pred, eps=1e-15, normalize=True, sample_weight=None, labels=None
 ):
-    if y_true.ndim == 1:
+    if y_pred.ndim > 1 and y_true.ndim == 1:
         y_true = y_true.reshape(-1, 1)
-    if sample_weight is not None:
-        sample_weight = sample_weight.reshape(-1, 1)
-    assert y_pred.ndim == 2
+        drop_axis = 1
+    else:
+        drop_axis = None
 
     result = da.map_blocks(
         _log_loss_inner,
@@ -120,7 +121,7 @@ def log_loss(
         y_pred,
         sample_weight,
         chunks=(1,),
-        drop_axis=1,
+        drop_axis=drop_axis,
         dtype="f8",
         eps=eps,
         normalize=normalize,

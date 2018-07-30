@@ -5,6 +5,7 @@ import numpy.testing as npt
 import packaging.version
 import pytest
 import sklearn
+import sklearn.linear_model
 import sklearn.metrics
 from dask.array.utils import assert_eq
 
@@ -115,3 +116,51 @@ def test_log_loss(labels, normalize, sample_weight):
     )
 
     assert_eq(a, b)
+
+
+@pytest.mark.parametrize(
+    "yhat",
+    [
+        da.from_array(np.array([0.25, 0.25, 0.75, 0.75]), chunks=2),
+        da.from_array(np.array([0, 0, 1, 1]), chunks=2),
+        da.from_array(
+            np.array([[0.75, 0.25], [0.75, 0.25], [0.25, 0.75], [0.25, 0.75]]), chunks=2
+        ),
+    ],
+)
+def test_log_loss_shape(yhat):
+    y = da.from_array(np.array([0, 0, 1, 1]), chunks=2)
+    labels = [0, 1]
+    a = sklearn.metrics.log_loss(y, yhat)
+    b = dask_ml.metrics.log_loss(y, yhat, labels=labels)
+    assert_eq(a, b)
+
+
+@pytest.mark.parametrize("y", [[0, 1, 1, 0], [0, 1, 2, 0]])
+def test_log_loss_scoring(y):
+    # a_scorer = sklearn.metrics.get_scorer('neg_log_loss')
+    # b_scorer = dask_ml.metrics.get_scorer('neg_log_loss')
+    X = da.random.uniform(size=(4, 2), chunks=2)
+    labels = np.unique(y)
+    y = da.from_array(np.array(y), chunks=2)
+
+    a_scorer = sklearn.metrics.make_scorer(
+        sklearn.metrics.log_loss,
+        greater_is_better=False,
+        needs_proba=True,
+        labels=labels,
+    )
+    b_scorer = sklearn.metrics.make_scorer(
+        dask_ml.metrics.log_loss,
+        greater_is_better=False,
+        needs_proba=True,
+        labels=labels,
+    )
+
+    clf = sklearn.linear_model.LogisticRegression()
+    clf.fit(X, y)
+
+    result = b_scorer(clf, X, y)
+    expected = b_scorer(clf, X, y)
+
+    assert_eq(result, expected)
