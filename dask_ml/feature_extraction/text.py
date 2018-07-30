@@ -1,15 +1,14 @@
+import dask
+import dask.array as da
 import numpy as np
-
 import sklearn.feature_extraction.text
 from sklearn.feature_extraction.hashing import FeatureHasher
-
-from dask.bag.core import Bag
 
 
 class HashingVectorizer(sklearn.feature_extraction.text.HashingVectorizer):
     """Convert a collection of text documents to a matrix of token occurrences
 
-    A parallel version of ``sklearn.feature_extraction.text.HashingVectorizer``
+    A parallel version of :class:`sklearn.feature_extraction.text.HashingVectorizer`.
 
     Parameters
     ----------
@@ -81,13 +80,26 @@ class HashingVectorizer(sklearn.feature_extraction.text.HashingVectorizer):
         approximately conserve the inner product in the hashed space even for
         small n_features. This approach is similar to sparse random projection.
     """
-    def __init__(self, input='content', encoding='utf-8',
-                 decode_error='strict', strip_accents=None,
-                 lowercase=True, preprocessor=None, tokenizer=None,
-                 stop_words=None, token_pattern=r"(?u)\b\w\w+\b",
-                 ngram_range=(1, 1), analyzer='word', n_features=(2 ** 20),
-                 binary=False, norm='l2', alternate_sign=True,
-                 dtype=np.float64):
+
+    def __init__(
+        self,
+        input="content",
+        encoding="utf-8",
+        decode_error="strict",
+        strip_accents=None,
+        lowercase=True,
+        preprocessor=None,
+        tokenizer=None,
+        stop_words=None,
+        token_pattern=r"(?u)\b\w\w+\b",
+        ngram_range=(1, 1),
+        analyzer="word",
+        n_features=(2 ** 20),
+        binary=False,
+        norm="l2",
+        alternate_sign=True,
+        dtype=np.float64,
+    ):
         self.input = input
         self.encoding = encoding
         self.decode_error = decode_error
@@ -132,15 +144,28 @@ class HashingVectorizer(sklearn.feature_extraction.text.HashingVectorizer):
         X : scipy.sparse matrix, shape = (n_samples, self.n_features)
             Document-term matrix.
         """
-
         transformer = super(HashingVectorizer, self).transform
 
-        if isinstance(X, Bag):
+        if not dask.is_dask_collection(X):
+            return transformer(X)
+
+        if hasattr(X, "map_partitions"):
             return X.map_partitions(transformer)
         else:
-            raise ValueError
+            # dask.Array
+            if X.ndim > 1:
+                return X.map_blocks(transformer)
+            elif X.ndim == 2:
+                if X.numblocks[1] > 1:
+                    raise ValueError("'X' should be chunked only along the samples.")
+                return X.map_blocks(transformer)
+            else:
+                raise ValueError("'X' should be either 1 or 2 dimensions.")
 
     def _get_hasher(self):
-        return FeatureHasher(n_features=self.n_features,
-                             input_type='string', dtype=self.dtype,
-                             alternate_sign=self.alternate_sign)
+        return FeatureHasher(
+            n_features=self.n_features,
+            input_type="string",
+            dtype=self.dtype,
+            alternate_sign=self.alternate_sign,
+        )
