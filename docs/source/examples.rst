@@ -7,13 +7,13 @@ Examples
 This is a set of runnable examples demonstrating how to *use* Dask-ML.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
-   examples/hyperparameter-search
-   examples/joblib-distributed
+   examples/distributed-scikit-learn-for-cpu-bound-problems
    examples/predict
-   examples/dask-glm
+   examples/training-on-large-datasets
+   examples/incremental
    examples/xgboost
    examples/tensorflow
 
