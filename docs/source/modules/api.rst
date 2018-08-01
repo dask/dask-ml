@@ -157,6 +157,7 @@ Classification Metrics
    :toctree: generated/
 
    metrics.accuracy_score
+   metrics.log_loss
 
 
 :mod:`dask_ml.tensorflow`: Tensorflow

@@ -2,16 +2,17 @@ from __future__ import absolute_import, division, print_function
 
 import numpy as np
 from dask.base import normalize_token
-
 from sklearn.base import BaseEstimator
-from sklearn.model_selection._split import (_BaseKFold,
-                                            BaseShuffleSplit,
-                                            LeaveOneOut,
-                                            LeaveOneGroupOut,
-                                            LeavePOut,
-                                            LeavePGroupsOut,
-                                            PredefinedSplit,
-                                            _CVIterableWrapper)
+from sklearn.model_selection._split import (
+    BaseShuffleSplit,
+    LeaveOneGroupOut,
+    LeaveOneOut,
+    LeavePGroupsOut,
+    LeavePOut,
+    PredefinedSplit,
+    _BaseKFold,
+    _CVIterableWrapper,
+)
 
 
 @normalize_token.register(BaseEstimator)
@@ -38,8 +39,13 @@ def normalize_KFold(x):
 
 @normalize_token.register(BaseShuffleSplit)
 def normalize_ShuffleSplit(x):
-    return (type(x).__name__, x.n_splits, x.test_size, x.train_size,
-            normalize_random_state(x.random_state))
+    return (
+        type(x).__name__,
+        x.n_splits,
+        x.test_size,
+        x.train_size,
+        normalize_random_state(x.random_state),
+    )
 
 
 @normalize_token.register((LeaveOneOut, LeaveOneGroupOut))
@@ -49,7 +55,7 @@ def normalize_LeaveOneOut(x):
 
 @normalize_token.register((LeavePOut, LeavePGroupsOut))
 def normalize_LeavePOut(x):
-    return (type(x).__name__, x.p if hasattr(x, 'p') else x.n_groups)
+    return (type(x).__name__, x.p if hasattr(x, "p") else x.n_groups)
 
 
 @normalize_token.register(PredefinedSplit)

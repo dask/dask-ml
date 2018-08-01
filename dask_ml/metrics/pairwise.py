@@ -9,65 +9,72 @@ import packaging.version
 from dask import delayed
 from dask.array.random import doc_wraps
 from sklearn import metrics
-from sklearn.metrics.pairwise import (
-    KERNEL_PARAMS,
-)
+from sklearn.metrics.pairwise import KERNEL_PARAMS
 
-from ..utils import row_norms
 from .._compat import SK_VERSION
+from ..utils import row_norms
 
 
-def pairwise_distances_argmin_min(X, Y, axis=1, metric="euclidean",
-                                  batch_size=None,
-                                  metric_kwargs=None):
+def pairwise_distances_argmin_min(
+    X, Y, axis=1, metric="euclidean", batch_size=None, metric_kwargs=None
+):
     if SK_VERSION >= packaging.version.parse("0.20.0.dev0"):
         if batch_size is not None:
-            msg = ("'batch_size' is deprecated. Use sklearn.config_context "
-                   "instead.'")
+            msg = "'batch_size' is deprecated. Use sklearn.config_context " "instead.'"
             warnings.warn(msg, FutureWarning)
     else:
         if batch_size is None:
             batch_size = max(X.chunks[0])
 
     if batch_size is not None:
-        kwargs = {'batch_size': batch_size}
+        kwargs = {"batch_size": batch_size}
     else:
         kwargs = {}
 
     XD = X.to_delayed().flatten().tolist()
     func = delayed(metrics.pairwise_distances_argmin_min, pure=True, nout=2)
-    blocks = [func(x, Y, metric=metric, metric_kwargs=metric_kwargs, **kwargs)
-              for x in XD]
+    blocks = [
+        func(x, Y, metric=metric, metric_kwargs=metric_kwargs, **kwargs) for x in XD
+    ]
     argmins, mins = zip(*blocks)
 
-    argmins = [da.from_delayed(block, (chunksize,), np.int64)
-               for block, chunksize in zip(argmins, X.chunks[0])]
+    argmins = [
+        da.from_delayed(block, (chunksize,), np.int64)
+        for block, chunksize in zip(argmins, X.chunks[0])
+    ]
     # Scikit-learn seems to always use float64
-    mins = [da.from_delayed(block, (chunksize,), 'f8')
-            for block, chunksize in zip(mins, X.chunks[0])]
+    mins = [
+        da.from_delayed(block, (chunksize,), "f8")
+        for block, chunksize in zip(mins, X.chunks[0])
+    ]
     argmins = da.concatenate(argmins)
     mins = da.concatenate(mins)
     return argmins, mins
 
 
-def pairwise_distances(X, Y, metric='euclidean', n_jobs=None, **kwargs):
+def pairwise_distances(X, Y, metric="euclidean", n_jobs=None, **kwargs):
     if isinstance(Y, da.Array):
         raise TypeError("`Y` must be a numpy array")
     chunks = (X.chunks[0], (len(Y),))
-    return X.map_blocks(metrics.pairwise_distances, Y,
-                        dtype=float, chunks=chunks,
-                        metric=metric, **kwargs)
+    return X.map_blocks(
+        metrics.pairwise_distances,
+        Y,
+        dtype=float,
+        chunks=chunks,
+        metric=metric,
+        **kwargs
+    )
 
 
-def euclidean_distances(X, Y=None, Y_norm_squared=None, squared=False,
-                        X_norm_squared=None):
+def euclidean_distances(
+    X, Y=None, Y_norm_squared=None, squared=False, X_norm_squared=None
+):
     if X_norm_squared is not None:
         XX = X_norm_squared
         if XX.shape == (1, X.shape[0]):
             XX = XX.T
         elif XX.shape != (X.shape[0], 1):
-            raise ValueError(
-                "Incompatible dimensions for X and X_norm_squared")
+            raise ValueError("Incompatible dimensions for X and X_norm_squared")
     else:
         XX = row_norms(X, squared=True)[:, np.newaxis]
     if X is Y:
@@ -78,8 +85,7 @@ def euclidean_distances(X, Y=None, Y_norm_squared=None, squared=False,
         else:
             YY = Y_norm_squared
         if YY.shape != (1, Y.shape[0]):
-            raise ValueError(
-                "Incompatible dimensions for Y and Y_norm_squared")
+            raise ValueError("Incompatible dimensions for Y and Y_norm_squared")
     else:
         YY = row_norms(Y, squared=True)[np.newaxis, :]
 
@@ -98,15 +104,18 @@ def check_pairwise_arrays(X, Y, precomputed=False):
 
     if precomputed:
         if X.shape[1] != Y.shape[0]:
-            raise ValueError("Precomputed metric requires shape "
-                             "(n_queries, n_indexed). Got (%d, %d) "
-                             "for %d indexed." %
-                             (X.shape[0], X.shape[1], Y.shape[0]))
+            raise ValueError(
+                "Precomputed metric requires shape "
+                "(n_queries, n_indexed). Got (%d, %d) "
+                "for %d indexed." % (X.shape[0], X.shape[1], Y.shape[0])
+            )
     elif X.shape[1] != Y.shape[1]:
-        raise ValueError("Incompatible dimension for X and Y matrices: "
-                         "X.shape[1] == %d while Y.shape[1] == %d" % (
-                             X.shape[1], Y.shape[1]))
+        raise ValueError(
+            "Incompatible dimension for X and Y matrices: "
+            "X.shape[1] == %d while Y.shape[1] == %d" % (X.shape[1], Y.shape[1])
+        )
     return X, Y
+
 
 # ----------------
 # Kernel functions
@@ -136,7 +145,7 @@ def polynomial_kernel(X, Y=None, degree=3, gamma=None, coef0=1):
     if gamma is None:
         gamma = 1.0 / X.shape[1]
 
-    K = (gamma * da.dot(X, Y.T) + coef0)**degree
+    K = (gamma * da.dot(X, Y.T) + coef0) ** degree
     return K
 
 
@@ -154,10 +163,10 @@ def sigmoid_kernel(X, Y=None, gamma=None, coef0=1):
 
 
 PAIRWISE_KERNEL_FUNCTIONS = {
-    'rbf': rbf_kernel,
-    'linear': linear_kernel,
-    'polynomial': polynomial_kernel,
-    'sigmoid': sigmoid_kernel
+    "rbf": rbf_kernel,
+    "linear": linear_kernel,
+    "polynomial": polynomial_kernel,
+    "sigmoid": sigmoid_kernel
     # TODO:
     # - cosine_similarity
     # - laplacian
@@ -166,8 +175,7 @@ PAIRWISE_KERNEL_FUNCTIONS = {
 }
 
 
-def pairwise_kernels(X, Y=None, metric="linear", filter_params=False,
-                     n_jobs=1, **kwds):
+def pairwise_kernels(X, Y=None, metric="linear", filter_params=False, n_jobs=1, **kwds):
     from sklearn.gaussian_process.kernels import Kernel as GPKernel
 
     if metric == "precomputed":
@@ -177,8 +185,7 @@ def pairwise_kernels(X, Y=None, metric="linear", filter_params=False,
         raise NotImplementedError()
     elif metric in PAIRWISE_KERNEL_FUNCTIONS:
         if filter_params:
-            kwds = dict((k, kwds[k]) for k in kwds
-                        if k in KERNEL_PARAMS[metric])
+            kwds = dict((k, kwds[k]) for k in kwds if k in KERNEL_PARAMS[metric])
         func = PAIRWISE_KERNEL_FUNCTIONS[metric]
     elif callable(metric):
         raise NotImplementedError()

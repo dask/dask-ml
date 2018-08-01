@@ -1,26 +1,27 @@
 """Utilities for splitting datasets.
 """
-import numbers
 import itertools
+import numbers
 
 import dask
 import dask.array as da
 import numpy as np
-from sklearn.utils import check_random_state
+import sklearn.model_selection as ms
 from sklearn.model_selection._split import (
+    BaseCrossValidator,
     _validate_shuffle_split,
     _validate_shuffle_split_init,
-    BaseCrossValidator,
 )
-import sklearn.model_selection as ms
+from sklearn.utils import check_random_state
 
 from dask_ml.utils import check_array
 
 
 def _check_blockwise(blockwise):
     if blockwise not in {True, False}:
-        raise ValueError("Expected a boolean for 'blockwise "
-                         "but got {} instead".format(blockwise))
+        raise ValueError(
+            "Expected a boolean for 'blockwise " "but got {} instead".format(blockwise)
+        )
     return blockwise
 
 
@@ -30,28 +31,33 @@ def _maybe_normalize_split_sizes(train_size, test_size):
         msg = "test_size and train_size can not both be None"
         raise ValueError(msg)
     elif any(isinstance(x, numbers.Integral) for x in (train_size, test_size)):
-        raise ValueError("Dask-ML does not support absolute sizes for "
-                         "'train_size' and 'test_size'. Use floats between "
-                         "0 and 1 to specify the fraction of each block "
-                         "that should go to the train and test set.")
+        raise ValueError(
+            "Dask-ML does not support absolute sizes for "
+            "'train_size' and 'test_size'. Use floats between "
+            "0 and 1 to specify the fraction of each block "
+            "that should go to the train and test set."
+        )
 
     if train_size is not None:
-        if (train_size < 0 or train_size > 1):
-            raise ValueError("'train_size' must be between 0 and 1. "
-                             "Got {}".format(train_size))
+        if train_size < 0 or train_size > 1:
+            raise ValueError(
+                "'train_size' must be between 0 and 1. " "Got {}".format(train_size)
+            )
         if test_size is None:
             test_size = 1 - train_size
     if test_size is not None:
-        if (test_size < 0 or test_size > 1):
-            raise ValueError("'test_size' be between 0 and 1. "
-                             "Got {}".format(test_size))
+        if test_size < 0 or test_size > 1:
+            raise ValueError(
+                "'test_size' be between 0 and 1. " "Got {}".format(test_size)
+            )
 
         if train_size is None:
             train_size = 1 - test_size
     if abs(1 - (train_size + test_size)) > 0.001:
-        raise ValueError("The sum of 'train_size' and 'test_size' must be 1. "
-                         "train_size: {} test_size: {}".format(train_size,
-                                                               test_size))
+        raise ValueError(
+            "The sum of 'train_size' and 'test_size' must be 1. "
+            "train_size: {} test_size: {}".format(train_size, test_size)
+        )
     return train_size, test_size
 
 
@@ -75,7 +81,7 @@ def _generate_idx(n, seed, n_train, n_test):
     idx = check_random_state(seed).permutation(n)
 
     ind_test = idx[:n_test]
-    ind_train = idx[n_test:n_train + n_test]
+    ind_train = idx[n_test : n_train + n_test]
     return ind_train, ind_test
 
 
@@ -122,9 +128,15 @@ class ShuffleSplit(BaseCrossValidator):
         If None, the random number generator is the RandomState instance used
         by `np.random`.
     """
-    def __init__(self, n_splits=10, test_size=0.1, train_size=None,
-                 blockwise=True,
-                 random_state=None):
+
+    def __init__(
+        self,
+        n_splits=10,
+        test_size=0.1,
+        train_size=None,
+        blockwise=True,
+        random_state=None,
+    ):
         _validate_shuffle_split_init(test_size, train_size)
         self.n_splits = n_splits
         self.test_size = test_size
@@ -144,37 +156,43 @@ class ShuffleSplit(BaseCrossValidator):
     def _split_blockwise(self, X):
         chunks = X.chunks[0]
         rng = check_random_state(self.random_state)
-        seeds = rng.randint(0, 2**32 - 1, size=len(chunks), dtype='u8')
+        seeds = rng.randint(0, 2 ** 32 - 1, size=len(chunks), dtype="u8")
 
-        train_pct, test_pct = _maybe_normalize_split_sizes(self.train_size,
-                                                           self.test_size)
-        sizes = [_validate_shuffle_split(c, test_pct, train_pct)
-                 for c in chunks]
+        train_pct, test_pct = _maybe_normalize_split_sizes(
+            self.train_size, self.test_size
+        )
+        sizes = [_validate_shuffle_split(c, test_pct, train_pct) for c in chunks]
 
-        objs = [dask.delayed(_generate_idx, nout=2)(chunksize, seed,
-                                                    n_train, n_test)
-                for chunksize, seed, (n_train, n_test) in zip(chunks, seeds,
-                                                              sizes)]
+        objs = [
+            dask.delayed(_generate_idx, nout=2)(chunksize, seed, n_train, n_test)
+            for chunksize, seed, (n_train, n_test) in zip(chunks, seeds, sizes)
+        ]
 
         train_objs, test_objs = zip(*objs)
         offsets = np.hstack([0, np.cumsum(chunks)])
-        train_idx = da.concatenate([
-            da.from_delayed(x + offset, (train_size,), 'i8')
-            for x, chunksize, (train_size, _), offset in zip(train_objs,
-                                                             chunks,
-                                                             sizes, offsets)
-        ])
-        test_idx = da.concatenate([
-            da.from_delayed(x + offset, (test_size,), 'i8')
-            for x, chunksize, (_, test_size), offset in zip(test_objs, chunks,
-                                                            sizes, offsets)
-        ])
+        train_idx = da.concatenate(
+            [
+                da.from_delayed(x + offset, (train_size,), "i8")
+                for x, chunksize, (train_size, _), offset in zip(
+                    train_objs, chunks, sizes, offsets
+                )
+            ]
+        )
+        test_idx = da.concatenate(
+            [
+                da.from_delayed(x + offset, (test_size,), "i8")
+                for x, chunksize, (_, test_size), offset in zip(
+                    test_objs, chunks, sizes, offsets
+                )
+            ]
+        )
 
         return train_idx, test_idx
 
     def _split(self, X):
-        raise NotImplementedError("ShuffleSplit with `blockwise=False` has "
-                                  "not been implemented yet.")
+        raise NotImplementedError(
+            "ShuffleSplit with `blockwise=False` has " "not been implemented yet."
+        )
 
     def get_n_splits(self, X=None, y=None, groups=None):
         return self.n_splits
@@ -200,8 +218,9 @@ def _blockwise_slice(arr, idx):
     objs = []
     offsets = np.hstack([0, np.cumsum(arr.chunks[0])[:-1]])
 
-    for i, (x, idx2) in enumerate(zip(arr.to_delayed().ravel(),
-                                      idx.to_delayed().ravel())):
+    for i, (x, idx2) in enumerate(
+        zip(arr.to_delayed().ravel(), idx.to_delayed().ravel())
+    ):
         idx3 = idx2 - offsets[i]
         objs.append(x[idx3])
 
@@ -212,8 +231,12 @@ def _blockwise_slice(arr, idx):
     else:
         shapes = [(x,) for x in shapes]
 
-    sliced = da.concatenate([da.from_delayed(x, shape=shape, dtype=arr.dtype)
-                            for x, shape in zip(objs, shapes)])
+    sliced = da.concatenate(
+        [
+            da.from_delayed(x, shape=shape, dtype=arr.dtype)
+            for x, shape in zip(objs, shapes)
+        ]
+    )
     return sliced
 
 
@@ -255,10 +278,10 @@ def train_test_split(*arrays, **options):
     array([[ 0.12372191,  0.58222459,  0.92950511, -2.09460307],
            [ 0.99439439, -0.70972797, -0.27567053,  1.73887268]])
     """
-    test_size = options.pop('test_size', None)
-    train_size = options.pop('train_size', None)
-    random_state = options.pop('random_state', None)
-    shuffle = options.pop('shuffle', True)
+    test_size = options.pop("test_size", None)
+    train_size = options.pop("train_size", None)
+    random_state = options.pop("random_state", None)
+    shuffle = options.pop("shuffle", True)
     blockwise = options.pop("blockwise", True)
 
     if train_size is None and test_size is None:
@@ -272,18 +295,26 @@ def train_test_split(*arrays, **options):
         raise NotImplementedError
 
     if not all(isinstance(arr, da.Array) for arr in arrays):
-        return ms.train_test_split(*arrays, test_size=test_size,
-                                   train_size=train_size,
-                                   random_state=random_state,
-                                   shuffle=shuffle)
+        return ms.train_test_split(
+            *arrays,
+            test_size=test_size,
+            train_size=train_size,
+            random_state=random_state,
+            shuffle=shuffle
+        )
 
-    splitter = ShuffleSplit(n_splits=1, test_size=test_size,
-                            train_size=train_size, blockwise=blockwise,
-                            random_state=random_state)
+    splitter = ShuffleSplit(
+        n_splits=1,
+        test_size=test_size,
+        train_size=train_size,
+        blockwise=blockwise,
+        random_state=random_state,
+    )
     train_idx, test_idx = next(splitter.split(*arrays))
 
-    train_test_pairs = ((_blockwise_slice(arr, train_idx),
-                         _blockwise_slice(arr, test_idx))
-                        for arr in arrays)
+    train_test_pairs = (
+        (_blockwise_slice(arr, train_idx), _blockwise_slice(arr, test_idx))
+        for arr in arrays
+    )
 
     return list(itertools.chain.from_iterable(train_test_pairs))

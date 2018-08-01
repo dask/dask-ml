@@ -3,11 +3,14 @@ channels:
   - defaults
   - conda-forge
 dependencies:
+  - black
   - coverage
+  - codecov
   - Cython
   - flake8
   - heapdict
   - ipython
+  - isort
   - multipledispatch
   - nbsphinx
   - nomkl
@@ -18,11 +21,13 @@ dependencies:
   - psutil
   - pytest
   - pytest-cov
+  - pytest-mock
   - python=3.6
   - sortedcontainers
   - scikit-learn
   - scipy
   - six
+  - sparse
   - sphinx
   - sphinx_rtd_theme
   - sphinx-gallery

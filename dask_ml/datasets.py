@@ -12,15 +12,23 @@ import dask_ml.utils
 def _check_axis_partitioning(chunks, n_features):
     c = chunks[1][0]
     if c != n_features:
-        msg = ("Can only generate arrays partitioned along the "
-               "first axis. Specifying a larger chunksize for "
-               "the second axis.\n\n\tchunk size: {}\n"
-               "\tn_features: {}".format(c, n_features))
+        msg = (
+            "Can only generate arrays partitioned along the "
+            "first axis. Specifying a larger chunksize for "
+            "the second axis.\n\n\tchunk size: {}\n"
+            "\tn_features: {}".format(c, n_features)
+        )
         raise ValueError(msg)
 
 
-def make_counts(n_samples=1000, n_features=100, n_informative=2, scale=1.0,
-                chunks=100, random_state=None):
+def make_counts(
+    n_samples=1000,
+    n_features=100,
+    n_informative=2,
+    scale=1.0,
+    chunks=100,
+    random_state=None,
+):
     """
     Generate a dummy dataset for modeling count data.
 
@@ -53,10 +61,8 @@ def make_counts(n_samples=1000, n_features=100, n_informative=2, scale=1.0,
     """
     rng = dask_ml.utils.check_random_state(random_state)
 
-    X = rng.normal(0, 1, size=(n_samples, n_features),
-                   chunks=(chunks, n_features))
-    informative_idx = rng.choice(n_features, n_informative,
-                                 chunks=n_informative)
+    X = rng.normal(0, 1, size=(n_samples, n_features), chunks=(chunks, n_features))
+    informative_idx = rng.choice(n_features, n_informative, chunks=n_informative)
     beta = (rng.random(n_features, chunks=n_features) - 1) * scale
 
     informative_idx, beta = dask.compute(informative_idx, beta)
@@ -67,9 +73,16 @@ def make_counts(n_samples=1000, n_features=100, n_informative=2, scale=1.0,
     return X, y
 
 
-def make_blobs(n_samples=100, n_features=2, centers=None, cluster_std=1.0,
-               center_box=(-10.0, 10.0), shuffle=True, random_state=None,
-               chunks=None):
+def make_blobs(
+    n_samples=100,
+    n_features=2,
+    centers=None,
+    cluster_std=1.0,
+    center_box=(-10.0, 10.0),
+    shuffle=True,
+    random_state=None,
+    chunks=None,
+):
     """
     Generate isotropic Gaussian blobs for clustering.
 
@@ -147,13 +160,15 @@ def make_blobs(n_samples=100, n_features=2, centers=None, cluster_std=1.0,
     if isinstance(centers, numbers.Integral):
         # Make a prototype
         n_centers = centers
-        X, y = sklearn.datasets.make_blobs(n_samples=chunks[0][0],
-                                           n_features=n_features,
-                                           centers=centers,
-                                           shuffle=shuffle,
-                                           cluster_std=cluster_std,
-                                           center_box=center_box,
-                                           random_state=random_state)
+        X, y = sklearn.datasets.make_blobs(
+            n_samples=chunks[0][0],
+            n_features=n_features,
+            centers=centers,
+            shuffle=shuffle,
+            cluster_std=cluster_std,
+            center_box=center_box,
+            random_state=random_state,
+        )
         centers = []
         centers = np.zeros((n_centers, n_features))
 
@@ -174,22 +189,33 @@ def make_blobs(n_samples=100, n_features=2, centers=None, cluster_std=1.0,
     ]
     Xobjs, yobjs = zip(*objs)
 
-    Xarrs = [da.from_delayed(arr,
-                             shape=(n, n_features),
-                             dtype='f8')
-             for arr, n in zip(Xobjs, chunks[0])]
+    Xarrs = [
+        da.from_delayed(arr, shape=(n, n_features), dtype="f8")
+        for arr, n in zip(Xobjs, chunks[0])
+    ]
     X_big = da.vstack(Xarrs)
 
-    yarrs = [da.from_delayed(arr, shape=(n,), dtype='i8')
-             for arr, n in zip(yobjs, chunks[0])]
+    yarrs = [
+        da.from_delayed(arr, shape=(n,), dtype="i8") for arr, n in zip(yobjs, chunks[0])
+    ]
     y_big = da.hstack(yarrs)
     return X_big, y_big
 
 
-def make_regression(n_samples=100, n_features=100, n_informative=10,
-                    n_targets=1, bias=0.0, effective_rank=None,
-                    tail_strength=0.5, noise=0.0, shuffle=True,
-                    coef=False, random_state=None, chunks=None):
+def make_regression(
+    n_samples=100,
+    n_features=100,
+    n_informative=10,
+    n_targets=1,
+    bias=0.0,
+    effective_rank=None,
+    tail_strength=0.5,
+    noise=0.0,
+    shuffle=True,
+    coef=False,
+    random_state=None,
+    chunks=None,
+):
     """
     Generate a random regression problem.
 
@@ -274,9 +300,11 @@ def make_regression(n_samples=100, n_features=100, n_informative=10,
     return_coef = coef is True
 
     if chunks[1][0] != n_features:
-        raise ValueError("Can only generate arrays partitioned along the "
-                         "first axis. Specifying a larger chunksize for "
-                         "the second axis.")
+        raise ValueError(
+            "Can only generate arrays partitioned along the "
+            "first axis. Specifying a larger chunksize for "
+            "the second axis."
+        )
     _, _, coef = sklearn.datasets.make_regression(
         n_samples=chunks[0][0],
         n_features=n_features,
@@ -293,14 +321,13 @@ def make_regression(n_samples=100, n_features=100, n_informative=10,
     seed = da.random.random_state_data(1, random_state=rng)
     da_rng = da.random.RandomState(seed[0])
 
-    X_big = da_rng.normal(size=(n_samples, n_features),
-                          chunks=(chunks[0], n_features))
+    X_big = da_rng.normal(size=(n_samples, n_features), chunks=(chunks[0], n_features))
     y_big = da.dot(X_big, coef) + bias
 
     if noise > 0:
-        y_big = y_big + da_rng.normal(scale=noise,
-                                      size=y_big.shape,
-                                      chunks=y_big.chunks)
+        y_big = y_big + da_rng.normal(
+            scale=noise, size=y_big.shape, chunks=y_big.chunks
+        )
 
     y_big = y_big.squeeze()
 
@@ -310,11 +337,24 @@ def make_regression(n_samples=100, n_features=100, n_informative=10,
         return X_big, y_big
 
 
-def make_classification(n_samples=100, n_features=20, n_informative=2,
-                        n_redundant=2, n_repeated=0, n_classes=2,
-                        n_clusters_per_class=2, weights=None, flip_y=0.01,
-                        class_sep=1.0, hypercube=True, shift=0.0, scale=1.0,
-                        shuffle=True, random_state=None, chunks=None):
+def make_classification(
+    n_samples=100,
+    n_features=20,
+    n_informative=2,
+    n_redundant=2,
+    n_repeated=0,
+    n_classes=2,
+    n_clusters_per_class=2,
+    weights=None,
+    flip_y=0.01,
+    class_sep=1.0,
+    hypercube=True,
+    shift=0.0,
+    scale=1.0,
+    shuffle=True,
+    random_state=None,
+    chunks=None,
+):
     chunks = da.core.normalize_chunks(chunks, (n_samples, n_features))
     _check_axis_partitioning(chunks, n_features)
 
@@ -323,10 +363,8 @@ def make_classification(n_samples=100, n_features=20, n_informative=2,
 
     rng = dask_ml.utils.check_random_state(random_state)
 
-    X = rng.normal(0, 1, size=(n_samples, n_features),
-                   chunks=chunks)
-    informative_idx = rng.choice(n_features, n_informative,
-                                 chunks=n_informative)
+    X = rng.normal(0, 1, size=(n_samples, n_features), chunks=chunks)
+    informative_idx = rng.choice(n_features, n_informative, chunks=n_informative)
     beta = (rng.random(n_features, chunks=n_features) - 1) * scale
 
     informative_idx, beta = dask.compute(informative_idx, beta)

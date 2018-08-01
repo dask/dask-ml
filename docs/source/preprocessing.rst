@@ -22,6 +22,7 @@ scikit-learn counterparts.
    RobustScaler
    StandardScaler
    LabelEncoder
+   OneHotEncoder
 
 These can be used just like the scikit-learn versions, except that:
 
@@ -30,7 +31,101 @@ These can be used just like the scikit-learn versions, except that:
    when the input is a dask collection
 
 See :mod:`sklearn.preprocessing` for more information about any particular
-transformer.
+transformer. Scikit-learn does have some transforms that are alternatives to
+the large-memory tasks that Dask serves. These include `FeatureHasher`_ (a
+good alternative to `DictVectorizer`_ and `CountVectorizer`_) and `HashingVectorizer`_
+(best suited for use in text over `CountVectorizer`_). They are not
+stateful, which allows easy use with Dask with ``map_partitions``:
+
+.. ipython:: python
+
+    import dask.bag as db
+    from sklearn.feature_extraction import FeatureHasher
+
+    D = [{'dog': 1, 'cat':2, 'elephant':4}, {'dog': 2, 'run': 5}]
+    b = db.from_sequence(D)
+    h = FeatureHasher()
+
+    b.map_partitions(h.transform).compute()
+
+.. _FeatureHasher: http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.FeatureHasher.html
+.. _HashingVectorizer: http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.HashingVectorizer.html
+.. _DictVectorizer: http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.DictVectorizer.html
+.. _CountVectorizer: http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html
+
+.. note::
+
+   :class:`dask_ml.preprocessing.LabelEncoder` and
+   :class:`dask_ml.preprocessing.OneHotEncoder`
+   will use the categorical dtype information for a dask or pandas Series with
+   a :class:`pandas.api.types.CategoricalDtype`.
+   This improves performance, but may lead to different encodings depending on the
+   categories. See the class docstrings for more.
+
+Encoding Categorical Features
+-----------------------------
+
+:class:`dask_ml.preprocessing.OneHotEncoder` can be useful for "one-hot" (or
+"dummy") encoding features.
+
+See `the scikit-learn documentation <http://scikit-learn.org/dev/modules/preprocessing.html#preprocessing-categorical-features>`_
+for a full discussion. This section focuses only on the differences from
+scikit-learn.
+
+Dask-ML Supports pandas' Categorical dtype
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Dask-ML supports and uses the type information from pandas Categorical dtype.
+See https://pandas.pydata.org/pandas-docs/stable/categorical.html for an introduction.
+For large datasets, using categorical dtypes is crucial for achieving performance.
+
+This will have a couple effects on the learned attributes and transformed
+values.
+
+1. The learned ``categories_`` may differ. Scikit-Learn requires the categories
+   to be sorted. With a ``CategoricalDtype`` the categories do not need to be sorted.
+2. The output of :meth:`OneHotEncoder.transform` will be the same type as the
+   input. Passing a pandas DataFrame returns a pandas Dataframe, instead of a
+   NumPy array. Likewise, a Dask DataFrame returns a Dask DataFrame.
+
+Dask-ML's Sparse Support
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The default behavior of OneHotEncoder is to return a sparse array. Scikit-Learn
+returns a SciPy sparse matrix for ndarrays passed to ``transform``.
+
+When passed a Dask Array, :meth:`OneHotEncoder.transform` returns a Dask Array
+*where each block is a scipy sparse matrix*. SciPy sparse matricies don't
+support the same API as the NumPy ndarray, so most methods won't work on the
+result. Even basic things like ``compute`` will fail. To work around this,
+we currently recommend converting the sparse matricies to dense.
+
+.. ipython:: python
+
+   from dask_ml.preprocessing import OneHotEncoder
+   import dask.array as da
+   import numpy as np
+
+   enc = OneHotEncoder(sparse=True)
+   X = da.from_array(np.array([['A'], ['B'], ['A'], ['C']]), chunks=2)
+   enc = enc.fit(X)
+   result = enc.transform(X)
+   result
+
+Each block of ``result`` is a scipy sparse matrix
+
+.. ipython:: python
+
+   result.blocks[0].compute()
+   # This would fail!
+   # result.compute()
+   # Convert to, say, pydata/sparse COO matricies instead
+   from sparse import COO
+
+   result.map_blocks(COO.from_scipy_sparse, dtype=result.dtype).compute()
+
+Dask-ML's sparse support for sparse data is currently in flux. Reach out if you
+have any issues.
 
 Additional Tranformers
 ----------------------

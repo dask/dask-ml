@@ -1,6 +1,5 @@
 """Meta-estimators for parallelizing scikit-learn."""
 import logging
-from timeit import default_timer as tic
 
 import dask.array as da
 import dask.dataframe as dd
@@ -8,11 +7,13 @@ import dask.delayed
 import numpy as np
 import sklearn.base
 import sklearn.metrics
+from sklearn.utils.validation import check_is_fitted
+
+from dask_ml.utils import _timer
 
 from ._partial import fit
 from ._utils import copy_learned_attributes
-from .metrics import get_scorer, check_scoring
-
+from .metrics import check_scoring, get_scorer
 
 logger = logging.getLogger(__name__)
 
@@ -115,6 +116,11 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         self.estimator = estimator
         self.scoring = scoring
 
+    @property
+    def _postfit_estimator(self):
+        # The estimator instance to use for postfit tasks like score
+        return self.estimator
+
     def fit(self, X, y=None, **kwargs):
         """Fit the underlying estimator.
 
@@ -128,11 +134,9 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         -------
         self : object
         """
-        start = tic()
         logger.info("Starting fit")
-        result = self.estimator.fit(X, y, **kwargs)
-        stop = tic()
-        logger.info("Finished fit, %0.2f", stop - start)
+        with _timer("fit", _logger=logger):
+            result = self.estimator.fit(X, y, **kwargs)
 
         # Copy over learned attributes
         copy_learned_attributes(result, self)
@@ -157,7 +161,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         -------
         transformed : array-like
         """
-        transform = self._check_method('transform')
+        transform = self._check_method("transform")
 
         if isinstance(X, da.Array):
             return X.map_blocks(transform)
@@ -184,15 +188,27 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         score : float
                 return self.estimator.score(X, y)
         """
-        if self.scoring:
-            if (not dask.is_dask_collection(X) and
-                    not dask.is_dask_collection(y)):
-                scorer = sklearn.metrics.get_scorer(self.scoring)
+        scoring = self.scoring
+
+        if not scoring:
+            if type(self._postfit_estimator).score == sklearn.base.RegressorMixin.score:
+                scoring = "r2"
+            elif (
+                type(self._postfit_estimator).score
+                == sklearn.base.ClassifierMixin.score
+            ):
+                scoring = "accuracy"
+        else:
+            scoring = self.scoring
+
+        if scoring:
+            if not dask.is_dask_collection(X) and not dask.is_dask_collection(y):
+                scorer = sklearn.metrics.get_scorer(scoring)
             else:
-                scorer = get_scorer(self.scoring)
+                scorer = get_scorer(scoring)
             return scorer(self, X, y)
         else:
-            return self.estimator.score(X, y)
+            return self._postfit_estimator.score(X, y)
 
     def predict(self, X):
         """Predict for X.
@@ -209,10 +225,10 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         -------
         y : array-like
         """
-        predict = self._check_method('predict')
+        predict = self._check_method("predict")
 
         if isinstance(X, da.Array):
-            return X.map_blocks(predict, dtype='int', drop_axis=1)
+            return X.map_blocks(predict, dtype="int", drop_axis=1)
 
         elif isinstance(X, dd._Frame):
             return _apply_partitionwise(X, predict)
@@ -239,13 +255,13 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         y : array-like
         """
 
-        predict_proba = self._check_method('predict_proba')
+        predict_proba = self._check_method("predict_proba")
 
         if isinstance(X, da.Array):
             # XXX: multiclass
-            return X.map_blocks(predict_proba,
-                                dtype='float',
-                                chunks=(X.chunks[0], len(self.classes_)))
+            return X.map_blocks(
+                predict_proba, dtype="float", chunks=(X.chunks[0], len(self.classes_))
+            )
         elif isinstance(X, dd._Frame):
             return _apply_partitionwise(X, predict_proba)
         else:
@@ -258,11 +274,13 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         ------
         AttributeError
         """
-        if not hasattr(self.estimator, method):
-            msg = ("The wrapped estimator '{}' does not have a "
-                   "'{}' method.".format(self.estimator, method))
+        estimator = self._postfit_estimator
+        if not hasattr(estimator, method):
+            msg = "The wrapped estimator '{}' does not have a '{}' method.".format(
+                estimator, method
+            )
             raise AttributeError(msg)
-        return getattr(self.estimator, method)
+        return getattr(estimator, method)
 
 
 class Incremental(ParallelPostFit):
@@ -284,6 +302,10 @@ class Incremental(ParallelPostFit):
 
     Like :class:`ParallelPostFit`, the methods available after fitting (e.g.
     :meth:`Incremental.predict`, etc.) are all parallel and delayed.
+
+    The ``estimator_`` attribute is a clone of `estimator` that was actually
+    used during the call to ``fit``. All attributes learned during training
+    are available on ``Incremental`` directly.
 
     .. _list of incremental learners: http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning  # noqa
 
@@ -312,10 +334,18 @@ class Incremental(ParallelPostFit):
            a single NumPy array, which may exhaust the memory of your worker.
            You probably want to always specify `scoring`.
 
-    **kwargs
-        Set the hyperparameters of `estimator`. This is used in, for example,
-        ``GridSearchCV``, to set the paramters of the underlying estimator.
-        Most of the time you will not need to use this.
+    random_state : int or numpy.random.RandomState, optional
+        Random object that determines how to shuffle blocks.
+
+    shuffle_blocks : bool, default True
+        Determines whether to call ``partial_fit`` on a randomly selected chunk
+        of the Dask arrays (default), or to fit in sequential order. This does
+        not control shuffle between blocks or shuffling each block.
+
+    Attributes
+    ----------
+    estimator_ : Estimator
+        A clone of `estimator` that was actually fit during the ``.fit`` call.
 
     See Also
     --------
@@ -328,55 +358,59 @@ class Incremental(ParallelPostFit):
     >>> import sklearn.linear_model
     >>> X, y = make_classification(chunks=25)
     >>> est = sklearn.linear_model.SGDClassifier()
-    >>> clf = Incremental(est)
+    >>> clf = Incremental(est, scoring='accuracy')
     >>> clf.fit(X, y, classes=[0, 1])
-    """
-    _estimator_clash_message = (
-        "The 'estimator' parameter is used by both 'Incremental' and the"
-        "underlying estimator, which will produce incorrect results."
-    )
 
-    def __init__(self, estimator, scoring=None, **kwargs):
-        estimator.set_params(**kwargs)
+    When used inside a grid search, prefix the underlying estimator's
+    parameter names with ``estimator__``.
+
+    >>> from sklearn.model_selection import GridSearchCV
+    >>> param_grid = {"estimator__alpha": [0.1, 1.0, 10.0]}
+    >>> gs = GridSearchCV(clf, param_grid)
+    >>> gs.fit(X, y, classes=[0, 1])
+    """
+
+    def __init__(
+        self, estimator=None, scoring=None, shuffle_blocks=True, random_state=None
+    ):
+        self.shuffle_blocks = shuffle_blocks
+        self.random_state = random_state
         super(Incremental, self).__init__(estimator=estimator, scoring=scoring)
 
-    def fit(self, X, y=None, **fit_kwargs):
-        check_scoring(self.estimator, self.scoring)
+    @property
+    def _postfit_estimator(self):
+        check_is_fitted(self, "estimator_")
+        return self.estimator_
+
+    def _fit_for_estimator(self, estimator, X, y, **fit_kwargs):
+        check_scoring(estimator, self.scoring)
         if not dask.is_dask_collection(X) and not dask.is_dask_collection(y):
-            result = self.estimator.partial_fit(X=X, y=y, **fit_kwargs)
+            result = estimator.partial_fit(X=X, y=y, **fit_kwargs)
         else:
-            result = fit(self.estimator, X, y, **fit_kwargs)
-            copy_learned_attributes(result, self.estimator)
+            result = fit(
+                estimator,
+                X,
+                y,
+                random_state=self.random_state,
+                shuffle_blocks=self.shuffle_blocks,
+                **fit_kwargs
+            )
+
         copy_learned_attributes(result, self)
+        self.estimator_ = result
         return self
 
-    def __repr__(self):
-        # Have to override, else all the parameters of estimator
-        # are duplicated
-        estimator = repr(self.estimator)
-        class_name = self.__class__.__name__
-        return '{}({})'.format(class_name, estimator)
-
-    def get_params(self, deep=True):
-        out = self.estimator.get_params(deep=deep)
-        if 'estimator' in out:
-            raise ValueError(self._estimator_clash_message)
-        out['estimator'] = self.estimator
-        out['scoring'] = self.scoring
-        return out
-
-    def set_params(self, **kwargs):
-        if 'estimator' in kwargs:
-            raise ValueError(self._estimator_clash_message)
-        if 'scoring' in kwargs:
-            self.scoring = kwargs['scoring']
-        self.estimator.set_params(**kwargs)
+    def fit(self, X, y=None, **fit_kwargs):
+        estimator = sklearn.base.clone(self.estimator)
+        self._fit_for_estimator(estimator, X, y, **fit_kwargs)
         return self
 
     def partial_fit(self, X, y=None, **fit_kwargs):
         """Fit the underlying estimator.
 
-        This is identical to ``fit``.
+        If this estimator has not been previously fit, this is identical to
+        :meth:`Incremental.fit`. If it has been previously fit,
+        ``self.estimator_`` is used as the starting point.
 
         Parameters
         ----------
@@ -388,7 +422,10 @@ class Incremental(ParallelPostFit):
         -------
         self : object
         """
-        return self.fit(X, y=y, **fit_kwargs)
+        estimator = getattr(self, "estimator_", None)
+        if estimator is None:
+            estimator = sklearn.base.clone(self.estimator)
+        return self._fit_for_estimator(estimator, X, y, **fit_kwargs)
 
 
 def _first_block(dask_object):
@@ -396,16 +433,18 @@ def _first_block(dask_object):
     """
     if isinstance(dask_object, da.Array):
         if dask_object.ndim > 1 and dask_object.numblocks[-1] != 1:
-            raise NotImplementedError("IID estimators require that the array "
-                                      "blocked only along the first axis. "
-                                      "Rechunk your array before fitting.")
+            raise NotImplementedError(
+                "IID estimators require that the array "
+                "blocked only along the first axis. "
+                "Rechunk your array before fitting."
+            )
         shape = (dask_object.chunks[0][0],)
         if dask_object.ndim > 1:
             shape = shape + (dask_object.chunks[1][0],)
 
-        return da.from_delayed(dask_object.to_delayed().flatten()[0],
-                               shape,
-                               dask_object.dtype)
+        return da.from_delayed(
+            dask_object.to_delayed().flatten()[0], shape, dask_object.dtype
+        )
 
     if isinstance(dask_object, dd._Frame):
         return dask_object.get_partition(0)
@@ -425,9 +464,9 @@ def _apply_partitionwise(X, func):
     if isinstance(sample, np.ndarray):
         blocks = X.to_delayed()
         arrays = [
-            da.from_delayed(dask.delayed(func)(block),
-                            shape=(np.nan,) + p,
-                            dtype=sample.dtype)
+            da.from_delayed(
+                dask.delayed(func)(block), shape=(np.nan,) + p, dtype=sample.dtype
+            )
             for block in blocks
         ]
         return da.concatenate(arrays)

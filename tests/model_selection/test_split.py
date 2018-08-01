@@ -2,12 +2,10 @@ import dask.array as da
 import numpy as np
 import pandas as pd
 import pytest
-from sklearn.datasets import make_regression
-from sklearn.datasets import fetch_20newsgroups
 import six
+from sklearn.datasets import fetch_20newsgroups, make_regression
 
 import dask_ml.model_selection
-
 
 X, y = make_regression(n_samples=110, n_features=5)
 dX = da.from_array(X, 50)
@@ -53,8 +51,8 @@ def test_blockwise_shufflesplit():
 
 
 def test_train_test_split():
-    X_train, X_test, y_train, y_test = (
-        dask_ml.model_selection.train_test_split(dX, dy, random_state=10)
+    X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(
+        dX, dy, random_state=10
     )
 
     assert len(X_train) == 99
@@ -65,17 +63,15 @@ def test_train_test_split():
 
 
 def test_train_test_split_test_size():
-    X_train, X_test, y_train, y_test = (
-        dask_ml.model_selection.train_test_split(dX, dy, random_state=10,
-                                                 test_size=0.8)
+    X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(
+        dX, dy, random_state=10, test_size=0.8
     )
 
 
-@pytest.mark.parametrize('kwargs', [
-    {'train_size': 10},
-    {'test_size': 10},
-    {'test_size': 10, 'train_size': 0.1},
-])
+@pytest.mark.parametrize(
+    "kwargs",
+    [{"train_size": 10}, {"test_size": 10}, {"test_size": 10, "train_size": 0.1}],
+)
 def test_absolute_raises(kwargs):
     with pytest.raises(ValueError) as m:
         dask_ml.model_selection.train_test_split(dX, **kwargs)
@@ -89,14 +85,14 @@ def test_non_complement_raises():
 
 
 def test_complement():
-    train_size, test_size = (
-        dask_ml.model_selection._split._maybe_normalize_split_sizes(0.1, None)
+    train_size, test_size = dask_ml.model_selection._split._maybe_normalize_split_sizes(
+        0.1, None
     )
     assert train_size == 0.1
     assert test_size == 0.9
 
-    train_size, test_size = (
-        dask_ml.model_selection._split._maybe_normalize_split_sizes(None, 0.2)
+    train_size, test_size = dask_ml.model_selection._split._maybe_normalize_split_sizes(
+        None, 0.2
     )
     assert train_size == 0.8
     assert test_size == 0.2

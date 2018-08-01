@@ -1,6 +1,6 @@
 """Utilties for Preprocessing data.
 """
-from .data import (  # noqa
+from .data import (
     StandardScaler,
     MinMaxScaler,
     RobustScaler,
@@ -9,4 +9,25 @@ from .data import (  # noqa
     DummyEncoder,
     OrdinalEncoder,
 )
-from .label import LabelEncoder # noqa
+from .label import LabelEncoder
+
+
+__all__ = [
+    "StandardScaler",
+    "MinMaxScaler",
+    "RobustScaler",
+    "QuantileTransformer",
+    "Categorizer",
+    "DummyEncoder",
+    "OrdinalEncoder",
+    "LabelEncoder",
+]
+
+
+# Requires scikit-learn >= 0.20.0
+try:
+    from ._encoders import OneHotEncoder  # noqa
+except ImportError:
+    pass
+else:
+    __all__.append("OneHotEncoder")

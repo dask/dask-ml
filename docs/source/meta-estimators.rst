@@ -78,7 +78,7 @@ Comparison to other Estimators in dask-ml
 '''''''''''''''''''''''''''''''''''''''''
 
 ``dask-ml`` re-implements some estimators from scikit-learn, for example
-:ref:`cluster.KMeans`, or :ref:`preprocessing.QuantileTransformer`. This raises
+:class:`dask_ml.cluster.KMeans`, or :class:`dask_ml.preprocessing.QuantileTransformer`. This raises
 the question, should I use the reimplemented dask-ml versions, or should I wrap
 scikit-learn version in a meta-estimator? It varies from estimator to estimator,
 and depends on your tolerance for approximate solutions and the size of your
