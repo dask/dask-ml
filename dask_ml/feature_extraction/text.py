@@ -4,7 +4,6 @@ import dask.bag as db
 import dask.dataframe as dd
 import numpy as np
 import sklearn.feature_extraction.text
-from sklearn.feature_extraction.hashing import FeatureHasher
 
 
 class HashingVectorizer(sklearn.feature_extraction.text.HashingVectorizer):
