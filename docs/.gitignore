@@ -1,1 +1,3 @@
 dask-examples
+source/examples/xgboost.ipynb
+source/examples/incremental.ipynb
