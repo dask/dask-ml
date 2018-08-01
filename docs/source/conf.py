@@ -65,7 +65,7 @@ sphinx_gallery_conf = {
     "backreferences_dir": False,
 }
 
-nbsphinx_timeout = 120
+nbsphinx_timeout = 600
 numpydoc_class_members_toctree = False
 autodoc_default_flags = ["members", "inherited-members"]
 autosummary_generate = True
