@@ -44,3 +44,27 @@ def test_hashing_vectorizer(container):
     # dask graph.
 
     np.testing.assert_array_equal(result, expected)
+
+
+def test_transforms_other():
+    a = sklearn.feature_extraction.text.HashingVectorizer()
+    b = dask_ml.feature_extraction.text.HashingVectorizer()
+
+    X_a = a.fit_transform(JUNK_FOOD_DOCS)
+    X_b = b.fit_transform(JUNK_FOOD_DOCS)
+    assert_estimator_equal(a, b)
+
+    np.testing.assert_array_equal(X_a.toarray(), X_b.toarray())
+
+
+def test_transform_raises():
+    vect = dask_ml.feature_extraction.text.HashingVectorizer()
+    b = db.from_sequence(JUNK_FOOD_DOCS, npartitions=2)
+
+    df = b.to_dataframe(columns=["text"])
+
+    with pytest.raises(ValueError, match="1-dimensional array"):
+        vect.transform(df)
+
+    with pytest.raises(ValueError, match="1-dimensional array"):
+        vect.transform(df.values)

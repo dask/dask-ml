@@ -39,6 +39,8 @@ class HashingVectorizer(sklearn.feature_extraction.text.HashingVectorizer):
         """
         transformer = super(HashingVectorizer, self).transform
 
+        msg = "'X' should be a 1-dimensional array with length 'num_samples'."
+
         if not dask.is_dask_collection(X):
             return transformer(X)
 
@@ -52,7 +54,7 @@ class HashingVectorizer(sklearn.feature_extraction.text.HashingVectorizer):
             result = da.concatenate(arrs, axis=0)
         elif isinstance(X, dd.Series):
             result = X.map_partitions(transformer)
-        else:
+        elif isinstance(X, da.Array):
             # dask.Array
             chunks = ((np.nan,) * X.numblocks[0], (self.n_features,))
             if X.ndim == 1:
@@ -60,8 +62,8 @@ class HashingVectorizer(sklearn.feature_extraction.text.HashingVectorizer):
                     transformer, dtype="f8", chunks=chunks, new_axis=1
                 )
             else:
-                raise ValueError(
-                    "'X' should be a 1-dimensional array with length 'num_samples'."
-                )
+                raise ValueError(msg)
+        else:
+            raise ValueError(msg)
 
         return result
