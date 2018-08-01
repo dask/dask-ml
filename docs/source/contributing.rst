@@ -165,7 +165,17 @@ Documentation
 
 We use `numpydoc <http://numpydoc.readthedocs.io/en/latest/format.html>`_ for our docstrings.
 
-Examples are written as Jupyter notebooks with their output stripped, either manually or using
-`nbstripout <https://github.com/kynan/nbstripout>`_. The source for some examples is maintained
-in the `dask-examples <https://github.com/dask/dask-examples>`_ repository. Updates should be made there,
-and they're automatically included as part of the documentation build process.
+Examples are written as Jupyter notebooks with their output stripped, either
+manually or using `nbstripout <https://github.com/kynan/nbstripout>`_. We want
+examples to be runnable on binder so they should be small, but include
+instructions for how to scale up to larger problems.
+
+The source for most examples is maintained in the `dask-examples
+<https://github.com/dask/dask-examples>`_ repository. Updates should be made
+there, and they're automatically included as part of the Dask-ML documentation
+build process.
+
+When adding an example for new feature that's only available in master, the
+notebook should be first included in Dask-ML repository under
+``docs/source/examples/``. These examples will be moved to
+``dask/dask-examples`` as part of the Dask-ML release process.
