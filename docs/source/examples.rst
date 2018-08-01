@@ -11,7 +11,7 @@ This is a set of runnable examples demonstrating how to *use* Dask-ML.
    :caption: Contents:
 
    examples/distributed-scikit-learn-for-cpu-bound-problems
-   examples/predict
+   examples/parallel-prediction
    examples/training-on-large-datasets
    examples/incremental
    examples/xgboost
