@@ -23,6 +23,7 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
             accept_dask_dataframe=True,
             accept_unknown_chunks=True,
             preserve_pandas_dataframe=True,
+            force_all_finite=False,
         )
 
     def fit(self, X, y=None):
@@ -37,15 +38,9 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
                 " got strategy={1}".format(allowed_strategies, self.strategy)
             )
 
-        if getattr(self, "axis", 0) != 0:
+        if not (pd.isna(self.missing_values) or self.strategy == "constant"):
             raise ValueError(
-                "Can only impute missing values on axis 0"
-                " got axis={0}".format(self.axis)
-            )
-
-        if not np.isnan(self.missing_values):
-            raise ValueError(
-                "dask_ml.preprocessing.Imputer only supports 'missing_values=np.nan'."
+                "dask_ml.preprocessing.Imputer only supports non-NA values for 'missing_values' when 'strategy=\"constant\"'."
             )
 
         X = self._check_array(X)
@@ -58,16 +53,13 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
 
     def _fit_array(self, X):
         if self.strategy not in {"mean", "constant"}:
-            msg = (
-                "Can only use strategy='mean' with Dask Array. "
-                "Use 'mean' or convert 'X' to a Dask DataFrame."
-            )
+            msg = "Can only use strategy='mean' or 'constant' with Dask Array."
             raise ValueError(msg)
 
         if self.strategy == "mean":
             statistics = da.nanmean(X, axis=0).compute()
         else:
-            statistics = np.full(X.shape[1], self.strategy)
+            statistics = np.full(X.shape[1], self.fill_value, dtype=X.dtype)
 
         self.statistics_, = da.compute(statistics)
 
@@ -77,11 +69,10 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
         elif self.strategy == "median":
             avg = X.quantile().values
         elif self.strategy == "constant":
-            avg = np.full(len(X.columns), self.strategy)
+            avg = np.full(len(X.columns), self.fill_value)
         else:
-            avg = np.concatenate(
-                *[X[col].value_counts().nlargest(1).values for col in X.columns]
-            )
+            avg = [X[col].value_counts().nlargest(1).values for col in X.columns]
+            avg = np.concatenate(*dask.compute(avg))
 
         self.statistics_ = pd.Series(dask.compute(avg)[0], index=X.columns)
 
