@@ -1,5 +1,9 @@
 """Utilties for Preprocessing data.
 """
+from .._compat import SK_VERSION
+from packaging.version import parse
+
+
 from .data import (
     StandardScaler,
     MinMaxScaler,
@@ -9,7 +13,6 @@ from .data import (
     DummyEncoder,
     OrdinalEncoder,
 )
-from .imputation import Imputer
 from .label import LabelEncoder
 
 
@@ -22,14 +25,12 @@ __all__ = [
     "DummyEncoder",
     "OrdinalEncoder",
     "LabelEncoder",
-    "Imputer",
 ]
 
-
-# Requires scikit-learn >= 0.20.0
-try:
+if SK_VERSION >= parse("0.20.0.dev0"):
     from ._encoders import OneHotEncoder  # noqa
-except ImportError:
-    pass
-else:
+
     __all__.append("OneHotEncoder")
+
+del SK_VERSION
+del parse

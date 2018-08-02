@@ -3,12 +3,18 @@ import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
-import sklearn.preprocessing
+from packaging.version import parse
 
-from ..utils import check_array
+from ._compat import SK_VERSION
+from .utils import check_array
+
+if SK_VERSION >= parse("0.20.0.dev0"):
+    import sklearn.impute
+else:
+    raise ImportError("dask_ml.impute is only available with scikit-learn>= 0.20")
 
 
-class Imputer(sklearn.preprocessing.Imputer):
+class SimpleImputer(sklearn.impute.SimpleImputer):
     _types = (pd.Series, pd.DataFrame, dd.Series, dd.DataFrame, da.Array)
 
     def _check_array(self, X):
@@ -22,24 +28,24 @@ class Imputer(sklearn.preprocessing.Imputer):
     def fit(self, X, y=None):
         # Check parameters
         if not isinstance(X, self._types):
-            return super(Imputer, self).fit(X, y=y)
+            return super(SimpleImputer, self).fit(X, y=y)
 
-        allowed_strategies = ["mean", "median", "most_frequent"]
+        allowed_strategies = ["mean", "median", "most_frequent", "constant"]
         if self.strategy not in allowed_strategies:
             raise ValueError(
                 "Can only use these strategies: {0} "
                 " got strategy={1}".format(allowed_strategies, self.strategy)
             )
 
-        if self.axis != 0:
+        if getattr(self, "axis", 0) != 0:
             raise ValueError(
                 "Can only impute missing values on axis 0"
                 " got axis={0}".format(self.axis)
             )
 
-        if self.missing_values != "NaN":
+        if not np.isnan(self.missing_values):
             raise ValueError(
-                "dask_ml.preprocessing.Imputer only supports 'missing_values=NaN'."
+                "dask_ml.preprocessing.Imputer only supports 'missing_values=np.nan'."
             )
 
         X = self._check_array(X)
@@ -51,21 +57,27 @@ class Imputer(sklearn.preprocessing.Imputer):
         return self
 
     def _fit_array(self, X):
-        if self.strategy != "mean":
+        if self.strategy not in {"mean", "constant"}:
             msg = (
                 "Can only use strategy='mean' with Dask Array. "
                 "Use 'mean' or convert 'X' to a Dask DataFrame."
             )
             raise ValueError(msg)
 
-        avg = da.nanmean(X, axis=0).compute()
-        self.statistics_ = avg
+        if self.strategy == "mean":
+            statistics = da.nanmean(X, axis=0).compute()
+        else:
+            statistics = np.full(X.shape[1], self.strategy)
+
+        self.statistics_, = da.compute(statistics)
 
     def _fit_frame(self, X):
         if self.strategy == "mean":
             avg = X.mean(axis=0).values
         elif self.strategy == "median":
             avg = X.quantile().values
+        elif self.strategy == "constant":
+            avg = np.full(len(X.columns), self.strategy)
         else:
             avg = np.concatenate(
                 *[X[col].value_counts().nlargest(1).values for col in X.columns]
@@ -80,4 +92,4 @@ class Imputer(sklearn.preprocessing.Imputer):
         elif isinstance(X, da.Array):
             return da.where(da.isnull(X), self.statistics_, X)
         else:
-            return super(Imputer, self).transform(X)
+            return super(SimpleImputer, self).transform(X)
