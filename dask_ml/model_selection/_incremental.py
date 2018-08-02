@@ -31,11 +31,12 @@ def _partial_fit(model_and_meta, X, y, fit_params):
     meta : dict
         A new dictionary with updated information.
     """
-    with log_errors(pdb=True):
+    with log_errors():
         model, meta = model_and_meta
 
-        model = deepcopy(model)
-        model.partial_fit(X, y, **(fit_params or {}))
+        if len(X):
+            model = deepcopy(model)
+            model.partial_fit(X, y, **(fit_params or {}))
 
         meta = dict(meta)
         meta['time_step'] += 1
