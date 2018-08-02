@@ -9,6 +9,7 @@ dependencies:
   - Cython
   - flake8
   - heapdict
+  - ipykernel
   - ipython
   - isort
   - multipledispatch

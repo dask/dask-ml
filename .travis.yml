@@ -1,0 +1,34 @@
+language: generic
+sudo: false
+dist: trusty
+os: linux
+env:
+  global:
+    # Doctr deploy key for dask/dask-ml
+    - secure: "BaAHk2iclMIBdE7J2stryCqvvePfUhMvLbTbD9OTWBfCdMbiUttZxDeXzN+sZQJIYSAn7RBI3qak4clJQ36KgZUXLEPe9dxXUY1v/9Kv3K8ZCEP3SaI+wDa2prWUM2jfhTLiGoJwrk/0ZyO4kQ3DaFP9aMomPUGf/vN4hnJNBzmuXl4kpIVffh0Zyi98jvf+TKgIh7ZqaZhQIolIZfGjpuMwNmjukcAPhVhV8XQlidTIIYvhjLPqZ/0MYv0O0pWMjweSLUy/J/hAIDgVBFvOJ7XP/vmjfPuSDP1ATBZlb3VkjUaogEGudxqx3NTQXXVhNGEiIpyLtFNO3jDMOUQ4Xl89HhOKIc5AUOrSHXh/blw68UEps+f6Dx6OWa0CSotchJluhRtQsy5BBJz8N2reFyiYdL9ZqWVJVP22CGU4c5INfp6Unz/47duGujKC03TUoWk/mY8QwBqJZixoUcfsJO7vSyLN7LSzUTfjeyshGwowtxc1jrK07oTgyVBjZzT6xkDepzOIMkr3OBqxduJHvCqhxQTlGv3t6LEEXJpuoOsDBm0OehB98/9n1kc8y3cnHpMjwmHQPW5HaJv9/pd9CxhFZpdJNEwIkvu/pIgiDnseIroHKNmXlLm75VhcrJ2/MEmhSlskh7bARYoXLHf4QDUm5gDQTQNF2wQKZVoain4="
+
+install:
+  - sudo apt-get update
+  # We do this conditionally because it saves us some downloading if the
+  # version is the same.
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  # Useful for debugging any issues with conda
+  - conda info -a
+
+  # Replace dep1 dep2 ... with your dependencies
+  - conda env create --file=ci/environment-3.6.yml --name=dask-ml
+  - source activate dask-ml
+  - python -m pip install -e .
+
+script:
+  - set -e
+  - cd docs
+  - make html
+  - cd ..
+  - pip install doctr
+  - doctr deploy --built-docs docs/build/html .

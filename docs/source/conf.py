@@ -65,6 +65,7 @@ sphinx_gallery_conf = {
     "backreferences_dir": False,
 }
 
+nbsphinx_timeout = 600
 numpydoc_class_members_toctree = False
 autodoc_default_flags = ["members", "inherited-members"]
 autosummary_generate = True
@@ -200,6 +201,7 @@ def generate_example_rst(app, what, name, obj, options, lines):
 
 
 def update_examples(app):
+    import nbformat
 
     print("Updating dask-examples")
     if not os.path.exists("dask-examples"):
@@ -209,8 +211,19 @@ def update_examples(app):
 
     src_dir = "dask-examples/machine-learning"
     dst_dir = "source/examples"
+
+    skip_execution = {"training-on-large-datasets.ipynb"}
+
     for file in os.listdir(src_dir):
-        shutil.copy(os.path.join(src_dir, file), os.path.join(dst_dir, file))
+        if file.endswith(".ipynb"):
+            if file in skip_execution:
+                print("Disabling execution for file", file)
+                nb = nbformat.read(os.path.join(src_dir, file), nbformat.NO_CONVERT)
+                nb["metadata"].setdefault("nbsphinx", {})
+                nb["metadata"]["nbsphinx"]["execute"] = "never"
+                nbformat.write(nb, os.path.join(src_dir, file))
+
+            shutil.copy(os.path.join(src_dir, file), os.path.join(dst_dir, file))
 
 
 def setup(app):
