@@ -61,21 +61,20 @@ class Imputer(sklearn.preprocessing.Imputer):
         avg = da.nanmean(X, axis=0).compute()
         self.statistics_ = avg
 
-    def fit_frame(self, X):
+    def _fit_frame(self, X):
         if self.strategy == "mean":
-            avg = X.mean(axis=0).compute().values
+            avg = X.mean(axis=0).values
         elif self.strategy == "median":
-            avg = X.quantile().compute().values
+            avg = X.quantile().values
         else:
             avg = np.concatenate(
-                dask.compute(
-                    *[X[col].value_counts().nlargest(1).values for col in X.columns]
-                )
+                *[X[col].value_counts().nlargest(1).values for col in X.columns]
             )
-        self.statistics_ = avg
+
+        self.statistics_ = pd.Series(dask.compute(avg)[0], index=X.columns)
 
     def transform(self, X):
-        if isinstance(X, (pd.Series, dd.Series, dd.DataFrame)):
+        if isinstance(X, (pd.Series, pd.DataFrame, dd.Series, dd.DataFrame)):
             return X.fillna(self.statistics_)
 
         elif isinstance(X, da.Array):

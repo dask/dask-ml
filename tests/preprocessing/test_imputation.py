@@ -1,74 +1,45 @@
-import dask_ml.preprocessing as dpp
-import sklearn.preprocessing as spp
+import dask.array as da
 import dask.dataframe as dd
 import numpy as np
-import pytest
 import pandas as pd
-import pandas.util.testing as tm
-from dask_ml.datasets import make_classification
-from dask.array.utils import assert_eq as assert_eq_ar
-from dask import compute
+import pytest
+import sklearn.preprocessing
+
+import dask_ml.datasets
+import dask_ml.preprocessing
+from dask_ml.utils import assert_estimator_equal
+
+rng = np.random.RandomState(0)
+
+X = rng.uniform(size=(10, 4))
+X[X < 0.5] = np.nan
+
+dX = da.from_array(X, chunks=5)
+df = pd.DataFrame(X)
+ddf = dd.from_pandas(df, npartitions=2)
 
 
-X, y = make_classification(chunks=50)
-X_with_zeros = X.copy()
-X_with_zeros[X < 0] = 0
-X_with_nan = X.copy()
-X_with_nan[X < 0] = np.nan
-df_with_zeros = X_with_zeros.to_dask_dataframe().rename(columns=str)
-df_with_nan = df_with_zeros.mask(df_with_zeros > 1)
+@pytest.mark.parametrize("data", [X, dX, df, ddf])
+def test_fit(data):
+    a = sklearn.preprocessing.Imputer()
+    b = dask_ml.preprocessing.Imputer()
+
+    a.fit(X)
+    b.fit(data)
+
+    assert_estimator_equal(a, b)
 
 
-@pytest.mark.parametrize('X,missing_values,columns,strategy', [
-    (X_with_nan, "NaN", None, "mean"),
-    (X_with_nan, np.nan, None, "mean"),
-    (X_with_zeros, 0, None, "mean"),
-    (df_with_nan, "NaN", ['1', '2'], "mean"),
-    (df_with_nan, np.nan, ['1', '2'], "mean"),
-    (df_with_zeros, 0, ['1', '2'], "mean"),
-    (df_with_zeros, 0, None, "mean"),
-    (df_with_nan, "NaN", ['1', '2'], "median"),
-    (df_with_nan, np.nan, ['1', '2'], "median"),
-    (df_with_zeros, 0, ['1', '2'], "median"),
-    (df_with_zeros, 0, None, "median")
-])
-class TestImputer(object):
-    def test_fit(self, X, missing_values, columns, strategy):
-        a = dpp.Imputer(columns=columns, missing_values=missing_values,
-                        strategy=strategy)
-        b = spp.Imputer(missing_values=missing_values, strategy=strategy)
-        columns_ix = list(map(int, columns) if columns else
-                          range(len(X.columns) if isinstance(X, dd._Frame)
-                                else X.shape[1]))
+@pytest.mark.parametrize("data", [X, dX, df, ddf])
+def test_transform(data):
+    a = sklearn.preprocessing.Imputer()
+    b = dask_ml.preprocessing.Imputer()
 
-        a.fit(X if strategy != "median" else (X.repartition(npartitions=1)
-                                              if isinstance(X, dd._Frame)
-                                              else X.rechunk(1)))
-        b.fit(X.compute())
+    expected = a.fit_transform(X)
+    result = b.fit_transform(data)
 
-        c = a.statistics_
+    assert isinstance(result, type(data))
+    if isinstance(data, (pd.DataFrame, dd.DataFrame)):
+        result = result.values
 
-        assert_eq_ar(c, b.statistics_[columns_ix])
-
-    def test_fit_transform(self, X, missing_values, columns, strategy):
-        a = dpp.Imputer(columns=columns, missing_values=missing_values,
-                        strategy=strategy)
-        b = spp.Imputer(missing_values=missing_values, strategy=strategy)
-        columns_ix = list(map(int, columns) if columns else
-                          range(len(X.columns) if isinstance(X, dd._Frame)
-                                else X.shape[1]))
-
-        ta = a.fit_transform(X if strategy != "median"
-                             else (X.repartition(npartitions=1)
-                                   if isinstance(X, dd._Frame)
-                                   else X.rechunk(1)))
-        tb = b.fit_transform(X.compute())
-
-        assert_eq_ar(
-            ta.values[:, columns_ix] if isinstance(X, dd._Frame) else ta,
-            tb[:, columns_ix]
-        )
-        if isinstance(X, dd.DataFrame):
-            tm.assert_index_equal(ta.columns, X.columns)
-        else:
-            assert ta.shape[1] == X.shape[1]
+    da.utils.assert_eq(result, expected)
