@@ -1,8 +1,11 @@
-from dask_ml.utils import slice_columns
-from sklearn.preprocessing import imputation as skimputation
-import dask.dataframe as dd
+import dask
 import dask.array as da
+import dask.dataframe as dd
 import numpy as np
+import pandas as pd
+import sklearn.preprocessing
+
+from ..utils import check_array
 
 
 def _safe_eq(X, v):
@@ -17,8 +20,11 @@ def _mask_values(X, missing_values):
     if missing_values == "NaN" or np.isnan(missing_values):
         return X if isinstance(X, dd._Frame) else da.ma.masked_invalid(X)
     else:
-        return (X.mask(X == missing_values) if isinstance(X, dd._Frame)
-                else da.ma.masked_equal(X, missing_values))
+        return (
+            X.mask(X == missing_values)
+            if isinstance(X, dd._Frame)
+            else da.ma.masked_equal(X, missing_values)
+        )
 
 
 def _fit_columns_df(df, columns, estimator):
@@ -26,78 +32,72 @@ def _fit_columns_df(df, columns, estimator):
     return {c: estimator(df[c]) for c in columns}
 
 
-def _fit_columns_ar(ar, estimator):
-    raise NotImplementedError()
+class Imputer(sklearn.preprocessing.Imputer):
+    _types = (pd.Series, pd.DataFrame, dd.Series, dd.DataFrame, da.Array)
 
-
-class Imputer(skimputation.Imputer):
-    def __init__(self, missing_values="NaN", strategy="mean",
-                 axis=0, verbose=0, copy=True, columns=None):
-        super().__init__(missing_values=missing_values, strategy=strategy,
-                         axis=axis, verbose=verbose, copy=copy)
-        self.columns = columns
-        if not copy or axis != 0 or verbose != 0:
-            raise NotImplementedError()
+    def _check_array(self, X):
+        return check_array(
+            X,
+            accept_dask_dataframe=True,
+            accept_unknown_chunks=True,
+            preserve_pandas_dataframe=True,
+        )
 
     def fit(self, X, y=None):
         # Check parameters
+        if not isinstance(X, self._types):
+            return super(Imputer, self).fit(X, y=y)
+
         allowed_strategies = ["mean", "median", "most_frequent"]
         if self.strategy not in allowed_strategies:
-            raise ValueError("Can only use these strategies: {0} "
-                             " got strategy={1}".format(allowed_strategies,
-                                                        self.strategy))
+            raise ValueError(
+                "Can only use these strategies: {0} "
+                " got strategy={1}".format(allowed_strategies, self.strategy)
+            )
 
-        if self.axis not in [0, 1]:
-            raise ValueError("Can only impute missing values on axis 0 and 1, "
-                             " got axis={0}".format(self.axis))
+        if self.axis != 0:
+            raise ValueError(
+                "Can only impute missing values on axis 0"
+                " got axis={0}".format(self.axis)
+            )
 
-        _X = slice_columns(X, self.columns)
-        _masked_X = _mask_values(_X, self.missing_values)
-        self.statistics_ = self._dense_fit(_masked_X,
-                                           self.strategy,
-                                           self.missing_values).compute()
+        X = self._check_array(X)
 
+        if isinstance(X, da.Array):
+            self._fit_array(X)
+        else:
+            self._fit_frame(X)
         return self
 
-    def _dense_fit(self, _masked_X, strategy, missing_values):
-        is_frame = isinstance(_masked_X, dd.DataFrame)
+    def _fit_array(self, X):
+        if self.strategy != "mean":
+            msg = (
+                "Can only use strategy='mean' with Dask Array. "
+                "Use 'mean' or convert 'X' to a Dask DataFrame."
+            )
+            raise ValueError(msg)
 
-        if strategy == "mean":
-            if is_frame:
-                return _masked_X.mean()
-            else:
-                return da.ma.filled(_masked_X.mean(0))
-        elif strategy == "median":
-            if is_frame:
-                return _masked_X.quantile(0.5)
-            else:
-                raise NotImplementedError("strategy='median' is not supported for"
-                                          "arrays. Use `dask.dataframe` or a "
-                                          "different strategy instead.")
+        avg = da.nanmean(X, axis=0).compute()
+        self.statistics_ = avg
+
+    def fit_frame(self, X):
+        if self.strategy == "mean":
+            avg = X.mean(axis=0).compute().values
+        elif self.strategy == "median":
+            avg = X.quantile().compute().values
         else:
-            raise NotImplementedError("Invalid strategy {}".format(strategy))
-
-    def _sparse_fit(self):
-        raise NotImplementedError()
+            avg = np.concatenate(
+                dask.compute(
+                    *[X[col].value_counts().nlargest(1).values for col in X.columns]
+                )
+            )
+        self.statistics_ = avg
 
     def transform(self, X):
-        is_frame = isinstance(X, dd.DataFrame)
-        if is_frame:
+        if isinstance(X, (pd.Series, dd.Series, dd.DataFrame)):
             return X.fillna(self.statistics_)
 
-        # just arrays here.
-        s = self.statistics_
-
-        if self.columns:
-            columns = set(self.columns)
+        elif isinstance(X, da.Array):
+            return da.where(da.isnull(X), self.statistics_, X)
         else:
-            columns = set(range(X.shape[1]))
-
-        X1 = []
-        for i, x in enumerate(X.T):
-            if i in columns:
-                X1.append(da.where(_safe_eq(x, self.missing_values), s[i], x))
-            else:
-                X1.append(x)
-        X2 = da.vstack(X1).T
-        return X2
+            return super(Imputer, self).transform(X)
