@@ -8,30 +8,6 @@ import sklearn.preprocessing
 from ..utils import check_array
 
 
-def _safe_eq(X, v):
-    if isinstance(X, dd._Frame):
-        return X.isnull() if v == "NaN" or np.isnan(v) else X == v
-    else:
-        return da.isnull(X) if v == "NaN" or np.isnan(v) else X == v
-
-
-def _mask_values(X, missing_values):
-    """Compute the masked version of X."""
-    if missing_values == "NaN" or np.isnan(missing_values):
-        return X if isinstance(X, dd._Frame) else da.ma.masked_invalid(X)
-    else:
-        return (
-            X.mask(X == missing_values)
-            if isinstance(X, dd._Frame)
-            else da.ma.masked_equal(X, missing_values)
-        )
-
-
-def _fit_columns_df(df, columns, estimator):
-    df = df.copy()
-    return {c: estimator(df[c]) for c in columns}
-
-
 class Imputer(sklearn.preprocessing.Imputer):
     _types = (pd.Series, pd.DataFrame, dd.Series, dd.DataFrame, da.Array)
 
@@ -59,6 +35,11 @@ class Imputer(sklearn.preprocessing.Imputer):
             raise ValueError(
                 "Can only impute missing values on axis 0"
                 " got axis={0}".format(self.axis)
+            )
+
+        if self.missing_values != "NaN":
+            raise ValueError(
+                "dask_ml.preprocessing.Imputer only supports 'missing_values=NaN'."
             )
 
         X = self._check_array(X)
