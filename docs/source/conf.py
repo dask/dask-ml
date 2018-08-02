@@ -211,7 +211,8 @@ def update_examples(app):
     src_dir = "dask-examples/machine-learning"
     dst_dir = "source/examples"
     for file in os.listdir(src_dir):
-        shutil.copy(os.path.join(src_dir, file), os.path.join(dst_dir, file))
+        if file.endswith(".ipynb"):
+            shutil.copy(os.path.join(src_dir, file), os.path.join(dst_dir, file))
 
 
 def setup(app):
