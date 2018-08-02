@@ -277,18 +277,18 @@ can also explicitly pass <code class="docutils literal notranslate"><span class=
 </div>
 <p>We can get the accuracy score on our dataset.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gh">Out[9]: </span><span class="go">0.71</span>
+<span class="gh">Out[9]: </span><span class="go">0.57</span>
 </pre></div>
 </div>
 <p>All of the attributes learned durning training, like <code class="docutils literal notranslate"><span class="pre">coef_</span></code>, are available
 on the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> instance.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[-18.29990477, -14.13504338,  -9.53953676, -34.87336901,</span>
-<span class="go">         -8.33295397, -20.82156665,   2.82282515,  -7.16080588,</span>
-<span class="go">         30.01176634,   1.22616542,  -9.21590229, -17.01900648,</span>
-<span class="go">        -41.48877772,  19.82944321, -52.53080096,  -2.99188032,</span>
-<span class="go">         15.19896282,  15.46873218,   6.72137408,  -5.20325247]])</span>
+<span class="go">array([[ 13.63841376, -29.80210835,   0.91246211,  -6.39025573,</span>
+<span class="go">        -44.80043117, -17.01279495,   4.63513678,   6.85796503,</span>
+<span class="go">         15.01458974,  23.77448423,  -2.00775886, -43.13674637,</span>
+<span class="go">        -27.70335611,  -4.08139491,  36.9496087 ,  16.61313676,</span>
+<span class="go">         14.56933941,  -1.7630884 ,  -3.49529569,   0.85629105]])</span>
 </pre></div>
 </div>
 <p>If necessary, the actual estimator trained is available as <code class="docutils literal notranslate"><span class="pre">Incremental.estimator_</span></code></p>

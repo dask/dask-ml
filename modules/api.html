@@ -130,10 +130,14 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.preprocessing.RobustScaler.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.RobustScaler</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.preprocessing.MinMaxScaler.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.MinMaxScaler</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.preprocessing.QuantileTransformer.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.QuantileTransformer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.preprocessing.StandardScaler.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.StandardScaler</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.preprocessing.Categorizer.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.Categorizer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.preprocessing.DummyEncoder.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.DummyEncoder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.preprocessing.OrdinalEncoder.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.OrdinalEncoder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.preprocessing.LabelEncoder.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.LabelEncoder</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#dask-ml-impute-imputing-missing-data"><code class="docutils literal notranslate"><span class="pre">dask_ml.impute</span></code>: Imputing Missing Data</a><ul class="simple">
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#dask-ml-metrics-metrics"><code class="docutils literal notranslate"><span class="pre">dask_ml.metrics</span></code>: Metrics</a><ul>
@@ -2596,17 +2600,34 @@ component of a nested object.</p>
 <tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.QuantileTransformer.html#dask_ml.preprocessing.QuantileTransformer" title="dask_ml.preprocessing.QuantileTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.QuantileTransformer</span></code></a>([…])</td>
 <td>Transforms features using quantile information.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer" title="dask_ml.preprocessing.Categorizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.Categorizer</span></code></a>([categories,&nbsp;columns])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler" title="dask_ml.preprocessing.StandardScaler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.StandardScaler</span></code></a>([copy,&nbsp;…])</td>
+<td>Standardize features by removing the mean and scaling to unit variance</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer" title="dask_ml.preprocessing.Categorizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.Categorizer</span></code></a>([categories,&nbsp;columns])</td>
 <td>Transform columns of a DataFrame to categorical dtype.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.DummyEncoder.html#dask_ml.preprocessing.DummyEncoder" title="dask_ml.preprocessing.DummyEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.DummyEncoder</span></code></a>([columns,&nbsp;drop_first])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.DummyEncoder.html#dask_ml.preprocessing.DummyEncoder" title="dask_ml.preprocessing.DummyEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.DummyEncoder</span></code></a>([columns,&nbsp;drop_first])</td>
 <td>Dummy (one-hot) encode categorical columns.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder" title="dask_ml.preprocessing.OrdinalEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.OrdinalEncoder</span></code></a>([columns])</td>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder" title="dask_ml.preprocessing.OrdinalEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.OrdinalEncoder</span></code></a>([columns])</td>
 <td>Ordinal (integer) encode categorical columns.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder" title="dask_ml.preprocessing.LabelEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.LabelEncoder</span></code></a>([use_categorical])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder" title="dask_ml.preprocessing.LabelEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.LabelEncoder</span></code></a>([use_categorical])</td>
 <td>Encode labels with value between 0 and n_classes-1.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="dask-ml-impute-imputing-missing-data">
+<h2><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.impute</span></code>: Imputing Missing Data<a class="headerlink" href="#dask-ml-impute-imputing-missing-data" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.impute.SimpleImputer</span></code></td>
+<td></td>
 </tr>
 </tbody>
 </table>
