@@ -24,28 +24,20 @@
 
   
 
-  
-  
-    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="../genindex.html"/>
-        <link rel="search" title="Search" href="../search.html"/>
-    <link rel="top" title="dask-ml 0.1 documentation" href="../index.html"/>
-        <link rel="up" title="&lt;no title&gt;" href="../examples.html"/>
-        <link rel="next" title="Dask and Tensorflow" href="tensorflow.html"/>
-        <link rel="prev" title="Dask GLM" href="dask-glm.html"/> 
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Dask and Tensorflow" href="tensorflow.html" />
+    <link rel="prev" title="Incremental training of large datasets" href="incremental.html" /> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -87,19 +79,51 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Get Started</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../single-machine.html">Single Machine</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../distributed.html">Distributed Learning</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hyperparameter-search.html">Hyper-parameter Search</a></li>
-<li class="toctree-l1"><a class="reference internal" href="joblib-distributed.html">Distributed Joblib</a></li>
-<li class="toctree-l1"><a class="reference internal" href="predict.html">Out-of-core Prediction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dask-glm.html">Dask GLM</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Dask and XGBoost</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#Split-and-Train">Split and Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="distributed-scikit-learn-for-cpu-bound-problems.html">Distributed Scikit-Learn for CPU Bound Problems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parallel-prediction.html">Parallel and Out-of-core Prediction and Scoring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="training-on-large-datasets.html">Training on Large Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="incremental.html">Incremental training of large datasets</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Dask and XGBoost</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Setup-Dask">Setup Dask</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Create-data">Create data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Split-data-for-training-and-testing">Split data for training and testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Train-Dask-XGBoost">Train Dask-XGBoost</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Visualize-results">Visualize results</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Plot-feature-importance">Plot feature importance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Plot-the-Receiver-Operating-Characteristic-curve">Plot the Receiver Operating Characteristic curve</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="tensorflow.html">Dask and Tensorflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Learn-more">Learn more</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tensorflow.html">Dask and Tensorflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text-vectorization.html">Text Vectorization Example</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Use</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../preprocessing.html">Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cross_validation.html">Cross Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hyper-parameter-search.html">Hyper Parameter Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glm.html">Generalized Linear Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../joblib.html">Joblib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../meta-estimators.html">Parallel Meta-estimators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../incremental.html">Incremental Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../clustering.html">Clustering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xgboost.html">XGBoost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensorflow.html">Tensorflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/api.html">API Reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Develop</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../history.html">History</a></li>
 </ul>
 
             
@@ -111,7 +135,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">dask-ml</a>
@@ -119,9 +143,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -144,7 +169,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="../examples.html">&lt;no title&gt;</a> &raquo;</li>
+          <li><a href="../examples.html">Examples</a> &raquo;</li>
         
       <li>Dask and XGBoost</li>
     
@@ -325,7 +350,11 @@ div.nboutput div.output_area.stderr {
 .ansi-white-intense-fg { color: #A1A6B2; }
 .ansi-white-intense-bg { background-color: #A1A6B2; }
 
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
 .ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
 
 /* CSS overrides for sphinx_rtd_theme */
 
@@ -340,361 +369,254 @@ div.nboutput div.output_area.stderr {
     margin-top: -19px;
 }
 
-/* nice headers on first paragraph of info/warning boxes */
-.admonition .first {
-    margin: -12px;
-    padding: 6px 12px;
-    margin-bottom: 12px;
-    color: #fff;
-    line-height: 1;
-    display: block;
-}
-.admonition.warning .first {
-    background: #f0b37e;
-}
-.admonition.note .first {
-    background: #6ab0de;
-}
 .admonition > p:before {
     margin-right: 4px;  /* make room for the exclamation icon */
 }
 </style>
 <div class="section" id="Dask-and-XGBoost">
 <h1>Dask and XGBoost<a class="headerlink" href="#Dask-and-XGBoost" title="Permalink to this headline">¶</a></h1>
-<p>The <code class="docutils literal"><span class="pre">dask-xgboost</span></code> library provides a small wrapper around
-<code class="docutils literal"><span class="pre">dask-xgboost</span></code> for passing dask objects to <code class="docutils literal"><span class="pre">xgboost</span></code>.</p>
-<p>As usual, we can create or attach to our cluster by creating a
-<code class="docutils literal"><span class="pre">Client</span></code></p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
+<p>Dask and XGBoost can work together to train gradient boosted trees in
+parallel. This notebook shows how to use Dask and XGBoost together.</p>
+<p>XGBoost provides a powerful prediction framework, and it works well in
+practice. It wins Kaggle contests and is popular in industry because it
+has good performance and can be easily interpreted (i.e., it’s easy to
+find the important features from a XGBoost model).</p>
+<div class="section" id="Setup-Dask">
+<h2>Setup Dask<a class="headerlink" href="#Setup-Dask" title="Permalink to this headline">¶</a></h2>
+<p>We setup a Dask client, which provides performance and progress metrics
+via the dashboard.</p>
+<p>You can view the dashboard by clicking the link after running the cell.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>In [1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">dask.distributed</span> <span class="kn">import</span> <span class="n">Client</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">n_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">threads_per_worker</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">client</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>Out[1]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<table style="border: 2px solid white;">
+<tr>
+<td style="vertical-align: top; border: 0px solid white">
+<h3>Client</h3>
+<ul>
+  <li><b>Scheduler: </b>tcp://127.0.0.1:42401
+</ul>
+</td>
+<td style="vertical-align: top; border: 0px solid white">
+<h3>Cluster</h3>
+<ul>
+  <li><b>Workers: </b>4</li>
+  <li><b>Cores: </b>4</li>
+  <li><b>Memory: </b>15.69 GB</li>
+</ul>
+</td>
+</tr>
+</table></div>
+</div>
+</div>
+<div class="section" id="Create-data">
+<h2>Create data<a class="headerlink" href="#Create-data" title="Permalink to this headline">¶</a></h2>
+<p>First we create a bunch of synthetic data, with 100,000 examples and 20
+features.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
 <span></span>In [2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">dask</span> <span class="k">import</span> <span class="n">compute</span><span class="p">,</span> <span class="n">persist</span>
-<span class="kn">from</span> <span class="nn">dask.distributed</span> <span class="k">import</span> <span class="n">Client</span><span class="p">,</span> <span class="n">progress</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">dask_ml.datasets</span> <span class="kn">import</span> <span class="n">make_classification</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DISTRIBUTED_ADDRESS&quot;</span><span class="p">))</span>  <span class="c1"># connect to cluster</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_classification</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                           <span class="n">chunks</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">n_informative</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                           <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">X</span>
 </pre></div>
 </div>
 </div>
-<p>We’ll work through an example using the airlines dataset. For a recorded
-screen cast, see <a class="reference external" href="https://www.youtube.com/watch?v=Cc4E-PdDSro">here</a>.
-Our task is to pick whether or not a flight was delayed for more than 15
-minutes.</p>
-<p>First, let’s load the data.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>Out[2]:
+</pre></div>
+</div>
+<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>dask.array&lt;normal, shape=(100000, 20), dtype=float64, chunksize=(1000, 20)&gt;
+</pre></div>
+</div>
+</div>
+<p>Dask-XGBoost works with both arrays and dataframes. For more information
+on creating dask arrays and dataframes from real data, see documentation
+on <a class="reference external" href="https://dask.pydata.org/en/latest/array-creation.html">Dask
+arrays</a> or
+<a class="reference external" href="https://dask.pydata.org/en/latest/dataframe-create.html">Dask
+dataframes</a>.</p>
+</div>
+<div class="section" id="Split-data-for-training-and-testing">
+<h2>Split data for training and testing<a class="headerlink" href="#Split-data-for-training-and-testing" title="Permalink to this headline">¶</a></h2>
+<p>We split our dataset into training and testing data to aid evaluation by
+making sure we have a fair test:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
 <span></span>In [3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">dask_ml.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
 
-<span class="c1"># Subset of the columns to use</span>
-<span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Year&#39;</span><span class="p">,</span> <span class="s1">&#39;Month&#39;</span><span class="p">,</span> <span class="s1">&#39;DayOfWeek&#39;</span><span class="p">,</span> <span class="s1">&#39;Distance&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;DepDelay&#39;</span><span class="p">,</span> <span class="s1">&#39;CRSDepTime&#39;</span><span class="p">,</span> <span class="s1">&#39;UniqueCarrier&#39;</span><span class="p">,</span> <span class="s1">&#39;Origin&#39;</span><span class="p">,</span> <span class="s1">&#39;Dest&#39;</span><span class="p">]</span>
-
-<span class="c1"># Create the dataframe</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;s3://dask-data/airline-data/2006.csv&#39;</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="n">cols</span><span class="p">,</span>
-                 <span class="n">storage_options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;anon&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
-
-<span class="n">frac</span> <span class="o">=</span> <span class="mf">0.01</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="n">frac</span><span class="p">)</span> <span class="c1"># we blow out ram otherwise</span>
-
-<span class="n">is_delayed</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">DepDelay</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">15</span><span class="p">)</span>
-
-<span class="n">df</span><span class="p">[</span><span class="s1">&#39;CRSDepTime&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;CRSDepTime&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">upper</span><span class="o">=</span><span class="mi">2399</span><span class="p">)</span>
-<span class="k">del</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;DepDelay&#39;</span><span class="p">]</span>
-
-<span class="n">df</span><span class="p">,</span> <span class="n">is_delayed</span> <span class="o">=</span> <span class="n">persist</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">is_delayed</span><span class="p">)</span>
-<span class="n">progress</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">is_delayed</span><span class="p">)</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.15</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
+<p>Now, let’s try to do something with this data using
+<a class="reference external" href="https://github.com/dask/dask-xgboost">dask-xgboost</a>.</p>
 </div>
-<div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "2a0ea81a3aee4f49979fff791019ddf4"}</script></div>
+<div class="section" id="Train-Dask-XGBoost">
+<h2>Train Dask-XGBoost<a class="headerlink" href="#Train-Dask-XGBoost" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>In [4]:
+</pre></div>
 </div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">dask_xgboost</span>
+<span class="kn">import</span> <span class="nn">xgboost</span>
+</pre></div>
+</div>
+</div>
+<p>dask-xgboost is a small wrapper around xgboost. Dask sets XGBoost up,
+gives XGBoost data and lets XGBoost do it’s training in the background
+using all the workers Dask has available.</p>
+<p>Let’s do some training:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>In [5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;objective&#39;</span><span class="p">:</span> <span class="s1">&#39;binary:logistic&#39;</span><span class="p">,</span>
+          <span class="s1">&#39;max_depth&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;eta&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s1">&#39;subsample&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+          <span class="s1">&#39;min_child_weight&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">}</span>
+
+<span class="n">bst</span> <span class="o">=</span> <span class="n">dask_xgboost</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">num_boost_round</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Visualize-results">
+<h2>Visualize results<a class="headerlink" href="#Visualize-results" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">bst</span></code> object is a regular <code class="docutils literal notranslate"><span class="pre">xgboost.Booster</span></code> object.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
 <span></span>In [6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">bst</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
 <span></span>Out[6]:
 </pre></div>
 </div>
-<div class="output_area docutils container">
-<div>
-<style>
-    .dataframe thead tr:only-child th {
-        text-align: right;
-    }
-
-    .dataframe thead th {
-        text-align: left;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>Year</th>
-      <th>Month</th>
-      <th>DayOfWeek</th>
-      <th>CRSDepTime</th>
-      <th>UniqueCarrier</th>
-      <th>Origin</th>
-      <th>Dest</th>
-      <th>Distance</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>156561</th>
-      <td>2006</td>
-      <td>1</td>
-      <td>2</td>
-      <td>1440</td>
-      <td>OH</td>
-      <td>CVG</td>
-      <td>MHT</td>
-      <td>741</td>
-    </tr>
-    <tr>
-      <th>359225</th>
-      <td>2006</td>
-      <td>1</td>
-      <td>5</td>
-      <td>1241</td>
-      <td>MQ</td>
-      <td>DFW</td>
-      <td>CLE</td>
-      <td>1021</td>
-    </tr>
-    <tr>
-      <th>414374</th>
-      <td>2006</td>
-      <td>1</td>
-      <td>6</td>
-      <td>1031</td>
-      <td>NW</td>
-      <td>MBS</td>
-      <td>DTW</td>
-      <td>98</td>
-    </tr>
-    <tr>
-      <th>39002</th>
-      <td>2006</td>
-      <td>1</td>
-      <td>3</td>
-      <td>725</td>
-      <td>WN</td>
-      <td>CRP</td>
-      <td>HOU</td>
-      <td>187</td>
-    </tr>
-    <tr>
-      <th>488494</th>
-      <td>2006</td>
-      <td>1</td>
-      <td>3</td>
-      <td>1259</td>
-      <td>AA</td>
-      <td>DFW</td>
-      <td>BDL</td>
-      <td>1471</td>
-    </tr>
-  </tbody>
-</table>
-</div></div>
+<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>&lt;xgboost.core.Booster at 0x2b3303702710&gt;
+</pre></div>
 </div>
+</div>
+<p>This means all the methods mentioned in the <a class="reference external" href="https://xgboost.readthedocs.io/en/latest/python/python_intro.html#">XGBoost
+documentation</a>
+are available. We show two examples to expand on this, but these
+examples are of XGBoost instead of Dask.</p>
+<div class="section" id="Plot-feature-importance">
+<h3>Plot feature importance<a class="headerlink" href="#Plot-feature-importance" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
 <span></span>In [7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="n">is_delayed</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="o">%</span><span class="k">matplotlib</span> inline
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+<span class="n">ax</span> <span class="o">=</span> <span class="n">xgboost</span><span class="o">.</span><span class="n">plot_importance</span><span class="p">(</span><span class="n">bst</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">max_num_features</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">False</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Estimated feature importance&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>Out[7]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
-<div class="output_area highlight-none"><div class="highlight"><pre>
-<span></span>156561    False
-359225    False
-414374    False
-39002     False
-488494    False
-Name: DepDelay, dtype: bool
-</pre></div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_xgboost_20_0.png" src="../_images/examples_xgboost_20_0.png" />
 </div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
+<p>We specified that only 4 features were informative while creating our
+data, and only 3 features show up as important.</p>
+</div>
+<div class="section" id="Plot-the-Receiver-Operating-Characteristic-curve">
+<h3>Plot the Receiver Operating Characteristic curve<a class="headerlink" href="#Plot-the-Receiver-Operating-Characteristic-curve" title="Permalink to this headline">¶</a></h3>
+<p>We can use a fancier metric to determine how well our classifier is
+doing by plotting the <a class="reference external" href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">Receiver Operating Characteristic (ROC)
+curve</a>:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
 <span></span>In [8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="n">df2</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">categorize</span><span class="p">())</span><span class="o">.</span><span class="n">persist</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">y_hat</span> <span class="o">=</span> <span class="n">dask_xgboost</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">bst</span><span class="p">,</span> <span class="n">X_test</span><span class="p">)</span><span class="o">.</span><span class="n">persist</span><span class="p">()</span>
+<span class="n">y_hat</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="Split-and-Train">
-<h2>Split and Train<a class="headerlink" href="#Split-and-Train" title="Permalink to this headline">¶</a></h2>
-<p>We’ll split the original dataset into train and test sets. The model
-will be fit on <code class="docutils literal"><span class="pre">data_train</span></code> and evaluated on <code class="docutils literal"><span class="pre">data_test</span></code>.</p>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>Out[8]:
+</pre></div>
+</div>
+<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>dask.array&lt;_predict_part, shape=(15000,), dtype=float32, chunksize=(150,)&gt;
+</pre></div>
+</div>
+</div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
 <span></span>In [9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="n">data_train</span><span class="p">,</span> <span class="n">data_test</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">random_split</span><span class="p">([</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span>
-                                         <span class="n">random_state</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
-<span class="n">labels_train</span><span class="p">,</span> <span class="n">labels_test</span> <span class="o">=</span> <span class="n">is_delayed</span><span class="o">.</span><span class="n">random_split</span><span class="p">([</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">],</span>
-                                                    <span class="n">random_state</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">roc_curve</span>
+
+<span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_hat</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<p>Now we can fit the model. This is exactly like normal, except you’ll
-import <code class="docutils literal"><span class="pre">dask_xgboost</span></code>. It will take care of handing the data off to
-the distributed <code class="docutils literal"><span class="pre">xgboost</span></code> processes, and from there everything
-proceeds as normal.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
 <span></span>In [10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="o">%%</span><span class="k">time</span>
-import dask_xgboost as dxgb
-import xgboost as xgb
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">auc</span>
 
-params = {&#39;objective&#39;: &#39;binary:logistic&#39;, &#39;nround&#39;: 1000,
-          &#39;max_depth&#39;: 16, &#39;eta&#39;: 0.01, &#39;subsample&#39;: 0.5,
-          &#39;min_child_weight&#39;: 1}
-
-bst = dxgb.train(client, params, data_train, labels_train)
-bst
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-CPU times: user 962 ms, sys: 569 ms, total: 1.53 s
-Wall time: 17.2 s
-</pre></div></div>
-</div>
-<p>The <code class="docutils literal"><span class="pre">bst</span></code> object is just a reguler <code class="docutils literal"><span class="pre">xgboost.Booster</span></code>, so all the
-familar methods are available.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [11]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [12]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
-
-<span class="n">ax</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">plot_importance</span><span class="p">(</span><span class="n">bst</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">max_num_features</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../_images/examples_xgboost_16_0.png" src="../_images/examples_xgboost_16_0.png" />
-</div>
-</div>
-<p>Let’s get the predictions. The is the same as usual, except we’re using
-<code class="docutils literal"><span class="pre">dxgb</span></code>.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [13]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="n">predictions</span> <span class="o">=</span> <span class="n">dxgb</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">bst</span><span class="p">,</span> <span class="n">data_test</span><span class="p">)</span>
-<span class="n">predictions</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">persist</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span>
-<span class="n">predictions</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>Out[13]:
-</pre></div>
-</div>
-<div class="output_area highlight-none"><div class="highlight"><pre>
-<span></span>Dask Series Structure:
-npartitions=11
-None    float32
-None        ...
-         ...
-None        ...
-None        ...
-Name: predictions, dtype: float32
-Dask Name: _predict_part, 11 tasks
-</pre></div>
-</div>
-</div>
-<p>The <code class="docutils literal"><span class="pre">predictions</span></code> object is a <code class="docutils literal"><span class="pre">dask.Series</span></code>, so it can be used in
-place of a numpy array in most places.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [14]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="k">import</span> <span class="n">roc_curve</span><span class="p">,</span> <span class="n">auc</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none"><div class="highlight"><pre>
-<span></span>In [15]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3"><div class="highlight"><pre>
-<span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
-<span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">labels_test</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-        <span class="n">label</span><span class="o">=</span><span class="s1">&#39;ROC Curve (ares = </span><span class="si">{:.2f}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">auc</span><span class="p">(</span><span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">)))</span>
+        <span class="n">label</span><span class="o">=</span><span class="s1">&#39;ROC Curve (area = {:.2f})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">auc</span><span class="p">(</span><span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">)))</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;k--&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-
 <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
     <span class="n">xlim</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
     <span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
@@ -703,6 +625,7 @@ place of a numpy array in most places.</p>
     <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;True Positive Rate&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -710,17 +633,37 @@ place of a numpy array in most places.</p>
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/examples_xgboost_21_0.png" src="../_images/examples_xgboost_21_0.png" />
+<img alt="../_images/examples_xgboost_25_0.png" src="../_images/examples_xgboost_25_0.png" />
 </div>
 </div>
+<p>This Receiver Operating Characteristic (ROC) curve tells how well our
+classifier is doing. We can tell it’s doing well by how far it bends the
+upper-left. A perfect classifier would be in the upper-left corner, and
+a random classifier would follow the horizontal line.</p>
+<p>The area under this curve is <code class="docutils literal notranslate"><span class="pre">area</span> <span class="pre">=</span> <span class="pre">0.76</span></code>. This tells us the
+probability that our classifier will predict correctly for a randomly
+chosen instance.</p>
+</div>
+</div>
+<div class="section" id="Learn-more">
+<h2>Learn more<a class="headerlink" href="#Learn-more" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Similar example that uses DataFrames for a real world dataset:
+<a class="reference external" href="https://dask-ml.readthedocs.io/en/latest/examples/xgboost.html">https://dask-ml.readthedocs.io/en/latest/examples/xgboost.html</a></li>
+<li>Recorded screencast stepping through the real world example above:</li>
+<li>A blogpost on dask-xgboost
+<a class="reference external" href="http://matthewrocklin.com/blog/work/2017/03/28/dask-xgboost">http://matthewrocklin.com/blog/work/2017/03/28/dask-xgboost</a></li>
+<li>XGBoost documentation:
+<a class="reference external" href="https://xgboost.readthedocs.io/en/latest/python/python_intro">https://xgboost.readthedocs.io/en/latest/python/python_intro</a>.html#</li>
+<li>Dask-XGBoost documentation:
+<a class="reference external" href="http://dask-ml.readthedocs.io/en/latest/xgboost.html">http://dask-ml.readthedocs.io/en/latest/xgboost.html</a></li>
+</ul>
 </div>
 </div>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -729,7 +672,7 @@ place of a numpy array in most places.</p>
         <a href="tensorflow.html" class="btn btn-neutral float-right" title="Dask and Tensorflow" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="dask-glm.html" class="btn btn-neutral" title="Dask GLM" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="incremental.html" class="btn btn-neutral" title="Incremental training of large datasets" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -742,7 +685,7 @@ place of a numpy array in most places.</p>
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -761,6 +704,7 @@ place of a numpy array in most places.</p>
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
             VERSION:'0.1',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -770,23 +714,17 @@ place of a numpy array in most places.</p>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
-  
-  
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

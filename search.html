@@ -24,25 +24,18 @@
 
   
 
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="#"/>
-    <link rel="top" title="dask-ml 0.1 documentation" href="index.html"/> 
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="#" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -84,16 +77,30 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Get Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="single-machine.html">Single Machine</a></li>
-<li class="toctree-l1"><a class="reference internal" href="distributed.html">Distributed Learning</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/hyperparameter-search.html">Hyper-parameter Search</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/joblib-distributed.html">Distributed Joblib</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/predict.html">Out-of-core Prediction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/dask-glm.html">Dask GLM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/xgboost.html">Dask and XGBoost</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/tensorflow.html">Dask and Tensorflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Use</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="preprocessing.html">Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cross_validation.html">Cross Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hyper-parameter-search.html">Hyper Parameter Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glm.html">Generalized Linear Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joblib.html">Joblib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta-estimators.html">Parallel Meta-estimators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="incremental.html">Incremental Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clustering.html">Clustering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xgboost.html">XGBoost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorflow.html">Tensorflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/api.html">API Reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Develop</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
 </ul>
 
             
@@ -105,7 +112,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">dask-ml</a>
@@ -113,9 +120,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -143,6 +151,8 @@
     
       <li class="wy-breadcrumbs-aside">
         
+            
+        
       </li>
     
   </ul>
@@ -168,9 +178,7 @@
   </div>
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -183,7 +191,7 @@
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -202,6 +210,7 @@
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
             VERSION:'0.1',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -211,24 +220,18 @@
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
       <script type="text/javascript" src="_static/searchtools.js"></script>
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
-  
   <script type="text/javascript">
     jQuery(function() { Search.loadIndex("searchindex.js"); });
   </script>

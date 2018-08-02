@@ -1,0 +1,582 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dask_ml.decomposition.TruncatedSVD &mdash; dask-ml 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dask_ml.preprocessing.StandardScaler" href="dask_ml.preprocessing.StandardScaler.html" />
+    <link rel="prev" title="dask_ml.decomposition.PCA" href="dask_ml.decomposition.PCA.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> dask-ml
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Get Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Use</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../preprocessing.html">Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cross_validation.html">Cross Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hyper-parameter-search.html">Hyper Parameter Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glm.html">Generalized Linear Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../joblib.html">Joblib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../meta-estimators.html">Parallel Meta-estimators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../incremental.html">Incremental Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../clustering.html">Clustering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../xgboost.html">XGBoost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tensorflow.html">Tensorflow</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.model_selection"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>: Model Selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.linear_model"><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>: Generalized Linear Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#meta-estimators-for-scikit-learn">Meta-estimators for scikit-learn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.cluster"><code class="docutils literal notranslate"><span class="pre">dask_ml.cluster</span></code>: Clustering</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#module-dask_ml.decomposition"><code class="docutils literal notranslate"><span class="pre">dask_ml.decomposition</span></code>: Matrix Decomposition</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="dask_ml.decomposition.PCA.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.decomposition</span></code>.PCA</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.decomposition</span></code>.TruncatedSVD</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.preprocessing"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>: Preprocessing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-metrics-metrics"><code class="docutils literal notranslate"><span class="pre">dask_ml.metrics</span></code>: Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.tensorflow"><code class="docutils literal notranslate"><span class="pre">dask_ml.tensorflow</span></code>: Tensorflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.xgboost"><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code>: XGBoost</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Develop</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">dask-ml</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../api.html">API Reference</a> &raquo;</li>
+        
+      <li><code class="docutils literal notranslate"><span class="pre">dask_ml.decomposition</span></code>.TruncatedSVD</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/modules/generated/dask_ml.decomposition.TruncatedSVD.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="dask-ml-decomposition-truncatedsvd">
+<h1><a class="reference internal" href="../api.html#module-dask_ml.decomposition" title="dask_ml.decomposition"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.decomposition</span></code></a>.TruncatedSVD<a class="headerlink" href="#dask-ml-decomposition-truncatedsvd" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="dask_ml.decomposition.TruncatedSVD">
+<em class="property">class </em><code class="descclassname">dask_ml.decomposition.</code><code class="descname">TruncatedSVD</code><span class="sig-paren">(</span><em>n_components=2</em>, <em>algorithm='tsqr'</em>, <em>n_iter=5</em>, <em>random_state=None</em>, <em>tol=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.decomposition.TruncatedSVD" title="Permalink to this definition">¶</a></dt>
+<dd><p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.decomposition.TruncatedSVD.fit" title="dask_ml.decomposition.TruncatedSVD.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X[,&nbsp;y])</td>
+<td>Fit truncated SVD on training data X</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.decomposition.TruncatedSVD.fit_transform" title="dask_ml.decomposition.TruncatedSVD.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(X[,&nbsp;y])</td>
+<td>Fit model to X and perform dimensionality reduction on X.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.decomposition.TruncatedSVD.get_params" title="dask_ml.decomposition.TruncatedSVD.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</td>
+<td>Get parameters for this estimator.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.decomposition.TruncatedSVD.inverse_transform" title="dask_ml.decomposition.TruncatedSVD.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(X)</td>
+<td>Transform X back to its original space.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.decomposition.TruncatedSVD.set_params" title="dask_ml.decomposition.TruncatedSVD.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</td>
+<td>Set the parameters of this estimator.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.decomposition.TruncatedSVD.transform" title="dask_ml.decomposition.TruncatedSVD.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(X[,&nbsp;y])</td>
+<td>Perform dimensionality reduction on X.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="dask_ml.decomposition.TruncatedSVD.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>n_components=2</em>, <em>algorithm='tsqr'</em>, <em>n_iter=5</em>, <em>random_state=None</em>, <em>tol=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.decomposition.TruncatedSVD.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dimensionality reduction using truncated SVD (aka LSA).</p>
+<p>This transformer performs linear dimensionality reduction by means of
+truncated singular value decomposition (SVD). Contrary to PCA, this
+estimator does not center the data before computing the singular value
+decomposition.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>n_components</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default = 2</span></dt>
+<dd><p class="first last">Desired dimensionality of output data.
+Must be less than or equal to the number of features.
+The default value is useful for visualization.</p>
+</dd>
+<dt><strong>algorithm</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘tsqr’, ‘randomized’}</span></dt>
+<dd><p class="first last">SVD solver to use. Both use the <cite>tsqr</cite> (for “tall-and-skinny QR”)
+algorithm internally. ‘randomized’ uses an approximate algorithm
+that is faster, but not exact. See the References for more.</p>
+</dd>
+<dt><strong>n_iter</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional (default 0)</span></dt>
+<dd><p class="first last">Number of power iterations, useful when the singular values
+decay slowly. Error decreases exponentially as n_power_iter
+increases. In practice, set n_power_iter &lt;= 4.</p>
+</dd>
+<dt><strong>random_state</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, RandomState instance or None, optional</span></dt>
+<dd><p class="first last">If int, random_state is the seed used by the random number
+generator;
+If RandomState instance, random_state is the random number
+generator;
+If None, the random number generator is the RandomState instance
+used by <cite>np.random</cite>.</p>
+</dd>
+<dt><strong>tol</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
+<dd><p class="first last">Ignored.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>components_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array, shape (n_components, n_features)</span></dt>
+<dd></dd>
+<dt><strong>explained_variance_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array, shape (n_components,)</span></dt>
+<dd><p class="first last">The variance of the training samples transformed by a projection to
+each component.</p>
+</dd>
+<dt><strong>explained_variance_ratio_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array, shape (n_components,)</span></dt>
+<dd><p class="first last">Percentage of variance explained by each of the selected
+components.</p>
+</dd>
+<dt><strong>singular_values_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array, shape (n_components,)</span></dt>
+<dd><p class="first last">The singular values corresponding to each of the selected
+components. The singular values are equal to the 2-norms of the
+<code class="docutils literal notranslate"><span class="pre">n_components</span></code> variables in the lower-dimensional space.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference external" href="http://dask.pydata.org/en/latest/array-api.html#dask.array.linalg.tsqr" title="(in Dask v0.18.2)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask.array.linalg.tsqr</span></code></a>, <a class="reference external" href="http://dask.pydata.org/en/latest/array-api.html#dask.array.linalg.svd_compressed" title="(in Dask v0.18.2)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask.array.linalg.svd_compressed</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<p>SVD suffers from a problem called “sign indeterminacy”, which means
+the sign of the <code class="docutils literal notranslate"><span class="pre">components_</span></code> and the output from transform depend on
+the algorithm and random state. To work around this, fit instances of
+this class to data once, then keep the instance around to do
+transformations.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The implementation currently does not support sparse matricies.</p>
+</div>
+<p class="rubric">References</p>
+<p>Direct QR factorizations for tall-and-skinny matrices in
+MapReduce architectures.
+A. Benson, D. Gleich, and J. Demmel.
+IEEE International Conference on Big Data, 2013.
+<a class="reference external" href="http://arxiv.org/abs/1301.1071">http://arxiv.org/abs/1301.1071</a></p>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dask_ml.decomposition</span> <span class="k">import</span> <span class="n">TruncatedSVD</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dask.array</span> <span class="k">as</span> <span class="nn">da</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">chunks</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">svd</span> <span class="o">=</span> <span class="n">TruncatedSVD</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_iter</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">svd</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>  
+<span class="go">TruncatedSVD(algorithm=&#39;tsqr&#39;, n_components=5, n_iter=3,</span>
+<span class="go">             random_state=42, tol=0.0)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">svd</span><span class="o">.</span><span class="n">explained_variance_ratio_</span><span class="p">)</span>  
+<span class="go">[0.06386323 0.06176776 0.05901293 0.0576399  0.05726607]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">svd</span><span class="o">.</span><span class="n">explained_variance_ratio_</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>  
+<span class="go">0.299...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">svd</span><span class="o">.</span><span class="n">singular_values_</span><span class="p">)</span>  
+<span class="go">array([35.92469517, 35.32922121, 34.53368856, 34.138..., 34.013...])</span>
+</pre></div>
+</div>
+<p>Note that <code class="docutils literal notranslate"><span class="pre">tranform</span></code> returns a <code class="docutils literal notranslate"><span class="pre">dask.Array</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">svd</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="go">dask.array&lt;sum-agg, shape=(1000, 5), dtype=float64, chunksize=(100, 5)&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.decomposition.TruncatedSVD.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.decomposition.TruncatedSVD.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit truncated SVD on training data X</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape (n_samples, n_features)</span></dt>
+<dd><p class="first last">Training data.</p>
+</dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Ignored</span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd><p class="first last">Returns the transformer object.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.decomposition.TruncatedSVD.fit_transform">
+<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.decomposition.TruncatedSVD.fit_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit model to X and perform dimensionality reduction on X.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape (n_samples, n_features)</span></dt>
+<dd><p class="first last">Training data.</p>
+</dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Ignored</span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array, shape (n_samples, n_components)</span></dt>
+<dd><p class="first last">Reduced version of X. This will always be a dense array, of the
+same type as the input array. If <code class="docutils literal notranslate"><span class="pre">X</span></code> was a <code class="docutils literal notranslate"><span class="pre">dask.array</span></code>, then
+<code class="docutils literal notranslate"><span class="pre">X_new</span></code> will be a <code class="docutils literal notranslate"><span class="pre">dask.array</span></code> with the same chunks along the
+first dimension.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.decomposition.TruncatedSVD.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.decomposition.TruncatedSVD.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameters for this estimator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span></dt>
+<dd><p class="first last">If True, will return the parameters for this estimator and
+contained subobjects that are estimators.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">mapping of string to any</span></dt>
+<dd><p class="first last">Parameter names mapped to their values.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.decomposition.TruncatedSVD.inverse_transform">
+<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.decomposition.TruncatedSVD.inverse_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform X back to its original space.</p>
+<p>Returns an array X_original whose transform would be X.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape (n_samples, n_components)</span></dt>
+<dd><p class="first last">New data.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>X_original</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array, shape (n_samples, n_features)</span></dt>
+<dd><p class="first last">Note that this is always a dense array.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.decomposition.TruncatedSVD.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.decomposition.TruncatedSVD.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters of this estimator.</p>
+<p>The method works on simple estimators as well as on nested objects
+(such as pipelines). The latter have parameters of the form
+<code class="docutils literal notranslate"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it’s possible to update each
+component of a nested object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>self</strong></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.decomposition.TruncatedSVD.transform">
+<code class="descname">transform</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.decomposition.TruncatedSVD.transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform dimensionality reduction on X.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape (n_samples, n_features)</span></dt>
+<dd><p class="first last">Data to be transformed.</p>
+</dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Ignored</span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array, shape (n_samples, n_components)</span></dt>
+<dd><p class="first last">Reduced version of X. This will always be a dense array, of the
+same type as the input array. If <code class="docutils literal notranslate"><span class="pre">X</span></code> was a <code class="docutils literal notranslate"><span class="pre">dask.array</span></code>, then
+<code class="docutils literal notranslate"><span class="pre">X_new</span></code> will be a <code class="docutils literal notranslate"><span class="pre">dask.array</span></code> with the same chunks along the
+first dimension.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<div class="clearer"></div></div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dask_ml.preprocessing.StandardScaler.html" class="btn btn-neutral float-right" title="dask_ml.preprocessing.StandardScaler" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="dask_ml.decomposition.PCA.html" class="btn btn-neutral" title="dask_ml.decomposition.PCA" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Dask developers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

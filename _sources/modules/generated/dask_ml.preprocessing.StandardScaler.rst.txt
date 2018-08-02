@@ -1,0 +1,16 @@
+:mod:`dask_ml.preprocessing`.StandardScaler
+==================================================
+
+.. currentmodule:: dask_ml.preprocessing
+
+.. autoclass:: StandardScaler
+
+   
+   .. automethod:: __init__
+   
+
+.. include:: dask_ml.preprocessing.StandardScaler.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>

@@ -25,10 +25,8 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 2,
-   "metadata": {
-    "collapsed": true
-   },
+   "execution_count": null,
+   "metadata": {},
    "outputs": [],
    "source": [
     "%matplotlib inline"
@@ -36,57 +34,46 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 1,
-   "metadata": {
-    "collapsed": true
-   },
+   "execution_count": null,
+   "metadata": {},
    "outputs": [],
    "source": [
     "import dask.array as da\n",
     "from dask import delayed\n",
     "from dask_tensorflow import start_tensorflow\n",
-    "from distributed import Client, progress\n",
+    "from distributed import Client, progress, get_worker, worker_client, Queue\n",
     "import dask.dataframe as dd\n",
     "import matplotlib.pyplot as plt\n",
-    "\n",
-    "import dask.array as da\n",
-    "from dask import delayed"
+    "import tensorflow as tf"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 3,
-   "metadata": {
-    "collapsed": true
-   },
+   "execution_count": null,
+   "metadata": {},
    "outputs": [],
    "source": [
-    "client = Client()"
+    "client = Client(n_workers=3, memory_limit='2GB')\n",
+    "client"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 4,
+   "execution_count": null,
    "metadata": {},
-   "outputs": [
-    {
-     "data": {
-      "text/plain": [
-       "dask.array<concatenate, shape=(1100000, 784), dtype=float32, chunksize=(55000, 784)>"
-      ]
-     },
-     "execution_count": 4,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
+   "outputs": [],
    "source": [
     "def get_mnist():\n",
     "    from tensorflow.examples.tutorials.mnist import input_data\n",
     "    mnist = input_data.read_data_sets('/tmp/mnist-data', one_hot=True)\n",
     "    return mnist.train.images, mnist.train.labels\n",
     "\n",
-    "datasets = [delayed(get_mnist)() for i in range(20)]  # 20 versions of same dataset\n",
+    "get_mnist()  # Download the data ahead of time\n",
+    "\n",
+    "# Scale up: increase the number of copies of the dataset\n",
+    "n_copies = 2\n",
+    "datasets = [delayed(get_mnist)() for i in range(n_copies)]\n",
+    "\n",
     "images = [d[0] for d in datasets]\n",
     "labels = [d[1] for d in datasets]\n",
     "\n",
@@ -94,14 +81,12 @@
     "labels = [da.from_delayed(la, shape=(55000, 10), dtype='float32') for la in labels]\n",
     "\n",
     "images = da.concatenate(images, axis=0)\n",
-    "labels = da.concatenate(labels, axis=0)\n",
-    "\n",
-    "images"
+    "labels = da.concatenate(labels, axis=0)"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 5,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -110,30 +95,9 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 7,
+   "execution_count": null,
    "metadata": {},
-   "outputs": [
-    {
-     "data": {
-      "text/plain": [
-       "<matplotlib.image.AxesImage at 0x117ce19e8>"
-      ]
-     },
-     "execution_count": 7,
-     "metadata": {},
-     "output_type": "execute_result"
-    },
-    {
-     "data": {
-      "image/png": "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\nvlrDP6qGBzoi6Uh2+Rsz65N0UWPtAajaaX3mN7PJkq6WtDW76QEz+8jMVpvZ+TnbdJvZdjPb3lCn\nAEpV83f7zexcSZslLXH3DWY2TtJxSS5psQY/Gvy+4DF42w80WWmf+SXJzM6W9Jakd9z92WHqkyW9\n5e5XFjwO4QearLQDe2zw1LAvSuobGvzsD4EnzZO0+3SbBFCdWv7aP03SFkkfa3DUJ0mPSLpD0lUa\nfNu/X9K92R8HU4/Fnh9oslLf9peF8APNx/H8AJIIPxAU4QeCIvxAUIQfCIrwA0ERfiAowg8ERfiB\noAg/EBThB4Ii/EBQhB8IivADQRWewLNkxyX9Z8j1juy2dtSuvbVrXxK91avM3jprvWNLj+f/2ZOb\nbXf3rsoaSGjX3tq1L4ne6lVVb7ztB4Ii/EBQVYe/p+LnT2nX3tq1L4ne6lVJb5V+5gdQnar3/AAq\nUkn4zWyWme0zs8/NbFEVPeQxs/1m9rGZfVj1EmPZMmj9ZrZ7yG0XmNl7ZvZZ9nPYZdIq6u1JM/tv\n9tp9aGa/rai3iWb2TzPrM7NPzOyP2e2VvnaJvip53Vr+tt/MzpL0qaQZkg5J2ibpDnff09JGcpjZ\nfkld7l75TNjMpkv6VtLLJ1dDMrO/SDrh7s9k/3Ce7+5/bpPentRprtzcpN7yVpb+nSp87cpc8boM\nVez5r5X0ubt/4e7fS3pN0pwK+mh77v6BpBOn3DxH0prs8hoN/vK0XE5vbcHdj7j7zuzyN5JOrixd\n6WuX6KsSVYT/IkkHh1w/pPZa8tslvWtmO8ysu+pmhjHu5MpI2c8LK+7nVIUrN7fSKStLt81rV8+K\n12WrIvzDrSbSTiOH69x9qqTZku7P3t6iNqskXarBZdyOSFpWZTPZytLrJS1096+r7GWoYfqq5HWr\nIvyHJE0ccv1iSYcr6GNY7n44+9kvqVeDH1PaydGTi6RmP/sr7uf/3P2ou//o7gOSXlCFr122svR6\nSa+4+4bs5spfu+H6qup1qyL82yRdZmaXmNk5km6XtLGCPn7GzEZnf4iRmY2WNFPtt/rwRknzs8vz\nJb1ZYS8/0S4rN+etLK2KX7t2W/G6ki/5ZKOM5ZLOkrTa3Ze0vIlhmNkvNbi3lwaPeFxbZW9m9qqk\nGzR41NdRSU9I+rukNyRNknRA0q3u3vI/vOX0doNOc+XmJvWWt7L0VlX42pW54nUp/fANPyAmvuEH\nBEX4gaAIPxAU4QeCIvxAUIQfCIrwA0ERfiCo/wGTnJDl40xJsQAAAABJRU5ErkJggg==\n",
-      "text/plain": [
-       "<matplotlib.figure.Figure at 0x118c5f588>"
-      ]
-     },
-     "metadata": {},
-     "output_type": "display_data"
-    }
-   ],
+   "outputs": [],
    "source": [
     "im = images[1].compute().reshape((28, 28))\n",
     "plt.imshow(im, cmap='gray')"
@@ -141,30 +105,9 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 8,
+   "execution_count": null,
    "metadata": {},
-   "outputs": [
-    {
-     "data": {
-      "text/plain": [
-       "<matplotlib.image.AxesImage at 0x117d2d668>"
-      ]
-     },
-     "execution_count": 8,
-     "metadata": {},
-     "output_type": "execute_result"
-    },
-    {
-     "data": {
-      "image/png": "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\n",
-      "text/plain": [
-       "<matplotlib.figure.Figure at 0x117d85438>"
-      ]
-     },
-     "metadata": {},
-     "output_type": "display_data"
-    }
-   ],
+   "outputs": [],
    "source": [
     "im = images.mean(axis=0).compute().reshape((28, 28))\n",
     "plt.imshow(im, cmap='gray')"
@@ -172,7 +115,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 9,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -188,22 +131,17 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 11,
-   "metadata": {
-    "collapsed": true
-   },
+   "execution_count": null,
+   "metadata": {},
    "outputs": [],
    "source": [
-    "from dask_tensorflow import start_tensorflow\n",
-    "tf_spec, dask_spec = start_tensorflow(client, ps=1, worker=4, scorer=1)"
+    "tf_spec, dask_spec = start_tensorflow(client, ps=1, worker=1, scorer=1)"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 13,
-   "metadata": {
-    "collapsed": true
-   },
+   "execution_count": null,
+   "metadata": {},
    "outputs": [],
    "source": [
     "import math\n",
@@ -220,10 +158,8 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 14,
-   "metadata": {
-    "collapsed": true
-   },
+   "execution_count": null,
+   "metadata": {},
    "outputs": [],
    "source": [
     "def model(server):\n",
@@ -337,33 +273,30 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 17,
-   "metadata": {
-    "collapsed": true
-   },
+   "execution_count": null,
+   "metadata": {},
    "outputs": [],
    "source": [
     "def ps_task():\n",
-    "    with local_client() as c:\n",
-    "        c.worker.tensorflow_server.join()"
+    "    worker = get_worker()\n",
+    "    worker.tensorflow_server.join()"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 18,
-   "metadata": {
-    "collapsed": true
-   },
+   "execution_count": null,
+   "metadata": {},
    "outputs": [],
    "source": [
     "def scoring_task():\n",
-    "    with local_client() as c:\n",
+    "    with worker_client() as c:\n",
     "        # Scores Channel\n",
-    "        scores = c.channel('scores', maxlen=10)\n",
+    "        scores = Queue('scores')\n",
     "\n",
     "        # Make Model\n",
-    "        server = c.worker.tensorflow_server\n",
-    "        sess, _, _, _, _, cross_entropy = model(c.worker.tensorflow_server)\n",
+    "        worker = get_worker()\n",
+    "        server = worker.tensorflow_server\n",
+    "        sess, x, y_, _, _, cross_entropy = model(server)\n",
     "\n",
     "        # Testing Data\n",
     "        from tensorflow.examples.tutorials.mnist import input_data\n",
@@ -374,32 +307,34 @@
     "        # Main Loop\n",
     "        while True:\n",
     "            score = sess.run(cross_entropy, feed_dict=test_data)\n",
-    "            scores.append(float(score))\n",
+    "            scores.put(float(score))\n",
     "\n",
     "            time.sleep(1)"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 19,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
     "def worker_task():\n",
-    "    with local_client() as c:\n",
-    "        scores = c.channel('scores')\n",
+    "    with worker_client() as c:\n",
+    "        scores = Queue('scores')\n",
     "        num_workers = replicas_to_aggregate = len(dask_spec['worker'])\n",
     "\n",
-    "        server = c.worker.tensorflow_server\n",
-    "        queue = c.worker.tensorflow_queue\n",
+    "        worker = get_worker()\n",
+    "        server = worker.tensorflow_server\n",
+    "        tf_queue = worker.tensorflow_queue\n",
     "\n",
     "        # Make model\n",
-    "        sess, x, y_, train_step, global_step, _= model(c.worker.tensorflow_server)\n",
+    "        sess, x, y_, train_step, global_step, _= model(server)\n",
     "\n",
     "        # Main loop\n",
-    "        while not scores or scores.data[-1] > 1000:\n",
+    "        sc = scores.get()\n",
+    "        while not scores or sc > 1000:\n",
     "            try:\n",
-    "                batch = queue.get(timeout=0.5)\n",
+    "                batch = tf_queue.get(timeout=0.5)\n",
     "            except Empty:\n",
     "                continue\n",
     "\n",
@@ -411,7 +346,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 21,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -426,18 +361,28 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 23,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
-    "from distributed.worker_client import get_worker\n",
-    "\n",
     "def transfer_dask_to_tensorflow(batch):\n",
     "    worker = get_worker()\n",
-    "    worker.tensorflow_queue.put(batch)\n",
-    "\n",
-    "dump = client.map(transfer_dask_to_tensorflow, batches,\n",
-    "                  workers=dask_spec['worker'], pure=False)\n"
+    "    worker.tensorflow_queue.put(batch)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "scores = Queue('scores')\n",
+    "score = scores.get()\n",
+    "while score > 1000:\n",
+    "    print(score)\n",
+    "    dump = client.map(transfer_dask_to_tensorflow, batches,\n",
+    "                      workers=dask_spec['worker'], pure=False)\n",
+    "    score = scores.get()"
    ]
   }
  ],
@@ -457,7 +402,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.6.1"
+   "version": "3.6.5"
   }
  },
  "nbformat": 4,

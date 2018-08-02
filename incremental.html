@@ -1,0 +1,401 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Incremental Learning &mdash; dask-ml 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Clustering" href="clustering.html" />
+    <link rel="prev" title="Parallel Meta-estimators" href="meta-estimators.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> dask-ml
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Get Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Use</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="preprocessing.html">Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cross_validation.html">Cross Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hyper-parameter-search.html">Hyper Parameter Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glm.html">Generalized Linear Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joblib.html">Joblib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta-estimators.html">Parallel Meta-estimators</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Incremental Learning</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#incremental-meta-estimator">Incremental Meta-estimator</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#incremental-learning-and-hyper-parameter-optimization">Incremental Learning and Hyper-parameter Optimization</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="clustering.html">Clustering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xgboost.html">XGBoost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorflow.html">Tensorflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/api.html">API Reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Develop</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">dask-ml</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Incremental Learning</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/incremental.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="incremental-learning">
+<span id="id1"></span><h1>Incremental Learning<a class="headerlink" href="#incremental-learning" title="Permalink to this headline">¶</a></h1>
+<p>Some estimators can be trained incrementally – without seeing the entire
+dataset at once. Scikit-Learn provdes the <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> API to stream batches
+of data to an estimator that can be fit in batches.</p>
+<p>Normally, if you pass a Dask Array to an estimator expecting a NumPy array,
+the Dask Array will be converted to a single, large NumPy array. On a single
+machine, you’ll likely run out of RAM and crash the program. On a distributed
+cluster, all the workers will send their data to a single machine and crash it.</p>
+<p><a class="reference internal" href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental" title="dask_ml.wrappers.Incremental"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.wrappers.Incremental</span></code></a> provides a bridge between Dask and
+Scikit-Learn estimators supporting the <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> API. You wrap the
+underlying estimator in <code class="docutils literal notranslate"><span class="pre">Incremental</span></code>. Dask-ML will sequentially pass each
+block of a Dask Array to the underlying estimator’s <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> method.</p>
+<div class="section" id="incremental-meta-estimator">
+<span id="incremental-blockwise-metaestimator"></span><h2>Incremental Meta-estimator<a class="headerlink" href="#incremental-meta-estimator" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental" title="dask_ml.wrappers.Incremental"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wrappers.Incremental</span></code></a>([estimator,&nbsp;scoring,&nbsp;…])</td>
+<td>Metaestimator for feeding Dask Arrays to an estimator blockwise.</td>
+</tr>
+</tbody>
+</table>
+<p><a class="reference internal" href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental" title="dask_ml.wrappers.Incremental"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.wrappers.Incremental</span></code></a> is a meta-estimator (an estimator that
+takes another estimator) that bridges scikit-learn estimators expecting
+NumPy arrays, and users with large Dask Arrays.</p>
+<p>Each <em>block</em> of a Dask Array is fed to the underlying estiamtor’s
+<code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> method. The training is entirely sequential, so you won’t
+notice massive training time speedups from parallelism. In a distributed
+environment, you should notice some speedup from avoiding extra IO, and the
+fact that models are typically much smaller than data, and so faster to move
+between machines.</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">from</span> <span class="nn">dask_ml.datasets</span> <span class="kn">import</span> <span class="n">make_classification</span>
+
+<span class="gp">In [2]: </span><span class="kn">from</span> <span class="nn">dask_ml.wrappers</span> <span class="kn">import</span> <span class="n">Incremental</span>
+
+<span class="gp">In [3]: </span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">SGDClassifier</span>
+
+<span class="gp">In [4]: </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_classification</span><span class="p">(</span><span class="n">chunks</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+
+<span class="gp">In [5]: </span><span class="n">X</span>
+<span class="gh">Out[5]: </span><span class="go">dask.array&lt;normal, shape=(100, 20), dtype=float64, chunksize=(25, 20)&gt;</span>
+
+<span class="gp">In [6]: </span><span class="n">estimator</span> <span class="o">=</span> <span class="n">SGDClassifier</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="gp">In [7]: </span><span class="n">clf</span> <span class="o">=</span> <span class="n">Incremental</span><span class="p">(</span><span class="n">estimator</span><span class="p">)</span>
+
+<span class="gp">In [8]: </span><span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gh">Out[8]: </span><span class="go"></span>
+<span class="go">Incremental(estimator=SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,</span>
+<span class="go">       eta0=0.0, fit_intercept=True, l1_ratio=0.15,</span>
+<span class="go">       learning_rate=&#39;optimal&#39;, loss=&#39;hinge&#39;, max_iter=100, n_iter=None,</span>
+<span class="go">       n_jobs=1, penalty=&#39;l2&#39;, power_t=0.5, random_state=10, shuffle=True,</span>
+<span class="go">       tol=None, verbose=0, warm_start=False),</span>
+<span class="go">      random_state=None, scoring=None, shuffle_blocks=True)</span>
+</pre></div>
+</div>
+<p>In this example, we make a (small) random Dask Array. It has 100 samples,
+broken in the 4 blocks of 25 samples each. The chunking is only along the
+first axis (the samples). There is no chunking along the features.</p>
+<p>You instantiate the underlying estimator as usual. It really is just a
+scikit-learn compatible estimator, and will be trained normally via its
+<code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>.</p>
+<p>Notice that we call the regular <code class="docutils literal notranslate"><span class="pre">.fit</span></code> method, not <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> for
+training. Dask-ML takes care of passing each block to the underlying estimator
+for you.</p>
+<p>Just like <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html#sklearn.linear_model.SGDClassifier.partial_fit" title="(in scikit-learn v0.19.2)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sklearn.linear_model.SGDClassifier.partial_fit()</span></code></a>, we need to
+pass the <code class="docutils literal notranslate"><span class="pre">classes</span></code> argument to <code class="docutils literal notranslate"><span class="pre">fit</span></code>. In general, any argument that is
+required for the underlying estimators <code class="docutils literal notranslate"><span class="pre">parital_fit</span></code> becomes required for
+the wrapped <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Take care with the behavior of <code class="xref py py-meth docutils literal notranslate"><span class="pre">Incremental.score()</span></code>. Most estimators
+inherit the default scoring methods of R2 score for regressors and accuracy
+score for classifiers. For these estimators, we automatically use Dask-ML’s
+scoring methods, which are able to operate on Dask arrays.</p>
+<p class="last">If your underlying estimator uses a different scoring method, you’ll need
+to ensure that the scoring method is able to operate on Dask arrays. You
+can also explicitly pass <code class="docutils literal notranslate"><span class="pre">scoring=</span></code> to pass a dask-aware scorer.</p>
+</div>
+<p>We can get the accuracy score on our dataset.</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="gh">Out[9]: </span><span class="go">0.71</span>
+</pre></div>
+</div>
+<p>All of the attributes learned durning training, like <code class="docutils literal notranslate"><span class="pre">coef_</span></code>, are available
+on the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> instance.</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
+<span class="gh">Out[10]: </span><span class="go"></span>
+<span class="go">array([[-18.29990477, -14.13504338,  -9.53953676, -34.87336901,</span>
+<span class="go">         -8.33295397, -20.82156665,   2.82282515,  -7.16080588,</span>
+<span class="go">         30.01176634,   1.22616542,  -9.21590229, -17.01900648,</span>
+<span class="go">        -41.48877772,  19.82944321, -52.53080096,  -2.99188032,</span>
+<span class="go">         15.19896282,  15.46873218,   6.72137408,  -5.20325247]])</span>
+</pre></div>
+</div>
+<p>If necessary, the actual estimator trained is available as <code class="docutils literal notranslate"><span class="pre">Incremental.estimator_</span></code></p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [11]: </span><span class="n">clf</span><span class="o">.</span><span class="n">estimator_</span>
+<span class="gh">Out[11]: </span><span class="go"></span>
+<span class="go">SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,</span>
+<span class="go">       eta0=0.0, fit_intercept=True, l1_ratio=0.15,</span>
+<span class="go">       learning_rate=&#39;optimal&#39;, loss=&#39;hinge&#39;, max_iter=100, n_iter=None,</span>
+<span class="go">       n_jobs=1, penalty=&#39;l2&#39;, power_t=0.5, random_state=10, shuffle=True,</span>
+<span class="go">       tol=None, verbose=0, warm_start=False)</span>
+</pre></div>
+</div>
+<div class="section" id="incremental-learning-and-hyper-parameter-optimization">
+<h3>Incremental Learning and Hyper-parameter Optimization<a class="headerlink" href="#incremental-learning-and-hyper-parameter-optimization" title="Permalink to this headline">¶</a></h3>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">Incremental</span></code> is a meta-estimator.
+To search over the hyper-parameters of the underlying estimator, use the usual scikit-learn convention of
+prefixing the parameter name with <code class="docutils literal notranslate"><span class="pre">&lt;name&gt;__</span></code>. For <code class="docutils literal notranslate"><span class="pre">Incremental</span></code>, <code class="docutils literal notranslate"><span class="pre">name</span></code> is always <code class="docutils literal notranslate"><span class="pre">estimator</span></code>.</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [12]: </span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">GridSearchCV</span>
+
+<span class="gp">In [13]: </span><span class="n">param_grid</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;estimator__alpha&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.10</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">]}</span>
+
+<span class="gp">In [14]: </span><span class="n">gs</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">)</span>
+
+<span class="gp">In [15]: </span><span class="n">gs</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gh">Out[15]: </span><span class="go"></span>
+<span class="go">GridSearchCV(cv=None, error_score=&#39;raise&#39;,</span>
+<span class="go">       estimator=Incremental(estimator=SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,</span>
+<span class="go">       eta0=0.0, fit_intercept=True, l1_ratio=0.15,</span>
+<span class="go">       learning_rate=&#39;optimal&#39;, loss=&#39;hinge&#39;, max_iter=100, n_iter=None,</span>
+<span class="go">       n_jobs=1, penalty=&#39;l2&#39;, power_t=0.5, random_state=10, shuffle=True,</span>
+<span class="go">       tol=None, verbose=0, warm_start=False),</span>
+<span class="go">      random_state=None, scoring=None, shuffle_blocks=True),</span>
+<span class="go">       fit_params=None, iid=True, n_jobs=1,</span>
+<span class="go">       param_grid={&#39;estimator__alpha&#39;: [0.1, 10.0]},</span>
+<span class="go">       pre_dispatch=&#39;2*n_jobs&#39;, refit=True, return_train_score=&#39;warn&#39;,</span>
+<span class="go">       scoring=None, verbose=0)</span>
+</pre></div>
+</div>
+<p>This can be mixed with <a class="reference internal" href="joblib.html#joblib"><span class="std std-ref">Joblib</span></a> to use a cluster for training in parallel, even if you’re RAM-bound.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="clustering.html" class="btn btn-neutral float-right" title="Clustering" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="meta-estimators.html" class="btn btn-neutral" title="Parallel Meta-estimators" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Dask developers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

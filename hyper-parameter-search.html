@@ -1,0 +1,410 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Hyper Parameter Search &mdash; dask-ml 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Generalized Linear Models" href="glm.html" />
+    <link rel="prev" title="Cross Validation" href="cross_validation.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> dask-ml
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Get Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Use</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="preprocessing.html">Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cross_validation.html">Cross Validation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Hyper Parameter Search</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#flexible-backends">Flexible Backends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#works-well-with-dask-collections">Works Well With Dask Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#avoid-repeated-work">Avoid Repeated Work</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pipelines">Pipelines</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="glm.html">Generalized Linear Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joblib.html">Joblib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta-estimators.html">Parallel Meta-estimators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="incremental.html">Incremental Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clustering.html">Clustering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xgboost.html">XGBoost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorflow.html">Tensorflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/api.html">API Reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Develop</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">dask-ml</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Hyper Parameter Search</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/hyper-parameter-search.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="hyper-parameter-search">
+<h1>Hyper Parameter Search<a class="headerlink" href="#hyper-parameter-search" title="Permalink to this headline">¶</a></h1>
+<p>Tools for performing hyperparameter optimization of Scikit-Learn API-compatible
+models using Dask. Dask-ML implements GridSearchCV and RandomizedSearchCV.</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v0.19.2)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>(…[,&nbsp;…])</td>
+<td>Exhaustive search over specified parameter values for an estimator.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV" title="dask_ml.model_selection.GridSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.GridSearchCV</span></code></a>(…[,&nbsp;…])</td>
+<td>Exhaustive search over specified parameter values for an estimator.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v0.19.2)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.RandomizedSearchCV</span></code></a>(…)</td>
+<td>Randomized search on hyper parameters.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV" title="dask_ml.model_selection.RandomizedSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.RandomizedSearchCV</span></code></a>(…)</td>
+<td>Randomized search on hyper parameters.</td>
+</tr>
+</tbody>
+</table>
+<p>The varians in Dask-ML implement many (but not all) of the same parameters,
+and should be a drop-in replacement for the subset that they do implement.
+In that case, why use Dask-ML’s versions?</p>
+<ul class="simple">
+<li><a class="reference internal" href="#flexible-backends"><span class="std std-ref">Flexible Backends</span></a>: Hyperparameter
+optimization can be done in parallel using threads, processes, or distributed
+across a cluster.</li>
+<li><a class="reference internal" href="#works-with-dask-collections"><span class="std std-ref">Works well with Dask collections</span></a>. Dask
+arrays, dataframes, and delayed can be passed to <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</li>
+<li><a class="reference internal" href="#avoid-repeated-work"><span class="std std-ref">Avoid repeated work</span></a>. Candidate estimators with
+identical parameters and inputs will only be fit once. For
+composite-estimators such as <code class="docutils literal notranslate"><span class="pre">Pipeline</span></code> this can be significantly more
+efficient as it can avoid expensive repeated computations.</li>
+</ul>
+<p>Both scikit-learn’s and Dask-ML’s model selection meta-estimators can be used
+with Dask’s <a class="reference internal" href="joblib.html#joblib"><span class="std std-ref">joblib backend</span></a>.</p>
+<div class="section" id="flexible-backends">
+<span id="id1"></span><h2>Flexible Backends<a class="headerlink" href="#flexible-backends" title="Permalink to this headline">¶</a></h2>
+<p>Dask-searchcv can use any of the dask schedulers. By default the threaded
+scheduler is used, but this can easily be swapped out for the multiprocessing
+or distributed scheduler:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Distribute grid-search across a cluster</span>
+<span class="kn">from</span> <span class="nn">dask.distributed</span> <span class="kn">import</span> <span class="n">Client</span>
+<span class="n">scheduler_address</span> <span class="o">=</span> <span class="s1">&#39;127.0.0.1:8786&#39;</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">scheduler_address</span><span class="p">)</span>
+
+<span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">digits</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">digits</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="works-well-with-dask-collections">
+<span id="works-with-dask-collections"></span><h2>Works Well With Dask Collections<a class="headerlink" href="#works-well-with-dask-collections" title="Permalink to this headline">¶</a></h2>
+<p>Dask collections such as <code class="docutils literal notranslate"><span class="pre">dask.array</span></code>, <code class="docutils literal notranslate"><span class="pre">dask.dataframe</span></code> and
+<code class="docutils literal notranslate"><span class="pre">dask.delayed</span></code> can be passed to <code class="docutils literal notranslate"><span class="pre">fit</span></code>. This means you can use dask to do
+your data loading and preprocessing as well, allowing for a clean workflow.
+This also allows you to work with remote data on a cluster without ever having
+to pull it locally to your computer:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="kn">as</span> <span class="nn">dd</span>
+
+<span class="c1"># Load data from s3</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;s3://bucket-name/my-data-*.csv&#39;</span><span class="p">)</span>
+
+<span class="c1"># Do some preprocessing steps</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;x2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">df</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="c1"># ...</span>
+
+<span class="c1"># Pass to fit without ever leaving the cluster</span>
+<span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;x2&#39;</span><span class="p">]],</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="avoid-repeated-work">
+<span id="id2"></span><h2>Avoid Repeated Work<a class="headerlink" href="#avoid-repeated-work" title="Permalink to this headline">¶</a></h2>
+<p>When searching over composite estimators like <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code> or
+<code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.FeatureUnion</span></code>, Dask-ML will avoid fitting the same
+estimator + parameter + data combination more than once. For pipelines with
+expensive early steps this can be faster, as repeated work is avoided.</p>
+<p>For example, given the following 3-stage pipeline and grid (modified from <a class="reference external" href="http://scikit-learn.org/stable/auto_examples/model_selection/grid_search_text_feature_extraction.html">this
+scikit-learn example</a>).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">CountVectorizer</span><span class="p">,</span> <span class="n">TfidfTransformer</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">SGDClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+
+<span class="n">pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([(</span><span class="s1">&#39;vect&#39;</span><span class="p">,</span> <span class="n">CountVectorizer</span><span class="p">()),</span>
+                     <span class="p">(</span><span class="s1">&#39;tfidf&#39;</span><span class="p">,</span> <span class="n">TfidfTransformer</span><span class="p">()),</span>
+                     <span class="p">(</span><span class="s1">&#39;clf&#39;</span><span class="p">,</span> <span class="n">SGDClassifier</span><span class="p">())])</span>
+
+<span class="n">grid</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;vect__ngram_range&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)],</span>
+        <span class="s1">&#39;tfidf__norm&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;l1&#39;</span><span class="p">,</span> <span class="s1">&#39;l2&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;clf__alpha&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">,</span> <span class="mf">1e-5</span><span class="p">]}</span>
+</pre></div>
+</div>
+<p>the Scikit-Learn grid-search implementation looks something like (simplified):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">ngram_range</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;vect__ngram_range&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">norm</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;tfidf__norm&#39;</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">alpha</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;clf__alpha&#39;</span><span class="p">]:</span>
+                        <span class="n">vect</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">ngram_range</span><span class="o">=</span><span class="n">ngram_range</span><span class="p">)</span>
+                        <span class="n">X2</span> <span class="o">=</span> <span class="n">vect</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+                        <span class="n">tfidf</span> <span class="o">=</span> <span class="n">TfidfTransformer</span><span class="p">(</span><span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">)</span>
+                        <span class="n">X3</span> <span class="o">=</span> <span class="n">tfidf</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X2</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+                        <span class="n">clf</span> <span class="o">=</span> <span class="n">SGDClassifier</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+                        <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X3</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+                        <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X3</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+<span class="n">best</span> <span class="o">=</span> <span class="n">choose_best_parameters</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>As a directed acyclic graph, this might look like:</p>
+<div class="figure align-center">
+<img alt="&quot;scikit-learn grid-search directed acyclic graph&quot;" src="_images/unmerged_grid_search_graph.svg" /></div>
+<p>In contrast, the dask version looks more like:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">ngram_range</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;vect__ngram_range&#39;</span><span class="p">]:</span>
+        <span class="n">vect</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">ngram_range</span><span class="o">=</span><span class="n">ngram_range</span><span class="p">)</span>
+        <span class="n">X2</span> <span class="o">=</span> <span class="n">vect</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">norm</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;tfidf__norm&#39;</span><span class="p">]:</span>
+                <span class="n">tfidf</span> <span class="o">=</span> <span class="n">TfidfTransformer</span><span class="p">(</span><span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">)</span>
+                <span class="n">X3</span> <span class="o">=</span> <span class="n">tfidf</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X2</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">alpha</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;clf__alpha&#39;</span><span class="p">]:</span>
+                        <span class="n">clf</span> <span class="o">=</span> <span class="n">SGDClassifier</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+                        <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X3</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+                        <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X3</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+<span class="n">best</span> <span class="o">=</span> <span class="n">choose_best_parameters</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">parameters</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>With a corresponding directed acyclic graph:</p>
+<div class="figure align-center">
+<img alt="&quot;Dask-ML grid-search directed acyclic graph&quot;" src="_images/merged_grid_search_graph.svg" /></div>
+<p>Looking closely, you can see that the Scikit-Learn version ends up fitting
+earlier steps in the pipeline multiple times with the same parameters and data.
+Due to the increased flexibility of Dask over Joblib, we’re able to merge these
+tasks in the graph and only perform the fit step once for any
+parameter/data/estimator combination. For pipelines that have relatively
+expensive early steps, this can be a big win when performing a grid search.</p>
+<div class="section" id="pipelines">
+<h3>Pipelines<a class="headerlink" href="#pipelines" title="Permalink to this headline">¶</a></h3>
+<p>Dask-ML uses scikit-learn’s <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.19.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a> to express
+pipelines of estimators that are chained together. If the individual
+estimators work well with Dask’s collections, the pipeline will as well.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="glm.html" class="btn btn-neutral float-right" title="Generalized Linear Models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="cross_validation.html" class="btn btn-neutral" title="Cross Validation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Dask developers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

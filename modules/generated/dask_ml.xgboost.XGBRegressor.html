@@ -1,0 +1,538 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dask_ml.xgboost.XGBRegressor &mdash; dask-ml 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dask_ml.xgboost.train" href="dask_ml.xgboost.train.html" />
+    <link rel="prev" title="dask_ml.xgboost.XGBClassifier" href="dask_ml.xgboost.XGBClassifier.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> dask-ml
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Get Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Use</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../preprocessing.html">Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cross_validation.html">Cross Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hyper-parameter-search.html">Hyper Parameter Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glm.html">Generalized Linear Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../joblib.html">Joblib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../meta-estimators.html">Parallel Meta-estimators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../incremental.html">Incremental Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../clustering.html">Clustering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../xgboost.html">XGBoost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tensorflow.html">Tensorflow</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.model_selection"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>: Model Selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.linear_model"><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>: Generalized Linear Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#meta-estimators-for-scikit-learn">Meta-estimators for scikit-learn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.cluster"><code class="docutils literal notranslate"><span class="pre">dask_ml.cluster</span></code>: Clustering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.decomposition"><code class="docutils literal notranslate"><span class="pre">dask_ml.decomposition</span></code>: Matrix Decomposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.preprocessing"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>: Preprocessing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-metrics-metrics"><code class="docutils literal notranslate"><span class="pre">dask_ml.metrics</span></code>: Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.tensorflow"><code class="docutils literal notranslate"><span class="pre">dask_ml.tensorflow</span></code>: Tensorflow</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#module-dask_ml.xgboost"><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code>: XGBoost</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="dask_ml.xgboost.XGBClassifier.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code>.XGBClassifier</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code>.XGBRegressor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dask_ml.xgboost.train.html">dask_ml.xgboost.train</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dask_ml.xgboost.predict.html">dask_ml.xgboost.predict</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Develop</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">dask-ml</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../api.html">API Reference</a> &raquo;</li>
+        
+      <li><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code>.XGBRegressor</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/modules/generated/dask_ml.xgboost.XGBRegressor.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="dask-ml-xgboost-xgbregressor">
+<h1><a class="reference internal" href="../api.html#module-dask_ml.xgboost" title="dask_ml.xgboost"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code></a>.XGBRegressor<a class="headerlink" href="#dask-ml-xgboost-xgbregressor" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="dask_ml.xgboost.XGBRegressor">
+<em class="property">class </em><code class="descclassname">dask_ml.xgboost.</code><code class="descname">XGBRegressor</code><span class="sig-paren">(</span><em>max_depth=3</em>, <em>learning_rate=0.1</em>, <em>n_estimators=100</em>, <em>silent=True</em>, <em>objective='reg:linear'</em>, <em>booster='gbtree'</em>, <em>n_jobs=1</em>, <em>nthread=None</em>, <em>gamma=0</em>, <em>min_child_weight=1</em>, <em>max_delta_step=0</em>, <em>subsample=1</em>, <em>colsample_bytree=1</em>, <em>colsample_bylevel=1</em>, <em>reg_alpha=0</em>, <em>reg_lambda=1</em>, <em>scale_pos_weight=1</em>, <em>base_score=0.5</em>, <em>random_state=0</em>, <em>seed=None</em>, <em>missing=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.feature_importances_" title="dask_ml.xgboost.XGBRegressor.feature_importances_"><code class="xref py py-obj docutils literal notranslate"><span class="pre">feature_importances_</span></code></a></dt>
+<dd><p class="first last">Returns</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.apply" title="dask_ml.xgboost.XGBRegressor.apply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply</span></code></a>(X[,&nbsp;ntree_limit])</td>
+<td>Return the predicted leaf every tree for each sample.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.evals_result" title="dask_ml.xgboost.XGBRegressor.evals_result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evals_result</span></code></a>()</td>
+<td>Return the evaluation results.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.fit" title="dask_ml.xgboost.XGBRegressor.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X[,&nbsp;y])</td>
+<td>Fit the gradient boosting model</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.get_booster" title="dask_ml.xgboost.XGBRegressor.get_booster"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_booster</span></code></a>()</td>
+<td>Get the underlying xgboost Booster of this model.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.get_params" title="dask_ml.xgboost.XGBRegressor.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</td>
+<td>Get parameters.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.get_xgb_params" title="dask_ml.xgboost.XGBRegressor.get_xgb_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_xgb_params</span></code></a>()</td>
+<td>Get xgboost type parameters.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.score" title="dask_ml.xgboost.XGBRegressor.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(X,&nbsp;y[,&nbsp;sample_weight])</td>
+<td>Returns the coefficient of determination R^2 of the prediction.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.set_params" title="dask_ml.xgboost.XGBRegressor.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</td>
+<td>Set the parameters of this estimator.</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="52%" />
+<col width="48%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>predict</strong></td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="dask_ml.xgboost.XGBRegressor.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>max_depth=3</em>, <em>learning_rate=0.1</em>, <em>n_estimators=100</em>, <em>silent=True</em>, <em>objective='reg:linear'</em>, <em>booster='gbtree'</em>, <em>n_jobs=1</em>, <em>nthread=None</em>, <em>gamma=0</em>, <em>min_child_weight=1</em>, <em>max_delta_step=0</em>, <em>subsample=1</em>, <em>colsample_bytree=1</em>, <em>colsample_bylevel=1</em>, <em>reg_alpha=0</em>, <em>reg_lambda=1</em>, <em>scale_pos_weight=1</em>, <em>base_score=0.5</em>, <em>random_state=0</em>, <em>seed=None</em>, <em>missing=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.xgboost.XGBRegressor.apply">
+<code class="descname">apply</code><span class="sig-paren">(</span><em>X</em>, <em>ntree_limit=0</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.apply" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the predicted leaf every tree for each sample.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, shape=[n_samples, n_features]</span></dt>
+<dd><p class="first last">Input features matrix.</p>
+</dd>
+<dt><strong>ntree_limit</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">Limit number of trees in the prediction; defaults to 0 (use all trees).</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>X_leaves</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, shape=[n_samples, n_trees]</span></dt>
+<dd><p class="first last">For each datapoint x in X and for each tree, return the index of the
+leaf x ends up in. Leaves are numbered within
+<code class="docutils literal notranslate"><span class="pre">[0;</span> <span class="pre">2**(self.max_depth+1))</span></code>, possibly with gaps in the numbering.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.xgboost.XGBRegressor.evals_result">
+<code class="descname">evals_result</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.evals_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the evaluation results.</p>
+<p>If eval_set is passed to the <cite>fit</cite> function, you can call evals_result() to
+get evaluation results for all passed eval_sets. When eval_metric is also
+passed to the <cite>fit</cite> function, the evals_result will contain the eval_metrics
+passed to the <cite>fit</cite> function</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>evals_result</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dictionary</span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dask_ml.xgboost.XGBRegressor.feature_importances_">
+<code class="descname">feature_importances_</code><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.feature_importances_" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>feature_importances_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array of shape = [n_features]</span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.xgboost.XGBRegressor.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the gradient boosting model</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like [n_samples, n_features]</span></dt>
+<dd></dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like</span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">the fitted Regressor</span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This differs from the XGBoost version not supporting the <code class="docutils literal notranslate"><span class="pre">eval_set</span></code>,
+<code class="docutils literal notranslate"><span class="pre">eval_metric</span></code>, <code class="docutils literal notranslate"><span class="pre">early_stopping_rounds</span></code> and <code class="docutils literal notranslate"><span class="pre">verbose</span></code> fit
+kwargs.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.xgboost.XGBRegressor.get_booster">
+<code class="descname">get_booster</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.get_booster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the underlying xgboost Booster of this model.</p>
+<p>This will raise an exception when fit was not called</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>booster</strong> <span class="classifier-delimiter">:</span> <span class="classifier">a xgboost booster of underlying model</span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.xgboost.XGBRegressor.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.xgboost.XGBRegressor.get_xgb_params">
+<code class="descname">get_xgb_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.get_xgb_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get xgboost type parameters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.xgboost.XGBRegressor.score">
+<code class="descname">score</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the coefficient of determination R^2 of the prediction.</p>
+<p>The coefficient R^2 is defined as (1 - u/v), where u is the residual
+sum of squares ((y_true - y_pred) ** 2).sum() and v is the total
+sum of squares ((y_true - y_true.mean()) ** 2).sum().
+The best possible score is 1.0 and it can be negative (because the
+model can be arbitrarily worse). A constant model that always
+predicts the expected value of y, disregarding the input features,
+would get a R^2 score of 0.0.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = (n_samples, n_features)</span></dt>
+<dd><p class="first last">Test samples.</p>
+</dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = (n_samples) or (n_samples, n_outputs)</span></dt>
+<dd><p class="first last">True values for X.</p>
+</dd>
+<dt><strong>sample_weight</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples], optional</span></dt>
+<dd><p class="first last">Sample weights.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>score</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">R^2 of self.predict(X) wrt. y.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.xgboost.XGBRegressor.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters of this estimator.</p>
+<p>The method works on simple estimators as well as on nested objects
+(such as pipelines). The latter have parameters of the form
+<code class="docutils literal notranslate"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it’s possible to update each
+component of a nested object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>self</strong></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<div class="clearer"></div></div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dask_ml.xgboost.train.html" class="btn btn-neutral float-right" title="dask_ml.xgboost.train" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="dask_ml.xgboost.XGBClassifier.html" class="btn btn-neutral" title="dask_ml.xgboost.XGBClassifier" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Dask developers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,16 @@
+:mod:`dask_ml.model_selection`.ShuffleSplit
+==================================================
+
+.. currentmodule:: dask_ml.model_selection
+
+.. autoclass:: ShuffleSplit
+
+   
+   .. automethod:: __init__
+   
+
+.. include:: dask_ml.model_selection.ShuffleSplit.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>

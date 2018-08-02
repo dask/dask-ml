@@ -1,0 +1,16 @@
+:mod:`dask_ml.preprocessing`.MinMaxScaler
+================================================
+
+.. currentmodule:: dask_ml.preprocessing
+
+.. autoclass:: MinMaxScaler
+
+   
+   .. automethod:: __init__
+   
+
+.. include:: dask_ml.preprocessing.MinMaxScaler.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>

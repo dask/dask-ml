@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>&lt;no title&gt; &mdash; dask-ml 0.1 documentation</title>
+  <title>Examples &mdash; dask-ml 0.1 documentation</title>
   
 
   
@@ -24,27 +24,20 @@
 
   
 
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="dask-ml 0.1 documentation" href="index.html"/>
-        <link rel="next" title="Hyper-parameter Search" href="examples/hyperparameter-search.html"/>
-        <link rel="prev" title="Distributed Learning" href="distributed.html"/> 
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Distributed Scikit-Learn for CPU Bound Problems" href="examples/distributed-scikit-learn-for-cpu-bound-problems.html" />
+    <link rel="prev" title="Installation" href="install.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -86,16 +79,39 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Get Started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/distributed-scikit-learn-for-cpu-bound-problems.html">Distributed Scikit-Learn for CPU Bound Problems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/parallel-prediction.html">Parallel and Out-of-core Prediction and Scoring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/training-on-large-datasets.html">Training on Large Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/incremental.html">Incremental training of large datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/xgboost.html">Dask and XGBoost</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/tensorflow.html">Dask and Tensorflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/text-vectorization.html">Text Vectorization Example</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Use</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="single-machine.html">Single Machine</a></li>
-<li class="toctree-l1"><a class="reference internal" href="distributed.html">Distributed Learning</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/hyperparameter-search.html">Hyper-parameter Search</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/joblib-distributed.html">Distributed Joblib</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/predict.html">Out-of-core Prediction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/dask-glm.html">Dask GLM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/xgboost.html">Dask and XGBoost</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/tensorflow.html">Dask and Tensorflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preprocessing.html">Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cross_validation.html">Cross Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hyper-parameter-search.html">Hyper Parameter Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glm.html">Generalized Linear Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joblib.html">Joblib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta-estimators.html">Parallel Meta-estimators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="incremental.html">Incremental Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clustering.html">Clustering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xgboost.html">XGBoost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorflow.html">Tensorflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/api.html">API Reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Develop</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
 </ul>
 
             
@@ -107,7 +123,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">dask-ml</a>
@@ -115,9 +131,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -140,7 +157,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>&lt;no title&gt;</li>
+      <li>Examples</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -174,64 +191,45 @@
     margin-top: -19px;
 }
 
-/* nice headers on first paragraph of info/warning boxes */
-.admonition .first {
-    margin: -12px;
-    padding: 6px 12px;
-    margin-bottom: 12px;
-    color: #fff;
-    line-height: 1;
-    display: block;
-}
-.admonition.warning .first {
-    background: #f0b37e;
-}
-.admonition.note .first {
-    background: #6ab0de;
-}
 .admonition > p:before {
     margin-right: 4px;  /* make room for the exclamation icon */
 }
 </style>
-<p>This is set of runnable Jupyter notebooks.</p>
+<div class="section" id="examples">
+<span id="id1"></span><h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<p>This is a set of runnable examples demonstrating how to <em>use</em> Dask-ML.</p>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="examples/hyperparameter-search.html">Hyper-parameter Search</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples/hyperparameter-search.html#Grid-Search">Grid Search</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/hyperparameter-search.html#Randomized-Search">Randomized Search</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/hyperparameter-search.html#Avoid-Repeated-Work">Avoid Repeated Work</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="examples/joblib-distributed.html">Distributed Joblib</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/predict.html">Out-of-core Prediction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/dask-glm.html">Dask GLM</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples/dask-glm.html#Pipelines">Pipelines</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/dask-glm.html#Grid-Search">Grid Search</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="examples/xgboost.html">Dask and XGBoost</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples/xgboost.html#Split-and-Train">Split and Train</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="examples/distributed-scikit-learn-for-cpu-bound-problems.html">Distributed Scikit-Learn for CPU Bound Problems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/parallel-prediction.html">Parallel and Out-of-core Prediction and Scoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/training-on-large-datasets.html">Training on Large Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/incremental.html">Incremental training of large datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/xgboost.html">Dask and XGBoost</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples/tensorflow.html">Dask and Tensorflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/text-vectorization.html">Text Vectorization Example</a></li>
+</ul>
+</div>
+<p>We also have sets of</p>
+<ul class="simple">
+<li>examples in the <a class="reference external" href="https://www.github.com/dask/dask-examples">dask-examples</a> repository, which has machine learning
+examples that can be launched online with Binder.</li>
+<li>Dask-ML performance benchmarks in the <a class="reference external" href="https://dask-ml-benchmarks.readthedocs.io">dask-ml-benchmarks</a> repository</li>
 </ul>
 </div>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="examples/hyperparameter-search.html" class="btn btn-neutral float-right" title="Hyper-parameter Search" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="examples/distributed-scikit-learn-for-cpu-bound-problems.html" class="btn btn-neutral float-right" title="Distributed Scikit-Learn for CPU Bound Problems" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="distributed.html" class="btn btn-neutral" title="Distributed Learning" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="install.html" class="btn btn-neutral" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -244,7 +242,7 @@
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -263,6 +261,7 @@
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
             VERSION:'0.1',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -272,23 +271,17 @@
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

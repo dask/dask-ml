@@ -1,0 +1,16 @@
+:mod:`dask_ml.decomposition`.TruncatedSVD
+================================================
+
+.. currentmodule:: dask_ml.decomposition
+
+.. autoclass:: TruncatedSVD
+
+   
+   .. automethod:: __init__
+   
+
+.. include:: dask_ml.decomposition.TruncatedSVD.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>

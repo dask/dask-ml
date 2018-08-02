@@ -1,0 +1,16 @@
+:mod:`dask_ml.xgboost`.XGBClassifier
+===========================================
+
+.. currentmodule:: dask_ml.xgboost
+
+.. autoclass:: XGBClassifier
+
+   
+   .. automethod:: __init__
+   
+
+.. include:: dask_ml.xgboost.XGBClassifier.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>

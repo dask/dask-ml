@@ -1,0 +1,16 @@
+:mod:`dask_ml.preprocessing`.OrdinalEncoder
+==================================================
+
+.. currentmodule:: dask_ml.preprocessing
+
+.. autoclass:: OrdinalEncoder
+
+   
+   .. automethod:: __init__
+   
+
+.. include:: dask_ml.preprocessing.OrdinalEncoder.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>

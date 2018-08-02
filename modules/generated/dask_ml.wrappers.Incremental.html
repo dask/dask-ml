@@ -1,0 +1,626 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dask_ml.wrappers.Incremental &mdash; dask-ml 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dask_ml.cluster.KMeans" href="dask_ml.cluster.KMeans.html" />
+    <link rel="prev" title="dask_ml.wrappers.ParallelPostFit" href="dask_ml.wrappers.ParallelPostFit.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> dask-ml
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Get Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Use</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../preprocessing.html">Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cross_validation.html">Cross Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hyper-parameter-search.html">Hyper Parameter Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glm.html">Generalized Linear Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../joblib.html">Joblib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../meta-estimators.html">Parallel Meta-estimators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../incremental.html">Incremental Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../clustering.html">Clustering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../xgboost.html">XGBoost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tensorflow.html">Tensorflow</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.model_selection"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>: Model Selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.linear_model"><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>: Generalized Linear Models</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#meta-estimators-for-scikit-learn">Meta-estimators for scikit-learn</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="dask_ml.wrappers.ParallelPostFit.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.wrappers</span></code>.ParallelPostFit</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.wrappers</span></code>.Incremental</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.cluster"><code class="docutils literal notranslate"><span class="pre">dask_ml.cluster</span></code>: Clustering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.decomposition"><code class="docutils literal notranslate"><span class="pre">dask_ml.decomposition</span></code>: Matrix Decomposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.preprocessing"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>: Preprocessing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-metrics-metrics"><code class="docutils literal notranslate"><span class="pre">dask_ml.metrics</span></code>: Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.tensorflow"><code class="docutils literal notranslate"><span class="pre">dask_ml.tensorflow</span></code>: Tensorflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.xgboost"><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code>: XGBoost</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Develop</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">dask-ml</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../api.html">API Reference</a> &raquo;</li>
+        
+      <li><code class="docutils literal notranslate"><span class="pre">dask_ml.wrappers</span></code>.Incremental</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/modules/generated/dask_ml.wrappers.Incremental.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="dask-ml-wrappers-incremental">
+<h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.wrappers</span></code>.Incremental<a class="headerlink" href="#dask-ml-wrappers-incremental" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="dask_ml.wrappers.Incremental">
+<em class="property">class </em><code class="descclassname">dask_ml.wrappers.</code><code class="descname">Incremental</code><span class="sig-paren">(</span><em>estimator=None</em>, <em>scoring=None</em>, <em>shuffle_blocks=True</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental" title="Permalink to this definition">¶</a></dt>
+<dd><p>Metaestimator for feeding Dask Arrays to an estimator blockwise.</p>
+<p>This wrapper provides a bridge between Dask objects and estimators
+implementing the <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> API. These <em>incremental learners</em> can
+train on batches of data. This fits well with Dask’s blocked data
+structures.</p>
+<p>See the <a class="reference external" href="http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning#noqa">list of incremental learners</a> in the scikit-learn documentation
+for a list of estimators that implement the <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> API. Note that
+<cite>Incremental</cite> is not limited to just these classes, it will work on any
+estimator implementing <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>, including those defined outside of
+scikit-learn itself.</p>
+<p>Calling <a class="reference internal" href="#dask_ml.wrappers.Incremental.fit" title="dask_ml.wrappers.Incremental.fit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Incremental.fit()</span></code></a> with a Dask Array will pass each block of
+the Dask array or arrays to <code class="docutils literal notranslate"><span class="pre">estimator.partial_fit</span></code> <em>sequentially</em>.</p>
+<p>Like <a class="reference internal" href="dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit" title="dask_ml.wrappers.ParallelPostFit"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParallelPostFit</span></code></a>, the methods available after fitting (e.g.
+<a class="reference internal" href="#dask_ml.wrappers.Incremental.predict" title="dask_ml.wrappers.Incremental.predict"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Incremental.predict()</span></code></a>, etc.) are all parallel and delayed.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">estimator_</span></code> attribute is a clone of <cite>estimator</cite> that was actually
+used during the call to <code class="docutils literal notranslate"><span class="pre">fit</span></code>. All attributes learned during training
+are available on <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> directly.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>estimator</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Estimator</span></dt>
+<dd><p class="first last">Any object supporting the scikit-learn <code class="docutils literal notranslate"><span class="pre">parital_fit</span></code> API.</p>
+</dd>
+<dt><strong>scoring</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string or callable, optional</span></dt>
+<dd><p class="first">A single string (see <a class="reference external" href="http://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter" title="(in scikit-learn v0.19.2)"><span>The scoring parameter: defining model evaluation rules</span></a>) or a callable
+(see <a class="reference external" href="http://scikit-learn.org/stable/modules/model_evaluation.html#scoring" title="(in scikit-learn v0.19.2)"><span>Defining your scoring strategy from metric functions</span></a>) to evaluate the predictions on the test set.</p>
+<p>For evaluating multiple metrics, either give a list of (unique)
+strings or a dict with names as keys and callables as values.</p>
+<p>NOTE that when using custom scorers, each scorer should return a
+single value. Metric functions returning a list/array of values
+can be wrapped into multiple scorers that return one value each.</p>
+<p>See <a class="reference external" href="http://scikit-learn.org/stable/modules/grid_search.html#multimetric-grid-search" title="(in scikit-learn v0.19.2)"><span>Specifying multiple metrics for evaluation</span></a> for an example.</p>
+<div class="last admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">If None, the estimator’s default scorer (if available) is used.
+Most scikit-learn estimators will convert large Dask arrays to
+a single NumPy array, which may exhaust the memory of your worker.
+You probably want to always specify <cite>scoring</cite>.</p>
+</div>
+</dd>
+<dt><strong>random_state</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int or numpy.random.RandomState, optional</span></dt>
+<dd><p class="first last">Random object that determines how to shuffle blocks.</p>
+</dd>
+<dt><strong>shuffle_blocks</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default True</span></dt>
+<dd><p class="first last">Determines whether to call <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> on a randomly selected chunk
+of the Dask arrays (default), or to fit in sequential order. This does
+not control shuffle between blocks or shuffling each block.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>estimator_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Estimator</span></dt>
+<dd><p class="first last">A clone of <cite>estimator</cite> that was actually fit during the <code class="docutils literal notranslate"><span class="pre">.fit</span></code> call.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit" title="dask_ml.wrappers.ParallelPostFit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ParallelPostFit</span></code></a></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dask_ml.wrappers</span> <span class="k">import</span> <span class="n">Incremental</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dask_ml.datasets</span> <span class="k">import</span> <span class="n">make_classification</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">sklearn.linear_model</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_classification</span><span class="p">(</span><span class="n">chunks</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">est</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">linear_model</span><span class="o">.</span><span class="n">SGDClassifier</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span> <span class="o">=</span> <span class="n">Incremental</span><span class="p">(</span><span class="n">est</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s1">&#39;accuracy&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>When used inside a grid search, prefix the underlying estimator’s
+parameter names with <code class="docutils literal notranslate"><span class="pre">estimator__</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="k">import</span> <span class="n">GridSearchCV</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">param_grid</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;estimator__alpha&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">]}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gs</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gs</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.wrappers.Incremental.fit" title="dask_ml.wrappers.Incremental.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X[,&nbsp;y])</td>
+<td>Fit the underlying estimator.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.wrappers.Incremental.get_params" title="dask_ml.wrappers.Incremental.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</td>
+<td>Get parameters for this estimator.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.wrappers.Incremental.partial_fit" title="dask_ml.wrappers.Incremental.partial_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_fit</span></code></a>(X[,&nbsp;y])</td>
+<td>Fit the underlying estimator.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.wrappers.Incremental.predict" title="dask_ml.wrappers.Incremental.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(X)</td>
+<td>Predict for X.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.wrappers.Incremental.predict_proba" title="dask_ml.wrappers.Incremental.predict_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_proba</span></code></a>(X)</td>
+<td>Predict for X.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.wrappers.Incremental.score" title="dask_ml.wrappers.Incremental.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(X,&nbsp;y)</td>
+<td>Returns the score on the given data.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.wrappers.Incremental.set_params" title="dask_ml.wrappers.Incremental.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</td>
+<td>Set the parameters of this estimator.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.wrappers.Incremental.transform" title="dask_ml.wrappers.Incremental.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(X)</td>
+<td>Transform block or partition-wise for dask inputs.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="dask_ml.wrappers.Incremental.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>estimator=None</em>, <em>scoring=None</em>, <em>shuffle_blocks=True</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.wrappers.Incremental.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em>, <em>**fit_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the underlying estimator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X, y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like</span></dt>
+<dd></dd>
+<dt><strong>**kwargs</strong></dt>
+<dd><p class="first last">Additional fit-kwargs for the underlying estimator.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.wrappers.Incremental.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameters for this estimator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span></dt>
+<dd><p class="first last">If True, will return the parameters for this estimator and
+contained subobjects that are estimators.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">mapping of string to any</span></dt>
+<dd><p class="first last">Parameter names mapped to their values.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.wrappers.Incremental.partial_fit">
+<code class="descname">partial_fit</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em>, <em>**fit_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.partial_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the underlying estimator.</p>
+<p>If this estimator has not been previously fit, this is identical to
+<a class="reference internal" href="#dask_ml.wrappers.Incremental.fit" title="dask_ml.wrappers.Incremental.fit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Incremental.fit()</span></code></a>. If it has been previously fit,
+<code class="docutils literal notranslate"><span class="pre">self.estimator_</span></code> is used as the starting point.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X, y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like</span></dt>
+<dd></dd>
+<dt><strong>**kwargs</strong></dt>
+<dd><p class="first last">Additional fit-kwargs for the underlying estimator.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.wrappers.Incremental.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict for X.</p>
+<p>For dask inputs, a dask array or dataframe is returned. For other
+inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
+regular return value is returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like</span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like</span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.wrappers.Incremental.predict_proba">
+<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict for X.</p>
+<p>For dask inputs, a dask array or dataframe is returned. For other
+inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
+regular return value is returned.</p>
+<p>If the underlying estimator does not have a <code class="docutils literal notranslate"><span class="pre">predict_proba</span></code>
+method, then an <code class="docutils literal notranslate"><span class="pre">AttributeError</span></code> is raised.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array or dataframe</span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like</span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.wrappers.Incremental.score">
+<code class="descname">score</code><span class="sig-paren">(</span><em>X</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the score on the given data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples, n_features]</span></dt>
+<dd><p class="first last">Input data, where n_samples is the number of samples and
+n_features is the number of features.</p>
+</dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples] or [n_samples, n_output], optional</span></dt>
+<dd><p class="first last">Target relative to X for classification or regression;
+None for unsupervised learning.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>score</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">return self.estimator.score(X, y)</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.wrappers.Incremental.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters of this estimator.</p>
+<p>The method works on simple estimators as well as on nested objects
+(such as pipelines). The latter have parameters of the form
+<code class="docutils literal notranslate"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it’s possible to update each
+component of a nested object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>self</strong></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.wrappers.Incremental.transform">
+<code class="descname">transform</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform block or partition-wise for dask inputs.</p>
+<p>For dask inputs, a dask array or dataframe is returned. For other
+inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
+regular return value is returned.</p>
+<p>If the underlying estimator does not have a <code class="docutils literal notranslate"><span class="pre">transform</span></code> method, then
+an <code class="docutils literal notranslate"><span class="pre">AttributeError</span></code> is raised.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like</span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>transformed</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like</span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<div class="clearer"></div></div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dask_ml.cluster.KMeans.html" class="btn btn-neutral float-right" title="dask_ml.cluster.KMeans" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="dask_ml.wrappers.ParallelPostFit.html" class="btn btn-neutral" title="dask_ml.wrappers.ParallelPostFit" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Dask developers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

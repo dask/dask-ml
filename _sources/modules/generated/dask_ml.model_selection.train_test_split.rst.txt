@@ -1,0 +1,6 @@
+dask\_ml.model\_selection.train\_test\_split
+============================================
+
+.. currentmodule:: dask_ml.model_selection
+
+.. autofunction:: train_test_split

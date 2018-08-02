@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask-ml &mdash; dask-ml 0.1 documentation</title>
+  <title>Dask-ML &mdash; dask-ml 0.1 documentation</title>
   
 
   
@@ -24,26 +24,19 @@
 
   
 
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="genindex.html"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="dask-ml 0.1 documentation" href="#"/>
-        <link rel="next" title="Single Machine" href="single-machine.html"/> 
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation" href="install.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -85,16 +78,30 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Get Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="single-machine.html">Single Machine</a></li>
-<li class="toctree-l1"><a class="reference internal" href="distributed.html">Distributed Learning</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/hyperparameter-search.html">Hyper-parameter Search</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/joblib-distributed.html">Distributed Joblib</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/predict.html">Out-of-core Prediction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/dask-glm.html">Dask GLM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/xgboost.html">Dask and XGBoost</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/tensorflow.html">Dask and Tensorflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Use</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="preprocessing.html">Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cross_validation.html">Cross Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hyper-parameter-search.html">Hyper Parameter Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glm.html">Generalized Linear Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joblib.html">Joblib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta-estimators.html">Parallel Meta-estimators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="incremental.html">Incremental Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clustering.html">Clustering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xgboost.html">XGBoost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorflow.html">Tensorflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/api.html">API Reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Develop</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
 </ul>
 
             
@@ -106,7 +113,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="#">dask-ml</a>
@@ -114,9 +121,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -139,7 +147,7 @@
     
       <li><a href="#">Docs</a> &raquo;</li>
         
-      <li>dask-ml</li>
+      <li>Dask-ML</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -173,102 +181,109 @@
     margin-top: -19px;
 }
 
-/* nice headers on first paragraph of info/warning boxes */
-.admonition .first {
-    margin: -12px;
-    padding: 6px 12px;
-    margin-bottom: 12px;
-    color: #fff;
-    line-height: 1;
-    display: block;
-}
-.admonition.warning .first {
-    background: #f0b37e;
-}
-.admonition.note .first {
-    background: #6ab0de;
-}
 .admonition > p:before {
     margin-right: 4px;  /* make room for the exclamation icon */
 }
 </style>
 <div class="section" id="dask-ml">
-<h1>dask-ml<a class="headerlink" href="#dask-ml" title="Permalink to this headline">¶</a></h1>
-<p>This is a repository to collect all the ways dask can be used in parallel and
-distributed machine learning workflows. There are quite a few options, and the
-best one depends on your goals, data, and available compute.</p>
-<div class="section" id="existing-tools">
-<h2>Existing Tools<a class="headerlink" href="#existing-tools" title="Permalink to this headline">¶</a></h2>
-<p>Dask can already be used to parallelize or distribute workflows using other
-libraries like scikit-learn (with joblib), xgboost, dask-glm, or tensorflow.</p>
-<div class="section" id="single-machine">
-<h3>Single Machine<a class="headerlink" href="#single-machine" title="Permalink to this headline">¶</a></h3>
-<p>If your computation fits on a single machine, you may be able to use dask to
-speed up the computation. See <a class="reference internal" href="single-machine.html#single-machine"><span class="std std-ref">Single Machine</span></a>.</p>
+<span id="id1"></span><h1>Dask-ML<a class="headerlink" href="#dask-ml" title="Permalink to this headline">¶</a></h1>
+<p>Dask-ML provides scalable machine learning in Python using <a class="reference external" href="https://dask.pydata.org/">Dask</a> alongside
+popular machine learning libraries like <a class="reference external" href="http://scikit-learn.org/">Scikit-Learn</a>.</p>
+<p>You can try Dask-ML on a small cloud instance by clicking the following button:</p>
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/dask/dask-examples/master?filepath=machine-learning.ipynb"><img alt="https://mybinder.org/badge.svg" src="https://mybinder.org/badge.svg" /></a>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="kn">as</span> <span class="nn">dd</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">&#39;...&#39;</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="s1">&#39;income&#39;</span><span class="p">,</span> <span class="s1">&#39;married&#39;</span><span class="p">]]</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;outcome&#39;</span><span class="p">]</span>
+
+<span class="kn">from</span> <span class="nn">dask_ml.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">()</span>
+<span class="n">lr</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+</pre></div>
 </div>
-<div class="section" id="distributed-learning">
-<h3>Distributed Learning<a class="headerlink" href="#distributed-learning" title="Permalink to this headline">¶</a></h3>
-<p>Dask can help in cases where you’d like to fit a model on a dataset that doesn’t
-fit in memory. You can either use a library like <a class="reference external" href="http://dask-glm.readthedocs.io/">dask-glm</a>, that’s built on top
-of dask, or use another distributed machine learning framework like <a class="reference external" href="https://xgboost.readthedocs.io/">XGBoost</a> or <a class="reference external" href="https://www.tensorflow.org/">tensorflow</a>.
-See <a class="reference internal" href="distributed.html#distributed"><span class="std std-ref">Distributed Learning</span></a>.</p>
+<div class="section" id="what-does-this-offer">
+<h2>What does this offer?<a class="headerlink" href="#what-does-this-offer" title="Permalink to this headline">¶</a></h2>
+<p>See the navigation pane to the left for a list of categories of
+functionality.</p>
+</div>
+<div class="section" id="how-does-this-work">
+<h2>How does this work?<a class="headerlink" href="#how-does-this-work" title="Permalink to this headline">¶</a></h2>
+<p>Modern machine learning algorithms employ a wide variety of techniques.
+Scaling these requires a similarly wide variety of different approaches.
+Generally solutions fall into the following three categories:</p>
+<div class="section" id="parallelize-scikit-learn-directly">
+<h3>Parallelize Scikit-Learn Directly<a class="headerlink" href="#parallelize-scikit-learn-directly" title="Permalink to this headline">¶</a></h3>
+<p>Scikit-Learn already provides parallel computing on a single machine with
+<a class="reference external" href="http://joblib.readthedocs.io/en/latest/">Joblib</a>.
+Dask can now step in and take over this parallelism for many
+Scikit-Learn estimators.  This works well for modest data sizes but large
+computations, such as random forests, hyper-parameter optimization, and more.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dask.distributed</span> <span class="kn">import</span> <span class="n">Client</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">()</span>  <span class="c1"># start a local Dask client</span>
+
+<span class="kn">import</span> <span class="nn">dask_ml.joblib</span>
+<span class="kn">from</span> <span class="nn">sklearn.externals.joblib</span> <span class="kn">import</span> <span class="n">parallel_backend</span>
+<span class="k">with</span> <span class="n">parallel_backend</span><span class="p">(</span><span class="s1">&#39;dask&#39;</span><span class="p">):</span>
+    <span class="c1"># Your normal scikit-learn code here</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="joblib.html"><span class="doc">Dask-ML Joblib documentation</span></a> for more information.</p>
+<p><em>Note that this is an active collaboration with the Scikit-Learn development
+team.  This functionality is progressing quickly but is in a state of rapid
+change.</em></p>
+</div>
+<div class="section" id="reimplement-scalable-algorithms-with-dask-array">
+<h3>Reimplement Scalable Algorithms with Dask Array<a class="headerlink" href="#reimplement-scalable-algorithms-with-dask-array" title="Permalink to this headline">¶</a></h3>
+<p>Some machine learning algorithms are easy to write down as Numpy algorithms.
+In these cases we can replace Numpy arrays with Dask arrays to achieve scalable
+algorithms easily.  This is employed for <a class="reference internal" href="glm.html"><span class="doc">linear models</span></a>, <a class="reference internal" href="preprocessing.html"><span class="doc">pre-processing</span></a>, and <a class="reference internal" href="clustering.html"><span class="doc">clustering</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dask_ml.preprocessing</span> <span class="kn">import</span> <span class="n">Categorizer</span><span class="p">,</span> <span class="n">DummyEncoder</span>
+<span class="kn">from</span> <span class="nn">dask_ml.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+<span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">()</span>
+<span class="n">lr</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="partner-with-other-distributed-libraries">
+<h3>Partner with other distributed libraries<a class="headerlink" href="#partner-with-other-distributed-libraries" title="Permalink to this headline">¶</a></h3>
+<p>Other machine learning libraries like XGBoost and TensorFlow already have
+distributed solutions that work quite well.  Dask-ML makes no attempt to
+re-implement these systems.  Instead, Dask-ML makes it easy to use normal Dask
+workflows to prepare and set up data, then it deploys XGBoost or Tensorflow
+<em>alongside</em> Dask, and hands the data over.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dask_ml.xgboost</span> <span class="kn">import</span> <span class="n">XGBRegressor</span>
+
+<span class="n">est</span> <span class="o">=</span> <span class="n">XGBRegressor</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">est</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="xgboost.html"><span class="doc">Dask-ML + XGBoost</span></a> or <a class="reference internal" href="tensorflow.html"><span class="doc">Dask-ML + TensorFlow</span></a> documentation for more information.</p>
+</div>
+</div>
+<div class="section" id="scikit-learn-api">
+<h2>Scikit-Learn API<a class="headerlink" href="#scikit-learn-api" title="Permalink to this headline">¶</a></h2>
+<p>In all cases Dask-ML endeavors to provide a single unified interface around the
+familiar NumPy, Pandas, and Scikit-Learn APIs.  Users familiar with
+Scikit-Learn should feel at home with Dask-ML.</p>
 <div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="single-machine.html">Single Machine</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="single-machine.html#pipelines">Pipelines</a></li>
-<li class="toctree-l2"><a class="reference internal" href="single-machine.html#hyper-parameter-search">Hyper-parameter Search</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="distributed.html">Distributed Learning</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="distributed.html#dask-glm">dask-glm</a></li>
-<li class="toctree-l2"><a class="reference internal" href="distributed.html#distributed-joblib">distributed-joblib</a></li>
-<li class="toctree-l2"><a class="reference internal" href="distributed.html#interoperate">Interoperate</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="examples/hyperparameter-search.html">Hyper-parameter Search</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples/hyperparameter-search.html#Grid-Search">Grid Search</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/hyperparameter-search.html#Randomized-Search">Randomized Search</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/hyperparameter-search.html#Avoid-Repeated-Work">Avoid Repeated Work</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="examples/joblib-distributed.html">Distributed Joblib</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/predict.html">Out-of-core Prediction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/dask-glm.html">Dask GLM</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples/dask-glm.html#Pipelines">Pipelines</a></li>
-<li class="toctree-l2"><a class="reference internal" href="examples/dask-glm.html#Grid-Search">Grid Search</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="examples/xgboost.html">Dask and XGBoost</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="examples/xgboost.html#Split-and-Train">Split and Train</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="examples/tensorflow.html">Dask and Tensorflow</a></li>
-</ul>
 </div>
-<div class="section" id="indices-and-tables">
-<h4>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h4>
-<ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
-</ul>
+<div class="toctree-wrapper compound">
 </div>
+<div class="toctree-wrapper compound">
 </div>
 </div>
 </div>
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="single-machine.html" class="btn btn-neutral float-right" title="Single Machine" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="install.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
     </div>
@@ -282,7 +297,7 @@ See <a class="reference internal" href="distributed.html#distributed"><span clas
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -301,6 +316,7 @@ See <a class="reference internal" href="distributed.html#distributed"><span clas
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
             VERSION:'0.1',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -310,23 +326,17 @@ See <a class="reference internal" href="distributed.html#distributed"><span clas
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

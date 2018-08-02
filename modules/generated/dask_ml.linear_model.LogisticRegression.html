@@ -1,0 +1,557 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dask_ml.linear_model.LogisticRegression &mdash; dask-ml 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dask_ml.linear_model.PoissonRegression" href="dask_ml.linear_model.PoissonRegression.html" />
+    <link rel="prev" title="dask_ml.linear_model.LinearRegression" href="dask_ml.linear_model.LinearRegression.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> dask-ml
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Get Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Use</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../preprocessing.html">Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cross_validation.html">Cross Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hyper-parameter-search.html">Hyper Parameter Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glm.html">Generalized Linear Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../joblib.html">Joblib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../meta-estimators.html">Parallel Meta-estimators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../incremental.html">Incremental Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../clustering.html">Clustering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../xgboost.html">XGBoost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tensorflow.html">Tensorflow</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.model_selection"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>: Model Selection</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#module-dask_ml.linear_model"><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>: Generalized Linear Models</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="dask_ml.linear_model.LinearRegression.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>.LinearRegression</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>.LogisticRegression</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dask_ml.linear_model.PoissonRegression.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>.PoissonRegression</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#meta-estimators-for-scikit-learn">Meta-estimators for scikit-learn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.cluster"><code class="docutils literal notranslate"><span class="pre">dask_ml.cluster</span></code>: Clustering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.decomposition"><code class="docutils literal notranslate"><span class="pre">dask_ml.decomposition</span></code>: Matrix Decomposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.preprocessing"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>: Preprocessing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-metrics-metrics"><code class="docutils literal notranslate"><span class="pre">dask_ml.metrics</span></code>: Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.tensorflow"><code class="docutils literal notranslate"><span class="pre">dask_ml.tensorflow</span></code>: Tensorflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.xgboost"><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code>: XGBoost</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Develop</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">dask-ml</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../api.html">API Reference</a> &raquo;</li>
+        
+      <li><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>.LogisticRegression</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/modules/generated/dask_ml.linear_model.LogisticRegression.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="dask-ml-linear-model-logisticregression">
+<h1><a class="reference internal" href="../api.html#module-dask_ml.linear_model" title="dask_ml.linear_model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code></a>.LogisticRegression<a class="headerlink" href="#dask-ml-linear-model-logisticregression" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="dask_ml.linear_model.LogisticRegression">
+<em class="property">class </em><code class="descclassname">dask_ml.linear_model.</code><code class="descname">LogisticRegression</code><span class="sig-paren">(</span><em>penalty='l2'</em>, <em>dual=False</em>, <em>tol=0.0001</em>, <em>C=1.0</em>, <em>fit_intercept=True</em>, <em>intercept_scaling=1.0</em>, <em>class_weight=None</em>, <em>random_state=None</em>, <em>solver='admm'</em>, <em>multiclass='ovr'</em>, <em>verbose=0</em>, <em>warm_start=False</em>, <em>n_jobs=1</em>, <em>max_iter=100</em>, <em>solver_kwargs=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.linear_model.LogisticRegression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Esimator for logistic_regression.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>penalty</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str or Regularizer, default ‘l2’</span></dt>
+<dd><p class="first">Regularizer to use. Only relevant for the ‘admm’, ‘lbfgs’ and
+‘proximal_grad’ solvers.</p>
+<p class="last">For string values, only ‘l1’ or ‘l2’ are valid.</p>
+</dd>
+<dt><strong>dual</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">Ignored</p>
+</dd>
+<dt><strong>tol</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, default 1e-4</span></dt>
+<dd><p class="first last">The tolerance for convergence.</p>
+</dd>
+<dt><strong>C</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Regularization strength. Note that <code class="docutils literal notranslate"><span class="pre">dask-glm</span></code> solvers use
+the parameterization <span class="math notranslate nohighlight">\(\lambda = 1 / C\)</span></p>
+</dd>
+<dt><strong>fit_intercept</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default True</span></dt>
+<dd><p class="first last">Specifies if a constant (a.k.a. bias or intercept) should be
+added to the decision function.</p>
+</dd>
+<dt><strong>intercept_scaling</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">Ignored</p>
+</dd>
+<dt><strong>class_weight</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict or ‘balanced’</span></dt>
+<dd><p class="first last">Ignored</p>
+</dd>
+<dt><strong>random_state</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, RandomState, or None</span></dt>
+<dd><p class="first last">The seed of the pseudo random number generator to use when shuffling
+the data. If int, random_state is the seed used by the random number
+generator; If RandomState instance, random_state is the random number
+generator; If None, the random number generator is the RandomState
+instance used by np.random. Used when solver == ‘sag’ or ‘liblinear’.</p>
+</dd>
+<dt><strong>solver</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘admm’, ‘gradient_descent’, ‘newton’, ‘lbfgs’, ‘proximal_grad’}</span></dt>
+<dd><p class="first last">Solver to use. See <a class="reference external" href="http://dask-glm.readthedocs.io/en/latest/api.html#api-algorithms" title="(in dask-glm v0.1.0)"><span>Algorithms</span></a> for details</p>
+</dd>
+<dt><strong>multiclass</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, default ‘ovr’</span></dt>
+<dd><p class="first last">Ignored. Multiclass solvers not currently supported.</p>
+</dd>
+<dt><strong>verbose</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default 0</span></dt>
+<dd><p class="first last">Ignored</p>
+</dd>
+<dt><strong>warm_start</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default False</span></dt>
+<dd><p class="first last">Ignored</p>
+</dd>
+<dt><strong>n_jobs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default 1</span></dt>
+<dd><p class="first last">Ignored</p>
+</dd>
+<dt><strong>solver_kwargs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict, optional, default None</span></dt>
+<dd><p class="first last">Extra keyword arguments to pass through to the solver.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>coef_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array, shape (n_classes, n_features)</span></dt>
+<dd><p class="first last">The learned value for the model’s coefficients</p>
+</dd>
+<dt><strong>intercept_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float of None</span></dt>
+<dd><p class="first last">The learned value for the intercept, if one was added
+to the model</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dask_glm.datasets</span> <span class="k">import</span> <span class="n">make_classification</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_classification</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lr</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lr</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lr</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">est</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.linear_model.LogisticRegression.fit" title="dask_ml.linear_model.LogisticRegression.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X[,&nbsp;y])</td>
+<td>Fit the model on the training data</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.linear_model.LogisticRegression.get_params" title="dask_ml.linear_model.LogisticRegression.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</td>
+<td>Get parameters for this estimator.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.linear_model.LogisticRegression.predict" title="dask_ml.linear_model.LogisticRegression.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(X)</td>
+<td>Predict class labels for samples in X.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.linear_model.LogisticRegression.predict_proba" title="dask_ml.linear_model.LogisticRegression.predict_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_proba</span></code></a>(X)</td>
+<td>Probability estimates for samples in X.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.linear_model.LogisticRegression.score" title="dask_ml.linear_model.LogisticRegression.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(X,&nbsp;y)</td>
+<td>The mean accuracy on the given data and labels</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.linear_model.LogisticRegression.set_params" title="dask_ml.linear_model.LogisticRegression.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</td>
+<td>Set the parameters of this estimator.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="dask_ml.linear_model.LogisticRegression.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>penalty='l2'</em>, <em>dual=False</em>, <em>tol=0.0001</em>, <em>C=1.0</em>, <em>fit_intercept=True</em>, <em>intercept_scaling=1.0</em>, <em>class_weight=None</em>, <em>random_state=None</em>, <em>solver='admm'</em>, <em>multiclass='ovr'</em>, <em>verbose=0</em>, <em>warm_start=False</em>, <em>n_jobs=1</em>, <em>max_iter=100</em>, <em>solver_kwargs=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.linear_model.LogisticRegression.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dask_ml.linear_model.LogisticRegression.family">
+<code class="descname">family</code><a class="headerlink" href="#dask_ml.linear_model.LogisticRegression.family" title="Permalink to this definition">¶</a></dt>
+<dd><p>The family this estimator is for.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.linear_model.LogisticRegression.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.linear_model.LogisticRegression.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the model on the training data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X: array-like, shape (n_samples, n_features)</strong></dt>
+<dd></dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape (n_samples,)</span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">objectj</span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.linear_model.LogisticRegression.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.linear_model.LogisticRegression.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameters for this estimator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span></dt>
+<dd><p class="first last">If True, will return the parameters for this estimator and
+contained subobjects that are estimators.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">mapping of string to any</span></dt>
+<dd><p class="first last">Parameter names mapped to their values.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.linear_model.LogisticRegression.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.linear_model.LogisticRegression.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict class labels for samples in X.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples, n_features]</span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>C</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array, shape = [n_samples,]</span></dt>
+<dd><p class="first last">Predicted class labels for each sample</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.linear_model.LogisticRegression.predict_proba">
+<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.linear_model.LogisticRegression.predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd><p>Probability estimates for samples in X.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples, n_features]</span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>T</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples, n_classes]</span></dt>
+<dd><p class="first last">The probability of the sample for each class in the model.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.linear_model.LogisticRegression.score">
+<code class="descname">score</code><span class="sig-paren">(</span><em>X</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.linear_model.LogisticRegression.score" title="Permalink to this definition">¶</a></dt>
+<dd><p>The mean accuracy on the given data and labels</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples, n_features]</span></dt>
+<dd><p class="first last">Test samples.</p>
+</dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples,]</span></dt>
+<dd><p class="first last">Test labels.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>score</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Mean accuracy score</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.linear_model.LogisticRegression.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.linear_model.LogisticRegression.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters of this estimator.</p>
+<p>The method works on simple estimators as well as on nested objects
+(such as pipelines). The latter have parameters of the form
+<code class="docutils literal notranslate"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it’s possible to update each
+component of a nested object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>self</strong></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<div class="clearer"></div></div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dask_ml.linear_model.PoissonRegression.html" class="btn btn-neutral float-right" title="dask_ml.linear_model.PoissonRegression" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="dask_ml.linear_model.LinearRegression.html" class="btn btn-neutral" title="dask_ml.linear_model.LinearRegression" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Dask developers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

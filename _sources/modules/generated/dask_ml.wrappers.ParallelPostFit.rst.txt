@@ -1,0 +1,16 @@
+:mod:`dask_ml.wrappers`.ParallelPostFit
+==============================================
+
+.. currentmodule:: dask_ml.wrappers
+
+.. autoclass:: ParallelPostFit
+
+   
+   .. automethod:: __init__
+   
+
+.. include:: dask_ml.wrappers.ParallelPostFit.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>

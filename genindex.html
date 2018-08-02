@@ -25,25 +25,18 @@
 
   
 
-  
-  
-    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  
-
-  
-
-  
-        <link rel="index" title="Index"
-              href="#"/>
-        <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="dask-ml 0.1 documentation" href="index.html"/> 
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav" role="document">
+<body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
@@ -85,16 +78,30 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Get Started</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="single-machine.html">Single Machine</a></li>
-<li class="toctree-l1"><a class="reference internal" href="distributed.html">Distributed Learning</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/hyperparameter-search.html">Hyper-parameter Search</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/joblib-distributed.html">Distributed Joblib</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/predict.html">Out-of-core Prediction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/dask-glm.html">Dask GLM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/xgboost.html">Dask and XGBoost</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/tensorflow.html">Dask and Tensorflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Use</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="preprocessing.html">Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cross_validation.html">Cross Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hyper-parameter-search.html">Hyper Parameter Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glm.html">Generalized Linear Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="joblib.html">Joblib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="meta-estimators.html">Parallel Meta-estimators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="incremental.html">Incremental Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clustering.html">Clustering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xgboost.html">XGBoost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tensorflow.html">Tensorflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules/api.html">API Reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Develop</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
 </ul>
 
             
@@ -106,7 +113,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+      <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">dask-ml</a>
@@ -114,9 +121,10 @@
       </nav>
 
 
-      
       <div class="wy-nav-content">
+        
         <div class="rst-content">
+        
           
 
 
@@ -160,14 +168,625 @@
 <h1 id="index">Index</h1>
 
 <div class="genindex-jumpbox">
+ <a href="#_"><strong>_</strong></a>
+ | <a href="#A"><strong>A</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#K"><strong>K</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#X"><strong>X</strong></a>
  
 </div>
+<h2 id="_">_</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.cluster.KMeans.html#dask_ml.cluster.KMeans.__init__">__init__() (dask_ml.cluster.KMeans method)</a>
+
+      <ul>
+        <li><a href="modules/generated/dask_ml.cluster.SpectralClustering.html#dask_ml.cluster.SpectralClustering.__init__">(dask_ml.cluster.SpectralClustering method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA.__init__">(dask_ml.decomposition.PCA method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.decomposition.TruncatedSVD.html#dask_ml.decomposition.TruncatedSVD.__init__">(dask_ml.decomposition.TruncatedSVD method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.linear_model.LinearRegression.html#dask_ml.linear_model.LinearRegression.__init__">(dask_ml.linear_model.LinearRegression method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.linear_model.LogisticRegression.html#dask_ml.linear_model.LogisticRegression.__init__">(dask_ml.linear_model.LogisticRegression method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.linear_model.PoissonRegression.html#dask_ml.linear_model.PoissonRegression.__init__">(dask_ml.linear_model.PoissonRegression method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV.__init__">(dask_ml.model_selection.GridSearchCV method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV.__init__">(dask_ml.model_selection.RandomizedSearchCV method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.ShuffleSplit.html#dask_ml.model_selection.ShuffleSplit.__init__">(dask_ml.model_selection.ShuffleSplit method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer.__init__">(dask_ml.preprocessing.Categorizer method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.preprocessing.DummyEncoder.html#dask_ml.preprocessing.DummyEncoder.__init__">(dask_ml.preprocessing.DummyEncoder method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder.__init__">(dask_ml.preprocessing.LabelEncoder method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.__init__">(dask_ml.preprocessing.MinMaxScaler method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder.__init__">(dask_ml.preprocessing.OrdinalEncoder method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.preprocessing.QuantileTransformer.html#dask_ml.preprocessing.QuantileTransformer.__init__">(dask_ml.preprocessing.QuantileTransformer method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.preprocessing.RobustScaler.html#dask_ml.preprocessing.RobustScaler.__init__">(dask_ml.preprocessing.RobustScaler method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler.__init__">(dask_ml.preprocessing.StandardScaler method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental.__init__">(dask_ml.wrappers.Incremental method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit.__init__">(dask_ml.wrappers.ParallelPostFit method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.xgboost.XGBClassifier.html#dask_ml.xgboost.XGBClassifier.__init__">(dask_ml.xgboost.XGBClassifier method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.xgboost.XGBRegressor.html#dask_ml.xgboost.XGBRegressor.__init__">(dask_ml.xgboost.XGBRegressor method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.metrics.accuracy_score.html#dask_ml.metrics.accuracy_score">accuracy_score() (in module dask_ml.metrics)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.xgboost.XGBClassifier.html#dask_ml.xgboost.XGBClassifier.apply">apply() (dask_ml.xgboost.XGBClassifier method)</a>
+
+      <ul>
+        <li><a href="modules/generated/dask_ml.xgboost.XGBRegressor.html#dask_ml.xgboost.XGBRegressor.apply">(dask_ml.xgboost.XGBRegressor method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/api.html#dask_ml.preprocessing.Categorizer">Categorizer (class in dask_ml.preprocessing)</a>, <a href="modules/generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/api.html#module-dask_ml.cluster">dask_ml.cluster (module)</a>
+</li>
+      <li><a href="modules/api.html#module-dask_ml.decomposition">dask_ml.decomposition (module)</a>
+</li>
+      <li><a href="modules/api.html#module-dask_ml.linear_model">dask_ml.linear_model (module)</a>
+</li>
+      <li><a href="modules/api.html#module-dask_ml.model_selection">dask_ml.model_selection (module)</a>
+</li>
+      <li><a href="modules/api.html#module-dask_ml.preprocessing">dask_ml.preprocessing (module)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/api.html#module-dask_ml.tensorflow">dask_ml.tensorflow (module)</a>
+</li>
+      <li><a href="modules/api.html#module-dask_ml.xgboost">dask_ml.xgboost (module)</a>
+</li>
+      <li><a href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV.decision_function">decision_function() (dask_ml.model_selection.GridSearchCV method)</a>
+
+      <ul>
+        <li><a href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV.decision_function">(dask_ml.model_selection.RandomizedSearchCV method)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/api.html#dask_ml.preprocessing.DummyEncoder">DummyEncoder (class in dask_ml.preprocessing)</a>, <a href="modules/generated/dask_ml.preprocessing.DummyEncoder.html#dask_ml.preprocessing.DummyEncoder">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.xgboost.XGBClassifier.html#dask_ml.xgboost.XGBClassifier.evals_result">evals_result() (dask_ml.xgboost.XGBClassifier method)</a>
+
+      <ul>
+        <li><a href="modules/generated/dask_ml.xgboost.XGBRegressor.html#dask_ml.xgboost.XGBRegressor.evals_result">(dask_ml.xgboost.XGBRegressor method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.linear_model.LinearRegression.html#dask_ml.linear_model.LinearRegression.family">family (dask_ml.linear_model.LinearRegression attribute)</a>
+
+      <ul>
+        <li><a href="modules/generated/dask_ml.linear_model.LogisticRegression.html#dask_ml.linear_model.LogisticRegression.family">(dask_ml.linear_model.LogisticRegression attribute)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.linear_model.PoissonRegression.html#dask_ml.linear_model.PoissonRegression.family">(dask_ml.linear_model.PoissonRegression attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/generated/dask_ml.xgboost.XGBClassifier.html#dask_ml.xgboost.XGBClassifier.feature_importances_">feature_importances_ (dask_ml.xgboost.XGBClassifier attribute)</a>
+
+      <ul>
+        <li><a href="modules/generated/dask_ml.xgboost.XGBRegressor.html#dask_ml.xgboost.XGBRegressor.feature_importances_">(dask_ml.xgboost.XGBRegressor attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA.fit">fit() (dask_ml.decomposition.PCA method)</a>
+
+      <ul>
+        <li><a href="modules/generated/dask_ml.decomposition.TruncatedSVD.html#dask_ml.decomposition.TruncatedSVD.fit">(dask_ml.decomposition.TruncatedSVD method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.linear_model.LinearRegression.html#dask_ml.linear_model.LinearRegression.fit">(dask_ml.linear_model.LinearRegression method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.linear_model.LogisticRegression.html#dask_ml.linear_model.LogisticRegression.fit">(dask_ml.linear_model.LogisticRegression method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.linear_model.PoissonRegression.html#dask_ml.linear_model.PoissonRegression.fit">(dask_ml.linear_model.PoissonRegression method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV.fit">(dask_ml.model_selection.GridSearchCV method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV.fit">(dask_ml.model_selection.RandomizedSearchCV method)</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.Categorizer.fit">(dask_ml.preprocessing.Categorizer method)</a>, <a href="modules/generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer.fit">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.DummyEncoder.fit">(dask_ml.preprocessing.DummyEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.DummyEncoder.html#dask_ml.preprocessing.DummyEncoder.fit">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.LabelEncoder.fit">(dask_ml.preprocessing.LabelEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder.fit">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.MinMaxScaler.fit">(dask_ml.preprocessing.MinMaxScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.fit">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.OrdinalEncoder.fit">(dask_ml.preprocessing.OrdinalEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder.fit">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.QuantileTransformer.fit">(dask_ml.preprocessing.QuantileTransformer method)</a>, <a href="modules/generated/dask_ml.preprocessing.QuantileTransformer.html#dask_ml.preprocessing.QuantileTransformer.fit">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.RobustScaler.fit">(dask_ml.preprocessing.RobustScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.RobustScaler.html#dask_ml.preprocessing.RobustScaler.fit">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.StandardScaler.fit">(dask_ml.preprocessing.StandardScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler.fit">[1]</a>
+</li>
+        <li><a href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental.fit">(dask_ml.wrappers.Incremental method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit.fit">(dask_ml.wrappers.ParallelPostFit method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.xgboost.XGBClassifier.html#dask_ml.xgboost.XGBClassifier.fit">(dask_ml.xgboost.XGBClassifier method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.xgboost.XGBRegressor.html#dask_ml.xgboost.XGBRegressor.fit">(dask_ml.xgboost.XGBRegressor method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.cluster.SpectralClustering.html#dask_ml.cluster.SpectralClustering.fit_predict">fit_predict() (dask_ml.cluster.SpectralClustering method)</a>
+</li>
+      <li><a href="modules/generated/dask_ml.cluster.KMeans.html#dask_ml.cluster.KMeans.fit_transform">fit_transform() (dask_ml.cluster.KMeans method)</a>
+
+      <ul>
+        <li><a href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA.fit_transform">(dask_ml.decomposition.PCA method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.decomposition.TruncatedSVD.html#dask_ml.decomposition.TruncatedSVD.fit_transform">(dask_ml.decomposition.TruncatedSVD method)</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.Categorizer.fit_transform">(dask_ml.preprocessing.Categorizer method)</a>, <a href="modules/generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer.fit_transform">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.DummyEncoder.fit_transform">(dask_ml.preprocessing.DummyEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.DummyEncoder.html#dask_ml.preprocessing.DummyEncoder.fit_transform">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.LabelEncoder.fit_transform">(dask_ml.preprocessing.LabelEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder.fit_transform">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.MinMaxScaler.fit_transform">(dask_ml.preprocessing.MinMaxScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.fit_transform">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.OrdinalEncoder.fit_transform">(dask_ml.preprocessing.OrdinalEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder.fit_transform">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.QuantileTransformer.fit_transform">(dask_ml.preprocessing.QuantileTransformer method)</a>, <a href="modules/generated/dask_ml.preprocessing.QuantileTransformer.html#dask_ml.preprocessing.QuantileTransformer.fit_transform">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.RobustScaler.fit_transform">(dask_ml.preprocessing.RobustScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.RobustScaler.html#dask_ml.preprocessing.RobustScaler.fit_transform">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.StandardScaler.fit_transform">(dask_ml.preprocessing.StandardScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler.fit_transform">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.xgboost.XGBClassifier.html#dask_ml.xgboost.XGBClassifier.get_booster">get_booster() (dask_ml.xgboost.XGBClassifier method)</a>
+
+      <ul>
+        <li><a href="modules/generated/dask_ml.xgboost.XGBRegressor.html#dask_ml.xgboost.XGBRegressor.get_booster">(dask_ml.xgboost.XGBRegressor method)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA.get_covariance">get_covariance() (dask_ml.decomposition.PCA method)</a>
+</li>
+      <li><a href="modules/generated/dask_ml.model_selection.ShuffleSplit.html#dask_ml.model_selection.ShuffleSplit.get_n_splits">get_n_splits() (dask_ml.model_selection.ShuffleSplit method)</a>
+</li>
+      <li><a href="modules/generated/dask_ml.cluster.KMeans.html#dask_ml.cluster.KMeans.get_params">get_params() (dask_ml.cluster.KMeans method)</a>
+
+      <ul>
+        <li><a href="modules/generated/dask_ml.cluster.SpectralClustering.html#dask_ml.cluster.SpectralClustering.get_params">(dask_ml.cluster.SpectralClustering method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA.get_params">(dask_ml.decomposition.PCA method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.decomposition.TruncatedSVD.html#dask_ml.decomposition.TruncatedSVD.get_params">(dask_ml.decomposition.TruncatedSVD method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.linear_model.LinearRegression.html#dask_ml.linear_model.LinearRegression.get_params">(dask_ml.linear_model.LinearRegression method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.linear_model.LogisticRegression.html#dask_ml.linear_model.LogisticRegression.get_params">(dask_ml.linear_model.LogisticRegression method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.linear_model.PoissonRegression.html#dask_ml.linear_model.PoissonRegression.get_params">(dask_ml.linear_model.PoissonRegression method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV.get_params">(dask_ml.model_selection.GridSearchCV method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV.get_params">(dask_ml.model_selection.RandomizedSearchCV method)</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.Categorizer.get_params">(dask_ml.preprocessing.Categorizer method)</a>, <a href="modules/generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer.get_params">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.DummyEncoder.get_params">(dask_ml.preprocessing.DummyEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.DummyEncoder.html#dask_ml.preprocessing.DummyEncoder.get_params">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.LabelEncoder.get_params">(dask_ml.preprocessing.LabelEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder.get_params">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.MinMaxScaler.get_params">(dask_ml.preprocessing.MinMaxScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.get_params">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.OrdinalEncoder.get_params">(dask_ml.preprocessing.OrdinalEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder.get_params">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.QuantileTransformer.get_params">(dask_ml.preprocessing.QuantileTransformer method)</a>, <a href="modules/generated/dask_ml.preprocessing.QuantileTransformer.html#dask_ml.preprocessing.QuantileTransformer.get_params">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.RobustScaler.get_params">(dask_ml.preprocessing.RobustScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.RobustScaler.html#dask_ml.preprocessing.RobustScaler.get_params">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.StandardScaler.get_params">(dask_ml.preprocessing.StandardScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler.get_params">[1]</a>
+</li>
+        <li><a href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental.get_params">(dask_ml.wrappers.Incremental method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit.get_params">(dask_ml.wrappers.ParallelPostFit method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.xgboost.XGBClassifier.html#dask_ml.xgboost.XGBClassifier.get_params">(dask_ml.xgboost.XGBClassifier method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.xgboost.XGBRegressor.html#dask_ml.xgboost.XGBRegressor.get_params">(dask_ml.xgboost.XGBRegressor method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA.get_precision">get_precision() (dask_ml.decomposition.PCA method)</a>
+</li>
+      <li><a href="modules/generated/dask_ml.xgboost.XGBClassifier.html#dask_ml.xgboost.XGBClassifier.get_xgb_params">get_xgb_params() (dask_ml.xgboost.XGBClassifier method)</a>
+
+      <ul>
+        <li><a href="modules/generated/dask_ml.xgboost.XGBRegressor.html#dask_ml.xgboost.XGBRegressor.get_xgb_params">(dask_ml.xgboost.XGBRegressor method)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV">GridSearchCV (class in dask_ml.model_selection)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental">Incremental (class in dask_ml.wrappers)</a>
+</li>
+      <li><a href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA.inverse_transform">inverse_transform() (dask_ml.decomposition.PCA method)</a>
+
+      <ul>
+        <li><a href="modules/generated/dask_ml.decomposition.TruncatedSVD.html#dask_ml.decomposition.TruncatedSVD.inverse_transform">(dask_ml.decomposition.TruncatedSVD method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV.inverse_transform">(dask_ml.model_selection.GridSearchCV method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV.inverse_transform">(dask_ml.model_selection.RandomizedSearchCV method)</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.DummyEncoder.inverse_transform">(dask_ml.preprocessing.DummyEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.DummyEncoder.html#dask_ml.preprocessing.DummyEncoder.inverse_transform">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.LabelEncoder.inverse_transform">(dask_ml.preprocessing.LabelEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder.inverse_transform">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.MinMaxScaler.inverse_transform">(dask_ml.preprocessing.MinMaxScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.inverse_transform">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.OrdinalEncoder.inverse_transform">(dask_ml.preprocessing.OrdinalEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder.inverse_transform">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.QuantileTransformer.inverse_transform">(dask_ml.preprocessing.QuantileTransformer method)</a>, <a href="modules/generated/dask_ml.preprocessing.QuantileTransformer.html#dask_ml.preprocessing.QuantileTransformer.inverse_transform">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.RobustScaler.inverse_transform">(dask_ml.preprocessing.RobustScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.RobustScaler.html#dask_ml.preprocessing.RobustScaler.inverse_transform">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.StandardScaler.inverse_transform">(dask_ml.preprocessing.StandardScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler.inverse_transform">[1]</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.cluster.KMeans.html#dask_ml.cluster.KMeans">KMeans (class in dask_ml.cluster)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/api.html#dask_ml.preprocessing.LabelEncoder">LabelEncoder (class in dask_ml.preprocessing)</a>, <a href="modules/generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder">[1]</a>
+</li>
+      <li><a href="modules/generated/dask_ml.linear_model.LinearRegression.html#dask_ml.linear_model.LinearRegression">LinearRegression (class in dask_ml.linear_model)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.metrics.log_loss.html#dask_ml.metrics.log_loss">log_loss() (in module dask_ml.metrics)</a>
+</li>
+      <li><a href="modules/generated/dask_ml.linear_model.LogisticRegression.html#dask_ml.linear_model.LogisticRegression">LogisticRegression (class in dask_ml.linear_model)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.metrics.mean_absolute_error.html#dask_ml.metrics.mean_absolute_error">mean_absolute_error() (in module dask_ml.metrics)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.metrics.mean_squared_error.html#dask_ml.metrics.mean_squared_error">mean_squared_error() (in module dask_ml.metrics)</a>
+</li>
+      <li><a href="modules/api.html#dask_ml.preprocessing.MinMaxScaler">MinMaxScaler (class in dask_ml.preprocessing)</a>, <a href="modules/generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/api.html#dask_ml.preprocessing.OrdinalEncoder">OrdinalEncoder (class in dask_ml.preprocessing)</a>, <a href="modules/generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit">ParallelPostFit (class in dask_ml.wrappers)</a>
+</li>
+      <li><a href="modules/api.html#dask_ml.preprocessing.MinMaxScaler.partial_fit">partial_fit() (dask_ml.preprocessing.MinMaxScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.partial_fit">[1]</a>
+
+      <ul>
+        <li><a href="modules/api.html#dask_ml.preprocessing.StandardScaler.partial_fit">(dask_ml.preprocessing.StandardScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler.partial_fit">[1]</a>
+</li>
+        <li><a href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental.partial_fit">(dask_ml.wrappers.Incremental method)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA">PCA (class in dask_ml.decomposition)</a>
+</li>
+      <li><a href="modules/generated/dask_ml.linear_model.PoissonRegression.html#dask_ml.linear_model.PoissonRegression">PoissonRegression (class in dask_ml.linear_model)</a>
+</li>
+      <li><a href="modules/generated/dask_ml.cluster.KMeans.html#dask_ml.cluster.KMeans.predict">predict() (dask_ml.cluster.KMeans method)</a>
+
+      <ul>
+        <li><a href="modules/generated/dask_ml.linear_model.LinearRegression.html#dask_ml.linear_model.LinearRegression.predict">(dask_ml.linear_model.LinearRegression method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.linear_model.LogisticRegression.html#dask_ml.linear_model.LogisticRegression.predict">(dask_ml.linear_model.LogisticRegression method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.linear_model.PoissonRegression.html#dask_ml.linear_model.PoissonRegression.predict">(dask_ml.linear_model.PoissonRegression method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV.predict">(dask_ml.model_selection.GridSearchCV method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV.predict">(dask_ml.model_selection.RandomizedSearchCV method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental.predict">(dask_ml.wrappers.Incremental method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit.predict">(dask_ml.wrappers.ParallelPostFit method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.xgboost.XGBClassifier.html#dask_ml.xgboost.XGBClassifier.predict">(dask_ml.xgboost.XGBClassifier method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.xgboost.predict.html#dask_ml.xgboost.predict">(in module dask_ml.xgboost)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV.predict_log_proba">predict_log_proba() (dask_ml.model_selection.GridSearchCV method)</a>
+
+      <ul>
+        <li><a href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV.predict_log_proba">(dask_ml.model_selection.RandomizedSearchCV method)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/generated/dask_ml.linear_model.LogisticRegression.html#dask_ml.linear_model.LogisticRegression.predict_proba">predict_proba() (dask_ml.linear_model.LogisticRegression method)</a>
+
+      <ul>
+        <li><a href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV.predict_proba">(dask_ml.model_selection.GridSearchCV method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV.predict_proba">(dask_ml.model_selection.RandomizedSearchCV method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental.predict_proba">(dask_ml.wrappers.Incremental method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit.predict_proba">(dask_ml.wrappers.ParallelPostFit method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.xgboost.XGBClassifier.html#dask_ml.xgboost.XGBClassifier.predict_proba">(dask_ml.xgboost.XGBClassifier method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/api.html#dask_ml.preprocessing.QuantileTransformer">QuantileTransformer (class in dask_ml.preprocessing)</a>, <a href="modules/generated/dask_ml.preprocessing.QuantileTransformer.html#dask_ml.preprocessing.QuantileTransformer">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.metrics.r2_score.html#dask_ml.metrics.r2_score">r2_score() (in module dask_ml.metrics)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV">RandomizedSearchCV (class in dask_ml.model_selection)</a>
+</li>
+      <li><a href="modules/api.html#dask_ml.preprocessing.RobustScaler">RobustScaler (class in dask_ml.preprocessing)</a>, <a href="modules/generated/dask_ml.preprocessing.RobustScaler.html#dask_ml.preprocessing.RobustScaler">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA.score">score() (dask_ml.decomposition.PCA method)</a>
+
+      <ul>
+        <li><a href="modules/generated/dask_ml.linear_model.LinearRegression.html#dask_ml.linear_model.LinearRegression.score">(dask_ml.linear_model.LinearRegression method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.linear_model.LogisticRegression.html#dask_ml.linear_model.LogisticRegression.score">(dask_ml.linear_model.LogisticRegression method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV.score">(dask_ml.model_selection.GridSearchCV method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV.score">(dask_ml.model_selection.RandomizedSearchCV method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental.score">(dask_ml.wrappers.Incremental method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit.score">(dask_ml.wrappers.ParallelPostFit method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.xgboost.XGBClassifier.html#dask_ml.xgboost.XGBClassifier.score">(dask_ml.xgboost.XGBClassifier method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.xgboost.XGBRegressor.html#dask_ml.xgboost.XGBRegressor.score">(dask_ml.xgboost.XGBRegressor method)</a>
+</li>
+      </ul></li>
+      <li><a href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA.score_samples">score_samples() (dask_ml.decomposition.PCA method)</a>
+</li>
+      <li><a href="modules/generated/dask_ml.cluster.KMeans.html#dask_ml.cluster.KMeans.set_params">set_params() (dask_ml.cluster.KMeans method)</a>
+
+      <ul>
+        <li><a href="modules/generated/dask_ml.cluster.SpectralClustering.html#dask_ml.cluster.SpectralClustering.set_params">(dask_ml.cluster.SpectralClustering method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA.set_params">(dask_ml.decomposition.PCA method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.decomposition.TruncatedSVD.html#dask_ml.decomposition.TruncatedSVD.set_params">(dask_ml.decomposition.TruncatedSVD method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.linear_model.LinearRegression.html#dask_ml.linear_model.LinearRegression.set_params">(dask_ml.linear_model.LinearRegression method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.linear_model.LogisticRegression.html#dask_ml.linear_model.LogisticRegression.set_params">(dask_ml.linear_model.LogisticRegression method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.linear_model.PoissonRegression.html#dask_ml.linear_model.PoissonRegression.set_params">(dask_ml.linear_model.PoissonRegression method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV.set_params">(dask_ml.model_selection.GridSearchCV method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV.set_params">(dask_ml.model_selection.RandomizedSearchCV method)</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.Categorizer.set_params">(dask_ml.preprocessing.Categorizer method)</a>, <a href="modules/generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer.set_params">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.DummyEncoder.set_params">(dask_ml.preprocessing.DummyEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.DummyEncoder.html#dask_ml.preprocessing.DummyEncoder.set_params">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.LabelEncoder.set_params">(dask_ml.preprocessing.LabelEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder.set_params">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.MinMaxScaler.set_params">(dask_ml.preprocessing.MinMaxScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.set_params">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.OrdinalEncoder.set_params">(dask_ml.preprocessing.OrdinalEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder.set_params">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.QuantileTransformer.set_params">(dask_ml.preprocessing.QuantileTransformer method)</a>, <a href="modules/generated/dask_ml.preprocessing.QuantileTransformer.html#dask_ml.preprocessing.QuantileTransformer.set_params">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.RobustScaler.set_params">(dask_ml.preprocessing.RobustScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.RobustScaler.html#dask_ml.preprocessing.RobustScaler.set_params">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.StandardScaler.set_params">(dask_ml.preprocessing.StandardScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler.set_params">[1]</a>
+</li>
+        <li><a href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental.set_params">(dask_ml.wrappers.Incremental method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit.set_params">(dask_ml.wrappers.ParallelPostFit method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.xgboost.XGBClassifier.html#dask_ml.xgboost.XGBClassifier.set_params">(dask_ml.xgboost.XGBClassifier method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.xgboost.XGBRegressor.html#dask_ml.xgboost.XGBRegressor.set_params">(dask_ml.xgboost.XGBRegressor method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.model_selection.ShuffleSplit.html#dask_ml.model_selection.ShuffleSplit">ShuffleSplit (class in dask_ml.model_selection)</a>
+</li>
+      <li><a href="modules/generated/dask_ml.cluster.SpectralClustering.html#dask_ml.cluster.SpectralClustering">SpectralClustering (class in dask_ml.cluster)</a>
+</li>
+      <li><a href="modules/generated/dask_ml.model_selection.ShuffleSplit.html#dask_ml.model_selection.ShuffleSplit.split">split() (dask_ml.model_selection.ShuffleSplit method)</a>
+</li>
+      <li><a href="modules/api.html#dask_ml.preprocessing.StandardScaler">StandardScaler (class in dask_ml.preprocessing)</a>, <a href="modules/generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler">[1]</a>
+</li>
+      <li><a href="modules/generated/dask_ml.tensorflow.start_tensorflow.html#dask_ml.tensorflow.start_tensorflow">start_tensorflow() (in module dask_ml.tensorflow)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.xgboost.train.html#dask_ml.xgboost.train">train() (in module dask_ml.xgboost)</a>
+</li>
+      <li><a href="modules/generated/dask_ml.model_selection.train_test_split.html#dask_ml.model_selection.train_test_split">train_test_split() (in module dask_ml.model_selection)</a>
+</li>
+      <li><a href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA.transform">transform() (dask_ml.decomposition.PCA method)</a>
+
+      <ul>
+        <li><a href="modules/generated/dask_ml.decomposition.TruncatedSVD.html#dask_ml.decomposition.TruncatedSVD.transform">(dask_ml.decomposition.TruncatedSVD method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV.transform">(dask_ml.model_selection.GridSearchCV method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV.transform">(dask_ml.model_selection.RandomizedSearchCV method)</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.Categorizer.transform">(dask_ml.preprocessing.Categorizer method)</a>, <a href="modules/generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer.transform">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.DummyEncoder.transform">(dask_ml.preprocessing.DummyEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.DummyEncoder.html#dask_ml.preprocessing.DummyEncoder.transform">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.LabelEncoder.transform">(dask_ml.preprocessing.LabelEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder.transform">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.MinMaxScaler.transform">(dask_ml.preprocessing.MinMaxScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.transform">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.OrdinalEncoder.transform">(dask_ml.preprocessing.OrdinalEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder.transform">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.QuantileTransformer.transform">(dask_ml.preprocessing.QuantileTransformer method)</a>, <a href="modules/generated/dask_ml.preprocessing.QuantileTransformer.html#dask_ml.preprocessing.QuantileTransformer.transform">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.RobustScaler.transform">(dask_ml.preprocessing.RobustScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.RobustScaler.html#dask_ml.preprocessing.RobustScaler.transform">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.StandardScaler.transform">(dask_ml.preprocessing.StandardScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler.transform">[1]</a>
+</li>
+        <li><a href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental.transform">(dask_ml.wrappers.Incremental method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit.transform">(dask_ml.wrappers.ParallelPostFit method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.decomposition.TruncatedSVD.html#dask_ml.decomposition.TruncatedSVD">TruncatedSVD (class in dask_ml.decomposition)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV.visualize">visualize() (dask_ml.model_selection.GridSearchCV method)</a>
+
+      <ul>
+        <li><a href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV.visualize">(dask_ml.model_selection.RandomizedSearchCV method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="X">X</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.xgboost.XGBClassifier.html#dask_ml.xgboost.XGBClassifier">XGBClassifier (class in dask_ml.xgboost)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.xgboost.XGBRegressor.html#dask_ml.xgboost.XGBRegressor">XGBRegressor (class in dask_ml.xgboost)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 
 
            </div>
-           <div class="articleComments">
-            
-           </div>
+           
           </div>
           <footer>
   
@@ -180,7 +799,7 @@
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -199,6 +818,7 @@
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
             VERSION:'0.1',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
@@ -208,23 +828,17 @@
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
-  
-  
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-  
+  <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
   <script type="text/javascript">
       jQuery(function () {
-          SphinxRtdTheme.StickyNav.enable();
+          SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-   
+  </script> 
 
 </body>
 </html>

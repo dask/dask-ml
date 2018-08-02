@@ -1,49 +1,141 @@
-.. _dask-ml
+.. _dask-ml:
 
 =======
-dask-ml
+Dask-ML
 =======
 
-This is a repository to collect all the ways dask can be used in parallel and
-distributed machine learning workflows. There are quite a few options, and the
-best one depends on your goals, data, and available compute.
+Dask-ML provides scalable machine learning in Python using Dask_ alongside
+popular machine learning libraries like Scikit-Learn_.
 
-Existing Tools
---------------
+You can try Dask-ML on a small cloud instance by clicking the following button:
 
-Dask can already be used to parallelize or distribute workflows using other
-libraries like scikit-learn (with joblib), xgboost, dask-glm, or tensorflow.
+.. image:: https://mybinder.org/badge.svg
+   :target: https://mybinder.org/v2/gh/dask/dask-examples/master?filepath=machine-learning.ipynb
 
-Single Machine
-^^^^^^^^^^^^^^
+.. code-block:: python
 
-If your computation fits on a single machine, you may be able to use dask to
-speed up the computation. See :ref:`single-machine`.
+   import dask.dataframe as dd
+   df = dd.read_parquet('...')
+   data = df[['age', 'income', 'married']]
+   labels = df['outcome']
 
-Distributed Learning
-^^^^^^^^^^^^^^^^^^^^
+   from dask_ml.linear_model import LogisticRegression
+   lr = LogisticRegression()
+   lr.fit(data, labels)
 
-Dask can help in cases where you'd like to fit a model on a dataset that doesn't
-fit in memory. You can either use a library like `dask-glm`_, that's built on top
-of dask, or use another distributed machine learning framework like `XGBoost`_ or `tensorflow`_.
-See :ref:`distributed`.
+What does this offer?
+---------------------
+
+See the navigation pane to the left for a list of categories of
+functionality.
+
+How does this work?
+-------------------
+
+Modern machine learning algorithms employ a wide variety of techniques.
+Scaling these requires a similarly wide variety of different approaches.
+Generally solutions fall into the following three categories:
+
+Parallelize Scikit-Learn Directly
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Scikit-Learn already provides parallel computing on a single machine with
+`Joblib <http://joblib.readthedocs.io/en/latest/>`__.
+Dask can now step in and take over this parallelism for many
+Scikit-Learn estimators.  This works well for modest data sizes but large
+computations, such as random forests, hyper-parameter optimization, and more.
+
+.. code-block:: python
+
+   from dask.distributed import Client
+   client = Client()  # start a local Dask client
+
+   import dask_ml.joblib
+   from sklearn.externals.joblib import parallel_backend
+   with parallel_backend('dask'):
+       # Your normal scikit-learn code here
+
+See :doc:`Dask-ML Joblib documentation <joblib>` for more information.
+
+*Note that this is an active collaboration with the Scikit-Learn development
+team.  This functionality is progressing quickly but is in a state of rapid
+change.*
+
+Reimplement Scalable Algorithms with Dask Array
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some machine learning algorithms are easy to write down as Numpy algorithms.
+In these cases we can replace Numpy arrays with Dask arrays to achieve scalable
+algorithms easily.  This is employed for :doc:`linear models <glm>`, :doc:`pre-processing <preprocessing>`, and :doc:`clustering <clustering>`.
+
+.. code-block:: python
+
+   from dask_ml.preprocessing import Categorizer, DummyEncoder
+   from dask_ml.linear_model import LogisticRegression
+
+   lr = LogisticRegression()
+   lr.fit(data, labels)
+
+Partner with other distributed libraries
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Other machine learning libraries like XGBoost and TensorFlow already have
+distributed solutions that work quite well.  Dask-ML makes no attempt to
+re-implement these systems.  Instead, Dask-ML makes it easy to use normal Dask
+workflows to prepare and set up data, then it deploys XGBoost or Tensorflow
+*alongside* Dask, and hands the data over.
+
+.. code-block:: python
+
+   from dask_ml.xgboost import XGBRegressor
+
+   est = XGBRegressor(...)
+   est.fit(train, train_labels)
+
+See :doc:`Dask-ML + XGBoost <xgboost>` or :doc:`Dask-ML + TensorFlow
+<tensorflow>` documentation for more information.
+
+
+Scikit-Learn API
+----------------
+
+In all cases Dask-ML endeavors to provide a single unified interface around the
+familiar NumPy, Pandas, and Scikit-Learn APIs.  Users familiar with
+Scikit-Learn should feel at home with Dask-ML.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :hidden:
+   :caption: Get Started
 
-   single-machine.rst
-   distributed.rst
+   install.rst
    examples.rst
 
-Indices and tables
-==================
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Use
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   preprocessing.rst
+   cross_validation.rst
+   hyper-parameter-search.rst
+   glm.rst
+   joblib.rst
+   meta-estimators.rst
+   incremental.rst
+   clustering.rst
+   xgboost.rst
+   tensorflow.rst
+   modules/api.rst
 
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Develop
 
-.. _dask-glm: http://dask-glm.readthedocs.io/
-.. _XGBoost: https://xgboost.readthedocs.io/
-.. _tensorflow: https://www.tensorflow.org/
+   changelog.rst
+   contributing.rst
+   history.rst
+
+.. _Dask: https://dask.pydata.org/
+.. _Scikit-Learn: http://scikit-learn.org/

@@ -1,0 +1,16 @@
+:mod:`dask_ml.cluster`.KMeans
+====================================
+
+.. currentmodule:: dask_ml.cluster
+
+.. autoclass:: KMeans
+
+   
+   .. automethod:: __init__
+   
+
+.. include:: dask_ml.cluster.KMeans.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>

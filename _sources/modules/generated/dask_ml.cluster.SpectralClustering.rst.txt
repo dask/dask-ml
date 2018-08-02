@@ -1,0 +1,16 @@
+:mod:`dask_ml.cluster`.SpectralClustering
+================================================
+
+.. currentmodule:: dask_ml.cluster
+
+.. autoclass:: SpectralClustering
+
+   
+   .. automethod:: __init__
+   
+
+.. include:: dask_ml.cluster.SpectralClustering.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>

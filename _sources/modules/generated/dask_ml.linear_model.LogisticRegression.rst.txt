@@ -1,0 +1,16 @@
+:mod:`dask_ml.linear_model`.LogisticRegression
+=====================================================
+
+.. currentmodule:: dask_ml.linear_model
+
+.. autoclass:: LogisticRegression
+
+   
+   .. automethod:: __init__
+   
+
+.. include:: dask_ml.linear_model.LogisticRegression.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>

@@ -1,0 +1,6 @@
+dask\_ml.metrics.log\_loss
+==========================
+
+.. currentmodule:: dask_ml.metrics
+
+.. autofunction:: log_loss

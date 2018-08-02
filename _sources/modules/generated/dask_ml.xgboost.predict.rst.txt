@@ -1,0 +1,6 @@
+dask\_ml.xgboost.predict
+========================
+
+.. currentmodule:: dask_ml.xgboost
+
+.. autofunction:: predict

@@ -1,0 +1,297 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dask_ml.tensorflow.start_tensorflow &mdash; dask-ml 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dask_ml.xgboost.XGBClassifier" href="dask_ml.xgboost.XGBClassifier.html" />
+    <link rel="prev" title="dask_ml.metrics.log_loss" href="dask_ml.metrics.log_loss.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> dask-ml
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Get Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Use</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../preprocessing.html">Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cross_validation.html">Cross Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hyper-parameter-search.html">Hyper Parameter Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glm.html">Generalized Linear Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../joblib.html">Joblib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../meta-estimators.html">Parallel Meta-estimators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../incremental.html">Incremental Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../clustering.html">Clustering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../xgboost.html">XGBoost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tensorflow.html">Tensorflow</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.model_selection"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>: Model Selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.linear_model"><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>: Generalized Linear Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#meta-estimators-for-scikit-learn">Meta-estimators for scikit-learn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.cluster"><code class="docutils literal notranslate"><span class="pre">dask_ml.cluster</span></code>: Clustering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.decomposition"><code class="docutils literal notranslate"><span class="pre">dask_ml.decomposition</span></code>: Matrix Decomposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.preprocessing"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>: Preprocessing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-metrics-metrics"><code class="docutils literal notranslate"><span class="pre">dask_ml.metrics</span></code>: Metrics</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#module-dask_ml.tensorflow"><code class="docutils literal notranslate"><span class="pre">dask_ml.tensorflow</span></code>: Tensorflow</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">dask_ml.tensorflow.start_tensorflow</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.xgboost"><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code>: XGBoost</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Develop</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">dask-ml</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../api.html">API Reference</a> &raquo;</li>
+        
+      <li>dask_ml.tensorflow.start_tensorflow</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/modules/generated/dask_ml.tensorflow.start_tensorflow.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="dask-ml-tensorflow-start-tensorflow">
+<h1>dask_ml.tensorflow.start_tensorflow<a class="headerlink" href="#dask-ml-tensorflow-start-tensorflow" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="dask_ml.tensorflow.start_tensorflow">
+<code class="descclassname">dask_ml.tensorflow.</code><code class="descname">start_tensorflow</code><span class="sig-paren">(</span><em>client</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.tensorflow.start_tensorflow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start Tensorflow on Dask Cluster</p>
+<p>This launches Tensorflow Servers alongside Dask workers</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="s1">&#39;dask-scheduler-address:8786&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tf_spec</span><span class="p">,</span> <span class="n">dask_spec</span> <span class="o">=</span> <span class="n">start_tensorflow</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tf_spec</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+<span class="go">{&#39;worker&#39;: [&#39;192.168.1.100:2222&#39;, &#39;192.168.1.101:2222&#39;]}</span>
+</pre></div>
+</div>
+<p>Specify desired number of jobs types as keyword args</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tf_spec</span><span class="p">,</span> <span class="n">dask_spec</span> <span class="o">=</span> <span class="n">start_tensorflow</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">ps</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">worker</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tf_spec</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
+<span class="go">{&#39;worker&#39;: [&#39;192.168.1.100:2222&#39;, &#39;192.168.1.101:2222&#39;,</span>
+<span class="go">            &#39;192.168.1.102:2222&#39;, &#39;192.168.1.103:2222&#39;],</span>
+<span class="go"> &#39;ps&#39;: [&#39;192.168.1.104:2222&#39;, &#39;192.168.1.105:2222&#39;]}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="dask_ml.xgboost.XGBClassifier.html" class="btn btn-neutral float-right" title="dask_ml.xgboost.XGBClassifier" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="dask_ml.metrics.log_loss.html" class="btn btn-neutral" title="dask_ml.metrics.log_loss" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Dask developers.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
