@@ -212,6 +212,9 @@ def update_examples(app):
     dst_dir = "source/examples"
     for file in os.listdir(src_dir):
         if file.endswith(".ipynb"):
+            if "large-datasets" in file:
+                print("skipping it")
+                continue
             shutil.copy(os.path.join(src_dir, file), os.path.join(dst_dir, file))
 
 
