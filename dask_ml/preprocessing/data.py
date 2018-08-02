@@ -1,24 +1,24 @@
 from __future__ import division
 
+import multiprocessing
 from collections import OrderedDict
 from distutils.version import LooseVersion
-import multiprocessing
 
 import dask.array as da
 import dask.dataframe as dd
-from dask import compute
 import numpy as np
 import pandas as pd
+from dask import compute
 from pandas.api.types import is_categorical_dtype
 from scipy import stats
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import data as skdata
-from sklearn.utils.validation import check_random_state, check_is_fitted
+from sklearn.utils.validation import check_is_fitted, check_random_state
 
-from dask_ml.utils import handle_zeros_in_scale
+from dask_ml.utils import check_array, handle_zeros_in_scale
 
 _PANDAS_VERSION = LooseVersion(pd.__version__)
-_HAS_CTD = _PANDAS_VERSION >= '0.21.0'
+_HAS_CTD = _PANDAS_VERSION >= "0.21.0"
 
 
 class StandardScaler(skdata.StandardScaler):
@@ -28,19 +28,21 @@ class StandardScaler(skdata.StandardScaler):
     def fit(self, X, y=None):
         self._reset()
         attributes = OrderedDict()
+        if isinstance(X, (pd.DataFrame, dd.DataFrame)):
+            X = X.values
 
         if self.with_mean:
             mean_ = X.mean(0)
-            attributes['mean_'] = mean_
+            attributes["mean_"] = mean_
         if self.with_std:
             var_ = X.var(0)
             scale_ = var_.copy()
             scale_[scale_ == 0] = 1
             scale_ = da.sqrt(scale_)
-            attributes['scale_'] = scale_
-            attributes['var_'] = var_
+            attributes["scale_"] = scale_
+            attributes["var_"] = var_
 
-        attributes['n_samples_seen_'] = len(X)
+        attributes["n_samples_seen_"] = np.nan
         values = compute(*attributes.values())
         for k, v in zip(attributes, values):
             setattr(self, k, v)
@@ -74,14 +76,16 @@ class MinMaxScaler(skdata.MinMaxScaler):
         feature_range = self.feature_range
 
         if feature_range[0] >= feature_range[1]:
-            raise ValueError("Minimum of desired feature "
-                             "range must be smaller than maximum.")
+            raise ValueError(
+                "Minimum of desired feature " "range must be smaller than maximum."
+            )
 
         data_min = X.min(0)
         data_max = X.max(0)
         data_range = data_max - data_min
-        scale = ((feature_range[1] - feature_range[0]) /
-                 handle_zeros_in_scale(data_range))
+        scale = (feature_range[1] - feature_range[0]) / handle_zeros_in_scale(
+            data_range
+        )
 
         attributes["data_min_"] = data_min
         attributes["data_max_"] = data_max
@@ -109,9 +113,11 @@ class MinMaxScaler(skdata.MinMaxScaler):
 
     def inverse_transform(self, X, y=None, copy=None):
         if not hasattr(self, "scale_"):
-            raise Exception("This %(name)s instance is not fitted yet. "
-                            "Call 'fit' with appropriate arguments before "
-                            "using this method.")
+            raise Exception(
+                "This %(name)s instance is not fitted yet. "
+                "Call 'fit' with appropriate arguments before "
+                "using this method."
+            )
         X = X.copy()
         if isinstance(X, dd.DataFrame):
             X = X.sub(self.min_)
@@ -123,14 +129,106 @@ class MinMaxScaler(skdata.MinMaxScaler):
         return X
 
 
+class RobustScaler(skdata.RobustScaler):
+
+    __doc__ = skdata.RobustScaler.__doc__
+
+    def _check_array(self, X, *args, **kwargs):
+        X = check_array(X, accept_dask_dataframe=True, **kwargs)
+        return X
+
+    def fit(self, X, y=None):
+        q_min, q_max = self.quantile_range
+        if not 0 <= q_min <= q_max <= 100:
+            raise ValueError("Invalid quantile range: %s" % str(self.quantile_range))
+
+        if isinstance(X, dd.DataFrame):
+            n_columns = len(X.columns)
+            partition_lengths = X.map_partitions(len).compute()
+            dtype = np.find_common_type(X.dtypes, [])
+            blocks = X.to_delayed()
+            X = da.vstack(
+                [
+                    da.from_delayed(
+                        block.values, shape=(length, n_columns), dtype=dtype
+                    )
+                    for block, length in zip(blocks, partition_lengths)
+                ]
+            )
+
+        quantiles = [da.percentile(col, [q_min, 50., q_max]) for col in X.T]
+        quantiles = da.vstack(quantiles).compute()
+        self.center_ = quantiles[:, 1]
+        self.scale_ = quantiles[:, 2] - quantiles[:, 0]
+        self.scale_ = skdata._handle_zeros_in_scale(self.scale_, copy=False)
+        return self
+
+    def transform(self, X):
+        """Center and scale the data.
+
+        Can be called on sparse input, provided that ``RobustScaler`` has been
+        fitted to dense input and ``with_centering=False``.
+
+        Parameters
+        ----------
+        X : {array-like, sparse matrix}
+            The data used to scale along the specified axis.
+
+        This implementation was copied and modified from Scikit-Learn.
+
+        See License information here:
+        https://github.com/scikit-learn/scikit-learn/blob/master/README.rst
+        """
+        if self.with_centering:
+            check_is_fitted(self, "center_")
+        if self.with_scaling:
+            check_is_fitted(self, "scale_")
+        X = self._check_array(X, self.copy)
+
+        # if sparse.issparse(X):
+        #     if self.with_scaling:
+        #         inplace_column_scale(X, 1.0 / self.scale_)
+        # else:
+        if self.with_centering:
+            X -= self.center_
+        if self.with_scaling:
+            X /= self.scale_
+        return X
+
+    def inverse_transform(self, X):
+        """Scale back the data to the original representation
+
+        Parameters
+        ----------
+        X : array-like
+            The data used to scale along the specified axis.
+
+        This implementation was copied and modified from Scikit-Learn.
+
+        See License information here:
+        https://github.com/scikit-learn/scikit-learn/blob/master/README.rst
+        """
+        check_is_fitted(self, "center_", "scale_")
+
+        # if sparse.issparse(X):
+        #     if self.with_scaling:
+        #         inplace_column_scale(X, self.scale_)
+        # else:
+        if self.with_scaling:
+            X *= self.scale_
+        if self.with_centering:
+            X += self.center_
+        return X
+
+
 class QuantileTransformer(skdata.QuantileTransformer):
     """Transforms features using quantile information.
 
     This implementation differs from the scikit-learn implementation
     by using approximate quantiles. The scikit-learn docstring follows.
     """
-    __doc__ = __doc__ + '\n'.join(
-        skdata.QuantileTransformer.__doc__.split("\n")[1:])
+
+    __doc__ = __doc__ + "\n".join(skdata.QuantileTransformer.__doc__.split("\n")[1:])
 
     def _check_inputs(self, X, accept_sparse_negative=False):
         if isinstance(X, (pd.DataFrame, dd.DataFrame)):
@@ -145,7 +243,8 @@ class QuantileTransformer(skdata.QuantileTransformer):
         # TODO: mix of sparse, dense?
         sample = rng.uniform(size=(5, X.shape[1])).astype(X.dtype)
         super(QuantileTransformer, self)._check_inputs(
-            sample, accept_sparse_negative=accept_sparse_negative)
+            sample, accept_sparse_negative=accept_sparse_negative
+        )
         return X
 
     def _sparse_fit(self, X, random_state):
@@ -158,15 +257,17 @@ class QuantileTransformer(skdata.QuantileTransformer):
 
     def _transform(self, X, inverse=False):
         X = X.copy()  # ...
-        transformed = [self._transform_col(X[:, feature_idx],
-                                           self.quantiles_[:, feature_idx],
-                                           inverse)
-                       for feature_idx in range(X.shape[1])]
+        transformed = [
+            self._transform_col(
+                X[:, feature_idx], self.quantiles_[:, feature_idx], inverse
+            )
+            for feature_idx in range(X.shape[1])
+        ]
         return da.vstack(transformed).T
 
     def _transform_col(self, X_col, quantiles, inverse):
-        if self.output_distribution == 'normal':
-            output_distribution = 'norm'
+        if self.output_distribution == "normal":
+            output_distribution = "norm"
         else:
             output_distribution = self.output_distribution
         output_distribution = getattr(stats, output_distribution)
@@ -183,17 +284,16 @@ class QuantileTransformer(skdata.QuantileTransformer):
             upper_bound_y = quantiles[-1]
             X_col = X_col.map_blocks(output_distribution.cdf)
 
-        lower_bounds_idx = (X_col - skdata.BOUNDS_THRESHOLD <
-                            lower_bound_x)
-        upper_bounds_idx = (X_col + skdata.BOUNDS_THRESHOLD >
-                            upper_bound_x)
+        lower_bounds_idx = X_col - skdata.BOUNDS_THRESHOLD < lower_bound_x
+        upper_bounds_idx = X_col + skdata.BOUNDS_THRESHOLD > upper_bound_x
         if not inverse:
             # See the note in scikit-learn. This trick is to avoid
             # repeated extreme values
             X_col = 0.5 * (
-                X_col.map_blocks(np.interp, quantiles, self.references_) -
-                (-X_col).map_blocks(np.interp, -quantiles[::-1],
-                                    -self.references_[::-1])
+                X_col.map_blocks(np.interp, quantiles, self.references_)
+                - (-X_col).map_blocks(
+                    np.interp, -quantiles[::-1], -self.references_[::-1]
+                )
             )
         else:
             X_col = X_col.map_blocks(np.interp, self.references_, quantiles)
@@ -203,10 +303,10 @@ class QuantileTransformer(skdata.QuantileTransformer):
 
         if not inverse:
             X_col = X_col.map_blocks(output_distribution.ppf)
-            clip_min = output_distribution.ppf(skdata.BOUNDS_THRESHOLD -
-                                               np.spacing(1))
-            clip_max = output_distribution.ppf(1 - (skdata.BOUNDS_THRESHOLD -
-                                                    np.spacing(1)))
+            clip_min = output_distribution.ppf(skdata.BOUNDS_THRESHOLD - np.spacing(1))
+            clip_max = output_distribution.ppf(
+                1 - (skdata.BOUNDS_THRESHOLD - np.spacing(1))
+            )
             X_col = da.clip(X_col, clip_min, clip_max)
 
         return X_col
@@ -273,6 +373,7 @@ class Categorizer(BaseEstimator, TransformerMixin):
     >>> ce.fit_transform(df).B.dtype
     CategoricalDtype(categories=['a', 'b', 'c'], ordered=False)
     """
+
     def __init__(self, categories=None, columns=None):
         self.categories = categories
         self.columns = columns
@@ -280,8 +381,9 @@ class Categorizer(BaseEstimator, TransformerMixin):
     def _check_array(self, X):
         # TODO: refactor to check_array
         if not isinstance(X, (pd.DataFrame, dd.DataFrame)):
-            raise TypeError("Expected a pandas or dask DataFrame, got "
-                            "{} instead".format(type(X)))
+            raise TypeError(
+                "Expected a pandas or dask DataFrame, got " "{} instead".format(type(X))
+            )
         return X
 
     def fit(self, X, y=None):
@@ -314,7 +416,7 @@ class Categorizer(BaseEstimator, TransformerMixin):
 
     def _fit(self, X):
         if self.columns is None:
-            columns = X.select_dtypes(include=['object', 'category']).columns
+            columns = X.select_dtypes(include=["object", "category"]).columns
         else:
             columns = self.columns
         categories = {}
@@ -324,7 +426,7 @@ class Categorizer(BaseEstimator, TransformerMixin):
                 # This shouldn't ever be hit on a dask.array, since
                 # the object columns would have been converted to known cats
                 # already
-                col = pd.Series(col, index=X.index).astype('category')
+                col = pd.Series(col, index=X.index).astype("category")
 
             if _HAS_CTD:
                 categories[name] = col.dtype
@@ -363,13 +465,13 @@ class Categorizer(BaseEstimator, TransformerMixin):
                 X[k] = X[k].astype(dtype)
             else:
                 cat, ordered = dtype
-                X[k] = X[k].astype('category').cat.set_categories(cat, ordered)
+                X[k] = X[k].astype("category").cat.set_categories(cat, ordered)
 
         return X
 
 
 class DummyEncoder(BaseEstimator, TransformerMixin):
-    """Dummy (one-hot) encode categorical columns
+    """Dummy (one-hot) encode categorical columns.
 
     Parameters
     ----------
@@ -448,6 +550,7 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
     3                ...    ...    ...
     Dask Name: get_dummies, 4 tasks
     """
+
     def __init__(self, columns=None, drop_first=False):
         self.columns = columns
         self.drop_first = drop_first
@@ -467,18 +570,16 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
         self.columns_ = X.columns
         columns = self.columns
         if columns is None:
-            columns = X.select_dtypes(include=['category']).columns
+            columns = X.select_dtypes(include=["category"]).columns
         else:
             for column in columns:
                 assert is_categorical_dtype(X[column]), "Must be categorical"
 
         self.categorical_columns_ = columns
-        self.non_categorical_columns_ = X.columns.drop(
-            self.categorical_columns_)
+        self.non_categorical_columns_ = X.columns.drop(self.categorical_columns_)
 
         if _HAS_CTD:
-            self.dtypes_ = {col: X[col].dtype
-                            for col in self.categorical_columns_}
+            self.dtypes_ = {col: X[col].dtype for col in self.categorical_columns_}
         else:
             self.dtypes_ = {
                 col: (X[col].cat.categories, X[col].cat.ordered)
@@ -499,7 +600,8 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
             sample = X._meta_nonempty
 
         self.transformed_columns_ = pd.get_dummies(
-            sample, drop_first=self.drop_first).columns
+            sample, drop_first=self.drop_first
+        ).columns
         return self
 
     def transform(self, X, y=None):
@@ -516,14 +618,14 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
             Same type as the input
         """
         if not X.columns.equals(self.columns_):
-            raise ValueError("Columns of 'X' do not match the training "
-                             "columns. Got {!r}, expected {!r}".format(
-                                 X.columns, self.columns
-                             ))
+            raise ValueError(
+                "Columns of 'X' do not match the training "
+                "columns. Got {!r}, expected {!r}".format(X.columns, self.columns)
+            )
         if isinstance(X, pd.DataFrame):
-            return pd.get_dummies(X, drop_first=self.drop_first)
+            return pd.get_dummies(X, drop_first=self.drop_first, columns=self.columns)
         elif isinstance(X, dd.DataFrame):
-            return dd.get_dummies(X, drop_first=self.drop_first)
+            return dd.get_dummies(X, drop_first=self.drop_first, columns=self.columns)
         else:
             raise TypeError("Unexpected type {}".format(type(X)))
 
@@ -549,8 +651,7 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
             # known divisions. Suboptimal, but I think unavoidable.
             unknown = np.isnan(X.chunks[0]).any()
             if unknown:
-                lengths = da.atop(len, 'i', X[:, 0],
-                                  'i', dtype='i8').compute()
+                lengths = da.atop(len, "i", X[:, 0], "i", dtype="i8").compute()
                 X = X.copy()
                 chunks = (tuple(lengths), X.chunks[1])
                 X._chunks = chunks
@@ -587,20 +688,22 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
                 # dask
                 codes._chunks = (chunks,)
                 # Need a Categorical.from_codes for dask
-                series = (dd.from_dask_array(codes, columns=col)
-                          .astype('category')
-                          .cat.set_categories(np.arange(len(categories)),
-                                              ordered=ordered)
-                          .cat.rename_categories(categories))
+                series = (
+                    dd.from_dask_array(codes, columns=col)
+                    .astype("category")
+                    .cat.set_categories(np.arange(len(categories)), ordered=ordered)
+                    .cat.rename_categories(categories)
+                )
                 # Bug in pandas <= 0.20.3 lost name
                 if series.name is None:
                     series.name = col
                 series.divisions = X.divisions
             else:
                 # pandas
-                series = pd.Series(pd.Categorical.from_codes(
-                    codes, categories, ordered=ordered
-                ), name=col)
+                series = pd.Series(
+                    pd.Categorical.from_codes(codes, categories, ordered=ordered),
+                    name=col,
+                )
 
             cats.append(series)
         if big:
@@ -608,3 +711,207 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
         else:
             df = pd.concat([non_cat] + cats, axis=1)[self.columns_]
         return df
+
+
+class OrdinalEncoder(BaseEstimator, TransformerMixin):
+    """Ordinal (integer) encode categorical columns.
+
+    Parameters
+    ----------
+    columns : sequence, optional
+        The columns to encode. Must be categorical dtype.
+        Encodes all categorical dtype columns by default.
+
+    Attributes
+    ----------
+    columns_ : Index
+        The columns in the training data before/after encoding
+
+    categorical_columns_ : Index
+        The categorical columns in the training data
+
+    noncategorical_columns_ : Index
+        The rest of the columns in the training data
+
+    dtypes_ : dict
+        Dictionary mapping column name to either
+
+        * instances of CategoricalDtype (pandas >= 0.21.0)
+        * tuples of (categories, ordered)
+
+    Notes
+    -----
+    This transformer only applies to dask and pandas DataFrames. For dask
+    DataFrames, all of your categoricals should be known.
+
+    The inverse transformation can be used on a dataframe or array.
+
+    Examples
+    --------
+    >>> data = pd.DataFrame({"A": [1, 2, 3, 4],
+    ...                      "B": pd.Categorical(['a', 'a', 'a', 'b'])})
+    >>> enc = OrdinalEncoder()
+    >>> trn = enc.fit_transform(data)
+    >>> trn
+       A  B
+    0  1  0
+    1  2  0
+    2  3  0
+    3  4  1
+
+    >>> enc.columns_
+    Index(['A', 'B'], dtype='object')
+
+    >>> enc.non_categorical_columns_
+    Index(['A'], dtype='object')
+
+    >>> enc.categorical_columns_
+    Index(['B'], dtype='object')
+
+    >>> enc.dtypes_
+    {'B': CategoricalDtype(categories=['a', 'b'], ordered=False)}
+
+    >>> enc.fit_transform(dd.from_pandas(data, 2))
+    Dask DataFrame Structure:
+                       A     B
+    npartitions=2
+    0              int64  int8
+    2                ...   ...
+    3                ...   ...
+    Dask Name: assign, 8 tasks
+
+    """
+
+    def __init__(self, columns=None):
+        self.columns = columns
+
+    def fit(self, X, y=None):
+        """Determine the categorical columns to be encoded.
+
+        Parameters
+        ----------
+        X : pandas.DataFrame or dask.dataframe.DataFrame
+        y : ignored
+
+        Returns
+        -------
+        self
+        """
+        self.columns_ = X.columns
+        columns = self.columns
+        if columns is None:
+            columns = X.select_dtypes(include=["category"]).columns
+        else:
+            for column in columns:
+                assert is_categorical_dtype(X[column]), "Must be categorical"
+
+        self.categorical_columns_ = columns
+        self.non_categorical_columns_ = X.columns.drop(self.categorical_columns_)
+
+        if _HAS_CTD:
+            self.dtypes_ = {col: X[col].dtype for col in self.categorical_columns_}
+        else:
+            self.dtypes_ = {
+                col: (X[col].cat.categories, X[col].cat.ordered)
+                for col in self.categorical_columns_
+            }
+
+        return self
+
+    def transform(self, X, y=None):
+        """Ordinal encode the categorical columns in X
+
+        Parameters
+        ----------
+        X : pd.DataFrame or dd.DataFrame
+        y : ignored
+
+        Returns
+        -------
+        transformed : pd.DataFrame or dd.DataFrame
+            Same type as the input
+        """
+        if not X.columns.equals(self.columns_):
+            raise ValueError(
+                "Columns of 'X' do not match the training "
+                "columns. Got {!r}, expected {!r}".format(X.columns, self.columns)
+            )
+        if not isinstance(X, (pd.DataFrame, dd.DataFrame)):
+            raise TypeError("Unexpected type {}".format(type(X)))
+
+        X = X.copy()
+        for col in self.categorical_columns_:
+            X[col] = X[col].cat.codes
+        return X
+
+    def inverse_transform(self, X):
+        """Inverse ordinal-encode the columns in `X`
+
+        Parameters
+        ----------
+        X : array or dataframe
+            Either the NumPy, dask, or pandas version
+
+        Returns
+        -------
+        data : DataFrame
+            Dask array or dataframe will return a Dask DataFrame.
+            Numpy array or pandas dataframe will return a pandas DataFrame
+        """
+        if isinstance(X, np.ndarray):
+            X = pd.DataFrame(X, columns=self.columns_)
+
+        elif isinstance(X, da.Array):
+            # later on we concat(..., axis=1), which requires
+            # known divisions. Suboptimal, but I think unavoidable.
+            unknown = np.isnan(X.chunks[0]).any()
+            if unknown:
+                lengths = da.atop(len, "i", X[:, 0], "i", dtype="i8").compute()
+                X = X.copy()
+                chunks = (tuple(lengths), X.chunks[1])
+                X._chunks = chunks
+
+            X = dd.from_dask_array(X, columns=self.columns_)
+
+        big = isinstance(X, dd.DataFrame)
+
+        if big:
+            chunks = np.array(X.divisions)
+            chunks[-1] = chunks[-1] + 1
+            chunks = tuple(chunks[1:] - chunks[:-1])
+
+        X = X.copy()
+        for col in self.categorical_columns_:
+            if _HAS_CTD:
+                dtype = self.dtypes_[col]
+                categories, ordered = dtype.categories, dtype.ordered
+            else:
+                categories, ordered = self.dtypes_[col]
+
+            # use .values to avoid warning from pandas
+            codes = X[col].values
+
+            if big:
+                # dask
+                codes._chunks = (chunks,)
+                # Need a Categorical.from_codes for dask
+                series = (
+                    dd.from_dask_array(codes, columns=col)
+                    .astype("category")
+                    .cat.set_categories(np.arange(len(categories)), ordered=ordered)
+                    .cat.rename_categories(categories)
+                )
+                # Bug in pandas <= 0.20.3 lost name
+                if series.name is None:
+                    series.name = col
+                series.divisions = X.divisions
+            else:
+                # pandas
+                series = pd.Series(
+                    pd.Categorical.from_codes(codes, categories, ordered=ordered),
+                    name=col,
+                )
+
+            X[col] = series
+
+        return X

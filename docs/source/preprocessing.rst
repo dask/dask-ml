@@ -2,7 +2,7 @@ Preprocessing
 =============
 
 :mod:`dask_ml.preprocessing` contains some scikit-learn style transformers that
-can be used in ``Pipelines`` s to perform various data transformations as part
+can be used in ``Pipelines`` to perform various data transformations as part
 of the model fitting process. These transformers will work well on dask
 collections (``dask.array``, ``dask.dataframe``), NumPy arrays, or pandas
 dataframes. They'll fit and transform in parallel.
@@ -19,7 +19,10 @@ scikit-learn counterparts.
 
    MinMaxScaler
    QuantileTransformer
+   RobustScaler
    StandardScaler
+   LabelEncoder
+   OneHotEncoder
 
 These can be used just like the scikit-learn versions, except that:
 
@@ -28,7 +31,101 @@ These can be used just like the scikit-learn versions, except that:
    when the input is a dask collection
 
 See :mod:`sklearn.preprocessing` for more information about any particular
-transformer.
+transformer. Scikit-learn does have some transforms that are alternatives to
+the large-memory tasks that Dask serves. These include `FeatureHasher`_ (a
+good alternative to `DictVectorizer`_ and `CountVectorizer`_) and `HashingVectorizer`_
+(best suited for use in text over `CountVectorizer`_). They are not
+stateful, which allows easy use with Dask with ``map_partitions``:
+
+.. ipython:: python
+
+    import dask.bag as db
+    from sklearn.feature_extraction import FeatureHasher
+
+    D = [{'dog': 1, 'cat':2, 'elephant':4}, {'dog': 2, 'run': 5}]
+    b = db.from_sequence(D)
+    h = FeatureHasher()
+
+    b.map_partitions(h.transform).compute()
+
+.. _FeatureHasher: http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.FeatureHasher.html
+.. _HashingVectorizer: http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.HashingVectorizer.html
+.. _DictVectorizer: http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.DictVectorizer.html
+.. _CountVectorizer: http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html
+
+.. note::
+
+   :class:`dask_ml.preprocessing.LabelEncoder` and
+   :class:`dask_ml.preprocessing.OneHotEncoder`
+   will use the categorical dtype information for a dask or pandas Series with
+   a :class:`pandas.api.types.CategoricalDtype`.
+   This improves performance, but may lead to different encodings depending on the
+   categories. See the class docstrings for more.
+
+Encoding Categorical Features
+-----------------------------
+
+:class:`dask_ml.preprocessing.OneHotEncoder` can be useful for "one-hot" (or
+"dummy") encoding features.
+
+See `the scikit-learn documentation <http://scikit-learn.org/dev/modules/preprocessing.html#preprocessing-categorical-features>`_
+for a full discussion. This section focuses only on the differences from
+scikit-learn.
+
+Dask-ML Supports pandas' Categorical dtype
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Dask-ML supports and uses the type information from pandas Categorical dtype.
+See https://pandas.pydata.org/pandas-docs/stable/categorical.html for an introduction.
+For large datasets, using categorical dtypes is crucial for achieving performance.
+
+This will have a couple effects on the learned attributes and transformed
+values.
+
+1. The learned ``categories_`` may differ. Scikit-Learn requires the categories
+   to be sorted. With a ``CategoricalDtype`` the categories do not need to be sorted.
+2. The output of :meth:`OneHotEncoder.transform` will be the same type as the
+   input. Passing a pandas DataFrame returns a pandas Dataframe, instead of a
+   NumPy array. Likewise, a Dask DataFrame returns a Dask DataFrame.
+
+Dask-ML's Sparse Support
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The default behavior of OneHotEncoder is to return a sparse array. Scikit-Learn
+returns a SciPy sparse matrix for ndarrays passed to ``transform``.
+
+When passed a Dask Array, :meth:`OneHotEncoder.transform` returns a Dask Array
+*where each block is a scipy sparse matrix*. SciPy sparse matricies don't
+support the same API as the NumPy ndarray, so most methods won't work on the
+result. Even basic things like ``compute`` will fail. To work around this,
+we currently recommend converting the sparse matricies to dense.
+
+.. ipython:: python
+
+   from dask_ml.preprocessing import OneHotEncoder
+   import dask.array as da
+   import numpy as np
+
+   enc = OneHotEncoder(sparse=True)
+   X = da.from_array(np.array([['A'], ['B'], ['A'], ['C']]), chunks=2)
+   enc = enc.fit(X)
+   result = enc.transform(X)
+   result
+
+Each block of ``result`` is a scipy sparse matrix
+
+.. ipython:: python
+
+   result.blocks[0].compute()
+   # This would fail!
+   # result.compute()
+   # Convert to, say, pydata/sparse COO matricies instead
+   from sparse import COO
+
+   result.map_blocks(COO.from_scipy_sparse, dtype=result.dtype).compute()
+
+Dask-ML's sparse support for sparse data is currently in flux. Reach out if you
+have any issues.
 
 Additional Tranformers
 ----------------------
@@ -39,6 +136,7 @@ Other transformers are specific to dask-ml.
 
    Categorizer
    DummyEncoder
+   OrdinalEncoder
 
 
 Both :class:`dask_ml.preprocessing.Categorizer` and
@@ -47,7 +145,7 @@ data to numeric data. They are useful as a preprocessing step in a pipeline
 where you start with heterogenous data (a mix of numeric and non-numeric), but
 the estimator requires all numeric data.
 
-In this toy example, we make a dataset with two columns. ``'A'`` is numeric and
+In this toy example, we use a dataset with two columns. ``'A'`` is numeric and
 ``'B'`` contains text data. We make a small pipeline to
 
 1. Categorize the text data
@@ -91,13 +189,13 @@ Wherever the original was ``'a'``, the transformed now has a ``1`` in the ``a``
 column and a ``0`` everywhere else.
 
 Why was the ``Categorizizer`` step necessary? Why couldn't we operate directly
-on a the ``object`` (string) dtype column? Doing this would be fragile,
+on the ``object`` (string) dtype column? Doing this would be fragile,
 especially when using ``dask.dataframe``, since *the shape of the output would
 depend on the values present*. For example, suppose that we just saw the first
 two rows in the training, and the last two rows in the tests datasets. Then,
 when training, our transformed columns would be:
 
-.. ipython::python
+.. ipython:: python
 
    pd.get_dummies(df.loc[[0, 1], 'B'])
 

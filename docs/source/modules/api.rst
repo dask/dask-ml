@@ -17,6 +17,24 @@ appropriate for parallel and distributed training.
 
 .. currentmodule:: dask_ml
 
+Dask-ML has a few cross validation utilities.
+
+.. autosummary::
+   :toctree: generated/
+
+   model_selection.train_test_split
+
+:func:`model_selection.train_test_split` is a simple helper that
+uses :class:`model_selection.ShuffleSplit` internally.
+
+.. autosummary::
+   :toctree: generated
+   :template: class.rst
+
+   model_selection.ShuffleSplit
+
+Dask-ML provides drop-in replacements for grid and randomized search.
+
 .. autosummary::
    :toctree: generated/
    :template: class.rst
@@ -42,30 +60,20 @@ appropriate for parallel and distributed training.
    linear_model.LogisticRegression
    linear_model.PoissonRegression
 
-Incremental Learning
-====================
+Meta-estimators for scikit-learn
+================================
+
+dask-ml provides some meta-estimators that help use regular scikit-learn
+compatible estimators with Dask arrays.
 
 .. currentmodule:: dask_ml
-
-Some scikit-learn estimators support out-of-core training through the
-``partial_fit`` method. The following estimators wrap those scikit-learn
-estimators, allowing them to be used in Pipelines and on Dask arrays and
-dataframes. Training will still be serial, so these will not benefit from
-a parallel or distributed training any more than the underlying estimator.
 
 .. autosummary::
    :toctree: generated/
    :template: class.rst
 
-   cluster.PartialMiniBatchKMeans
-   linear_model.PartialPassiveAggressiveClassifier
-   linear_model.PartialPassiveAggressiveRegressor
-   linear_model.PartialPerceptron
-   linear_model.PartialSGDClassifier
-   linear_model.PartialSGDRegressor
-   naive_bayes.PartialBernoulliNB
-   naive_bayes.PartialMultinomialNB
-
+   wrappers.ParallelPostFit
+   wrappers.Incremental
 
 :mod:`dask_ml.cluster`: Clustering
 ==================================
@@ -97,6 +105,7 @@ a parallel or distributed training any more than the underlying estimator.
    :toctree: generated/
    :template: class.rst
 
+   decomposition.PCA
    decomposition.TruncatedSVD
 
 
@@ -112,11 +121,45 @@ a parallel or distributed training any more than the underlying estimator.
    :template: class.rst
 
    preprocessing.Imputer
+   preprocessing.StandardScaler
+   preprocessing.RobustScaler
    preprocessing.MinMaxScaler
    preprocessing.QuantileTransformer
    preprocessing.StandardScaler
    preprocessing.Categorizer
    preprocessing.DummyEncoder
+   preprocessing.OrdinalEncoder
+   preprocessing.LabelEncoder
+
+
+:mod:`dask_ml.metrics`: Metrics
+===============================
+
+Score functions, performance metrics, and pairwise distance computations.
+
+Regression Metrics
+------------------
+
+.. currentmodule:: dask_ml
+
+.. autosummary::
+   :toctree: generated/
+
+   metrics.mean_absolute_error
+   metrics.mean_squared_error
+   metrics.r2_score
+
+
+Classification Metrics
+----------------------
+
+.. currentmodule:: dask_ml
+
+.. autosummary::
+   :toctree: generated/
+
+   metrics.accuracy_score
+   metrics.log_loss
 
 
 :mod:`dask_ml.tensorflow`: Tensorflow

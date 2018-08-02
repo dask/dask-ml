@@ -1,0 +1,36 @@
+digraph unmerged {
+    rankdir="BT"
+    node [fontname = "Inconsolata"]
+
+    data [label="Training Data"]
+
+    vect1 [label="CountVectorizer\n- ngram_range=(1, 1)"]
+    vect2 [label="CountVectorizer\n- ngram_range=(1, 1)"]
+    vect3 [label="CountVectorizer\n- ngram_range=(1, 1)"]
+    vect4 [label="CountVectorizer\n- ngram_range=(1, 1)"]
+    vect5 [label="CountVectorizer\n- ngram_range=(1, 1)"]
+    vect6 [label="CountVectorizer\n- ngram_range=(1, 1)"]
+
+    tfidf1 [label="TfidfTransformer\n- norm='l1'"]
+    tfidf2 [label="TfidfTransformer\n- norm='l1'"]
+    tfidf3 [label="TfidfTransformer\n- norm='l1'"]
+    tfidf4 [label="TfidfTransformer\n- norm='l2'"]
+    tfidf5 [label="TfidfTransformer\n- norm='l2'"]
+    tfidf6 [label="TfidfTransformer\n- norm='l2'"]
+
+    sgd1 [label="SGDClassifier\n- alpha=1e-3"]
+    sgd2 [label="SGDClassifier\n- alpha=1e-4"]
+    sgd3 [label="SGDClassifier\n- alpha=1e-5"]
+    sgd4 [label="SGDClassifier\n- alpha=1e-3"]
+    sgd5 [label="SGDClassifier\n- alpha=1e-4"]
+    sgd6 [label="SGDClassifier\n- alpha=1e-5"]
+
+    best [label="Choose Best Parameters"]
+
+    data -> vect1 -> tfidf1 -> sgd1 -> best
+    data -> vect2 -> tfidf2 -> sgd2 -> best
+    data -> vect3 -> tfidf3 -> sgd3 -> best
+    data -> vect4 -> tfidf4 -> sgd4 -> best
+    data -> vect5 -> tfidf5 -> sgd5 -> best
+    data -> vect6 -> tfidf6 -> sgd6 -> best
+}

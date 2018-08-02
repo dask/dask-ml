@@ -1,80 +1,167 @@
 Hyper Parameter Search
 ======================
 
+Tools for performing hyperparameter optimization of Scikit-Learn API-compatible
+models using Dask. Dask-ML implements GridSearchCV and RandomizedSearchCV.
+
 .. autosummary::
-   sklearn.pipeline.make_pipeline
    sklearn.model_selection.GridSearchCV
    dask_ml.model_selection.GridSearchCV
    sklearn.model_selection.RandomizedSearchCV
    dask_ml.model_selection.RandomizedSearchCV
 
-Most estimators have a set of *hyper-parameters*.
-These are parameters that are not learned during training but instead must be
-set ahead of time. Traditionally we use Scikit-Learn tools like
-:class:`sklearn.model_selection.GridSearchCV` and
-:class:`sklearn.model_selection.RandomizedSearchCV` to tune our
-hyper-parameters by searching over the space of hyper-parameters to find the
-combination that gives the best performance on a cross-validation set.
+The varians in Dask-ML implement many (but not all) of the same parameters,
+and should be a drop-in replacement for the subset that they do implement.
+In that case, why use Dask-ML's versions?
+
+- :ref:`Flexible Backends <flexible-backends>`: Hyperparameter
+  optimization can be done in parallel using threads, processes, or distributed
+  across a cluster.
+
+- :ref:`Works well with Dask collections <works-with-dask-collections>`. Dask
+  arrays, dataframes, and delayed can be passed to ``fit``.
+
+- :ref:`Avoid repeated work <avoid-repeated-work>`. Candidate estimators with
+  identical parameters and inputs will only be fit once. For
+  composite-estimators such as ``Pipeline`` this can be significantly more
+  efficient as it can avoid expensive repeated computations.
+
+Both scikit-learn's and Dask-ML's model selection meta-estimators can be used
+with Dask's :ref:`joblib backend <joblib>`.
+
+.. _flexible-backends:
+
+Flexible Backends
+^^^^^^^^^^^^^^^^^
+
+Dask-searchcv can use any of the dask schedulers. By default the threaded
+scheduler is used, but this can easily be swapped out for the multiprocessing
+or distributed scheduler:
+
+.. code-block:: python
+
+    # Distribute grid-search across a cluster
+    from dask.distributed import Client
+    scheduler_address = '127.0.0.1:8786'
+    client = Client(scheduler_address)
+
+    search.fit(digits.data, digits.target)
+
+
+.. _works-with-dask-collections:
+
+Works Well With Dask Collections
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Dask collections such as ``dask.array``, ``dask.dataframe`` and
+``dask.delayed`` can be passed to ``fit``. This means you can use dask to do
+your data loading and preprocessing as well, allowing for a clean workflow.
+This also allows you to work with remote data on a cluster without ever having
+to pull it locally to your computer:
+
+.. code-block:: python
+
+    import dask.dataframe as dd
+
+    # Load data from s3
+    df = dd.read_csv('s3://bucket-name/my-data-*.csv')
+
+    # Do some preprocessing steps
+    df['x2'] = df.x - df.x.mean()
+    # ...
+
+    # Pass to fit without ever leaving the cluster
+    search.fit(df[['x', 'x2']], df['y'])
+
+
+.. _avoid-repeated-work:
+
+Avoid Repeated Work
+^^^^^^^^^^^^^^^^^^^
+
+When searching over composite estimators like ``sklearn.pipeline.Pipeline`` or
+``sklearn.pipeline.FeatureUnion``, Dask-ML will avoid fitting the same
+estimator + parameter + data combination more than once. For pipelines with
+expensive early steps this can be faster, as repeated work is avoided.
+
+For example, given the following 3-stage pipeline and grid (modified from `this
+scikit-learn example
+<http://scikit-learn.org/stable/auto_examples/model_selection/grid_search_text_feature_extraction.html>`__).
+
+.. code-block:: python
+
+    from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+    from sklearn.linear_model import SGDClassifier
+    from sklearn.pipeline import Pipeline
+
+    pipeline = Pipeline([('vect', CountVectorizer()),
+                         ('tfidf', TfidfTransformer()),
+                         ('clf', SGDClassifier())])
+
+    grid = {'vect__ngram_range': [(1, 1)],
+            'tfidf__norm': ['l1', 'l2'],
+            'clf__alpha': [1e-3, 1e-4, 1e-5]}
+
+the Scikit-Learn grid-search implementation looks something like (simplified):
+
+.. code-block:: python
+
+	scores = []
+	for ngram_range in parameters['vect__ngram_range']:
+		for norm in parameters['tfidf__norm']:
+			for alpha in parameters['clf__alpha']:
+				vect = CountVectorizer(ngram_range=ngram_range)
+				X2 = vect.fit_transform(X, y)
+				tfidf = TfidfTransformer(norm=norm)
+				X3 = tfidf.fit_transform(X2, y)
+				clf = SGDClassifier(alpha=alpha)
+				clf.fit(X3, y)
+				scores.append(clf.score(X3, y))
+	best = choose_best_parameters(scores, parameters)
+
+
+As a directed acyclic graph, this might look like:
+
+.. figure:: images/unmerged_grid_search_graph.svg
+   :alt: "scikit-learn grid-search directed acyclic graph"
+   :align: center
+
+
+In contrast, the dask version looks more like:
+
+.. code-block:: python
+
+	scores = []
+	for ngram_range in parameters['vect__ngram_range']:
+		vect = CountVectorizer(ngram_range=ngram_range)
+		X2 = vect.fit_transform(X, y)
+		for norm in parameters['tfidf__norm']:
+			tfidf = TfidfTransformer(norm=norm)
+			X3 = tfidf.fit_transform(X2, y)
+			for alpha in parameters['clf__alpha']:
+				clf = SGDClassifier(alpha=alpha)
+				clf.fit(X3, y)
+				scores.append(clf.score(X3, y))
+	best = choose_best_parameters(scores, parameters)
+
+
+With a corresponding directed acyclic graph:
+
+.. figure:: images/merged_grid_search_graph.svg
+   :alt: "Dask-ML grid-search directed acyclic graph"
+   :align: center
+
+
+Looking closely, you can see that the Scikit-Learn version ends up fitting
+earlier steps in the pipeline multiple times with the same parameters and data.
+Due to the increased flexibility of Dask over Joblib, we're able to merge these
+tasks in the graph and only perform the fit step once for any
+parameter/data/estimator combination. For pipelines that have relatively
+expensive early steps, this can be a big win when performing a grid search.
 
 Pipelines
 ---------
 
-This search for hyper-parameters can become significantly more expensive when
-we have not a single estimator, but many estimators arranged into a pipeline.
-A :class:`sklearn.pipeline.Pipeline` makes it possible to define the entire modeling
-process, from raw data to fit estimator, in a single python object. You can
-create a pipeline with :func:`sklearn.pipeline.make_pipeline`.
-
-.. ipython:: python
-
-   from sklearn.pipeline import make_pipeline
-   from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-   from sklearn.linear_model import SGDClassifier
-
-   pipeline = make_pipeline(CountVectorizer(),
-                            TfidfTransformer(),
-                            SGDClassifier())
-   pipeline
-
-Pipelines work by calling the usual ``fit`` and ``transform`` methods in succession.
-The result of the prior ``transform`` is passed into the next ``fit`` step.
-We'll see an example in the next section.
-
-Efficient Search
-----------------
-
-However now each of our estimators in our pipeline have hyper-parameters,
-both expanding the space over which we want to search as well as adding
-hierarchy to the search process.  For every parameter we try in the first stage
-in the pipeline we want to try several in the second, and several more in the
-third, and so on.
-
-The common combination of pipelines and hyper-parameter search provide an
-opportunity for dask to speed up model training not just by simple parallelism,
-but also by searching the space in a more structured way.
-
-If you use the drop-in replacements
-:class:`dask_ml.model_selection.GridSearchCV` and
-:class:`dask_ml.model_selection.RandomizedSearchCV` to fit a ``Pipeline``, you can improve
-the training time since Dask will cache and reuse the intermediate steps.
-
-.. ipython:: python
-
-   # from sklearn.model_selection import GridSearchCV  # replace import
-   from dask_ml.model_selection import GridSearchCV
-   param_grid = {
-       'tfidftransformer__norm': ['l1', 'l2', None],
-       'sgdclassifier__loss': ['hing', 'log'],
-       'sgdclassifier__alpha': [1e-5, 1e-3, 1e-1],
-   }
-
-   clf = GridSearchCV(pipeline, param_grid=param_grid, n_jobs=-1)
-
-With the regular scikit-learn version, each stage of the pipeline must be fit
-for each of the combinations of the parameters, even if that step isn't being
-searched over. For example, the ``CountVectorizer`` must be fit 3 * 2 * 2 = 12
-times, even though it's identical each time.
-
-See :ref:`examples/hyperparameter-search.ipynb` for an example.
-
-.. _dask-searchcv: http://dask-searchcv.readthedocs.io/en/latest/
+Dask-ML uses scikit-learn's :class:`sklearn.pipeline.Pipeline` to express
+pipelines of estimators that are chained together. If the individual
+estimators work well with Dask's collections, the pipeline will as well.

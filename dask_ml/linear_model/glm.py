@@ -3,16 +3,23 @@
 import textwrap
 
 from dask_glm import algorithms, families
-from dask_glm.utils import (accuracy_score, add_intercept, dot, exp,
-                            mean_squared_error, poisson_deviance, sigmoid)
+from dask_glm.utils import (
+    accuracy_score,
+    add_intercept,
+    dot,
+    exp,
+    mean_squared_error,
+    poisson_deviance,
+    sigmoid,
+)
 from sklearn.base import BaseEstimator
 
-# register multipledispatch
+# Register multiple dispatch
 from . import utils  # noqa
 from ..utils import check_array
 
-
-_base_doc = textwrap.dedent("""\
+_base_doc = textwrap.dedent(
+    """\
     Esimator for {regression_type}.
 
     Parameters
@@ -80,21 +87,35 @@ _base_doc = textwrap.dedent("""\
     Examples
     --------
     {examples}
-    """)
+    """
+)
 
 
 class _GLM(BaseEstimator):
-
     @property
     def family(self):
         """
         The family this estimator is for.
         """
 
-    def __init__(self, penalty='l2', dual=False, tol=1e-4, C=1.0,
-                 fit_intercept=True, intercept_scaling=1.0, class_weight=None,
-                 random_state=None, solver='admm', multiclass='ovr', verbose=0,
-                 warm_start=False, n_jobs=1, max_iter=100, solver_kwargs=None):
+    def __init__(
+        self,
+        penalty="l2",
+        dual=False,
+        tol=1e-4,
+        C=1.0,
+        fit_intercept=True,
+        intercept_scaling=1.0,
+        class_weight=None,
+        random_state=None,
+        solver="admm",
+        multiclass="ovr",
+        verbose=0,
+        warm_start=False,
+        n_jobs=1,
+        max_iter=100,
+        solver_kwargs=None,
+    ):
         self.penalty = penalty
         self.dual = dual
         self.tol = tol
@@ -112,28 +133,35 @@ class _GLM(BaseEstimator):
         self.solver_kwargs = solver_kwargs
 
     def _get_solver_kwargs(self):
-        fit_kwargs = {'max_iter': self.max_iter,
-                      'family': self.family,
-                      'tol': self.tol,
-                      'regularizer': self.penalty,
-                      'lamduh': 1 / self.C}
+        fit_kwargs = {
+            "max_iter": self.max_iter,
+            "family": self.family,
+            "tol": self.tol,
+            "regularizer": self.penalty,
+            "lamduh": 1 / self.C,
+        }
 
-        if self.solver in ('gradient_descent', 'newton'):
-            fit_kwargs.pop('regularizer')
-            fit_kwargs.pop('lamduh')
+        if self.solver in ("gradient_descent", "newton"):
+            fit_kwargs.pop("regularizer")
+            fit_kwargs.pop("lamduh")
 
-        if self.solver == 'admm':
-            fit_kwargs.pop('tol')  # uses reltol / abstol instead
+        if self.solver == "admm":
+            fit_kwargs.pop("tol")  # uses reltol / abstol instead
 
         if self.solver_kwargs:
             fit_kwargs.update(self.solver_kwargs)
 
-        solvers = {'admm', 'proximal_grad', 'lbfgs', 'newton',
-                   'proximal_grad', 'gradient_descent'}
+        solvers = {
+            "admm",
+            "proximal_grad",
+            "lbfgs",
+            "newton",
+            "proximal_grad",
+            "gradient_descent",
+        }
 
         if self.solver not in solvers:
-            msg = ("'solver' must be {}. Got '{}' instead".format(solvers,
-                                                                  self.solver))
+            msg = "'solver' must be {}. Got '{}' instead".format(solvers, self.solver)
             raise ValueError(msg)
 
         return fit_kwargs
@@ -166,20 +194,23 @@ class _GLM(BaseEstimator):
         if self.fit_intercept:
             X = add_intercept(X)
 
-        return check_array(X)
+        return check_array(X, accept_unknown_chunks=True)
 
 
 class LogisticRegression(_GLM):
     __doc__ = _base_doc.format(
-        regression_type='logistic_regression',
-        examples=textwrap.dedent("""
+        regression_type="logistic_regression",
+        examples=textwrap.dedent(
+            """
             >>> from dask_glm.datasets import make_classification
             >>> X, y = make_classification()
             >>> lr = LogisticRegression()
             >>> lr.fit(X, y)
             >>> lr.predict(X)
             >>> lr.predict_proba(X)
-            >>> est.score(X, y)"""))
+            >>> est.score(X, y)"""
+        ),
+    )
 
     @property
     def family(self):
@@ -234,15 +265,18 @@ class LogisticRegression(_GLM):
 
 class LinearRegression(_GLM):
     __doc__ = _base_doc.format(
-        regression_type='linear_regression',
-        examples=textwrap.dedent("""
+        regression_type="linear_regression",
+        examples=textwrap.dedent(
+            """
             >>> from dask_glm.datasets import make_regression
             >>> X, y = make_regression()
             >>> lr = LinearRegression()
             >>> lr.fit(X, y)
             >>> lr.predict(X)
             >>> lr.predict(X)
-            >>> est.score(X, y)"""))
+            >>> est.score(X, y)"""
+        ),
+    )
 
     @property
     def family(self):
@@ -292,15 +326,18 @@ class LinearRegression(_GLM):
 
 class PoissonRegression(_GLM):
     __doc__ = _base_doc.format(
-        regression_type='poisson_regression',
-        examples=textwrap.dedent("""
+        regression_type="poisson_regression",
+        examples=textwrap.dedent(
+            """
             >>> from dask_glm.datasets import make_counts
             >>> X, y = make_counts()
             >>> lr = PoissonRegression()
             >>> lr.fit(X, y)
             >>> lr.predict(X)
             >>> lr.predict(X)
-            >>> lr.get_deviance(X, y)"""))
+            >>> lr.get_deviance(X, y)"""
+        ),
+    )
 
     @property
     def family(self):

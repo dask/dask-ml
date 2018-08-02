@@ -1,0 +1,45 @@
+name: dask-ml-test
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - black
+  - coverage
+  - codecov
+  - Cython
+  - flake8
+  - heapdict
+  - ipykernel
+  - ipython
+  - isort
+  - multipledispatch
+  - nbsphinx
+  - nomkl
+  - nose
+  - numpy
+  - numpydoc
+  - pandas
+  - psutil
+  - pytest
+  - pytest-cov
+  - pytest-mock
+  - python=3.6
+  - sortedcontainers
+  - scikit-learn
+  - scipy
+  - six
+  - sparse
+  - sphinx
+  - sphinx_rtd_theme
+  - sphinx-gallery
+  - tensorflow
+  - tornado
+  - toolz
+  - xgboost
+  - zict
+  - pip:
+    - dask-glm
+    - git+https://github.com/dask/dask.git
+    - git+https://github.com/dask/distributed.git
+    - git+https://github.com/dask/dask-tensorflow.git
+    - git+https://github.com/dask/dask-xgboost.git
