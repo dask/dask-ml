@@ -79,9 +79,9 @@ def assert_estimator_equal(left, right, exclude=None, **kwargs):
     assert (set(left_attrs) - exclude) == set(right_attrs) - exclude
 
     for attr in set(left_attrs) - exclude:
-        left = getattr(left, attr)
-        right = getattr(right, attr)
-        _assert_eq(left, right, **kwargs)
+        l = getattr(left, attr)
+        r = getattr(right, attr)
+        _assert_eq(l, r, **kwargs)
 
 
 def check_array(array, *args, **kwargs):
@@ -158,20 +158,20 @@ def check_array(array, *args, **kwargs):
         return sk_validation.check_array(array, *args, **kwargs)
 
 
-def _assert_eq(left, right, **kwargs):
+def _assert_eq(l, r, **kwargs):
     array_types = (np.ndarray, da.Array)
     frame_types = (pd.core.generic.NDFrame, dd._Frame)
-    if isinstance(left, array_types):
-        assert_eq_ar(left, right, **kwargs)
-    elif isinstance(left, frame_types):
-        assert_eq_df(left, right, **kwargs)
-    elif isinstance(left, Sequence) and any(
-        isinstance(x, array_types + frame_types) for x in left
+    if isinstance(l, array_types):
+        assert_eq_ar(l, r, **kwargs)
+    elif isinstance(l, frame_types):
+        assert_eq_df(l, r, **kwargs)
+    elif isinstance(l, Sequence) and any(
+        isinstance(x, array_types + frame_types) for x in l
     ):
-        for a, b in zip(left, right):
+        for a, b in zip(l, r):
             _assert_eq(a, b, **kwargs)
     else:
-        assert left == right
+        assert l == r
 
 
 def check_random_state(random_state):
