@@ -120,7 +120,6 @@ compatible estimators with Dask arrays.
    :toctree: generated/
    :template: class.rst
 
-   preprocessing.Imputer
    preprocessing.StandardScaler
    preprocessing.RobustScaler
    preprocessing.MinMaxScaler
@@ -130,6 +129,19 @@ compatible estimators with Dask arrays.
    preprocessing.DummyEncoder
    preprocessing.OrdinalEncoder
    preprocessing.LabelEncoder
+
+:mod:`dask_ml.impute`: Imputing Missing Data
+============================================
+
+.. automodule:: dask_ml.impute
+
+.. currentmodule:: dask_ml
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   preprocessing.impute.SimpleImputer
 
 
 :mod:`dask_ml.metrics`: Metrics
