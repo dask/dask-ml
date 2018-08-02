@@ -40,7 +40,8 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
 
         if not (pd.isna(self.missing_values) or self.strategy == "constant"):
             raise ValueError(
-                "dask_ml.preprocessing.Imputer only supports non-NA values for 'missing_values' when 'strategy=\"constant\"'."
+                "dask_ml.preprocessing.Imputer only supports non-NA values for "
+                "'missing_values' when 'strategy=constant'."
             )
 
         X = self._check_array(X)
