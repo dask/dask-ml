@@ -5,6 +5,7 @@ from copy import deepcopy
 from sklearn.base import clone
 from sklearn.utils import check_random_state
 from tornado import gen
+from time import time
 
 import dask
 import dask.array as da
@@ -151,69 +152,96 @@ def _fit(
 
     # Submit initial partial_fit and score computations on first batch of data
     X_future, y_future = get_futures(0)
+    X_future_2, y_future_2 = get_futures(1)
+    _models = {}
+    _scores = {}
+    _specs = {}
     for ident, model in models.items():
-        model = client.submit(_partial_fit, model, X_future, y_future, fit_params)
-        score = client.submit(_score, model, X_test, y_test, scorer)
-        models[ident] = model
-        scores[ident] = score
+        model = dask.delayed(_partial_fit)(model, X_future, y_future, fit_params)
+        score = dask.delayed(_score)(model, X_test, y_test, scorer)
+        spec = dask.delayed(_partial_fit)(model, X_future_2, y_future_2, fit_params)
+        _models[ident] = model
+        _scores[ident] = score
+        _specs[ident] = spec
+    _models, _scores, _specs = dask.persist(_models, _scores, _specs,
+                                            priority={tuple(_specs): -1})
+    _models = {k: list(v.dask.values())[0] for k, v in _models.items()}
+    _scores = {k: list(v.dask.values())[0] for k, v in _scores.items()}
+    _specs = {k: list(v.dask.values())[0] for k, v in _specs.items()}
+    models.update(_models)
+    scores.update(_scores)
+    speculative = _specs
 
-    seq = as_completed(scores.values(), with_results=True)
-    speculative = dict()  # models that we might or might not want to keep
+    seq = as_completed(scores.values())
     history = []
     number_to_complete = len(models)
+    yet_to_see = set(scores)
 
     # async for future, result in seq:
     while not seq.is_empty():
-        future, meta = yield seq.__anext__()
-        if future.cancelled():
-            continue
-        ident = meta['ident']
+        future = yield seq.__anext__()
+        futures = [future]
+        while not seq.queue.empty():
+            futures.append(seq.queue.get())
+        metas = yield client.gather(futures)
 
-        info[ident].append(meta)
-        history.append(meta)
+        for future, meta in zip(futures, metas):
+            ident = meta['ident']
 
-        # Evolve the model one more step
-        model = models[ident]
-        X_future, y_future = get_futures(meta['time_step'] + 1)
-        model = client.submit(_partial_fit, model, X_future, y_future,
-                              fit_params)
-        speculative[ident] = model
+            info[ident].append(meta)
+            history.append(meta)
+            yet_to_see.discard(ident)
 
-        # Have we finished a full set of models?
-        if len(speculative) == number_to_complete:
-            instructions = update(info)
+            # Have we finished a full set of models?
+            if not yet_to_see:
+                time_start = time()
+                instructions = update(info)
 
-            bad = set(models) - set(instructions)
+                bad = set(models) - set(instructions)
 
-            # Delete the futures of bad models.  This cancels speculative tasks
-            for ident in bad:
-                del models[ident]
-                del scores[ident]
-                del info[ident]
+                # Delete the futures of bad models.  This cancels speculative tasks
+                for ident in bad:
+                    del models[ident]
+                    del scores[ident]
+                    del info[ident]
 
-            if not any(instructions.values()):
-                break
+                if not any(instructions.values()):
+                    break
 
-            for ident, k in instructions.items():
-                start = info[ident][-1]['time_step'] + 1
-                if k:
-                    if ident in speculative:
-                        model = speculative.pop(ident)
+                _models = {}
+                _scores = {}
+                _specs = {}
+                for ident, k in instructions.items():
+                    start = info[ident][-1]['time_step'] + 1
+                    if k:
                         k -= 1
-                    else:
-                        model = models[ident]
-                    for i in range(k):
-                        X_future, y_future = get_futures(start + i)
-                        model = client.submit(_partial_fit, model, X_future, y_future, fit_params)
-                    score = client.submit(_score, model, X_test, y_test, scorer)
-                    models[ident] = model
-                    scores[ident] = score
+                        model = dask.delayed(speculative.pop(ident))
+                        for i in range(k):
+                            X_future, y_future = get_futures(start + i)
+                            model = dask.delayed(_partial_fit)(model, X_future, y_future, fit_params)
+                        score = dask.delayed(_score)(model, X_test, y_test, scorer)
+                        X_future, y_future = get_futures(start + k)
+                        spec = dask.delayed(_partial_fit)(model, X_future, y_future, fit_params)
+                        _models[ident] = model
+                        _scores[ident] = score
+                        _specs[ident] = spec
 
-                    seq.add(score)
+                _models2, _scores2, _specs2 = dask.persist(_models, _scores, _specs,
+                                                          priority={tuple(_specs): -1})
+                _models2 = {k: list(v.dask.values())[0] for k, v in _models2.items()}
+                _scores2 = {k: list(v.dask.values())[0] for k, v in _scores2.items()}
+                _specs2 = {k: list(v.dask.values())[0] for k, v in _specs2.items()}
+                models.update(_models2)
+                scores.update(_scores2)
+                speculative = _specs2
+                yet_to_see = set(_scores2)
 
-            number_to_complete = len([v for v in instructions.values() if v])
+                seq.update(_scores2.values())
 
-            speculative.clear()
+                time_stop = time()
+
+                # from distributed.utils import format_time
+                # print(format_time(time_stop - time_start))
 
     raise gen.Return((info, models, history))
 
