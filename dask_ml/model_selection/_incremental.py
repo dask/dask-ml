@@ -136,7 +136,7 @@ def _fit(
 
         if j in seen:
             x_key, y_key = seen[j]
-            return Future(x_key), Future(y_key)
+            return Future(x_key, inform=False), Future(y_key, inform=False)
         else:
             # new future, need to tell scheduler about it
             X_future = client.compute(X_train[j])
