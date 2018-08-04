@@ -60,7 +60,7 @@ def test_partial_fit_doesnt_mutate_inputs():
         "iterations": 0,
         "mean_copy_time": 0,
         "mean_fit_time": 0,
-        "partial_fit_calls": 1,
+        "time_step": 1,
     }
     model = SGDClassifier(tol=1e-3)
     model.partial_fit(X[: n // 2], y[: n // 2], classes=np.unique(y))
