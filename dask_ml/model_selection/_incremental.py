@@ -148,7 +148,7 @@ def _fit(
         _scores[ident] = score
         _specs[ident] = spec
     _models, _scores, _specs = dask.persist(_models, _scores, _specs,
-                                            priority={tuple(_specs): -1})
+                                            priority={tuple(_specs.values()): -1})
     _models = {k: list(v.dask.values())[0] for k, v in _models.items()}
     _scores = {k: list(v.dask.values())[0] for k, v in _scores.items()}
     _specs = {k: list(v.dask.values())[0] for k, v in _specs.items()}
@@ -156,76 +156,66 @@ def _fit(
     scores.update(_scores)
     speculative = _specs
 
-    seq = as_completed(scores.values())
+    new_scores = list(_scores.values())
     history = []
     number_to_complete = len(models)
-    yet_to_see = set(scores)
 
     # async for future, result in seq:
-    while not seq.is_empty():
-        future = yield seq.__anext__()
-        futures = [future]
-        while not seq.queue.empty():
-            futures.append(seq.queue.get())
-        metas = yield client.gather(futures)
+    while True:
+        metas = yield client.gather(new_scores)
 
-        for future, meta in zip(futures, metas):
+        for meta in metas:
             ident = meta['ident']
 
             info[ident].append(meta)
             history.append(meta)
-            yet_to_see.discard(ident)
 
-            # Have we finished a full set of models?
-            if not yet_to_see:
-                time_start = time()
-                instructions = update(info)
+        time_start = time()
+        instructions = update(info)
+        bad = set(models) - set(instructions)
 
-                bad = set(models) - set(instructions)
+        # Delete the futures of bad models.  This cancels speculative tasks
+        for ident in bad:
+            del models[ident]
+            del scores[ident]
+            del info[ident]
 
-                # Delete the futures of bad models.  This cancels speculative tasks
-                for ident in bad:
-                    del models[ident]
-                    del scores[ident]
-                    del info[ident]
+        if not any(instructions.values()):
+            break
 
-                if not any(instructions.values()):
-                    break
+        _models = {}
+        _scores = {}
+        _specs = {}
+        for ident, k in instructions.items():
+            start = info[ident][-1]['time_step'] + 1
+            if k:
+                k -= 1
+                model = speculative.pop(ident)
+                for i in range(k):
+                    X_future, y_future = get_futures(start + i)
+                    model = d_partial_fit(model, X_future, y_future, fit_params)
+                score = d_score(model, X_test, y_test, scorer)
+                X_future, y_future = get_futures(start + k)
+                spec = d_partial_fit(model, X_future, y_future, fit_params)
+                _models[ident] = model
+                _scores[ident] = score
+                _specs[ident] = spec
 
-                _models = {}
-                _scores = {}
-                _specs = {}
-                for ident, k in instructions.items():
-                    start = info[ident][-1]['time_step'] + 1
-                    if k:
-                        k -= 1
-                        model = speculative.pop(ident)
-                        for i in range(k):
-                            X_future, y_future = get_futures(start + i)
-                            model = d_partial_fit(model, X_future, y_future, fit_params)
-                        score = d_score(model, X_test, y_test, scorer)
-                        X_future, y_future = get_futures(start + k)
-                        spec = d_partial_fit(model, X_future, y_future, fit_params)
-                        _models[ident] = model
-                        _scores[ident] = score
-                        _specs[ident] = spec
+        _models2, _scores2, _specs2 = dask.persist(_models, _scores, _specs,
+                                                   priority={tuple(_specs.values()): -1})
+        _models2 = {k: v if isinstance(v, Future) else list(v.dask.values())[0] for k, v in _models2.items()}
+        _scores2 = {k: list(v.dask.values())[0] for k, v in _scores2.items()}
+        _specs2 = {k: list(v.dask.values())[0] for k, v in _specs2.items()}
+        models.update(_models2)
+        scores.update(_scores2)
+        speculative = _specs2
 
-                _models2, _scores2, _specs2 = dask.persist(_models, _scores, _specs,
-                                                           priority={tuple(_specs): -1})
-                _models2 = {k: v if isinstance(v, Future) else list(v.dask.values())[0] for k, v in _models2.items()}
-                _scores2 = {k: list(v.dask.values())[0] for k, v in _scores2.items()}
-                _specs2 = {k: list(v.dask.values())[0] for k, v in _specs2.items()}
-                models.update(_models2)
-                scores.update(_scores2)
-                speculative = _specs2
-                yet_to_see = set(_scores2)
+        new_scores = list(_scores2.values())
 
-                seq.update(_scores2.values())
+        time_stop = time()
 
-                time_stop = time()
-
-                # from distributed.utils import format_time
-                # print(format_time(time_stop - time_start))
+            # from distributed.utils import format_time
+            # print(format_time(time_stop - time_start))
 
     raise gen.Return((info, models, history))
 
