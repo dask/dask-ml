@@ -126,6 +126,7 @@ with Dask Arrays or DataFrames.
    preprocessing.RobustScaler
    preprocessing.MinMaxScaler
    preprocessing.QuantileTransformer
+   preprocessing.StandardScaler
    preprocessing.Categorizer
    preprocessing.DummyEncoder
    preprocessing.OrdinalEncoder
@@ -150,6 +151,17 @@ Meta-estimators for building composite models with transformers.
    :toctree: generted/
 
    compose.make_column_transformer
+
+
+:mod:`dask_ml.impute`: Imputing Missing Data
+============================================
+
+.. automodule:: dask_ml.impute
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   preprocessing.impute.SimpleImputer
 
 
 :mod:`dask_ml.metrics`: Metrics

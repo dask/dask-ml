@@ -1,3 +1,4 @@
+import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
@@ -129,10 +130,36 @@ def test_add_intercept_dask_dataframe():
         add_intercept(df)
 
 
-def test_unknown_chunks_ok():
+@pytest.mark.parametrize("fit_intercept", [True, False])
+def test_unknown_chunks_ok(fit_intercept):
     # https://github.com/dask/dask-ml/issues/145
     X = dd.from_pandas(pd.DataFrame(np.random.uniform(size=(10, 5))), 2).values
     y = dd.from_pandas(pd.Series(np.random.uniform(size=(10,))), 2).values
 
-    reg = LinearRegression(fit_intercept=False)
+    reg = LinearRegression(fit_intercept=fit_intercept)
     reg.fit(X, y)
+
+
+def test_add_intercept_unknown_ndim():
+    X = dd.from_pandas(pd.DataFrame(np.ones((10, 5))), 2).values
+    result = add_intercept(X)
+    expected = np.ones((10, 6))
+    da.utils.assert_eq(result, expected)
+
+
+def test_add_intercept_raises_ndim():
+    X = da.random.uniform(size=10, chunks=5)
+
+    with pytest.raises(ValueError) as m:
+        add_intercept(X)
+
+    assert m.match("'X' should have 2 dimensions")
+
+
+def test_add_intercept_raises_chunks():
+    X = da.random.uniform(size=(10, 4), chunks=(4, 2))
+
+    with pytest.raises(ValueError) as m:
+        add_intercept(X)
+
+    assert m.match("Chunking is only allowed")
