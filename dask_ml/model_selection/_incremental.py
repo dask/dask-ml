@@ -9,7 +9,7 @@ from time import time
 
 import dask
 import dask.array as da
-from dask.distributed import as_completed, default_client, Future
+from dask.distributed import as_completed, default_client, futures_of, Future
 from distributed.utils import log_errors
 
 
@@ -106,18 +106,13 @@ def _fit(
         y_test = yield client.scatter(y_test)
 
     # Convert to batches of delayed objects of numpy arrays
-    X_train = X_train.to_delayed()
-    if hasattr(X_train, 'squeeze'):
-        X_train = X_train.squeeze()
-    y_train = y_train.to_delayed()
-    if hasattr(y_train, 'squeeze'):
-        y_train = y_train.squeeze()
-    X_train, y_train = dask.optimize(X_train.tolist(), y_train.tolist())
+    X_train, y_train = dask.persist(X_train, y_train)
+    X_train = sorted(futures_of(X_train), key=lambda f: f.key)
+    y_train = sorted(futures_of(y_train), key=lambda f: f.key)
+    assert len(X_train) == len(y_train)
 
     # Order by which we process training data futures
     order = []
-    seen = {}
-    tokens = {}
 
     def get_futures(time_step):
         """ Policy to get training data futures
@@ -134,21 +129,7 @@ def _fit(
             order.extend(L)
 
         j = order[time_step]
-
-        if j in seen:
-            x_key, y_key = seen[j]
-            return Future(x_key, inform=False), Future(y_key, inform=False)
-        else:
-            # new future, need to tell scheduler about it
-            X_future = client.compute(X_train[j])
-            y_future = client.compute(y_train[j])
-            seen[j] = (X_future.key, y_future.key)
-
-            # Hack to keep the futures in the scheduler but not in memory
-            X_token = client.submit(len, X_future)
-            y_token = client.submit(len, y_future)
-            tokens[j] = (X_token, y_token)
-            return X_future, y_future
+        return X_train[j], y_train[j]
 
     # Submit initial partial_fit and score computations on first batch of data
     X_future, y_future = get_futures(0)
@@ -215,7 +196,7 @@ def _fit(
                     start = info[ident][-1]['time_step'] + 1
                     if k:
                         k -= 1
-                        model = dask.delayed(speculative.pop(ident))
+                        model = speculative.pop(ident)
                         for i in range(k):
                             X_future, y_future = get_futures(start + i)
                             model = dask.delayed(_partial_fit)(model, X_future, y_future, fit_params)
@@ -228,7 +209,7 @@ def _fit(
 
                 _models2, _scores2, _specs2 = dask.persist(_models, _scores, _specs,
                                                           priority={tuple(_specs): -1})
-                _models2 = {k: list(v.dask.values())[0] for k, v in _models2.items()}
+                _models2 = {k: v if isinstance(v, Future) else list(v.dask.values())[0] for k, v in _models2.items()}
                 _scores2 = {k: list(v.dask.values())[0] for k, v in _scores2.items()}
                 _specs2 = {k: list(v.dask.values())[0] for k, v in _specs2.items()}
                 models.update(_models2)
