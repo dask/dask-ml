@@ -137,10 +137,13 @@ def _fit(
     _models = {}
     _scores = {}
     _specs = {}
+
+    d_partial_fit = dask.delayed(_partial_fit)
+    d_score = dask.delayed(_score)
     for ident, model in models.items():
-        model = dask.delayed(_partial_fit)(model, X_future, y_future, fit_params)
-        score = dask.delayed(_score)(model, X_test, y_test, scorer)
-        spec = dask.delayed(_partial_fit)(model, X_future_2, y_future_2, fit_params)
+        model = d_partial_fit(model, X_future, y_future, fit_params)
+        score = d_score(model, X_test, y_test, scorer)
+        spec = d_partial_fit(model, X_future_2, y_future_2, fit_params)
         _models[ident] = model
         _scores[ident] = score
         _specs[ident] = spec
@@ -199,16 +202,16 @@ def _fit(
                         model = speculative.pop(ident)
                         for i in range(k):
                             X_future, y_future = get_futures(start + i)
-                            model = dask.delayed(_partial_fit)(model, X_future, y_future, fit_params)
-                        score = dask.delayed(_score)(model, X_test, y_test, scorer)
+                            model = d_partial_fit(model, X_future, y_future, fit_params)
+                        score = d_score(model, X_test, y_test, scorer)
                         X_future, y_future = get_futures(start + k)
-                        spec = dask.delayed(_partial_fit)(model, X_future, y_future, fit_params)
+                        spec = d_partial_fit(model, X_future, y_future, fit_params)
                         _models[ident] = model
                         _scores[ident] = score
                         _specs[ident] = spec
 
                 _models2, _scores2, _specs2 = dask.persist(_models, _scores, _specs,
-                                                          priority={tuple(_specs): -1})
+                                                           priority={tuple(_specs): -1})
                 _models2 = {k: v if isinstance(v, Future) else list(v.dask.values())[0] for k, v in _models2.items()}
                 _scores2 = {k: list(v.dask.values())[0] for k, v in _scores2.items()}
                 _specs2 = {k: list(v.dask.values())[0] for k, v in _specs2.items()}
