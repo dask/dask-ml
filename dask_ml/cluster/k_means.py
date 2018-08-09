@@ -138,6 +138,7 @@ class KMeans(TransformerMixin, BaseEstimator):
         n_jobs=1,
         algorithm="full",
         init_max_iter=None,
+        algo=_centers_dense,
     ):
         self.n_clusters = n_clusters
         self.init = init
@@ -150,6 +151,7 @@ class KMeans(TransformerMixin, BaseEstimator):
         self.precompute_distances = precompute_distances
         self.n_jobs = n_jobs
         self.copy_x = copy_x
+        self.algo = algo
 
     @_timed(_logger=logger)
     def _check_array(self, X):
@@ -197,6 +199,7 @@ class KMeans(TransformerMixin, BaseEstimator):
             max_iter=self.max_iter,
             init_max_iter=self.init_max_iter,
             tol=self.tol,
+            algo=self.algo,
         )
         self.cluster_centers_ = centroids
         self.labels_ = labels
@@ -249,6 +252,7 @@ def k_means(
     return_n_iter=False,
     oversampling_factor=2,
     init_max_iter=None,
+    algo=_centers_dense,
 ):
     """K-means algorithm for clustering
 
@@ -268,6 +272,7 @@ def k_means(
         random_state=random_state,
         oversampling_factor=oversampling_factor,
         init_max_iter=init_max_iter,
+        algo=algo,
     )
     if return_n_iter:
         return labels, centers, inertia, n_iter
@@ -508,6 +513,7 @@ def _kmeans_single_lloyd(
     precompute_distances=True,
     oversampling_factor=2,
     init_max_iter=None,
+    algo=_centers_dense,
 ):
     centers = k_init(
         X,
@@ -529,7 +535,7 @@ def _kmeans_single_lloyd(
             # distances is always float64, but we need it to match X.dtype
             # for centers_dense, but remain float64 for inertia
             r = da.atop(
-                _centers_dense,
+                algo,
                 "ij",
                 X,
                 "ij",
