@@ -124,10 +124,24 @@ compatible estimators with Dask arrays.
    preprocessing.RobustScaler
    preprocessing.MinMaxScaler
    preprocessing.QuantileTransformer
+   preprocessing.StandardScaler
    preprocessing.Categorizer
    preprocessing.DummyEncoder
    preprocessing.OrdinalEncoder
    preprocessing.LabelEncoder
+
+:mod:`dask_ml.impute`: Imputing Missing Data
+============================================
+
+.. automodule:: dask_ml.impute
+
+.. currentmodule:: dask_ml
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   preprocessing.impute.SimpleImputer
 
 
 :mod:`dask_ml.metrics`: Metrics
@@ -157,6 +171,7 @@ Classification Metrics
    :toctree: generated/
 
    metrics.accuracy_score
+   metrics.log_loss
 
 
 :mod:`dask_ml.tensorflow`: Tensorflow

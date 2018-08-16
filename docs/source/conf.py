@@ -18,6 +18,8 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import shutil
+import subprocess
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
@@ -63,7 +65,7 @@ sphinx_gallery_conf = {
     "backreferences_dir": False,
 }
 
-nbsphinx_execute = "never"
+nbsphinx_timeout = 600
 numpydoc_class_members_toctree = False
 autodoc_default_flags = ["members", "inherited-members"]
 autosummary_generate = True
@@ -198,8 +200,35 @@ def generate_example_rst(app, what, name, obj, options, lines):
         open(examples_path, "w").close()
 
 
+def update_examples(app):
+    import nbformat
+
+    print("Updating dask-examples")
+    if not os.path.exists("dask-examples"):
+        subprocess.run(["git", "clone", "https://github.com/dask/dask-examples"])
+    else:
+        subprocess.run(["git", "-C", "dask-examples", "pull"])
+
+    src_dir = "dask-examples/machine-learning"
+    dst_dir = "source/examples"
+
+    skip_execution = {"training-on-large-datasets.ipynb"}
+
+    for file in os.listdir(src_dir):
+        if file.endswith(".ipynb"):
+            if file in skip_execution:
+                print("Disabling execution for file", file)
+                nb = nbformat.read(os.path.join(src_dir, file), nbformat.NO_CONVERT)
+                nb["metadata"].setdefault("nbsphinx", {})
+                nb["metadata"]["nbsphinx"]["execute"] = "never"
+                nbformat.write(nb, os.path.join(src_dir, file))
+
+            shutil.copy(os.path.join(src_dir, file), os.path.join(dst_dir, file))
+
+
 def setup(app):
     app.connect("autodoc-process-docstring", generate_example_rst)
+    app.connect("builder-inited", update_examples)
     app.add_stylesheet("style.css")
 
 
