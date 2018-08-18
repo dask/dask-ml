@@ -37,7 +37,6 @@ from sklearn.model_selection import (
 )
 from sklearn.neighbors import KernelDensity
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import Imputer
 from sklearn.svm import SVC, LinearSVC
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 
@@ -119,7 +118,7 @@ def test_hyperparameter_searcher_with_fit_params(cls, kwargs):
     )
 
 
-@ignore_warnings
+@pytest.mark.filterwarnings("ignore::sklearn.exceptions.ConvergenceWarning")
 def test_grid_search_no_score():
     # Test grid-search on classifier that has no score function.
     clf = LinearSVC(random_state=0)
@@ -194,8 +193,8 @@ def test_grid_search_groups():
     group_cvs = [
         LeaveOneGroupOut(),
         LeavePGroupsOut(2),
-        GroupKFold(),
-        GroupShuffleSplit(),
+        GroupKFold(n_splits=3),
+        GroupShuffleSplit(n_splits=3),
     ]
     for cv in group_cvs:
         gs = dcv.GridSearchCV(clf, grid, cv=cv)
@@ -206,7 +205,10 @@ def test_grid_search_groups():
 
         gs.fit(X, y, groups=groups)
 
-    non_group_cvs = [StratifiedKFold(), StratifiedShuffleSplit()]
+    non_group_cvs = [
+        StratifiedKFold(n_splits=3),
+        StratifiedShuffleSplit(n_splits=3)
+    ]
     for cv in non_group_cvs:
         gs = dcv.GridSearchCV(clf, grid, cv=cv)
         # Should not raise an error
@@ -256,6 +258,7 @@ def test_return_train_score_warn():
             assert not warns
 
 
+@pytest.mark.filterwarnings("ignore::sklearn.exceptions.ConvergenceWarning")
 def test_classes__property():
     # Test that classes_ property matches best_estimator_.classes_
     X = np.arange(100).reshape(10, 10)
@@ -653,12 +656,18 @@ def test_grid_search_cv_results():
         dict(kernel=["poly"], degree=[1, 2]),
     ]
     grid_search = dcv.GridSearchCV(
-        SVC(), cv=n_splits, iid=False, param_grid=params, return_train_score=True
-    )
+        SVC(gamma='auto'),
+        cv=n_splits,
+        iid=False,
+        param_grid=params,
+        return_train_score=True)
     grid_search.fit(X, y)
     grid_search_iid = dcv.GridSearchCV(
-        SVC(), cv=n_splits, iid=True, param_grid=params, return_train_score=True
-    )
+        SVC(gamma='auto'),
+        cv=n_splits,
+        iid=True,
+        param_grid=params,
+        return_train_score=True)
     grid_search_iid.fit(X, y)
 
     param_keys = ("param_C", "param_degree", "param_gamma", "param_kernel")
@@ -805,10 +814,12 @@ def test_search_iid_param():
     cv = [[mask, ~mask], [~mask, mask]]
     # once with iid=True (default)
     grid_search = dcv.GridSearchCV(
-        SVC(), param_grid={"C": [1, 10]}, cv=cv, return_train_score=True
-    )
+        SVC(gamma='auto'),
+        param_grid={"C": [1, 10]},
+        cv=cv,
+        return_train_score=True)
     random_search = dcv.RandomizedSearchCV(
-        SVC(),
+        SVC(gamma='auto'),
         n_iter=2,
         param_distributions={"C": [1, 10]},
         return_train_score=True,
@@ -864,10 +875,10 @@ def test_search_iid_param():
 
     # once with iid=False
     grid_search = dcv.GridSearchCV(
-        SVC(), param_grid={"C": [1, 10]}, cv=cv, iid=False, return_train_score=True
+        SVC(gamma='auto'), param_grid={"C": [1, 10]}, cv=cv, iid=False, return_train_score=True
     )
     random_search = dcv.RandomizedSearchCV(
-        SVC(),
+        SVC(gamma='auto'),
         n_iter=2,
         param_distributions={"C": [1, 10]},
         cv=cv,
@@ -918,10 +929,10 @@ def test_search_cv_results_rank_tie_breaking():
     param_grid = {"C": [1, 1.001, 0.001]}
 
     grid_search = dcv.GridSearchCV(
-        SVC(), param_grid=param_grid, return_train_score=True
+        SVC(gamma='auto'), param_grid=param_grid, return_train_score=True
     )
     random_search = dcv.RandomizedSearchCV(
-        SVC(), n_iter=3, param_distributions=param_grid, return_train_score=True
+        SVC(gamma='auto'), n_iter=3, param_distributions=param_grid, return_train_score=True
     )
 
     for search in (grid_search, random_search):
@@ -956,13 +967,14 @@ def test_search_cv_results_none_param():
     X, y = [[1], [2], [3], [4], [5]], [0, 0, 0, 0, 1]
     estimators = (DecisionTreeRegressor(), DecisionTreeClassifier())
     est_parameters = {"random_state": [0, None]}
-    cv = KFold(random_state=0)
+    cv = KFold(random_state=0, n_splits=3)
 
     for est in estimators:
         grid_search = dcv.GridSearchCV(est, est_parameters, cv=cv).fit(X, y)
         assert_array_equal(grid_search.cv_results_["param_random_state"], [0, None])
 
 
+@pytest.mark.filterwarnings("ignore::sklearn.exceptions.ConvergenceWarning")
 def test_grid_search_correct_score_results():
     # test that correct scores are used
     n_splits = 3
@@ -1030,7 +1042,7 @@ def test_grid_search_with_multioutput_data():
     X, y = make_multilabel_classification(return_indicator=True, random_state=0)
 
     est_parameters = {"max_depth": [1, 2, 3, 4]}
-    cv = KFold(random_state=0)
+    cv = KFold(random_state=0, n_splits=3)
 
     estimators = [
         DecisionTreeRegressor(random_state=0),
@@ -1074,7 +1086,7 @@ def test_predict_proba_disabled():
     # Test predict_proba when disabled on estimator.
     X = np.arange(20).reshape(5, -1)
     y = [0, 0, 1, 1, 1]
-    clf = SVC(probability=False)
+    clf = SVC(probability=False, gamma='auto')
     gs = dcv.GridSearchCV(clf, {}, cv=2).fit(X, y)
     assert not hasattr(gs, "predict_proba")
 
@@ -1084,9 +1096,17 @@ def test_grid_search_allows_nans():
     X = np.arange(20, dtype=np.float64).reshape(5, -1)
     X[2, :] = np.nan
     y = [0, 0, 1, 1, 1]
+
+    if SK_VERSION >= packaging.version.parse("0.20.0.dev0"):
+        from sklearn.impute import SimpleImputer
+        imputer = SimpleImputer(strategy="mean", missing_values=np.nan)
+    else:
+        from sklearn.preprocessing import Imputer
+        imputer = Imputer(strategy="mean", missing_values="NaN")
+
     p = Pipeline(
         [
-            ("imputer", Imputer(strategy="mean", missing_values="NaN")),
+            ("imputer", imputer),
             ("classifier", MockClassifier()),
         ]
     )

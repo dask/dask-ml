@@ -47,8 +47,8 @@ def test_predict(kind):
         X = dd.from_dask_array(X)
         y = dd.from_dask_array(y)
 
-    base = LogisticRegression(random_state=0)
-    wrap = ParallelPostFit(LogisticRegression(random_state=0))
+    base = LogisticRegression(random_state=0, n_jobs=1)
+    wrap = ParallelPostFit(LogisticRegression(random_state=0, n_jobs=1))
 
     base.fit(X, y)
     wrap.fit(X, y)
@@ -91,7 +91,7 @@ def test_multiclass():
     X, y = sklearn.datasets.make_classification(n_classes=3, n_informative=4)
     X = da.from_array(X, chunks=50)
     y = da.from_array(y, chunks=50)
-    clf = ParallelPostFit(LogisticRegression(random_state=0))
+    clf = ParallelPostFit(LogisticRegression(random_state=0, n_jobs=1))
 
     clf.fit(X, y)
     result = clf.predict(X)
