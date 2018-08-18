@@ -2,7 +2,6 @@ from __future__ import absolute_import, division, print_function
 
 import os
 import pickle
-import warnings
 from itertools import product
 from multiprocessing import cpu_count
 
