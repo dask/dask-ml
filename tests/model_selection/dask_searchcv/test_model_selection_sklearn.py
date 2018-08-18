@@ -512,7 +512,6 @@ class BrokenClassifier(BaseEstimator):
         return np.zeros(X.shape[0])
 
 
-@pytest.mark.filterwarnings("ignore::sklearn.exceptions.UndefinedMetricWarning")
 def test_refit():
     # Regression test for bug in refitting
     # Simulates re-fitting a broken estimator; this used to break with
@@ -521,7 +520,7 @@ def test_refit():
     y = np.array([0] * 5 + [1] * 5)
 
     clf = dcv.GridSearchCV(
-        BrokenClassifier(), [{"parameter": [0, 1]}], scoring="precision", refit=True
+        BrokenClassifier(), [{"parameter": [0, 1]}], scoring="accuracy", refit=True
     )
     clf.fit(X, y)
 
