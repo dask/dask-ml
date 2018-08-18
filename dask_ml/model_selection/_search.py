@@ -804,6 +804,7 @@ def _do_featureunion(
         raise NotImplementedError(
             "Setting FeatureUnion.transformer_list " "in a gridsearch"
         )
+
     (field_to_index, step_fields_lk) = _group_subparams(
         est.transformer_list, fields, ignore=("transformer_weights")
     )
@@ -877,10 +878,7 @@ def _do_featureunion(
                 dsk[(fit_name, m, n)] = (
                     feature_union,
                     step_names,
-                    [
-                        s or None if s is None else s + (n, )
-                        for s in steps
-                    ],
+                    [None if s is None else s + (n,) for s in steps],
                     w,
                 )
                 dsk[(tr_name, m, n)] = (
