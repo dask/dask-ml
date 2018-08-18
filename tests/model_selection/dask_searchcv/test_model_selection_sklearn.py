@@ -512,7 +512,7 @@ class BrokenClassifier(BaseEstimator):
         return np.zeros(X.shape[0])
 
 
-@pytest.mark.filterwarnings("ignore::UndefinedMetricWarning")
+@pytest.mark.filterwarnings("ignore::sklearn.exceptions.UndefinedMetricWarning")
 def test_refit():
     # Regression test for bug in refitting
     # Simulates re-fitting a broken estimator; this used to break with
