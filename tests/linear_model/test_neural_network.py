@@ -1,9 +1,10 @@
 import pytest
-import sklearn
+import packaging.version
 from sklearn import neural_network as nn_
 
 from dask_ml import neural_network as nn
 from dask_ml.utils import assert_estimator_equal
+from dask_ml._compat import SK_VERSION
 
 
 @pytest.mark.filterwarnings("ignore::FutureWarning")
@@ -13,14 +14,14 @@ class TestMLPClassifier(object):
         a = nn.ParitalMLPClassifier(classes=[0, 1], random_state=0)
         b = nn_.MLPClassifier(random_state=0)
 
-        if sklearn.__version__ < '0.20':
+        if SK_VERSION >= packaging.version.parse("0.20.0.dev0"):
+            a.fit(X, y)
+            b.partial_fit(X, y, classes=[0, 1])
+        else:
             with pytest.warns(DeprecationWarning):
                 a.fit(X, y)
             with pytest.warns(DeprecationWarning):
                 b.partial_fit(X, y, classes=[0, 1])
-        else:
-            a.fit(X, y)
-            b.partial_fit(X, y, classes=[0, 1])
 
         assert_estimator_equal(a, b)
 
