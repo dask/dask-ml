@@ -336,29 +336,16 @@ def test_pipeline_feature_union():
     kbest = SelectKBest()
 
     empty_pipeline = Pipeline([("first", None), ("second", None)])
-
-    if SK_VERSION >= parse("0.20.0.dev0"):
-        empty_union = FeatureUnion([("first", 'drop'), ("second", 'drop')])
-        inner_feature_union = FeatureUnion(
-            [
-                ("pca", pca),
-                ("missing", 'drop'),
-                ("kbest", kbest),
-                ("empty_union", empty_union),
-            ],
-            transformer_weights={"pca": 0.5},
-        )
-    else:
-        empty_union = FeatureUnion([("first", None), ("second", None)])
-        inner_feature_union = FeatureUnion(
-            [
-                ("pca", pca),
-                ("missing", None),
-                ("kbest", kbest),
-                ("empty_union", empty_union),
-            ],
-            transformer_weights={"pca": 0.5},
-        )
+    empty_union = FeatureUnion([("first", None), ("second", None)])
+    inner_feature_union = FeatureUnion(
+        [
+            ("pca", pca),
+            ("missing", None),
+            ("kbest", kbest),
+            ("empty_union", empty_union),
+        ],
+        transformer_weights={"pca": 0.5},
+    )
 
     scaling = Pipeline([("transform", ScalingTransformer())])
     svc = SVC(kernel="linear", random_state=0)
@@ -505,10 +492,7 @@ def test_feature_union(weights):
         p = {}
         for n, c in enumerate(constants):
             if c is None:
-                if SK_VERSION >= parse("0.20.0.dev0"):
-                    p["tr%d" % n] = 'drop'
-                else:
-                    p["tr%d" % n] = None
+                p["tr%d" % n] = None
             elif n == 3:  # 3rd is always an estimator
                 p["tr%d" % n] = ScalingTransformer(c)
             else:

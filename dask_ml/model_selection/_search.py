@@ -590,9 +590,9 @@ def _do_fit_step(
                 sub_est = step
 
             # If an estimator is `None`, there's nothing to do
-            if sub_est is None or sub_est == 'drop':
-                new_fits.update(dict.fromkeys(ids, sub_est))
+            if sub_est is None:
                 nones = dict.fromkeys(ids, None)
+                new_fits.update(nones)
                 if is_transform:
                     if none_passthrough:
                         new_Xs.update(zip(ids, get(ids, Xs)))
@@ -647,7 +647,7 @@ def _do_fit_step(
         if is_transform:
             Xs = get(all_ids, new_Xs)
         fits = get(all_ids, new_fits)
-    elif step is None or step == 'drop':
+    elif step is None:
         # Nothing to do
         fits = [None] * len(Xs)
         if not none_passthrough:
@@ -878,7 +878,7 @@ def _do_featureunion(
                     feature_union,
                     step_names,
                     [
-                        s or None if s is None or s == 'drop' else s + (n, )
+                        s or None if s is None else s + (n, )
                         for s in steps
                     ],
                     w,
