@@ -512,7 +512,7 @@ def test_feature_union(weights):
     pipe = Pipeline([("union", union), ("est", CheckXClassifier())])
     gs = dcv.GridSearchCV(pipe, grid, refit=False, cv=2)
 
-    with warnings.catch_warnings(record=True):
+    with pytest.warns(UserWarning):
         gs.fit(X, y)
 
 

@@ -1,4 +1,5 @@
 import pytest
+import sklearn
 from sklearn import neural_network as nn_
 
 from dask_ml import neural_network as nn
@@ -11,8 +12,16 @@ class TestMLPClassifier(object):
         X, y = single_chunk_classification
         a = nn.ParitalMLPClassifier(classes=[0, 1], random_state=0)
         b = nn_.MLPClassifier(random_state=0)
-        a.fit(X, y)
-        b.partial_fit(X, y, classes=[0, 1])
+
+        if sklearn.__version__ < '0.20':
+            with pytest.warns(DeprecationWarning):
+                a.fit(X, y)
+            with pytest.warns(DeprecationWarning):
+                b.partial_fit(X, y, classes=[0, 1])
+        else:
+            a.fit(X, y)
+            b.partial_fit(X, y, classes=[0, 1])
+
         assert_estimator_equal(a, b)
 
 
