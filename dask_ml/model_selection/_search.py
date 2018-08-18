@@ -591,8 +591,8 @@ def _do_fit_step(
 
             # If an estimator is `None`, there's nothing to do
             if sub_est is None or sub_est == 'drop':
+                new_fits.update(dict.fromkeys(ids, sub_est))
                 nones = dict.fromkeys(ids, None)
-                new_fits.update(nones)
                 if is_transform:
                     if none_passthrough:
                         new_Xs.update(zip(ids, get(ids, Xs)))
@@ -877,7 +877,10 @@ def _do_featureunion(
                 dsk[(fit_name, m, n)] = (
                     feature_union,
                     step_names,
-                    [None if s is None or s == 'drop' else s + (n,) for s in steps],
+                    [
+                        s or None if s is None or s == 'drop' else s + (n, )
+                        for s in steps
+                    ],
                     w,
                 )
                 dsk[(tr_name, m, n)] = (
