@@ -590,7 +590,7 @@ def _do_fit_step(
                 sub_est = step
 
             # If an estimator is `None`, there's nothing to do
-            if sub_est is None:
+            if sub_est is None or sub_est == 'drop':
                 nones = dict.fromkeys(ids, None)
                 new_fits.update(nones)
                 if is_transform:
@@ -647,7 +647,7 @@ def _do_fit_step(
         if is_transform:
             Xs = get(all_ids, new_Xs)
         fits = get(all_ids, new_fits)
-    elif step is None:
+    elif step is None or step == 'drop':
         # Nothing to do
         fits = [None] * len(Xs)
         if not none_passthrough:
@@ -804,7 +804,6 @@ def _do_featureunion(
         raise NotImplementedError(
             "Setting FeatureUnion.transformer_list " "in a gridsearch"
         )
-
     (field_to_index, step_fields_lk) = _group_subparams(
         est.transformer_list, fields, ignore=("transformer_weights")
     )
@@ -878,7 +877,7 @@ def _do_featureunion(
                 dsk[(fit_name, m, n)] = (
                     feature_union,
                     step_names,
-                    [None if s is None else s + (n,) for s in steps],
+                    [None if s is None or s == 'drop' else s + (n,) for s in steps],
                     w,
                 )
                 dsk[(tr_name, m, n)] = (
