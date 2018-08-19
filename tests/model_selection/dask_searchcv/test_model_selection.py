@@ -8,7 +8,6 @@ from multiprocessing import cpu_count
 import dask
 import dask.array as da
 import numpy as np
-from packaging.version import parse
 import pandas as pd
 import pytest
 from dask.base import tokenize
@@ -53,7 +52,6 @@ from dask_ml.model_selection.utils_test import (
     ScalingTransformer,
     ignore_warnings,
 )
-from dask_ml._compat import SK_VERSION
 
 try:
     from distributed import Client
@@ -334,10 +332,8 @@ def test_pipeline_feature_union():
 
     pca = PCA(random_state=0)
     kbest = SelectKBest()
-
     empty_union = FeatureUnion([("first", None), ("second", None)])
     empty_pipeline = Pipeline([("first", None), ("second", None)])
-
     scaling = Pipeline([("transform", ScalingTransformer())])
     svc = SVC(kernel="linear", random_state=0)
 
