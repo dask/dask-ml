@@ -1,0 +1,232 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Voting Classifier\n",
+    "\n",
+    "A [Voting classifier](http://scikit-learn.org/stable/modules/ensemble.html#voting-classifier) model combines multiple different models (i.e., sub-estimators) into a single model, which is (ideally) stronger than any of the individual models alone. \n",
+    "\n",
+    "[Dask](http://dask-ml.readthedocs.io/en/latest/joblib.html) provides the software to train individual sub-estimators on different machines in a cluster. This enables users to train more models in parallel than would have been possible on a single machine. Note that users will only observe this benefit if they have a distributed cluster with more resources than their single machine (because sklearn already enables users to parallelize training across cores on a single machine).\n",
+    "\n",
+    "What follows is an example of how one would deploy a voting classifier model in dask (using a local cluster).\n",
+    "\n",
+    "<img src=\"http://dask.readthedocs.io/en/latest/_images/dask_horizontal.svg\" width=\"30%\" alt=\"Dask logo\">"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from sklearn.ensemble import VotingClassifier\n",
+    "from sklearn.linear_model import SGDClassifier\n",
+    "from sklearn.linear_model import LogisticRegression\n",
+    "from sklearn.svm import SVC\n",
+    "\n",
+    "import sklearn.datasets"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We create a synthetic dataset (with 1000 rows and 20 columns) that we can give to the voting classifier model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "X, y = sklearn.datasets.make_classification(n_samples=1_000, n_features=20)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We specify the VotingClassifier as a list of (name, sub-estimator) tuples. Fitting the VotingClassifier on the data fits each of the sub-estimators in turn. We set the ```n_jobs``` argument to be -1, which instructs sklearn to use all available cores (notice that we haven't used dask)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "classifiers = [\n",
+    "    ('sgd', SGDClassifier(max_iter=1000)),\n",
+    "    ('logisticregression', LogisticRegression()),\n",
+    "    ('svc', SVC(gamma='auto')),\n",
+    "]\n",
+    "clf = VotingClassifier(classifiers, n_jobs=-1)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We call the classifier's fit method in order to train the classifier."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "CPU times: user 54.2 ms, sys: 29.7 ms, total: 83.9 ms\n",
+      "Wall time: 282 ms\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "VotingClassifier(estimators=[('sgd', SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,\n",
+       "       eta0=0.0, fit_intercept=True, l1_ratio=0.15,\n",
+       "       learning_rate='optimal', loss='hinge', max_iter=1000, n_iter=None,\n",
+       "       n_jobs=1, penalty='l2', power_t=0.5, random_state=None,\n",
+       "       shuffle=T...,\n",
+       "  max_iter=-1, probability=False, random_state=None, shrinking=True,\n",
+       "  tol=0.001, verbose=False))],\n",
+       "         flatten_transform=None, n_jobs=-1, voting='hard', weights=None)"
+      ]
+     },
+     "execution_count": 4,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "%time clf.fit(X, y)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Creating a Dask [client](https://distributed.readthedocs.io/en/latest/client.html) provides performance and progress metrics via the dashboard. Because ```Client``` is given no arugments, its output refers to a [local cluster](http://distributed.readthedocs.io/en/latest/local-cluster.html) (not a distributed cluster).\n",
+    "\n",
+    "We can view the dashboard by clicking the link after running the cell."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<table style=\"border: 2px solid white;\">\n",
+       "<tr>\n",
+       "<td style=\"vertical-align: top; border: 0px solid white\">\n",
+       "<h3>Client</h3>\n",
+       "<ul>\n",
+       "  <li><b>Scheduler: </b>tcp://127.0.0.1:40451\n",
+       "  <li><b>Dashboard: </b><a href='http://127.0.0.1:8787/status' target='_blank'>http://127.0.0.1:8787/status</a>\n",
+       "</ul>\n",
+       "</td>\n",
+       "<td style=\"vertical-align: top; border: 0px solid white\">\n",
+       "<h3>Cluster</h3>\n",
+       "<ul>\n",
+       "  <li><b>Workers: </b>4</li>\n",
+       "  <li><b>Cores: </b>4</li>\n",
+       "  <li><b>Memory: </b>4.02 GB</li>\n",
+       "</ul>\n",
+       "</td>\n",
+       "</tr>\n",
+       "</table>"
+      ],
+      "text/plain": [
+       "<Client: scheduler='tcp://127.0.0.1:40451' processes=4 cores=4>"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "import dask_ml.joblib\n",
+    "from sklearn.externals import joblib\n",
+    "from distributed import Client\n",
+    "\n",
+    "client = Client()\n",
+    "client"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "To train the voting classifier, we call the classifier's fit method, but enclosed in joblib's ```parallel_backend``` context manager. This distributes training of sub-estimators acoss the cluster. By providing the data in the ```scatter``` argument, the data is pre-emptively sent to each worker in the cluster (follow the [link](http://distributed.readthedocs.io/en/latest/api.html#distributed.client.Client.scatter) for more info)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "VotingClassifier(estimators=[('sgd', SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,\n",
+      "       eta0=0.0, fit_intercept=True, l1_ratio=0.15,\n",
+      "       learning_rate='optimal', loss='hinge', max_iter=1000, n_iter=None,\n",
+      "       n_jobs=1, penalty='l2', power_t=0.5, random_state=None,\n",
+      "       shuffle=T...,\n",
+      "  max_iter=-1, probability=False, random_state=None, shrinking=True,\n",
+      "  tol=0.001, verbose=False))],\n",
+      "         flatten_transform=None, n_jobs=-1, voting='hard', weights=None)\n",
+      "CPU times: user 164 ms, sys: 23.9 ms, total: 188 ms\n",
+      "Wall time: 1.01 s\n"
+     ]
+    }
+   ],
+   "source": [
+    "%%time \n",
+    "with joblib.parallel_backend(\"dask\", scatter=[X, y]):\n",
+    "    clf.fit(X, y)\n",
+    "\n",
+    "print(clf)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Note, that we see no advantage of using dask because we are using a local cluster rather than a distributed cluster and sklearn is already using all my computer's cores. If we were using a distributed cluster, dask would enable us to take advantage of the multiple machines and train sub-estimators across them."
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.6.6"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

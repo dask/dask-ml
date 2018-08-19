@@ -15,6 +15,7 @@
 ./_sources/examples/tensorflow.ipynb.txt
 ./_sources/examples/text-vectorization.ipynb.txt
 ./_sources/examples/training-on-large-datasets.ipynb.txt
+./_sources/examples/voting-classifier.ipynb.txt
 ./_sources/examples/xgboost.ipynb.txt
 ./_sources/glm.rst.txt
 ./_sources/history.rst.txt
@@ -57,6 +58,7 @@
 ./_sources/modules/generated/dask_ml.xgboost.predict.rst.txt
 ./_sources/modules/generated/dask_ml.xgboost.train.rst.txt
 ./_sources/preprocessing.rst.txt
+./_sources/roadmap.rst.txt
 ./_sources/tensorflow.rst.txt
 ./_sources/xgboost.rst.txt
 ./_static/ajax-loader.gif
@@ -125,6 +127,7 @@
 ./examples/tensorflow.html
 ./examples/text-vectorization.html
 ./examples/training-on-large-datasets.html
+./examples/voting-classifier.html
 ./examples/xgboost.html
 ./genindex.html
 ./glm.html
@@ -170,6 +173,7 @@
 ./objects.inv
 ./preprocessing.html
 ./py-modindex.html
+./roadmap.html
 ./search.html
 ./searchindex.js
 ./tensorflow.html

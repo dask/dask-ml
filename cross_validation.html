@@ -102,6 +102,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Dask-ML Roadmap</a></li>
 <li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
 </ul>
 
@@ -211,9 +212,9 @@ This document only describes the extensions made to support Dask arrays.</p>
 
 <span class="gp">In [8]: </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="go">                                                                                  Out[8]: </span>
-<span class="go">array([[ 0.83154369,  0.17831678, -0.11855249,  0.11225947],</span>
-<span class="go">       [-1.05879148, -0.89722898,  0.96089406, -0.97585992],</span>
-<span class="go">       [-0.45656184, -0.13857792, -1.52033112,  0.27454601]])</span>
+<span class="go">array([[ 0.70530725, -1.30363125, -0.12527161, -0.16084649],</span>
+<span class="go">       [ 1.4136866 , -0.46491099, -0.21560393,  0.38860571],</span>
+<span class="go">       [-0.97705963,  1.08699586, -2.18309268,  0.77253372]])</span>
 </pre></div>
 </div>
 <p>While it’s possible to pass dask arrays to <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v0.19.2)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
