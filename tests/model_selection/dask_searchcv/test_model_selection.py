@@ -335,17 +335,8 @@ def test_pipeline_feature_union():
     pca = PCA(random_state=0)
     kbest = SelectKBest()
 
-    empty_pipeline = Pipeline([("first", None), ("second", None)])
     empty_union = FeatureUnion([("first", None), ("second", None)])
-    inner_feature_union = FeatureUnion(
-        [
-            ("pca", pca),
-            ("missing", None),
-            ("kbest", kbest),
-            ("empty_union", empty_union),
-        ],
-        transformer_weights={"pca": 0.5},
-    )
+    empty_pipeline = Pipeline([("first", None), ("second", None)])
 
     scaling = Pipeline([("transform", ScalingTransformer())])
     svc = SVC(kernel="linear", random_state=0)
@@ -355,7 +346,18 @@ def test_pipeline_feature_union():
             ("empty_pipeline", empty_pipeline),
             ("scaling", scaling),
             ("missing", None),
-            ("union", inner_feature_union),
+            (
+                "union",
+                FeatureUnion(
+                    [
+                        ("pca", pca),
+                        ("missing", None),
+                        ("kbest", kbest),
+                        ("empty_union", empty_union),
+                    ],
+                    transformer_weights={"pca": 0.5},
+                ),
+            ),
             ("svc", svc),
         ]
     )
