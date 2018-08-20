@@ -616,20 +616,26 @@ def test_pipeline_fit_failure():
     check_scores_all_nan(gs, "bad__parameter")
 
 
-@pytest.mark.parametrize(
-    "parameter",
-    [
-        0,
-        FailingClassifier.FAILING_PARAMETER,
-        FailingClassifier.FAILING_PREDICT_PARAMETER,
-        FailingClassifier.FAILING_SCORE_PARAMETER,
-    ],
-)
+@pytest.mark.parametrize("in_pipeline", [False, True])
 @ignore_warnings
-def test_estimator_predict_failure(parameter):
+def test_estimator_predict_failure(in_pipeline):
     X, y = make_classification()
-    grid = {"parameter": [0, parameter]}
-    gs = dcv.GridSearchCV(FailingClassifier(), grid, refit=False, error_score=0)
+    if in_pipeline:
+        clf = Pipeline([("bad", FailingClassifier())])
+        key = "bad__parameter"
+    else:
+        clf = FailingClassifier()
+        key = "parameter"
+
+    grid = {
+        key: [
+            0,
+            FailingClassifier.FAILING_PARAMETER,
+            FailingClassifier.FAILING_PREDICT_PARAMETER,
+            FailingClassifier.FAILING_SCORE_PARAMETER,
+        ]
+    }
+    gs = dcv.GridSearchCV(clf, grid, refit=False, error_score=float("nan"), cv=2)
     gs.fit(X, y)
 
 
