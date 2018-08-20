@@ -5,10 +5,8 @@ import numpy as np
 import pandas as pd
 import pytest
 import sklearn.preprocessing as spp
-import packaging.version
 from dask.array.utils import assert_eq as assert_eq_ar
 
-from dask_ml._compat import SK_VERSION
 import dask_ml.preprocessing as dpp
 from dask_ml.utils import assert_estimator_equal
 
@@ -131,6 +129,7 @@ class TestLabelEncoder(object):
             dpp.LabelEncoder().fit(df)
 
     @pytest.mark.parametrize("daskify", [True, False])
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_use_categorical(self, daskify):
         data = pd.Series(
             ["b", "c"], dtype=pd.api.types.CategoricalDtype(["c", "a", "b"])
@@ -146,16 +145,7 @@ class TestLabelEncoder(object):
         a_trn = a.transform(data)
         b_trn = b.transform(data)
         da.utils.assert_eq(a_trn, b_trn)
-
-        a_inverse = a.inverse_transform(a_trn)
-
-        if SK_VERSION <= packaging.version.parse("0.19.2"):
-            with pytest.warns(DeprecationWarning):
-                b_inverse = b.inverse_transform(b_trn)
-        else:
-            b_inverse = b.inverse_transform(b_trn)
-
-        da.utils.assert_eq(a_inverse, b_inverse)
+        da.utils.assert_eq(a.inverse_transform(a_trn), b.inverse_transform(b_trn))
 
     def test_unseen_raises_array(self):
         enc = dpp.LabelEncoder().fit(y)

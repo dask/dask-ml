@@ -9,18 +9,15 @@ from dask_ml._compat import SK_VERSION
 
 @pytest.mark.filterwarnings("ignore::FutureWarning")
 class TestMLPClassifier(object):
+
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_basic(self, single_chunk_classification):
         X, y = single_chunk_classification
         a = nn.ParitalMLPClassifier(classes=[0, 1], random_state=0)
         b = nn_.MLPClassifier(random_state=0)
 
-        if SK_VERSION <= packaging.version.parse("0.19.2"):
-            with pytest.warns(DeprecationWarning):
-                a.fit(X, y)
-                b.partial_fit(X, y, classes=[0, 1])
-        else:
-            a.fit(X, y)
-            b.partial_fit(X, y, classes=[0, 1])
+        a.fit(X, y)
+        b.partial_fit(X, y, classes=[0, 1])
 
         assert_estimator_equal(a, b)
 
