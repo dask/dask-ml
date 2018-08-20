@@ -20,7 +20,6 @@ class TestMLPClassifier(object):
         else:
             with pytest.warns(DeprecationWarning):
                 a.fit(X, y)
-            with pytest.warns(DeprecationWarning):
                 b.partial_fit(X, y, classes=[0, 1])
 
         assert_estimator_equal(a, b)

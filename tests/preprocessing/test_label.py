@@ -5,8 +5,10 @@ import numpy as np
 import pandas as pd
 import pytest
 import sklearn.preprocessing as spp
+import packaging.version
 from dask.array.utils import assert_eq as assert_eq_ar
 
+from dask_ml._compat import SK_VERSION
 import dask_ml.preprocessing as dpp
 from dask_ml.utils import assert_estimator_equal
 
@@ -145,7 +147,14 @@ class TestLabelEncoder(object):
         b_trn = b.transform(data)
         da.utils.assert_eq(a_trn, b_trn)
 
-        da.utils.assert_eq(a.inverse_transform(a_trn), b.inverse_transform(b_trn))
+        a_inverse = a.inverse_transform(a_trn)
+
+        if SK_VERSION >= packaging.version.parse("0.20.0.dev0"):
+            b_inverse = b.inverse_transform(b_trn)
+        else:
+            with pytest.warns(DeprecationWarning):
+                b_inverse = b.inverse_transform(b_trn)
+        da.utils.assert_eq(a_inverse, b_inverse)
 
     def test_unseen_raises_array(self):
         enc = dpp.LabelEncoder().fit(y)
