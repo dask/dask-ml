@@ -1,10 +1,8 @@
 import pytest
-import packaging.version
 from sklearn import neural_network as nn_
 
 from dask_ml import neural_network as nn
 from dask_ml.utils import assert_estimator_equal
-from dask_ml._compat import SK_VERSION
 
 
 @pytest.mark.filterwarnings("ignore::FutureWarning")
