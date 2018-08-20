@@ -594,7 +594,14 @@ def test_pipeline_fit_failure():
         ]
     )
 
-    grid = {"bad__parameter": [0, 1, 2]}
+    grid = {
+        "bad__parameter": [
+            0,
+            FailingClassifier.FAILING_PARAMETER,
+            FailingClassifier.FAILING_PREDICT_PARAMETER,
+            FailingClassifier.FAILING_SCORE_PARAMETER,
+        ]
+    }
     gs = dcv.GridSearchCV(pipe, grid, refit=False)
 
     # Check that failure raises if error_score is `'raise'`
@@ -607,6 +614,23 @@ def test_pipeline_fit_failure():
         gs.fit(X, y)
 
     check_scores_all_nan(gs, "bad__parameter")
+
+
+@pytest.mark.parametrize(
+    "parameter",
+    [
+        0,
+        FailingClassifier.FAILING_PARAMETER,
+        FailingClassifier.FAILING_PREDICT_PARAMETER,
+        FailingClassifier.FAILING_SCORE_PARAMETER,
+    ],
+)
+@ignore_warnings
+def test_estimator_predict_failure(parameter):
+    X, y = make_classification()
+    grid = {"parameter": [0, parameter]}
+    gs = dcv.GridSearchCV(FailingClassifier(), grid, refit=False, error_score=0)
+    gs.fit(X, y)
 
 
 def test_pipeline_raises():

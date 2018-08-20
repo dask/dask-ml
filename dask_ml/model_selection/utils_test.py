@@ -87,6 +87,8 @@ class FailingClassifier(BaseEstimator):
     """Classifier that raises a ValueError on fit()"""
 
     FAILING_PARAMETER = 2
+    FAILING_SCORE_PARAMETER = object()
+    FAILING_PREDICT_PARAMETER = object()
 
     def __init__(self, parameter=None):
         self.parameter = parameter
@@ -100,7 +102,14 @@ class FailingClassifier(BaseEstimator):
         return X
 
     def predict(self, X):
+        if self.parameter == self.FAILING_PREDICT_PARAMETER:
+            raise ValueError("Failing during predict as required")
         return np.zeros(X.shape[0])
+
+    def score(self, X, y):
+        if self.parameter == self.FAILING_SCORE_PARAMETER:
+            raise ValueError("Failing during score as required")
+        return 0.5
 
 
 def ignore_warnings(f):
