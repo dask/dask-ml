@@ -875,7 +875,8 @@ def test_search_iid_param():
 
     # once with iid=False
     grid_search = dcv.GridSearchCV(
-        SVC(gamma='auto'), param_grid={"C": [1, 10]}, cv=cv, iid=False, return_train_score=True
+        SVC(gamma='auto'), param_grid={"C": [1, 10]},
+        cv=cv, iid=False, return_train_score=True
     )
     random_search = dcv.RandomizedSearchCV(
         SVC(gamma='auto'),
@@ -932,7 +933,8 @@ def test_search_cv_results_rank_tie_breaking():
         SVC(gamma='auto'), param_grid=param_grid, return_train_score=True
     )
     random_search = dcv.RandomizedSearchCV(
-        SVC(gamma='auto'), n_iter=3, param_distributions=param_grid, return_train_score=True
+        SVC(gamma='auto'), n_iter=3, param_distributions=param_grid,
+        return_train_score=True
     )
 
     for search in (grid_search, random_search):
