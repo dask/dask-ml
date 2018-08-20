@@ -103,6 +103,7 @@
 <li class="toctree-l2"><a class="reference internal" href="xgboost.html">Dask and XGBoost</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tensorflow.html">Dask and Tensorflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="text-vectorization.html">Text Vectorization Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="voting-classifier.html">Voting Classifier</a></li>
 </ul>
 </li>
 </ul>
@@ -437,7 +438,7 @@ run the cell</p>
 <td style="vertical-align: top; border: 0px solid white">
 <h3>Client</h3>
 <ul>
-  <li><b>Scheduler: </b>tcp://127.0.0.1:33006
+  <li><b>Scheduler: </b>tcp://127.0.0.1:42906
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
@@ -661,7 +662,7 @@ sequential fitting of many batches.</p>
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.5795
+<span></span>0.6147
 </pre></div>
 </div>
 </div>
@@ -699,16 +700,16 @@ we can use the <code class="docutils literal notranslate"><span class="pre">Incr
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Score: 0.5495
-Score: 0.5972
-Score: 0.6054
-Score: 0.5942
-Score: 0.5928
-Score: 0.5987
-Score: 0.6016
-Score: 0.6034
-Score: 0.606
-Score: 0.612
+Score: 0.6038
+Score: 0.5857
+Score: 0.62
+Score: 0.6392
+Score: 0.6314
+Score: 0.6391
+Score: 0.6361
+Score: 0.6304
+Score: 0.6492
+Score: 0.6589
 </pre></div></div>
 </div>
 </div>
@@ -752,11 +753,11 @@ Score: 0.612
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>array([1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1,
-       0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0,
-       0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0,
-       0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0,
-       0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1])
+<span></span>array([1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0,
+       0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0,
+       0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1,
+       0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1,
+       0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0])
 </pre></div>
 </div>
 </div>
@@ -776,7 +777,7 @@ Score: 0.612
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.612
+<span></span>0.6589
 </pre></div>
 </div>
 </div>

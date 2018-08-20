@@ -17,6 +17,7 @@ This is a set of runnable examples demonstrating how to *use* Dask-ML.
    examples/xgboost
    examples/tensorflow
    examples/text-vectorization
+   examples/voting-classifier
 
 We also have sets of
 

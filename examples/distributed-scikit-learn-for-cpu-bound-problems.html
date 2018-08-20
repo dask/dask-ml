@@ -85,6 +85,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Distributed Scikit-Learn for CPU Bound Problems</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#Distributed-Training">Distributed Training</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Parallel,-Distributed-Prediction">Parallel, Distributed Prediction</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="parallel-prediction.html">Parallel and Out-of-core Prediction and Scoring</a></li>
@@ -93,6 +94,7 @@
 <li class="toctree-l2"><a class="reference internal" href="xgboost.html">Dask and XGBoost</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tensorflow.html">Dask and Tensorflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="text-vectorization.html">Text Vectorization Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="voting-classifier.html">Voting Classifier</a></li>
 </ul>
 </li>
 </ul>
@@ -537,6 +539,118 @@ cluster of machines to train the model, perform the fit in a
 </div>
 <p>If you had your distributed dashboard open during that fit, you’ll
 notice that each worker performs some of the fit tasks.</p>
+</div>
+<div class="section" id="Parallel,-Distributed-Prediction">
+<h2>Parallel, Distributed Prediction<a class="headerlink" href="#Parallel,-Distributed-Prediction" title="Permalink to this headline">¶</a></h2>
+<p>Sometimes, you’re train on a small dataset, but need to predict for a
+much larger batch of data. In this case, you’d like your estimator to
+handle NumPy arrays and pandas DataFrames for training, and dask arrays
+or DataFrames for prediction.
+<code class="docutils literal notranslate"><span class="pre">`dask_ml.wrappers.ParallelPostFit</span></code> &lt;<a class="reference external" href="https://dask-ml.readthedocs.io/en/latest/modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit">https://dask-ml.readthedocs.io/en/latest/modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit</a>&gt;`__
+provides exactly that. It’s a meta-estimator. It does nothing during
+training; the underlying estimator (probably a scikit-learn estimator)
+will probably be in-memory on a single machine. But tasks like
+<code class="docutils literal notranslate"><span class="pre">predict</span></code>, <code class="docutils literal notranslate"><span class="pre">score</span></code>, etc. are parallelized and distributed.</p>
+<p>Most of the time, using <code class="docutils literal notranslate"><span class="pre">ParallelPostFit</span></code> is as simple as wrapping the
+original estimator. When used inside a GridSearch, you’ll need to update
+the keys of the parameters, just like with any meta-estimator. The only
+complication comes when using <code class="docutils literal notranslate"><span class="pre">ParallelPostFit</span></code> with another
+meta-estimator like <code class="docutils literal notranslate"><span class="pre">GridSearchCV</span></code>. In this case, you’ll need to
+prefix your parameter names with <code class="docutils literal notranslate"><span class="pre">estimator__</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>In [ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">load_digits</span>
+<span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">SVC</span>
+<span class="kn">from</span> <span class="nn">dask_ml.wrappers</span> <span class="kn">import</span> <span class="n">ParallelPostFit</span>
+</pre></div>
+</div>
+</div>
+<p>We’ll load the small NumPy arrays for training.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>In [ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">load_digits</span><span class="p">(</span><span class="n">return_X_y</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>In [ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">svc</span> <span class="o">=</span> <span class="n">ParallelPostFit</span><span class="p">(</span><span class="n">SVC</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+
+<span class="n">param_grid</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># use estimator__param instead of param</span>
+    <span class="s1">&#39;estimator__C&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>
+<span class="p">}</span>
+
+<span class="n">grid_search</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">svc</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">iid</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>And fit as usual.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>In [ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">grid_search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We’ll simulate a large dask array by replicating the training data a few
+times. In reality, you would load this from your file system.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>In [ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">dask.array</span> <span class="kn">as</span> <span class="nn">da</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>In [ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">big_X</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span>
+    <span class="n">da</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="p">])</span>
+<span class="n">big_X</span>
+</pre></div>
+</div>
+</div>
+<p>Operations like <code class="docutils literal notranslate"><span class="pre">predict</span></code>, or <code class="docutils literal notranslate"><span class="pre">predict_proba</span></code> return dask, rather
+than NumPy arrays. When you compute, the work will be done in parallel,
+out of core or distributed on the cluster.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>In [ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">predicted</span> <span class="o">=</span> <span class="n">grid_search</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">big_X</span><span class="p">)</span>
+<span class="n">predicted</span>
+</pre></div>
+</div>
+</div>
+<p>At this point predicted could be written to disk, or aggregated before
+returning to the client.</p>
 </div>
 </div>
 

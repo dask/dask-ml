@@ -202,6 +202,135 @@
    "source": [
     "If you had your distributed dashboard open during that fit, you'll notice that each worker performs some of the fit tasks."
    ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Parallel, Distributed Prediction\n",
+    "\n",
+    "Sometimes, you're train on a small dataset, but need to predict for a much larger batch of data.\n",
+    "In this case, you'd like your estimator to handle NumPy arrays and pandas DataFrames for training, and dask arrays or DataFrames for prediction. [`dask_ml.wrappers.ParallelPostFit`](https://dask-ml.readthedocs.io/en/latest/modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit) provides exactly that. It's a meta-estimator. It does nothing during training; the underlying estimator (probably a scikit-learn estimator) will probably be in-memory on a single machine. But tasks like `predict`, `score`, etc. are parallelized and distributed.\n",
+    "\n",
+    "Most of the time, using `ParallelPostFit` is as simple as wrapping the original estimator.\n",
+    "When used inside a GridSearch, you'll need to update the keys of the parameters, just like with any meta-estimator.\n",
+    "The only complication comes when using `ParallelPostFit` with another meta-estimator like `GridSearchCV`. In this case, you'll need to prefix your parameter names with `estimator__`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from sklearn.datasets import load_digits\n",
+    "from sklearn.svm import SVC\n",
+    "from dask_ml.wrappers import ParallelPostFit"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We'll load the small NumPy arrays for training."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "X, y = load_digits(return_X_y=True)\n",
+    "X.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "svc = ParallelPostFit(SVC(random_state=0))\n",
+    "\n",
+    "param_grid = {\n",
+    "    # use estimator__param instead of param\n",
+    "    'estimator__C': [0.01, 1.0, 10],\n",
+    "}\n",
+    "\n",
+    "grid_search = GridSearchCV(svc, param_grid, iid=False)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "And fit as usual."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "grid_search.fit(X, y)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We'll simulate a large dask array by replicating the training data a few times.\n",
+    "In reality, you would load this from your file system."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import dask.array as da"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "big_X = da.concatenate([\n",
+    "    da.from_array(X, chunks=X.shape)\n",
+    "    for _ in range(10)\n",
+    "])\n",
+    "big_X"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Operations like `predict`, or `predict_proba` return dask, rather than NumPy arrays.\n",
+    "When you compute, the work will be done in parallel, out of core or distributed on the cluster."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "predicted = grid_search.predict(big_X)\n",
+    "predicted"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "At this point predicted could be written to disk, or aggregated before returning to the client."
+   ]
   }
  ],
  "metadata": {
