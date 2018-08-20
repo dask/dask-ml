@@ -205,10 +205,7 @@ def test_grid_search_groups():
 
         gs.fit(X, y, groups=groups)
 
-    non_group_cvs = [
-        StratifiedKFold(n_splits=3),
-        StratifiedShuffleSplit(n_splits=3)
-    ]
+    non_group_cvs = [StratifiedKFold(n_splits=3), StratifiedShuffleSplit(n_splits=3)]
     for cv in non_group_cvs:
         gs = dcv.GridSearchCV(clf, grid, cv=cv)
         # Should not raise an error
@@ -656,18 +653,20 @@ def test_grid_search_cv_results():
         dict(kernel=["poly"], degree=[1, 2]),
     ]
     grid_search = dcv.GridSearchCV(
-        SVC(gamma='auto'),
+        SVC(gamma="auto"),
         cv=n_splits,
         iid=False,
         param_grid=params,
-        return_train_score=True)
+        return_train_score=True,
+    )
     grid_search.fit(X, y)
     grid_search_iid = dcv.GridSearchCV(
-        SVC(gamma='auto'),
+        SVC(gamma="auto"),
         cv=n_splits,
         iid=True,
         param_grid=params,
-        return_train_score=True)
+        return_train_score=True,
+    )
     grid_search_iid.fit(X, y)
 
     param_keys = ("param_C", "param_degree", "param_gamma", "param_kernel")
@@ -814,12 +813,10 @@ def test_search_iid_param():
     cv = [[mask, ~mask], [~mask, mask]]
     # once with iid=True (default)
     grid_search = dcv.GridSearchCV(
-        SVC(gamma='auto'),
-        param_grid={"C": [1, 10]},
-        cv=cv,
-        return_train_score=True)
+        SVC(gamma="auto"), param_grid={"C": [1, 10]}, cv=cv, return_train_score=True
+    )
     random_search = dcv.RandomizedSearchCV(
-        SVC(gamma='auto'),
+        SVC(gamma="auto"),
         n_iter=2,
         param_distributions={"C": [1, 10]},
         return_train_score=True,
@@ -875,11 +872,14 @@ def test_search_iid_param():
 
     # once with iid=False
     grid_search = dcv.GridSearchCV(
-        SVC(gamma='auto'), param_grid={"C": [1, 10]},
-        cv=cv, iid=False, return_train_score=True
+        SVC(gamma="auto"),
+        param_grid={"C": [1, 10]},
+        cv=cv,
+        iid=False,
+        return_train_score=True,
     )
     random_search = dcv.RandomizedSearchCV(
-        SVC(gamma='auto'),
+        SVC(gamma="auto"),
         n_iter=2,
         param_distributions={"C": [1, 10]},
         cv=cv,
@@ -930,11 +930,13 @@ def test_search_cv_results_rank_tie_breaking():
     param_grid = {"C": [1, 1.001, 0.001]}
 
     grid_search = dcv.GridSearchCV(
-        SVC(gamma='auto'), param_grid=param_grid, return_train_score=True
+        SVC(gamma="auto"), param_grid=param_grid, return_train_score=True
     )
     random_search = dcv.RandomizedSearchCV(
-        SVC(gamma='auto'), n_iter=3, param_distributions=param_grid,
-        return_train_score=True
+        SVC(gamma="auto"),
+        n_iter=3,
+        param_distributions=param_grid,
+        return_train_score=True,
     )
 
     for search in (grid_search, random_search):
@@ -1088,7 +1090,7 @@ def test_predict_proba_disabled():
     # Test predict_proba when disabled on estimator.
     X = np.arange(20).reshape(5, -1)
     y = [0, 0, 1, 1, 1]
-    clf = SVC(probability=False, gamma='auto')
+    clf = SVC(probability=False, gamma="auto")
     gs = dcv.GridSearchCV(clf, {}, cv=2).fit(X, y)
     assert not hasattr(gs, "predict_proba")
 
@@ -1101,17 +1103,14 @@ def test_grid_search_allows_nans():
 
     if SK_VERSION >= packaging.version.parse("0.20.0.dev0"):
         from sklearn.impute import SimpleImputer
+
         imputer = SimpleImputer(strategy="mean", missing_values=np.nan)
     else:
         from sklearn.preprocessing import Imputer
+
         imputer = Imputer(strategy="mean", missing_values="NaN")
 
-    p = Pipeline(
-        [
-            ("imputer", imputer),
-            ("classifier", MockClassifier()),
-        ]
-    )
+    p = Pipeline([("imputer", imputer), ("classifier", MockClassifier())])
     dcv.GridSearchCV(p, {"classifier__foo_param": [1, 2, 3]}, cv=2).fit(X, y)
 
 

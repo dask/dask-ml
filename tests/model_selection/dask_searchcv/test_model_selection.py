@@ -126,22 +126,22 @@ def test_kfolds(cls, has_shuffle):
     assert tokenize(cls(n_splits=3)) == tokenize(cls(n_splits=3))
     assert tokenize(cls(n_splits=3)) != tokenize(cls(n_splits=4))
     if has_shuffle:
-        assert tokenize(cls(shuffle=True, random_state=0,
-                            n_splits=3)) == tokenize(
-                                cls(shuffle=True, random_state=0, n_splits=3))
+        assert tokenize(cls(shuffle=True, random_state=0, n_splits=3)) == tokenize(
+            cls(shuffle=True, random_state=0, n_splits=3)
+        )
 
         rs = np.random.RandomState(42)
-        assert tokenize(cls(shuffle=True, random_state=rs,
-                            n_splits=3)) == tokenize(
-                                cls(shuffle=True, random_state=rs, n_splits=3))
+        assert tokenize(cls(shuffle=True, random_state=rs, n_splits=3)) == tokenize(
+            cls(shuffle=True, random_state=rs, n_splits=3)
+        )
 
-        assert tokenize(cls(shuffle=True, random_state=0,
-                            n_splits=3)) != tokenize(
-                                cls(shuffle=True, random_state=2, n_splits=3))
+        assert tokenize(cls(shuffle=True, random_state=0, n_splits=3)) != tokenize(
+            cls(shuffle=True, random_state=2, n_splits=3)
+        )
 
-        assert tokenize(cls(shuffle=False, random_state=0,
-                            n_splits=3)) == tokenize(
-                                cls(shuffle=False, random_state=2, n_splits=3))
+        assert tokenize(cls(shuffle=False, random_state=0, n_splits=3)) == tokenize(
+            cls(shuffle=False, random_state=2, n_splits=3)
+        )
 
     cv = cls(n_splits=3)
     assert compute_n_splits(cv, np_X, np_y, np_groups) == 3
@@ -308,10 +308,10 @@ def test_grid_search_dask_inputs():
     del_groups = delayed(np_groups)
 
     cv = GroupKFold(n_splits=3)
-    clf = SVC(random_state=0, gamma='auto')
+    clf = SVC(random_state=0, gamma="auto")
     grid = {"C": [1]}
 
-    sol = SVC(C=1, random_state=0, gamma='auto').fit(np_X, np_y).support_vectors_
+    sol = SVC(C=1, random_state=0, gamma="auto").fit(np_X, np_y).support_vectors_
 
     for X, y, groups in product(
         [np_X, da_X, del_X], [np_y, da_y, del_y], [np_groups, da_groups, del_groups]
@@ -424,15 +424,12 @@ def test_pipeline_sub_estimators():
     ]
 
     gs = GridSearchCV(
-        pipe, param_grid=param_grid, return_train_score=True, cv=3,
-        iid=True)
+        pipe, param_grid=param_grid, return_train_score=True, cv=3, iid=True
+    )
     gs.fit(X, y)
     dgs = dcv.GridSearchCV(
-        pipe,
-        param_grid=param_grid,
-        scheduler="sync",
-        return_train_score=True,
-        cv=3)
+        pipe, param_grid=param_grid, scheduler="sync", return_train_score=True, cv=3
+    )
     dgs.fit(X, y)
 
     # Check best params match
@@ -761,7 +758,7 @@ def test_cv_multiplemetrics():
         refit="score1",
         scoring={"score1": "accuracy", "score2": "accuracy"},
         cv=3,
-        iid=True
+        iid=True,
     )
     b = GridSearchCV(
         RandomForestClassifier(n_estimators=10),
@@ -769,7 +766,7 @@ def test_cv_multiplemetrics():
         refit="score1",
         scoring={"score1": "accuracy", "score2": "accuracy"},
         cv=3,
-        iid=True
+        iid=True,
     )
     a.fit(X, y)
     b.fit(X, y)
