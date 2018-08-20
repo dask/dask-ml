@@ -14,13 +14,13 @@ class TestMLPClassifier(object):
         a = nn.ParitalMLPClassifier(classes=[0, 1], random_state=0)
         b = nn_.MLPClassifier(random_state=0)
 
-        if SK_VERSION >= packaging.version.parse("0.20.0.dev0"):
-            a.fit(X, y)
-            b.partial_fit(X, y, classes=[0, 1])
-        else:
+        if SK_VERSION <= packaging.version.parse("0.19.2"):
             with pytest.warns(DeprecationWarning):
                 a.fit(X, y)
                 b.partial_fit(X, y, classes=[0, 1])
+        else:
+            a.fit(X, y)
+            b.partial_fit(X, y, classes=[0, 1])
 
         assert_estimator_equal(a, b)
 

@@ -149,11 +149,12 @@ class TestLabelEncoder(object):
 
         a_inverse = a.inverse_transform(a_trn)
 
-        if SK_VERSION >= packaging.version.parse("0.20.0.dev0"):
-            b_inverse = b.inverse_transform(b_trn)
-        else:
+        if SK_VERSION <= packaging.version.parse("0.19.2"):
             with pytest.warns(DeprecationWarning):
                 b_inverse = b.inverse_transform(b_trn)
+        else:
+            b_inverse = b.inverse_transform(b_trn)
+
         da.utils.assert_eq(a_inverse, b_inverse)
 
     def test_unseen_raises_array(self):
