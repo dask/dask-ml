@@ -10,6 +10,7 @@ import numpy as np
 import packaging.version
 import pytest
 import scipy.sparse as sp
+import six
 from numpy.testing import (
     assert_almost_equal,
     assert_array_almost_equal,
@@ -1158,7 +1159,12 @@ def test_grid_search_failing_classifier():
         error_score=float("nan"),
     )
 
-    with pytest.warns(FitFailedWarning):
+    if six.PY2:
+        expected_warnings = ()
+    else:
+        expected_warnings = (FitFailedWarning,)
+
+    with pytest.warns(expected_warnings):
         gs.fit(X, y)
 
     n_candidates = len(gs.cv_results_["params"])
