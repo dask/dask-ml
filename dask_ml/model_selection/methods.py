@@ -292,7 +292,8 @@ def score(est_and_time, X_test, y_test, X_train, y_train, scorer, error_score):
         if error_score == "raise":
             raise
         else:
-            return None, error_score, None, error_score
+            score_time = default_timer() - start_time
+            return fit_time, error_score, score_time, error_score
     score_time = default_timer() - start_time
     if X_train is None:
         return fit_time, test_score, score_time

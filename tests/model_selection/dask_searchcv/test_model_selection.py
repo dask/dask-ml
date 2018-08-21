@@ -579,6 +579,33 @@ def test_feature_union_fit_failure_multiple_metrics():
         check_scores_all_nan(gs, "union__bad__parameter", score_key=key)
 
 
+def test_failing_classifier_fails():
+    clf = dcv.GridSearchCV(
+        FailingClassifier(),
+        {
+            "parameter": [
+                FailingClassifier.FAILING_PARAMETER,
+                FailingClassifier.FAILING_SCORE_PARAMETER,
+            ]
+        },
+        refit=False,
+        return_train_score=False,
+    )
+
+    X, y = make_classification()
+
+    with pytest.raises(ValueError, message="Failing during score"):
+        clf.fit(X, y)
+
+    clf = clf.set_params(error_score=-1)
+
+    with pytest.warns(FitFailedWarning):
+        clf.fit(X, y)
+
+    for result in ["mean_fit_time", "mean_score_time", "mean_test_score"]:
+        assert not any(np.isnan(clf.cv_results_[result]))
+
+
 def test_pipeline_fit_failure():
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
 
