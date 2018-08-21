@@ -47,7 +47,6 @@ from dask_ml.model_selection.utils_test import (
     FailingClassifier,
     MockClassifier,
     MockDataFrame,
-    ignore_warnings,
 )
 
 
@@ -562,7 +561,7 @@ def test_y_as_list():
     assert hasattr(grid_search, "cv_results_")
 
 
-@ignore_warnings
+@pytest.mark.filterwarnings("ignore")
 def test_pandas_input():
     # check cross_val_score doesn't destroy pandas dataframe
     types = [(MockDataFrame, MockDataFrame)]
@@ -1114,7 +1113,7 @@ def test_grid_search_allows_nans():
     dcv.GridSearchCV(p, {"classifier__foo_param": [1, 2, 3]}, cv=2).fit(X, y)
 
 
-@ignore_warnings
+@pytest.mark.filterwarnings("ignore")
 def test_grid_search_failing_classifier():
     X, y = make_classification(n_samples=20, n_features=10, random_state=0)
     clf = FailingClassifier()

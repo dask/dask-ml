@@ -112,17 +112,6 @@ class FailingClassifier(BaseEstimator):
         return 0.5
 
 
-def ignore_warnings(f):
-    """A super simple version of `sklearn.utils.testing.ignore_warnings"""
-
-    @wraps(f)
-    def _(*args, **kwargs):
-        with warnings.catch_warnings(record=True):
-            f(*args, **kwargs)
-
-    return _
-
-
 # XXX: Mocking classes copied from sklearn.utils.mocking to remove nose
 # dependency.  Can be removed when scikit-learn switches to pytest. See issue
 # here: https://github.com/scikit-learn/scikit-learn/issues/7319

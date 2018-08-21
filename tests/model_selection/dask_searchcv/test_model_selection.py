@@ -50,7 +50,6 @@ from dask_ml.model_selection.utils_test import (
     MockClassifier,
     MockClassifierWithFitParam,
     ScalingTransformer,
-    ignore_warnings,
 )
 
 try:
@@ -516,7 +515,6 @@ def test_feature_union(weights):
     gs.fit(X, y)
 
 
-@ignore_warnings
 def test_feature_union_fit_failure():
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
 
@@ -547,7 +545,6 @@ def test_feature_union_fit_failure():
     check_scores_all_nan(gs, "union__bad__parameter")
 
 
-@ignore_warnings
 @pytest.mark.skipif(not HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
 def test_feature_union_fit_failure_multiple_metrics():
     scoring = {"score_1": _passthrough_scorer, "score_2": _passthrough_scorer}
@@ -582,7 +579,6 @@ def test_feature_union_fit_failure_multiple_metrics():
         check_scores_all_nan(gs, "union__bad__parameter", score_key=key)
 
 
-@ignore_warnings
 def test_pipeline_fit_failure():
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
 
@@ -748,7 +744,7 @@ def test_normalize_n_jobs():
         ("synchronous", 4),
         ("sync", 4),
         ("multiprocessing", 4),
-        (dask.get, 4),
+        pytest.param(dask.get, 4, marks=[pytest.mark.filterwarnings("ignore")]),
     ],
 )
 def test_scheduler_param(scheduler, n_jobs):
