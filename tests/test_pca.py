@@ -17,7 +17,6 @@ from sklearn.utils.testing import (
     assert_raises,
     assert_raises_regex,
     assert_true,
-    ignore_warnings,
 )
 
 import dask_ml.decomposition as dd
@@ -185,7 +184,7 @@ def test_whitening():
 
 
 # Ignore warnings from switching to more power iterations in randomized_svd
-@ignore_warnings
+@pytest.mark.filterwarnings("ignore")
 def test_explained_variance():
     # Check that PCA output has unit-variance
     rng = np.random.RandomState(0)

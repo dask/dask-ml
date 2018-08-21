@@ -10,6 +10,7 @@ import numpy as np
 import packaging.version
 import pytest
 import scipy.sparse as sp
+import six
 from numpy.testing import (
     assert_almost_equal,
     assert_array_almost_equal,
@@ -47,7 +48,6 @@ from dask_ml.model_selection.utils_test import (
     FailingClassifier,
     MockClassifier,
     MockDataFrame,
-    ignore_warnings,
 )
 
 
@@ -562,7 +562,7 @@ def test_y_as_list():
     assert hasattr(grid_search, "cv_results_")
 
 
-@ignore_warnings
+@pytest.mark.filterwarnings("ignore")
 def test_pandas_input():
     # check cross_val_score doesn't destroy pandas dataframe
     types = [(MockDataFrame, MockDataFrame)]
@@ -1114,7 +1114,7 @@ def test_grid_search_allows_nans():
     dcv.GridSearchCV(p, {"classifier__foo_param": [1, 2, 3]}, cv=2).fit(X, y)
 
 
-@ignore_warnings
+@pytest.mark.filterwarnings("ignore")
 def test_grid_search_failing_classifier():
     X, y = make_classification(n_samples=20, n_features=10, random_state=0)
     clf = FailingClassifier()
@@ -1159,7 +1159,10 @@ def test_grid_search_failing_classifier():
         error_score=float("nan"),
     )
 
-    with pytest.warns(FitFailedWarning):
+    if not six.PY2:
+        with pytest.warns(FitFailedWarning):
+            gs.fit(X, y)
+    else:
         gs.fit(X, y)
 
     n_candidates = len(gs.cv_results_["params"])

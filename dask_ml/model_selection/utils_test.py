@@ -1,6 +1,3 @@
-import warnings
-from functools import wraps
-
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import _num_samples, check_array
@@ -87,6 +84,8 @@ class FailingClassifier(BaseEstimator):
     """Classifier that raises a ValueError on fit()"""
 
     FAILING_PARAMETER = 2
+    FAILING_SCORE_PARAMETER = object()
+    FAILING_PREDICT_PARAMETER = object()
 
     def __init__(self, parameter=None):
         self.parameter = parameter
@@ -100,18 +99,14 @@ class FailingClassifier(BaseEstimator):
         return X
 
     def predict(self, X):
+        if self.parameter == self.FAILING_PREDICT_PARAMETER:
+            raise ValueError("Failing during predict as required")
         return np.zeros(X.shape[0])
 
-
-def ignore_warnings(f):
-    """A super simple version of `sklearn.utils.testing.ignore_warnings"""
-
-    @wraps(f)
-    def _(*args, **kwargs):
-        with warnings.catch_warnings(record=True):
-            f(*args, **kwargs)
-
-    return _
+    def score(self, X, y):
+        if self.parameter == self.FAILING_SCORE_PARAMETER:
+            raise ValueError("Failing during score as required")
+        return 0.5
 
 
 # XXX: Mocking classes copied from sklearn.utils.mocking to remove nose

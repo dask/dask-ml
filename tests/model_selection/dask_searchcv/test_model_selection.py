@@ -50,7 +50,6 @@ from dask_ml.model_selection.utils_test import (
     MockClassifier,
     MockClassifierWithFitParam,
     ScalingTransformer,
-    ignore_warnings,
 )
 
 try:
@@ -516,7 +515,6 @@ def test_feature_union(weights):
     gs.fit(X, y)
 
 
-@ignore_warnings
 def test_feature_union_fit_failure():
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
 
@@ -547,7 +545,6 @@ def test_feature_union_fit_failure():
     check_scores_all_nan(gs, "union__bad__parameter")
 
 
-@ignore_warnings
 @pytest.mark.skipif(not HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
 def test_feature_union_fit_failure_multiple_metrics():
     scoring = {"score_1": _passthrough_scorer, "score_2": _passthrough_scorer}
@@ -582,7 +579,33 @@ def test_feature_union_fit_failure_multiple_metrics():
         check_scores_all_nan(gs, "union__bad__parameter", score_key=key)
 
 
-@ignore_warnings
+def test_failing_classifier_fails():
+    clf = dcv.GridSearchCV(
+        FailingClassifier(),
+        {
+            "parameter": [
+                FailingClassifier.FAILING_PARAMETER,
+                FailingClassifier.FAILING_SCORE_PARAMETER,
+            ]
+        },
+        refit=False,
+        return_train_score=False,
+    )
+
+    X, y = make_classification()
+
+    with pytest.raises(ValueError, message="Failing during score"):
+        clf.fit(X, y)
+
+    clf = clf.set_params(error_score=-1)
+
+    with pytest.warns(FitFailedWarning):
+        clf.fit(X, y)
+
+    for result in ["mean_fit_time", "mean_score_time", "mean_test_score"]:
+        assert not any(np.isnan(clf.cv_results_[result]))
+
+
 def test_pipeline_fit_failure():
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
 
@@ -594,7 +617,14 @@ def test_pipeline_fit_failure():
         ]
     )
 
-    grid = {"bad__parameter": [0, 1, 2]}
+    grid = {
+        "bad__parameter": [
+            0,
+            FailingClassifier.FAILING_PARAMETER,
+            FailingClassifier.FAILING_PREDICT_PARAMETER,
+            FailingClassifier.FAILING_SCORE_PARAMETER,
+        ]
+    }
     gs = dcv.GridSearchCV(pipe, grid, refit=False)
 
     # Check that failure raises if error_score is `'raise'`
@@ -607,6 +637,29 @@ def test_pipeline_fit_failure():
         gs.fit(X, y)
 
     check_scores_all_nan(gs, "bad__parameter")
+
+
+@pytest.mark.filterwarnings("ignore")
+@pytest.mark.parametrize("in_pipeline", [False, True])
+def test_estimator_predict_failure(in_pipeline):
+    X, y = make_classification()
+    if in_pipeline:
+        clf = Pipeline([("bad", FailingClassifier())])
+        key = "bad__parameter"
+    else:
+        clf = FailingClassifier()
+        key = "parameter"
+
+    grid = {
+        key: [
+            0,
+            FailingClassifier.FAILING_PARAMETER,
+            FailingClassifier.FAILING_PREDICT_PARAMETER,
+            FailingClassifier.FAILING_SCORE_PARAMETER,
+        ]
+    }
+    gs = dcv.GridSearchCV(clf, grid, refit=False, error_score=float("nan"), cv=2)
+    gs.fit(X, y)
 
 
 def test_pipeline_raises():
@@ -718,7 +771,7 @@ def test_normalize_n_jobs():
         ("synchronous", 4),
         ("sync", 4),
         ("multiprocessing", 4),
-        (dask.get, 4),
+        pytest.param(dask.get, 4, marks=[pytest.mark.filterwarnings("ignore")]),
     ],
 )
 def test_scheduler_param(scheduler, n_jobs):
