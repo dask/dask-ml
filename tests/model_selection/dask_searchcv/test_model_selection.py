@@ -616,8 +616,8 @@ def test_pipeline_fit_failure():
     check_scores_all_nan(gs, "bad__parameter")
 
 
+@pytest.mark.filterwarnings("ignore")
 @pytest.mark.parametrize("in_pipeline", [False, True])
-@ignore_warnings
 def test_estimator_predict_failure(in_pipeline):
     X, y = make_classification()
     if in_pipeline:
