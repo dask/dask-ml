@@ -2,7 +2,6 @@ from __future__ import absolute_import, division, print_function
 
 import os
 import pickle
-import warnings
 from itertools import product
 from multiprocessing import cpu_count
 
@@ -124,24 +123,24 @@ del_groups = delayed(np_groups)
     ],
 )
 def test_kfolds(cls, has_shuffle):
-    assert tokenize(cls()) == tokenize(cls())
+    assert tokenize(cls(n_splits=3)) == tokenize(cls(n_splits=3))
     assert tokenize(cls(n_splits=3)) != tokenize(cls(n_splits=4))
     if has_shuffle:
-        assert tokenize(cls(shuffle=True, random_state=0)) == tokenize(
-            cls(shuffle=True, random_state=0)
+        assert tokenize(cls(shuffle=True, random_state=0, n_splits=3)) == tokenize(
+            cls(shuffle=True, random_state=0, n_splits=3)
         )
 
         rs = np.random.RandomState(42)
-        assert tokenize(cls(shuffle=True, random_state=rs)) == tokenize(
-            cls(shuffle=True, random_state=rs)
+        assert tokenize(cls(shuffle=True, random_state=rs, n_splits=3)) == tokenize(
+            cls(shuffle=True, random_state=rs, n_splits=3)
         )
 
-        assert tokenize(cls(shuffle=True, random_state=0)) != tokenize(
-            cls(shuffle=True, random_state=2)
+        assert tokenize(cls(shuffle=True, random_state=0, n_splits=3)) != tokenize(
+            cls(shuffle=True, random_state=2, n_splits=3)
         )
 
-        assert tokenize(cls(shuffle=False, random_state=0)) == tokenize(
-            cls(shuffle=False, random_state=2)
+        assert tokenize(cls(shuffle=False, random_state=0, n_splits=3)) == tokenize(
+            cls(shuffle=False, random_state=2, n_splits=3)
         )
 
     cv = cls(n_splits=3)
@@ -308,11 +307,11 @@ def test_grid_search_dask_inputs():
     del_y = delayed(np_y)
     del_groups = delayed(np_groups)
 
-    cv = GroupKFold()
-    clf = SVC(random_state=0)
+    cv = GroupKFold(n_splits=3)
+    clf = SVC(random_state=0, gamma="auto")
     grid = {"C": [1]}
 
-    sol = SVC(C=1, random_state=0).fit(np_X, np_y).support_vectors_
+    sol = SVC(C=1, random_state=0, gamma="auto").fit(np_X, np_y).support_vectors_
 
     for X, y, groups in product(
         [np_X, da_X, del_X], [np_y, da_y, del_y], [np_groups, da_groups, del_groups]
@@ -366,9 +365,9 @@ def test_pipeline_feature_union():
         svc__C=[0.1, 1, 10],
     )
 
-    gs = GridSearchCV(pipe, param_grid=param_grid)
+    gs = GridSearchCV(pipe, param_grid=param_grid, cv=3, iid=True)
     gs.fit(X, y)
-    dgs = dcv.GridSearchCV(pipe, param_grid=param_grid, scheduler="sync")
+    dgs = dcv.GridSearchCV(pipe, param_grid=param_grid, scheduler="sync", cv=3)
     dgs.fit(X, y)
 
     # Check best params match
@@ -424,10 +423,12 @@ def test_pipeline_sub_estimators():
         },
     ]
 
-    gs = GridSearchCV(pipe, param_grid=param_grid, return_train_score=True)
+    gs = GridSearchCV(
+        pipe, param_grid=param_grid, return_train_score=True, cv=3, iid=True
+    )
     gs.fit(X, y)
     dgs = dcv.GridSearchCV(
-        pipe, param_grid=param_grid, scheduler="sync", return_train_score=True
+        pipe, param_grid=param_grid, scheduler="sync", return_train_score=True, cv=3
     )
     dgs.fit(X, y)
 
@@ -510,10 +511,9 @@ def test_feature_union(weights):
     )
 
     pipe = Pipeline([("union", union), ("est", CheckXClassifier())])
-    gs = dcv.GridSearchCV(pipe, grid, refit=False, cv=2)
+    gs = dcv.GridSearchCV(pipe, grid, refit=False, cv=2, n_jobs=1)
 
-    with warnings.catch_warnings(record=True):
-        gs.fit(X, y)
+    gs.fit(X, y)
 
 
 @ignore_warnings
@@ -753,16 +753,20 @@ def test_cv_multiplemetrics():
 
     param_grid = {"max_depth": [1, 5]}
     a = dcv.GridSearchCV(
-        RandomForestClassifier(),
+        RandomForestClassifier(n_estimators=10),
         param_grid,
         refit="score1",
         scoring={"score1": "accuracy", "score2": "accuracy"},
+        cv=3,
+        iid=True,
     )
     b = GridSearchCV(
-        RandomForestClassifier(),
+        RandomForestClassifier(n_estimators=10),
         param_grid,
         refit="score1",
         scoring={"score1": "accuracy", "score2": "accuracy"},
+        cv=3,
+        iid=True,
     )
     a.fit(X, y)
     b.fit(X, y)
@@ -778,7 +782,7 @@ def test_cv_multiplemetrics_requires_refit_metric():
 
     param_grid = {"max_depth": [1, 5]}
     a = dcv.GridSearchCV(
-        RandomForestClassifier(),
+        RandomForestClassifier(n_estimators=10),
         param_grid,
         refit=True,
         scoring={"score1": "accuracy", "score2": "accuracy"},
