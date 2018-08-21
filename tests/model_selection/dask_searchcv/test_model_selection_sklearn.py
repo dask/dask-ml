@@ -1159,12 +1159,10 @@ def test_grid_search_failing_classifier():
         error_score=float("nan"),
     )
 
-    if six.PY2:
-        expected_warnings = ()
+    if not six.PY2:
+        with pytest.warns(FitFailedWarning):
+            gs.fit(X, y)
     else:
-        expected_warnings = (FitFailedWarning,)
-
-    with pytest.warns(expected_warnings):
         gs.fit(X, y)
 
     n_candidates = len(gs.cv_results_["params"])
