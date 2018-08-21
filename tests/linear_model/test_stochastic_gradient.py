@@ -61,7 +61,7 @@ class TestStochasticGradientRegressor(object):
 @pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")
 def test_lazy(xy_classification):
     X, y = xy_classification
-    sgd = lm.PartialSGDClassifier(classes=[0, 1])
+    sgd = lm.PartialSGDClassifier(classes=[0, 1], max_iter=5)
     r = sgd.fit(X, y, compute=False)
     assert isinstance(r, Delayed)
     result = r.compute()
