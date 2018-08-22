@@ -198,6 +198,122 @@ class ShuffleSplit(BaseCrossValidator):
         return self.n_splits
 
 
+def _generate_offset_idx(n, start, stop, offset, seed):
+    if seed is not None:
+        idx = check_random_state(seed).permutation(n)
+    else:
+        idx = np.arange(n)
+    return idx[start - offset : stop - offset] + offset
+
+
+class KFold(BaseCrossValidator):
+    """K-Folds cross-validator
+
+    Provides train/test indices to split data in train/test sets. Split
+    dataset into k consecutive folds (without shuffling by default).
+
+    Each fold is then used once as a validation while the k - 1 remaining
+    folds form the training set.
+
+    Parameters
+    ----------
+    n_splits : int, default=5
+        Number of folds. Must be at least 2.
+
+    shuffle : boolean, optional
+        Whether to shuffle the data before splitting into batches.
+
+    random_state : int, RandomState instance or None, optional, default=None
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`. Used when ``shuffle`` == True.
+    """
+
+    def __init__(self, n_splits=5, shuffle=False, random_state=None):
+        self.n_splits = n_splits
+        self.shuffle = shuffle
+        self.random_state = random_state
+
+    def split(self, X, y=None, groups=None):
+        X = check_array(X)
+        n_samples = X.shape[0]
+        n_splits = self.n_splits
+        fold_sizes = np.full(n_splits, n_samples // n_splits, dtype=np.int)
+        fold_sizes[: n_samples % n_splits] += 1
+
+        chunks = X.chunks[0]
+        seeds = [None] * len(chunks)
+        if self.shuffle:
+            rng = check_random_state(self.random_state)
+            seeds = rng.randint(0, 2 ** 32 - 1, size=len(chunks), dtype="u8")
+
+        test_current = 0
+        for fold_size in fold_sizes:
+            test_start, test_stop = test_current, test_current + fold_size
+            yield self._split(test_start, test_stop, n_samples, chunks, seeds)
+            test_current = test_stop
+
+    def _split(self, test_start, test_stop, n_samples, chunks, seeds):
+        train_objs = []
+        test_objs = []
+        train_sizes = []
+        test_sizes = []
+
+        offset = 0
+        for chunk, seed in zip(chunks, seeds):
+            start, stop = offset, offset + chunk
+
+            test_id_start = max(test_start, start)
+            test_id_stop = min(test_stop, stop)
+
+            if test_id_start < test_id_stop:
+                test_objs.append(
+                    dask.delayed(_generate_offset_idx)(
+                        chunk, test_id_start, test_id_stop, offset, seed
+                    )
+                )
+                test_sizes.append(test_id_stop - test_id_start)
+
+            train_id_stop = min(test_id_start, stop)
+            if train_id_stop > start:
+                train_objs.append(
+                    dask.delayed(_generate_offset_idx)(
+                        chunk, start, train_id_stop, offset, seed
+                    )
+                )
+                train_sizes.append(train_id_stop - start)
+
+            train_id_start = max(test_id_stop, start)
+            if train_id_start < stop:
+                train_objs.append(
+                    dask.delayed(_generate_offset_idx)(
+                        chunk, train_id_start, stop, offset, seed
+                    )
+                )
+                train_sizes.append(stop - train_id_start)
+            offset = stop
+
+        train_idx = da.concatenate(
+            [
+                da.from_delayed(obj, (train_size,), "i8")
+                for obj, train_size in zip(train_objs, train_sizes)
+            ]
+        )
+
+        test_idx = da.concatenate(
+            [
+                da.from_delayed(obj, (test_size,), "i8")
+                for obj, test_size in zip(test_objs, test_sizes)
+            ]
+        )
+
+        return train_idx, test_idx
+
+    def get_n_splits(self, X=None, y=None, groups=None):
+        return self.n_splits
+
+
 def _blockwise_slice(arr, idx):
     """Slice an array that is blockwise-aligned with idx.
 
