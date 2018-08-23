@@ -125,7 +125,7 @@ def check_array(array, *args, **kwargs):
                 raise TypeError(
                     "Cannot operate on Dask array with unknown chunk sizes."
                 )
-        if not accept_multiple_blocks:
+        if not accept_multiple_blocks and array.ndim > 1:
             if len(array.chunks[1]) > 1:
                 msg = (
                     "Chunking is only allowed on the first axis. "

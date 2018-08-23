@@ -174,3 +174,8 @@ def test_check_array_raises():
 )
 def test_num_samples(data):
     assert _num_samples(data) == 10
+
+
+def test_check_array_1d():
+    arr = da.random.uniform(size=(10,), chunks=5)
+    check_array(arr, ensure_2d=False)
