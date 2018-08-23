@@ -3,9 +3,13 @@ from distutils.version import LooseVersion
 
 import dask
 import dask.array as da
+import scipy.sparse as sp
 from dask.base import tokenize
 from dask.delayed import Delayed, delayed
+from sklearn.utils import safe_indexing
 from sklearn.utils.validation import _is_arraylike, indexable
+
+from ..utils import _num_samples
 
 if LooseVersion(dask.__version__) > "0.15.4":
     from dask.base import is_dask_collection
@@ -46,6 +50,22 @@ def to_indexable(*args, **kwargs):
             yield delayed(indexable, pure=True)(x)
         else:
             yield indexable(x)
+
+
+def _index_param_value(num_samples, v, indices):
+    """Private helper function for parameter value indexing.
+
+    This determines whether a fit parameter `v` to a SearchCV.fit
+    should be indexed along with `X` and `y`. Note that this differs
+    from the scikit-learn version. They pass `X` and compute num_samples.
+    We pass `num_samples` instead.
+    """
+    if not _is_arraylike(v) or _num_samples(v) != num_samples:
+        # pass through: skip indexing
+        return v
+    if sp.issparse(v):
+        v = v.tocsr()
+    return safe_indexing(v, indices)
 
 
 def to_keys(dsk, *args):

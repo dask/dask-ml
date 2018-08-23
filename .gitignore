@@ -116,3 +116,5 @@ docs/source/examples/susy
 /docs/source/generated/
 source/auto_examples/
 docs/source/auto_examples/
+
+dask-worker-space

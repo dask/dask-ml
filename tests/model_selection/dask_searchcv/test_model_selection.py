@@ -2,7 +2,6 @@ from __future__ import absolute_import, division, print_function
 
 import os
 import pickle
-import warnings
 from itertools import product
 from multiprocessing import cpu_count
 
@@ -49,8 +48,8 @@ from dask_ml.model_selection.utils_test import (
     CheckXClassifier,
     FailingClassifier,
     MockClassifier,
+    MockClassifierWithFitParam,
     ScalingTransformer,
-    ignore_warnings,
 )
 
 try:
@@ -123,24 +122,24 @@ del_groups = delayed(np_groups)
     ],
 )
 def test_kfolds(cls, has_shuffle):
-    assert tokenize(cls()) == tokenize(cls())
+    assert tokenize(cls(n_splits=3)) == tokenize(cls(n_splits=3))
     assert tokenize(cls(n_splits=3)) != tokenize(cls(n_splits=4))
     if has_shuffle:
-        assert tokenize(cls(shuffle=True, random_state=0)) == tokenize(
-            cls(shuffle=True, random_state=0)
+        assert tokenize(cls(shuffle=True, random_state=0, n_splits=3)) == tokenize(
+            cls(shuffle=True, random_state=0, n_splits=3)
         )
 
         rs = np.random.RandomState(42)
-        assert tokenize(cls(shuffle=True, random_state=rs)) == tokenize(
-            cls(shuffle=True, random_state=rs)
+        assert tokenize(cls(shuffle=True, random_state=rs, n_splits=3)) == tokenize(
+            cls(shuffle=True, random_state=rs, n_splits=3)
         )
 
-        assert tokenize(cls(shuffle=True, random_state=0)) != tokenize(
-            cls(shuffle=True, random_state=2)
+        assert tokenize(cls(shuffle=True, random_state=0, n_splits=3)) != tokenize(
+            cls(shuffle=True, random_state=2, n_splits=3)
         )
 
-        assert tokenize(cls(shuffle=False, random_state=0)) == tokenize(
-            cls(shuffle=False, random_state=2)
+        assert tokenize(cls(shuffle=False, random_state=0, n_splits=3)) == tokenize(
+            cls(shuffle=False, random_state=2, n_splits=3)
         )
 
     cv = cls(n_splits=3)
@@ -307,11 +306,11 @@ def test_grid_search_dask_inputs():
     del_y = delayed(np_y)
     del_groups = delayed(np_groups)
 
-    cv = GroupKFold()
-    clf = SVC(random_state=0)
+    cv = GroupKFold(n_splits=3)
+    clf = SVC(random_state=0, gamma="auto")
     grid = {"C": [1]}
 
-    sol = SVC(C=1, random_state=0).fit(np_X, np_y).support_vectors_
+    sol = SVC(C=1, random_state=0, gamma="auto").fit(np_X, np_y).support_vectors_
 
     for X, y, groups in product(
         [np_X, da_X, del_X], [np_y, da_y, del_y], [np_groups, da_groups, del_groups]
@@ -365,9 +364,9 @@ def test_pipeline_feature_union():
         svc__C=[0.1, 1, 10],
     )
 
-    gs = GridSearchCV(pipe, param_grid=param_grid)
+    gs = GridSearchCV(pipe, param_grid=param_grid, cv=3, iid=True)
     gs.fit(X, y)
-    dgs = dcv.GridSearchCV(pipe, param_grid=param_grid, scheduler="sync")
+    dgs = dcv.GridSearchCV(pipe, param_grid=param_grid, scheduler="sync", cv=3)
     dgs.fit(X, y)
 
     # Check best params match
@@ -423,10 +422,12 @@ def test_pipeline_sub_estimators():
         },
     ]
 
-    gs = GridSearchCV(pipe, param_grid=param_grid, return_train_score=True)
+    gs = GridSearchCV(
+        pipe, param_grid=param_grid, return_train_score=True, cv=3, iid=True
+    )
     gs.fit(X, y)
     dgs = dcv.GridSearchCV(
-        pipe, param_grid=param_grid, scheduler="sync", return_train_score=True
+        pipe, param_grid=param_grid, scheduler="sync", return_train_score=True, cv=3
     )
     dgs.fit(X, y)
 
@@ -509,13 +510,11 @@ def test_feature_union(weights):
     )
 
     pipe = Pipeline([("union", union), ("est", CheckXClassifier())])
-    gs = dcv.GridSearchCV(pipe, grid, refit=False, cv=2)
+    gs = dcv.GridSearchCV(pipe, grid, refit=False, cv=2, n_jobs=1)
 
-    with warnings.catch_warnings(record=True):
-        gs.fit(X, y)
+    gs.fit(X, y)
 
 
-@ignore_warnings
 def test_feature_union_fit_failure():
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
 
@@ -546,7 +545,6 @@ def test_feature_union_fit_failure():
     check_scores_all_nan(gs, "union__bad__parameter")
 
 
-@ignore_warnings
 @pytest.mark.skipif(not HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
 def test_feature_union_fit_failure_multiple_metrics():
     scoring = {"score_1": _passthrough_scorer, "score_2": _passthrough_scorer}
@@ -581,7 +579,33 @@ def test_feature_union_fit_failure_multiple_metrics():
         check_scores_all_nan(gs, "union__bad__parameter", score_key=key)
 
 
-@ignore_warnings
+def test_failing_classifier_fails():
+    clf = dcv.GridSearchCV(
+        FailingClassifier(),
+        {
+            "parameter": [
+                FailingClassifier.FAILING_PARAMETER,
+                FailingClassifier.FAILING_SCORE_PARAMETER,
+            ]
+        },
+        refit=False,
+        return_train_score=False,
+    )
+
+    X, y = make_classification()
+
+    with pytest.raises(ValueError, message="Failing during score"):
+        clf.fit(X, y)
+
+    clf = clf.set_params(error_score=-1)
+
+    with pytest.warns(FitFailedWarning):
+        clf.fit(X, y)
+
+    for result in ["mean_fit_time", "mean_score_time", "mean_test_score"]:
+        assert not any(np.isnan(clf.cv_results_[result]))
+
+
 def test_pipeline_fit_failure():
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
 
@@ -593,7 +617,14 @@ def test_pipeline_fit_failure():
         ]
     )
 
-    grid = {"bad__parameter": [0, 1, 2]}
+    grid = {
+        "bad__parameter": [
+            0,
+            FailingClassifier.FAILING_PARAMETER,
+            FailingClassifier.FAILING_PREDICT_PARAMETER,
+            FailingClassifier.FAILING_SCORE_PARAMETER,
+        ]
+    }
     gs = dcv.GridSearchCV(pipe, grid, refit=False)
 
     # Check that failure raises if error_score is `'raise'`
@@ -606,6 +637,29 @@ def test_pipeline_fit_failure():
         gs.fit(X, y)
 
     check_scores_all_nan(gs, "bad__parameter")
+
+
+@pytest.mark.filterwarnings("ignore")
+@pytest.mark.parametrize("in_pipeline", [False, True])
+def test_estimator_predict_failure(in_pipeline):
+    X, y = make_classification()
+    if in_pipeline:
+        clf = Pipeline([("bad", FailingClassifier())])
+        key = "bad__parameter"
+    else:
+        clf = FailingClassifier()
+        key = "parameter"
+
+    grid = {
+        key: [
+            0,
+            FailingClassifier.FAILING_PARAMETER,
+            FailingClassifier.FAILING_PREDICT_PARAMETER,
+            FailingClassifier.FAILING_SCORE_PARAMETER,
+        ]
+    }
+    gs = dcv.GridSearchCV(clf, grid, refit=False, error_score=float("nan"), cv=2)
+    gs.fit(X, y)
 
 
 def test_pipeline_raises():
@@ -717,7 +771,7 @@ def test_normalize_n_jobs():
         ("synchronous", 4),
         ("sync", 4),
         ("multiprocessing", 4),
-        (dask.get, 4),
+        pytest.param(dask.get, 4, marks=[pytest.mark.filterwarnings("ignore")]),
     ],
 )
 def test_scheduler_param(scheduler, n_jobs):
@@ -752,16 +806,20 @@ def test_cv_multiplemetrics():
 
     param_grid = {"max_depth": [1, 5]}
     a = dcv.GridSearchCV(
-        RandomForestClassifier(),
+        RandomForestClassifier(n_estimators=10),
         param_grid,
         refit="score1",
         scoring={"score1": "accuracy", "score2": "accuracy"},
+        cv=3,
+        iid=True,
     )
     b = GridSearchCV(
-        RandomForestClassifier(),
+        RandomForestClassifier(n_estimators=10),
         param_grid,
         refit="score1",
         scoring={"score1": "accuracy", "score2": "accuracy"},
+        cv=3,
+        iid=True,
     )
     a.fit(X, y)
     b.fit(X, y)
@@ -777,7 +835,7 @@ def test_cv_multiplemetrics_requires_refit_metric():
 
     param_grid = {"max_depth": [1, 5]}
     a = dcv.GridSearchCV(
-        RandomForestClassifier(),
+        RandomForestClassifier(n_estimators=10),
         param_grid,
         refit=True,
         scoring={"score1": "accuracy", "score2": "accuracy"},
@@ -807,3 +865,34 @@ def test_cv_multiplemetrics_no_refit():
     assert hasattr(a, "best_index_") is hasattr(b, "best_index_")
     assert hasattr(a, "best_estimator_") is hasattr(b, "best_estimator_")
     assert hasattr(a, "best_score_") is hasattr(b, "best_score_")
+
+
+@pytest.mark.parametrize("cache_cv", [True, False])
+def test_gridsearch_with_arraylike_fit_param(cache_cv):
+    # https://github.com/dask/dask-ml/issues/319
+    X, y = make_classification(random_state=0)
+    param_grid = {"foo_param": [0.0001, 0.1]}
+
+    a = dcv.GridSearchCV(
+        MockClassifierWithFitParam(),
+        param_grid,
+        cv=3,
+        iid=False,
+        refit=False,
+        cache_cv=cache_cv,
+    )
+    b = GridSearchCV(
+        MockClassifierWithFitParam(), param_grid, cv=3, iid=False, refit=False
+    )
+
+    b.fit(X, y, mock_fit_param=[0, 1])
+    a.fit(X, y, mock_fit_param=[0, 1])
+
+
+def test_mock_with_fit_param_raises():
+    X, y = make_classification(random_state=0)
+
+    clf = MockClassifierWithFitParam()
+
+    with pytest.raises(ValueError):
+        clf.fit(X, y)

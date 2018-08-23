@@ -94,7 +94,7 @@ class LabelEncoder(sklabel.LabelEncoder):
 
         if not self.use_categorical:
             if isinstance(y, dd.Series):
-                y = da.asarray(y)
+                y = y.to_dask_array(lengths=True)
             elif isinstance(y, pd.Series):
                 y = np.asarray(y)
 
@@ -105,7 +105,7 @@ class LabelEncoder(sklabel.LabelEncoder):
                 if not y.cat.known:
                     y = y.cat.as_known()
             else:
-                y = da.asarray(y)
+                y = y.to_dask_array(lengths=True)
         return y
 
     def fit(self, y):

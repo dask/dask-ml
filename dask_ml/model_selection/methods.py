@@ -13,10 +13,10 @@ from scipy.stats import rankdata
 from sklearn.exceptions import FitFailedWarning
 from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.utils import safe_indexing
-from sklearn.utils.validation import _is_arraylike, check_consistent_length
+from sklearn.utils.validation import check_consistent_length
 from toolz import pluck
 
-from .utils import copy_estimator
+from .utils import _index_param_value, _num_samples, copy_estimator
 
 # Copied from scikit-learn/sklearn/utils/fixes.py, can be removed once we drop
 # support for scikit-learn < 0.18.1 or numpy < 1.12.0.
@@ -82,13 +82,22 @@ def warn_fit_failure(error_score, e):
 
 
 class CVCache(object):
-    def __init__(self, splits, pairwise=False, cache=True):
+    def __init__(self, splits, pairwise=False, cache=True, num_train_samples=None):
         self.splits = splits
         self.pairwise = pairwise
         self.cache = {} if cache else None
+        self.num_train_samples = num_train_samples
 
     def __reduce__(self):
-        return (CVCache, (self.splits, self.pairwise, self.cache is not None))
+        return (
+            CVCache,
+            (
+                self.splits,
+                self.pairwise,
+                self.cache is not None,
+                self.num_train_samples,
+            ),
+        )
 
     def num_test_samples(self):
         return np.array(
@@ -108,7 +117,7 @@ class CVCache(object):
         if self.cache is not None and (n, key) in self.cache:
             return self.cache[n, key]
 
-        out = safe_indexing(x, self.splits[n][0]) if _is_arraylike(x) else x
+        out = _index_param_value(self.num_train_samples, x, self.splits[n][0])
 
         if self.cache is not None:
             self.cache[n, key] = out
@@ -146,7 +155,7 @@ class CVCache(object):
 
 def cv_split(cv, X, y, groups, is_pairwise, cache):
     check_consistent_length(X, y, groups)
-    return CVCache(list(cv.split(X, y, groups)), is_pairwise, cache)
+    return CVCache(list(cv.split(X, y, groups)), is_pairwise, cache, _num_samples(X))
 
 
 def cv_n_samples(cvs):
@@ -274,10 +283,17 @@ def _score(est, X, y, scorer):
     return scorer(est, X) if y is None else scorer(est, X, y)
 
 
-def score(est_and_time, X_test, y_test, X_train, y_train, scorer):
+def score(est_and_time, X_test, y_test, X_train, y_train, scorer, error_score):
     est, fit_time = est_and_time
     start_time = default_timer()
-    test_score = _score(est, X_test, y_test, scorer)
+    try:
+        test_score = _score(est, X_test, y_test, scorer)
+    except Exception:
+        if error_score == "raise":
+            raise
+        else:
+            score_time = default_timer() - start_time
+            return fit_time, error_score, score_time, error_score
     score_time = default_timer() - start_time
     if X_train is None:
         return fit_time, test_score, score_time
@@ -305,7 +321,8 @@ def fit_and_score(
     est_and_time = fit(est, X_train, y_train, error_score, fields, params, fit_params)
     if not return_train_score:
         X_train = y_train = None
-    return score(est_and_time, X_test, y_test, X_train, y_train, scorer)
+
+    return score(est_and_time, X_test, y_test, X_train, y_train, scorer, error_score)
 
 
 def _store(

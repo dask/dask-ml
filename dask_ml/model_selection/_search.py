@@ -361,6 +361,7 @@ def do_fit_and_score(
                     xtrain,
                     ytrain,
                     scorer,
+                    error_score,
                 )
                 scores_append((score_name, m, n))
     return scores
