@@ -12,13 +12,14 @@ from sklearn.cluster import k_means_ as sk_k_means
 from sklearn.utils.extmath import squared_norm
 from sklearn.utils.validation import check_is_fitted
 
+import numba
+
 from ..metrics import (
     euclidean_distances,
     pairwise_distances,
     pairwise_distances_argmin_min,
 )
 from ..utils import _timed, _timer, check_array, row_norms
-from ._k_means import _centers_dense
 
 logger = logging.getLogger(__name__)
 
@@ -138,7 +139,6 @@ class KMeans(TransformerMixin, BaseEstimator):
         n_jobs=1,
         algorithm="full",
         init_max_iter=None,
-        algo=_centers_dense,
     ):
         self.n_clusters = n_clusters
         self.init = init
@@ -151,7 +151,6 @@ class KMeans(TransformerMixin, BaseEstimator):
         self.precompute_distances = precompute_distances
         self.n_jobs = n_jobs
         self.copy_x = copy_x
-        self.algo = algo
 
     @_timed(_logger=logger)
     def _check_array(self, X):
@@ -199,7 +198,6 @@ class KMeans(TransformerMixin, BaseEstimator):
             max_iter=self.max_iter,
             init_max_iter=self.init_max_iter,
             tol=self.tol,
-            algo=self.algo,
         )
         self.cluster_centers_ = centroids
         self.labels_ = labels
@@ -252,7 +250,6 @@ def k_means(
     return_n_iter=False,
     oversampling_factor=2,
     init_max_iter=None,
-    algo=_centers_dense,
 ):
     """K-means algorithm for clustering
 
@@ -272,7 +269,6 @@ def k_means(
         random_state=random_state,
         oversampling_factor=oversampling_factor,
         init_max_iter=init_max_iter,
-        algo=algo,
     )
     if return_n_iter:
         return labels, centers, inertia, n_iter
@@ -513,7 +509,6 @@ def _kmeans_single_lloyd(
     precompute_distances=True,
     oversampling_factor=2,
     init_max_iter=None,
-    algo=_centers_dense,
 ):
     centers = k_init(
         X,
@@ -535,7 +530,7 @@ def _kmeans_single_lloyd(
             # distances is always float64, but we need it to match X.dtype
             # for centers_dense, but remain float64 for inertia
             r = da.atop(
-                algo,
+                _centers_dense,
                 "ij",
                 X,
                 "ij",
@@ -573,3 +568,16 @@ def _kmeans_single_lloyd(
     centers = centers.astype(dt)
 
     return labels, inertia, centers, i + 1
+
+
+@numba.njit(nogil=True, fastmath=True)
+def _centers_dense(X, labels, n_clusters, distances):
+    n_samples = X.shape[0]
+    n_features = X.shape[1]
+    centers = np.zeros((n_clusters, n_features), dtype=np.float64)
+
+    for i in range(n_samples):
+        for j in range(n_features):
+            centers[labels[i], j] += X[i, j]
+
+    return centers

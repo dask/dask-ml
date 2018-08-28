@@ -6,7 +6,6 @@ dependencies:
   - black
   - coverage
   - codecov
-  - Cython
   - flake8
   - heapdict
   - ipykernel
@@ -16,6 +15,7 @@ dependencies:
   - nbsphinx
   - nomkl
   - nose
+  - numba
   - numpy
   - numpydoc
   - pandas
