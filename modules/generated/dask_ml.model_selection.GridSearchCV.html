@@ -211,7 +211,7 @@
 <h1><a class="reference internal" href="../api.html#module-dask_ml.model_selection" title="dask_ml.model_selection"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code></a>.GridSearchCV<a class="headerlink" href="#dask-ml-model-selection-gridsearchcv" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="dask_ml.model_selection.GridSearchCV">
-<em class="property">class </em><code class="descclassname">dask_ml.model_selection.</code><code class="descname">GridSearchCV</code><span class="sig-paren">(</span><em>estimator</em>, <em>param_grid</em>, <em>scoring=None</em>, <em>iid=True</em>, <em>refit=True</em>, <em>cv=None</em>, <em>error_score='raise'</em>, <em>return_train_score='warn'</em>, <em>scheduler=None</em>, <em>n_jobs=-1</em>, <em>cache_cv=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.GridSearchCV" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.model_selection.</code><code class="descname">GridSearchCV</code><span class="sig-paren">(</span><em>estimator</em>, <em>param_grid</em>, <em>scoring=None</em>, <em>iid=True</em>, <em>refit=True</em>, <em>cv=None</em>, <em>error_score='raise'</em>, <em>return_train_score=True</em>, <em>scheduler=None</em>, <em>n_jobs=-1</em>, <em>cache_cv=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.GridSearchCV" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exhaustive search over specified parameter values for an estimator.</p>
 <p>GridSearchCV implements a “fit” and a “score” method.
 It also implements “predict”, “predict_proba”, “decision_function”,
@@ -512,7 +512,7 @@ data, unless an explicit score is passed in which case it is used instead.</p>
 </table>
 <dl class="method">
 <dt id="dask_ml.model_selection.GridSearchCV.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>estimator</em>, <em>param_grid</em>, <em>scoring=None</em>, <em>iid=True</em>, <em>refit=True</em>, <em>cv=None</em>, <em>error_score='raise'</em>, <em>return_train_score='warn'</em>, <em>scheduler=None</em>, <em>n_jobs=-1</em>, <em>cache_cv=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.GridSearchCV.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>estimator</em>, <em>param_grid</em>, <em>scoring=None</em>, <em>iid=True</em>, <em>refit=True</em>, <em>cv=None</em>, <em>error_score='raise'</em>, <em>return_train_score=True</em>, <em>scheduler=None</em>, <em>n_jobs=-1</em>, <em>cache_cv=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.GridSearchCV.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 

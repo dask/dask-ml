@@ -226,24 +226,16 @@ in the <code class="docutils literal notranslate"><span class="pre">ci</span></c
 also a <code class="docutils literal notranslate"><span class="pre">ci/environment-2.7.yml</span></code> file if you need to use Python 2.7.</p>
 <p>If you’re using pip, you can view the list of all the required and optional
 dependencies within <code class="docutils literal notranslate"><span class="pre">setup.py</span></code> (see the <code class="docutils literal notranslate"><span class="pre">install_requires</span></code> field for
-required dependencies and <code class="docutils literal notranslate"><span class="pre">extras_require</span></code> for optional dependencies). You’ll
-at least need the build dependencies of NumPy, setuptools, setuptools_scm, and
-Cython.</p>
+required dependencies and <code class="docutils literal notranslate"><span class="pre">extras_require</span></code> for optional dependencies).</p>
 </div>
 <div class="section" id="building-dask-ml">
 <h2>Building dask-ml<a class="headerlink" href="#building-dask-ml" title="Permalink to this headline">¶</a></h2>
-<p>The library has some C-extensions, so installing is a bit more complicated than
-normal. If you have a compiler and everything is setup correctly, you should be
-able to install Cython and all the required dependencies.</p>
-<p>From within the repository:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>python setup.py build_ext --inplace
-</pre></div>
-</div>
-<p>And then</p>
+<p>Dask-ML is a pure-python repository. Development installation should be as simple as
+cloning the repository and running the following in the cloned directory:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>python -m pip install -e &quot;.[dev]&quot;
 </pre></div>
 </div>
-<p>If you have any trouble with the build step, please open an issue in the
+<p>If you have any trouble, please open an issue on the
 <a class="reference external" href="https://github.com/dask/dask-ml/issues">dask-ml issue tracker</a>.</p>
 </div>
 <div class="section" id="style">

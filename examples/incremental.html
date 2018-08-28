@@ -438,7 +438,7 @@ run the cell</p>
 <td style="vertical-align: top; border: 0px solid white">
 <h3>Client</h3>
 <ul>
-  <li><b>Scheduler: </b>tcp://127.0.0.1:34660
+  <li><b>Scheduler: </b>tcp://127.0.0.1:46330
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
@@ -639,7 +639,7 @@ sequential fitting of many batches.</p>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
 <span></span>Incremental(estimator=SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,
        eta0=0.0, fit_intercept=True, l1_ratio=0.15,
-       learning_rate=&#39;optimal&#39;, loss=&#39;log&#39;, max_iter=None, n_iter=None,
+       learning_rate=&#39;optimal&#39;, loss=&#39;log&#39;, max_iter=1000, n_iter=None,
        n_jobs=1, penalty=&#39;l2&#39;, power_t=0.5, random_state=None,
        shuffle=True, tol=0.001, verbose=0, warm_start=False),
       random_state=None, scoring=&#39;accuracy&#39;, shuffle_blocks=True)
@@ -662,7 +662,7 @@ sequential fitting of many batches.</p>
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.5187
+<span></span>0.5724
 </pre></div>
 </div>
 </div>
@@ -700,16 +700,16 @@ we can use the <code class="docutils literal notranslate"><span class="pre">Incr
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Score: 0.4948
-Score: 0.5127
-Score: 0.525
-Score: 0.5217
-Score: 0.527
-Score: 0.5184
-Score: 0.5353
-Score: 0.5297
-Score: 0.5338
-Score: 0.5298
+Score: 0.5535
+Score: 0.5418
+Score: 0.576
+Score: 0.5537
+Score: 0.5819
+Score: 0.5874
+Score: 0.5888
+Score: 0.594
+Score: 0.6022
+Score: 0.5974
 </pre></div></div>
 </div>
 </div>
@@ -753,11 +753,11 @@ Score: 0.5298
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>array([1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1,
-       0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1,
-       1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0,
-       1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0,
-       0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0])
+<span></span>array([1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0,
+       0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0,
+       1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0,
+       0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1,
+       0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1])
 </pre></div>
 </div>
 </div>
@@ -777,7 +777,7 @@ Score: 0.5298
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.5298
+<span></span>0.5974
 </pre></div>
 </div>
 </div>
