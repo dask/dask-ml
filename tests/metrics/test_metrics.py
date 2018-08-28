@@ -2,7 +2,6 @@ import dask
 import dask.array as da
 import numpy as np
 import numpy.testing as npt
-import packaging.version
 import pytest
 import sklearn
 import sklearn.linear_model
