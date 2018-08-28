@@ -4,6 +4,7 @@ from numbers import Integral
 
 import dask.array as da
 import dask.dataframe as dd
+import numba
 import numpy as np
 import pandas as pd
 from dask import compute
@@ -11,8 +12,6 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.cluster import k_means_ as sk_k_means
 from sklearn.utils.extmath import squared_norm
 from sklearn.utils.validation import check_is_fitted
-
-import numba
 
 from ..metrics import (
     euclidean_distances,
