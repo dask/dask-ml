@@ -1,8 +1,7 @@
 import os
 from codecs import open
 
-import numpy as np
-from setuptools import Extension, find_packages, setup
+from setuptools import find_packages, setup
 
 here = os.path.dirname(__file__)
 
@@ -13,6 +12,7 @@ with open(os.path.join(here, "README.rst"), encoding="utf-8") as f:
 
 install_requires = [
     "dask[array]>=0.18.2",
+    "numba",
     "numpy",
     "pandas>=0.21.0",  # CategoricalDtype
     "scikit-learn",
@@ -48,22 +48,6 @@ extras_require = {
     "complete": complete_requires,
 }
 
-extensions = [
-    Extension(
-        "dask_ml.cluster._k_means",
-        [os.path.join(here, "dask_ml", "cluster", "_k_means.pyx")],
-        include_dirs=[np.get_include()],
-    )
-]
-
-try:
-    from Cython.Build import cythonize
-except ImportError:
-    pass
-else:
-    extensions = cythonize(extensions)
-
-
 setup(
     name="dask-ml",
     description="A library for distributed and parallel machine learning",
@@ -90,5 +74,4 @@ setup(
     setup_requires=["setuptools_scm"],
     install_requires=install_requires,
     extras_require=extras_require,
-    ext_modules=extensions,
 )
