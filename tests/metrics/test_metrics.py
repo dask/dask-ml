@@ -165,7 +165,7 @@ def test_log_loss_scoring(y):
     )
 
     clf = dask_ml.wrappers.ParallelPostFit(
-        sklearn.linear_model.LogisticRegression(n_jobs=1)
+        sklearn.linear_model.LogisticRegression(n_jobs=1, solver="lbfgs")
     )
     clf.fit(X, y)
 
