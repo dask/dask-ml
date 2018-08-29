@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.model_selection.train_test_split &mdash; dask-ml 0.1 documentation</title>
+  <title>dask_ml.model_selection.KFold &mdash; dask-ml 0.1 documentation</title>
   
 
   
@@ -29,8 +29,8 @@
   <link rel="stylesheet" href="../../_static/style.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="dask_ml.model_selection.ShuffleSplit" href="dask_ml.model_selection.ShuffleSplit.html" />
-    <link rel="prev" title="API Reference" href="../api.html" /> 
+    <link rel="next" title="dask_ml.model_selection.GridSearchCV" href="dask_ml.model_selection.GridSearchCV.html" />
+    <link rel="prev" title="dask_ml.model_selection.ShuffleSplit" href="dask_ml.model_selection.ShuffleSplit.html" /> 
 
   
   <script src="../../_static/js/modernizr.min.js"></script>
@@ -98,9 +98,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../../tensorflow.html">Tensorflow</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../api.html#module-dask_ml.model_selection"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>: Model Selection</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">dask_ml.model_selection.train_test_split</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.train_test_split.html">dask_ml.model_selection.train_test_split</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.ShuffleSplit.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.ShuffleSplit</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.KFold.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.KFold</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.KFold</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.GridSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.GridSearchCV</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.RandomizedSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.RandomizedSearchCV</a></li>
 </ul>
@@ -170,13 +170,13 @@
         
           <li><a href="../api.html">API Reference</a> &raquo;</li>
         
-      <li>dask_ml.model_selection.train_test_split</li>
+      <li><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.KFold</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../../_sources/modules/generated/dask_ml.model_selection.train_test_split.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/modules/generated/dask_ml.model_selection.KFold.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -208,64 +208,109 @@
     margin-right: 4px;  /* make room for the exclamation icon */
 }
 </style>
-<div class="section" id="dask-ml-model-selection-train-test-split">
-<h1>dask_ml.model_selection.train_test_split<a class="headerlink" href="#dask-ml-model-selection-train-test-split" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
-<dt id="dask_ml.model_selection.train_test_split">
-<code class="descclassname">dask_ml.model_selection.</code><code class="descname">train_test_split</code><span class="sig-paren">(</span><em>*arrays</em>, <em>**options</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.train_test_split" title="Permalink to this definition">¶</a></dt>
-<dd><p>Split arrays into random train and test matricies.</p>
+<div class="section" id="dask-ml-model-selection-kfold">
+<h1><a class="reference internal" href="../api.html#module-dask_ml.model_selection" title="dask_ml.model_selection"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code></a>.KFold<a class="headerlink" href="#dask-ml-model-selection-kfold" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="dask_ml.model_selection.KFold">
+<em class="property">class </em><code class="descclassname">dask_ml.model_selection.</code><code class="descname">KFold</code><span class="sig-paren">(</span><em>n_splits=5</em>, <em>shuffle=False</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.KFold" title="Permalink to this definition">¶</a></dt>
+<dd><p>K-Folds cross-validator</p>
+<p>Provides train/test indices to split data in train/test sets. Split
+dataset into k consecutive folds (without shuffling by default).</p>
+<p>Each fold is then used once as a validation while the k - 1 remaining
+folds form the training set.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>*arrays</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Sequence of Dask Arrays</span></dt>
-<dd></dd>
-<dt><strong>test_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or int, defualt 0.1</span></dt>
-<dd></dd>
-<dt><strong>train_size: float or int, optional</strong></dt>
-<dd></dd>
-<dt><strong>random_state</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, RandomState instance or None, optional (default=None)</span></dt>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>n_splits</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default=5</span></dt>
+<dd><p class="first last">Number of folds. Must be at least 2.</p>
+</dd>
+<dt><strong>shuffle</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span></dt>
+<dd><p class="first last">Whether to shuffle the data before splitting into batches.</p>
+</dd>
+<dt><strong>random_state</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, RandomState instance or None, optional, default=None</span></dt>
 <dd><p class="first last">If int, random_state is the seed used by the random number generator;
 If RandomState instance, random_state is the random number generator;
 If None, the random number generator is the RandomState instance used
-by <cite>np.random</cite>.</p>
-</dd>
-<dt><strong>shuffle</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default True</span></dt>
-<dd><p class="first last">Whether to shuffle the data before splitting.</p>
-</dd>
-<dt><strong>blockwise</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default True</span></dt>
-<dd><p class="first last">Whether to perform blockwise-shuffling.</p>
-</dd>
-</dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>splitting</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list, length=2 * len(arrays)</span></dt>
-<dd><p class="first last">List containing train-test split of inputs</p>
+by <cite>np.random</cite>. Used when <code class="docutils literal notranslate"><span class="pre">shuffle</span></code> == True.</p>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Examples</p>
-<p>import dask.array as da
-from dask_ml.datasets import make_regression</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_regression</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">125</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
-<span class="gp">... </span>                   <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span>
-<span class="gp">... </span>                                                    <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">X_train</span>
-<span class="go">dask.array&lt;concatenate, shape=(113, 4), dtype=float64, chunksize=(45, 4)&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">2</span><span class="p">]</span>
-<span class="go">array([[ 0.12372191,  0.58222459,  0.92950511, -2.09460307],</span>
-<span class="go">       [ 0.99439439, -0.70972797, -0.27567053,  1.73887268]])</span>
-</pre></div>
-</div>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.KFold.get_n_splits" title="dask_ml.model_selection.KFold.get_n_splits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_n_splits</span></code></a>([X,&nbsp;y,&nbsp;groups])</td>
+<td>Returns the number of splitting iterations in the cross-validator</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.model_selection.KFold.split" title="dask_ml.model_selection.KFold.split"><code class="xref py py-obj docutils literal notranslate"><span class="pre">split</span></code></a>(X[,&nbsp;y,&nbsp;groups])</td>
+<td>Generate indices to split data into training and test set.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="dask_ml.model_selection.KFold.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>n_splits=5</em>, <em>shuffle=False</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.KFold.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
-</div>
+<dl class="method">
+<dt id="dask_ml.model_selection.KFold.get_n_splits">
+<code class="descname">get_n_splits</code><span class="sig-paren">(</span><em>X=None</em>, <em>y=None</em>, <em>groups=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.KFold.get_n_splits" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of splitting iterations in the cross-validator</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.model_selection.KFold.split">
+<code class="descname">split</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em>, <em>groups=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.KFold.split" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate indices to split data into training and test set.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape (n_samples, n_features)</span></dt>
+<dd><p class="first last">Training data, where n_samples is the number of samples
+and n_features is the number of features.</p>
+</dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, of length n_samples</span></dt>
+<dd><p class="first last">The target variable for supervised learning problems.</p>
+</dd>
+<dt><strong>groups</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, with shape (n_samples,), optional</span></dt>
+<dd><p class="first last">Group labels for the samples used while splitting the dataset into
+train/test set.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>train</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray</span></dt>
+<dd><p class="first last">The training set indices for that split.</p>
+</dd>
+<dt><strong>test</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray</span></dt>
+<dd><p class="first last">The testing set indices for that split.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Randomized CV splitters may return different results for each call of
+split. You can make the results identical by setting <code class="docutils literal notranslate"><span class="pre">random_state</span></code>
+to an integer.</p>
+</dd></dl>
+
+</dd></dl>
+
+<div class="clearer"></div></div>
 
 
            </div>
@@ -275,10 +320,10 @@ from dask_ml.datasets import make_regression</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="dask_ml.model_selection.ShuffleSplit.html" class="btn btn-neutral float-right" title="dask_ml.model_selection.ShuffleSplit" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="dask_ml.model_selection.GridSearchCV.html" class="btn btn-neutral float-right" title="dask_ml.model_selection.GridSearchCV" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../api.html" class="btn btn-neutral" title="API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="dask_ml.model_selection.ShuffleSplit.html" class="btn btn-neutral" title="dask_ml.model_selection.ShuffleSplit" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
