@@ -12,7 +12,7 @@ dependencies:
   - nomkl
   - nose
   - numba
-  - numpy
+  - numpy=1.15.0
   - numpydoc
   - pandas
   - psutil
