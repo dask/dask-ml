@@ -1,6 +1,32 @@
 Changelog
 =========
 
+Version 0.9.0
+~~~~~~~~~~~~~
+
+Enhancements
+------------
+
+- Added :class:`dask_ml.model_selection.ShuffleSplit` (:pr:`340`)
+
+Bug Fixes
+---------
+
+- Fixed handling of errors in the predict and score steps of :class:`dask_ml.model_selection.GridSearchCV` and :class:`dask_ml.model_selection.RandomizedSearchCV` (:pr:`339`)
+- Compatability with Dask 0.18 for :class:`dask_ml.preprocessing.LabelEncoder` (you'll also notice improved performance) (:pr:`336`).
+
+Documentation Updates
+---------------------
+
+- Added a :ref:`roadmap`. Please `open an issue <https://github.com/dask/dask-ml>`__ if you'd like something to be included on the roadmap. (:pr:`322`)
+- Added many :ref:`examples` to the documentation and the `dask examples <https://github.com/dask/dask-examples>`__ binder.
+
+Build Changes
+-------------
+
+We're now using `Numba <http://numba.pydata.org/>`__ for performance-sensitive parts of Dask-ML.
+Dask-ML is now a pure-python project, so we can provide universal wheels.
+
 Version 0.8.0
 ~~~~~~~~~~~~~
 
