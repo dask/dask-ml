@@ -9,7 +9,7 @@ from time import time
 
 import dask
 import dask.array as da
-from dask.distributed import as_completed, default_client, futures_of, Future
+from dask.distributed import default_client, futures_of, Future
 from distributed.utils import log_errors
 
 
@@ -33,6 +33,7 @@ def _partial_fit(model_and_meta, X, y, fit_params):
         A new dictionary with updated information.
     """
     with log_errors():
+        start = time()
         model, meta = model_and_meta
 
         if len(X):
@@ -40,12 +41,14 @@ def _partial_fit(model_and_meta, X, y, fit_params):
             model.partial_fit(X, y, **(fit_params or {}))
 
         meta = dict(meta)
-        meta['time_step'] += 1
+        meta["partial_fit_calls"] += 1
+        meta["partial_fit_time"] = time() - start
 
         return model, meta
 
 
 def _score(model_and_meta, X, y, scorer):
+    start = time()
     model, meta = model_and_meta
     if scorer:
         score = scorer(model, X, y)
@@ -53,7 +56,7 @@ def _score(model_and_meta, X, y, scorer):
         score = model.score(X, y)
 
     meta = dict(meta)
-    meta.update(score=score)
+    meta.update(score=score, score_time=time() - start)
     return meta
 
 
@@ -61,7 +64,7 @@ def _create_model(model, ident, **params):
     """ Create a model by cloning and then setting params """
     with log_errors(pdb=True):
         model = clone(model).set_params(**params)
-        return model, {'ident': ident, 'params': params, 'time_step': -1}
+        return model, {"model_id": ident, "params": params, "partial_fit_calls": 0}
 
 
 @gen.coroutine
@@ -72,7 +75,7 @@ def _fit(
     y_train,
     X_test,
     y_test,
-    update,
+    additional_calls,
     fit_params=None,
     scorer=None,
     random_state=None,
@@ -114,7 +117,7 @@ def _fit(
     # Order by which we process training data futures
     order = []
 
-    def get_futures(time_step):
+    def get_futures(partial_fit_calls):
         """ Policy to get training data futures
 
         Currently we compute once, and then keep in memory.
@@ -123,12 +126,11 @@ def _fit(
         access to training data.
         """
         # Shuffle blocks going forward to get uniform-but-random access
-        while time_step >= len(order):
+        while partial_fit_calls >= len(order):
             L = list(range(len(X_train)))
             rng.shuffle(L)
             order.extend(L)
-
-        j = order[time_step]
+        j = order[partial_fit_calls]
         return X_train[j], y_train[j]
 
     # Submit initial partial_fit and score computations on first batch of data
@@ -147,8 +149,9 @@ def _fit(
         _models[ident] = model
         _scores[ident] = score
         _specs[ident] = spec
-    _models, _scores, _specs = dask.persist(_models, _scores, _specs,
-                                            priority={tuple(_specs.values()): -1})
+    _models, _scores, _specs = dask.persist(
+        _models, _scores, _specs, priority={tuple(_specs.values()): -1}
+    )
     _models = {k: list(v.dask.values())[0] for k, v in _models.items()}
     _scores = {k: list(v.dask.values())[0] for k, v in _scores.items()}
     _specs = {k: list(v.dask.values())[0] for k, v in _specs.items()}
@@ -158,20 +161,18 @@ def _fit(
 
     new_scores = list(_scores.values())
     history = []
-    number_to_complete = len(models)
 
     # async for future, result in seq:
     while True:
         metas = yield client.gather(new_scores)
 
         for meta in metas:
-            ident = meta['ident']
+            ident = meta["model_id"]
 
             info[ident].append(meta)
             history.append(meta)
 
-        time_start = time()
-        instructions = update(info)
+        instructions = additional_calls(info)
         bad = set(models) - set(instructions)
 
         # Delete the futures of bad models.  This cancels speculative tasks
@@ -187,7 +188,7 @@ def _fit(
         _scores = {}
         _specs = {}
         for ident, k in instructions.items():
-            start = info[ident][-1]['time_step'] + 1
+            start = info[ident][-1]["partial_fit_calls"] + 1
             if k:
                 k -= 1
                 model = speculative.pop(ident)
@@ -201,9 +202,14 @@ def _fit(
                 _scores[ident] = score
                 _specs[ident] = spec
 
-        _models2, _scores2, _specs2 = dask.persist(_models, _scores, _specs,
-                                                   priority={tuple(_specs.values()): -1})
-        _models2 = {k: v if isinstance(v, Future) else list(v.dask.values())[0] for k, v in _models2.items()}
+        _models2, _scores2, _specs2 = dask.persist(
+            _models, _scores, _specs, priority={tuple(_specs.values()): -1}
+        )
+        _models2 = {
+            k: v if isinstance(v, Future) else list(v.dask.values())[0]
+            for k, v in _models2.items()
+        }
+
         _scores2 = {k: list(v.dask.values())[0] for k, v in _scores2.items()}
         _specs2 = {k: list(v.dask.values())[0] for k, v in _specs2.items()}
         models.update(_models2)
@@ -211,11 +217,6 @@ def _fit(
         speculative = _specs2
 
         new_scores = list(_scores2.values())
-
-        time_stop = time()
-
-            # from distributed.utils import format_time
-            # print(format_time(time_stop - time_start))
 
     raise gen.Return((info, models, history))
 
