@@ -50,6 +50,47 @@ def test_blockwise_shufflesplit():
     )
 
 
+@pytest.mark.parametrize("shuffle", [False, True])
+def test_kfold(shuffle):
+    splitter = dask_ml.model_selection.KFold(
+        n_splits=5, random_state=0, shuffle=shuffle
+    )
+    assert splitter.get_n_splits() == 5
+    gen = splitter.split(dX)
+
+    train_idx, test_idx = next(gen)
+    assert isinstance(train_idx, da.Array)
+    assert isinstance(test_idx, da.Array)
+
+    assert train_idx.shape == (88,)  # 80% of 110
+    assert test_idx.shape == (22,)
+
+    assert train_idx.chunks == ((28, 50, 10),)
+    assert test_idx.chunks == ((22,),)
+
+    counts = pd.value_counts(train_idx.compute())
+    assert counts.max() == 1
+
+    N = len(X)
+
+    np.testing.assert_array_equal(
+        np.unique(da.concatenate([train_idx, test_idx])), np.arange(N)
+    )
+
+    expected_chunks = [
+        (((22, 6, 50, 10),), ((22,),)),
+        (((44, 34, 10),), ((6, 16),)),
+        (((50, 16, 12, 10),), ((22,),)),
+        (((50, 38),), ((12, 10),)),
+    ]
+
+    for (exp_train_idx, exp_test_idx), (train_idx, test_idx) in zip(
+        expected_chunks, gen
+    ):
+        assert train_idx.chunks == exp_train_idx
+        assert test_idx.chunks == exp_test_idx
+
+
 def test_train_test_split():
     X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(
         dX, dy, random_state=10

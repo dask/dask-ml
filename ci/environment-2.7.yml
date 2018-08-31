@@ -4,7 +4,6 @@ channels:
   - conda-forge
 dependencies:
   - coverage
-  - Cython
   - flake8
   - heapdict
   - ipython
@@ -12,7 +11,8 @@ dependencies:
   - nbsphinx
   - nomkl
   - nose
-  - numpy
+  - numba
+  - numpy=1.15.0
   - numpydoc
   - pandas
   - psutil
