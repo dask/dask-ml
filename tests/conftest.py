@@ -1,5 +1,7 @@
 import contextlib
+import string
 
+import dask.dataframe as dd
 import numpy as np
 import pytest
 from distributed.utils_test import cluster
@@ -18,6 +20,15 @@ from dask_ml.datasets import (
 def xy_classification():
     """X, y pair for classification"""
     X, y = make_classification(chunks=(10, 20), random_state=0)
+    return X, y
+
+
+@pytest.fixture
+def xy_classification_pandas(xy_classification):
+    """Dask DataFrame (Series) X, y pair for classification"""
+    X, y = xy_classification
+    X = dd.from_dask_array(X, columns=list(string.ascii_letters[: X.shape[1]]))
+    y = dd.from_dask_array(y, "target")
     return X, y
 
 

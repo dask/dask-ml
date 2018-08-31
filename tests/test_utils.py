@@ -16,6 +16,7 @@ from dask_ml.utils import (
     assert_estimator_equal,
     check_array,
     check_chunks,
+    check_matching_blocks,
     check_random_state,
     handle_zeros_in_scale,
     slice_columns,
@@ -179,3 +180,56 @@ def test_num_samples(data):
 def test_check_array_1d():
     arr = da.random.uniform(size=(10,), chunks=5)
     check_array(arr, ensure_2d=False)
+
+
+@pytest.mark.parametrize(
+    "arrays",
+    [
+        [],
+        [da.random.uniform(size=10, chunks=5)],
+        [da.random.uniform(size=10, chunks=5), da.random.uniform(size=10, chunks=5)],
+        [
+            dd.from_pandas(pd.Series([1, 2, 3]), 2),
+            dd.from_pandas(pd.Series([1, 2, 3]), 2),
+        ],
+        [
+            dd.from_pandas(pd.Series([1, 2, 3]), 2),
+            dd.from_pandas(pd.DataFrame({"A": [1, 2, 3]}), 2),
+        ],
+        [
+            dd.from_pandas(pd.Series([1, 2, 3]), 2).reset_index(),
+            dd.from_pandas(pd.Series([1, 2, 3]), 2).reset_index(),
+        ],
+        # Allow known and unknown?
+        # [
+        #     dd.from_pandas(pd.Series([1, 2, 3]), 2),
+        #     dd.from_pandas(pd.Series([1, 2, 3]), 2).reset_index(),
+        # ]
+    ],
+)
+def test_matching_blocks_ok(arrays):
+    check_matching_blocks(*arrays)
+
+
+@pytest.mark.parametrize(
+    "arrays",
+    [
+        [np.array([1, 2]), np.array([1, 2])],
+        [da.random.uniform(size=10, chunks=5), da.random.uniform(size=10, chunks=4)],
+        [
+            da.random.uniform(size=(10, 10), chunks=(5, 5)),
+            da.random.uniform(size=(10, 10), chunks=(5, 4)),
+        ],
+        [
+            dd.from_pandas(pd.Series(range(100)), 50),
+            dd.from_pandas(pd.Series(range(100)), 25),
+        ],
+        [
+            dd.from_pandas(pd.Series(range(100)), 50),
+            dd.from_pandas(pd.DataFrame({"A": range(100)}), 25),
+        ],
+    ],
+)
+def test_matching_blocks_raises(arrays):
+    with pytest.raises(ValueError):
+        check_matching_blocks(*arrays)

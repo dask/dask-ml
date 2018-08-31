@@ -1,4 +1,5 @@
 import dask.array as da
+import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import pytest
@@ -137,3 +138,27 @@ def test_complement():
     )
     assert train_size == 0.8
     assert test_size == 0.2
+
+
+def test_train_test_split_dask_dataframe(xy_classification_pandas):
+    X, y = xy_classification_pandas
+
+    X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(
+        X, y, train_size=0.25, test_size=0.75
+    )
+    assert isinstance(X_train, dd.DataFrame)
+    assert isinstance(y_train, dd.Series)
+
+
+def test_train_test_split_dask_dataframe_rng(xy_classification_pandas):
+    X, y = xy_classification_pandas
+
+    split1 = dask_ml.model_selection.train_test_split(
+        X, y, train_size=0.25, test_size=0.75, random_state=0
+    )
+
+    split2 = dask_ml.model_selection.train_test_split(
+        X, y, train_size=0.25, test_size=0.75, random_state=0
+    )
+    for a, b in zip(split1, split2):
+        dd.utils.assert_eq(a, b)

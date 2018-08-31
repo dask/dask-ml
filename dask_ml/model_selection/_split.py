@@ -1,10 +1,12 @@
 """Utilities for splitting datasets.
 """
 import itertools
+import logging
 import numbers
 
 import dask
 import dask.array as da
+import dask.dataframe as dd
 import numpy as np
 import sklearn.model_selection as ms
 from sklearn.model_selection._split import (
@@ -14,7 +16,9 @@ from sklearn.model_selection._split import (
 )
 from sklearn.utils import check_random_state
 
-from dask_ml.utils import check_array
+from dask_ml.utils import check_array, check_matching_blocks
+
+logger = logging.getLogger(__name__)
 
 
 def _check_blockwise(blockwise):
@@ -371,8 +375,15 @@ def train_test_split(*arrays, **options):
         by `np.random`.
     shuffle : bool, default True
         Whether to shuffle the data before splitting.
-    blockwise : bool, default True
-        Whether to perform blockwise-shuffling.
+    blockwise : bool, optional.
+        Whether to shuffle data only within blocks (True), or allow data to
+        be shuffled between blocks (False). Shuffling between blocks can
+        be much more expensive, especially in distributed environments.
+
+        The default behavior depends on the types in arrays. For Dask Arrays,
+        the default is True (data are not shuffled between blocks). For Dask
+        DataFrames, the default and only allowed value is True (data are
+        shuffled between blocks).
 
     Returns
     -------
@@ -398,7 +409,7 @@ def train_test_split(*arrays, **options):
     train_size = options.pop("train_size", None)
     random_state = options.pop("random_state", None)
     shuffle = options.pop("shuffle", True)
-    blockwise = options.pop("blockwise", True)
+    blockwise = options.pop("blockwise", None)
 
     if train_size is None and test_size is None:
         # all other validation dones elsewhere.
@@ -408,9 +419,43 @@ def train_test_split(*arrays, **options):
         raise TypeError("Unexpected options {}".format(options))
 
     if not shuffle:
-        raise NotImplementedError
+        raise NotImplementedError("'shuffle=False' is not currently supported.")
 
-    if not all(isinstance(arr, da.Array) for arr in arrays):
+    if all(isinstance(arr, (dd.Series, dd.DataFrame)) for arr in arrays):
+        check_matching_blocks(*arrays)
+        if blockwise is None:
+            blockwise = False
+
+        rng = check_random_state(random_state)
+        rng = rng.randint(0, 2 ** 32)
+        return list(
+            itertools.chain.from_iterable(
+                arr.random_split([train_size, test_size], random_state=rng)
+                for arr in arrays
+            )
+        )
+
+    elif all(isinstance(arr, da.Array) for arr in arrays):
+        if blockwise is None:
+            blockwise = True
+
+        splitter = ShuffleSplit(
+            n_splits=1,
+            test_size=test_size,
+            train_size=train_size,
+            blockwise=blockwise,
+            random_state=random_state,
+        )
+        train_idx, test_idx = next(splitter.split(*arrays))
+
+        train_test_pairs = (
+            (_blockwise_slice(arr, train_idx), _blockwise_slice(arr, test_idx))
+            for arr in arrays
+        )
+
+        return list(itertools.chain.from_iterable(train_test_pairs))
+    else:
+        logger.warning("Mixture of types in 'arrays'. Falling back to scikit-learn.")
         return ms.train_test_split(
             *arrays,
             test_size=test_size,
@@ -418,19 +463,3 @@ def train_test_split(*arrays, **options):
             random_state=random_state,
             shuffle=shuffle
         )
-
-    splitter = ShuffleSplit(
-        n_splits=1,
-        test_size=test_size,
-        train_size=train_size,
-        blockwise=blockwise,
-        random_state=random_state,
-    )
-    train_idx, test_idx = next(splitter.split(*arrays))
-
-    train_test_pairs = (
-        (_blockwise_slice(arr, train_idx), _blockwise_slice(arr, test_idx))
-        for arr in arrays
-    )
-
-    return list(itertools.chain.from_iterable(train_test_pairs))
