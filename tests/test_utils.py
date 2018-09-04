@@ -201,10 +201,13 @@ def test_check_array_1d():
             dd.from_pandas(pd.Series([1, 2, 3]), 2).reset_index(),
         ],
         # Allow known and unknown?
-        # [
-        #     dd.from_pandas(pd.Series([1, 2, 3]), 2),
-        #     dd.from_pandas(pd.Series([1, 2, 3]), 2).reset_index(),
-        # ]
+        pytest.param(
+            [
+                dd.from_pandas(pd.Series([1, 2, 3]), 2),
+                dd.from_pandas(pd.Series([1, 2, 3]), 2).reset_index(),
+            ],
+            marks=pytest.mark.xfail(reason="Known and unknown divisiosn."),
+        ),
     ],
 )
 def test_matching_blocks_ok(arrays):
