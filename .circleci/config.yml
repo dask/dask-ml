@@ -1,6 +1,9 @@
 version: 2
 jobs:
   py36:
+    branches:
+      only:
+        - master
     docker:
       - image: continuumio/miniconda:latest
     environment:
@@ -44,6 +47,9 @@ jobs:
 
   # Python 2.7 build
   py27:
+    branches:
+      only:
+        - master
     docker:
       - image: continuumio/miniconda:latest
     environment:
@@ -74,6 +80,9 @@ jobs:
 
   # scikit-learn dev build
   sklearn_dev:
+    branches:
+      only:
+        - master
     docker:
       - image: continuumio/miniconda:latest
     environment:
