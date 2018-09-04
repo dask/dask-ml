@@ -187,6 +187,40 @@ def check_random_state(random_state):
         raise TypeError("Unexpected type '{}'".format(type(random_state)))
 
 
+def check_matching_blocks(*arrays):
+    """Check that the partitioning structure for many arrays matches.
+
+    Parameters
+    ----------
+    *arrays : Sequence of array-likes
+        This includes
+
+        * Dask Array
+        * Dask DataFrame
+        * Dask Series
+    """
+    if len(arrays) <= 1:
+        return
+    if all(isinstance(x, da.Array) for x in arrays):
+        # TODO: unknown chunks, ensure blocks match, or just raise (configurable)
+        chunks = arrays[0].chunks
+        for array in arrays[1:]:
+            if array.chunks != chunks:
+                raise ValueError(
+                    "Mismatched chunks. {} != {}".format(chunks, array.chunks)
+                )
+
+    elif all(isinstance(x, (dd.Series, dd.DataFrame)) for x in arrays):
+        divisions = arrays[0].divisions
+        for array in arrays[1:]:
+            if array.divisions != divisions:
+                raise ValueError(
+                    "Mismatched divisions. {} != {}".format(divisions, array.divisions)
+                )
+    else:
+        raise ValueError("Unexpected types {}.".format({type(x) for x in arrays}))
+
+
 def check_chunks(n_samples, n_features, chunks=None):
     """Validate and normalize the chunks argument for a dask.array
 
