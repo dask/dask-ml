@@ -4,6 +4,7 @@ from numbers import Integral
 
 import dask.array as da
 import dask.dataframe as dd
+import numba
 import numpy as np
 import pandas as pd
 from dask import compute
@@ -18,7 +19,6 @@ from ..metrics import (
     pairwise_distances_argmin_min,
 )
 from ..utils import _timed, _timer, check_array, row_norms
-from ._k_means import _centers_dense
 
 logger = logging.getLogger(__name__)
 
@@ -567,3 +567,16 @@ def _kmeans_single_lloyd(
     centers = centers.astype(dt)
 
     return labels, inertia, centers, i + 1
+
+
+@numba.njit(nogil=True, fastmath=True)
+def _centers_dense(X, labels, n_clusters, distances):
+    n_samples = X.shape[0]
+    n_features = X.shape[1]
+    centers = np.zeros((n_clusters, n_features), dtype=np.float64)
+
+    for i in range(n_samples):
+        for j in range(n_features):
+            centers[labels[i], j] += X[i, j]
+
+    return centers

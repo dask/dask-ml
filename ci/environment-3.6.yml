@@ -4,9 +4,12 @@ channels:
   - conda-forge
 dependencies:
   - black
+  # Cython for building scikit-learn dev. Switch to nightly
+  # when this is resolved:
+  # https://github.com/scikit-learn/scikit-learn/issues/9485
+  - Cython
   - coverage
   - codecov
-  - Cython
   - flake8
   - heapdict
   - ipykernel
@@ -16,7 +19,8 @@ dependencies:
   - nbsphinx
   - nomkl
   - nose
-  - numpy
+  - numba
+  - numpy=1.15.0
   - numpydoc
   - pandas
   - psutil

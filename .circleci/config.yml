@@ -21,14 +21,18 @@ jobs:
       - run:
           command: |
             source activate ${ENV_NAME}
-            echo "[flake8]"
-            flake8
-            echo "[black]"
-            black --check .
-            echo "[isort]"
-            isort --recursive --check-only .
+
             echo "[codecov]"
             codecov
+
+            echo "[flake8]"
+            flake8
+
+            echo "[black]"
+            black --check .
+
+            echo "[isort]"
+            isort --recursive --check-only .
       - save_cache:
           key: deps-{{ .Branch }}-3.6-{{ checksum "ci/environment-3.6.yml" }}
           paths:

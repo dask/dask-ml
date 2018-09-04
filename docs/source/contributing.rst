@@ -36,30 +36,19 @@ also a ``ci/environment-2.7.yml`` file if you need to use Python 2.7.
 
 If you're using pip, you can view the list of all the required and optional
 dependencies within ``setup.py`` (see the ``install_requires`` field for
-required dependencies and ``extras_require`` for optional dependencies). You'll
-at least need the build dependencies of NumPy, setuptools, setuptools_scm, and
-Cython.
+required dependencies and ``extras_require`` for optional dependencies).
 
 Building dask-ml
 ~~~~~~~~~~~~~~~~
 
-The library has some C-extensions, so installing is a bit more complicated than
-normal. If you have a compiler and everything is setup correctly, you should be
-able to install Cython and all the required dependencies.
-
-From within the repository:
-
-.. code-block:: none
-
-   python setup.py build_ext --inplace
-
-And then
+Dask-ML is a pure-python repository. Development installation should be as simple as
+cloning the repository and running the following in the cloned directory:
 
 .. code-block:: none
 
    python -m pip install -e ".[dev]"
 
-If you have any trouble with the build step, please open an issue in the
+If you have any trouble, please open an issue on the
 `dask-ml issue tracker <https://github.com/dask/dask-ml/issues>`_.
 
 Style

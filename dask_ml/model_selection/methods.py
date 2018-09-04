@@ -283,10 +283,17 @@ def _score(est, X, y, scorer):
     return scorer(est, X) if y is None else scorer(est, X, y)
 
 
-def score(est_and_time, X_test, y_test, X_train, y_train, scorer):
+def score(est_and_time, X_test, y_test, X_train, y_train, scorer, error_score):
     est, fit_time = est_and_time
     start_time = default_timer()
-    test_score = _score(est, X_test, y_test, scorer)
+    try:
+        test_score = _score(est, X_test, y_test, scorer)
+    except Exception:
+        if error_score == "raise":
+            raise
+        else:
+            score_time = default_timer() - start_time
+            return fit_time, error_score, score_time, error_score
     score_time = default_timer() - start_time
     if X_train is None:
         return fit_time, test_score, score_time
@@ -314,7 +321,8 @@ def fit_and_score(
     est_and_time = fit(est, X_train, y_train, error_score, fields, params, fit_params)
     if not return_train_score:
         X_train = y_train = None
-    return score(est_and_time, X_test, y_test, X_train, y_train, scorer)
+
+    return score(est_and_time, X_test, y_test, X_train, y_train, scorer, error_score)
 
 
 def _store(

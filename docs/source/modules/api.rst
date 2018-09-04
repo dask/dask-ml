@@ -32,6 +32,7 @@ uses :class:`model_selection.ShuffleSplit` internally.
    :template: class.rst
 
    model_selection.ShuffleSplit
+   model_selection.KFold
 
 Dask-ML provides drop-in replacements for grid and randomized search.
 
