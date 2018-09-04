@@ -109,6 +109,15 @@ workflows:
   version: 2
   build_and_test:
     jobs:
-      - py36
-      - py27
-      - sklearn_dev
+      - py36:
+        filters:
+          branches:
+            only: master
+      - py27:
+        filters:
+          branches:
+            only: master
+      - sklearn_dev:
+        filters:
+          branches:
+            only: master
