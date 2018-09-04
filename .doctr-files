@@ -6,6 +6,7 @@
 ./_images/unmerged_grid_search_graph.svg
 ./_sources/changelog.rst.txt
 ./_sources/clustering.rst.txt
+./_sources/compose.rst.txt
 ./_sources/contributing.rst.txt
 ./_sources/cross_validation.rst.txt
 ./_sources/examples.rst.txt
@@ -14,6 +15,7 @@
 ./_sources/examples/parallel-prediction.ipynb.txt
 ./_sources/examples/tensorflow.ipynb.txt
 ./_sources/examples/text-vectorization.ipynb.txt
+./_sources/examples/tpot.ipynb.txt
 ./_sources/examples/training-on-large-datasets.ipynb.txt
 ./_sources/examples/voting-classifier.ipynb.txt
 ./_sources/examples/xgboost.ipynb.txt
@@ -119,6 +121,7 @@
 ./_static/websupport.js
 ./changelog.html
 ./clustering.html
+./compose.html
 ./contributing.html
 ./cross_validation.html
 ./examples.html
@@ -127,6 +130,7 @@
 ./examples/parallel-prediction.html
 ./examples/tensorflow.html
 ./examples/text-vectorization.html
+./examples/tpot.html
 ./examples/training-on-large-datasets.html
 ./examples/voting-classifier.html
 ./examples/xgboost.html

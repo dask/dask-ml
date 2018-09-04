@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Installation &mdash; dask-ml 0.1 documentation</title>
+  <title>Pipelines and Composite Estimators &mdash; dask-ml 0.1 documentation</title>
   
 
   
@@ -29,8 +29,8 @@
   <link rel="stylesheet" href="_static/style.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Examples" href="examples.html" />
-    <link rel="prev" title="Dask-ML" href="index.html" /> 
+    <link rel="next" title="Generalized Linear Models" href="glm.html" />
+    <link rel="prev" title="Hyper Parameter Search" href="hyper-parameter-search.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -80,23 +80,19 @@
             
             
               <p class="caption"><span class="caption-text">Get Started</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#conda">Conda</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#pypi">PyPI</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#optional-dependencies">Optional Dependencies</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Use</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="preprocessing.html">Preprocessing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cross_validation.html">Cross Validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hyper-parameter-search.html">Hyper Parameter Search</a></li>
-<li class="toctree-l1"><a class="reference internal" href="compose.html">Pipelines and Composite Estimators</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Pipelines and Composite Estimators</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#columntransformer-for-heterogeneous-data">ColumnTransformer for Heterogeneous Data</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="glm.html">Generalized Linear Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="joblib.html">Joblib</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meta-estimators.html">Parallel Meta-estimators</a></li>
@@ -157,13 +153,13 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Installation</li>
+      <li>Pipelines and Composite Estimators</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/install.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/compose.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -195,52 +191,37 @@
     margin-right: 4px;  /* make room for the exclamation icon */
 }
 </style>
-<div class="section" id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="conda">
-<h2>Conda<a class="headerlink" href="#conda" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">dask-ml</span></code> is available on conda-forge and can be installed with</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>conda install -c conda-forge dask-ml
+<div class="section" id="pipelines-and-composite-estimators">
+<span id="compose"></span><h1>Pipelines and Composite Estimators<a class="headerlink" href="#pipelines-and-composite-estimators" title="Permalink to this headline">¶</a></h1>
+<p>Dask-ML estimators follow the scikit-learn API. This means Dask-ML estimators like
+<a class="reference internal" href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA" title="dask_ml.decomposition.PCA"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.decomposition.PCA</span></code></a> can be placed inside a regular <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.19.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a>.</p>
+<p>See <a class="reference external" href="http://scikit-learn.org/dev/modules/compose.html">http://scikit-learn.org/dev/modules/compose.html</a> for more on using pipelines in general.</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>  <span class="c1"># regular scikit-learn pipeline</span>
+
+<span class="gp">In [2]: </span><span class="kn">from</span> <span class="nn">dask_ml.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
+
+<span class="gp">In [3]: </span><span class="kn">from</span> <span class="nn">dask_ml.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
+
+<span class="gp">In [4]: </span><span class="n">estimators</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;reduce_dim&#39;</span><span class="p">,</span> <span class="n">PCA</span><span class="p">()),</span> <span class="p">(</span><span class="s1">&#39;cluster&#39;</span><span class="p">,</span> <span class="n">KMeans</span><span class="p">())]</span>
+
+<span class="gp">In [5]: </span><span class="n">pipe</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">estimators</span><span class="p">)</span>
+
+<span class="gp">In [6]: </span><span class="n">pipe</span>
+<span class="gh">Out[6]: </span><span class="go"></span>
+<span class="go">Pipeline(memory=None,</span>
+<span class="go">     steps=[(&#39;reduce_dim&#39;, PCA(copy=True, iterated_power=0, n_components=None, random_state=None,</span>
+<span class="go">  svd_solver=&#39;auto&#39;, tol=0.0, whiten=False)), (&#39;cluster&#39;, KMeans(algorithm=&#39;full&#39;, copy_x=True, init=&#39;k-means||&#39;, init_max_iter=None,</span>
+<span class="go">    max_iter=300, n_clusters=8, n_jobs=1, oversampling_factor=2,</span>
+<span class="go">    precompute_distances=&#39;auto&#39;, random_state=None, tol=0.0001))])</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="pypi">
-<h2>PyPI<a class="headerlink" href="#pypi" title="Permalink to this headline">¶</a></h2>
-<p>Wheels and a source distribution are available on PyPI and can be
-installed with</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>pip install dask-ml
-</pre></div>
-</div>
-<div class="section" id="optional-dependencies">
-<h3>Optional Dependencies<a class="headerlink" href="#optional-dependencies" title="Permalink to this headline">¶</a></h3>
-<p>Certain modules have additional dependencies:</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="45%" />
-<col width="55%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">module</th>
-<th class="head">Additional Dependencies</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code></td>
-<td>xgboost, dask-xgboost</td>
-</tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">dask_ml.tensorflow</span></code></td>
-<td>tensorflow, dask-tensorflow</td>
-</tr>
-</tbody>
-</table>
-<p>These additional dependencies will need to be installed separately. With pip,
-they can be installed with</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>pip install dask-ml[xgboost]    # also install xgboost and dask-xgboost
-pip install dask-ml[tensorflow]
-pip install dask-ml[complete]   # install all optional dependencies
-</pre></div>
-</div>
-</div>
+<p>The pipeline <code class="docutils literal notranslate"><span class="pre">pipe</span></code> can now be used with Dask arrays.</p>
+<div class="section" id="columntransformer-for-heterogeneous-data">
+<h2>ColumnTransformer for Heterogeneous Data<a class="headerlink" href="#columntransformer-for-heterogeneous-data" title="Permalink to this headline">¶</a></h2>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.compose.ColumnTransformer</span></code> is a clone of the scikit-learn version that works well
+with Dask objects.</p>
+<p>See <a class="reference external" href="http://scikit-learn.org/dev/modules/compose.html#columntransformer-for-heterogeneous-data">http://scikit-learn.org/dev/modules/compose.html#columntransformer-for-heterogeneous-data</a> for an
+introduction to <code class="docutils literal notranslate"><span class="pre">ColumnTransformer</span></code>.</p>
 </div>
 </div>
 
@@ -252,10 +233,10 @@ pip install dask-ml[complete]   # install all optional dependencies
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="examples.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="glm.html" class="btn btn-neutral float-right" title="Generalized Linear Models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral" title="Dask-ML" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="hyper-parameter-search.html" class="btn btn-neutral" title="Hyper Parameter Search" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

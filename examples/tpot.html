@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Voting Classifier &mdash; dask-ml 0.1 documentation</title>
+  <title>Distributed Automated Machine Learning with TPOT &mdash; dask-ml 0.1 documentation</title>
   
 
   
@@ -28,9 +28,7 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Preprocessing" href="../preprocessing.html" />
-    <link rel="prev" title="Text Vectorization Example" href="text-vectorization.html" /> 
+    <link rel="search" title="Search" href="../search.html" /> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -80,19 +78,9 @@
             
             
               <p class="caption"><span class="caption-text">Get Started</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="distributed-scikit-learn-for-cpu-bound-problems.html">Distributed Scikit-Learn for CPU Bound Problems</a></li>
-<li class="toctree-l2"><a class="reference internal" href="parallel-prediction.html">Parallel and Out-of-core Prediction and Scoring</a></li>
-<li class="toctree-l2"><a class="reference internal" href="training-on-large-datasets.html">Training on Large Datasets</a></li>
-<li class="toctree-l2"><a class="reference internal" href="incremental.html">Incremental training of large datasets</a></li>
-<li class="toctree-l2"><a class="reference internal" href="xgboost.html">Dask and XGBoost</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tensorflow.html">Dask and Tensorflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="text-vectorization.html">Text Vectorization Example</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Voting Classifier</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Use</span></p>
 <ul>
@@ -160,15 +148,13 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-          <li><a href="../examples.html">Examples</a> &raquo;</li>
-        
-      <li>Voting Classifier</li>
+      <li>Distributed Automated Machine Learning with TPOT</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/examples/voting-classifier.ipynb.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/examples/tpot.ipynb.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -364,197 +350,148 @@ div.nboutput div.output_area.stderr {
     margin-right: 4px;  /* make room for the exclamation icon */
 }
 </style>
-<div class="section" id="Voting-Classifier">
-<h1>Voting Classifier<a class="headerlink" href="#Voting-Classifier" title="Permalink to this headline">¶</a></h1>
-<p>A <a class="reference external" href="http://scikit-learn.org/stable/modules/ensemble.html#voting-classifier">Voting
-classifier</a>
-model combines multiple different models (i.e., sub-estimators) into a
-single model, which is (ideally) stronger than any of the individual
-models alone.</p>
-<p><a class="reference external" href="http://dask-ml.readthedocs.io/en/latest/joblib.html">Dask</a> provides
-the software to train individual sub-estimators on different machines in
-a cluster. This enables users to train more models in parallel than
-would have been possible on a single machine. Note that users will only
-observe this benefit if they have a distributed cluster with more
-resources than their single machine (because sklearn already enables
-users to parallelize training across cores on a single machine).</p>
-<p>What follows is an example of how one would deploy a voting classifier
-model in dask (using a local cluster).</p>
-<div class="nbinput nblast docutils container">
+<div class="section" id="Distributed-Automated-Machine-Learning-with-TPOT">
+<h1>Distributed Automated Machine Learning with TPOT<a class="headerlink" href="#Distributed-Automated-Machine-Learning-with-TPOT" title="Permalink to this headline">¶</a></h1>
+<p>This example shows how <a class="reference external" href="https://epistasislab.github.io/tpot/">TPOT</a>
+can be used with Dask.</p>
+<p>TPOT is an <a class="reference external" href="https://en.wikipedia.org/wiki/Automated_machine_learning">automated machine
+learning</a>
+library. It evaluates many scikit-learn pipelines and hyperparameter
+combinations to find a model that works well for your data. Evaluating
+all these computations is computationally expensive, but ammenable to
+parallelism. TPOT can use Dask to distribute these computations on a
+cluster of machines.</p>
+<p>This notebook can be run interactively on the <a class="reference external" href="https://github.com/dask/dask-examples">dask examples
+binder</a>. The following video
+shows a larger version of this notebook on a cluster.</p>
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
 <span></span>In [1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">VotingClassifier</span>
-<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">SGDClassifier</span>
-<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
-<span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">SVC</span>
+<span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">HTML</span>
 
-<span class="kn">import</span> <span class="nn">sklearn.datasets</span>
+<span class="n">HTML</span><span class="p">(</span><span class="s1">&#39;&lt;div style=&quot;position:relative;height:0;padding-bottom:56.25%&quot;&gt;&lt;iframe src=&quot;https://www.youtube.com/embed/uyx9nBuOYQQ?ecver=2&quot; width=&quot;640&quot; height=&quot;360&quot; frameborder=&quot;0&quot; allow=&quot;autoplay; encrypted-media&quot; style=&quot;position:absolute;width:100%;height:100%;left:0&quot; allowfullscreen&gt;&lt;/iframe&gt;&lt;/div&gt;&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<p>We create a synthetic dataset (with 1000 rows and 20 columns) that we
-can give to the voting classifier model.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [2]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">make_classification</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">1</span><span class="n">_000</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<p>We specify the VotingClassifier as a list of (name, sub-estimator)
-tuples. Fitting the VotingClassifier on the data fits each of the
-sub-estimators in turn. We set the <code class="docutils literal notranslate"><span class="pre">n_jobs</span></code> argument to be -1, which
-instructs sklearn to use all available cores (notice that we haven’t
-used dask).</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [3]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">classifiers</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="p">(</span><span class="s1">&#39;sgd&#39;</span><span class="p">,</span> <span class="n">SGDClassifier</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s1">&#39;logisticregression&#39;</span><span class="p">,</span> <span class="n">LogisticRegression</span><span class="p">()),</span>
-    <span class="p">(</span><span class="s1">&#39;svc&#39;</span><span class="p">,</span> <span class="n">SVC</span><span class="p">(</span><span class="n">gamma</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)),</span>
-<span class="p">]</span>
-<span class="n">clf</span> <span class="o">=</span> <span class="n">VotingClassifier</span><span class="p">(</span><span class="n">classifiers</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<p>We call the classifier’s fit method in order to train the classifier.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [4]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="o">%</span><span class="k">time</span> clf.fit(X, y)
-</pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-CPU times: user 54.2 ms, sys: 29.7 ms, total: 83.9 ms
-Wall time: 282 ms
-</pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[4]:
+<span></span>Out[1]:
 </pre></div>
 </div>
-<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>VotingClassifier(estimators=[(&#39;sgd&#39;, SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,
-       eta0=0.0, fit_intercept=True, l1_ratio=0.15,
-       learning_rate=&#39;optimal&#39;, loss=&#39;hinge&#39;, max_iter=1000, n_iter=None,
-       n_jobs=1, penalty=&#39;l2&#39;, power_t=0.5, random_state=None,
-       shuffle=T...,
-  max_iter=-1, probability=False, random_state=None, shrinking=True,
-  tol=0.001, verbose=False))],
-         flatten_transform=None, n_jobs=-1, voting=&#39;hard&#39;, weights=None)
-</pre></div>
+<div class="output_area docutils container">
+<div style="position:relative;height:0;padding-bottom:56.25%"><iframe src="https://www.youtube.com/embed/uyx9nBuOYQQ?ecver=2" width="640" height="360" frameborder="0" allow="autoplay; encrypted-media" style="position:absolute;width:100%;height:100%;left:0" allowfullscreen></iframe></div></div>
 </div>
-</div>
-<p>Creating a Dask
-<a class="reference external" href="https://distributed.readthedocs.io/en/latest/client.html">client</a>
-provides performance and progress metrics via the dashboard. Because
-<code class="docutils literal notranslate"><span class="pre">Client</span></code> is given no arugments, its output refers to a <a class="reference external" href="http://distributed.readthedocs.io/en/latest/local-cluster.html">local
-cluster</a>
-(not a distributed cluster).</p>
-<p>We can view the dashboard by clicking the link after running the cell.</p>
-<div class="nbinput docutils container">
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [5]:
+<span></span>In [ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">dask_ml.joblib</span>
-<span class="kn">from</span> <span class="nn">sklearn.externals</span> <span class="kn">import</span> <span class="n">joblib</span>
-<span class="kn">from</span> <span class="nn">distributed</span> <span class="kn">import</span> <span class="n">Client</span>
-
-<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">()</span>
+<span></span><span class="c1"># Currently requires TPOT dev</span>
+<span class="o">!</span>pip install git+https://github.com/EpistasisLab/tpot@development
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>In [ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">tpot</span> <span class="kn">import</span> <span class="n">TPOTClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">load_digits</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="Setup-Dask">
+<h2>Setup Dask<a class="headerlink" href="#Setup-Dask" title="Permalink to this headline">¶</a></h2>
+<p>We first start a Dask client in order to get access to the Dask
+dashboard, which will provide progress and performance metrics.</p>
+<p>You can view the dashboard by clicking on the dashboard link after you
+run the cell.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>In [ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">dask.distributed</span> <span class="kn">import</span> <span class="n">Client</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">n_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">threads_per_worker</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">client</span>
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[5]:
-</pre></div>
 </div>
-<div class="output_area docutils container">
-<table style="border: 2px solid white;">
-<tr>
-<td style="vertical-align: top; border: 0px solid white">
-<h3>Client</h3>
-<ul>
-  <li><b>Scheduler: </b>tcp://127.0.0.1:40451
-  <li><b>Dashboard: </b><a href='http://127.0.0.1:8787/status' target='_blank'>http://127.0.0.1:8787/status</a>
-</ul>
-</td>
-<td style="vertical-align: top; border: 0px solid white">
-<h3>Cluster</h3>
-<ul>
-  <li><b>Workers: </b>4</li>
-  <li><b>Cores: </b>4</li>
-  <li><b>Memory: </b>4.02 GB</li>
-</ul>
-</td>
-</tr>
-</table></div>
-</div>
-<p>To train the voting classifier, we call the classifier’s fit method, but
-enclosed in joblib’s <code class="docutils literal notranslate"><span class="pre">parallel_backend</span></code> context manager. This
-distributes training of sub-estimators acoss the cluster. By providing
-the data in the <code class="docutils literal notranslate"><span class="pre">scatter</span></code> argument, the data is pre-emptively sent to
-each worker in the cluster (follow the
-<a class="reference external" href="http://distributed.readthedocs.io/en/latest/api.html#distributed.client.Client.scatter">link</a>
-for more info).</p>
-<div class="nbinput docutils container">
+<div class="section" id="Create-Data">
+<h2>Create Data<a class="headerlink" href="#Create-Data" title="Permalink to this headline">¶</a></h2>
+<p>We’ll use the digits dataset. To ensure the example runs quickly, we’ll
+make the training dataset relatively small.</p>
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [6]:
+<span></span>In [ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="o">%%</span><span class="k">time</span>
-with joblib.parallel_backend(&quot;dask&quot;, scatter=[X, y]):
-    clf.fit(X, y)
+<span></span><span class="n">digits</span> <span class="o">=</span> <span class="n">load_digits</span><span class="p">()</span>
 
-print(clf)
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">digits</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+    <span class="n">digits</span><span class="o">.</span><span class="n">target</span><span class="p">,</span>
+    <span class="n">train_size</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">test_size</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
+<p>These are just small, in-memory NumPy arrays. This example is not
+applicable to larger-than-memory Dask arrays.</p>
 </div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-VotingClassifier(estimators=[(&#39;sgd&#39;, SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,
-       eta0=0.0, fit_intercept=True, l1_ratio=0.15,
-       learning_rate=&#39;optimal&#39;, loss=&#39;hinge&#39;, max_iter=1000, n_iter=None,
-       n_jobs=1, penalty=&#39;l2&#39;, power_t=0.5, random_state=None,
-       shuffle=T...,
-  max_iter=-1, probability=False, random_state=None, shrinking=True,
-  tol=0.001, verbose=False))],
-         flatten_transform=None, n_jobs=-1, voting=&#39;hard&#39;, weights=None)
-CPU times: user 164 ms, sys: 23.9 ms, total: 188 ms
-Wall time: 1.01 s
-</pre></div></div>
+<div class="section" id="Using-Dask">
+<h2>Using Dask<a class="headerlink" href="#Using-Dask" title="Permalink to this headline">¶</a></h2>
+<p>TPOT follows the scikit-learn API; we specify a <code class="docutils literal notranslate"><span class="pre">TPOTClassifier</span></code> with
+a few hyperparameters, and then fit it on some data. By default, TPOT
+trains on your single machine. To ensure your cluster is used, specify
+the <code class="docutils literal notranslate"><span class="pre">use_dask</span></code> keyword.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>In [ ]:
+</pre></div>
 </div>
-<p>Note, that we see no advantage of using dask because we are using a
-local cluster rather than a distributed cluster and sklearn is already
-using all my computer’s cores. If we were using a distributed cluster,
-dask would enable us to take advantage of the multiple machines and
-train sub-estimators across them.</p>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># scale up: Increase the TPOT parameters like population_size, generations</span>
+<span class="n">tp</span> <span class="o">=</span> <span class="n">TPOTClassifier</span><span class="p">(</span>
+    <span class="n">generations</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">population_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">cv</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">verbosity</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">use_dask</span><span class="o">=</span><span class="bp">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
+<span></span>In [ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">tp</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Learn-More">
+<h2>Learn More<a class="headerlink" href="#Learn-More" title="Permalink to this headline">¶</a></h2>
+<p>See the <a class="reference external" href="https://dask-ml.readthedocs.io/en/latest/">Dask-ML</a> and
+<a class="reference external" href="https://epistasislab.github.io/tpot/">TPOT</a> documenation for more
+information on using Dask and TPOT.</p>
+</div>
 </div>
 
 
@@ -562,15 +499,6 @@ train sub-estimators across them.</p>
            
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="../preprocessing.html" class="btn btn-neutral float-right" title="Preprocessing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="text-vectorization.html" class="btn btn-neutral" title="Text Vectorization Example" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
-    </div>
   
 
   <hr/>

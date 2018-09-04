@@ -119,6 +119,7 @@ Scikit-Learn should feel at home with Dask-ML.
    preprocessing.rst
    cross_validation.rst
    hyper-parameter-search.rst
+   compose.rst
    glm.rst
    joblib.rst
    meta-estimators.rst

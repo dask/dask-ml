@@ -89,6 +89,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../preprocessing.html">Preprocessing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cross_validation.html">Cross Validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../hyper-parameter-search.html">Hyper Parameter Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compose.html">Pipelines and Composite Estimators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../glm.html">Generalized Linear Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../joblib.html">Joblib</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meta-estimators.html">Parallel Meta-estimators</a></li>
@@ -111,7 +112,7 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.linear_model.PoissonRegression.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>.PoissonRegression</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#meta-estimators-for-scikit-learn">Meta-estimators for scikit-learn</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dask-ml-wrappers-meta-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.wrappers</span></code>: Meta-Estimators</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.wrappers.ParallelPostFit.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.wrappers</span></code>.ParallelPostFit</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.wrappers.Incremental.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.wrappers</span></code>.Incremental</a></li>
 </ul>
@@ -136,6 +137,9 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.preprocessing.DummyEncoder.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.DummyEncoder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.preprocessing.OrdinalEncoder.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.OrdinalEncoder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.preprocessing.LabelEncoder.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.LabelEncoder</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#dask-ml-compose-composite-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.compose</span></code>: Composite Estimators</a><ul class="simple">
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#dask-ml-impute-imputing-missing-data"><code class="docutils literal notranslate"><span class="pre">dask_ml.impute</span></code>: Imputing Missing Data</a><ul class="simple">
@@ -334,10 +338,12 @@ classification and regression.</p>
 </tbody>
 </table>
 </div>
-<div class="section" id="meta-estimators-for-scikit-learn">
-<h2>Meta-estimators for scikit-learn<a class="headerlink" href="#meta-estimators-for-scikit-learn" title="Permalink to this headline">¶</a></h2>
-<p>dask-ml provides some meta-estimators that help use regular scikit-learn
-compatible estimators with Dask arrays.</p>
+<div class="section" id="dask-ml-wrappers-meta-estimators">
+<h2><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.wrappers</span></code>: Meta-Estimators<a class="headerlink" href="#dask-ml-wrappers-meta-estimators" title="Permalink to this headline">¶</a></h2>
+<p>dask-ml provides some meta-estimators that help use regular
+estimators that follow the scikit-learn API.
+These meta-estimators make the underlying estimator work well
+with Dask Arrays or DataFrames.</p>
 <table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
@@ -2619,6 +2625,32 @@ component of a nested object.</p>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder" title="dask_ml.preprocessing.LabelEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.LabelEncoder</span></code></a>([use_categorical])</td>
 <td>Encode labels with value between 0 and n_classes-1.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="dask-ml-compose-composite-estimators">
+<h2><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.compose</span></code>: Composite Estimators<a class="headerlink" href="#dask-ml-compose-composite-estimators" title="Permalink to this headline">¶</a></h2>
+<p>Meta-estimators for building composite models with transformers.</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">compose.ColumnTransformer</span></code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">compose.make_column_transformer</span></code></td>
+<td></td>
 </tr>
 </tbody>
 </table>

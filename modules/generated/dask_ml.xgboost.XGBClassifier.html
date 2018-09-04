@@ -89,6 +89,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../preprocessing.html">Preprocessing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cross_validation.html">Cross Validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../hyper-parameter-search.html">Hyper Parameter Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../compose.html">Pipelines and Composite Estimators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../glm.html">Generalized Linear Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../joblib.html">Joblib</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../meta-estimators.html">Parallel Meta-estimators</a></li>
@@ -99,10 +100,11 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.model_selection"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>: Model Selection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.linear_model"><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>: Generalized Linear Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#meta-estimators-for-scikit-learn">Meta-estimators for scikit-learn</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-wrappers-meta-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.wrappers</span></code>: Meta-Estimators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.cluster"><code class="docutils literal notranslate"><span class="pre">dask_ml.cluster</span></code>: Clustering</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.decomposition"><code class="docutils literal notranslate"><span class="pre">dask_ml.decomposition</span></code>: Matrix Decomposition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.preprocessing"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>: Preprocessing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-compose-composite-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.compose</span></code>: Composite Estimators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-impute-imputing-missing-data"><code class="docutils literal notranslate"><span class="pre">dask_ml.impute</span></code>: Imputing Missing Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-metrics-metrics"><code class="docutils literal notranslate"><span class="pre">dask_ml.metrics</span></code>: Metrics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.tensorflow"><code class="docutils literal notranslate"><span class="pre">dask_ml.tensorflow</span></code>: Tensorflow</a></li>
@@ -238,7 +240,7 @@
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.evals_result" title="dask_ml.xgboost.XGBClassifier.evals_result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evals_result</span></code></a>()</td>
 <td>Return the evaluation results.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.fit" title="dask_ml.xgboost.XGBClassifier.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X[,&nbsp;y])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.fit" title="dask_ml.xgboost.XGBClassifier.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X[,&nbsp;y,&nbsp;classes])</td>
 <td>Fit a gradient boosting classifier</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.get_booster" title="dask_ml.xgboost.XGBClassifier.get_booster"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_booster</span></code></a>()</td>
@@ -342,7 +344,7 @@ passed to the <cite>fit</cite> function</p>
 
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em>, <em>classes=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit a gradient boosting classifier</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -354,6 +356,10 @@ passed to the <cite>fit</cite> function</p>
 </dd>
 <dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like</span></dt>
 <dd><p class="first last">Labels</p>
+</dd>
+<dt><strong>classes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">sequence, optional</span></dt>
+<dd><p class="first last">The unique values in <cite>y</cite>. If no specified, this will be
+eagerly computed from <cite>y</cite> before training.</p>
 </dd>
 </dl>
 </td>
@@ -433,7 +439,7 @@ of model object and then call predict</div></blockquote>
 
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.predict_proba">
-<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>data</em>, <em>ntree_limit=0</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.predict_proba" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>data</em>, <em>ntree_limit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.predict_proba" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict the probability of each <cite>data</cite> example being of a given class.
 NOTE: This function is not thread safe.</p>
 <blockquote>

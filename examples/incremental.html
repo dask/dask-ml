@@ -112,6 +112,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../preprocessing.html">Preprocessing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cross_validation.html">Cross Validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../hyper-parameter-search.html">Hyper Parameter Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compose.html">Pipelines and Composite Estimators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../glm.html">Generalized Linear Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../joblib.html">Joblib</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../meta-estimators.html">Parallel Meta-estimators</a></li>
@@ -438,7 +439,7 @@ run the cell</p>
 <td style="vertical-align: top; border: 0px solid white">
 <h3>Client</h3>
 <ul>
-  <li><b>Scheduler: </b>tcp://127.0.0.1:36836
+  <li><b>Scheduler: </b>tcp://127.0.0.1:43021
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
@@ -662,7 +663,7 @@ sequential fitting of many batches.</p>
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.5995
+<span></span>0.5762
 </pre></div>
 </div>
 </div>
@@ -700,16 +701,16 @@ we can use the <code class="docutils literal notranslate"><span class="pre">Incr
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Score: 0.5876
-Score: 0.6044
-Score: 0.6032
-Score: 0.6147
-Score: 0.6145
-Score: 0.6229
-Score: 0.633
-Score: 0.6188
-Score: 0.6373
-Score: 0.6388
+Score: 0.5614
+Score: 0.5823
+Score: 0.5951
+Score: 0.5857
+Score: 0.5858
+Score: 0.6086
+Score: 0.6128
+Score: 0.6027
+Score: 0.6125
+Score: 0.6077
 </pre></div></div>
 </div>
 </div>
@@ -753,11 +754,11 @@ Score: 0.6388
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>array([1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0,
-       0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1,
-       0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0,
-       0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1,
-       0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0])
+<span></span>array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0,
+       1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1,
+       0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1,
+       1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1,
+       0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1])
 </pre></div>
 </div>
 </div>
@@ -777,7 +778,7 @@ Score: 0.6388
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.6388
+<span></span>0.6077
 </pre></div>
 </div>
 </div>

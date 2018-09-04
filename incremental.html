@@ -89,6 +89,7 @@
 <li class="toctree-l1"><a class="reference internal" href="preprocessing.html">Preprocessing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cross_validation.html">Cross Validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hyper-parameter-search.html">Hyper Parameter Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compose.html">Pipelines and Composite Estimators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glm.html">Generalized Linear Models</a></li>
 <li class="toctree-l1"><a class="reference internal" href="joblib.html">Joblib</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meta-estimators.html">Parallel Meta-estimators</a></li>
@@ -278,18 +279,18 @@ can also explicitly pass <code class="docutils literal notranslate"><span class=
 </div>
 <p>We can get the accuracy score on our dataset.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gh">Out[9]: </span><span class="go">0.61</span>
+<span class="gh">Out[9]: </span><span class="go">0.66</span>
 </pre></div>
 </div>
 <p>All of the attributes learned durning training, like <code class="docutils literal notranslate"><span class="pre">coef_</span></code>, are available
 on the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> instance.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[ -1.28676132,  23.56191571,  -3.31123009,  13.78531427,</span>
-<span class="go">        -27.34491549, -16.2330681 , -44.23822771, -19.53417352,</span>
-<span class="go">         16.29088583, -17.81387229,  -2.976531  , -54.16568241,</span>
-<span class="go">        -46.03938721,  16.88488051,   6.93827663,   6.57391004,</span>
-<span class="go">         43.11020883, -17.19429133,  19.80044463,  -7.94723061]])</span>
+<span class="go">array([[  6.38823969, -27.74496582,  42.26124253, -48.1634609 ,</span>
+<span class="go">         -1.36292368,  11.78045888, -12.52274311, -14.44014631,</span>
+<span class="go">         -1.1132935 , -17.75679955,  14.21158531,  19.97421155,</span>
+<span class="go">          3.64871101,  -5.64870929,  26.7254036 ,  48.07270326,</span>
+<span class="go">         16.89108313,  28.87356046,  42.96240939,  -4.55181669]])</span>
 </pre></div>
 </div>
 <p>If necessary, the actual estimator trained is available as <code class="docutils literal notranslate"><span class="pre">Incremental.estimator_</span></code></p>
