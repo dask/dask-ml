@@ -236,8 +236,14 @@ by <cite>np.random</cite>.</p>
 <dt><strong>shuffle</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default True</span></dt>
 <dd><p class="first last">Whether to shuffle the data before splitting.</p>
 </dd>
-<dt><strong>blockwise</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default True</span></dt>
-<dd><p class="first last">Whether to perform blockwise-shuffling.</p>
+<dt><strong>blockwise</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional.</span></dt>
+<dd><p class="first">Whether to shuffle data only within blocks (True), or allow data to
+be shuffled between blocks (False). Shuffling between blocks can
+be much more expensive, especially in distributed environments.</p>
+<p class="last">The default behavior depends on the types in arrays. For Dask Arrays,
+the default is True (data are not shuffled between blocks). For Dask
+DataFrames, the default and only allowed value is True (data are
+shuffled between blocks).</p>
 </dd>
 </dl>
 </td>

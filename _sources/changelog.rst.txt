@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Version 0.10.0
+~~~~~~~~~~~~~~
+
+Enhancements
+------------
+
+- Added support for :class:`dask.dataframe.DataFrame` to :meth:`dask_ml.model_selection.train_test_split` (:issue:`351`)
+
 Version 0.9.0
 ~~~~~~~~~~~~~
 
