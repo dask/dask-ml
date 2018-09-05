@@ -6,11 +6,18 @@ from time import time
 
 import dask
 import dask.array as da
+import numpy as np
 from dask.distributed import Future, default_client, futures_of, wait
 from distributed.utils import log_errors
 from sklearn.base import clone
+from sklearn.metrics.scorer import check_scoring
+from sklearn.model_selection import ParameterSampler
 from sklearn.utils import check_random_state
+from toolz import first
 from tornado import gen
+
+from ._search import _RETURN_TRAIN_SCORE_DEFAULT, DaskBaseSearchCV
+from ._split import train_test_split
 
 
 def _partial_fit(model_and_meta, X, y, fit_params):
@@ -347,3 +354,228 @@ def fit(
         scorer=scorer,
         random_state=random_state,
     )
+
+
+# ----------------------------------------------------------------------------
+# Base class for scikit-learn compatible estimators using fit
+# ----------------------------------------------------------------------------
+
+
+class BaseIncrementalSearchCV(DaskBaseSearchCV):
+    """Base class for estimators using the incremental `fit`.
+
+    Subclasses must implement the following abstract methods
+
+    * _get_ids_and_args : Build the dict of
+       ``{model_id : (param_list, additional_calls)}``
+        that are eventually passed to `fit`
+    * _get_cv_results : Build the dict containing the CV results.
+    * _get_best_estimator : Select the best estimator from the set of
+      fitted estimators
+    * _update_results : Update self with attributes from the fitted
+      esimators.
+    """
+
+    def __init__(
+        self,
+        estimator,
+        params,
+        test_size=0.15,
+        random_state=None,
+        scoring=None,
+        iid=True,
+        refit=True,
+        cv=None,
+        error_score="raise",
+        return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
+        scheduler=None,
+        n_jobs=-1,
+        cache_cv=True,
+    ):
+        # TODO: find the subset of sensible parameters.
+        self.params = params
+        self.test_size = test_size
+        self.random_state = random_state
+        super(BaseIncrementalSearchCV, self).__init__(
+            estimator,
+            scoring=scoring,
+            iid=iid,
+            refit=refit,
+            cv=cv,
+            error_score=error_score,
+            return_train_score=return_train_score,
+            scheduler=scheduler,
+            n_jobs=n_jobs,
+            cache_cv=cache_cv,
+        )
+
+    def _get_cv(self, X, y):
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=self.test_size
+        )
+        return X_train, X_test, y_train, y_test
+
+    def _get_ids_and_args(self):
+        # type: () -> Dict[int, Tuple(List[Dict], Callable)]
+        """Abstract method for generating the argumnets passed to `fit`.
+
+        Returns
+        -------
+        ids_and_args : Dict
+            Should have integers for keys and the following arguments
+
+            * param_list : List[Dict]
+            * additional_fit_calls : Callable
+        """
+        raise NotImplementedError
+
+    def _get_cv_results(self, results):
+        # type: (Dict) -> Dict
+        """Construct the CV results.
+
+        Should have the following keys:
+
+        * params
+        * test_score
+        * mean_test_score
+        * rank_test_score
+        * mean_partial_fit_time
+        * std_partial_fit_time
+        * mean_score_time
+        * std_score_time
+        * partial_fit_calls
+        * model_id
+        """
+        raise NotImplementedError
+
+    def _get_best_estimator(self, results):
+        # type: (Dict) -> Estimator
+        """Select the best estimator from the set of estimators."""
+        raise NotImplementedError
+
+    def _update_results(self, results):
+        # type: (Dict) -> None
+        """Update `self` with attributes extracted from `results`."""
+        raise NotImplementedError
+
+    def fit(self, X, y, **fit_params):
+        """Find the best parameters for a particular model
+        Parameters
+        ----------
+        X, y : array-like
+        **fit_params
+            Additional partial fit keyword arguments for the estimator.
+        """
+        ids_and_args = self._get_ids_and_args()
+
+        X_train, X_test, y_train, y_test = self._get_cv(X, y)
+        self.scorer_ = check_scoring(self.estimator, scoring=self.scoring)
+
+        results = {
+            model_id: fit(
+                self.estimator,
+                param_list,
+                X_train,
+                y_train,
+                X_test,
+                y_test,
+                additional_calls=additional_calls,
+                fit_params=fit_params,
+                scorer=self.scorer_,
+                random_state=self.random_state,
+            )
+            for model_id, (param_list, additional_calls) in ids_and_args.items()
+        }
+        self._update_results(results)
+        self.cv_results_ = self._get_cv_results(results)
+        self.best_estimator_ = self._get_best_estimator(results)
+        return self
+
+
+class IncrementalRandomizedSearchCV(BaseIncrementalSearchCV):
+    def __init__(
+        self,
+        estimator,
+        param_distribution,
+        n_iter=10,
+        test_size=0.15,
+        random_state=None,
+        scoring=None,
+        iid=True,
+        refit=True,
+        cv=None,
+        error_score="raise",
+        return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
+        scheduler=None,
+        n_jobs=-1,
+        cache_cv=True,
+    ):
+        self.n_iter = 10
+        super(IncrementalRandomizedSearchCV, self).__init__(
+            estimator,
+            param_distribution,
+            test_size,
+            random_state,
+            scoring,
+            iid,
+            refit,
+            cv,
+            error_score,
+            return_train_score,
+            scheduler,
+            n_jobs,
+            cache_cv,
+        )
+
+    def _get_cv_results(self, results):
+        # TODO: split this unpacking...
+        info, model, history = results[0]
+        model_id = first(info.keys())
+        info = info[model_id]
+        # ... from this cv building. Hopefully this can be mostly shared.
+        scores = np.array([v["score"] for v in info])
+        ranks = np.argsort(-1 * scores) + 1
+
+        cv_results = {
+            "params": [v["params"] for v in info],
+            "test_score": scores,
+            "mean_test_score": scores,  # for sklearn comptability
+            "rank_test_score": ranks,
+            # TODO: check partial_fit_time
+            "mean_partial_fit_time": np.mean([v["partial_fit_time"] for v in info]),
+            "std_partial_fit_time": np.std([v["partial_fit_time"] for v in info]),
+            "mean_score_time": np.mean([v["score_time"] for v in info]),
+            "std_score_time": np.std([v["score_time"] for v in info]),
+            "partial_fit_calls": [v["partial_fit_calls"] for v in info],
+            "model_id": model_id,
+        }
+        return cv_results
+
+    def _get_ids_and_args(self):
+        return {0: (ParameterSampler(self.params, self.n_iter), remove_worst)}
+
+    def _update_results(self, results):
+        self.info_, self.models_, self.history_ = results[0]
+
+    def _get_best_estimator(self, results):
+        _, models, _ = results[0]
+        f = first(models.values())
+        wait(f)
+        return f.result()
+
+
+def remove_worst(scores):
+    # type: Dict[Int, Dict] -> Dict[Int, Int]
+    """Default `additional_calls` strategy for IncrementalSearch.
+
+    Removes the lowest scoring model from a batch of models.
+    """
+    last_score = {model_id: info[-1]["score"] for model_id, info in scores.items()}
+    worst_score = min(last_score.values())
+    out = {}
+    for model_id, score in last_score.items():
+        if score != worst_score:
+            out[model_id] = 1  # do one more training step
+    if len(out) == 1:
+        out = {k: 0 for k in out}  # no more work to do, stops execution
+    return out

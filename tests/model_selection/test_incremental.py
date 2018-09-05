@@ -3,13 +3,19 @@ import random
 import numpy as np
 import toolz
 from dask.distributed import Future
-from distributed.utils_test import gen_cluster, loop  # noqa: F401
+from distributed import Client
+from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import ParameterSampler
 from tornado import gen
 
 from dask_ml.datasets import make_classification
-from dask_ml.model_selection._incremental import _partial_fit, _score, fit
+from dask_ml.model_selection._incremental import (
+    IncrementalRandomizedSearchCV,
+    _partial_fit,
+    _score,
+    fit,
+)
 
 
 @gen_cluster(client=True, timeout=None)
@@ -17,11 +23,7 @@ def test_basic(c, s, a, b):
     X, y = make_classification(n_samples=1000, n_features=5, chunks=100)
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
 
-    params = {
-        "alpha": np.logspace(-2, 1, num=100),
-        "l1_ratio": np.linspace(0, 1, num=100),
-        "average": [True, False],
-    }
+    params = {"alpha": np.logspace(-2, 1, num=4), "l1_ratio": [0.01, 1.0]}
 
     X_test, y_test = X[:100], y[:100]
     X_train = X[100:]
@@ -184,3 +186,19 @@ def test_explicit(c, s, a, b):
 
     while s.tasks or c.futures:  # all data clears out
         yield gen.sleep(0.01)
+
+
+def test_incremental_search(loop):  # noqa: F811
+    X, y = make_classification(n_samples=1000, n_features=5, chunks=100)
+    model = SGDClassifier(tol=1e-3, penalty="elasticnet")
+
+    params = {"alpha": np.logspace(-2, 10, 100), "l1_ratio": np.linspace(0.01, 1, 200)}
+
+    search = IncrementalRandomizedSearchCV(model, params, n_iter=10)
+
+    with cluster() as (s, [a, b]):
+        with Client(s["address"], loop=loop):
+            search.fit(X, y, classes=[0, 1])
+
+    assert search.cv_results_
+    assert search.best_estimator_
