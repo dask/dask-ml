@@ -102,7 +102,7 @@ def _fit(
     if isinstance(X_test, da.Array):
         X_test = client.compute(X_test)
     else:
-        y_test = yield client.scatter(y_test)
+        X_test = yield client.scatter(X_test)
     if isinstance(y_test, da.Array):
         y_test = client.compute(y_test)
     else:

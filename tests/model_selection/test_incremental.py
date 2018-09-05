@@ -14,18 +14,18 @@ from dask_ml.model_selection._incremental import _partial_fit, _score, fit
 
 @gen_cluster(client=True, timeout=None)
 def test_basic(c, s, a, b):
-    X, y = make_classification(n_samples=10000, n_features=10, chunks=1000)
+    X, y = make_classification(n_samples=1000, n_features=5, chunks=100)
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
 
     params = {
-        "alpha": np.logspace(-2, 1, num=1000),
-        "l1_ratio": np.linspace(0, 1, num=1000),
+        "alpha": np.logspace(-2, 1, num=100),
+        "l1_ratio": np.linspace(0, 1, num=100),
         "average": [True, False],
     }
 
-    X_test, y_test = X[:1000], y[:1000]
-    X_train = X[1000:]
-    y_train = y[1000:]
+    X_test, y_test = X[:100], y[:100]
+    X_train = X[100:]
+    y_train = y[100:]
 
     param_list = list(ParameterSampler(params, 100))
 
@@ -82,6 +82,19 @@ def test_basic(c, s, a, b):
 
     while c.futures or s.tasks:  # Cleans up cleanly after running
         yield gen.sleep(0.01)
+
+    # smoke test for ndarray X_test and y_test
+    X_test, y_test = yield c.compute([X_test, y_test])
+    info, models, history = yield fit(
+        model,
+        param_list,
+        X_train,
+        y_train,
+        X_test,
+        y_test,
+        additional_calls,
+        fit_params={"classes": [0, 1]},
+    )
 
 
 def test_partial_fit_doesnt_mutate_inputs():
