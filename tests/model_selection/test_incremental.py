@@ -6,10 +6,10 @@ from dask.distributed import Future
 from distributed.utils_test import gen_cluster, loop  # noqa: F401
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import ParameterSampler
+from tornado import gen
 
 from dask_ml.datasets import make_classification
 from dask_ml.model_selection._incremental import _partial_fit, _score, fit
-from tornado import gen
 
 
 @gen_cluster(client=True, timeout=None)
