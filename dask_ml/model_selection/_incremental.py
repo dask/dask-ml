@@ -10,7 +10,6 @@ from dask.distributed import Future, default_client, futures_of, wait
 from distributed.utils import log_errors
 from sklearn.base import clone
 from sklearn.utils import check_random_state
-
 from tornado import gen
 
 
