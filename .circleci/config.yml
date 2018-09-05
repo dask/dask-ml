@@ -112,6 +112,3 @@ workflows:
       - py36
       - py27
       - sklearn_dev
-    filters:
-      branches:
-        ignore: gh-pages
