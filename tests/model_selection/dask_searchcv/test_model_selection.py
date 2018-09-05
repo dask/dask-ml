@@ -85,7 +85,7 @@ def test_visualize():
     pytest.importorskip("graphviz")
 
     X, y = make_classification(n_samples=100, n_classes=2, flip_y=.2, random_state=0)
-    clf = SVC(random_state=0)
+    clf = SVC(random_state=0, gamma="auto")
     grid = {"C": [.1, .5, .9]}
     gs = dcv.GridSearchCV(clf, grid).fit(X, y)
 
