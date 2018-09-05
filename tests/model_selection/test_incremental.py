@@ -1,15 +1,15 @@
+import random
+
 import numpy as np
 from sklearn.linear_model import SGDClassifier
-
-from distributed.utils_test import loop, gen_cluster  # noqa: F401
+from sklearn.model_selection import ParameterSampler
 import toolz
 from tornado import gen
 
 from dask_ml.datasets import make_classification
 from dask_ml.model_selection._incremental import fit, _partial_fit, _score
-from sklearn.model_selection import ParameterSampler
-import distributed
-import random
+from dask.distributed import Future
+from distributed.utils_test import loop, gen_cluster  # noqa: F401
 
 
 @gen_cluster(client=True, timeout=None)
@@ -54,7 +54,7 @@ def test_basic(c, s, a, b):
     assert all(L)
 
     for model in models.values():
-        assert isinstance(model, distributed.client.Future)
+        assert isinstance(model, Future)
         model2, meta2 = yield model
         assert isinstance(model2, SGDClassifier)
         assert isinstance(meta2, dict)
