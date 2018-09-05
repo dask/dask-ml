@@ -27,7 +27,8 @@ def test_basic(c, s, a, b):
     X_train = X[100:]
     y_train = y[100:]
 
-    param_list = list(ParameterSampler(params, 100))
+    n_parameters = 50
+    param_list = list(ParameterSampler(params, n_parameters))
 
     def additional_calls(info):
         pf_calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
@@ -62,7 +63,7 @@ def test_basic(c, s, a, b):
     assert model.score(XX_test, yy_test) == info[0][-1]["score"]
 
     # `<` not `==` because we randomly dropped one model
-    assert len(history) < 100 * 10
+    assert len(history) < n_parameters * 10
     for key in {
         "partial_fit_time",
         "score_time",
