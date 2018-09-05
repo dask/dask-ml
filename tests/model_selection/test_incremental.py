@@ -1,15 +1,15 @@
 import random
 
 import numpy as np
+import toolz
+from dask.distributed import Future
+from distributed.utils_test import gen_cluster, loop  # noqa: F401
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import ParameterSampler
-import toolz
-from tornado import gen
 
 from dask_ml.datasets import make_classification
-from dask_ml.model_selection._incremental import fit, _partial_fit, _score
-from dask.distributed import Future
-from distributed.utils_test import loop, gen_cluster  # noqa: F401
+from dask_ml.model_selection._incremental import _partial_fit, _score, fit
+from tornado import gen
 
 
 @gen_cluster(client=True, timeout=None)
@@ -55,11 +55,10 @@ def test_basic(c, s, a, b):
 
     for model in models.values():
         assert isinstance(model, Future)
-        model2, meta2 = yield model
+        model2 = yield model
         assert isinstance(model2, SGDClassifier)
-        assert isinstance(meta2, dict)
     XX_test, yy_test = yield c.compute([X_test, y_test])
-    model, meta = yield models[0]
+    model = yield models[0]
     assert model.score(XX_test, yy_test) == info[0][-1]["score"]
 
     # `<` not `==` because we randomly dropped one model
@@ -159,7 +158,8 @@ def test_explicit(c, s, a, b):
     assert all(model.done() for model in models.values())
 
     models = yield models
-    model, meta = models[0]
+    model = models[0]
+    meta = info[0][-1]
 
     assert meta["params"] == {"alpha": 0.1}
     assert meta["partial_fit_calls"] == 6 + 1

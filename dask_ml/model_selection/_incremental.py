@@ -1,16 +1,17 @@
 from __future__ import division
 
+import operator
 from copy import deepcopy
-
-from sklearn.base import clone
-from sklearn.utils import check_random_state
 from time import time
-from tornado import gen
 
 import dask
 import dask.array as da
-from dask.distributed import default_client, futures_of, Future
+from dask.distributed import Future, default_client, futures_of, wait
 from distributed.utils import log_errors
+from sklearn.base import clone
+from sklearn.utils import check_random_state
+
+from tornado import gen
 
 
 def _partial_fit(model_and_meta, X, y, fit_params):
@@ -218,10 +219,23 @@ def _fit(
 
         new_scores = list(_scores2.values())
 
+    models = {k: client.submit(operator.getitem, v, 0) for k, v in models.items()}
+    yield wait(models)
     raise gen.Return((info, models, history))
 
 
-def fit(*args, **kwargs):
+def fit(
+    model,
+    params,
+    X_train,
+    y_train,
+    X_test,
+    y_test,
+    additional_calls,
+    fit_params=None,
+    scorer=None,
+    random_state=None,
+):
     """ Find a good model and search among a space of hyper-parameters
 
     This does a hyper-parameter search by creating many models and then fitting
@@ -239,42 +253,98 @@ def fit(*args, **kwargs):
     Parameters
     ----------
     model : Estimator
-    params : dict
-        parameter grid to be given to ParameterSampler
+    params : List[Dict]
+        Parameters to start training on model
     X_train : dask Array
     y_train : dask Array
     X_test : Array
-        Numpy array or small dask array.  Should fit in memory.
+        Numpy array or small dask array.  Should fit in single node's memory.
     y_test : Array
-        Numpy array or small dask array.  Should fit in memory.
-    start : int
-        Number of parameters to start with
+        Numpy array or small dask array.  Should fit in single node's memory.
+    additional_calls : callable
+        A function that takes information about scoring history per model and
+        returns the number of additional partial fit calls to run on each model
     fit_params : dict
         Extra parameters to give to partial_fit
-    random_state :
     scorer :
-    target : callable
-        A function that takes the start value and the current time step and
-        returns the number of desired models at that time step
+    random_state :
 
     Examples
     --------
+    >>> import numpy as np
+    >>> from dask_ml.datasets import make_classification
     >>> X, y = make_classification(n_samples=5000000, n_features=20,
     ...                            chunks=100000)
 
+    >>> from sklearn.linear_model import SGDClassifier
     >>> model = SGDClassifier(tol=1e-3, penalty='elasticnet')
+
+    >>> from sklearn.model_selection import ParameterSampler
     >>> params = {'alpha': np.logspace(-2, 1, num=1000),
     ...           'l1_ratio': np.linspace(0, 1, num=1000),
     ...           'average': [True, False]}
+    >>> params = list(ParameterSampler(params, 10))
 
     >>> X_test, y_test = X[:100000], y[:100000]
     >>> X_train = X[100000:]
     >>> y_train = y[100000:]
 
-    >>> info, model, history = yield fit(model, params,
-    ...                                  X_train, y_train,
-    ...                                  X_test, y_test,
-    ...                                  start=100,
-    ...                                  fit_params={'classes': [0, 1]})
+    >>> def remove_worst(scores):
+    ...    last_score = {model_id: info[-1]['score']
+    ...                  for model_id, info in scores.items()}
+    ...    worst_score = min(last_score.values())
+    ...    out = {}
+    ...    for model_id, score in last_score.items():
+    ...        if score != worst_score:
+    ...            out[model_id] = 1  # do one more training step
+    ...    if len(out) == 1:
+    ...        out = {k: 0 for k in out}  # no more work to do, stops execution
+    ...    return out
+
+    >>> from dask.distributed import Client
+    >>> client = Client(processes=False)
+
+    >>> from dask_ml.model_selection._incremental import fit
+    >>> info, models, history = fit(model, params,
+    ...                             X_train, y_train,
+    ...                             X_test, y_test,
+    ...                             additional_calls=remove_worst,
+    ...                             fit_params={'classes': [0, 1]})
+
+    >>> models
+    {7: <Future: status: finished, type: SGDClassifier, key: ...}
+    >>> models[7].result()
+    SGDClassifier(...)
+    >>> info[7][-1]
+    {'model_id': 7,
+     'params': {'l1_ratio': 0.7967967967967968,
+                'average': False,
+                'alpha': 0.20812215699863382},
+     'partial_fit_calls': 9,
+     'partial_fit_time': 0.09028053283691406,
+     'score': 0.70231,
+     'score_time': 0.04503202438354492}
+
+    Returns
+    -------
+    info : Dict[int, List[Dict]]
+        Scoring history of each successful model, keyed by model ID.
+        This has the parameters, scores, and timing information over time
+    models : Dict[int, Future]
+        Dask futures pointing to trained models
+    history : List[Dict]
+        A history of all models scores over time
     """
-    return default_client().sync(_fit, *args, **kwargs)
+    return default_client().sync(
+        _fit,
+        model,
+        params,
+        X_train,
+        y_train,
+        X_test,
+        y_test,
+        additional_calls,
+        fit_params=fit_params,
+        scorer=scorer,
+        random_state=random_state,
+    )
