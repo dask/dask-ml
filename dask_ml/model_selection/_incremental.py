@@ -274,16 +274,16 @@ def fit(
     >>> import numpy as np
     >>> from dask_ml.datasets import make_classification
     >>> X, y = make_classification(n_samples=5000000, n_features=20,
-    ...                            chunks=100000)
+    ...                            chunks=100000, random_state=0)
 
     >>> from sklearn.linear_model import SGDClassifier
-    >>> model = SGDClassifier(tol=1e-3, penalty='elasticnet')
+    >>> model = SGDClassifier(tol=1e-3, penalty='elasticnet', random_state=0)
 
     >>> from sklearn.model_selection import ParameterSampler
     >>> params = {'alpha': np.logspace(-2, 1, num=1000),
     ...           'l1_ratio': np.linspace(0, 1, num=1000),
     ...           'average': [True, False]}
-    >>> params = list(ParameterSampler(params, 10))
+    >>> params = list(ParameterSampler(params, 10, random_state=0))
 
     >>> X_test, y_test = X[:100000], y[:100000]
     >>> X_train = X[100000:]
@@ -309,21 +309,21 @@ def fit(
     ...                             X_train, y_train,
     ...                             X_test, y_test,
     ...                             additional_calls=remove_worst,
-    ...                             fit_params={'classes': [0, 1]})
+    ...                             fit_params={'classes': [0, 1]},
+    ...                             random_state=0)
 
     >>> models
-    {7: <Future: status: finished, type: SGDClassifier, key: ...}
-    >>> models[7].result()
+    {2: <Future: status: finished, type: SGDClassifier, key: ...}
+    >>> models[2].result()
     SGDClassifier(...)
-    >>> info[7][-1]
-    {'model_id': 7,
-     'params': {'l1_ratio': 0.7967967967967968,
-                'average': False,
-                'alpha': 0.20812215699863382},
-     'partial_fit_calls': 9,
-     'partial_fit_time': 0.09028053283691406,
-     'score': 0.70231,
-     'score_time': 0.04503202438354492}
+    >>> info[2][-1]  # doctest: +SKIP
+    {'model_id': 2,
+     'params': {'l1_ratio': 0.9529529529529529, 'average': False,
+                'alpha': 0.014933932161242525},
+     'partial_fit_calls': 8,
+     'partial_fit_time': 0.17334818840026855,
+     'score': 0.58765,
+     'score_time': 0.031442880630493164}
 
     Returns
     -------
