@@ -23,7 +23,7 @@ def test_basic(c, s, a, b):
     X, y = make_classification(n_samples=1000, n_features=5, chunks=100)
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
 
-    params = {"alpha": np.logspace(-2, 1, num=4), "l1_ratio": [0.01, 1.0]}
+    params = {"alpha": np.logspace(-2, 1, num=50), "l1_ratio": [0.01, 1.0]}
 
     X_test, y_test = X[:100], y[:100]
     X_train = X[100:]
