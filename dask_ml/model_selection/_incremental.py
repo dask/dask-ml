@@ -1,5 +1,6 @@
 from __future__ import division
 
+import itertools
 import operator
 from copy import deepcopy
 from time import time
@@ -410,13 +411,17 @@ class BaseIncrementalSearchCV(DaskBaseSearchCV):
         )
 
     def _get_cv(self, X, y):
+        if isinstance(X, np.ndarray):
+            X = da.from_array(X, X.shape)
+        if isinstance(y, np.ndarray):
+            y = da.from_array(y, y.shape)
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=self.test_size
         )
         return X_train, X_test, y_train, y_test
 
     def _get_ids_and_args(self):
-        # type: () -> Dict[int, Tuple(List[Dict], Callable)]
+        # type: () -> Dict[int, Tuple(List[Dict], Union[Callable, object])]
         """Abstract method for generating the argumnets passed to `fit`.
 
         Returns
@@ -425,7 +430,10 @@ class BaseIncrementalSearchCV(DaskBaseSearchCV):
             Should have integers for keys and the following arguments
 
             * param_list : List[Dict]
-            * additional_fit_calls : Callable
+            * additional_fit_calls : Union[Callable, object]
+                Objects with a ``fit`` method have the bound
+                ``additional_fit_calls.fit`` method passed through to `fit`.
+                (Other) callables are simply passed through.
         """
         raise NotImplementedError
 
@@ -433,7 +441,7 @@ class BaseIncrementalSearchCV(DaskBaseSearchCV):
         # type: (Dict) -> Dict
         """Construct the CV results.
 
-        Should have the following keys:
+        Has the following keys:
 
         * params
         * test_score
@@ -446,17 +454,68 @@ class BaseIncrementalSearchCV(DaskBaseSearchCV):
         * partial_fit_calls
         * model_id
         """
-        raise NotImplementedError
+        info, model, history = zip(*results.values())
+        info = list(itertools.chain.from_iterable(x.values() for x in info))
+        model = list(itertools.chain.from_iterable(x.values() for x in model))
+        history = list(itertools.chain.from_iterable(history))
 
-    def _get_best_estimator(self, results):
-        # type: (Dict) -> Estimator
+        scores = np.array([x["score"] for v in info for x in v])
+        ranks = np.argsort(-1 * scores) + 1
+        assert max(scores) == scores[ranks - 1][0]
+        model_ids = []
+        for loop_id in results:
+            loop_info = results[loop_id][0]
+            model_ids.extend(
+                [
+                    "{}-{}".format(loop_id, x["model_id"])
+                    for v in loop_info.values()
+                    for x in v
+                ]
+            )
+
+        assert len(model_ids) == len(scores)
+        # assert len(set(model_ids)) == len(model_ids)
+
+        cv_results = {
+            "params": [x["params"] for v in info for x in v],
+            "test_score": scores,
+            "mean_test_score": scores,  # for sklearn comptability
+            "rank_test_score": ranks,
+            "mean_partial_fit_time": np.array(
+                [np.mean(x["partial_fit_time"]) for v in info for x in v]
+            ),
+            "std_partial_fit_time": np.array(
+                [np.std(x["partial_fit_time"]) for v in info for x in v]
+            ),
+            "mean_score_time": np.array(
+                [np.mean(x["score_time"]) for v in info for x in v]
+            ),
+            "std_score_time": np.array(
+                [np.std(x["score_time"]) for v in info for x in v]
+            ),
+            "partial_fit_calls": [x["partial_fit_calls"] for v in info for x in v],
+            "model_id": model_ids,
+        }
+        return cv_results
+
+    def _get_best(self, results, cv_results):
+        # type: (Dict, Dict) -> Estimator
         """Select the best estimator from the set of estimators."""
-        raise NotImplementedError
+        rank = cv_results["rank_test_score"]
+        best_index = np.arange(len(rank))[rank - 1][0]
+        best_model_id = cv_results["model_id"][best_index]
+        assert cv_results["test_score"][best_index] == max(cv_results["test_score"])
+
+        loop_id, model_id = map(int, best_model_id.split("-"))
+        return results[loop_id][1][model_id].result(), best_index
 
     def _update_results(self, results):
         # type: (Dict) -> None
         """Update `self` with attributes extracted from `results`."""
-        raise NotImplementedError
+        pass
+
+    def _process_results(self, results):
+        return results
 
     def fit(self, X, y, **fit_params):
         """Find the best parameters for a particular model
@@ -469,7 +528,7 @@ class BaseIncrementalSearchCV(DaskBaseSearchCV):
         ids_and_args = self._get_ids_and_args()
 
         X_train, X_test, y_train, y_test = self._get_cv(X, y)
-        self.scorer_ = check_scoring(self.estimator, scoring=self.scoring)
+        scorer = check_scoring(self.estimator, scoring=self.scoring)
 
         results = {
             model_id: fit(
@@ -479,16 +538,22 @@ class BaseIncrementalSearchCV(DaskBaseSearchCV):
                 y_train,
                 X_test,
                 y_test,
-                additional_calls=additional_calls,
+                additional_calls=getattr(additional_calls, "fit", additional_calls),
                 fit_params=fit_params,
-                scorer=self.scorer_,
+                scorer=scorer,
                 random_state=self.random_state,
             )
             for model_id, (param_list, additional_calls) in ids_and_args.items()
         }
+        results = self._process_results(results)
         self._update_results(results)
-        self.cv_results_ = self._get_cv_results(results)
-        self.best_estimator_ = self._get_best_estimator(results)
+        cv_results = self._get_cv_results(results)
+        best_estimator, best_index = self._get_best(results, cv_results)
+
+        self.scoring_ = scorer
+        self.cv_results_ = cv_results
+        self.best_estimator_ = best_estimator
+        self.best_index_ = best_index
         return self
 
 
@@ -527,41 +592,11 @@ class IncrementalRandomizedSearchCV(BaseIncrementalSearchCV):
             cache_cv,
         )
 
-    def _get_cv_results(self, results):
-        # TODO: split this unpacking...
-        info, model, history = results[0]
-        model_id = first(info.keys())
-        info = info[model_id]
-        # ... from this cv building. Hopefully this can be mostly shared.
-        scores = np.array([v["score"] for v in info])
-        ranks = np.argsort(-1 * scores) + 1
-
-        cv_results = {
-            "params": [v["params"] for v in info],
-            "test_score": scores,
-            "mean_test_score": scores,  # for sklearn comptability
-            "rank_test_score": ranks,
-            # TODO: check partial_fit_time
-            "mean_partial_fit_time": np.mean([v["partial_fit_time"] for v in info]),
-            "std_partial_fit_time": np.std([v["partial_fit_time"] for v in info]),
-            "mean_score_time": np.mean([v["score_time"] for v in info]),
-            "std_score_time": np.std([v["score_time"] for v in info]),
-            "partial_fit_calls": [v["partial_fit_calls"] for v in info],
-            "model_id": model_id,
-        }
-        return cv_results
-
     def _get_ids_and_args(self):
         return {0: (ParameterSampler(self.params, self.n_iter), remove_worst)}
 
     def _update_results(self, results):
         self.info_, self.models_, self.history_ = results[0]
-
-    def _get_best_estimator(self, results):
-        _, models, _ = results[0]
-        f = first(models.values())
-        wait(f)
-        return f.result()
 
 
 def remove_worst(scores):
@@ -576,6 +611,11 @@ def remove_worst(scores):
     for model_id, score in last_score.items():
         if score != worst_score:
             out[model_id] = 1  # do one more training step
-    if len(out) == 1:
+
+    if len(out) == 0:
+        # we have a tie where each model is equal to the worst.
+        # Arbitrarily pick the first.
+        out = {first(last_score): 0}
+    elif len(out) == 1:
         out = {k: 0 for k in out}  # no more work to do, stops execution
     return out
