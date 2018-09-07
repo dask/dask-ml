@@ -9,6 +9,7 @@ from time import time
 import dask
 import dask.array as da
 import numpy as np
+import toolz
 from dask.distributed import Future, default_client, futures_of, wait
 from distributed.utils import log_errors
 from sklearn.base import clone
@@ -461,7 +462,7 @@ class BaseIncrementalSearch(DaskBaseSearchCV):
         )
         return X_train, X_test, y_train, y_test
 
-    def _additional_calls(self):
+    def _additional_calls(self, info):
         raise NotImplementedError
 
     def _get_params(self):
@@ -686,4 +687,72 @@ class RandomIncrementalSearch(BaseIncrementalSearch):
 
             else:
                 out[ident] = 1
+        return out
+
+
+class SuccessiveReductionSearch(BaseIncrementalSearch):
+    def __init__(
+        self,
+        estimator,
+        param_distribution,
+        n_iter=10,
+        max_iter=100,
+        test_size=0.15,
+        decay_rate=1.0,
+        random_state=None,
+        scoring=None,
+        iid=True,
+        refit=True,
+        error_score="raise",
+        return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
+        scheduler=None,
+        n_jobs=-1,
+        cache_cv=True,
+    ):
+        self.max_iter = max_iter
+        self.n_iter = n_iter
+        self.decay_rate = decay_rate
+        super(SuccessiveReductionSearch, self).__init__(
+            estimator,
+            param_distribution,
+            test_size,
+            random_state,
+            scoring,
+            iid,
+            refit,
+            error_score,
+            return_train_score,
+            scheduler,
+            n_jobs,
+            cache_cv,
+        )
+
+    def _get_params(self):
+        return ParameterSampler(self.parameters, self.n_iter)
+
+    def _additional_calls(self, info):
+        def inverse(time):
+            """ Decrease target number of models inversely with time """
+            return int(self.n_iter / (1 + time) ** self.decay_rate)
+
+        example = toolz.first(info.values())
+        time_step = example[-1]["partial_fit_calls"]
+
+        current_time_step = time_step + 1
+        next_time_step = current_time_step
+        while inverse(current_time_step) == inverse(next_time_step):
+            next_time_step += 1
+
+        target = inverse(next_time_step)
+        best = toolz.topk(target, info, key=lambda k: info[k][-1]["score"])
+
+        if len(best) == 1:
+            [best] = best
+            return {best: 0}
+
+        out = {}
+        for k in best:
+            out[k] = next_time_step - current_time_step
+
+        print(out)
         return out
