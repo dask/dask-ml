@@ -465,9 +465,11 @@ class BaseIncrementalSearch(DaskBaseSearchCV):
         raise NotImplementedError
 
     def _get_params(self):
-        # I don't think there's really a good default here.
-        # This assume random search. Could equally do grid search.
-        return ParameterGrid(self.params)
+        """Parameters to pass to `fit`.
+
+        By defualt, a GridSearch over ``self.parameters`` is used.
+        """
+        return ParameterGrid(self.parameters)
 
     def _get_history_results(self, results):
         # type: (Results) -> Dict
