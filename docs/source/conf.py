@@ -23,7 +23,7 @@ import subprocess
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-import sphinx_rtd_theme
+import dask_sphinx_theme
 
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
@@ -117,9 +117,9 @@ todo_include_todos = False
 # -- Options for HTML output ----------------------------------------------
 
 
-html_theme = "sphinx_rtd_theme"
+html_theme = "dask_sphinx_theme"
 
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+html_theme_path = [dask_sphinx_theme.get_html_theme_path()]
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -229,7 +229,6 @@ def update_examples(app):
 def setup(app):
     app.connect("autodoc-process-docstring", generate_example_rst)
     app.connect("builder-inited", update_examples)
-    app.add_stylesheet("style.css")
 
 
 extlinks = {
