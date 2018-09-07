@@ -45,6 +45,28 @@ def _partial_fit(model_and_meta, X, y, fit_params):
         * info : Dict[model_id, List[Dict]]
             Keys are integers identifying each model. Values are a
             List of Dictk
+        * models : Dict[model_id, Future[Estimator]]
+            A dictionary with the same keys as `info`. The values
+            are futures to the fitted models.
+        * history : List[Dict]
+            The history of model fitting for each model. Each element
+            of the list is a dictionary with the following elements:
+
+            'model_id', 'params', 'partial_fit_calls', 'partial_fit_time', 'score', 'score_time'])
+
+            * model_id : int
+                A superset of the keys for `info` and `models`.
+            * params : Dict[str, Any]
+                Parameters this model was trained with. 
+            * partial_fit_calls : int
+                The number of *consecutive* partial fit calls at this stage in
+                this models training history.
+            * partial_fit_time : float
+                Time (in seconds) spent on this partial fit
+            * score : float
+                Score on the test set for the model at this point in history
+            * score_time : float
+                Time (in seconds) spent on this scoring.
     """
     with log_errors():
         start = time()
