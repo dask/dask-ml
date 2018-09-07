@@ -1,4 +1,5 @@
 import dask.array as da
+import numpy as np
 import six
 import sklearn.metrics
 from dask.array.random import doc_wraps
@@ -79,8 +80,12 @@ def r2_score(
     nonzero_numerator = numerator != 0
     valid_score = nonzero_denominator & nonzero_numerator
     output_scores = da.ones([y_true.shape[1]], chunks=y_true.chunks[1])
-    output_scores[valid_score] = 1 - (numerator[valid_score] / denominator[valid_score])
-    output_scores[nonzero_numerator & ~nonzero_denominator] = 0.
+    with np.errstate(all="ignore"):
+        output_scores[valid_score] = 1 - (
+            numerator[valid_score] / denominator[valid_score]
+        )
+        output_scores[nonzero_numerator & ~nonzero_denominator] = 0.
+
     result = output_scores.mean(axis=0)
     if compute:
         result = result.compute()
