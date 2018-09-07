@@ -24,9 +24,9 @@
 
   
 
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/style.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/style.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/explore.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Clustering" href="clustering.html" />
@@ -39,7 +39,62 @@
 
 <body class="wy-body-for-nav">
 
-   
+  
+
+<nav id="explore-links">
+  <img class="caption" src="_static/images/dask-horizontal-white.svg"/>
+
+  <ul>
+    <li>
+      <a>Get Started</a>
+      <ul>
+        <li><a href="https://dask.pydata.org/en/latest/install.html"> Install </a></li>
+        <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master"> Examples </a></li>
+        <li><a href="https://github.com/dask/dask-tutorial"> Tutorial </a></li>
+        <li><a href="https://dask.pydata.org/en/latest/why.html"> Why Dask? </a></li>
+        <li><a href="https:/dask-stories.readthedocs.io/en/latest"> Use Cases </a></li>
+        <li><a href="https://www.youtube.com/watch?v=RA_2qdipVng&list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri"> Talks </a></li>
+      </ul>
+    </li>
+
+    <li>
+      <a href="">Algorithms</a>
+      <ul>
+        <li><a href="https://dask.pydata.org/en/latest/array.html">Arrays</a></li>
+        <li><a href="https://dask.pydata.org/en/latest/dataframe.html">Dataframes</a></li>
+        <li><a href="https://dask.pydata.org/en/latest/bag.html">Bags</a></li>
+        <li><a href="https://dask.pydata.org/en/latest/delayed.html">Delayed (custom)</a></li>
+        <li><a href="https://dask.pydata.org/en/latest/futures.html">Futures (real-time)</a></li>
+        <li><a href="https://dask-ml.readthedocs.io/en/latest/array.html">Machine Learning</a></li>
+        <li><a href="https://dask.pydata.org/en/latest/array.html">XArray</a></li>
+      </ul>
+    </li>
+
+    <li>
+      <a href="https://dask.pydata.org/en/latest/setup.html">Deploy</a>
+      <ul>
+        <li><a href="https://dask-yarn.readthedocs.io/en/latest/"> Hadoop / Yarn </a></li>
+        <li><a href="https://dask.pydata.org/en/latest/setup/kubernetes-helm.html"> Helm </a></li>
+        <li><a href="https://dask.pydata.org/en/latest/setup/hpc.html"> HPC </a></li>
+        <li><a href="https://dask-kubernetes.readthedocs.io/en/latest/"> Kubernetes </a></li>
+        <li><a href="https://dask.pydata.org/en/latest/setup/single-machine.html"> Local </a></li>
+      </ul>
+    </li>
+
+    <li>
+      <a>Community</a>
+      <ul>
+        <li><a href="http://dask.pydata.org/en/latest/support.html">Ask for Help</a></li>
+        <li><a href="https://github.com/dask">Github</a></li>
+        <li><a href="https://stackoverflow.com/questions/tagged/dask">Stack Overflow</a></li>
+        <li><a href="https://twitter.com/dask_dev">Twitter</a></li>
+      </ul>
+    </li>
+  </ul>
+
+</nav>
+
+
   <div class="wy-grid-for-nav">
 
     
@@ -175,26 +230,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast,
-.nboutput.nblast {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast + .nbinput {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-</style>
-<div class="section" id="incremental-learning">
+  <div class="section" id="incremental-learning">
 <span id="id1"></span><h1>Incremental Learning<a class="headerlink" href="#incremental-learning" title="Permalink to this headline">¶</a></h1>
 <p>Some estimators can be trained incrementally – without seeing the entire
 dataset at once. Scikit-Learn provdes the <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> API to stream batches
@@ -279,18 +315,18 @@ can also explicitly pass <code class="docutils literal notranslate"><span class=
 </div>
 <p>We can get the accuracy score on our dataset.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gh">Out[9]: </span><span class="go">0.48</span>
+<span class="gh">Out[9]: </span><span class="go">0.71</span>
 </pre></div>
 </div>
 <p>All of the attributes learned durning training, like <code class="docutils literal notranslate"><span class="pre">coef_</span></code>, are available
 on the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> instance.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[ 30.925397  ,   3.27639058,  12.75819319, -48.48891885,</span>
-<span class="go">         -8.98463347,  18.24823471, -17.36166194, -37.45366997,</span>
-<span class="go">        -23.16308608,  13.79656721,  44.66242668,  -6.19818882,</span>
-<span class="go">         30.0326957 ,  15.62979823,   7.29737869,  19.84690965,</span>
-<span class="go">         11.12201284,  -5.47815838, -43.8424264 , -13.3660259 ]])</span>
+<span class="go">array([[ 11.5638492 ,  11.14736535,   4.68878691, -22.70193139,</span>
+<span class="go">         24.57304307,  -6.25632819,   7.61262479,  -9.10064   ,</span>
+<span class="go">         20.51020071,  52.43856458,   6.03200139,  38.00317824,</span>
+<span class="go">         13.78123643,  -9.61586609,  52.80498663,  42.748738  ,</span>
+<span class="go">        -14.25033264,  13.00830405, -97.68820998,  -0.16956233]])</span>
 </pre></div>
 </div>
 <p>If necessary, the actual estimator trained is available as <code class="docutils literal notranslate"><span class="pre">Incremental.estimator_</span></code></p>
