@@ -11,7 +11,7 @@ from tornado import gen
 
 from dask_ml.datasets import make_classification
 from dask_ml.model_selection._incremental import (
-    RandomizedWorstIncrementalSearch,
+    RandomIncrementalSearch,
     _partial_fit,
     _score,
     fit,
@@ -188,18 +188,16 @@ def test_explicit(c, s, a, b):
         yield gen.sleep(0.01)
 
 
-def test_incremental_search(loop):  # noqa: F811
-    X, y = make_classification(n_samples=1000, n_features=5, chunks=100)
+@gen_cluster(client=True)
+def test_RandomIncrementalSearch(c, s, a, b):
+    X, y = make_classification(n_samples=1000, n_features=5, chunks=(100, 5))
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
 
     params = {"alpha": np.logspace(-2, 10, 100), "l1_ratio": np.linspace(0.01, 1, 200)}
 
-    search = RandomizedWorstIncrementalSearch(model, params, n_iter=10)
-
-    with cluster() as (s, [a, b]):
-        with Client(s["address"], loop=loop):
-            search.fit(X, y, classes=[0, 1])
+    search = RandomIncrementalSearch(model, params, n_iter=10)
+    yield search.fit(X, y, classes=[0, 1])
 
     assert search.history_results_
-    assert search.best_estimator_
+    assert isinstance(search.best_estimator_, SGDClassifier)
     assert "visualize" not in search.__dict__

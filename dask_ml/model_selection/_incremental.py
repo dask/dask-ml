@@ -519,21 +519,14 @@ class BaseIncrementalSearch(DaskBaseSearchCV):
         """
         return results
 
-    def fit(self, X, y, **fit_params):
-        """Find the best parameters for a particular model.
-
-        Parameters
-        ----------
-        X, y : array-like
-        **fit_params
-            Additional partial fit keyword arguments for the estimator.
-        """
+    @gen.coroutine
+    def _fit(self, X, y, **fit_params):
         X, y = self._check_array(X, y)
 
         X_train, X_test, y_train, y_test = self._get_train_test_split(X, y)
         scorer = check_scoring(self.estimator, scoring=self.scoring)
 
-        results = fit(
+        results = yield fit(
             self.estimator,
             self._get_params(),
             X_train,
@@ -548,6 +541,7 @@ class BaseIncrementalSearch(DaskBaseSearchCV):
         results = self._process_results(results)
         history_results = self._get_history_results(results)
         best_estimator, best_index = self._get_best(results, history_results)
+        best_estimator = yield best_estimator
 
         # Clean up models we're hanging onto
         ids = list(results.models)
@@ -561,6 +555,17 @@ class BaseIncrementalSearch(DaskBaseSearchCV):
         self.n_splits_ = 1
         self.multimetric_ = False  # TODO: is this always true?
         return self
+
+    def fit(self, X, y, **fit_params):
+        """Find the best parameters for a particular model.
+
+        Parameters
+        ----------
+        X, y : array-like
+        **fit_params
+            Additional partial fit keyword arguments for the estimator.
+        """
+        return default_client().sync(self._fit, X, y, **fit_params)
 
 
 class RandomizedWorstIncrementalSearch(BaseIncrementalSearch):
@@ -618,3 +623,67 @@ class RandomizedWorstIncrementalSearch(BaseIncrementalSearch):
 
     def _get_params(self):
         return ParameterSampler(self.parameters, self.n_iter, self.random_state)
+
+
+class RandomIncrementalSearch(BaseIncrementalSearch):
+    def __init__(
+        self,
+        estimator,
+        param_distribution,
+        n_iter=10,
+        max_iter=100,
+        patience=10,
+        tol=0.001,
+        test_size=0.15,
+        random_state=None,
+        scoring=None,
+        iid=True,
+        refit=True,
+        error_score="raise",
+        return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
+        scheduler=None,
+        n_jobs=-1,
+        cache_cv=True,
+    ):
+        self.max_iter = max_iter
+        self.n_iter = n_iter
+        self.patience = patience
+        self.tol = tol
+        super(RandomIncrementalSearch, self).__init__(
+            estimator,
+            param_distribution,
+            test_size,
+            random_state,
+            scoring,
+            iid,
+            refit,
+            error_score,
+            return_train_score,
+            scheduler,
+            n_jobs,
+            cache_cv,
+        )
+
+    def _get_params(self):
+        return ParameterSampler(self.parameters, self.n_iter)
+
+    def _additional_calls(self, info):
+        out = {}
+        max_iter = self.max_iter
+        patience = self.patience
+        tol = self.tol
+
+        for ident, records in info.items():
+            if max_iter is not None and len(records) > max_iter:
+                out[ident] = 0
+
+            elif len(records) > patience:
+                old = records[-patience]["score"]
+                if all(d["score"] < old + tol for d in records[-patience:]):
+                    out[ident] = 0
+                else:
+                    out[ident] = 1
+
+            else:
+                out[ident] = 1
+        return out
