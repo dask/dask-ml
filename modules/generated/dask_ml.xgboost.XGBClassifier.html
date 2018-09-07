@@ -252,11 +252,17 @@
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.get_xgb_params" title="dask_ml.xgboost.XGBClassifier.get_xgb_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_xgb_params</span></code></a>()</td>
 <td>Get xgboost type parameters.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.predict" title="dask_ml.xgboost.XGBClassifier.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(X)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.load_model" title="dask_ml.xgboost.XGBClassifier.load_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_model</span></code></a>(fname)</td>
+<td>Load the model from a file.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.predict" title="dask_ml.xgboost.XGBClassifier.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(X)</td>
 <td>Predict with <cite>data</cite>.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.predict_proba" title="dask_ml.xgboost.XGBClassifier.predict_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_proba</span></code></a>(data[,&nbsp;ntree_limit])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.predict_proba" title="dask_ml.xgboost.XGBClassifier.predict_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_proba</span></code></a>(data[,&nbsp;ntree_limit])</td>
 <td>Predict the probability of each <cite>data</cite> example being of a given class.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.save_model" title="dask_ml.xgboost.XGBClassifier.save_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_model</span></code></a>(fname)</td>
+<td>Save the model to a file.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.score" title="dask_ml.xgboost.XGBClassifier.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(X,&nbsp;y[,&nbsp;sample_weight])</td>
 <td>Returns the mean accuracy on the given test data and labels.</td>
@@ -418,23 +424,64 @@ supported.</div></blockquote>
 </dd></dl>
 
 <dl class="method">
+<dt id="dask_ml.xgboost.XGBClassifier.load_model">
+<code class="descname">load_model</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.load_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the model from a file.
+Parameters
+———-
+fname : string or a memory buffer</p>
+<blockquote>
+<div>Input file name or memory buffer(see also save_raw)</div></blockquote>
+</dd></dl>
+
+<dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.predict">
 <code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict with <cite>data</cite>.
-NOTE: This function is not thread safe.</p>
-<blockquote>
-<div>For each booster object, predict can only be called from one thread.
-If you want to run prediction using multiple thread, call xgb.copy() to make copies
-of model object and then call predict</div></blockquote>
-<dl class="docutils">
-<dt>data <span class="classifier-delimiter">:</span> <span class="classifier">DMatrix</span></dt>
-<dd>The dmatrix storing the input.</dd>
-<dt>output_margin <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd>Whether to output the raw untransformed margin value.</dd>
-<dt>ntree_limit <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd>Limit number of trees in the prediction; defaults to 0 (use all trees).</dd>
+<dd><p>Predict with <cite>data</cite>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>This function is not thread safe.</p>
+<p class="last">For each booster object, predict can only be called from one thread.
+If you want to run prediction using multiple thread, call <code class="docutils literal notranslate"><span class="pre">xgb.copy()</span></code> to make copies
+of model object and then call <code class="docutils literal notranslate"><span class="pre">predict()</span></code>.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Using <code class="docutils literal notranslate"><span class="pre">predict()</span></code> with DART booster</p>
+<p>If the booster object is DART type, <code class="docutils literal notranslate"><span class="pre">predict()</span></code> will perform dropouts, i.e. only
+some of the trees will be evaluated. This will produce incorrect results if <code class="docutils literal notranslate"><span class="pre">data</span></code> is
+not the training data. To obtain correct results on test sets, set <code class="docutils literal notranslate"><span class="pre">ntree_limit</span></code> to
+a nonzero value, e.g.</p>
+<div class="last highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">preds</span> <span class="o">=</span> <span class="n">bst</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dtest</span><span class="p">,</span> <span class="n">ntree_limit</span><span class="o">=</span><span class="n">num_round</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">DMatrix</span></dt>
+<dd><p class="first last">The dmatrix storing the input.</p>
+</dd>
+<dt><strong>output_margin</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">Whether to output the raw untransformed margin value.</p>
+</dd>
+<dt><strong>ntree_limit</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">Limit number of trees in the prediction; defaults to best_ntree_limit if defined
+(i.e. it has been trained with early stopping), otherwise 0 (use all trees).</p>
+</dd>
+<dt><strong>Returns</strong></dt>
+<dd></dd>
+<dt><strong>——-</strong></dt>
+<dd></dd>
+<dt><strong>prediction</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array</span></dt>
+<dd></dd>
 </dl>
-<p>prediction : numpy array</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -450,12 +497,24 @@ of model object and then call predict</div></blockquote>
 <dt>data <span class="classifier-delimiter">:</span> <span class="classifier">DMatrix</span></dt>
 <dd>The dmatrix storing the input.</dd>
 <dt>ntree_limit <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd>Limit number of trees in the prediction; defaults to 0 (use all trees).</dd>
+<dd>Limit number of trees in the prediction; defaults to best_ntree_limit if defined
+(i.e. it has been trained with early stopping), otherwise 0 (use all trees).</dd>
 </dl>
 <dl class="docutils">
 <dt>prediction <span class="classifier-delimiter">:</span> <span class="classifier">numpy array</span></dt>
 <dd>a numpy array with the probability of each data example being of a given class.</dd>
 </dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.xgboost.XGBClassifier.save_model">
+<code class="descname">save_model</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.save_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the model to a file.
+Parameters
+———-
+fname : string</p>
+<blockquote>
+<div>Output file name</div></blockquote>
 </dd></dl>
 
 <dl class="method">

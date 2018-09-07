@@ -252,6 +252,12 @@
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.get_xgb_params" title="dask_ml.xgboost.XGBRegressor.get_xgb_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_xgb_params</span></code></a>()</td>
 <td>Get xgboost type parameters.</td>
 </tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.load_model" title="dask_ml.xgboost.XGBRegressor.load_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_model</span></code></a>(fname)</td>
+<td>Load the model from a file.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.save_model" title="dask_ml.xgboost.XGBRegressor.save_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_model</span></code></a>(fname)</td>
+<td>Save the model to a file.</td>
+</tr>
 <tr class="row-odd"><td><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.score" title="dask_ml.xgboost.XGBRegressor.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(X,&nbsp;y[,&nbsp;sample_weight])</td>
 <td>Returns the coefficient of determination R^2 of the prediction.</td>
 </tr>
@@ -406,6 +412,28 @@ kwargs.</p>
 <dt id="dask_ml.xgboost.XGBRegressor.get_xgb_params">
 <code class="descname">get_xgb_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.get_xgb_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get xgboost type parameters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.xgboost.XGBRegressor.load_model">
+<code class="descname">load_model</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.load_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load the model from a file.
+Parameters
+———-
+fname : string or a memory buffer</p>
+<blockquote>
+<div>Input file name or memory buffer(see also save_raw)</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.xgboost.XGBRegressor.save_model">
+<code class="descname">save_model</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.save_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the model to a file.
+Parameters
+———-
+fname : string</p>
+<blockquote>
+<div>Output file name</div></blockquote>
 </dd></dl>
 
 <dl class="method">
