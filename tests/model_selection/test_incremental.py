@@ -11,7 +11,7 @@ from tornado import gen
 
 from dask_ml.datasets import make_classification
 from dask_ml.model_selection._incremental import (
-    IncrementalRandomizedSearchCV,
+    WorstIncrementalSearch,
     _partial_fit,
     _score,
     fit,
@@ -194,12 +194,12 @@ def test_incremental_search(loop):  # noqa: F811
 
     params = {"alpha": np.logspace(-2, 10, 100), "l1_ratio": np.linspace(0.01, 1, 200)}
 
-    search = IncrementalRandomizedSearchCV(model, params, n_iter=10)
+    search = WorstIncrementalSearch(model, params, n_iter=10)
 
     with cluster() as (s, [a, b]):
         with Client(s["address"], loop=loop):
             search.fit(X, y, classes=[0, 1])
 
-    assert search.cv_results_
+    assert search.history_results_
     assert search.best_estimator_
     assert "visualize" not in search.__dict__
