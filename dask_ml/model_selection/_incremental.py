@@ -13,7 +13,7 @@ from dask.distributed import Future, default_client, futures_of, wait
 from distributed.utils import log_errors
 from sklearn.base import clone
 from sklearn.metrics.scorer import check_scoring
-from sklearn.model_selection import ParameterSampler
+from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
 from toolz import first
 from tornado import gen
@@ -399,7 +399,7 @@ class BaseIncrementalSearch(DaskBaseSearchCV):
     def __init__(
         self,
         estimator,
-        params,
+        parameters,
         test_size=0.15,
         random_state=None,
         scoring=None,
@@ -412,7 +412,7 @@ class BaseIncrementalSearch(DaskBaseSearchCV):
         cache_cv=True,
     ):
         # TODO: find the subset of sensible parameters.
-        self.params = params
+        self.parameters = parameters
         self.test_size = test_size
         self.random_state = random_state
         super(BaseIncrementalSearch, self).__init__(
@@ -467,7 +467,7 @@ class BaseIncrementalSearch(DaskBaseSearchCV):
     def _get_params(self):
         # I don't think there's really a good default here.
         # This assume random search. Could equally do grid search.
-        return ParameterSampler(self.params, self.n_iter)
+        return ParameterGrid(self.params)
 
     def _get_history_results(self, results):
         # type: (Results) -> Dict
@@ -561,7 +561,7 @@ class BaseIncrementalSearch(DaskBaseSearchCV):
         return self
 
 
-class WorstIncrementalSearch(BaseIncrementalSearch):
+class RandomizedWorstIncrementalSearch(BaseIncrementalSearch):
     def __init__(
         self,
         estimator,
@@ -579,7 +579,7 @@ class WorstIncrementalSearch(BaseIncrementalSearch):
         cache_cv=True,
     ):
         self.n_iter = 10
-        super(WorstIncrementalSearch, self).__init__(
+        super(RandomizedWorstIncrementalSearch, self).__init__(
             estimator,
             param_distribution,
             test_size,
@@ -613,3 +613,6 @@ class WorstIncrementalSearch(BaseIncrementalSearch):
         elif len(out) == 1:
             out = {k: 0 for k in out}  # no more work to do, stops execution
         return out
+
+    def _get_params(self):
+        return ParameterSampler(self.parameters, self.n_iter, self.random_state)
