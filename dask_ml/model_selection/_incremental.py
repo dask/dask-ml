@@ -52,12 +52,10 @@ def _partial_fit(model_and_meta, X, y, fit_params):
             The history of model fitting for each model. Each element
             of the list is a dictionary with the following elements:
 
-            'model_id', 'params', 'partial_fit_calls', 'partial_fit_time', 'score', 'score_time'])
-
             * model_id : int
                 A superset of the keys for `info` and `models`.
             * params : Dict[str, Any]
-                Parameters this model was trained with. 
+                Parameters this model was trained with.
             * partial_fit_calls : int
                 The number of *consecutive* partial fit calls at this stage in
                 this models training history.
