@@ -547,10 +547,21 @@ class BaseIncrementalSearchCV(DaskBaseSearchCV):
         cv_results = self._get_cv_results(results)
         best_estimator, best_index = self._get_best(results, cv_results)
 
+        # Clean up models we're hanging onto
+        ids = [
+            (loop_id, model_id)
+            for loop_id in results
+            for model_id in results[loop_id][1]
+        ]
+        for (loop_id, model_id) in ids:
+            del results[loop_id][1][model_id]
+
         self.scoring_ = scorer
         self.cv_results_ = cv_results
         self.best_estimator_ = best_estimator
         self.best_index_ = best_index
+        self.n_splits_ = 1
+        self.multimetric_ = False  # TODO: is this always true?
         return self
 
 
