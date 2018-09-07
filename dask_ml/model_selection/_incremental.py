@@ -473,9 +473,6 @@ class BaseIncrementalSearchCV(DaskBaseSearchCV):
                 ]
             )
 
-        assert len(model_ids) == len(scores)
-        # assert len(set(model_ids)) == len(model_ids)
-
         cv_results = {
             "params": [x["params"] for v in info for x in v],
             "test_score": scores,
