@@ -200,4 +200,5 @@ def test_RandomIncrementalSearch(c, s, a, b):
 
     assert search.history_results_
     assert isinstance(search.best_estimator_, SGDClassifier)
+    assert search.best_score_ > 0
     assert "visualize" not in search.__dict__
