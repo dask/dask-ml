@@ -604,7 +604,7 @@ class IncrementalRandomizedSearchCV(BaseIncrementalSearchCV):
         return {0: (ParameterSampler(self.params, self.n_iter), remove_worst)}
 
     def _update_results(self, results):
-        self.info_, self.models_, self.history_ = results[0]
+        self.info_, _, self.history_ = results[0]
 
 
 def remove_worst(scores):

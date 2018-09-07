@@ -202,3 +202,4 @@ def test_incremental_search(loop):  # noqa: F811
 
     assert search.cv_results_
     assert search.best_estimator_
+    assert "visualize" not in search.__dict__
