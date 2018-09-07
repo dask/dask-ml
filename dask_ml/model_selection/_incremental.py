@@ -366,16 +366,11 @@ def fit(
 class BaseIncrementalSearchCV(DaskBaseSearchCV):
     """Base class for estimators using the incremental `fit`.
 
-    Subclasses must implement the following abstract methods
+    Subclasses must implement the following abstract method
 
     * _get_ids_and_args : Build the dict of
        ``{model_id : (param_list, additional_calls)}``
         that are eventually passed to `fit`
-    * _get_cv_results : Build the dict containing the CV results.
-    * _get_best_estimator : Select the best estimator from the set of
-      fitted estimators
-    * _update_results : Update self with attributes from the fitted
-      esimators.
     """
 
     def __init__(
