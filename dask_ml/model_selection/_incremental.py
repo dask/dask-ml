@@ -17,6 +17,7 @@ from sklearn.utils import check_random_state
 from toolz import first
 from tornado import gen
 
+from ..utils import check_array
 from ._search import _RETURN_TRAIN_SCORE_DEFAULT, DaskBaseSearchCV
 from ._split import train_test_split
 
@@ -410,11 +411,34 @@ class BaseIncrementalSearchCV(DaskBaseSearchCV):
             cache_cv=cache_cv,
         )
 
-    def _get_cv(self, X, y):
+    def _check_array(self, X, y, **kwargs):
+        """Validate the data arguments X and y.
+
+        By default, NumPy arrays are converted to 1-block dask arrays.
+
+        Parameters
+        ----------
+        X, y : array-like
+        """
         if isinstance(X, np.ndarray):
             X = da.from_array(X, X.shape)
         if isinstance(y, np.ndarray):
             y = da.from_array(y, y.shape)
+        X = check_array(X, **kwargs)
+        y = check_array(y, **kwargs)
+        return X, y
+
+    def _get_cv(self, X, y, **kwargs):
+        """CV-Split the arrays X and y
+
+        By default, :meth:`dask_ml.model_selection.train_test_split`
+        is used with ``self.test_size``. The test set is expected to
+        fit in memory on each worker machine.
+
+        Parameters
+        ----------
+        X, y : dask.array.Array
+        """
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=self.test_size
         )
@@ -512,10 +536,18 @@ class BaseIncrementalSearchCV(DaskBaseSearchCV):
         pass
 
     def _process_results(self, results):
+        """Called with the output of `fit` immediately after it finishes.
+
+        Subclasses may update the results here, before further results are
+        computed (e.g. ``cv_results_``, ``best_estimator_``).
+
+        By default, results is returned as-is.
+        """
         return results
 
     def fit(self, X, y, **fit_params):
         """Find the best parameters for a particular model
+
         Parameters
         ----------
         X, y : array-like
@@ -523,6 +555,7 @@ class BaseIncrementalSearchCV(DaskBaseSearchCV):
             Additional partial fit keyword arguments for the estimator.
         """
         ids_and_args = self._get_ids_and_args()
+        X, y = check_array(X, y)
 
         X_train, X_test, y_train, y_test = self._get_cv(X, y)
         scorer = check_scoring(self.estimator, scoring=self.scoring)
