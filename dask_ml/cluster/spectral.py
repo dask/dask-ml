@@ -370,5 +370,5 @@ def _slice_mostly_sorted(array, keep, rest, ind=None):
 
     if keep[-1] < len(array) - 1:  # avoid creating empty slices
         slices.append(slice(keep[-1] + 1, None))
-    result = da.concatenate([array[idx[[slice_]]] for slice_ in slices])
+    result = da.concatenate([array[idx[slice_]] for slice_ in slices])
     return result
