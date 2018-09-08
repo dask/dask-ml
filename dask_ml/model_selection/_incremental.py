@@ -774,14 +774,115 @@ class RandomizedIncrementalSearch(BaseIncrementalSearch):
 
 
 class SuccessiveReductionSearch(BaseIncrementalSearch):
+    """Incremental optimization with randomly sampled hyperparameters.
+
+    Incrementally hyper-parameter optimization creates a batch of models
+    and repeatedly call `partial_fit` with batches of data. The performance
+    of each model is monitored over time.
+
+    The set of hyper-parameters considered are randomly sampled from the
+    provided `param_distribution`.
+
+    Models are prioritized based on past performance. Models that have had
+    relatively more partial fit iterations in the past will be given
+    relatively fewer partial fit iterations in the future. The `decay_rate`
+    parameter controls how the number of future iterations decreases. If
+    `max_iter` iterations is reached training is halted, regardless of whether
+    that individual is still improving.
+
+    Parameters
+    ----------
+    estimator : estimator object.
+        A object of that type is instantiated for each grid point.
+        This is assumed to implement the scikit-learn estimator interface.
+        Either estimator needs to provide a `score`` function,
+        or ``scoring`` must be passed. The estimator must implement
+        ``partial_fit``.
+
+    param_distributions : dict
+        Dictionary with parameters names (string) as keys and distributions
+        or lists of parameters to try. Distributions must provide a ``rvs``
+        method for sampling (such as those from scipy.stats.distributions).
+        If a list is given, it is sampled uniformly.
+
+    n_iter : int, default=10
+        Number of parameter settings that are sampled. n_iter trades
+        off runtime vs quality of the solution.
+
+    max_iter : int, default 100
+        Maximum number of partial fit iterations per model. This is passed
+
+    decay_rate : float, default 1.0
+        How quickly to decrease the number partial future fit calls.
+        Higher `decay_rate` will result in lower training times, at the cost
+        of worse models.
+
+    test_size : float
+
+        Fraction of the dataset to hold out for computing test scores.
+
+        .. note::
+
+           The training dataset should fit in memory on a single machine.
+           Adjust the `test_size` parameter as necessary to achieve this.
+
+    random_state : int, RandomState instance or None, optional, default: None
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`.
+
+    scoring : string, callable, list/tuple, dict or None, default: None
+        A single string (see :ref:`scoring_parameter`) or a callable
+        (see :ref:`scoring`) to evaluate the predictions on the test set.
+
+        For evaluating multiple metrics, either give a list of (unique) strings
+        or a dict with names as keys and callables as values.
+
+        NOTE that when using custom scorers, each scorer should return a single
+        value. Metric functions returning a list/array of values can be wrapped
+        into multiple scorers that return one value each.
+
+        See :ref:`multimetric_grid_search` for an example.
+
+        If None, the estimator's default scorer (if available) is used.
+
+    Examples
+    --------
+    Connect to the client and create the data
+
+    >>> from dask.distributed import Client
+    >>> client = Client()
+    >>> import numpy as np
+    >>> from dask_ml.datasets import make_classification
+    >>> X, y = make_classification(n_samples=5000000, n_features=20,
+    ...                            chunks=100000, random_state=0)
+
+    Our underlying estimator is an SGDClassifier. We specify a few parameters
+    common to each clone of the estimator.
+
+    >>> from sklearn.linear_model import SGDClassifier
+    >>> model = SGDClassifier(tol=1e-3, penalty='elasticnet', random_state=0)
+
+    The distribution of parameters we'll sample from.
+
+    >>> params = {'alpha': np.logspace(-2, 1, num=1000),
+    ...           'l1_ratio': np.linspace(0, 1, num=1000),
+    ...           'average': [True, False]}
+
+    >>> search = SuccessiveReductionSearch(model, params, random_state=0)
+    >>> search.fit(X, y, classes=[0, 1])
+    SuccessiveReductionSearch(...)
+    """
+
     def __init__(
         self,
         estimator,
         param_distribution,
         n_iter=10,
         max_iter=100,
-        test_size=0.15,
         decay_rate=1.0,
+        test_size=0.15,
         random_state=None,
         scoring=None,
         iid=True,
