@@ -301,8 +301,19 @@ def fit(
         returns the number of additional partial fit calls to run on each model
     fit_params : dict
         Extra parameters to give to partial_fit
-    scorer :
-    random_state :
+    scorer : callable
+        A scorer callable object / function with signature
+        ``scorer(estimator, X, y)``.
+    random_state : int, RandomState instance or None, optional, default: None
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`.
+
+    See Also
+    --------
+    RandomIncrementalSearch
+    SuccessiveReductionSearch
 
     Examples
     --------
@@ -577,64 +588,128 @@ class BaseIncrementalSearch(DaskBaseSearchCV):
         return default_client().sync(self._fit, X, y, **fit_params)
 
 
-class RandomizedWorstIncrementalSearch(BaseIncrementalSearch):
-    def __init__(
-        self,
-        estimator,
-        param_distribution,
-        n_iter=10,
-        test_size=0.15,
-        random_state=None,
-        scoring=None,
-        iid=True,
-        refit=True,
-        error_score="raise",
-        return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
-        scheduler=None,
-        n_jobs=-1,
-        cache_cv=True,
-    ):
-        self.n_iter = 10
-        super(RandomizedWorstIncrementalSearch, self).__init__(
-            estimator,
-            param_distribution,
-            test_size,
-            random_state,
-            scoring,
-            iid,
-            refit,
-            error_score,
-            return_train_score,
-            scheduler,
-            n_jobs,
-            cache_cv,
-        )
+class RandomizedIncrementalSearch(BaseIncrementalSearch):
+    """Incremental optimization with randomly sampled hyperparameters.
 
-    def _additional_calls(self, scores):
-        """Default `additional_calls` strategy for IncrementalSearch.
+    Incrementally hyper-parameter optimization creates a batch of models
+    and repeatedly call `partial_fit` with batches of data. The performance
+    of each model is monitored over time.
 
-        Removes the lowest scoring model from a batch of models.
-        """
-        last_score = {model_id: info[-1]["score"] for model_id, info in scores.items()}
-        worst_score = min(last_score.values())
-        out = {}
-        for model_id, score in last_score.items():
-            if score != worst_score:
-                out[model_id] = 1  # do one more training step
+    The set of hyper-parameters considered are randomly sampled from the
+    provided `param_distribution`.
 
-        if len(out) == 0:
-            # we have a tie where each model is equal to the worst.
-            # Arbitrarily pick the first.
-            out = {first(last_score): 0}
-        elif len(out) == 1:
-            out = {k: 0 for k in out}  # no more work to do, stops execution
-        return out
+    Models are prioritized according to three parameters: `tol`, `patience`
+    and `max_iter`. Models are repeatedly trained until their score on the
+    test set stops improving. The last `patience` (10 by default) partial
+    fit iterations are considered. If the improvement is small (less than)
+    `tol`, training on that model is halted. If `max_iter` iterations is
+    reached training is halted, regardless of whether the model is still
+    improving.
 
-    def _get_params(self):
-        return ParameterSampler(self.parameters, self.n_iter, self.random_state)
+    Parameters
+    ----------
+    estimator : estimator object.
+        A object of that type is instantiated for each grid point.
+        This is assumed to implement the scikit-learn estimator interface.
+        Either estimator needs to provide a `score`` function,
+        or ``scoring`` must be passed. The estimator must implement
+        ``partial_fit``.
 
+    param_distributions : dict
+        Dictionary with parameters names (string) as keys and distributions
+        or lists of parameters to try. Distributions must provide a ``rvs``
+        method for sampling (such as those from scipy.stats.distributions).
+        If a list is given, it is sampled uniformly.
 
-class RandomIncrementalSearch(BaseIncrementalSearch):
+    n_iter : int, default=10
+        Number of parameter settings that are sampled. n_iter trades
+        off runtime vs quality of the solution.
+
+    max_iter : int, default 100
+        Maximum number of partial fit iterations per model. This is passed
+
+    patience : int, default 10
+        The number of previous models scores to consider when determining
+        whether the model has converged. The most recent score must be at
+        at most `tol` better than the all of the previous `patience` scores.
+        Increasing `patience` will tend to provide better models, at the cost
+        of increased computation.
+
+    tol : float, default 0.001
+        The required level of improvement to consider stopping training on
+        that model. The most recent score must be at at most `tol` better
+        than the all of the previous `patience` scores for that model.
+        Increasing `tol` will tend to reduce training time, at the cost
+        of worse models.
+
+    test_size : float
+
+        Fraction of the dataset to hold out for computing test scores.
+
+        .. note::
+
+           The training dataset should fit in memory on a single machine.
+           Adjust the `test_size` parameter as necessary to achieve this.
+
+    random_state : int, RandomState instance or None, optional, default: None
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`.
+
+    scoring : string, callable, list/tuple, dict or None, default: None
+        A single string (see :ref:`scoring_parameter`) or a callable
+        (see :ref:`scoring`) to evaluate the predictions on the test set.
+
+        For evaluating multiple metrics, either give a list of (unique) strings
+        or a dict with names as keys and callables as values.
+
+        NOTE that when using custom scorers, each scorer should return a single
+        value. Metric functions returning a list/array of values can be wrapped
+        into multiple scorers that return one value each.
+
+        See :ref:`multimetric_grid_search` for an example.
+
+        If None, the estimator's default scorer (if available) is used.
+
+    iid : bool, default True
+        # TODO: remove
+    refit : bool, default True
+        # TODO: remove or implement (does each model see all the data? I think no)
+    error_score : "raise" # TODO: remove
+    return_train_socre : bool # TODO: remove
+    scheduler : # TODO: remove
+    n_jobs : int # TODO: remove
+    cache_cv : bool : # TODO: remove
+
+    Examples
+    --------
+    Connect to the client and create the data
+
+    >>> from dask.distributed import Client
+    >>> client = Client()
+    >>> import numpy as np
+    >>> from dask_ml.datasets import make_classification
+    >>> X, y = make_classification(n_samples=5000000, n_features=20,
+    ...                            chunks=100000, random_state=0)
+
+    Our underlying estimator is an SGDClassifier. We specify a few parameters
+    common to each clone of the estimator.
+
+    >>> from sklearn.linear_model import SGDClassifier
+    >>> model = SGDClassifier(tol=1e-3, penalty='elasticnet', random_state=0)
+
+    The distribution of parameters we'll sample from.
+
+    >>> params = {'alpha': np.logspace(-2, 1, num=1000),
+    ...           'l1_ratio': np.linspace(0, 1, num=1000),
+    ...           'average': [True, False]}
+
+    >>> search = RandomizedIncrementalSearch(model, params, random_state=0)
+    >>> search.fit(X, y, classes=[0, 1])
+    RandomizedIncrementalSearch(...)
+    """
+
     def __init__(
         self,
         estimator,
@@ -658,7 +733,7 @@ class RandomIncrementalSearch(BaseIncrementalSearch):
         self.n_iter = n_iter
         self.patience = patience
         self.tol = tol
-        super(RandomIncrementalSearch, self).__init__(
+        super(RandomizedIncrementalSearch, self).__init__(
             estimator,
             param_distribution,
             test_size,
@@ -762,5 +837,4 @@ class SuccessiveReductionSearch(BaseIncrementalSearch):
         for k in best:
             out[k] = next_time_step - current_time_step
 
-        print(out)
         return out
