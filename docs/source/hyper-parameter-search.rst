@@ -2,7 +2,21 @@ Hyper Parameter Search
 ======================
 
 Tools for performing hyperparameter optimization of Scikit-Learn API-compatible
-models using Dask. Dask-ML implements GridSearchCV and RandomizedSearchCV.
+models using Dask. There are categories of hyperparameter optimization estimators
+in Dask-ML. The appropriate one to use depends on the size of your dataset and
+whether the underlying estimator implements the `partial_fit` method.
+
+If your dataset is relatively small or the underlying estimator doesn't implement
+``partial_fit``, you can use ``GridSearchCV`` or ``RandomizedSearchCV``. The underlying
+estimator will need to be able to train on each cross-validation split of the data.
+
+If your data is large and the underlying estimator implements ``partial_fit``, you can
+use one of Dask-ML's *incremental* hyperparameter optimizers.
+
+Drop-In Replacements for Scikit-Learn
+-------------------------------------
+
+Dask-ML implements GridSearchCV and RandomizedSearchCV.
 
 .. autosummary::
    sklearn.model_selection.GridSearchCV
@@ -159,9 +173,51 @@ tasks in the graph and only perform the fit step once for any
 parameter/data/estimator combination. For pipelines that have relatively
 expensive early steps, this can be a big win when performing a grid search.
 
-Pipelines
----------
+Incremental Hyperparameter Optimization
+---------------------------------------
 
-Dask-ML uses scikit-learn's :class:`sklearn.pipeline.Pipeline` to express
-pipelines of estimators that are chained together. If the individual
-estimators work well with Dask's collections, the pipeline will as well.
+The second category of hyperparameter optimization uses *incremental* hyperparameter
+optimization.
+
+.. autosummary::
+   dask_ml.model_selection.RandomizedIncrementalSearch
+   dask_ml.model_selection.SuccessiveReductionSearch
+
+Broadly speaking, incremental optimization starts with a batch of models (underlying
+estimators and hyperparameter combinationms) and repeatedly calls the underlying estimator's
+``partial_fit`` method with batches of data. The various incremental classes differ in how
+they prioritize certain models, and when they determine that they've finished.
+
+.. note::
+
+   These estimators require the optional ``distributed`` library.
+
+Here's an example training on a "large" dataset (a Dask array) with the ``SuccessiveReductionSearch``
+
+.. ipython:: python
+
+    from dask.distributed import Client
+    client = Client()
+    import numpy as np
+    from dask_ml.datasets import make_classification
+    X, y = make_classification(n_samples=5000000, n_features=20,
+                               chunks=100000, random_state=0)
+
+Our underlying estimator is an SGDClassifier. We specify a few parameters
+common to each clone of the estimator.
+
+.. ipython:: python
+
+    from sklearn.linear_model import SGDClassifier
+    model = SGDClassifier(tol=1e-3, penalty='elasticnet', random_state=0)
+
+The distribution of parameters we'll sample from.
+
+.. ipython:: python
+
+    params = {'alpha': np.logspace(-2, 1, num=1000),
+              'l1_ratio': np.linspace(0, 1, num=1000),
+              'average': [True, False]}
+
+    search = SuccessiveReductionSearch(model, params, random_state=0)
+    search.fit(X, y, classes=[0, 1])

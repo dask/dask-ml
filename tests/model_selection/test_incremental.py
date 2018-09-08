@@ -10,13 +10,11 @@ from sklearn.model_selection import ParameterSampler
 from tornado import gen
 
 from dask_ml.datasets import make_classification
-from dask_ml.model_selection._incremental import (
+from dask_ml.model_selection import (
     RandomizedIncrementalSearch,
     SuccessiveReductionSearch,
-    _partial_fit,
-    _score,
-    fit,
 )
+from dask_ml.model_selection._incremental import _partial_fit, _score, fit
 
 
 @gen_cluster(client=True, timeout=500)
