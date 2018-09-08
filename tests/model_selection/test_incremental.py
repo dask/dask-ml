@@ -4,7 +4,6 @@ import numpy as np
 import pytest
 import toolz
 from dask.distributed import Future
-from distributed import Client
 from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import ParameterSampler
@@ -207,7 +206,7 @@ def test_BaseIncrementalSearch(Search):
 
         assert search.history_results_
         assert isinstance(search.best_estimator_, SGDClassifier)
-        # assert search.best_score_ > 0
+        assert search.best_score_ > 0
         assert "visualize" not in search.__dict__
 
     test_search()

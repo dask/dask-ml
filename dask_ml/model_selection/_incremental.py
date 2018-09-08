@@ -16,6 +16,7 @@ from sklearn.base import clone
 from sklearn.metrics.scorer import check_scoring
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
+from sklearn.utils.validation import check_is_fitted
 from toolz import first
 from tornado import gen
 
@@ -505,7 +506,7 @@ class BaseIncrementalSearch(DaskBaseSearchCV):
         for k, v in itertools.groupby(history_results, key=key):
             v = list(v)
             best_index += len(v)
-            if k == v:
+            if k == best_model_id:
                 break
 
         return results.models[best_model_id], best_index
@@ -553,9 +554,16 @@ class BaseIncrementalSearch(DaskBaseSearchCV):
         self.history_results_ = history_results
         self.best_estimator_ = best_estimator
         self.best_index_ = best_index
+        # TODO: More evidence to move away from BaseSearchCV
+        # self.best_score_ = self.history_results_[best_index]
         self.n_splits_ = 1
         self.multimetric_ = False  # TODO: is this always true?
-        return self
+        raise gen.Return(self)
+
+    @property
+    def best_score_(self):
+        check_is_fitted(self, "best_index_")
+        return self.history_results_[self.best_index_]["score"]
 
     def fit(self, X, y, **fit_params):
         """Find the best parameters for a particular model.
