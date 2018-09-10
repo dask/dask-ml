@@ -204,10 +204,12 @@ def test_BaseIncrementalSearch(Search):
             "l1_ratio": np.linspace(0.01, 1, 200),
         }
 
-        search = Search(model, params, n_initial_parameters=10)
+        search = Search(model, params, n_initial_parameters=10, max_iter=10)
         yield search.fit(X, y, classes=[0, 1])
 
         assert search.history_results_
+        for d in search.history_results_:
+            assert d['partial_fit_calls'] <= search.max_iter + 1
         assert isinstance(search.best_estimator_, SGDClassifier)
         assert search.best_score_ > 0
         assert "visualize" not in search.__dict__

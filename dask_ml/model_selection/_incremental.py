@@ -626,7 +626,7 @@ class RandomizedIncrementalSearch(BaseIncrementalSearch):
         trades off runtime vs quality of the solution.
 
     max_iter : int, default 100
-        Maximum number of partial fit iterations per model. This is passed
+        Maximum number of partial fit iterations per model.
 
     patience : int, default 10
         The number of previous models scores to consider when determining
@@ -827,6 +827,9 @@ class ExponentialDecaySearch(BaseIncrementalSearch):
         Increasing `tol` will tend to reduce training time, at the cost
         of worse models.
 
+    max_iter : int, default 100
+        Maximum number of partial fit iterations per model.
+
     test_size : float
 
         Fraction of the dataset to hold out for computing test scores.
@@ -895,6 +898,7 @@ class ExponentialDecaySearch(BaseIncrementalSearch):
         patience=False,
         tol=0.001,
         scores_per_fit=1,
+        max_iter=None,
         random_state=None,
         scoring=None,
         iid=True,
@@ -910,6 +914,7 @@ class ExponentialDecaySearch(BaseIncrementalSearch):
         self.patience = patience
         self.tol = tol
         self.scores_per_fit = scores_per_fit
+        self.max_iter = max_iter
         super(ExponentialDecaySearch, self).__init__(
             estimator,
             param_distribution,
@@ -941,7 +946,6 @@ class ExponentialDecaySearch(BaseIncrementalSearch):
         while (inverse(current_time_step) == inverse(next_time_step) and
                (not self.patience or
                    next_time_step - current_time_step < self.scores_per_fit)):
-
             next_time_step += 1
 
         target = inverse(next_time_step)
@@ -954,6 +958,8 @@ class ExponentialDecaySearch(BaseIncrementalSearch):
         out = {}
         for k in best:
             records = info[k]
+            if self.max_iter and len(records) >= self.max_iter:
+                out[k] = 0
             if self.patience and len(records) > self.patience:
                 old = records[-self.patience]["score"]
                 if all(d["score"] < old + self.tol for d in records[-self.patience:]):
