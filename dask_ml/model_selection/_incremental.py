@@ -774,21 +774,20 @@ class RandomizedIncrementalSearch(BaseIncrementalSearch):
 
 
 class SuccessiveReductionSearch(BaseIncrementalSearch):
-    """Incremental optimization with randomly sampled hyperparameters.
+    """ Search incrementally trained models, preferring well-performing models
 
-    Incrementally hyper-parameter optimization creates a batch of models
-    and repeatedly call `partial_fit` with batches of data. The performance
-    of each model is monitored over time.
+    This incremental hyper-parameter optimization class starts training the
+    model on many randomly selected hyper-parameters on a small amount of data,
+    and then only continues training those models that seem to be performing
+    the best, decaying the number of activley trained models with an
+    exponential given by the initial number of parameters and the decay rate.
 
-    The set of hyper-parameters considered are randomly sampled from the
-    provided `param_distribution`.
+        n_models = n_initial_parameters * (n_batches ** -decay_rate)
 
-    Models are prioritized based on past performance. Models that have had
-    relatively more partial fit iterations in the past will be given
-    relatively fewer partial fit iterations in the future. The `decay_rate`
-    parameter controls how the number of future iterations decreases. If
-    `max_iter` iterations is reached training is halted, regardless of whether
-    that individual is still improving.
+    This method has two hyper-parameters:
+
+    1.  n_initial_parameters: The number of initial parameters to use
+    2.  decay_rate: The speed at which we decay
 
     Parameters
     ----------
@@ -808,9 +807,6 @@ class SuccessiveReductionSearch(BaseIncrementalSearch):
     n_initial_parameters : int, default=10
         Number of parameter settings that are sampled. n_initial_parameters
         trades off runtime vs quality of the solution.
-
-    max_iter : int, default 100
-        Maximum number of partial fit iterations per model. This is passed
 
     decay_rate : float, default 1.0
         How quickly to decrease the number partial future fit calls.
@@ -880,7 +876,6 @@ class SuccessiveReductionSearch(BaseIncrementalSearch):
         estimator,
         param_distribution,
         n_initial_parameters=10,
-        max_iter=100,
         decay_rate=1.0,
         test_size=0.15,
         random_state=None,
@@ -893,7 +888,6 @@ class SuccessiveReductionSearch(BaseIncrementalSearch):
         n_jobs=-1,
         cache_cv=True,
     ):
-        self.max_iter = max_iter
         self.n_initial_parameters = n_initial_parameters
         self.decay_rate = decay_rate
         super(SuccessiveReductionSearch, self).__init__(
