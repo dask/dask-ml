@@ -12,16 +12,16 @@ import numpy as np
 import toolz
 from dask.distributed import Future, default_client, futures_of, wait
 from distributed.utils import log_errors
-from sklearn.base import clone
+from sklearn.base import BaseEstimator, MetaEstimatorMixin, clone
 from sklearn.metrics.scorer import check_scoring
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
+from sklearn.utils.metaestimators import if_delegate_has_method
 from sklearn.utils.validation import check_is_fitted
 from toolz import first
 from tornado import gen
 
 from ..utils import check_array
-from ._search import _RETURN_TRAIN_SCORE_DEFAULT, DaskBaseSearchCV
 from ._split import train_test_split
 
 Results = namedtuple("Results", ["info", "models", "history"])
@@ -401,7 +401,7 @@ def fit(
 # ----------------------------------------------------------------------------
 
 
-class BaseIncrementalSearch(DaskBaseSearchCV):
+class BaseIncrementalSearch(BaseEstimator, MetaEstimatorMixin):
     """Base class for estimators using the incremental `fit`.
 
     Subclasses must implement the following abstract method
@@ -410,35 +410,13 @@ class BaseIncrementalSearch(DaskBaseSearchCV):
     """
 
     def __init__(
-        self,
-        estimator,
-        parameters,
-        test_size=0.15,
-        random_state=None,
-        scoring=None,
-        iid=True,
-        refit=True,
-        error_score="raise",
-        return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
-        scheduler=None,
-        n_jobs=-1,
-        cache_cv=True,
+        self, estimator, parameters, test_size=0.15, random_state=None, scoring=None
     ):
-        # TODO: find the subset of sensible parameters.
+        self.estimator = estimator
         self.parameters = parameters
         self.test_size = test_size
         self.random_state = random_state
-        super(BaseIncrementalSearch, self).__init__(
-            estimator,
-            scoring=scoring,
-            iid=iid,
-            refit=refit,
-            error_score=error_score,
-            return_train_score=return_train_score,
-            scheduler=scheduler,
-            n_jobs=n_jobs,
-            cache_cv=cache_cv,
-        )
+        self.scoring = scoring
 
     def _check_array(self, X, y, **kwargs):
         """Validate the data arguments X and y.
@@ -532,6 +510,9 @@ class BaseIncrementalSearch(DaskBaseSearchCV):
         """
         return results
 
+    def _check_is_fitted(self, method_name):
+        return check_is_fitted(self, "best_estimator_")
+
     @gen.coroutine
     def _fit(self, X, y, **fit_params):
         X, y = self._check_array(X, y)
@@ -561,20 +542,15 @@ class BaseIncrementalSearch(DaskBaseSearchCV):
         for model_id in ids:
             del results.models[model_id]
 
-        self.scoring_ = scorer
+        self.scorer_ = scorer
         self.history_results_ = history_results
         self.best_estimator_ = best_estimator
         self.best_index_ = best_index
-        # TODO: More evidence to move away from BaseSearchCV
-        # self.best_score_ = self.history_results_[best_index]
+        self.best_score_ = history_results[best_index]["score"]
+        self.best_params_ = history_results[best_index]["params"]
         self.n_splits_ = 1
         self.multimetric_ = False  # TODO: is this always true?
         raise gen.Return(self)
-
-    @property
-    def best_score_(self):
-        check_is_fitted(self, "best_index_")
-        return self.history_results_[self.best_index_]["score"]
 
     def fit(self, X, y, **fit_params):
         """Find the best parameters for a particular model.
@@ -586,6 +562,44 @@ class BaseIncrementalSearch(DaskBaseSearchCV):
             Additional partial fit keyword arguments for the estimator.
         """
         return default_client().sync(self._fit, X, y, **fit_params)
+
+    @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
+    def predict(self, X, y=None):
+        self._check_is_fitted("predict")
+        return self.best_estimator_.predict(X)
+
+    @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
+    def predict_proba(self, X):
+        self._check_is_fitted("predict_proba")
+        return self.best_estimator_.predict_proba(X)
+
+    @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
+    def predict_log_proba(self, X):
+        self._check_is_fitted("predict_log_proba")
+        return self.best_estimator_.predict_log_proba(X)
+
+    @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
+    def decision_function(self, X):
+        self._check_is_fitted("decision_function")
+        return self.best_estimator_.decision_function(X)
+
+    @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
+    def transform(self, X):
+        self._check_is_fitted("transform")
+        return self.best_estimator_.transform(X)
+
+    @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
+    def inverse_transform(self, Xt):
+        self._check_is_fitted("inverse_transform")
+        return self.best_estimator_.transform(Xt)
+
+    def score(self, X, y=None):
+        if self.scorer_ is None:
+            raise ValueError(
+                "No score function explicitly defined, "
+                "and the estimator doesn't provide one %s" % self.best_estimator_
+            )
+        return self.scorer_(self.best_estimator_, X, y)
 
 
 class RandomizedIncrementalSearch(BaseIncrementalSearch):
@@ -672,16 +686,6 @@ class RandomizedIncrementalSearch(BaseIncrementalSearch):
 
         If None, the estimator's default scorer (if available) is used.
 
-    iid : bool, default True
-        # TODO: remove
-    refit : bool, default True
-        # TODO: remove or implement (does each model see all the data? I think no)
-    error_score : "raise" # TODO: remove
-    return_train_socre : bool # TODO: remove
-    scheduler : # TODO: remove
-    n_jobs : int # TODO: remove
-    cache_cv : bool : # TODO: remove
-
     Examples
     --------
     Connect to the client and create the data
@@ -721,31 +725,13 @@ class RandomizedIncrementalSearch(BaseIncrementalSearch):
         test_size=0.15,
         random_state=None,
         scoring=None,
-        iid=True,
-        refit=True,
-        error_score="raise",
-        return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
-        scheduler=None,
-        n_jobs=-1,
-        cache_cv=True,
     ):
         self.max_iter = max_iter
         self.n_initial_parameters = n_initial_parameters
         self.patience = patience
         self.tol = tol
         super(RandomizedIncrementalSearch, self).__init__(
-            estimator,
-            param_distribution,
-            test_size,
-            random_state,
-            scoring,
-            iid,
-            refit,
-            error_score,
-            return_train_score,
-            scheduler,
-            n_jobs,
-            cache_cv,
+            estimator, param_distribution, test_size, random_state, scoring
         )
 
     def _get_params(self):
@@ -902,13 +888,6 @@ class ExponentialDecaySearch(BaseIncrementalSearch):
         max_iter=None,
         random_state=None,
         scoring=None,
-        iid=True,
-        refit=True,
-        error_score="raise",
-        return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
-        scheduler=None,
-        n_jobs=-1,
-        cache_cv=True,
     ):
         self.n_initial_parameters = n_initial_parameters
         self.decay_rate = decay_rate
@@ -917,28 +896,17 @@ class ExponentialDecaySearch(BaseIncrementalSearch):
         self.scores_per_fit = scores_per_fit
         self.max_iter = max_iter
         super(ExponentialDecaySearch, self).__init__(
-            estimator,
-            param_distribution,
-            test_size,
-            random_state,
-            scoring,
-            iid,
-            refit,
-            error_score,
-            return_train_score,
-            scheduler,
-            n_jobs,
-            cache_cv,
+            estimator, param_distribution, test_size, random_state, scoring
         )
 
     def _get_params(self):
-        if self.n_initial_parameters == 'grid':
+        if self.n_initial_parameters == "grid":
             return ParameterGrid(self.parameters)
         else:
             return ParameterSampler(self.parameters, self.n_initial_parameters)
 
     def _additional_calls(self, info):
-        if self.n_initial_parameters == 'grid':
+        if self.n_initial_parameters == "grid":
             start = len(ParameterGrid(self.parameters))
         else:
             start = self.n_initial_parameters
@@ -952,9 +920,10 @@ class ExponentialDecaySearch(BaseIncrementalSearch):
 
         current_time_step = time_step + 1
         next_time_step = current_time_step
-        while (inverse(current_time_step) == inverse(next_time_step) and
-               (not self.patience or
-                   next_time_step - current_time_step < self.scores_per_fit)):
+        while inverse(current_time_step) == inverse(next_time_step) and (
+            not self.patience
+            or next_time_step - current_time_step < self.scores_per_fit
+        ):
             next_time_step += 1
 
         target = inverse(next_time_step)
@@ -971,7 +940,7 @@ class ExponentialDecaySearch(BaseIncrementalSearch):
                 out[k] = 0
             if self.patience and len(records) > self.patience:
                 old = records[-self.patience]["score"]
-                if all(d["score"] < old + self.tol for d in records[-self.patience:]):
+                if all(d["score"] < old + self.tol for d in records[-self.patience :]):
                     out[k] = 0
                 else:
                     out[k] = next_time_step - current_time_step

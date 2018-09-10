@@ -143,6 +143,16 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         copy_learned_attributes(result, self.estimator)
         return self
 
+    def partial_fit(self, X, y=None, **kwargs):
+        logger.info("Starting partial_fit")
+        with _timer("fit", _logger=logger):
+            result = self.estimator.partial_fit(X, y, **kwargs)
+
+        # Copy over learned attributes
+        copy_learned_attributes(result, self)
+        copy_learned_attributes(result, self.estimator)
+        return self
+
     def transform(self, X):
         """Transform block or partition-wise for dask inputs.
 

@@ -10,10 +10,7 @@ from sklearn.model_selection import ParameterGrid, ParameterSampler
 from tornado import gen
 
 from dask_ml.datasets import make_classification
-from dask_ml.model_selection import (
-    RandomizedIncrementalSearch,
-    ExponentialDecaySearch,
-)
+from dask_ml.model_selection import ExponentialDecaySearch, RandomizedIncrementalSearch
 from dask_ml.model_selection._incremental import _partial_fit, _score, fit
 
 
@@ -209,10 +206,11 @@ def test_BaseIncrementalSearch(Search):
 
         assert search.history_results_
         for d in search.history_results_:
-            assert d['partial_fit_calls'] <= search.max_iter + 1
+            assert d["partial_fit_calls"] <= search.max_iter + 1
         assert isinstance(search.best_estimator_, SGDClassifier)
         assert search.best_score_ > 0
         assert "visualize" not in search.__dict__
+        assert search.best_params_
 
     test_search()
 
@@ -241,10 +239,15 @@ def test_patience(Search):
 
         assert search.history_results_
         for d in search.history_results_:
-            assert d['partial_fit_calls'] <= 3
+            assert d["partial_fit_calls"] <= 3
         assert isinstance(search.best_estimator_, SGDClassifier)
         assert search.best_score_ > 0
         assert "visualize" not in search.__dict__
+
+        X_test, y_test = yield c.compute([X, y])
+
+        search.predict(X_test)
+        search.score(X_test, y_test)
 
     test_search()
 
@@ -255,13 +258,11 @@ def test_gridsearch(c, s, a, b):
 
     model = SGDClassifier(tol=1e-3)
 
-    params = {
-        "alpha": np.logspace(-2, 10, 3),
-        "l1_ratio": np.linspace(0.01, 1, 2),
-    }
+    params = {"alpha": np.logspace(-2, 10, 3), "l1_ratio": np.linspace(0.01, 1, 2)}
 
-    search = ExponentialDecaySearch(model, params, n_initial_parameters='grid')
+    search = ExponentialDecaySearch(model, params, n_initial_parameters="grid")
     yield search.fit(X, y, classes=[0, 1])
 
-    assert ({frozenset(d['params'].items()) for d in search.history_results_} ==
-            {frozenset(d.items()) for d in ParameterGrid(params)})
+    assert {frozenset(d["params"].items()) for d in search.history_results_} == {
+        frozenset(d.items()) for d in ParameterGrid(params)
+    }
