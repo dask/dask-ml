@@ -30,7 +30,7 @@ your training dataset is relatively small (fits in a single machine's memory),
 and prediction or transformation must be done on a much larger dataset (perhaps
 larger than a single machine's memory).
 
-.. ipython:: python
+.. code-block:: python
 
    from sklearn.ensemble import GradientBoostingClassifier
    import sklearn.datasets
@@ -39,7 +39,7 @@ larger than a single machine's memory).
 
 In this example, we'll make a small 1,000 sample training dataset
 
-.. ipython:: python
+.. code-block:: python
 
    X, y = sklearn.datasets.make_classification(n_samples=1000,
                                                random_state=0)
@@ -47,7 +47,7 @@ In this example, we'll make a small 1,000 sample training dataset
 Training is identical to just calling ``estimator.fit(X, y)``. Aside from
 copying over learned attributes, that's all that ``ParallelPostFit`` does.
 
-.. ipython:: python
+.. code-block:: python
 
    clf = ParallelPostFit(estimator=GradientBoostingClassifier())
    clf.fit(X, y)
@@ -55,7 +55,7 @@ copying over learned attributes, that's all that ``ParallelPostFit`` does.
 This class is useful for predicting for or transforming large datasets.
 We'll make a larger dask array ``X_big`` with 10,000 samples per block.
 
-.. ipython:: python
+.. code-block:: python
 
    X_big, _ = dask_ml.datasets.make_classification(n_samples=100000,
                                                    chunks=10000,
@@ -67,7 +67,7 @@ cause the scheduler to compute tasks in parallel. If you've connected to a
 ``dask.distributed.Client``, the computation will be parallelized across your
 cluster of machines.
 
-.. ipython:: python
+.. code-block:: python
 
    clf.predict_proba(X_big).compute()[:10]
 

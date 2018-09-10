@@ -6,7 +6,7 @@ This document only describes the extensions made to support Dask arrays.
 
 The simplest way to split one or more Dask arrays is with :func:`dask_ml.model_selection.train_test_split`.
 
-.. ipython:: python
+.. code-block:: python
 
    import dask.array as da
    from dask_ml.datasets import make_regression
@@ -17,7 +17,7 @@ The simplest way to split one or more Dask arrays is with :func:`dask_ml.model_s
 
 The interface for splitting Dask arrays is the same as scikit-learn's version.
 
-.. ipython:: python
+.. code-block:: python
 
    X_train, X_test, y_train, y_test = train_test_split(X, y)
    X_train  # A dask Array

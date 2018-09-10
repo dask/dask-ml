@@ -39,7 +39,7 @@ fact that models are typically much smaller than data, and so faster to move
 between machines.
 
 
-.. ipython:: python
+.. code-block:: python
 
    from dask_ml.datasets import make_classification
    from dask_ml.wrappers import Incremental
@@ -83,20 +83,20 @@ the wrapped ``fit``.
 
 We can get the accuracy score on our dataset.
 
-.. ipython:: python
+.. code-block:: python
 
    clf.score(X, y)
 
 All of the attributes learned durning training, like ``coef_``, are available
 on the ``Incremental`` instance.
 
-.. ipython:: python
+.. code-block:: python
 
    clf.coef_
 
 If necessary, the actual estimator trained is available as ``Incremental.estimator_``
 
-.. ipython:: python
+.. code-block:: python
 
    clf.estimator_
 
@@ -110,7 +110,7 @@ To search over the hyper-parameters of the underlying estimator, use the usual s
 prefixing the parameter name with ``<name>__``. For ``Incremental``, ``name`` is always ``estimator``.
 
 
-.. ipython:: python
+.. code-block:: python
 
    from sklearn.model_selection import GridSearchCV
 

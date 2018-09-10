@@ -37,7 +37,7 @@ good alternative to `DictVectorizer`_ and `CountVectorizer`_) and `HashingVector
 (best suited for use in text over `CountVectorizer`_). They are not
 stateful, which allows easy use with Dask with ``map_partitions``:
 
-.. ipython:: python
+.. code-block:: python
 
     import dask.bag as db
     from sklearn.feature_extraction import FeatureHasher
@@ -100,7 +100,7 @@ support the same API as the NumPy ndarray, so most methods won't work on the
 result. Even basic things like ``compute`` will fail. To work around this,
 we currently recommend converting the sparse matricies to dense.
 
-.. ipython:: python
+.. code-block:: python
 
    from dask_ml.preprocessing import OneHotEncoder
    import dask.array as da
@@ -114,7 +114,7 @@ we currently recommend converting the sparse matricies to dense.
 
 Each block of ``result`` is a scipy sparse matrix
 
-.. ipython:: python
+.. code-block:: python
 
    result.blocks[0].compute()
    # This would fail!
@@ -152,7 +152,7 @@ In this toy example, we use a dataset with two columns. ``'A'`` is numeric and
 2. Dummy encode the categorical data
 3. Fit a linear regression
 
-.. ipython:: python
+.. code-block:: python
 
    from dask_ml.preprocessing import Categorizer, DummyEncoder
    from sklearn.linear_model import LogisticRegression
@@ -180,7 +180,7 @@ the ``object`` dtype columns.
 categorical column with multiple columns, where the values are either 0 or 1,
 depending on whether the value in the original.
 
-.. ipython:: python
+.. code-block:: python
 
    df['B']
    pd.get_dummies(df['B'])
@@ -195,13 +195,13 @@ depend on the values present*. For example, suppose that we just saw the first
 two rows in the training, and the last two rows in the tests datasets. Then,
 when training, our transformed columns would be:
 
-.. ipython:: python
+.. code-block:: python
 
    pd.get_dummies(df.loc[[0, 1], 'B'])
 
 while on the test dataset, they would be:
 
-.. ipython:: python
+.. code-block:: python
 
    pd.get_dummies(df.loc[[2, 3], 'B'])
 

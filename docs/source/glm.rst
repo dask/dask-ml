@@ -22,7 +22,7 @@ and dataframes.
 Example
 -------
 
-.. ipython:: python
+.. code-block:: python
 
    from dask_ml.linear_model import LogisticRegression
    from dask_ml.datasets import make_classification

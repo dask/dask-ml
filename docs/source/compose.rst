@@ -8,7 +8,7 @@ Dask-ML estimators follow the scikit-learn API. This means Dask-ML estimators li
 
 See http://scikit-learn.org/dev/modules/compose.html for more on using pipelines in general.
 
-.. ipython:: python
+.. code-block:: python
 
    from sklearn.pipeline import Pipeline  # regular scikit-learn pipeline
    from dask_ml.cluster import KMeans
