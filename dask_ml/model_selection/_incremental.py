@@ -621,9 +621,9 @@ class RandomizedIncrementalSearch(BaseIncrementalSearch):
         method for sampling (such as those from scipy.stats.distributions).
         If a list is given, it is sampled uniformly.
 
-    n_iter : int, default=10
-        Number of parameter settings that are sampled. n_iter trades
-        off runtime vs quality of the solution.
+    n_initial_parameters : int, default=10
+        Number of parameter settings that are sampled. n_initial_parameters
+        trades off runtime vs quality of the solution.
 
     max_iter : int, default 100
         Maximum number of partial fit iterations per model. This is passed
@@ -714,7 +714,7 @@ class RandomizedIncrementalSearch(BaseIncrementalSearch):
         self,
         estimator,
         param_distribution,
-        n_iter=10,
+        n_initial_parameters=10,
         max_iter=100,
         patience=10,
         tol=0.001,
@@ -730,7 +730,7 @@ class RandomizedIncrementalSearch(BaseIncrementalSearch):
         cache_cv=True,
     ):
         self.max_iter = max_iter
-        self.n_iter = n_iter
+        self.n_initial_parameters = n_initial_parameters
         self.patience = patience
         self.tol = tol
         super(RandomizedIncrementalSearch, self).__init__(
@@ -749,7 +749,7 @@ class RandomizedIncrementalSearch(BaseIncrementalSearch):
         )
 
     def _get_params(self):
-        return ParameterSampler(self.parameters, self.n_iter)
+        return ParameterSampler(self.parameters, self.n_initial_parameters)
 
     def _additional_calls(self, info):
         out = {}
@@ -805,9 +805,9 @@ class SuccessiveReductionSearch(BaseIncrementalSearch):
         method for sampling (such as those from scipy.stats.distributions).
         If a list is given, it is sampled uniformly.
 
-    n_iter : int, default=10
-        Number of parameter settings that are sampled. n_iter trades
-        off runtime vs quality of the solution.
+    n_initial_parameters : int, default=10
+        Number of parameter settings that are sampled. n_initial_parameters
+        trades off runtime vs quality of the solution.
 
     max_iter : int, default 100
         Maximum number of partial fit iterations per model. This is passed
@@ -879,7 +879,7 @@ class SuccessiveReductionSearch(BaseIncrementalSearch):
         self,
         estimator,
         param_distribution,
-        n_iter=10,
+        n_initial_parameters=10,
         max_iter=100,
         decay_rate=1.0,
         test_size=0.15,
@@ -894,7 +894,7 @@ class SuccessiveReductionSearch(BaseIncrementalSearch):
         cache_cv=True,
     ):
         self.max_iter = max_iter
-        self.n_iter = n_iter
+        self.n_initial_parameters = n_initial_parameters
         self.decay_rate = decay_rate
         super(SuccessiveReductionSearch, self).__init__(
             estimator,
@@ -912,12 +912,12 @@ class SuccessiveReductionSearch(BaseIncrementalSearch):
         )
 
     def _get_params(self):
-        return ParameterSampler(self.parameters, self.n_iter)
+        return ParameterSampler(self.parameters, self.n_initial_parameters)
 
     def _additional_calls(self, info):
         def inverse(time):
             """ Decrease target number of models inversely with time """
-            return int(self.n_iter / (1 + time) ** self.decay_rate)
+            return int(self.n_initial_parameters / (1 + time) ** self.decay_rate)
 
         example = toolz.first(info.values())
         time_step = example[-1]["partial_fit_calls"]

@@ -201,7 +201,7 @@ def test_BaseIncrementalSearch(Search):
             "l1_ratio": np.linspace(0.01, 1, 200),
         }
 
-        search = Search(model, params, n_iter=10)
+        search = Search(model, params, n_initial_parameters=10)
         yield search.fit(X, y, classes=[0, 1])
 
         assert search.history_results_
