@@ -12,7 +12,7 @@ from tornado import gen
 from dask_ml.datasets import make_classification
 from dask_ml.model_selection import (
     RandomizedIncrementalSearch,
-    SuccessiveReductionSearch,
+    ExponentialDecaySearch,
 )
 from dask_ml.model_selection._incremental import _partial_fit, _score, fit
 
@@ -191,7 +191,7 @@ def test_explicit(c, s, a, b):
 
 
 @pytest.mark.parametrize(
-    "Search", [RandomizedIncrementalSearch, SuccessiveReductionSearch]
+    "Search", [RandomizedIncrementalSearch, ExponentialDecaySearch]
 )
 def test_BaseIncrementalSearch(Search):
     @gen_cluster(client=True)
@@ -216,7 +216,7 @@ def test_BaseIncrementalSearch(Search):
 
 
 @pytest.mark.parametrize(
-    "Search", [RandomizedIncrementalSearch, SuccessiveReductionSearch]
+    "Search", [RandomizedIncrementalSearch, ExponentialDecaySearch]
 )
 def test_patience(Search):
     @gen_cluster(client=True)

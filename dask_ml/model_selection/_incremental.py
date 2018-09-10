@@ -313,7 +313,7 @@ def fit(
     See Also
     --------
     RandomIncrementalSearch
-    SuccessiveReductionSearch
+    ExponentialDecaySearch
 
     Examples
     --------
@@ -773,7 +773,7 @@ class RandomizedIncrementalSearch(BaseIncrementalSearch):
         return out
 
 
-class SuccessiveReductionSearch(BaseIncrementalSearch):
+class ExponentialDecaySearch(BaseIncrementalSearch):
     """ Search incrementally trained models, preferring well-performing models
 
     This incremental hyper-parameter optimization class starts training the
@@ -880,9 +880,9 @@ class SuccessiveReductionSearch(BaseIncrementalSearch):
     ...           'l1_ratio': np.linspace(0, 1, num=1000),
     ...           'average': [True, False]}
 
-    >>> search = SuccessiveReductionSearch(model, params, random_state=0)
+    >>> search = ExponentialDecaySearch(model, params, random_state=0)
     >>> search.fit(X, y, classes=[0, 1])
-    SuccessiveReductionSearch(...)
+    ExponentialDecaySearch(...)
     """
 
     def __init__(
@@ -910,7 +910,7 @@ class SuccessiveReductionSearch(BaseIncrementalSearch):
         self.patience = patience
         self.tol = tol
         self.scores_per_fit = scores_per_fit
-        super(SuccessiveReductionSearch, self).__init__(
+        super(ExponentialDecaySearch, self).__init__(
             estimator,
             param_distribution,
             test_size,

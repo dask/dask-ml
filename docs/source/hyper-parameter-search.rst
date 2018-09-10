@@ -181,7 +181,7 @@ optimization.
 
 .. autosummary::
    dask_ml.model_selection.RandomizedIncrementalSearch
-   dask_ml.model_selection.SuccessiveReductionSearch
+   dask_ml.model_selection.ExponentialDecaySearch
 
 Broadly speaking, incremental optimization starts with a batch of models (underlying
 estimators and hyperparameter combinationms) and repeatedly calls the underlying estimator's
@@ -192,7 +192,7 @@ they prioritize certain models, and when they determine that they've finished.
 
    These estimators require the optional ``distributed`` library.
 
-Here's an example training on a "large" dataset (a Dask array) with the ``SuccessiveReductionSearch``
+Here's an example training on a "large" dataset (a Dask array) with the ``ExponentialDecaySearch``
 
 .. ipython:: python
 
@@ -219,5 +219,5 @@ The distribution of parameters we'll sample from.
               'l1_ratio': np.linspace(0, 1, num=1000),
               'average': [True, False]}
 
-    search = SuccessiveReductionSearch(model, params, random_state=0)
+    search = ExponentialDecaySearch(model, params, random_state=0)
     search.fit(X, y, classes=[0, 1])

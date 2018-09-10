@@ -21,9 +21,9 @@ __all__ = [
 try:
     from ._incremental import (  # noqa: F401
         RandomizedIncrementalSearch,
-        SuccessiveReductionSearch,
+        ExponentialDecaySearch,
     )
 
-    __all__.extend(["RandomizedIncrementalSearch", "SuccessiveReductionSearch"])
+    __all__.extend(["RandomizedIncrementalSearch", "ExponentialDecaySearch"])
 except ImportError:
     pass
