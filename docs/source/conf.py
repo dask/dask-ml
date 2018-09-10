@@ -69,7 +69,7 @@ nbsphinx_execute = "never"
 numpydoc_class_members_toctree = False
 autodoc_default_flags = ["members", "inherited-members"]
 autosummary_generate = True
-templates_path = ["templates"]
+# templates_path = ["templates"]
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
