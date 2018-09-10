@@ -213,3 +213,33 @@ def test_BaseIncrementalSearch(Search):
         assert "visualize" not in search.__dict__
 
     test_search()
+
+
+@pytest.mark.parametrize(
+    "Search", [RandomizedIncrementalSearch, SuccessiveReductionSearch]
+)
+def test_patience(Search):
+    @gen_cluster(client=True)
+    def test_search(c, s, a, b):
+        X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+        class ConstantClassifier(SGDClassifier):
+            def score(*args, **kwargs):
+                return 0.5
+        model = ConstantClassifier(tol=1e-3)
+
+        params = {
+            "alpha": np.logspace(-2, 10, 100),
+            "l1_ratio": np.linspace(0.01, 1, 200),
+        }
+
+        search = Search(model, params, n_initial_parameters=10, patience=2)
+        yield search.fit(X, y, classes=[0, 1])
+
+        assert search.history_results_
+        for d in search.history_results_:
+            assert d['partial_fit_calls'] <= 3
+        assert isinstance(search.best_estimator_, SGDClassifier)
+        assert search.best_score_ > 0
+        assert "visualize" not in search.__dict__
+
+    test_search()

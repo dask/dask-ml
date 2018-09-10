@@ -813,6 +813,20 @@ class SuccessiveReductionSearch(BaseIncrementalSearch):
         Higher `decay_rate` will result in lower training times, at the cost
         of worse models.
 
+    patience : int, default False
+        Maximum number of non-improving scores before we stop training a model
+
+    scores_per_fit : int, default 1
+        If ``patience`` is used the maximum number of ``partial_fit`` calls
+        between ``score`` calls.
+
+    tol : float, default 0.001
+        The required level of improvement to consider stopping training on
+        that model. The most recent score must be at at most `tol` better
+        than the all of the previous `patience` scores for that model.
+        Increasing `tol` will tend to reduce training time, at the cost
+        of worse models.
+
     test_size : float
 
         Fraction of the dataset to hold out for computing test scores.
@@ -878,6 +892,9 @@ class SuccessiveReductionSearch(BaseIncrementalSearch):
         n_initial_parameters=10,
         decay_rate=1.0,
         test_size=0.15,
+        patience=False,
+        tol=0.001,
+        scores_per_fit=1,
         random_state=None,
         scoring=None,
         iid=True,
@@ -890,6 +907,9 @@ class SuccessiveReductionSearch(BaseIncrementalSearch):
     ):
         self.n_initial_parameters = n_initial_parameters
         self.decay_rate = decay_rate
+        self.patience = patience
+        self.tol = tol
+        self.scores_per_fit = scores_per_fit
         super(SuccessiveReductionSearch, self).__init__(
             estimator,
             param_distribution,
@@ -918,7 +938,10 @@ class SuccessiveReductionSearch(BaseIncrementalSearch):
 
         current_time_step = time_step + 1
         next_time_step = current_time_step
-        while inverse(current_time_step) == inverse(next_time_step):
+        while (inverse(current_time_step) == inverse(next_time_step) and
+               (not self.patience or
+                   next_time_step - current_time_step < self.scores_per_fit)):
+
             next_time_step += 1
 
         target = inverse(next_time_step)
@@ -930,6 +953,15 @@ class SuccessiveReductionSearch(BaseIncrementalSearch):
 
         out = {}
         for k in best:
-            out[k] = next_time_step - current_time_step
+            records = info[k]
+            if self.patience and len(records) > self.patience:
+                old = records[-self.patience]["score"]
+                if all(d["score"] < old + self.tol for d in records[-self.patience:]):
+                    out[k] = 0
+                else:
+                    out[k] = next_time_step - current_time_step
+
+            else:
+                out[k] = next_time_step - current_time_step
 
         return out
