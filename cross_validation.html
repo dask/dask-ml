@@ -42,17 +42,19 @@
   
 
 <nav id="explore-links">
-  <img class="caption" src="_static/images/dask-horizontal-white.svg"/>
+  <a href="https://dask.pydata.org/">
+    <img class="caption" src="_static/images/dask-horizontal-white.svg"/>
+  </a>
 
   <ul>
     <li>
       <a>Get Started</a>
       <ul>
         <li><a href="https://dask.pydata.org/en/latest/install.html"> Install </a></li>
-        <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master"> Examples </a></li>
+        <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab"> Examples </a></li>
         <li><a href="https://github.com/dask/dask-tutorial"> Tutorial </a></li>
         <li><a href="https://dask.pydata.org/en/latest/why.html"> Why Dask? </a></li>
-        <li><a href="https:/dask-stories.readthedocs.io/en/latest"> Use Cases </a></li>
+        <li><a href="https://dask-stories.readthedocs.io/en/latest"> Use Cases </a></li>
         <li><a href="https://www.youtube.com/watch?v=RA_2qdipVng&list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri"> Talks </a></li>
       </ul>
     </li>
@@ -65,8 +67,8 @@
         <li><a href="https://dask.pydata.org/en/latest/bag.html">Bags</a></li>
         <li><a href="https://dask.pydata.org/en/latest/delayed.html">Delayed (custom)</a></li>
         <li><a href="https://dask.pydata.org/en/latest/futures.html">Futures (real-time)</a></li>
-        <li><a href="https://dask-ml.readthedocs.io/en/latest/array.html">Machine Learning</a></li>
-        <li><a href="https://dask.pydata.org/en/latest/array.html">XArray</a></li>
+        <li><a href="http://ml.dask.org">Machine Learning</a></li>
+        <li><a href="https://xarray.pydata.org/en/latest/">XArray</a></li>
       </ul>
     </li>
 
@@ -249,9 +251,9 @@ This document only describes the extensions made to support Dask arrays.</p>
 
 <span class="gp">In [8]: </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="go">                                                                                  Out[8]: </span>
-<span class="go">array([[ 0.09281918, -0.44461239,  0.92946053,  0.42286638],</span>
-<span class="go">       [-0.21865417, -0.50456115,  2.27597266,  0.39090406],</span>
-<span class="go">       [ 0.347507  ,  0.21822583, -0.7777512 ,  1.28130955]])</span>
+<span class="go">array([[-1.32835409,  0.3065724 ,  0.43893223,  0.65025546],</span>
+<span class="go">       [ 0.62376076,  0.77007729,  0.79163027,  1.46754648],</span>
+<span class="go">       [-0.97705963,  1.08699586, -2.18309268,  0.77253372]])</span>
 </pre></div>
 </div>
 <p>While it’s possible to pass dask arrays to <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v0.19.2)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend

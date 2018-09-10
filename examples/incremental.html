@@ -42,17 +42,19 @@
   
 
 <nav id="explore-links">
-  <img class="caption" src="_static/images/dask-horizontal-white.svg"/>
+  <a href="https://dask.pydata.org/">
+    <img class="caption" src="../_static/images/dask-horizontal-white.svg"/>
+  </a>
 
   <ul>
     <li>
       <a>Get Started</a>
       <ul>
         <li><a href="https://dask.pydata.org/en/latest/install.html"> Install </a></li>
-        <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master"> Examples </a></li>
+        <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab"> Examples </a></li>
         <li><a href="https://github.com/dask/dask-tutorial"> Tutorial </a></li>
         <li><a href="https://dask.pydata.org/en/latest/why.html"> Why Dask? </a></li>
-        <li><a href="https:/dask-stories.readthedocs.io/en/latest"> Use Cases </a></li>
+        <li><a href="https://dask-stories.readthedocs.io/en/latest"> Use Cases </a></li>
         <li><a href="https://www.youtube.com/watch?v=RA_2qdipVng&list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri"> Talks </a></li>
       </ul>
     </li>
@@ -65,8 +67,8 @@
         <li><a href="https://dask.pydata.org/en/latest/bag.html">Bags</a></li>
         <li><a href="https://dask.pydata.org/en/latest/delayed.html">Delayed (custom)</a></li>
         <li><a href="https://dask.pydata.org/en/latest/futures.html">Futures (real-time)</a></li>
-        <li><a href="https://dask-ml.readthedocs.io/en/latest/array.html">Machine Learning</a></li>
-        <li><a href="https://dask.pydata.org/en/latest/array.html">XArray</a></li>
+        <li><a href="http://ml.dask.org">Machine Learning</a></li>
+        <li><a href="https://xarray.pydata.org/en/latest/">XArray</a></li>
       </ul>
     </li>
 
@@ -477,7 +479,7 @@ run the cell</p>
 <td style="vertical-align: top; border: 0px solid white">
 <h3>Client</h3>
 <ul>
-  <li><b>Scheduler: </b>tcp://127.0.0.1:38960
+  <li><b>Scheduler: </b>tcp://127.0.0.1:45453
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
@@ -701,7 +703,7 @@ sequential fitting of many batches.</p>
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.5671
+<span></span>0.5805
 </pre></div>
 </div>
 </div>
@@ -739,16 +741,16 @@ we can use the <code class="docutils literal notranslate"><span class="pre">Incr
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Score: 0.5544
-Score: 0.5798
-Score: 0.5608
-Score: 0.5876
-Score: 0.6018
-Score: 0.5871
-Score: 0.5964
-Score: 0.6006
-Score: 0.6128
-Score: 0.6036
+Score: 0.6073
+Score: 0.5992
+Score: 0.6038
+Score: 0.6156
+Score: 0.6316
+Score: 0.6266
+Score: 0.6041
+Score: 0.6288
+Score: 0.6328
+Score: 0.6361
 </pre></div></div>
 </div>
 </div>
@@ -792,11 +794,11 @@ Score: 0.6036
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>array([0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1,
-       0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0,
-       1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1,
-       1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0,
-       1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0])
+<span></span>array([1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+       0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0,
+       1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1,
+       0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0,
+       0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0])
 </pre></div>
 </div>
 </div>
@@ -816,7 +818,7 @@ Score: 0.6036
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.6036
+<span></span>0.6361
 </pre></div>
 </div>
 </div>

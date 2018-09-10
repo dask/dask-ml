@@ -42,17 +42,19 @@
   
 
 <nav id="explore-links">
-  <img class="caption" src="_static/images/dask-horizontal-white.svg"/>
+  <a href="https://dask.pydata.org/">
+    <img class="caption" src="_static/images/dask-horizontal-white.svg"/>
+  </a>
 
   <ul>
     <li>
       <a>Get Started</a>
       <ul>
         <li><a href="https://dask.pydata.org/en/latest/install.html"> Install </a></li>
-        <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master"> Examples </a></li>
+        <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab"> Examples </a></li>
         <li><a href="https://github.com/dask/dask-tutorial"> Tutorial </a></li>
         <li><a href="https://dask.pydata.org/en/latest/why.html"> Why Dask? </a></li>
-        <li><a href="https:/dask-stories.readthedocs.io/en/latest"> Use Cases </a></li>
+        <li><a href="https://dask-stories.readthedocs.io/en/latest"> Use Cases </a></li>
         <li><a href="https://www.youtube.com/watch?v=RA_2qdipVng&list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri"> Talks </a></li>
       </ul>
     </li>
@@ -65,8 +67,8 @@
         <li><a href="https://dask.pydata.org/en/latest/bag.html">Bags</a></li>
         <li><a href="https://dask.pydata.org/en/latest/delayed.html">Delayed (custom)</a></li>
         <li><a href="https://dask.pydata.org/en/latest/futures.html">Futures (real-time)</a></li>
-        <li><a href="https://dask-ml.readthedocs.io/en/latest/array.html">Machine Learning</a></li>
-        <li><a href="https://dask.pydata.org/en/latest/array.html">XArray</a></li>
+        <li><a href="http://ml.dask.org">Machine Learning</a></li>
+        <li><a href="https://xarray.pydata.org/en/latest/">XArray</a></li>
       </ul>
     </li>
 
@@ -315,18 +317,18 @@ can also explicitly pass <code class="docutils literal notranslate"><span class=
 </div>
 <p>We can get the accuracy score on our dataset.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gh">Out[9]: </span><span class="go">0.71</span>
+<span class="gh">Out[9]: </span><span class="go">0.61</span>
 </pre></div>
 </div>
 <p>All of the attributes learned durning training, like <code class="docutils literal notranslate"><span class="pre">coef_</span></code>, are available
 on the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> instance.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[ 11.5638492 ,  11.14736535,   4.68878691, -22.70193139,</span>
-<span class="go">         24.57304307,  -6.25632819,   7.61262479,  -9.10064   ,</span>
-<span class="go">         20.51020071,  52.43856458,   6.03200139,  38.00317824,</span>
-<span class="go">         13.78123643,  -9.61586609,  52.80498663,  42.748738  ,</span>
-<span class="go">        -14.25033264,  13.00830405, -97.68820998,  -0.16956233]])</span>
+<span class="go">array([[-33.29265045,  -2.3627988 ,  40.49495963,   7.9661789 ,</span>
+<span class="go">          4.9333389 ,   7.35449823,   6.63068321,   8.52445692,</span>
+<span class="go">         -3.21833775, -26.53911586, -26.08068485, -26.55907237,</span>
+<span class="go">        -16.23049745,  37.7936268 , -11.70373899, -18.36825911,</span>
+<span class="go">         42.50952277,  -1.44188458, -48.86122274, -33.83743816]])</span>
 </pre></div>
 </div>
 <p>If necessary, the actual estimator trained is available as <code class="docutils literal notranslate"><span class="pre">Incremental.estimator_</span></code></p>

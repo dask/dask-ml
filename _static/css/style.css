@@ -86,3 +86,7 @@
 .wy-nav-top i {
   color: #ECB172;
 }
+
+.wy-breadcrumbs {
+  display: none;
+}

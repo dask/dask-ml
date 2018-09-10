@@ -58,7 +58,7 @@
    "source": [
     "## Distributed Training\n",
     "\n",
-    "<img src=\".images/scikit-learn-logo-notext.png\"/> <img src=\".images/joblib_logo.svg\" width=\"20%\"/> \n",
+    "<img src=\"images/scikit-learn-logo-notext.png\"/> <img src=\"images/joblib_logo.svg\" width=\"20%\"/> \n",
     "\n",
     "Scikit-learn uses [joblib](http://joblib.readthedocs.io/) for single-machine parallelism. This lets you train most estimators (anything that accepts an `n_jobs` parameter) using all the cores of your laptop or workstation.\n",
     "\n",
