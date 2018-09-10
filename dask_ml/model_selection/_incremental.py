@@ -808,6 +808,8 @@ class ExponentialDecaySearch(BaseIncrementalSearch):
         Number of parameter settings that are sampled. n_initial_parameters
         trades off runtime vs quality of the solution.
 
+        Alternatively, you can set this to ``"grid"`` to do a full grid search.
+
     decay_rate : float, default 1.0
         How quickly to decrease the number partial future fit calls.
         Higher `decay_rate` will result in lower training times, at the cost
@@ -831,7 +833,6 @@ class ExponentialDecaySearch(BaseIncrementalSearch):
         Maximum number of partial fit iterations per model.
 
     test_size : float
-
         Fraction of the dataset to hold out for computing test scores.
 
         .. note::
@@ -931,12 +932,20 @@ class ExponentialDecaySearch(BaseIncrementalSearch):
         )
 
     def _get_params(self):
-        return ParameterSampler(self.parameters, self.n_initial_parameters)
+        if self.n_initial_parameters == 'grid':
+            return ParameterGrid(self.parameters)
+        else:
+            return ParameterSampler(self.parameters, self.n_initial_parameters)
 
     def _additional_calls(self, info):
+        if self.n_initial_parameters == 'grid':
+            start = len(ParameterGrid(self.parameters))
+        else:
+            start = self.n_initial_parameters
+
         def inverse(time):
             """ Decrease target number of models inversely with time """
-            return int(self.n_initial_parameters / (1 + time) ** self.decay_rate)
+            return int(start / (1 + time) ** self.decay_rate)
 
         example = toolz.first(info.values())
         time_step = example[-1]["partial_fit_calls"]

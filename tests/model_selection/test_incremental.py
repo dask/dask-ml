@@ -6,7 +6,7 @@ import toolz
 from dask.distributed import Future
 from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
 from sklearn.linear_model import SGDClassifier
-from sklearn.model_selection import ParameterSampler
+from sklearn.model_selection import ParameterGrid, ParameterSampler
 from tornado import gen
 
 from dask_ml.datasets import make_classification
@@ -247,3 +247,21 @@ def test_patience(Search):
         assert "visualize" not in search.__dict__
 
     test_search()
+
+
+@gen_cluster(client=True)
+def test_gridsearch(c, s, a, b):
+    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+
+    model = SGDClassifier(tol=1e-3)
+
+    params = {
+        "alpha": np.logspace(-2, 10, 3),
+        "l1_ratio": np.linspace(0.01, 1, 2),
+    }
+
+    search = ExponentialDecaySearch(model, params, n_initial_parameters='grid')
+    yield search.fit(X, y, classes=[0, 1])
+
+    assert ({frozenset(d['params'].items()) for d in search.history_results_} ==
+            {frozenset(d.items()) for d in ParameterGrid(params)})
