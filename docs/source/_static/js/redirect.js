@@ -1,5 +1,5 @@
 var url = window.location.href;
-var newurl = "http://ml.dask.org" + url.split("/build/html")[1]
+var newurl = "http://ml.dask.org" + url.split("/latest")[1]
 
 htmlstr = "<div class=\"admonition note\">\
     <p class=\"first admonition-title\">Note</p>\
