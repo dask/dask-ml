@@ -28,12 +28,15 @@ def test_basic(c, s, a, b):
     X_train = X[100:]
     y_train = y[100:]
 
-    n_parameters = 50
+    n_parameters = 5
     param_list = list(ParameterSampler(params, n_parameters))
 
     def additional_calls(info):
         pf_calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
         ret = {k: int(calls < 10) for k, calls in pf_calls.items()}
+        if len(ret) == 1:
+            return {list(ret)[0]: 0}
+
         # Don't train one model
         some_keys = set(ret.keys()) - {0}
         del ret[random.choice(list(some_keys))]
@@ -76,7 +79,7 @@ def test_basic(c, s, a, b):
 
     groups = toolz.groupby("partial_fit_calls", history)
     assert len(groups[1]) > len(groups[2]) > len(groups[3]) > len(groups[max(groups)])
-    assert max(groups) == 10
+    assert max(groups) == n_parameters
 
     keys = list(models.keys())
     for key in keys:
