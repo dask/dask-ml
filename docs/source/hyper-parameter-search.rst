@@ -11,7 +11,7 @@ If your dataset is relatively small or the underlying estimator doesn't implemen
 estimator will need to be able to train on each cross-validation split of the data.
 
 If your data is large and the underlying estimator implements ``partial_fit``, you can
-use one of Dask-ML's *incremental* hyperparameter optimizers.
+use one of Dask-ML's :ref:`*incremental* hyperparameter optimizers <incremental-hyperparameter-optimization>`.
 
 Drop-In Replacements for Scikit-Learn
 -------------------------------------
@@ -173,6 +173,8 @@ tasks in the graph and only perform the fit step once for any
 parameter/data/estimator combination. For pipelines that have relatively
 expensive early steps, this can be a big win when performing a grid search.
 
+.. _incremental-hyperparameter-optimization:
+
 Incremental Hyperparameter Optimization
 ---------------------------------------
 
@@ -186,7 +188,7 @@ optimization.
 Broadly speaking, incremental optimization starts with a batch of models (underlying
 estimators and hyperparameter combinationms) and repeatedly calls the underlying estimator's
 ``partial_fit`` method with batches of data. The various incremental classes differ in how
-they prioritize certain models, and when they determine that they've finished.
+they prioritize certain models, and when a given model is done training.
 
 .. note::
 
@@ -221,3 +223,23 @@ The distribution of parameters we'll sample from.
 
     search = ExponentialDecaySearch(model, params, random_state=0)
     search.fit(X, y, classes=[0, 1])
+
+Note that when you do post-fit tasks like ``search.score``, the underlying estimator's
+score method is used. If that is unable to handle a larger-than-memory Dask Array, you'll
+exhaust your machines memory. If you plan to use post-estimation features like scoring or prediction,
+we recommend using :class:`dask_ml.wrappers.ParallelPostFit`.
+
+.. ipython:: python
+
+   from dask_ml.wrappers import ParallelPostFit
+
+    params = {'estimator__alpha': np.logspace(-2, 1, num=1000),
+              'estimator__l1_ratio': np.linspace(0, 1, num=1000),
+              'estimator__average': [True, False]}
+
+    search = ExponentialDecaySearch(model, params, random_state=0)
+    search.fit(X, y, classes=[0, 1])
+
+Note that the parameter names include the ``estimator__`` prefix,
+as we're tuning the hyperparameters of the ``SGDClassifier`` that's
+underlying the ``ParallelPostFit``.
