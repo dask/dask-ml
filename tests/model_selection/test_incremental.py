@@ -222,9 +222,11 @@ def test_patience(Search):
     @gen_cluster(client=True)
     def test_search(c, s, a, b):
         X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+
         class ConstantClassifier(SGDClassifier):
             def score(*args, **kwargs):
                 return 0.5
+
         model = ConstantClassifier(tol=1e-3)
 
         params = {
