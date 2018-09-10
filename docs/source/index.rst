@@ -79,7 +79,7 @@ algorithms easily.  This is employed for :doc:`linear models <glm>`, :doc:`pre-p
 Partner with other distributed libraries
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Other machine learning libraries like XGBoost and TensorFlow already have
+Other ML libraries like XGBoost and TensorFlow already have
 distributed solutions that work quite well.  Dask-ML makes no attempt to
 re-implement these systems.  Instead, Dask-ML makes it easy to use normal Dask
 workflows to prepare and set up data, then it deploys XGBoost or Tensorflow
