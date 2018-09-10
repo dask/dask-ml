@@ -221,7 +221,7 @@ def update_examples(app):
 
 
 def setup(app):
-    app.add_javascript("js/custom.js")
+    app.add_javascript("js/redirect.js")
 
 
 extlinks = {
