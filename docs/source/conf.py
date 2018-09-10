@@ -66,6 +66,7 @@ sphinx_gallery_conf = {
 }
 
 nbsphinx_timeout = 600
+nbsphinx_execute = "never"
 numpydoc_class_members_toctree = False
 autodoc_default_flags = ["members", "inherited-members"]
 autosummary_generate = True
@@ -227,8 +228,9 @@ def update_examples(app):
 
 
 def setup(app):
-    app.connect("autodoc-process-docstring", generate_example_rst)
-    app.connect("builder-inited", update_examples)
+    # app.connect("autodoc-process-docstring", generate_example_rst)
+    # app.connect("builder-inited", update_examples)
+    pass
 
 
 extlinks = {

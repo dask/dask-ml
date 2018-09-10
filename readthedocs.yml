@@ -1,0 +1,5 @@
+conda:
+  file: ci/environment-3.6.yml
+python:
+  version: 3
+  setup_py_install: true

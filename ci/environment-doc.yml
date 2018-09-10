@@ -1,0 +1,31 @@
+name: dask-ml-test
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - ipython
+  - multipledispatch
+  - nbsphinx
+  - nomkl
+  - nose
+  - numba
+  - numpy=1.15.0
+  - numpydoc
+  - pandas
+  - psutil
+  - python=3.6
+  - sortedcontainers
+  - scikit-learn
+  - scipy
+  - six
+  - sparse
+  - sphinx
+  - sphinx_rtd_theme
+  - tornado
+  - toolz
+  - zict
+  - pip:
+    - dask-glm
+    - git+https://github.com/dask/dask.git
+    - git+https://github.com/dask/distributed.git
+    - dask_sphinx_theme
