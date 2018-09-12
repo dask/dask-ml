@@ -2,6 +2,7 @@ name: dask-ml-test
 channels:
   - defaults
   - conda-forge
+  - numba
 dependencies:
   - black
   # Cython for building scikit-learn dev. Switch to nightly
@@ -19,8 +20,8 @@ dependencies:
   - nbsphinx
   - nomkl
   - nose
-  - numba
-  - numpy=1.15.0
+  - numba=0.40.0rc1
+  - numpy
   - numpydoc
   - pandas
   - psutil
