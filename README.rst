@@ -5,4 +5,4 @@ dask-ml
 See the `documentation`_ for more.
 
 .. _dask: http://dask.pydata.org
-.. _documentation: http://dask-ml.readthedocs.io/en/latest/index.html
+.. _documentation: http://ml.dask.org
