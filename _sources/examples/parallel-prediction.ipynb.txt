@@ -13,7 +13,7 @@
    "source": [
     "Sometimes you'll train on a smaller dataset that fits in memory, but need to predict or score for a much larger (possibly larger than memory) dataset. Perhaps your [learning curve](http://scikit-learn.org/stable/modules/learning_curve.html) has leveled off, or you only have labels for a subset of the data.\n",
     "\n",
-    "In this situation, you can use [`ParallelPostFit`](http://dask-ml.readthedocs.io/en/latest/modules/generated/dask_ml.wrappers.ParallelPostFit.html) to parallelize and distribute the scoring or prediction steps."
+    "In this situation, you can use [`ParallelPostFit`](http://ml.dask.org/modules/generated/dask_ml.wrappers.ParallelPostFit.html) to parallelize and distribute the scoring or prediction steps."
    ]
   },
   {

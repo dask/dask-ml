@@ -269,11 +269,11 @@
    "metadata": {},
    "source": [
     "## Learn more\n",
-    "* Similar example that uses DataFrames for a real world dataset: https://dask-ml.readthedocs.io/en/latest/examples/xgboost.html\n",
+    "* Similar example that uses DataFrames for a real world dataset: http://ml.dask.org/examples/xgboost.html\n",
     "* Recorded screencast stepping through the real world example above:\n",
     "* A blogpost on dask-xgboost http://matthewrocklin.com/blog/work/2017/03/28/dask-xgboost\n",
     "* XGBoost documentation: https://xgboost.readthedocs.io/en/latest/python/python_intro.html#\n",
-    "* Dask-XGBoost documentation: http://dask-ml.readthedocs.io/en/latest/xgboost.html"
+    "* Dask-XGBoost documentation: http://ml.dask.org/xgboost.html"
    ]
   },
   {

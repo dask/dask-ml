@@ -21,7 +21,7 @@
     "\n",
     "This example shows ...\n",
     "\n",
-    "* wrapping a Scikit-Learn estimator that implements `partial_fit` with the [Dask-ML Incremental](https://dask-ml.readthedocs.io/en/latest/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental) meta-estimator\n",
+    "* wrapping a Scikit-Learn estimator that implements `partial_fit` with the [Dask-ML Incremental](http://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental) meta-estimator\n",
     "* training, predicting, and scoring on this wrapped estimator\n",
     "\n",
     "Although this example uses Scikit-Learn's SGDClassifer, the `Incremental` meta-estimator will work for any class that implements `partial_fit` and the [scikit-learn base estimator API].\n",
@@ -189,7 +189,7 @@
    "source": [
     "## Wrap with Dask-ML's Incremental meta-estimator\n",
     "\n",
-    "We now wrap our `SGDClassifer` with the [`dask_ml.wrappers.Incremental`](https://dask-ml.readthedocs.io/en/latest/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental) meta-estimator."
+    "We now wrap our `SGDClassifer` with the [`dask_ml.wrappers.Incremental`](http://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental) meta-estimator."
    ]
   },
   {
@@ -316,7 +316,7 @@
     "In this notebook we went over using Dask-ML's `Incremental` meta-estimator to automate the process of incremental training with Scikit-Learn estimators that implement the `partial_fit` method.  If you want to learn more about this process you might want to investigate the following documentation:\n",
     "\n",
     "1.  http://scikit-learn.org/stable/modules/scaling_strategies.html\n",
-    "2.  [Dask-ML Incremental API documentation](https://dask-ml.readthedocs.io/en/latest/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental)\n",
+    "2.  [Dask-ML Incremental API documentation](http://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental)\n",
     "3.  [List of Scikit-Learn estimators compatible with Dask-ML's Incremental](http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning)\n",
     "4. For more info on the train-test split for model evaluation, see [Hyperparameters and Model Validation](https://jakevdp.github.io/PythonDataScienceHandbook/05.03-hyperparameters-and-model-validation.html)."
    ]

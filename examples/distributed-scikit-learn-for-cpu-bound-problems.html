@@ -587,7 +587,7 @@ notice that each worker performs some of the fit tasks.</p>
 much larger batch of data. In this case, you’d like your estimator to
 handle NumPy arrays and pandas DataFrames for training, and dask arrays
 or DataFrames for prediction.
-<code class="docutils literal notranslate"><span class="pre">`dask_ml.wrappers.ParallelPostFit</span></code> &lt;<a class="reference external" href="https://dask-ml.readthedocs.io/en/latest/modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit">https://dask-ml.readthedocs.io/en/latest/modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit</a>&gt;`__
+<code class="docutils literal notranslate"><span class="pre">`dask_ml.wrappers.ParallelPostFit</span></code> &lt;<a class="reference external" href="http://ml.dask.org/modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit">http://ml.dask.org/modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit</a>&gt;`__
 provides exactly that. It’s a meta-estimator. It does nothing during
 training; the underlying estimator (probably a scikit-learn estimator)
 will probably be in-memory on a single machine. But tasks like

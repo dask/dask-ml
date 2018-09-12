@@ -210,7 +210,7 @@
     "## Parallel, Distributed Prediction\n",
     "\n",
     "Sometimes, you're train on a small dataset, but need to predict for a much larger batch of data.\n",
-    "In this case, you'd like your estimator to handle NumPy arrays and pandas DataFrames for training, and dask arrays or DataFrames for prediction. [`dask_ml.wrappers.ParallelPostFit`](https://dask-ml.readthedocs.io/en/latest/modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit) provides exactly that. It's a meta-estimator. It does nothing during training; the underlying estimator (probably a scikit-learn estimator) will probably be in-memory on a single machine. But tasks like `predict`, `score`, etc. are parallelized and distributed.\n",
+    "In this case, you'd like your estimator to handle NumPy arrays and pandas DataFrames for training, and dask arrays or DataFrames for prediction. [`dask_ml.wrappers.ParallelPostFit`](http://ml.dask.org/modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit) provides exactly that. It's a meta-estimator. It does nothing during training; the underlying estimator (probably a scikit-learn estimator) will probably be in-memory on a single machine. But tasks like `predict`, `score`, etc. are parallelized and distributed.\n",
     "\n",
     "Most of the time, using `ParallelPostFit` is as simple as wrapping the original estimator.\n",
     "When used inside a GridSearch, you'll need to update the keys of the parameters, just like with any meta-estimator.\n",

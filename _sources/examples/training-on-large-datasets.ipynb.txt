@@ -107,7 +107,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "For all the estimators implemented in Dask-ML, see the [API documentation](http://dask-ml.readthedocs.io/en/latest/modules/api.html)."
+    "For all the estimators implemented in Dask-ML, see the [API documentation](http://ml.dask.org/modules/api.html)."
    ]
   }
  ],

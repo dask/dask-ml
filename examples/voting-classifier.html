@@ -411,13 +411,13 @@ classifier</a>
 model combines multiple different models (i.e., sub-estimators) into a
 single model, which is (ideally) stronger than any of the individual
 models alone.</p>
-<p><a class="reference external" href="http://dask-ml.readthedocs.io/en/latest/joblib.html">Dask</a> provides
-the software to train individual sub-estimators on different machines in
-a cluster. This enables users to train more models in parallel than
-would have been possible on a single machine. Note that users will only
-observe this benefit if they have a distributed cluster with more
-resources than their single machine (because sklearn already enables
-users to parallelize training across cores on a single machine).</p>
+<p><a class="reference external" href="http://ml.dask.org/joblib.html">Dask</a> provides the software to train
+individual sub-estimators on different machines in a cluster. This
+enables users to train more models in parallel than would have been
+possible on a single machine. Note that users will only observe this
+benefit if they have a distributed cluster with more resources than
+their single machine (because sklearn already enables users to
+parallelize training across cores on a single machine).</p>
 <p>What follows is an example of how one would deploy a voting classifier
 model in dask (using a local cluster).</p>
 <div class="nbinput nblast docutils container">

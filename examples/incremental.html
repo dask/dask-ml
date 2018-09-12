@@ -441,7 +441,7 @@ fit in memory, all with a familiar workflow.</p>
 <p>This example shows …</p>
 <ul class="simple">
 <li>wrapping a Scikit-Learn estimator that implements <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>
-with the <a class="reference external" href="https://dask-ml.readthedocs.io/en/latest/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental">Dask-ML
+with the <a class="reference external" href="http://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental">Dask-ML
 Incremental</a>
 meta-estimator</li>
 <li>training, predicting, and scoring on this wrapped estimator</li>
@@ -479,7 +479,7 @@ run the cell</p>
 <td style="vertical-align: top; border: 0px solid white">
 <h3>Client</h3>
 <ul>
-  <li><b>Scheduler: </b>tcp://127.0.0.1:45453
+  <li><b>Scheduler: </b>tcp://127.0.0.1:34449
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
@@ -635,7 +635,7 @@ implement this API is available
 <div class="section" id="Wrap-with-Dask-ML’s-Incremental-meta-estimator">
 <h2>Wrap with Dask-ML’s Incremental meta-estimator<a class="headerlink" href="#Wrap-with-Dask-ML’s-Incremental-meta-estimator" title="Permalink to this headline">¶</a></h2>
 <p>We now wrap our <code class="docutils literal notranslate"><span class="pre">SGDClassifer</span></code> with the
-<code class="docutils literal notranslate"><span class="pre">`dask_ml.wrappers.Incremental</span></code> &lt;<a class="reference external" href="https://dask-ml.readthedocs.io/en/latest/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental">https://dask-ml.readthedocs.io/en/latest/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental</a>&gt;`__
+<code class="docutils literal notranslate"><span class="pre">`dask_ml.wrappers.Incremental</span></code> &lt;<a class="reference external" href="http://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental">http://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental</a>&gt;`__
 meta-estimator.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
@@ -703,7 +703,7 @@ sequential fitting of many batches.</p>
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.5805
+<span></span>0.5346
 </pre></div>
 </div>
 </div>
@@ -741,16 +741,16 @@ we can use the <code class="docutils literal notranslate"><span class="pre">Incr
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Score: 0.6073
-Score: 0.5992
-Score: 0.6038
-Score: 0.6156
-Score: 0.6316
-Score: 0.6266
-Score: 0.6041
-Score: 0.6288
-Score: 0.6328
-Score: 0.6361
+Score: 0.5317
+Score: 0.5593
+Score: 0.5553
+Score: 0.5743
+Score: 0.5651
+Score: 0.5554
+Score: 0.5562
+Score: 0.5684
+Score: 0.5821
+Score: 0.5861
 </pre></div></div>
 </div>
 </div>
@@ -794,11 +794,11 @@ Score: 0.6361
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>array([1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
-       0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0,
-       1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1,
-       0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0,
-       0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0])
+<span></span>array([1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1,
+       1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
+       0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1,
+       1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1,
+       0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1])
 </pre></div>
 </div>
 </div>
@@ -818,7 +818,7 @@ Score: 0.6361
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.6361
+<span></span>0.5861
 </pre></div>
 </div>
 </div>
@@ -832,7 +832,7 @@ you want to learn more about this process you might want to investigate
 the following documentation:</p>
 <ol class="arabic simple">
 <li><a class="reference external" href="http://scikit-learn.org/stable/modules/scaling_strategies.html">http://scikit-learn.org/stable/modules/scaling_strategies.html</a></li>
-<li><a class="reference external" href="https://dask-ml.readthedocs.io/en/latest/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental">Dask-ML Incremental API
+<li><a class="reference external" href="http://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental">Dask-ML Incremental API
 documentation</a></li>
 <li><a class="reference external" href="http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning">List of Scikit-Learn estimators compatible with Dask-ML’s
 Incremental</a></li>
