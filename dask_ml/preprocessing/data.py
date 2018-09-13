@@ -915,3 +915,7 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
             X[col] = series
 
         return X
+
+class PolynomialFeatures(skdata.PolynomialFeatures):
+
+    __doc__ = skdata.PolynomialFeatures.__doc__

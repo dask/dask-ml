@@ -471,3 +471,12 @@ class TestOrdinalEncoder:
         assert_eq_df(df, enc.inverse_transform(enc.transform(df)))
         assert_eq_df(df, enc.inverse_transform(enc.transform(df).values))
         assert_eq_df(df, enc.inverse_transform(enc.transform(df).values))
+
+class TestPolynomialFeatures:
+    def test_basic(self):
+        a = dpp.PolynomialFeatures()
+        b = spp.PolynomialFeatures()
+
+        a.fit(X)
+        b.fit(X.compute())
+        assert_estimator_equal(a, b)
