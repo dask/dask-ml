@@ -480,3 +480,28 @@ class TestPolynomialFeatures:
         a.fit(X)
         b.fit(X.compute())
         assert_estimator_equal(a, b)
+
+    @pytest.mark.filterwarnings("ignore::sklearn.exceptions.DataConversionWarning")
+    def test_input_types(self, dask_df, pandas_df):
+        a = dpp.PolynomialFeatures()
+        b = spp.PolynomialFeatures()
+
+        assert_estimator_equal(
+            a.fit(dask_df.values), a.fit(dask_df)
+        )
+
+        assert_estimator_equal(
+            a.fit(dask_df), b.fit(pandas_df)
+        )
+
+        assert_estimator_equal(
+            a.fit(dask_df.values), b.fit(pandas_df)
+        )
+
+        assert_estimator_equal(
+            a.fit(dask_df), b.fit(pandas_df.values)
+        )
+
+        assert_estimator_equal(
+            a.fit(dask_df.values), b.fit(pandas_df.values)
+        )

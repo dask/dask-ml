@@ -916,6 +916,82 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
 
         return X
 
+
 class PolynomialFeatures(skdata.PolynomialFeatures):
 
     __doc__ = skdata.PolynomialFeatures.__doc__
+
+    def fit(self, X, y=None):
+        """
+        Compute number of output features.
+        Parameters
+        ----------
+        X : array-like, shape (n_samples, n_features)
+            The data.
+        Returns
+        -------
+        self : instance
+
+        This implementation was copied and modified from Scikit-Learn.
+
+        See License information here:
+        https://github.com/scikit-learn/scikit-learn/blob/master/README.rst
+        """
+        if isinstance(X, dd.DataFrame):
+            # only shape[1] is important, compute necessary for check_array
+            n_samples, n_features = check_array(X.compute(), accept_sparse=True).shape
+        else:
+            n_samples, n_features = check_array(X, accept_sparse=True).shape
+        combinations = self._combinations(n_features, self.degree,
+                                          self.interaction_only,
+                                          self.include_bias)
+        self.n_input_features_ = n_features
+        self.n_output_features_ = sum(1 for _ in combinations)
+        return self
+
+    def transform(self, X):
+        """Transform data to polynomial features
+        Parameters
+        ----------
+        X : array-like or sparse matrix, shape [n_samples, n_features]
+            The data to transform, row by row.
+            Sparse input should preferably be in CSC format.
+        Returns
+        -------
+        XP : np.ndarray or CSC sparse matrix, shape [n_samples, NP]
+            The matrix of features, where NP is the number of polynomial
+            features generated from the combination of inputs.
+
+        This implementation was copied and modified from Scikit-Learn.
+
+        See License information here:
+        https://github.com/scikit-learn/scikit-learn/blob/master/README.rst
+        """
+        check_is_fitted(self, ['n_input_features_', 'n_output_features_'])
+
+        X = check_array(X, dtype=FLOAT_DTYPES, accept_sparse='csc')
+        n_samples, n_features = X.shape
+
+        if n_features != self.n_input_features_:
+            raise ValueError("X shape does not match training shape")
+
+        combinations = self._combinations(n_features, self.degree,
+                                          self.interaction_only,
+                                          self.include_bias)
+        if sparse.isspmatrix(X):
+            columns = []
+            for comb in combinations:
+                if comb:
+                    out_col = 1
+                    for col_idx in comb:
+                        out_col = X[:, col_idx].multiply(out_col)
+                    columns.append(out_col)
+                else:
+                    columns.append(sparse.csc_matrix(np.ones((X.shape[0], 1))))
+            XP = sparse.hstack(columns, dtype=X.dtype).tocsc()
+        else:
+            XP = np.empty((n_samples, self.n_output_features_), dtype=X.dtype)
+            for i, comb in enumerate(combinations):
+                XP[:, i] = X[:, comb].prod(1)
+
+        return XP
