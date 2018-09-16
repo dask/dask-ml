@@ -2,6 +2,7 @@ import contextlib
 import datetime
 import functools
 import logging
+import time
 from collections import Sequence
 from multiprocessing import cpu_count
 from numbers import Integral
@@ -14,6 +15,7 @@ import numpy as np
 import pandas as pd
 import sklearn.utils.extmath as skm
 import sklearn.utils.validation as sk_validation
+from sklearn.base import BaseEstimator
 from dask import delayed
 from dask.array.utils import assert_eq as assert_eq_ar
 from dask.dataframe.utils import assert_eq as assert_eq_df
@@ -347,9 +349,35 @@ def _num_samples(X):
     return result
 
 
+class ConstantFunction(BaseEstimator):
+    def __init__(self, value=0, **kwargs):
+        self.value = value
+        self._partial_fit_called = False
+        super(BaseEstimator, self).__init__(**kwargs)
+
+    def _fn(self):
+        return self.value
+
+    def partial_fit(self, X, y=None, sleep=0, **kwargs):
+        time.sleep(sleep)
+        self._partial_fit_called = True
+        if not hasattr(self, 't_'):
+            self.t_ = 1
+        self.t_ += X.shape[0]
+        self.coef_ = X[0]
+        return self
+
+    def score(self, *args, **kwargs):
+        return self._fn()
+
+    def fit(self, *args):
+        return self
+
+
 __all__ = [
     "assert_estimator_equal",
     "check_array",
     "check_random_state",
     "check_chunks",
+    "ConstantFunction",
 ]

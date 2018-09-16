@@ -11,6 +11,7 @@ __all__ = [
     "RandomizedSearchCV",
     "ShuffleSplit",
     "KFold",
+    "HyperbandCV",
     "train_test_split",
     "compute_n_splits",
     "check_cv",
