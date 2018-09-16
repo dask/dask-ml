@@ -472,6 +472,7 @@ class TestOrdinalEncoder:
         assert_eq_df(df, enc.inverse_transform(enc.transform(df).values))
         assert_eq_df(df, enc.inverse_transform(enc.transform(df).values))
 
+
 class TestPolynomialFeatures:
     def test_basic(self):
         a = dpp.PolynomialFeatures()
@@ -486,22 +487,28 @@ class TestPolynomialFeatures:
         a = dpp.PolynomialFeatures()
         b = spp.PolynomialFeatures()
 
-        assert_estimator_equal(
-            a.fit(dask_df.values), a.fit(dask_df)
-        )
+        assert_estimator_equal(a.fit(dask_df.values), a.fit(dask_df))
 
-        assert_estimator_equal(
-            a.fit(dask_df), b.fit(pandas_df)
-        )
+        assert_estimator_equal(a.fit(dask_df), b.fit(pandas_df))
 
-        assert_estimator_equal(
-            a.fit(dask_df.values), b.fit(pandas_df)
-        )
+        assert_estimator_equal(a.fit(dask_df.values), b.fit(pandas_df))
 
-        assert_estimator_equal(
-            a.fit(dask_df), b.fit(pandas_df.values)
-        )
+        assert_estimator_equal(a.fit(dask_df), b.fit(pandas_df.values))
 
-        assert_estimator_equal(
-            a.fit(dask_df.values), b.fit(pandas_df.values)
-        )
+        assert_estimator_equal(a.fit(dask_df.values), b.fit(pandas_df.values))
+
+    def test_proper_transform(self):
+        a = dpp.PolynomialFeatures()
+        b = spp.PolynomialFeatures()
+
+        a.fit_transform(X).compute()
+        b.fit_transform(X.compute())
+        assert_estimator_equal(a, b)
+
+    def test_unknown_chunksize(self):
+        a = dpp.PolynomialFeatures()
+        b = spp.PolynomialFeatures()
+
+        a.fit_transform(df.values).compute()
+        b.fit_transform(df.values.compute())
+        assert_estimator_equal(a, b)

@@ -8,7 +8,7 @@ from .data import (
     Categorizer,
     DummyEncoder,
     OrdinalEncoder,
-    PolynomialFeatures
+    PolynomialFeatures,
 )
 from .label import LabelEncoder
 from ._encoders import OneHotEncoder
