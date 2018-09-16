@@ -29,6 +29,7 @@ Dask-ML implements GridSearchCV and RandomizedSearchCV.
    dask_ml.model_selection.GridSearchCV
    sklearn.model_selection.RandomizedSearchCV
    dask_ml.model_selection.RandomizedSearchCV
+   dask_ml.model_selection.HyperbandCV
 
 The varians in Dask-ML implement many (but not all) of the same parameters,
 and should be a drop-in replacement for the subset that they do implement.
@@ -45,6 +46,11 @@ In that case, why use Dask-ML's versions?
   identical parameters and inputs will only be fit once. For
   composite-estimators such as ``Pipeline`` this can be significantly more
   efficient as it can avoid expensive repeated computations.
+
+- :ref:`Adaptive algorithms <adaptive>` like Hyperband, which
+    - uses previous estimator evaluation to determine which estimator to
+      evaluate next.
+    - are (fairly) well suited for Dask's architecture.
 
 Both scikit-learn's and Dask-ML's model selection meta-estimators can be used
 with Dask's :ref:`joblib backend <joblib>`.
