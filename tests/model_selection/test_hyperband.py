@@ -50,7 +50,8 @@ def test_stop_on_plateau(loop):
     "array_type,library",
     [("dask.array", "dask-ml"), ("numpy", "sklearn"), ("numpy", "ConstantFunction")],
 )
-def test_basic(array_type, library, loop):
+@pytest.mark.parametrize("max_iter", [27, 81])
+def test_basic(array_type, library, max_iter, loop):
     with cluster() as (s, [a, b]):
         with Client(s["address"], loop=loop):
             n, d = (200, 2)
@@ -76,6 +77,7 @@ def test_basic(array_type, library, loop):
                 ],
                 "average": [True, False],
                 "learning_rate": ["constant", "invscaling", "optimal"],
+                "eta0": np.logspace(-2, 0, num=1000),
             }
             model = SGDClassifier(
                 tol=-np.inf, penalty="elasticnet", random_state=42, eta0=0.1
@@ -87,7 +89,6 @@ def test_basic(array_type, library, loop):
                 model = ConstantFunction()
                 params = {"value": np.linspace(0, 1, num=1000)}
 
-            max_iter = 27
             search = HyperbandCV(
                 model, params, max_iter=max_iter, random_state=42
             )
@@ -104,7 +105,8 @@ def test_basic(array_type, library, loop):
             assert isinstance(search.best_params_, dict)
 
             num_fit_models = len(set(search.cv_results_["model_id"]))
-            assert num_fit_models == 49
+            num_models = {27: 49, 81: 143}
+            assert num_fit_models == num_models[max_iter]
             best_idx = search.best_index_
             assert search.cv_results_["test_score"][best_idx] == max(
                 search.cv_results_["test_score"]

@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 import math
 import toolz
@@ -118,7 +119,7 @@ class _SHA:
         self._history = []
         self.patience = patience
         self.tol = tol
-        self._to_reach = {}
+        #  self._to_reach = {}
         self._addtl = None
         self._best_score = -np.inf
         self._start_time = time()
@@ -155,7 +156,11 @@ class _SHA:
         # If there's no patience, don't even bother wrapping stop on plateau
         # and give the function.
         if np.isinf(self.patience):
-            return self._fit(info)
+            instructions = self._fit(info)
+            bad = set(info) - set(instructions)
+            instructions.update({k: 0 for k in bad})
+            assert set(instructions) == set(info)
+            return instructions
 
         # Score the model every patience/2 to have at least 3 points for every
         # plateau
@@ -217,21 +222,14 @@ class _SHA:
         if self.steps == 0:
             # we have r_i - 1 more steps to train to
             self.steps = 1
-            self._to_reach = {k: r_i for k in info}
             return {k: r_i - 1 for k in info}
 
         best = toolz.topk(n_i, info, key=lambda k: info[k][-1]["score"])
         self.steps += 1
 
         if self.steps > self.limit or (self.limit is None and len(best) in {0, 1}):
-            max_score = max(self._best_scores.values())
-            best_ids = {k for k, v in self._best_scores.items() if v == max_score}
-            return {best_id: 0 for best_id in best_ids}
+            return {id_: 0 for id_ in self._best_scores}
 
         pf_calls = {k: info[k][-1]["partial_fit_calls"] for k in best}
-        addtl_pf_calls = {k: r_i - pf_calls[k] for k in best}
-        self._to_reach.update({k: r_i for k in addtl_pf_calls})
-        dont_train = {k: 0 for k in self._best_scores if k not in addtl_pf_calls}
-        assert set(addtl_pf_calls).intersection(dont_train) == set()
-        addtl_pf_calls.update(dont_train)
-        return addtl_pf_calls
+        addtl_calls = {k: r_i - pf_calls[k] for k in best}
+        return addtl_calls
