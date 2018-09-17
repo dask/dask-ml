@@ -598,20 +598,16 @@ class BaseIncrementalSearch(BaseEstimator, MetaEstimatorMixin):
 
 
 class IncrementalSearch(BaseIncrementalSearch):
-    """ Search incrementally trained models, preferring well-performing models
+    """
+    Incrementally search for hyper-parameters on models that support partial_fit
 
     This incremental hyper-parameter optimization class starts training the
-    model on many randomly selected hyper-parameters on a small amount of data,
-    and then only continues training those models that seem to be performing
-    the best, decaying the number of activley trained models with an
-    exponential given by the initial number of parameters and the decay rate.
+    model on many hyper-parameters on a small amount of data, and then only
+    continues training those models that seem to be performing well,
+    decaying the number of actively trained models with an exponential given by
+    the initial number of parameters and the decay rate.
 
         n_models = n_initial_parameters * (n_batches ** -decay_rate)
-
-    This method has two hyper-parameters:
-
-    1.  n_initial_parameters: The number of initial parameters to use
-    2.  decay_rate: The speed at which we decay
 
     Parameters
     ----------
@@ -620,7 +616,7 @@ class IncrementalSearch(BaseIncrementalSearch):
         This is assumed to implement the scikit-learn estimator interface.
         Either estimator needs to provide a `score`` function,
         or ``scoring`` must be passed. The estimator must implement
-        ``partial_fit``.
+        ``partial_fit``, ``set_params``, and work well with ``clone``.
 
     param_distributions : dict
         Dictionary with parameters names (string) as keys and distributions
@@ -629,8 +625,8 @@ class IncrementalSearch(BaseIncrementalSearch):
         If a list is given, it is sampled uniformly.
 
     n_initial_parameters : int, default=10
-        Number of parameter settings that are sampled. n_initial_parameters
-        trades off runtime vs quality of the solution.
+        Number of parameter settings that are sampled.
+        This trades off runtime vs quality of the solution.
 
         Alternatively, you can set this to ``"grid"`` to do a full grid search.
 
@@ -641,6 +637,7 @@ class IncrementalSearch(BaseIncrementalSearch):
 
     patience : int, default False
         Maximum number of non-improving scores before we stop training a model
+        Off by default
 
     scores_per_fit : int, default 1
         If ``patience`` is used the maximum number of ``partial_fit`` calls
@@ -648,13 +645,13 @@ class IncrementalSearch(BaseIncrementalSearch):
 
     tol : float, default 0.001
         The required level of improvement to consider stopping training on
-        that model. The most recent score must be at at most `tol` better
-        than the all of the previous `patience` scores for that model.
-        Increasing `tol` will tend to reduce training time, at the cost
+        that model. The most recent score must be at at most ``tol`` better
+        than the all of the previous ``patience`` scores for that model.
+        Increasing ``tol`` will tend to reduce training time, at the cost
         of worse models.
 
     max_iter : int, default 100
-        Maximum number of partial fit iterations per model.
+        Maximum number of partial fit calls per model.
 
     test_size : float
         Fraction of the dataset to hold out for computing test scores.
@@ -662,7 +659,7 @@ class IncrementalSearch(BaseIncrementalSearch):
         .. note::
 
            The training dataset should fit in memory on a single machine.
-           Adjust the `test_size` parameter as necessary to achieve this.
+           Adjust the ``test_size`` parameter as necessary to achieve this.
 
     random_state : int, RandomState instance or None, optional, default: None
         If int, random_state is the seed used by the random number generator;
@@ -711,6 +708,13 @@ class IncrementalSearch(BaseIncrementalSearch):
     >>> search = IncrementalSearch(model, params, random_state=0)
     >>> search.fit(X, y, classes=[0, 1])
     IncrementalSearch(...)
+
+    Alternatively you can provide keywords to start with more hyper-parameters,
+    but stop those that don't seem to improve with more data.
+
+    >>> search = IncrementalSearch(model, params, random_state=0,
+    ...                            n_initial_parameters=1000,
+    ...                            patience=20, max_iter=100)
     """
 
     def __init__(
