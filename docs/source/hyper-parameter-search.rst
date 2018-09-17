@@ -175,6 +175,7 @@ expensive early steps, this can be a big win when performing a grid search.
 
 .. _incremental-hyperparameter-optimization:
 
+
 Incremental Hyperparameter Optimization
 ---------------------------------------
 
@@ -182,19 +183,18 @@ The second category of hyperparameter optimization uses *incremental* hyperparam
 optimization.
 
 .. autosummary::
-   dask_ml.model_selection.RandomizedIncrementalSearch
-   dask_ml.model_selection.ExponentialDecaySearch
+   dask_ml.model_selection.IncrementalSearch
 
 Broadly speaking, incremental optimization starts with a batch of models (underlying
 estimators and hyperparameter combinationms) and repeatedly calls the underlying estimator's
-``partial_fit`` method with batches of data. The various incremental classes differ in how
-they prioritize certain models, and when a given model is done training.
+``partial_fit`` method with batches of data.
 
 .. note::
 
    These estimators require the optional ``distributed`` library.
 
-Here's an example training on a "large" dataset (a Dask array) with the ``ExponentialDecaySearch``
+Here's an example training on a "large" dataset (a Dask array) with the
+``IncrementalSearch``
 
 .. ipython:: python
 
@@ -206,14 +206,14 @@ Here's an example training on a "large" dataset (a Dask array) with the ``Expone
                                chunks=100000, random_state=0)
 
 Our underlying estimator is an SGDClassifier. We specify a few parameters
-common to each clone of the estimator.
+common to each clone of the estimator:
 
 .. ipython:: python
 
     from sklearn.linear_model import SGDClassifier
     model = SGDClassifier(tol=1e-3, penalty='elasticnet', random_state=0)
 
-The distribution of parameters we'll sample from.
+We also define the distribution of parameters from which we will sample:
 
 .. ipython:: python
 
@@ -221,13 +221,22 @@ The distribution of parameters we'll sample from.
               'l1_ratio': np.linspace(0, 1, num=1000),
               'average': [True, False]}
 
-    search = ExponentialDecaySearch(model, params, random_state=0)
+
+Finally we create many random models in this parameter space and
+train-and-score them until we find the best one.
+
+.. ipython:: python
+
+    from dask_ml.model_selection import IncrementalSearch
+
+    search = IncrementalSearch(model, params, random_state=0)
     search.fit(X, y, classes=[0, 1])
 
-Note that when you do post-fit tasks like ``search.score``, the underlying estimator's
-score method is used. If that is unable to handle a larger-than-memory Dask Array, you'll
-exhaust your machines memory. If you plan to use post-estimation features like scoring or prediction,
-we recommend using :class:`dask_ml.wrappers.ParallelPostFit`.
+Note that when you do post-fit tasks like ``search.score``, the underlying
+estimator's score method is used. If that is unable to handle a
+larger-than-memory Dask Array, you'll exhaust your machines memory. If you plan
+to use post-estimation features like scoring or prediction, we recommend using
+:class:`dask_ml.wrappers.ParallelPostFit`.
 
 .. ipython:: python
 
