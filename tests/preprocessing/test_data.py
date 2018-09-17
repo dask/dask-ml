@@ -480,35 +480,36 @@ class TestPolynomialFeatures:
 
         a.fit(X)
         b.fit(X.compute())
-        assert_estimator_equal(a, b)
+        assert_estimator_equal(a._transformer, b)
 
-    @pytest.mark.filterwarnings("ignore::sklearn.exceptions.DataConversionWarning")
-    def test_input_types(self, dask_df, pandas_df):
-        a = dpp.PolynomialFeatures()
-        b = spp.PolynomialFeatures()
+   # @pytest.mark.filterwarnings("ignore::sklearn.exceptions.DataConversionWarning")
+   # def test_input_types(self, dask_df, pandas_df):
+   #     a = dpp.PolynomialFeatures()
+   #     b = spp.PolynomialFeatures()
 
-        assert_estimator_equal(a.fit(dask_df.values), a.fit(dask_df))
+   #     assert_estimator_equal(a.fit(dask_df.values), a.fit(dask_df))
 
-        assert_estimator_equal(a.fit(dask_df), b.fit(pandas_df))
+   #     assert_estimator_equal(a.fit(dask_df), b.fit(pandas_df))
 
-        assert_estimator_equal(a.fit(dask_df.values), b.fit(pandas_df))
+   #     assert_estimator_equal(a.fit(dask_df.values), b.fit(pandas_df))
 
-        assert_estimator_equal(a.fit(dask_df), b.fit(pandas_df.values))
+   #     assert_estimator_equal(a.fit(dask_df), b.fit(pandas_df.values))
 
-        assert_estimator_equal(a.fit(dask_df.values), b.fit(pandas_df.values))
+   #     assert_estimator_equal(a.fit(dask_df.values), b.fit(pandas_df.values))
 
-    def test_proper_transform(self):
+    def test_estimator_comparison(self):
         a = dpp.PolynomialFeatures()
         b = spp.PolynomialFeatures()
 
         a.fit_transform(X).compute()
         b.fit_transform(X.compute())
-        assert_estimator_equal(a, b)
+        assert_estimator_equal(a._transformer, b)
 
-    def test_unknown_chunksize(self):
+    def test_array_transform(self):
         a = dpp.PolynomialFeatures()
         b = spp.PolynomialFeatures()
 
-        a.fit_transform(df.values).compute()
-        b.fit_transform(df.values.compute())
-        assert_estimator_equal(a, b)
+        res_a = a.fit_transform(X).compute()
+        res_b = b.fit_transform(X.compute())
+        assert_eq_ar(res_a, res_b)
+
