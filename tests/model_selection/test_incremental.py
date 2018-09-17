@@ -291,4 +291,4 @@ def test_transform(c, s, a, b):
     yield search.fit(X, y)
     X_, = yield c.compute([X])
     result = search.transform(X_)
-    assert result.shape == (100, 5)
+    assert result.shape == (100, search.best_estimator_.n_clusters)
