@@ -53,7 +53,9 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
 
        This class is not appropriate for parallel or distributed *training*
        on large datasets. For that, see :class:`Incremental`, which provides
-       distributed (but sequential) training.
+       distributed (but sequential) training. If you're doing distributed
+       hyperparameter optimization on larger-than-memory datasets, see
+       :class:`dask_ml.model_selection.IncrementalSearch`.
 
     This estimator does not parallelize the training step. This simply calls
     the underlying estimators's ``fit`` method called and copies over the
@@ -73,6 +75,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
     See Also
     --------
     Incremental
+    dask_ml.model_selection.IncrementalSearch
 
     Examples
     --------
@@ -301,6 +304,12 @@ class Incremental(ParallelPostFit):
     train on batches of data. This fits well with Dask's blocked data
     structures.
 
+    .. note::
+
+       This meta-estimator is not appropriate for hyperparameter optimization
+       on larger-than-memory datasets. For that, see
+       :class:dask_ml.model_selection.IncrementalSearch`.
+
     See the `list of incremental learners`_ in the scikit-learn documentation
     for a list of estimators that implement the ``partial_fit`` API. Note that
     `Incremental` is not limited to just these classes, it will work on any
@@ -360,6 +369,7 @@ class Incremental(ParallelPostFit):
     See Also
     --------
     ParallelPostFit
+    dask_ml.model_selection.IncrementalSearch
 
     Examples
     --------

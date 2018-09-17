@@ -1,17 +1,23 @@
 Hyper Parameter Search
 ======================
 
-Tools for performing hyperparameter optimization of Scikit-Learn API-compatible
-models using Dask. There are categories of hyperparameter optimization estimators
+*Tools for performing hyperparameter optimization of Scikit-Learn API-compatible models using Dask*.
+
+There are two kinds of hyperparameter optimization estimators
 in Dask-ML. The appropriate one to use depends on the size of your dataset and
 whether the underlying estimator implements the `partial_fit` method.
 
 If your dataset is relatively small or the underlying estimator doesn't implement
-``partial_fit``, you can use ``GridSearchCV`` or ``RandomizedSearchCV``. The underlying
-estimator will need to be able to train on each cross-validation split of the data.
+``partial_fit``, you can use :class:`dask_ml.model_selection.GridSearchCV` or
+:class:`dask_ml.model_selection.RandomizedSearchCV`.
+These are drop-in replacements for their scikit-learn counterparts, that should offer better performance and handling of Dask Arrays and DataFrames.
+The underlying estimator will need to be able to train on each cross-validation split of the data.
+See :ref:`hyperparameter.drop-in` for more.
 
 If your data is large and the underlying estimator implements ``partial_fit``, you can
-use one of Dask-ML's :ref:`*incremental* hyperparameter optimizers <incremental-hyperparameter-optimization>`.
+Dask-ML's :ref:`*incremental* hyperparameter optimizers <hyperparameter.incremental>`.
+
+.. _hyperparameter.drop-in:
 
 Drop-In Replacements for Scikit-Learn
 -------------------------------------
@@ -173,7 +179,7 @@ tasks in the graph and only perform the fit step once for any
 parameter/data/estimator combination. For pipelines that have relatively
 expensive early steps, this can be a big win when performing a grid search.
 
-.. _incremental-hyperparameter-optimization:
+.. _hyperparameter.incremental:
 
 
 Incremental Hyperparameter Optimization
@@ -242,12 +248,16 @@ to use post-estimation features like scoring or prediction, we recommend using
 
    from dask_ml.wrappers import ParallelPostFit
 
-    params = {'estimator__alpha': np.logspace(-2, 1, num=1000),
-              'estimator__l1_ratio': np.linspace(0, 1, num=1000),
-              'estimator__average': [True, False]}
+   params = {'estimator__alpha': np.logspace(-2, 1, num=1000),
+             'estimator__l1_ratio': np.linspace(0, 1, num=1000),
+             'estimator__average': [True, False]}
 
-    search = ExponentialDecaySearch(model, params, random_state=0)
-    search.fit(X, y, classes=[0, 1])
+   model = ParallelPostFit(SGDClassifier(tol=1e-3,
+                                         penalty="elasticnet",
+                                         random_state=0))
+   search = IncrementalSearch(model, params, random_state=0)
+   search.fit(X, y, classes=[0, 1])
+   search.score(X, y)
 
 Note that the parameter names include the ``estimator__`` prefix,
 as we're tuning the hyperparameters of the ``SGDClassifier`` that's

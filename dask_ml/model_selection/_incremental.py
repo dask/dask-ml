@@ -601,20 +601,27 @@ class IncrementalSearch(BaseIncrementalSearch):
     """
     Incrementally search for hyper-parameters on models that support partial_fit
 
+    .. note::
+
+       IncrementalSearch depends on the optional ``distributed`` library.
+
     This incremental hyper-parameter optimization class starts training the
     model on many hyper-parameters on a small amount of data, and then only
-    continues training those models that seem to be performing well,
-    decaying the number of actively trained models with an exponential given by
-    the initial number of parameters and the decay rate.
+    continues training those models that seem to be performing well.
+    The number of actively trained hyper-parameter combinations decays
+    with an exponential given by the initial number of parameters and the
+    decay rate.
 
         n_models = n_initial_parameters * (n_batches ** -decay_rate)
+
+    See the :ref:`User Guide <hyperparameter.incremental>` for more.
 
     Parameters
     ----------
     estimator : estimator object.
-        A object of that type is instantiated for each grid point.
-        This is assumed to implement the scikit-learn estimator interface.
-        Either estimator needs to provide a `score`` function,
+        A object of that type is instantiated for each initial hyperparameter
+        combination. This is assumed to implement the scikit-learn estimator
+        interface. Either estimator needs to provide a `score`` function,
         or ``scoring`` must be passed. The estimator must implement
         ``partial_fit``, ``set_params``, and work well with ``clone``.
 
@@ -636,8 +643,8 @@ class IncrementalSearch(BaseIncrementalSearch):
         of worse models.
 
     patience : int, default False
-        Maximum number of non-improving scores before we stop training a model
-        Off by default
+        Maximum number of non-improving scores before we stop training a
+        model. Off by default.
 
     scores_per_fit : int, default 1
         If ``patience`` is used the maximum number of ``partial_fit`` calls
