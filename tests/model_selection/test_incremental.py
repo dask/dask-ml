@@ -282,6 +282,7 @@ def test_numpy_array(c, s, a, b):
     yield search.fit(X, y, classes=[0, 1])
 
 
+@gen_cluster(client=True)
 def test_transform(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     model = MiniBatchKMeans(random_state=0)
