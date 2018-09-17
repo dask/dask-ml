@@ -33,7 +33,7 @@ class HashingVectorizer(sklearn.feature_extraction.text.HashingVectorizer):
         blocks to ndarrays or pydata/sparse matricies.
 
         >>> import sparse
-        >>> X.map_blocks(sparse.COO.from_scipy_sparse)  # doctest: +SKIP
+        >>> X.map_blocks(sparse.COO.from_scipy_sparse, dtype=X.dtype)  # doctest: +SKIP
 
         See the :doc:`examples/text-vectorization` for more.
         """
