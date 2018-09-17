@@ -1,6 +1,5 @@
 import random
 
-import dask
 import numpy as np
 import toolz
 from dask.distributed import Future
