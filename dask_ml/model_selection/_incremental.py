@@ -405,7 +405,7 @@ class BaseIncrementalSearch(BaseEstimator, MetaEstimatorMixin):
     """
 
     def __init__(
-        self, estimator, parameters, test_size=0.15, random_state=None, scoring=None
+        self, estimator, parameters, test_size=None, random_state=None, scoring=None
     ):
         self.estimator = estimator
         self.parameters = parameters
@@ -442,9 +442,11 @@ class BaseIncrementalSearch(BaseEstimator, MetaEstimatorMixin):
         ----------
         X, y : dask.array.Array
         """
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=self.test_size
-        )
+        if self.test_size is None:
+            test_size = 1 / X.npartitions
+        else:
+            test_size = self.test_size
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size)
         return X_train, X_test, y_train, y_test
 
     def _additional_calls(self, info):
@@ -662,6 +664,7 @@ class IncrementalSearch(BaseIncrementalSearch):
 
     test_size : float
         Fraction of the dataset to hold out for computing test scores.
+        Defaults to the size of a single partition of the input training set
 
         .. note::
 
@@ -730,7 +733,7 @@ class IncrementalSearch(BaseIncrementalSearch):
         param_distribution,
         n_initial_parameters=10,
         decay_rate=1.0,
-        test_size=0.15,
+        test_size=None,
         patience=False,
         tol=0.001,
         scores_per_fit=1,
