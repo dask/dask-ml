@@ -205,8 +205,8 @@ def test_search(c, s, a, b):
     assert search.best_params_
 
 
-@gen_cluster(client=True)
-def test_search_2(c, s, a, b):
+@gen_cluster(client=True, timeout=None)
+def test_search_patience(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
 
     class ConstantClassifier(SGDClassifier):
