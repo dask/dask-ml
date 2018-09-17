@@ -234,6 +234,18 @@ def test_search_2(c, s, a, b):
 
 
 @gen_cluster(client=True)
+def test_search_max_iter(c, s, a, b):
+    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+    model = SGDClassifier(tol=1e-3, penalty="elasticnet")
+    params = {"alpha": np.logspace(-2, 10, 10), "l1_ratio": np.linspace(0.01, 1, 20)}
+
+    search = IncrementalSearch(model, params, n_initial_parameters=10, max_iter=1)
+    yield search.fit(X, y, classes=[0, 1])
+    for d in search.history_results_:
+        assert d["partial_fit_calls"] <= 1
+
+
+@gen_cluster(client=True)
 def test_gridsearch(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
 

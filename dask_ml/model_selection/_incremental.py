@@ -790,7 +790,7 @@ class IncrementalSearch(BaseIncrementalSearch):
             records = info[k]
             if self.max_iter and len(records) >= self.max_iter:
                 out[k] = 0
-            if self.patience and len(records) > self.patience:
+            elif self.patience and len(records) > self.patience:
                 old = records[-self.patience]["score"]
                 if all(d["score"] < old + self.tol for d in records[-self.patience :]):
                     out[k] = 0
