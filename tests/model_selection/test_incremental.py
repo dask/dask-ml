@@ -2,6 +2,7 @@ import random
 
 import numpy as np
 import toolz
+import dask
 from dask.distributed import Future
 from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
 from sklearn.linear_model import SGDClassifier
@@ -259,3 +260,14 @@ def test_gridsearch(c, s, a, b):
     assert {frozenset(d["params"].items()) for d in search.history_results_} == {
         frozenset(d.items()) for d in ParameterGrid(params)
     }
+
+
+@gen_cluster(client=True)
+def test_numpy_array(c, s, a, b):
+    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+    X, y = yield c.compute([X, y])
+    model = SGDClassifier(tol=1e-3, penalty="elasticnet")
+    params = {"alpha": np.logspace(-2, 10, 10), "l1_ratio": np.linspace(0.01, 1, 20)}
+
+    search = IncrementalSearch(model, params, n_initial_parameters=10)
+    yield search.fit(X, y, classes=[0, 1])

@@ -443,7 +443,7 @@ class BaseIncrementalSearch(BaseEstimator, MetaEstimatorMixin):
         X, y : dask.array.Array
         """
         if self.test_size is None:
-            test_size = 1 / X.npartitions
+            test_size = min(0.2, 1 / X.npartitions)
         else:
             test_size = self.test_size
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size)
