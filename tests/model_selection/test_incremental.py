@@ -1,10 +1,11 @@
 import random
 
+import dask
 import numpy as np
 import toolz
-import dask
 from dask.distributed import Future
 from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
+from sklearn.cluster import MiniBatchKMeans
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from tornado import gen
@@ -190,9 +191,9 @@ def test_explicit(c, s, a, b):
 @gen_cluster(client=True)
 def test_search(c, s, a, b):
     X, y = make_classification(n_samples=1000, n_features=5, chunks=(100, 5))
-    model = SGDClassifier(tol=1e-3, penalty="elasticnet")
+    model = SGDClassifier(tol=1e-3, loss="log", penalty="elasticnet")
 
-    params = {"alpha": np.logspace(-2, 10, 100), "l1_ratio": np.linspace(0.01, 1, 200)}
+    params = {"alpha": np.logspace(-2, 2, 100), "l1_ratio": np.linspace(0.01, 1, 200)}
 
     search = IncrementalSearch(model, params, n_initial_parameters=10, max_iter=10)
     yield search.fit(X, y, classes=[0, 1])
@@ -204,6 +205,14 @@ def test_search(c, s, a, b):
     assert search.best_score_ > 0
     assert "visualize" not in search.__dict__
     assert search.best_params_
+    X_, = yield c.compute([X])
+
+    proba = search.predict_proba(X_)
+    log_proba = search.predict_log_proba(X_)
+    assert proba.shape == (1000, 2)
+    assert log_proba.shape == (1000, 2)
+    decision = search.decision_function(X_)
+    assert decision.shape == (1000,)
 
 
 @gen_cluster(client=True, timeout=None)
@@ -271,3 +280,14 @@ def test_numpy_array(c, s, a, b):
 
     search = IncrementalSearch(model, params, n_initial_parameters=10)
     yield search.fit(X, y, classes=[0, 1])
+
+
+def test_transform(c, s, a, b):
+    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+    model = MiniBatchKMeans(random_state=0)
+    params = {"n_clusters": [3, 4, 5], "n_init": [1, 2]}
+    search = IncrementalSearch(model, params, n_initial_parameters="grid")
+    yield search.fit(X, y)
+    X_, = yield c.compute([X])
+    result = search.transform(X_)
+    assert result.shape == (100, 5)
