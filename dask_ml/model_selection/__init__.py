@@ -16,3 +16,11 @@ __all__ = [
     "compute_n_splits",
     "check_cv",
 ]
+
+
+try:
+    from ._incremental import IncrementalSearch  # noqa: F401
+
+    __all__.extend(["IncrementalSearch"])
+except ImportError:
+    pass

@@ -3,36 +3,37 @@ import random
 import numpy as np
 import toolz
 from dask.distributed import Future
-from distributed.utils_test import gen_cluster, loop  # noqa: F401
+from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
+from sklearn.cluster import MiniBatchKMeans
 from sklearn.linear_model import SGDClassifier
-from sklearn.model_selection import ParameterSampler
+from sklearn.model_selection import ParameterGrid, ParameterSampler
 from tornado import gen
 
 from dask_ml.datasets import make_classification
+from dask_ml.model_selection import IncrementalSearch
 from dask_ml.model_selection._incremental import _partial_fit, _score, fit
 
 
-@gen_cluster(client=True, timeout=None)
+@gen_cluster(client=True, timeout=500)
 def test_basic(c, s, a, b):
     X, y = make_classification(n_samples=1000, n_features=5, chunks=100)
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
 
-    params = {
-        "alpha": np.logspace(-2, 1, num=100),
-        "l1_ratio": np.linspace(0, 1, num=100),
-        "average": [True, False],
-    }
+    params = {"alpha": np.logspace(-2, 1, num=50), "l1_ratio": [0.01, 1.0]}
 
     X_test, y_test = X[:100], y[:100]
     X_train = X[100:]
     y_train = y[100:]
 
-    n_parameters = 50
+    n_parameters = 5
     param_list = list(ParameterSampler(params, n_parameters))
 
     def additional_calls(info):
         pf_calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
         ret = {k: int(calls < 10) for k, calls in pf_calls.items()}
+        if len(ret) == 1:
+            return {list(ret)[0]: 0}
+
         # Don't train one model
         some_keys = set(ret.keys()) - {0}
         del ret[random.choice(list(some_keys))]
@@ -75,7 +76,7 @@ def test_basic(c, s, a, b):
 
     groups = toolz.groupby("partial_fit_calls", history)
     assert len(groups[1]) > len(groups[2]) > len(groups[3]) > len(groups[max(groups)])
-    assert max(groups) == 10
+    assert max(groups) == n_parameters
 
     keys = list(models.keys())
     for key in keys:
@@ -126,7 +127,7 @@ def test_partial_fit_doesnt_mutate_inputs():
     assert new_meta2 != new_meta
 
 
-@gen_cluster(client=True, timeout=None)
+@gen_cluster(client=True, timeout=500)
 def test_explicit(c, s, a, b):
     X, y = make_classification(n_samples=1000, n_features=10, chunks=(200, 10))
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
@@ -184,3 +185,109 @@ def test_explicit(c, s, a, b):
 
     while s.tasks or c.futures:  # all data clears out
         yield gen.sleep(0.01)
+
+
+@gen_cluster(client=True)
+def test_search(c, s, a, b):
+    X, y = make_classification(n_samples=1000, n_features=5, chunks=(100, 5))
+    model = SGDClassifier(tol=1e-3, loss="log", penalty="elasticnet")
+
+    params = {"alpha": np.logspace(-2, 2, 100), "l1_ratio": np.linspace(0.01, 1, 200)}
+
+    search = IncrementalSearch(model, params, n_initial_parameters=10, max_iter=10)
+    yield search.fit(X, y, classes=[0, 1])
+
+    assert search.history_results_
+    for d in search.history_results_:
+        assert d["partial_fit_calls"] <= search.max_iter + 1
+    assert isinstance(search.best_estimator_, SGDClassifier)
+    assert search.best_score_ > 0
+    assert "visualize" not in search.__dict__
+    assert search.best_params_
+    X_, = yield c.compute([X])
+
+    proba = search.predict_proba(X_)
+    log_proba = search.predict_log_proba(X_)
+    assert proba.shape == (1000, 2)
+    assert log_proba.shape == (1000, 2)
+    decision = search.decision_function(X_)
+    assert decision.shape == (1000,)
+
+
+@gen_cluster(client=True, timeout=None)
+def test_search_patience(c, s, a, b):
+    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+
+    class ConstantClassifier(SGDClassifier):
+        def score(*args, **kwargs):
+            return 0.5
+
+    model = ConstantClassifier(tol=1e-3)
+
+    params = {"alpha": np.logspace(-2, 10, 100), "l1_ratio": np.linspace(0.01, 1, 200)}
+
+    search = IncrementalSearch(model, params, n_initial_parameters=10, patience=2)
+    yield search.fit(X, y, classes=[0, 1])
+
+    assert search.history_results_
+    for d in search.history_results_:
+        assert d["partial_fit_calls"] <= 3
+    assert isinstance(search.best_estimator_, SGDClassifier)
+    assert search.best_score_ > 0
+    assert "visualize" not in search.__dict__
+
+    X_test, y_test = yield c.compute([X, y])
+
+    search.predict(X_test)
+    search.score(X_test, y_test)
+
+
+@gen_cluster(client=True)
+def test_search_max_iter(c, s, a, b):
+    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+    model = SGDClassifier(tol=1e-3, penalty="elasticnet")
+    params = {"alpha": np.logspace(-2, 10, 10), "l1_ratio": np.linspace(0.01, 1, 20)}
+
+    search = IncrementalSearch(model, params, n_initial_parameters=10, max_iter=1)
+    yield search.fit(X, y, classes=[0, 1])
+    for d in search.history_results_:
+        assert d["partial_fit_calls"] <= 1
+
+
+@gen_cluster(client=True)
+def test_gridsearch(c, s, a, b):
+    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+
+    model = SGDClassifier(tol=1e-3)
+
+    params = {"alpha": np.logspace(-2, 10, 3), "l1_ratio": np.linspace(0.01, 1, 2)}
+
+    search = IncrementalSearch(model, params, n_initial_parameters="grid")
+    yield search.fit(X, y, classes=[0, 1])
+
+    assert {frozenset(d["params"].items()) for d in search.history_results_} == {
+        frozenset(d.items()) for d in ParameterGrid(params)
+    }
+
+
+@gen_cluster(client=True)
+def test_numpy_array(c, s, a, b):
+    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+    X, y = yield c.compute([X, y])
+    model = SGDClassifier(tol=1e-3, penalty="elasticnet")
+    params = {"alpha": np.logspace(-2, 10, 10), "l1_ratio": np.linspace(0.01, 1, 20)}
+
+    search = IncrementalSearch(model, params, n_initial_parameters=10)
+    yield search.fit(X, y, classes=[0, 1])
+
+
+@gen_cluster(client=True)
+def test_transform(c, s, a, b):
+    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+    model = MiniBatchKMeans(random_state=0)
+    params = {"n_clusters": [3, 4, 5], "n_init": [1, 2]}
+    search = IncrementalSearch(model, params, n_initial_parameters="grid")
+    yield search.fit(X, y)
+    X_, = yield c.compute([X])
+    result = search.transform(X_)
+    assert result.shape == (100, search.best_estimator_.n_clusters)
