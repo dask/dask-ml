@@ -486,7 +486,7 @@ class BaseIncrementalSearch(BaseEstimator, MetaEstimatorMixin):
         """Select the best estimator from the set of estimators."""
         best_model_id = first(results.info)
         key = operator.itemgetter("model_id")
-        best_index = 0
+        best_index = -1
         # history_results is sorted by (model_id, partial_fit_calls)
         # best is the model_id with the highest partial fit calls
         for k, v in itertools.groupby(history_results, key=key):
