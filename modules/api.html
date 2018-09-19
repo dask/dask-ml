@@ -162,6 +162,7 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.model_selection.KFold.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.KFold</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.model_selection.GridSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.GridSearchCV</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.model_selection.RandomizedSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.RandomizedSearchCV</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.model_selection.IncrementalSearch.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.IncrementalSearch</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#module-dask_ml.linear_model"><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>: Generalized Linear Models</a><ul>
@@ -339,7 +340,8 @@ uses <a class="reference internal" href="generated/dask_ml.model_selection.Shuff
 </tr>
 </tbody>
 </table>
-<p>Dask-ML provides drop-in replacements for grid and randomized search.</p>
+<p>Dask-ML provides drop-in replacements for grid and randomized search.
+These are appropriate for datasets where the CV splits fit in memory.</p>
 <table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
@@ -351,6 +353,19 @@ uses <a class="reference internal" href="generated/dask_ml.model_selection.Shuff
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV" title="dask_ml.model_selection.RandomizedSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_selection.RandomizedSearchCV</span></code></a>(…[,&nbsp;…])</td>
 <td>Randomized search on hyper parameters.</td>
+</tr>
+</tbody>
+</table>
+<p>For hyperparameter optimization on larger-than-memory datasets, Dask-ML
+provides the follwoing:</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.model_selection.IncrementalSearch.html#dask_ml.model_selection.IncrementalSearch" title="dask_ml.model_selection.IncrementalSearch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_selection.IncrementalSearch</span></code></a>(estimator,&nbsp;…)</td>
+<td>Incrementally search for hyper-parameters on models that support partial_fit</td>
 </tr>
 </tbody>
 </table>

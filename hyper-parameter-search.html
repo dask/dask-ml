@@ -391,15 +391,16 @@ expensive early steps, this can be a big win when performing a grid search.</p>
 </div>
 <div class="section" id="incremental-hyperparameter-optimization">
 <span id="hyperparameter-incremental"></span><h2>Incremental Hyperparameter Optimization<a class="headerlink" href="#incremental-hyperparameter-optimization" title="Permalink to this headline">¶</a></h2>
-<p>The second category of hyperparameter optimization uses <em>incremental</em> hyperparameter
-optimization.</p>
+<p>The second category of hyperparameter optimization uses <em>incremental</em>
+hyperparameter optimization. These should be used when your full dataset doesn’t
+fit in memory on a single machine.</p>
 <table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearch</span></code>(…)</td>
+<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.IncrementalSearch.html#dask_ml.model_selection.IncrementalSearch" title="dask_ml.model_selection.IncrementalSearch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearch</span></code></a>(…)</td>
 <td>Incrementally search for hyper-parameters on models that support partial_fit</td>
 </tr>
 </tbody>
@@ -492,7 +493,7 @@ to use post-estimation features like scoring or prediction, we recommend using
 <span class="go">         test_size=None, tol=0.001)</span>
 
 <span class="gp">In [17]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="go">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  Out[17]: 0.586995</span>
+<span class="go">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  Out[17]: 0.5869184</span>
 </pre></div>
 </div>
 <p>Note that the parameter names include the <code class="docutils literal notranslate"><span class="pre">estimator__</span></code> prefix,
