@@ -482,20 +482,20 @@ class TestPolynomialFeatures:
         b.fit(X.compute())
         assert_estimator_equal(a._transformer, b)
 
-   # @pytest.mark.filterwarnings("ignore::sklearn.exceptions.DataConversionWarning")
-   # def test_input_types(self, dask_df, pandas_df):
-   #     a = dpp.PolynomialFeatures()
-   #     b = spp.PolynomialFeatures()
+    # @pytest.mark.filterwarnings("ignore::sklearn.exceptions.DataConversionWarning")
+    # def test_input_types(self, dask_df, pandas_df):
+    #     a = dpp.PolynomialFeatures()
+    #     b = spp.PolynomialFeatures()
 
-   #     assert_estimator_equal(a.fit(dask_df.values), a.fit(dask_df))
+    #     assert_estimator_equal(a.fit(dask_df.values), a.fit(dask_df))
 
-   #     assert_estimator_equal(a.fit(dask_df), b.fit(pandas_df))
+    #     assert_estimator_equal(a.fit(dask_df), b.fit(pandas_df))
 
-   #     assert_estimator_equal(a.fit(dask_df.values), b.fit(pandas_df))
+    #     assert_estimator_equal(a.fit(dask_df.values), b.fit(pandas_df))
 
-   #     assert_estimator_equal(a.fit(dask_df), b.fit(pandas_df.values))
+    #     assert_estimator_equal(a.fit(dask_df), b.fit(pandas_df.values))
 
-   #     assert_estimator_equal(a.fit(dask_df.values), b.fit(pandas_df.values))
+    #     assert_estimator_equal(a.fit(dask_df.values), b.fit(pandas_df.values))
 
     def test_estimator_comparison(self):
         a = dpp.PolynomialFeatures()
@@ -503,7 +503,7 @@ class TestPolynomialFeatures:
 
         a.fit_transform(X).compute()
         b.fit_transform(X.compute())
-        assert_estimator_equal(a._transformer, b)
+        assert_estimator_equal(a, b)
 
     def test_array_transform(self):
         a = dpp.PolynomialFeatures()
@@ -513,3 +513,34 @@ class TestPolynomialFeatures:
         res_b = b.fit_transform(X.compute())
         assert_eq_ar(res_a, res_b)
 
+    def test_transform_array(self):
+        a = dpp.PolynomialFeatures()
+        b = spp.PolynomialFeatures()
+
+        # pass numpy array to fit_transform
+        res_a1 = a.fit_transform(X.compute())
+        # pass dask array to fit_transform
+        res_a2 = a.fit_transform(X).compute()
+        res_b = b.fit_transform(X.compute())
+        assert_eq_ar(res_a1, res_b)
+        assert_eq_ar(res_a2, res_b)
+
+    def test_df_transform(self):
+        a = dpp.PolynomialFeatures()
+        b = spp.PolynomialFeatures()
+
+        # pandas dataframe
+        res_pdf = a.fit_transform(df.compute()).values
+        # spp returns a numpy array
+        res_b = b.fit_transform(df.compute())
+        assert_eq_ar(res_pdf, res_b)
+
+    def test_ddf_transform(self):
+        a = dpp.PolynomialFeatures()
+        b = spp.PolynomialFeatures()
+
+        # pandas dataframe
+        res_pdf = a.fit_transform(df).compute().values
+        # spp returns a numpy array
+        res_b = b.fit_transform(df.compute())
+        assert_eq_ar(res_pdf, res_b)

@@ -15,6 +15,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import data as skdata
 from sklearn.utils.validation import check_is_fitted, check_random_state
 
+from dask_ml._utils import copy_learned_attributes
 from dask_ml.utils import check_array, handle_zeros_in_scale
 
 _PANDAS_VERSION = LooseVersion(pd.__version__)
@@ -921,9 +922,6 @@ class PolynomialFeatures(skdata.PolynomialFeatures):
 
     __doc__ = skdata.PolynomialFeatures.__doc__
 
-    def __init_(self, degree=2, interaction_only=False, include_bias=True):
-        super(PolynomialFeatures, self).__init__(degree, interaction_only, include_bias)
-
     def fit(self, X, y=None):
         """
         Compute number of output features.
@@ -943,11 +941,13 @@ class PolynomialFeatures(skdata.PolynomialFeatures):
         self._transformer = skdata.PolynomialFeatures()
         X_sample = X
         if isinstance(X, dd.DataFrame):
-            X_sample = X._meta
+            X_sample = X._meta_nonempty
         if isinstance(X, da.Array):
             X_sample = np.ones((1, X.shape[1]), dtype=X.dtype)
 
+        # pandas dataframe treated correctly in sklearn
         self._transformer.fit(X_sample)
+        copy_learned_attributes(self._transformer, self)
         return self
 
     def transform(self, X, y=None):
@@ -968,9 +968,18 @@ class PolynomialFeatures(skdata.PolynomialFeatures):
         See License information here:
         https://github.com/scikit-learn/scikit-learn/blob/master/README.rst
         """
-        if isinstance(X, np.ndarray):
-            XP = self._transformer.transform(X)
-        elif isinstance(X, da.Array):
+        if isinstance(X, da.Array):
             XP = X.map_blocks(self._transformer.transform, dtype=X.dtype)
+        elif isinstance(X, pd.DataFrame):
+            data = X.pipe(self._transformer.transform)
+            columns = self._transformer.get_feature_names(X.columns)
+            XP = pd.DataFrame(data=data, columns=columns)
+        elif isinstance(X, dd.DataFrame):
+            data = X.map_partitions(self._transformer.transform)
+            columns = self._transformer.get_feature_names(X.columns)
+            XP = dd.from_array(data, "auto", columns)
+        else:
+            # typically X is instance of np.ndarray
+            XP = self._transformer.transform(X)
 
         return XP
