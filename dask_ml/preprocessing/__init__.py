@@ -13,6 +13,7 @@ from .data import (
     DummyEncoder,
     OrdinalEncoder,
 )
+from ._converters import ArrayConverter
 from .label import LabelEncoder
 
 
@@ -25,6 +26,7 @@ __all__ = [
     "DummyEncoder",
     "OrdinalEncoder",
     "LabelEncoder",
+    "ArrayConverter",
 ]
 
 if SK_VERSION >= parse("0.20.0.dev0"):

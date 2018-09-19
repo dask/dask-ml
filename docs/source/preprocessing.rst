@@ -137,6 +137,7 @@ Other transformers are specific to dask-ml.
    Categorizer
    DummyEncoder
    OrdinalEncoder
+   ArrayConverter
 
 
 Both :class:`dask_ml.preprocessing.Categorizer` and
