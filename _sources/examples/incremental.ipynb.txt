@@ -4,7 +4,8 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "# Incremental training of large datasets\n",
+    "Incrementally Train Large Datasets\n",
+    "==================================\n",
     "\n",
     "We can train models on large datasets one batch at a time.  Many Scikit-Learn estimators implement a `partial_fit` method to enable incremental learning in batches.  \n",
     "\n",
@@ -338,7 +339,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.6.5"
+   "version": "3.6.4"
   }
  },
  "nbformat": 4,

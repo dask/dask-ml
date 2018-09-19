@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="_static/css/style.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/explore.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/nbsphinx.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Clustering" href="clustering.html" />
@@ -245,6 +246,14 @@ cluster, all the workers will send their data to a single machine and crash it.<
 Scikit-Learn estimators supporting the <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> API. You wrap the
 underlying estimator in <code class="docutils literal notranslate"><span class="pre">Incremental</span></code>. Dask-ML will sequentially pass each
 block of a Dask Array to the underlying estimator’s <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> method.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.wrappers.Incremetnal</span></code> currently does not work well with
+hyper-parameter optimization like <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v0.19.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>.
+If you need to do hyper-parameter optimization on larger-than-memory datasets,
+we recommend <code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearch</span></code>. See
+<a class="reference internal" href="hyper-parameter-search.html#hyperparameter-incremental"><span class="std std-ref">Incremental Hyperparameter Optimization</span></a> for an introduction.</p>
+</div>
 <div class="section" id="incremental-meta-estimator">
 <span id="incremental-blockwise-metaestimator"></span><h2>Incremental Meta-estimator<a class="headerlink" href="#incremental-meta-estimator" title="Permalink to this headline">¶</a></h2>
 <table border="1" class="longtable docutils">
@@ -324,11 +333,11 @@ can also explicitly pass <code class="docutils literal notranslate"><span class=
 on the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> instance.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[-32.01689584,  23.23520292,   9.1515899 ,   0.43637101,</span>
-<span class="go">        -10.39379374,   2.27379271, -27.98509194,  10.13040407,</span>
-<span class="go">         47.26218717, -59.2430358 ,   1.40665243,  11.9715161 ,</span>
-<span class="go">         11.91906389, -81.72215827,  -2.94106116,  14.51620907,</span>
-<span class="go">         11.9795474 ,  79.58133282,  27.47690382,  -9.47058511]])</span>
+<span class="go">array([[-16.1499956 ,   8.21233896,  36.67066581,  13.97292692,</span>
+<span class="go">        -40.41034486,  44.36649697,  38.31174977,   4.63929241,</span>
+<span class="go">        -49.14988567,  -4.37334052, -24.32027284,  -8.62297133,</span>
+<span class="go">         68.81516717, -21.74808179,  -4.06700829,  14.55619046,</span>
+<span class="go">         26.48444087,  26.55487943,  23.26999369,  35.33833428]])</span>
 </pre></div>
 </div>
 <p>If necessary, the actual estimator trained is available as <code class="docutils literal notranslate"><span class="pre">Incremental.estimator_</span></code></p>
@@ -343,31 +352,8 @@ on the <code class="docutils literal notranslate"><span class="pre">Incremental<
 </div>
 <div class="section" id="incremental-learning-and-hyper-parameter-optimization">
 <h3>Incremental Learning and Hyper-parameter Optimization<a class="headerlink" href="#incremental-learning-and-hyper-parameter-optimization" title="Permalink to this headline">¶</a></h3>
-<p><code class="xref py py-class docutils literal notranslate"><span class="pre">Incremental</span></code> is a meta-estimator.
-To search over the hyper-parameters of the underlying estimator, use the usual scikit-learn convention of
-prefixing the parameter name with <code class="docutils literal notranslate"><span class="pre">&lt;name&gt;__</span></code>. For <code class="docutils literal notranslate"><span class="pre">Incremental</span></code>, <code class="docutils literal notranslate"><span class="pre">name</span></code> is always <code class="docutils literal notranslate"><span class="pre">estimator</span></code>.</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [12]: </span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">GridSearchCV</span>
-
-<span class="gp">In [13]: </span><span class="n">param_grid</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;estimator__alpha&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.10</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">]}</span>
-
-<span class="gp">In [14]: </span><span class="n">gs</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">)</span>
-
-<span class="gp">In [15]: </span><span class="n">gs</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-<span class="gh">Out[15]: </span><span class="go"></span>
-<span class="go">GridSearchCV(cv=None, error_score=&#39;raise&#39;,</span>
-<span class="go">       estimator=Incremental(estimator=SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,</span>
-<span class="go">       eta0=0.0, fit_intercept=True, l1_ratio=0.15,</span>
-<span class="go">       learning_rate=&#39;optimal&#39;, loss=&#39;hinge&#39;, max_iter=100, n_iter=None,</span>
-<span class="go">       n_jobs=1, penalty=&#39;l2&#39;, power_t=0.5, random_state=10, shuffle=True,</span>
-<span class="go">       tol=None, verbose=0, warm_start=False),</span>
-<span class="go">      random_state=None, scoring=None, shuffle_blocks=True),</span>
-<span class="go">       fit_params=None, iid=True, n_jobs=1,</span>
-<span class="go">       param_grid={&#39;estimator__alpha&#39;: [0.1, 10.0]},</span>
-<span class="go">       pre_dispatch=&#39;2*n_jobs&#39;, refit=True, return_train_score=&#39;warn&#39;,</span>
-<span class="go">       scoring=None, verbose=0)</span>
-</pre></div>
-</div>
-<p>This can be mixed with <a class="reference internal" href="joblib.html#joblib"><span class="std std-ref">Joblib</span></a> to use a cluster for training in parallel, even if you’re RAM-bound.</p>
+<p>See <span class="xref std std-ref">_hyperparameter.incremental</span> for more on how to do hyperparameter optimization on
+larger than memory datasets.</p>
 </div>
 </div>
 </div>

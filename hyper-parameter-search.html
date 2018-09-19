@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="_static/css/style.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/explore.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/nbsphinx.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Pipelines and Composite Estimators" href="compose.html" />
@@ -146,12 +147,13 @@
 <li class="toctree-l1"><a class="reference internal" href="preprocessing.html">Preprocessing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cross_validation.html">Cross Validation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Hyper Parameter Search</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#flexible-backends">Flexible Backends</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#works-well-with-dask-collections">Works Well With Dask Collections</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#avoid-repeated-work">Avoid Repeated Work</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#pipelines">Pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#drop-in-replacements-for-scikit-learn">Drop-In Replacements for Scikit-Learn</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#flexible-backends">Flexible Backends</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#works-well-with-dask-collections">Works Well With Dask Collections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#avoid-repeated-work">Avoid Repeated Work</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#incremental-hyperparameter-optimization">Incremental Hyperparameter Optimization</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="compose.html">Pipelines and Composite Estimators</a></li>
@@ -236,8 +238,21 @@
             
   <div class="section" id="hyper-parameter-search">
 <h1>Hyper Parameter Search<a class="headerlink" href="#hyper-parameter-search" title="Permalink to this headline">¶</a></h1>
-<p>Tools for performing hyperparameter optimization of Scikit-Learn API-compatible
-models using Dask. Dask-ML implements GridSearchCV and RandomizedSearchCV.</p>
+<p><em>Tools for performing hyperparameter optimization of Scikit-Learn API-compatible models using Dask</em>.</p>
+<p>There are two kinds of hyperparameter optimization estimators
+in Dask-ML. The appropriate one to use depends on the size of your dataset and
+whether the underlying estimator implements the <cite>partial_fit</cite> method.</p>
+<p>If your dataset is relatively small or the underlying estimator doesn’t implement
+<code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>, you can use <a class="reference internal" href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV" title="dask_ml.model_selection.GridSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.model_selection.GridSearchCV</span></code></a> or
+<a class="reference internal" href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV" title="dask_ml.model_selection.RandomizedSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.model_selection.RandomizedSearchCV</span></code></a>.
+These are drop-in replacements for their scikit-learn counterparts, that should offer better performance and handling of Dask Arrays and DataFrames.
+The underlying estimator will need to be able to train on each cross-validation split of the data.
+See <a class="reference internal" href="#hyperparameter-drop-in"><span class="std std-ref">Drop-In Replacements for Scikit-Learn</span></a> for more.</p>
+<p>If your data is large and the underlying estimator implements <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>, you can
+Dask-ML’s <a class="reference internal" href="#hyperparameter-incremental"><span class="std std-ref">*incremental* hyperparameter optimizers</span></a>.</p>
+<div class="section" id="drop-in-replacements-for-scikit-learn">
+<span id="hyperparameter-drop-in"></span><h2>Drop-In Replacements for Scikit-Learn<a class="headerlink" href="#drop-in-replacements-for-scikit-learn" title="Permalink to this headline">¶</a></h2>
+<p>Dask-ML implements GridSearchCV and RandomizedSearchCV.</p>
 <table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
@@ -275,7 +290,7 @@ efficient as it can avoid expensive repeated computations.</li>
 <p>Both scikit-learn’s and Dask-ML’s model selection meta-estimators can be used
 with Dask’s <a class="reference internal" href="joblib.html#joblib"><span class="std std-ref">joblib backend</span></a>.</p>
 <div class="section" id="flexible-backends">
-<span id="id1"></span><h2>Flexible Backends<a class="headerlink" href="#flexible-backends" title="Permalink to this headline">¶</a></h2>
+<span id="id1"></span><h3>Flexible Backends<a class="headerlink" href="#flexible-backends" title="Permalink to this headline">¶</a></h3>
 <p>Dask-searchcv can use any of the dask schedulers. By default the threaded
 scheduler is used, but this can easily be swapped out for the multiprocessing
 or distributed scheduler:</p>
@@ -289,7 +304,7 @@ or distributed scheduler:</p>
 </div>
 </div>
 <div class="section" id="works-well-with-dask-collections">
-<span id="works-with-dask-collections"></span><h2>Works Well With Dask Collections<a class="headerlink" href="#works-well-with-dask-collections" title="Permalink to this headline">¶</a></h2>
+<span id="works-with-dask-collections"></span><h3>Works Well With Dask Collections<a class="headerlink" href="#works-well-with-dask-collections" title="Permalink to this headline">¶</a></h3>
 <p>Dask collections such as <code class="docutils literal notranslate"><span class="pre">dask.array</span></code>, <code class="docutils literal notranslate"><span class="pre">dask.dataframe</span></code> and
 <code class="docutils literal notranslate"><span class="pre">dask.delayed</span></code> can be passed to <code class="docutils literal notranslate"><span class="pre">fit</span></code>. This means you can use dask to do
 your data loading and preprocessing as well, allowing for a clean workflow.
@@ -310,7 +325,7 @@ to pull it locally to your computer:</p>
 </div>
 </div>
 <div class="section" id="avoid-repeated-work">
-<span id="id2"></span><h2>Avoid Repeated Work<a class="headerlink" href="#avoid-repeated-work" title="Permalink to this headline">¶</a></h2>
+<span id="id2"></span><h3>Avoid Repeated Work<a class="headerlink" href="#avoid-repeated-work" title="Permalink to this headline">¶</a></h3>
 <p>When searching over composite estimators like <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code> or
 <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.FeatureUnion</span></code>, Dask-ML will avoid fitting the same
 estimator + parameter + data combination more than once. For pipelines with
@@ -372,12 +387,117 @@ Due to the increased flexibility of Dask over Joblib, we’re able to merge thes
 tasks in the graph and only perform the fit step once for any
 parameter/data/estimator combination. For pipelines that have relatively
 expensive early steps, this can be a big win when performing a grid search.</p>
-<div class="section" id="pipelines">
-<h3>Pipelines<a class="headerlink" href="#pipelines" title="Permalink to this headline">¶</a></h3>
-<p>Dask-ML uses scikit-learn’s <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.19.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a> to express
-pipelines of estimators that are chained together. If the individual
-estimators work well with Dask’s collections, the pipeline will as well.</p>
 </div>
+</div>
+<div class="section" id="incremental-hyperparameter-optimization">
+<span id="hyperparameter-incremental"></span><h2>Incremental Hyperparameter Optimization<a class="headerlink" href="#incremental-hyperparameter-optimization" title="Permalink to this headline">¶</a></h2>
+<p>The second category of hyperparameter optimization uses <em>incremental</em> hyperparameter
+optimization.</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearch</span></code>(…)</td>
+<td>Incrementally search for hyper-parameters on models that support partial_fit</td>
+</tr>
+</tbody>
+</table>
+<p>Broadly speaking, incremental optimization starts with a batch of models (underlying
+estimators and hyperparameter combinationms) and repeatedly calls the underlying estimator’s
+<code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> method with batches of data.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">These estimators require the optional <code class="docutils literal notranslate"><span class="pre">distributed</span></code> library.</p>
+</div>
+<p>Here’s an example training on a “large” dataset (a Dask array) with the
+<code class="docutils literal notranslate"><span class="pre">IncrementalSearch</span></code></p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">from</span> <span class="nn">dask.distributed</span> <span class="kn">import</span> <span class="n">Client</span>
+
+<span class="gp">In [2]: </span><span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">()</span>
+
+<span class="gp">In [3]: </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="gp">In [4]: </span><span class="kn">from</span> <span class="nn">dask_ml.datasets</span> <span class="kn">import</span> <span class="n">make_classification</span>
+
+<span class="gp">In [5]: </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_classification</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">5000000</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+<span class="gp">   ...: </span>                           <span class="n">chunks</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">   ...: </span>
+</pre></div>
+</div>
+<p>Our underlying estimator is an SGDClassifier. We specify a few parameters
+common to each clone of the estimator:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [6]: </span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">SGDClassifier</span>
+
+<span class="gp">In [7]: </span><span class="n">model</span> <span class="o">=</span> <span class="n">SGDClassifier</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">penalty</span><span class="o">=</span><span class="s1">&#39;elasticnet&#39;</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We also define the distribution of parameters from which we will sample:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [8]: </span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
+<span class="gp">   ...: </span>          <span class="s1">&#39;l1_ratio&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
+<span class="gp">   ...: </span>          <span class="s1">&#39;average&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">True</span><span class="p">,</span> <span class="bp">False</span><span class="p">]}</span>
+<span class="gp">   ...: </span>
+</pre></div>
+</div>
+<p>Finally we create many random models in this parameter space and
+train-and-score them until we find the best one.</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="kn">from</span> <span class="nn">dask_ml.model_selection</span> <span class="kn">import</span> <span class="n">IncrementalSearch</span>
+
+<span class="gp">In [10]: </span><span class="n">search</span> <span class="o">=</span> <span class="n">IncrementalSearch</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="gp">In [11]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gh">Out[11]: </span><span class="go"></span>
+<span class="go">IncrementalSearch(decay_rate=1.0,</span>
+<span class="go">         estimator=SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,</span>
+<span class="go">       eta0=0.0, fit_intercept=True, l1_ratio=0.15,</span>
+<span class="go">       learning_rate=&#39;optimal&#39;, loss=&#39;hinge&#39;, max_iter=None, n_iter=None,</span>
+<span class="go">       n_jobs=1, penalty=&#39;elasticnet&#39;, power_t=0.5, random_state=0,</span>
+<span class="go">       shuffle=True, tol=0.001, verbose=0, warm_start=False),</span>
+<span class="go">         max_iter=None, n_initial_parameters=10, param_distribution=None,</span>
+<span class="go">         patience=False, random_state=0, scores_per_fit=1, scoring=None,</span>
+<span class="go">         test_size=None, tol=0.001)</span>
+</pre></div>
+</div>
+<p>Note that when you do post-fit tasks like <code class="docutils literal notranslate"><span class="pre">search.score</span></code>, the underlying
+estimator’s score method is used. If that is unable to handle a
+larger-than-memory Dask Array, you’ll exhaust your machines memory. If you plan
+to use post-estimation features like scoring or prediction, we recommend using
+<a class="reference internal" href="modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit" title="dask_ml.wrappers.ParallelPostFit"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.wrappers.ParallelPostFit</span></code></a>.</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [12]: </span><span class="kn">from</span> <span class="nn">dask_ml.wrappers</span> <span class="kn">import</span> <span class="n">ParallelPostFit</span>
+
+<span class="gp">In [13]: </span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;estimator__alpha&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
+<span class="gp">   ....: </span>          <span class="s1">&#39;estimator__l1_ratio&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
+<span class="gp">   ....: </span>          <span class="s1">&#39;estimator__average&#39;</span><span class="p">:</span> <span class="p">[</span><span class="bp">True</span><span class="p">,</span> <span class="bp">False</span><span class="p">]}</span>
+<span class="gp">   ....: </span>
+
+<span class="gp">In [14]: </span><span class="n">model</span> <span class="o">=</span> <span class="n">ParallelPostFit</span><span class="p">(</span><span class="n">SGDClassifier</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+<span class="gp">   ....: </span>                                      <span class="n">penalty</span><span class="o">=</span><span class="s2">&quot;elasticnet&quot;</span><span class="p">,</span>
+<span class="gp">   ....: </span>                                      <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+<span class="gp">   ....: </span>
+
+<span class="gp">In [15]: </span><span class="n">search</span> <span class="o">=</span> <span class="n">IncrementalSearch</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="gp">In [16]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gh">Out[16]: </span><span class="go"></span>
+<span class="go">IncrementalSearch(decay_rate=1.0,</span>
+<span class="go">         estimator=ParallelPostFit(estimator=SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,</span>
+<span class="go">       eta0=0.0, fit_intercept=True, l1_ratio=0.15,</span>
+<span class="go">       learning_rate=&#39;optimal&#39;, loss=&#39;hinge&#39;, max_iter=None, n_iter=None,</span>
+<span class="go">       n_jobs=1, penalty=&#39;elasticnet&#39;, power_t=0.5, random_state=0,</span>
+<span class="go">       shuffle=True, tol=0.001, verbose=0, warm_start=False),</span>
+<span class="go">        scoring=None),</span>
+<span class="go">         max_iter=None, n_initial_parameters=10, param_distribution=None,</span>
+<span class="go">         patience=False, random_state=0, scores_per_fit=1, scoring=None,</span>
+<span class="go">         test_size=None, tol=0.001)</span>
+
+<span class="gp">In [17]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="go">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  Out[17]: 0.586995</span>
+</pre></div>
+</div>
+<p>Note that the parameter names include the <code class="docutils literal notranslate"><span class="pre">estimator__</span></code> prefix,
+as we’re tuning the hyperparameters of the <code class="docutils literal notranslate"><span class="pre">SGDClassifier</span></code> that’s
+underlying the <code class="docutils literal notranslate"><span class="pre">ParallelPostFit</span></code>.</p>
 </div>
 </div>
 

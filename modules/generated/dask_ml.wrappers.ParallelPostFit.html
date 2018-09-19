@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/explore.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/nbsphinx.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="dask_ml.wrappers.Incremental" href="dask_ml.wrappers.Incremental.html" />
@@ -283,14 +284,16 @@ You probably want to always specify <cite>scoring</cite>.</p>
 </table>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><a class="reference internal" href="dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental" title="dask_ml.wrappers.Incremental"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Incremental</span></code></a></p>
+<p class="last"><a class="reference internal" href="dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental" title="dask_ml.wrappers.Incremental"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Incremental</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearch</span></code></p>
 </div>
 <p class="rubric">Notes</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">This class is not appropriate for parallel or distributed <em>training</em>
 on large datasets. For that, see <a class="reference internal" href="dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental" title="dask_ml.wrappers.Incremental"><code class="xref py py-class docutils literal notranslate"><span class="pre">Incremental</span></code></a>, which provides
-distributed (but sequential) training.</p>
+distributed (but sequential) training. If you’re doing distributed
+hyperparameter optimization on larger-than-memory datasets, see
+<code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearch</span></code>.</p>
 </div>
 <p>This estimator does not parallelize the training step. This simply calls
 the underlying estimators’s <code class="docutils literal notranslate"><span class="pre">fit</span></code> method called and copies over the
@@ -370,6 +373,17 @@ data isn’t all read into memory at once.</p>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#dask_ml.wrappers.ParallelPostFit.transform" title="dask_ml.wrappers.ParallelPostFit.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(X)</td>
 <td>Transform block or partition-wise for dask inputs.</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="60%" />
+<col width="40%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>partial_fit</strong></td>
+<td>&#160;</td>
 </tr>
 </tbody>
 </table>

@@ -4,7 +4,8 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "# Training on Large Datasets\n",
+    "Train Models on Large Datasets\n",
+    "==============================\n",
     "\n",
     "Most estimators in scikit-learn are designed to work with NumPy arrays or scipy sparse matricies.\n",
     "These data structures must fit in the RAM on a single machine.\n",
@@ -31,7 +32,8 @@
     "\n",
     "# Scale up: connect to your own cluster with more resources\n",
     "# see http://dask.pydata.org/en/latest/setup.html\n",
-    "client = Client(processes=False, threads_per_worker=4, n_workers=1, memory_limit='2GB')\n",
+    "client = Client(processes=False, threads_per_worker=4,\n",
+    "                n_workers=1, memory_limit='2GB')\n",
     "client"
    ]
   },

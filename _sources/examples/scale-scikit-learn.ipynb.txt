@@ -4,7 +4,8 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "# Distributed Scikit-Learn for CPU Bound Problems\n",
+    "Scale Scikit-Learn for Small Data Problems\n",
+    "==========================================\n",
     "\n",
     "This example demonstrates how Dask can scale scikit-learn to a cluster of machines for a CPU-bound problem.\n",
     "We'll fit a large model, a grid-search over many hyper-parameters, on a small dataset.\n",
@@ -14,7 +15,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 1,
    "metadata": {
     "keep_output": true
    },
@@ -28,7 +29,7 @@
        "<IPython.core.display.HTML object>"
       ]
      },
-     "execution_count": null,
+     "execution_count": 1,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -46,7 +47,8 @@
    "outputs": [],
    "source": [
     "from dask.distributed import Client, progress\n",
-    "client = Client(processes=False, threads_per_worker=4, n_workers=1, memory_limit='2GB')\n",
+    "client = Client(processes=False, threads_per_worker=4,\n",
+    "                n_workers=1, memory_limit='2GB')\n",
     "client"
    ]
   },
@@ -58,7 +60,7 @@
    "source": [
     "## Distributed Training\n",
     "\n",
-    "<img src=\"images/scikit-learn-logo-notext.png\"/> <img src=\"images/joblib_logo.svg\" width=\"20%\"/> \n",
+    "<img src=\"../images/scikit-learn-logo-notext.png\"/> <img src=\"../images/joblib_logo.svg\" width=\"20%\"/> \n",
     "\n",
     "Scikit-learn uses [joblib](http://joblib.readthedocs.io/) for single-machine parallelism. This lets you train most estimators (anything that accepts an `n_jobs` parameter) using all the cores of your laptop or workstation.\n",
     "\n",

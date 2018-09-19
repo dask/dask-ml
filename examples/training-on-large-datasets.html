@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Training on Large Datasets &mdash; dask-ml 0.1 documentation</title>
+  <title>Train Models on Large Datasets &mdash; dask-ml 0.1 documentation</title>
   
 
   
@@ -27,10 +27,11 @@
   <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/explore.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/nbsphinx.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Incremental training of large datasets" href="incremental.html" />
-    <link rel="prev" title="Parallel and Out-of-core Prediction and Scoring" href="parallel-prediction.html" /> 
+    <link rel="next" title="Incrementally Train Large Datasets" href="incremental.html" />
+    <link rel="prev" title="Use Voting Classifiers" href="voting-classifier.html" /> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -140,14 +141,13 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="distributed-scikit-learn-for-cpu-bound-problems.html">Distributed Scikit-Learn for CPU Bound Problems</a></li>
-<li class="toctree-l2"><a class="reference internal" href="parallel-prediction.html">Parallel and Out-of-core Prediction and Scoring</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Training on Large Datasets</a></li>
-<li class="toctree-l2"><a class="reference internal" href="incremental.html">Incremental training of large datasets</a></li>
-<li class="toctree-l2"><a class="reference internal" href="xgboost.html">Dask and XGBoost</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tensorflow.html">Dask and Tensorflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="text-vectorization.html">Text Vectorization Example</a></li>
-<li class="toctree-l2"><a class="reference internal" href="voting-classifier.html">Voting Classifier</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples.html#scaling-scikit-learn">Scaling Scikit-Learn</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../examples.html#training-on-large-datasets">Training on Large Datasets</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Train Models on Large Datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="incremental.html">Incrementally Train Large Datasets</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../examples.html#integrations-with-other-libraries">Integrations with Other Libraries</a></li>
 </ul>
 </li>
 </ul>
@@ -219,7 +219,7 @@
         
           <li><a href="../examples.html">Examples</a> &raquo;</li>
         
-      <li>Training on Large Datasets</li>
+      <li>Train Models on Large Datasets</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -404,8 +404,9 @@ div.nboutput div.output_area.stderr {
 .ansi-bold { font-weight: bold; }
 .ansi-underline { text-decoration: underline; }
 </style>
-<div class="section" id="Training-on-Large-Datasets">
-<h1>Training on Large Datasets<a class="headerlink" href="#Training-on-Large-Datasets" title="Permalink to this headline">¶</a></h1>
+<p>You can run this notebook in a <a class="reference external" href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab/tree/examples/training-on-large-datasets.ipynb">live session</a> <a class="reference external" href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab/tree/examples/training-on-large-datasets.ipynb&gt;"><img alt="Binder" src="https://mybinder.org/badge.svg" /></a> or view it <a class="reference external" href="https://github.com/dask/dask-examples/blob/master/examples/training-on-large-datasets.ipynb">on Github</a>.</p>
+<div class="section" id="Train-Models-on-Large-Datasets">
+<h1>Train Models on Large Datasets<a class="headerlink" href="#Train-Models-on-Large-Datasets" title="Permalink to this headline">¶</a></h1>
 <p>Most estimators in scikit-learn are designed to work with NumPy arrays
 or scipy sparse matricies. These data structures must fit in the RAM on
 a single machine.</p>
@@ -432,7 +433,8 @@ can be distributed in memory on a cluster of machines.</p>
 
 <span class="c1"># Scale up: connect to your own cluster with more resources</span>
 <span class="c1"># see http://dask.pydata.org/en/latest/setup.html</span>
-<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">threads_per_worker</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">n_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">memory_limit</span><span class="o">=</span><span class="s1">&#39;2GB&#39;</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">threads_per_worker</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                <span class="n">n_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">memory_limit</span><span class="o">=</span><span class="s1">&#39;2GB&#39;</span><span class="p">)</span>
 <span class="n">client</span>
 </pre></div>
 </div>
@@ -508,10 +510,10 @@ documentation</a>.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="incremental.html" class="btn btn-neutral float-right" title="Incremental training of large datasets" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="incremental.html" class="btn btn-neutral float-right" title="Incrementally Train Large Datasets" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="parallel-prediction.html" class="btn btn-neutral" title="Parallel and Out-of-core Prediction and Scoring" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="voting-classifier.html" class="btn btn-neutral" title="Use Voting Classifiers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

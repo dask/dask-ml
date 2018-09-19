@@ -4,7 +4,8 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "# Dask and XGBoost\n",
+    "Scale XGBoost\n",
+    "=============\n",
     "\n",
     "Dask and XGBoost can work together to train gradient boosted trees in parallel. This notebook shows how to use Dask and XGBoost together.\n",
     "\n",
@@ -135,11 +136,12 @@
    "metadata": {},
    "outputs": [],
    "source": [
+    "%%time\n",
     "params = {'objective': 'binary:logistic',\n",
     "          'max_depth': 4, 'eta': 0.01, 'subsample': 0.5, \n",
     "          'min_child_weight': 0.5}\n",
     "\n",
-    "bst = dask_xgboost.train(client, params, X_train, y_train, num_boost_round=100)"
+    "bst = dask_xgboost.train(client, params, X_train, y_train, num_boost_round=10)"
    ]
   },
   {
@@ -275,13 +277,6 @@
     "* XGBoost documentation: https://xgboost.readthedocs.io/en/latest/python/python_intro.html#\n",
     "* Dask-XGBoost documentation: http://ml.dask.org/xgboost.html"
    ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "metadata": {},
-   "outputs": [],
-   "source": []
   }
  ],
  "metadata": {

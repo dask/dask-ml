@@ -4,7 +4,8 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "# Parallel and Out-of-core Prediction and Scoring"
+    "Score and Predict Large Datasets\n",
+    "================================"
    ]
   },
   {
@@ -26,7 +27,8 @@
     "\n",
     "# Scale up: connect to your own cluster with bmore resources\n",
     "# see http://dask.pydata.org/en/latest/setup.html\n",
-    "client = Client(processes=False, threads_per_worker=4, n_workers=1, memory_limit='2GB')\n",
+    "client = Client(processes=False, threads_per_worker=4,\n",
+    "                n_workers=1, memory_limit='2GB')\n",
     "client"
    ]
   },

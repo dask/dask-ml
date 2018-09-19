@@ -4,7 +4,8 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "# Voting Classifier\n",
+    "Use Voting Classifiers\n",
+    "======================\n",
     "\n",
     "A [Voting classifier](http://scikit-learn.org/stable/modules/ensemble.html#voting-classifier) model combines multiple different models (i.e., sub-estimators) into a single model, which is (ideally) stronger than any of the individual models alone. \n",
     "\n",
@@ -17,7 +18,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 1,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -38,7 +39,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 2,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -54,7 +55,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 3,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -75,35 +76,9 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 4,
+   "execution_count": null,
    "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "CPU times: user 54.2 ms, sys: 29.7 ms, total: 83.9 ms\n",
-      "Wall time: 282 ms\n"
-     ]
-    },
-    {
-     "data": {
-      "text/plain": [
-       "VotingClassifier(estimators=[('sgd', SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,\n",
-       "       eta0=0.0, fit_intercept=True, l1_ratio=0.15,\n",
-       "       learning_rate='optimal', loss='hinge', max_iter=1000, n_iter=None,\n",
-       "       n_jobs=1, penalty='l2', power_t=0.5, random_state=None,\n",
-       "       shuffle=T...,\n",
-       "  max_iter=-1, probability=False, random_state=None, shrinking=True,\n",
-       "  tol=0.001, verbose=False))],\n",
-       "         flatten_transform=None, n_jobs=-1, voting='hard', weights=None)"
-      ]
-     },
-     "execution_count": 4,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
+   "outputs": [],
    "source": [
     "%time clf.fit(X, y)"
    ]
@@ -119,41 +94,9 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 5,
+   "execution_count": null,
    "metadata": {},
-   "outputs": [
-    {
-     "data": {
-      "text/html": [
-       "<table style=\"border: 2px solid white;\">\n",
-       "<tr>\n",
-       "<td style=\"vertical-align: top; border: 0px solid white\">\n",
-       "<h3>Client</h3>\n",
-       "<ul>\n",
-       "  <li><b>Scheduler: </b>tcp://127.0.0.1:40451\n",
-       "  <li><b>Dashboard: </b><a href='http://127.0.0.1:8787/status' target='_blank'>http://127.0.0.1:8787/status</a>\n",
-       "</ul>\n",
-       "</td>\n",
-       "<td style=\"vertical-align: top; border: 0px solid white\">\n",
-       "<h3>Cluster</h3>\n",
-       "<ul>\n",
-       "  <li><b>Workers: </b>4</li>\n",
-       "  <li><b>Cores: </b>4</li>\n",
-       "  <li><b>Memory: </b>4.02 GB</li>\n",
-       "</ul>\n",
-       "</td>\n",
-       "</tr>\n",
-       "</table>"
-      ],
-      "text/plain": [
-       "<Client: scheduler='tcp://127.0.0.1:40451' processes=4 cores=4>"
-      ]
-     },
-     "execution_count": 5,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
+   "outputs": [],
    "source": [
     "import dask_ml.joblib\n",
     "from sklearn.externals import joblib\n",
@@ -172,26 +115,9 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 6,
+   "execution_count": null,
    "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "VotingClassifier(estimators=[('sgd', SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,\n",
-      "       eta0=0.0, fit_intercept=True, l1_ratio=0.15,\n",
-      "       learning_rate='optimal', loss='hinge', max_iter=1000, n_iter=None,\n",
-      "       n_jobs=1, penalty='l2', power_t=0.5, random_state=None,\n",
-      "       shuffle=T...,\n",
-      "  max_iter=-1, probability=False, random_state=None, shrinking=True,\n",
-      "  tol=0.001, verbose=False))],\n",
-      "         flatten_transform=None, n_jobs=-1, voting='hard', weights=None)\n",
-      "CPU times: user 164 ms, sys: 23.9 ms, total: 188 ms\n",
-      "Wall time: 1.01 s\n"
-     ]
-    }
-   ],
+   "outputs": [],
    "source": [
     "%%time \n",
     "with joblib.parallel_backend(\"dask\", scatter=[X, y]):\n",
@@ -224,7 +150,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.6.6"
+   "version": "3.6.4"
   }
  },
  "nbformat": 4,

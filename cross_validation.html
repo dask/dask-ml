@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="_static/css/style.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/explore.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/nbsphinx.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Hyper Parameter Search" href="hyper-parameter-search.html" />
@@ -251,9 +252,9 @@ This document only describes the extensions made to support Dask arrays.</p>
 
 <span class="gp">In [8]: </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="go">                                                                                  Out[8]: </span>
-<span class="go">array([[ 0.46698325,  0.14795648,  0.00401895, -0.25118474],</span>
-<span class="go">       [ 1.4746071 ,  0.99089734,  0.19177484, -0.25725069],</span>
-<span class="go">       [-1.05879148, -0.89722898,  0.96089406, -0.97585992]])</span>
+<span class="go">array([[-0.3122028 , -0.88191003, -0.00495866,  0.91761886],</span>
+<span class="go">       [-0.21865417, -0.50456115,  2.27597266,  0.39090406],</span>
+<span class="go">       [ 0.09281918, -0.44461239,  0.92946053,  0.42286638]])</span>
 </pre></div>
 </div>
 <p>While it’s possible to pass dask arrays to <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v0.19.2)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend

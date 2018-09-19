@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/explore.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/nbsphinx.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="dask_ml.cluster.KMeans" href="dask_ml.cluster.KMeans.html" />
@@ -255,6 +256,12 @@
 implementing the <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> API. These <em>incremental learners</em> can
 train on batches of data. This fits well with Dask’s blocked data
 structures.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This meta-estimator is not appropriate for hyperparameter optimization
+on larger-than-memory datasets. For that, see
+:class:dask_ml.model_selection.IncrementalSearch`.</p>
+</div>
 <p>See the <a class="reference external" href="http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning#noqa">list of incremental learners</a> in the scikit-learn documentation
 for a list of estimators that implement the <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> API. Note that
 <cite>Incremental</cite> is not limited to just these classes, it will work on any
@@ -314,7 +321,7 @@ not control shuffle between blocks or shuffling each block.</p>
 </table>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><a class="reference internal" href="dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit" title="dask_ml.wrappers.ParallelPostFit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ParallelPostFit</span></code></a></p>
+<p class="last"><a class="reference internal" href="dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit" title="dask_ml.wrappers.ParallelPostFit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ParallelPostFit</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearch</span></code></p>
 </div>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dask_ml.wrappers</span> <span class="k">import</span> <span class="n">Incremental</span>
