@@ -185,8 +185,9 @@ expensive early steps, this can be a big win when performing a grid search.
 Incremental Hyperparameter Optimization
 ---------------------------------------
 
-The second category of hyperparameter optimization uses *incremental* hyperparameter
-optimization.
+The second category of hyperparameter optimization uses *incremental*
+hyperparameter optimization. These should be used when your full dataset doesn't
+fit in memory on a single machine.
 
 .. autosummary::
    dask_ml.model_selection.IncrementalSearch
