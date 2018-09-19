@@ -35,6 +35,7 @@ uses :class:`model_selection.ShuffleSplit` internally.
    model_selection.KFold
 
 Dask-ML provides drop-in replacements for grid and randomized search.
+These are appropriate for datasets where the CV splits fit in memory.
 
 .. autosummary::
    :toctree: generated/
@@ -42,6 +43,15 @@ Dask-ML provides drop-in replacements for grid and randomized search.
 
    model_selection.GridSearchCV
    model_selection.RandomizedSearchCV
+
+For hyperparameter optimization on larger-than-memory datasets, Dask-ML
+provides the follwoing:
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   model_selection.IncrementalSearch
 
 
 :mod:`dask_ml.linear_model`: Generalized Linear Models
