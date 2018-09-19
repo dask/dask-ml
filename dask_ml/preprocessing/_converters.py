@@ -39,6 +39,7 @@ class ArrayConverter(BaseEstimator, TransformerMixin):
     >>> df = df.reset_index(drop=True)
     >>> converter = ArrayConverter(lengths=(4, 4, 4, 4, 4))
     >>> converter.fit_transform(df)
+    dask.array<array, shape=(20, 1), dtype=int64, chunksize=(4, 1)>
 
     If you don't know the lengths ahead of time, pass ``lengths=True``. This
     will immediate compute the lengths, which can be expensive. You might
