@@ -66,6 +66,15 @@ sphinx_gallery_conf = {
 }
 
 nbsphinx_timeout = 600
+nbsphinx_prolog = """
+{% set docname = env.doc2path(env.docname, base=None) %}
+
+You can run this notebook in a `live session <https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab/tree/{{ docname }}>`_ |Binder| or view it `on Github <https://github.com/dask/dask-examples/blob/master/{{ docname }}>`_.
+
+.. |Binder| image:: https://mybinder.org/badge.svg
+   :target: https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab/tree/{{ docname }}>
+"""
+
 numpydoc_class_members_toctree = False
 autodoc_default_flags = ["members", "inherited-members"]
 autosummary_generate = True
