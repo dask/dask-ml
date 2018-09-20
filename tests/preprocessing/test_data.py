@@ -482,20 +482,15 @@ class TestPolynomialFeatures:
         b.fit(X.compute())
         assert_estimator_equal(a._transformer, b)
 
-    # @pytest.mark.filterwarnings("ignore::sklearn.exceptions.DataConversionWarning")
-    # def test_input_types(self, dask_df, pandas_df):
-    #     a = dpp.PolynomialFeatures()
-    #     b = spp.PolynomialFeatures()
+    def test_input_types(self):
+        a = dpp.PolynomialFeatures()
+        b = spp.PolynomialFeatures()
 
-    #     assert_estimator_equal(a.fit(dask_df.values), a.fit(dask_df))
-
-    #     assert_estimator_equal(a.fit(dask_df), b.fit(pandas_df))
-
-    #     assert_estimator_equal(a.fit(dask_df.values), b.fit(pandas_df))
-
-    #     assert_estimator_equal(a.fit(dask_df), b.fit(pandas_df.values))
-
-    #     assert_estimator_equal(a.fit(dask_df.values), b.fit(pandas_df.values))
+        assert_estimator_equal(a.fit(df), a.fit(df.compute()))
+        assert_estimator_equal(a.fit(df), a.fit(df.compute().values))
+        assert_estimator_equal(a.fit(df.values), a.fit(df.compute().values))
+        assert_estimator_equal(a.fit(df), b.fit(df.compute()))
+        assert_estimator_equal(a.fit(df), b.fit(df.compute().values))
 
     def test_estimator_comparison(self):
         a = dpp.PolynomialFeatures()
@@ -535,12 +530,16 @@ class TestPolynomialFeatures:
         res_b = b.fit_transform(df.compute())
         assert_eq_ar(res_pdf, res_b)
 
-    def test_ddf_transform(self):
+    def test_daskdf_transform(self):
         a = dpp.PolynomialFeatures()
         b = spp.PolynomialFeatures()
 
+        # dask dataframe
+        trans_dask_df = a.fit_transform(df)
+
         # pandas dataframe
-        res_pdf = a.fit_transform(df).compute().values
+        res_pandas_df = a.fit_transform(df.compute())
         # spp returns a numpy array
         res_b = b.fit_transform(df.compute())
-        assert_eq_ar(res_pdf, res_b)
+        assert_eq_ar(trans_dask_df.compute().values, res_b)
+        assert_eq_df(trans_dask_df.compute(), res_pandas_df)

@@ -923,21 +923,7 @@ class PolynomialFeatures(skdata.PolynomialFeatures):
     __doc__ = skdata.PolynomialFeatures.__doc__
 
     def fit(self, X, y=None):
-        """
-        Compute number of output features.
-        Parameters
-        ----------
-        X : array-like, shape (n_samples, n_features)
-            The data.
-        Returns
-        -------
-        self : instance
 
-        This implementation was copied and modified from Scikit-Learn.
-
-        See License information here:
-        https://github.com/scikit-learn/scikit-learn/blob/master/README.rst
-        """
         self._transformer = skdata.PolynomialFeatures()
         X_sample = X
         if isinstance(X, dd.DataFrame):
@@ -945,29 +931,13 @@ class PolynomialFeatures(skdata.PolynomialFeatures):
         if isinstance(X, da.Array):
             X_sample = np.ones((1, X.shape[1]), dtype=X.dtype)
 
-        # pandas dataframe treated correctly in sklearn
+        # pandas dataframe treated by sklearn and returns np.array
         self._transformer.fit(X_sample)
         copy_learned_attributes(self._transformer, self)
         return self
 
     def transform(self, X, y=None):
-        """Transform data to polynomial features
-        Parameters
-        ----------
-        X : array-like or sparse matrix, shape [n_samples, n_features]
-            The data to transform, row by row.
-            Sparse input should preferably be in CSC format.
-        Returns
-        -------
-        XP : np.ndarray or CSC sparse matrix, shape [n_samples, NP]
-            The matrix of features, where NP is the number of polynomial
-            features generated from the combination of inputs.
 
-        This implementation was copied and modified from Scikit-Learn.
-
-        See License information here:
-        https://github.com/scikit-learn/scikit-learn/blob/master/README.rst
-        """
         if isinstance(X, da.Array):
             XP = X.map_blocks(self._transformer.transform, dtype=X.dtype)
         elif isinstance(X, pd.DataFrame):
