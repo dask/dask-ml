@@ -945,10 +945,7 @@ class PolynomialFeatures(skdata.PolynomialFeatures):
             columns = self._transformer.get_feature_names(X.columns)
             XP = pd.DataFrame(data=data, columns=columns)
         elif isinstance(X, dd.DataFrame):
-            meta = pd.DataFrame(
-                columns=self._transformer.get_feature_names(X.columns), dtype=float
-            )
-            data = X.map_partitions(self._transformer.transform, meta=meta)
+            data = X.map_partitions(self._transformer.transform)
             columns = self._transformer.get_feature_names(X.columns)
             XP = dd.from_array(data, "auto", columns)
         else:
