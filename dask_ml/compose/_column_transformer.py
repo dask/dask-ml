@@ -2,8 +2,8 @@ import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
-from scipy import sparse
 from packaging import version
+from scipy import sparse
 
 from .._compat import SK_VERSION
 
