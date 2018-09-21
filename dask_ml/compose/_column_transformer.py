@@ -23,6 +23,10 @@ class ColumnTransformer(sklearn.compose.ColumnTransformer):
 
     .. versionadded:: 0.9.0
 
+    .. note::
+
+       This requires scikit-learn 0.20.0 or newer.
+
     Parameters
     ----------
     transformers : list of tuples
