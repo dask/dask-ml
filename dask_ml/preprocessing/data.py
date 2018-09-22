@@ -939,7 +939,10 @@ class PolynomialFeatures(skdata.PolynomialFeatures):
     def transform(self, X, y=None):
 
         if isinstance(X, da.Array):
-            XP = X.map_blocks(self._transformer.transform, dtype=X.dtype)
+            n_cols = len(self._transformer.get_feature_names())
+            # might raise Error if columns are separated by chunks
+            chunks = (X.chunks[0], n_cols)
+            XP = X.map_blocks(self._transformer.transform, dtype=X.dtype, chunks=chunks)
         elif isinstance(X, pd.DataFrame):
             data = X.pipe(self._transformer.transform)
             columns = self._transformer.get_feature_names(X.columns)
@@ -947,7 +950,7 @@ class PolynomialFeatures(skdata.PolynomialFeatures):
         elif isinstance(X, dd.DataFrame):
             data = X.map_partitions(self._transformer.transform)
             columns = self._transformer.get_feature_names(X.columns)
-            XP = dd.from_array(data, "auto", columns)
+            XP = dd.from_dask_array(data, columns)
         else:
             # typically X is instance of np.ndarray
             XP = self._transformer.transform(X)

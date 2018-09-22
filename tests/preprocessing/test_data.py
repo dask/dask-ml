@@ -530,6 +530,26 @@ class TestPolynomialFeatures:
         res_b = b.fit_transform(df.compute())
         assert_eq_ar(res_pdf, res_b)
 
+    def test_transformed_shape(self):
+        # checks if the transformed objects have the correct columns
+        a = dpp.PolynomialFeatures()
+        a.fit(X)
+        n_cols = len(a.get_feature_names())
+        # dark array
+        assert a.transform(X).shape[1] == n_cols
+        # numpy array
+        assert a.transform(X.compute()).shape[1] == n_cols
+        # dask dataframe
+        assert a.transform(df).shape[1] == n_cols
+        # pandas dataframe
+        assert a.transform(df.compute()).shape[1] == n_cols
+        X_nan_rows = df.values
+        df_none_divisions = X_nan_rows.to_dask_dataframe(columns=df.columns)
+        # dask array with nan rows
+        assert a.transform(X_nan_rows).shape[1] == n_cols
+        # dask data frame with nan rows
+        assert a.transform(df_none_divisions).shape[1] == n_cols
+
     def test_daskdf_transform(self):
         a = dpp.PolynomialFeatures()
         b = spp.PolynomialFeatures()
@@ -542,4 +562,4 @@ class TestPolynomialFeatures:
         # spp returns a numpy array
         res_b = b.fit_transform(df.compute())
         assert_eq_ar(trans_dask_df.compute().values, res_b)
-        assert_eq_df(trans_dask_df.compute(), res_pandas_df)
+        assert_eq_df(trans_dask_df.compute().reset_index(drop=True), res_pandas_df)
