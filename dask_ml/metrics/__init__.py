@@ -5,5 +5,6 @@ from .pairwise import (  # noqa
 )
 from .regression import mean_absolute_error, mean_squared_error, r2_score  # noqa
 from .classification import accuracy_score, log_loss  # noqa
+from .cluster import mutual_info_score # noqa
 
 from .scorer import get_scorer, check_scoring, SCORERS  # noqa
