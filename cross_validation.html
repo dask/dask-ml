@@ -43,7 +43,7 @@
   
 
 <nav id="explore-links">
-  <a href="https://dask.pydata.org/">
+  <a href="https://docs.dask.org/">
     <img class="caption" src="_static/images/dask-horizontal-white.svg"/>
   </a>
 
@@ -51,46 +51,48 @@
     <li>
       <a>Get Started</a>
       <ul>
-        <li><a href="https://dask.pydata.org/en/latest/install.html"> Install </a></li>
-        <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab"> Examples </a></li>
+        <li><a href="https://docs.dask.org/en/latest/install.html"> Install </a></li>
+        <li><a href="https://examples.dask.org"> Examples </a></li>
         <li><a href="https://github.com/dask/dask-tutorial"> Tutorial </a></li>
-        <li><a href="https://dask.pydata.org/en/latest/why.html"> Why Dask? </a></li>
-        <li><a href="https://dask-stories.readthedocs.io/en/latest"> Use Cases </a></li>
+        <li><a href="https://docs.dask.org/en/latest/why.html"> Why Dask? </a></li>
+        <li><a href="https://stories.dask.org/en/latest"> Use Cases </a></li>
         <li><a href="https://www.youtube.com/watch?v=RA_2qdipVng&list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri"> Talks </a></li>
+        <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab"> Try Online </a></li>
       </ul>
     </li>
 
     <li>
       <a href="">Algorithms</a>
       <ul>
-        <li><a href="https://dask.pydata.org/en/latest/array.html">Arrays</a></li>
-        <li><a href="https://dask.pydata.org/en/latest/dataframe.html">Dataframes</a></li>
-        <li><a href="https://dask.pydata.org/en/latest/bag.html">Bags</a></li>
-        <li><a href="https://dask.pydata.org/en/latest/delayed.html">Delayed (custom)</a></li>
-        <li><a href="https://dask.pydata.org/en/latest/futures.html">Futures (real-time)</a></li>
+        <li><a href="https://docs.dask.org/en/latest/array.html">Arrays</a></li>
+        <li><a href="https://docs.dask.org/en/latest/dataframe.html">Dataframes</a></li>
+        <li><a href="https://docs.dask.org/en/latest/bag.html">Bags</a></li>
+        <li><a href="https://docs.dask.org/en/latest/delayed.html">Delayed (custom)</a></li>
+        <li><a href="https://docs.dask.org/en/latest/futures.html">Futures (real-time)</a></li>
         <li><a href="http://ml.dask.org">Machine Learning</a></li>
         <li><a href="https://xarray.pydata.org/en/latest/">XArray</a></li>
       </ul>
     </li>
 
     <li>
-      <a href="https://dask.pydata.org/en/latest/setup.html">Deploy</a>
+      <a href="https://docs.dask.org/en/latest/setup.html">Deploy</a>
       <ul>
-        <li><a href="https://dask-yarn.readthedocs.io/en/latest/"> Hadoop / Yarn </a></li>
-        <li><a href="https://dask.pydata.org/en/latest/setup/kubernetes-helm.html"> Helm </a></li>
-        <li><a href="https://dask.pydata.org/en/latest/setup/hpc.html"> HPC </a></li>
-        <li><a href="https://dask-kubernetes.readthedocs.io/en/latest/"> Kubernetes </a></li>
-        <li><a href="https://dask.pydata.org/en/latest/setup/single-machine.html"> Local </a></li>
+        <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/kubernetes-helm.html"> Helm </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/hpc.html"> HPC </a></li>
+        <li><a href="https://kubernetes.dask.org/en/latest/"> Kubernetes </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
       </ul>
     </li>
 
     <li>
       <a>Community</a>
       <ul>
-        <li><a href="http://dask.pydata.org/en/latest/support.html">Ask for Help</a></li>
+        <li><a href="http://docs.dask.org/en/latest/support.html">Ask for Help</a></li>
         <li><a href="https://github.com/dask">Github</a></li>
         <li><a href="https://stackoverflow.com/questions/tagged/dask">Stack Overflow</a></li>
         <li><a href="https://twitter.com/dask_dev">Twitter</a></li>
+        <li><a href="https://blog.dask.org/"> Developer Blog </a></li>
       </ul>
     </li>
   </ul>
@@ -252,9 +254,9 @@ This document only describes the extensions made to support Dask arrays.</p>
 
 <span class="gp">In [8]: </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="go">                                                                                  Out[8]: </span>
-<span class="go">array([[ 1.4136866 , -0.46491099, -0.21560393,  0.38860571],</span>
-<span class="go">       [-0.45656184, -0.13857792, -1.52033112,  0.27454601],</span>
-<span class="go">       [ 0.70530725, -1.30363125, -0.12527161, -0.16084649]])</span>
+<span class="go">array([[ 0.06104403,  0.99703317,  0.99714619,  0.73869252],</span>
+<span class="go">       [ 0.78238736,  0.78854356,  0.84887241,  1.10977114],</span>
+<span class="go">       [ 0.00857379,  1.42919713, -0.0874478 ,  0.06874151]])</span>
 </pre></div>
 </div>
 <p>While it’s possible to pass dask arrays to <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v0.19.2)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend

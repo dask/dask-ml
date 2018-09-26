@@ -43,7 +43,7 @@
   
 
 <nav id="explore-links">
-  <a href="https://dask.pydata.org/">
+  <a href="https://docs.dask.org/">
     <img class="caption" src="_static/images/dask-horizontal-white.svg"/>
   </a>
 
@@ -51,46 +51,48 @@
     <li>
       <a>Get Started</a>
       <ul>
-        <li><a href="https://dask.pydata.org/en/latest/install.html"> Install </a></li>
-        <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab"> Examples </a></li>
+        <li><a href="https://docs.dask.org/en/latest/install.html"> Install </a></li>
+        <li><a href="https://examples.dask.org"> Examples </a></li>
         <li><a href="https://github.com/dask/dask-tutorial"> Tutorial </a></li>
-        <li><a href="https://dask.pydata.org/en/latest/why.html"> Why Dask? </a></li>
-        <li><a href="https://dask-stories.readthedocs.io/en/latest"> Use Cases </a></li>
+        <li><a href="https://docs.dask.org/en/latest/why.html"> Why Dask? </a></li>
+        <li><a href="https://stories.dask.org/en/latest"> Use Cases </a></li>
         <li><a href="https://www.youtube.com/watch?v=RA_2qdipVng&list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri"> Talks </a></li>
+        <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab"> Try Online </a></li>
       </ul>
     </li>
 
     <li>
       <a href="">Algorithms</a>
       <ul>
-        <li><a href="https://dask.pydata.org/en/latest/array.html">Arrays</a></li>
-        <li><a href="https://dask.pydata.org/en/latest/dataframe.html">Dataframes</a></li>
-        <li><a href="https://dask.pydata.org/en/latest/bag.html">Bags</a></li>
-        <li><a href="https://dask.pydata.org/en/latest/delayed.html">Delayed (custom)</a></li>
-        <li><a href="https://dask.pydata.org/en/latest/futures.html">Futures (real-time)</a></li>
+        <li><a href="https://docs.dask.org/en/latest/array.html">Arrays</a></li>
+        <li><a href="https://docs.dask.org/en/latest/dataframe.html">Dataframes</a></li>
+        <li><a href="https://docs.dask.org/en/latest/bag.html">Bags</a></li>
+        <li><a href="https://docs.dask.org/en/latest/delayed.html">Delayed (custom)</a></li>
+        <li><a href="https://docs.dask.org/en/latest/futures.html">Futures (real-time)</a></li>
         <li><a href="http://ml.dask.org">Machine Learning</a></li>
         <li><a href="https://xarray.pydata.org/en/latest/">XArray</a></li>
       </ul>
     </li>
 
     <li>
-      <a href="https://dask.pydata.org/en/latest/setup.html">Deploy</a>
+      <a href="https://docs.dask.org/en/latest/setup.html">Deploy</a>
       <ul>
-        <li><a href="https://dask-yarn.readthedocs.io/en/latest/"> Hadoop / Yarn </a></li>
-        <li><a href="https://dask.pydata.org/en/latest/setup/kubernetes-helm.html"> Helm </a></li>
-        <li><a href="https://dask.pydata.org/en/latest/setup/hpc.html"> HPC </a></li>
-        <li><a href="https://dask-kubernetes.readthedocs.io/en/latest/"> Kubernetes </a></li>
-        <li><a href="https://dask.pydata.org/en/latest/setup/single-machine.html"> Local </a></li>
+        <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/kubernetes-helm.html"> Helm </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/hpc.html"> HPC </a></li>
+        <li><a href="https://kubernetes.dask.org/en/latest/"> Kubernetes </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
       </ul>
     </li>
 
     <li>
       <a>Community</a>
       <ul>
-        <li><a href="http://dask.pydata.org/en/latest/support.html">Ask for Help</a></li>
+        <li><a href="http://docs.dask.org/en/latest/support.html">Ask for Help</a></li>
         <li><a href="https://github.com/dask">Github</a></li>
         <li><a href="https://stackoverflow.com/questions/tagged/dask">Stack Overflow</a></li>
         <li><a href="https://twitter.com/dask_dev">Twitter</a></li>
+        <li><a href="https://blog.dask.org/"> Developer Blog </a></li>
       </ul>
     </li>
   </ul>
@@ -326,18 +328,18 @@ can also explicitly pass <code class="docutils literal notranslate"><span class=
 </div>
 <p>We can get the accuracy score on our dataset.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gh">Out[9]: </span><span class="go">0.65</span>
+<span class="gh">Out[9]: </span><span class="go">0.71</span>
 </pre></div>
 </div>
 <p>All of the attributes learned durning training, like <code class="docutils literal notranslate"><span class="pre">coef_</span></code>, are available
 on the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> instance.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[ 48.94502083, -44.1016377 , -25.14419114,  -8.77153207,</span>
-<span class="go">        -13.12111867,  23.78193518,   4.62469538,   7.49204635,</span>
-<span class="go">         17.00973508,  -3.70859053,  28.28016976,  21.93286707,</span>
-<span class="go">          1.90669369,  -3.03581836, -40.76679103,   7.13887149,</span>
-<span class="go">        -38.25633381,  27.94847331, -18.23920242,  18.25831743]])</span>
+<span class="go">array([[ 58.65831481,  -3.29267531, -13.42013056,   8.3383631 ,</span>
+<span class="go">        -30.26900369,   0.57061336, -40.58374602,  -7.66854976,</span>
+<span class="go">        -27.52137315,   7.0780106 , -45.75540682,  38.39819083,</span>
+<span class="go">        -40.79620081,  18.37360601,  43.31763437,  -5.6998495 ,</span>
+<span class="go">          6.38726831,  -2.40451642, -49.87894581,  -0.43292685]])</span>
 </pre></div>
 </div>
 <p>If necessary, the actual estimator trained is available as <code class="docutils literal notranslate"><span class="pre">Incremental.estimator_</span></code></p>
