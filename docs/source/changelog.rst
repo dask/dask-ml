@@ -9,6 +9,12 @@ Enhancements
 
 - Added support for :class:`dask.dataframe.DataFrame` to :meth:`dask_ml.model_selection.train_test_split` (:issue:`351`)
 
+Bug Fixes
+---------
+
+- Changed :class:`dask_ml.wrappers.ParallelPostFit` to automatically rechunk input arrays to methods like ``predict`` when they
+  have more than one block along the features (:issue:`376`)
+
 Version 0.9.0
 ~~~~~~~~~~~~~
 

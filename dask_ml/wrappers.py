@@ -18,7 +18,7 @@ from .metrics import check_scoring, get_scorer
 logger = logging.getLogger(__name__)
 
 
-class ParallelPostFit(sklearn.base.BaseEstimator):
+class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixin):
     """Meta-estimator for parallel predict and transform.
 
     Parameters
@@ -119,6 +119,29 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         self.estimator = estimator
         self.scoring = scoring
 
+    def _check_array(self, X):
+        """Validate an array for post-fit tasks.
+
+        Parameters
+        ----------
+        X : Union[Array, DataFrame]
+
+        Returns
+        -------
+        same type as 'X'
+
+        Notes
+        -----
+        The following checks are applied.
+
+        - Ensure that the array is blocked only along the samples.
+        """
+        if isinstance(X, da.Array):
+            if X.ndim == 2 and X.numblocks[1] > 1:
+                logger.debug("auto-rechunking 'X'")
+                X = X.rechunk({0: "auto", 1: -1})
+        return X
+
     @property
     def _postfit_estimator(self):
         # The estimator instance to use for postfit tasks like score
@@ -175,6 +198,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         transformed : array-like
         """
         transform = self._check_method("transform")
+        X = self._check_array(X)
 
         if isinstance(X, da.Array):
             return X.map_blocks(transform)
@@ -202,6 +226,8 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
                 return self.estimator.score(X, y)
         """
         scoring = self.scoring
+        X = self._check_array(X)
+        y = self._check_array(y)
 
         if not scoring:
             if type(self._postfit_estimator).score == sklearn.base.RegressorMixin.score:
@@ -239,6 +265,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         y : array-like
         """
         predict = self._check_method("predict")
+        X = self._check_array(X)
 
         if isinstance(X, da.Array):
             return X.map_blocks(predict, dtype="int", drop_axis=1)
@@ -267,6 +294,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator):
         -------
         y : array-like
         """
+        X = self._check_array(X)
 
         predict_proba = self._check_method("predict_proba")
 

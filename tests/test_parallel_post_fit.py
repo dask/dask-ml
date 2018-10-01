@@ -113,3 +113,14 @@ def test_multiclass():
 
     assert isinstance(result, da.Array)
     assert_eq_ar(result, expected)
+
+
+def test_auto_rechunk():
+    clf = ParallelPostFit(GradientBoostingClassifier())
+    X, y = make_classification(n_samples=1000, n_features=20, chunks=100)
+    X = X.rechunk({0: 100, 1: 10})
+    clf.fit(X, y)
+
+    assert clf.predict(X).compute().shape == (1000,)
+    assert clf.predict_proba(X).compute().shape == (1000, 2)
+    assert clf.score(X, y) == clf.score(X.compute(), y.compute())
