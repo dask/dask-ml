@@ -940,7 +940,7 @@ class PolynomialFeatures(skdata.PolynomialFeatures):
 
         if isinstance(X, da.Array):
             n_cols = len(self._transformer.get_feature_names())
-            # might raise Error if columns are separated by chunks
+            X = check_array(X, accept_multiple_blocks=False, accept_unknown_chunks=True)
             chunks = (X.chunks[0], n_cols)
             XP = X.map_blocks(self._transformer.transform, dtype=X.dtype, chunks=chunks)
         elif isinstance(X, pd.DataFrame):

@@ -535,7 +535,7 @@ class TestPolynomialFeatures:
         a = dpp.PolynomialFeatures()
         a.fit(X)
         n_cols = len(a.get_feature_names())
-        # dark array
+        # dask array
         assert a.transform(X).shape[1] == n_cols
         # numpy array
         assert a.transform(X.compute()).shape[1] == n_cols
