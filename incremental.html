@@ -251,7 +251,7 @@ block of a Dask Array to the underlying estimator’s <code class="docutils lite
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.wrappers.Incremetnal</span></code> currently does not work well with
-hyper-parameter optimization like <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v0.19.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>.
+hyper-parameter optimization like <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v0.20.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>.
 If you need to do hyper-parameter optimization on larger-than-memory datasets,
 we recommend <a class="reference internal" href="modules/generated/dask_ml.model_selection.IncrementalSearch.html#dask_ml.model_selection.IncrementalSearch" title="dask_ml.model_selection.IncrementalSearch"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearch</span></code></a>. See
 <a class="reference internal" href="hyper-parameter-search.html#hyperparameter-incremental"><span class="std std-ref">Incremental Hyperparameter Optimization</span></a> for an introduction.</p>
@@ -295,11 +295,12 @@ between machines.</p>
 
 <span class="gp">In [8]: </span><span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 <span class="gh">Out[8]: </span><span class="go"></span>
-<span class="go">Incremental(estimator=SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,</span>
-<span class="go">       eta0=0.0, fit_intercept=True, l1_ratio=0.15,</span>
-<span class="go">       learning_rate=&#39;optimal&#39;, loss=&#39;hinge&#39;, max_iter=100, n_iter=None,</span>
-<span class="go">       n_jobs=1, penalty=&#39;l2&#39;, power_t=0.5, random_state=10, shuffle=True,</span>
-<span class="go">       tol=None, verbose=0, warm_start=False),</span>
+<span class="go">Incremental(estimator=SGDClassifier(alpha=0.0001, average=False, class_weight=None,</span>
+<span class="go">       early_stopping=False, epsilon=0.1, eta0=0.0, fit_intercept=True,</span>
+<span class="go">       l1_ratio=0.15, learning_rate=&#39;optimal&#39;, loss=&#39;hinge&#39;, max_iter=100,</span>
+<span class="go">       n_iter=None, n_iter_no_change=5, n_jobs=None, penalty=&#39;l2&#39;,</span>
+<span class="go">       power_t=0.5, random_state=10, shuffle=True, tol=None,</span>
+<span class="go">       validation_fraction=0.1, verbose=0, warm_start=False),</span>
 <span class="go">      random_state=None, scoring=None, shuffle_blocks=True)</span>
 </pre></div>
 </div>
@@ -312,7 +313,7 @@ scikit-learn compatible estimator, and will be trained normally via its
 <p>Notice that we call the regular <code class="docutils literal notranslate"><span class="pre">.fit</span></code> method, not <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> for
 training. Dask-ML takes care of passing each block to the underlying estimator
 for you.</p>
-<p>Just like <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html#sklearn.linear_model.SGDClassifier.partial_fit" title="(in scikit-learn v0.19.2)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sklearn.linear_model.SGDClassifier.partial_fit()</span></code></a>, we need to
+<p>Just like <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html#sklearn.linear_model.SGDClassifier.partial_fit" title="(in scikit-learn v0.20.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sklearn.linear_model.SGDClassifier.partial_fit()</span></code></a>, we need to
 pass the <code class="docutils literal notranslate"><span class="pre">classes</span></code> argument to <code class="docutils literal notranslate"><span class="pre">fit</span></code>. In general, any argument that is
 required for the underlying estimators <code class="docutils literal notranslate"><span class="pre">parital_fit</span></code> becomes required for
 the wrapped <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</p>
@@ -328,28 +329,29 @@ can also explicitly pass <code class="docutils literal notranslate"><span class=
 </div>
 <p>We can get the accuracy score on our dataset.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gh">Out[9]: </span><span class="go">0.71</span>
+<span class="gh">Out[9]: </span><span class="go">0.69</span>
 </pre></div>
 </div>
 <p>All of the attributes learned durning training, like <code class="docutils literal notranslate"><span class="pre">coef_</span></code>, are available
 on the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> instance.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[ 58.65831481,  -3.29267531, -13.42013056,   8.3383631 ,</span>
-<span class="go">        -30.26900369,   0.57061336, -40.58374602,  -7.66854976,</span>
-<span class="go">        -27.52137315,   7.0780106 , -45.75540682,  38.39819083,</span>
-<span class="go">        -40.79620081,  18.37360601,  43.31763437,  -5.6998495 ,</span>
-<span class="go">          6.38726831,  -2.40451642, -49.87894581,  -0.43292685]])</span>
+<span class="go">array([[  4.55716693, -10.48790442,  -5.46520138,  95.66699691,</span>
+<span class="go">         18.65019503,  54.56043206,  -2.26569143, -40.7614309 ,</span>
+<span class="go">        -18.79730618,  13.52185911,  27.52320312, -43.06052513,</span>
+<span class="go">         12.39741119, -12.15477893,   6.26441009, -14.71330219,</span>
+<span class="go">         -7.90676378,  26.62953252,  14.44480329, -22.24144273]])</span>
 </pre></div>
 </div>
 <p>If necessary, the actual estimator trained is available as <code class="docutils literal notranslate"><span class="pre">Incremental.estimator_</span></code></p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [11]: </span><span class="n">clf</span><span class="o">.</span><span class="n">estimator_</span>
 <span class="gh">Out[11]: </span><span class="go"></span>
-<span class="go">SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,</span>
-<span class="go">       eta0=0.0, fit_intercept=True, l1_ratio=0.15,</span>
-<span class="go">       learning_rate=&#39;optimal&#39;, loss=&#39;hinge&#39;, max_iter=100, n_iter=None,</span>
-<span class="go">       n_jobs=1, penalty=&#39;l2&#39;, power_t=0.5, random_state=10, shuffle=True,</span>
-<span class="go">       tol=None, verbose=0, warm_start=False)</span>
+<span class="go">SGDClassifier(alpha=0.0001, average=False, class_weight=None,</span>
+<span class="go">       early_stopping=False, epsilon=0.1, eta0=0.0, fit_intercept=True,</span>
+<span class="go">       l1_ratio=0.15, learning_rate=&#39;optimal&#39;, loss=&#39;hinge&#39;, max_iter=100,</span>
+<span class="go">       n_iter=None, n_iter_no_change=5, n_jobs=None, penalty=&#39;l2&#39;,</span>
+<span class="go">       power_t=0.5, random_state=10, shuffle=True, tol=None,</span>
+<span class="go">       validation_fraction=0.1, verbose=0, warm_start=False)</span>
 </pre></div>
 </div>
 <div class="section" id="incremental-learning-and-hyper-parameter-optimization">

@@ -445,7 +445,7 @@ to parallelize and distribute the scoring or prediction steps.</p>
 <td style="vertical-align: top; border: 0px solid white">
 <h3>Client</h3>
 <ul>
-  <li><b>Scheduler: </b>inproc://10.20.0.199/5030/1
+  <li><b>Scheduler: </b>inproc://10.20.255.108/5128/1
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
@@ -572,8 +572,9 @@ only use datasets that fit in memory.</p>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
 <span></span>ParallelPostFit(estimator=LogisticRegressionCV(Cs=10, class_weight=None, cv=3, dual=False,
            fit_intercept=True, intercept_scaling=1.0, max_iter=100,
-           multi_class=&#39;ovr&#39;, n_jobs=1, penalty=&#39;l2&#39;, random_state=None,
-           refit=True, scoring=None, solver=&#39;lbfgs&#39;, tol=0.0001, verbose=0),
+           multi_class=&#39;warn&#39;, n_jobs=None, penalty=&#39;l2&#39;,
+           random_state=None, refit=True, scoring=None, solver=&#39;lbfgs&#39;,
+           tol=0.0001, verbose=0),
         scoring=None)
 </pre></div>
 </div>

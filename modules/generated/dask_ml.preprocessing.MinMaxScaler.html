@@ -176,7 +176,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-compose-composite-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.compose</span></code>: Composite Estimators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-impute-imputing-missing-data"><code class="docutils literal notranslate"><span class="pre">dask_ml.impute</span></code>: Imputing Missing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.impute"><code class="docutils literal notranslate"><span class="pre">dask_ml.impute</span></code>: Imputing Missing Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-metrics-metrics"><code class="docutils literal notranslate"><span class="pre">dask_ml.metrics</span></code>: Metrics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.tensorflow"><code class="docutils literal notranslate"><span class="pre">dask_ml.tensorflow</span></code>: Tensorflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.xgboost"><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code>: XGBoost</a></li>
@@ -272,7 +272,7 @@ zero and one.</p>
 <p>where min, max = feature_range.</p>
 <p>This transformation is often used as an alternative to zero mean,
 unit variance scaling.</p>
-<p>Read more in the <a class="reference external" href="http://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.19.2)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="http://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.20.0)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -329,8 +329,10 @@ copy (if the input is already a numpy array).</p>
 </dl>
 </div>
 <p class="rubric">Notes</p>
+<p>NaNs are treated as missing values: disregarded in fit, and maintained in
+transform.</p>
 <p>For a comparison of the different scalers, transformers, and normalizers,
-see <a class="reference external" href="http://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.19.2)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
+see <a class="reference external" href="http://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.20.0)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">MinMaxScaler</span>
 <span class="go">&gt;&gt;&gt;</span>
@@ -339,14 +341,14 @@ see <a class="reference external" href="http://scikit-learn.org/stable/auto_exam
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">scaler</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
 <span class="go">MinMaxScaler(copy=True, feature_range=(0, 1))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">scaler</span><span class="o">.</span><span class="n">data_max_</span><span class="p">)</span>
-<span class="go">[  1.  18.]</span>
+<span class="go">[ 1. 18.]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
-<span class="go">[[ 0.    0.  ]</span>
-<span class="go"> [ 0.25  0.25]</span>
-<span class="go"> [ 0.5   0.5 ]</span>
-<span class="go"> [ 1.    1.  ]]</span>
+<span class="go">[[0.   0.  ]</span>
+<span class="go"> [0.25 0.25]</span>
+<span class="go"> [0.5  0.5 ]</span>
+<span class="go"> [1.   1.  ]]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">([[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]))</span>
-<span class="go">[[ 1.5  0. ]]</span>
+<span class="go">[[1.5 0. ]]</span>
 </pre></div>
 </div>
 <p class="rubric">Methods</p>
@@ -498,8 +500,9 @@ or because X is read from a continuous stream.</p>
 <dd><p class="first last">The data used to compute the mean and standard deviation
 used for later scaling along the features axis.</p>
 </dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Passthrough for <code class="docutils literal notranslate"><span class="pre">Pipeline</span></code> compatibility.</span></dt>
-<dd></dd>
+<dt><strong>y</strong></dt>
+<dd><p class="first last">Ignored</p>
+</dd>
 </dl>
 </td>
 </tr>

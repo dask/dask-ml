@@ -487,8 +487,8 @@ used dask).</p>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-CPU times: user 44 ms, sys: 8 ms, total: 52 ms
-Wall time: 150 ms
+CPU times: user 12 ms, sys: 12 ms, total: 24 ms
+Wall time: 1.51 s
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -497,11 +497,11 @@ Wall time: 150 ms
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>VotingClassifier(estimators=[(&#39;sgd&#39;, SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,
-       eta0=0.0, fit_intercept=True, l1_ratio=0.15,
-       learning_rate=&#39;optimal&#39;, loss=&#39;hinge&#39;, max_iter=1000, n_iter=None,
-       n_jobs=1, penalty=&#39;l2&#39;, power_t=0.5, random_state=None,
-       shuffle=T...,
+<span></span>VotingClassifier(estimators=[(&#39;sgd&#39;, SGDClassifier(alpha=0.0001, average=False, class_weight=None,
+       early_stopping=False, epsilon=0.1, eta0=0.0, fit_intercept=True,
+       l1_ratio=0.15, learning_rate=&#39;optimal&#39;, loss=&#39;hinge&#39;, max_iter=1000,
+       n_iter=None, n_iter_no_change=5, n_jobs=None, penalty=&#39;l2&#39;,
+   ...,
   max_iter=-1, probability=False, random_state=None, shrinking=True,
   tol=0.001, verbose=False))],
          flatten_transform=None, n_jobs=-1, voting=&#39;hard&#39;, weights=None)
@@ -541,7 +541,7 @@ cluster</a>
 <td style="vertical-align: top; border: 0px solid white">
 <h3>Client</h3>
 <ul>
-  <li><b>Scheduler: </b>tcp://127.0.0.1:42870
+  <li><b>Scheduler: </b>tcp://127.0.0.1:35913
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
@@ -581,16 +581,16 @@ print(clf)
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-VotingClassifier(estimators=[(&#39;sgd&#39;, SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,
-       eta0=0.0, fit_intercept=True, l1_ratio=0.15,
-       learning_rate=&#39;optimal&#39;, loss=&#39;hinge&#39;, max_iter=1000, n_iter=None,
-       n_jobs=1, penalty=&#39;l2&#39;, power_t=0.5, random_state=None,
-       shuffle=T...,
+VotingClassifier(estimators=[(&#39;sgd&#39;, SGDClassifier(alpha=0.0001, average=False, class_weight=None,
+       early_stopping=False, epsilon=0.1, eta0=0.0, fit_intercept=True,
+       l1_ratio=0.15, learning_rate=&#39;optimal&#39;, loss=&#39;hinge&#39;, max_iter=1000,
+       n_iter=None, n_iter_no_change=5, n_jobs=None, penalty=&#39;l2&#39;,
+   ...,
   max_iter=-1, probability=False, random_state=None, shrinking=True,
   tol=0.001, verbose=False))],
          flatten_transform=None, n_jobs=-1, voting=&#39;hard&#39;, weights=None)
-CPU times: user 68 ms, sys: 24 ms, total: 92 ms
-Wall time: 930 ms
+CPU times: user 84 ms, sys: 12 ms, total: 96 ms
+Wall time: 996 ms
 </pre></div></div>
 </div>
 <p>Note, that we see no advantage of using dask because we are using a

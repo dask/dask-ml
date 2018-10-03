@@ -281,10 +281,8 @@ copying over learned attributes, that’s all that <code class="docutils literal
 <span class="go">              learning_rate=0.1, loss=&#39;deviance&#39;, max_depth=3,</span>
 <span class="go">              max_features=None, max_leaf_nodes=None,</span>
 <span class="go">              min_impurity_decrease=0.0, min_impurity_split=None,</span>
-<span class="go">              min_samples_leaf=1, min_samples_split=2,</span>
-<span class="go">              min_weight_fraction_leaf=0.0, n_estimators=100,</span>
-<span class="go">              presort=&#39;auto&#39;, random_state=None, subsample=1.0, verbose=0,</span>
-<span class="go">              warm_start=False),</span>
+<span class="go">              min_samples_leaf=1, min_sampl...      subsample=1.0, tol=0.0001, validation_fraction=0.1,</span>
+<span class="go">              verbose=0, warm_start=False),</span>
 <span class="go">        scoring=None)</span>
 </pre></div>
 </div>
@@ -305,16 +303,16 @@ cause the scheduler to compute tasks in parallel. If you’ve connected to a
 cluster of machines.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_big</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">10</span><span class="p">]</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[0.29480181, 0.70519819],</span>
+<span class="go">array([[0.24519991, 0.75480009],</span>
 <span class="go">       [0.00464304, 0.99535696],</span>
 <span class="go">       [0.00902734, 0.99097266],</span>
 <span class="go">       [0.01299259, 0.98700741],</span>
-<span class="go">       [0.95296878, 0.04703122],</span>
-<span class="go">       [0.70641271, 0.29358729],</span>
-<span class="go">       [0.9636846 , 0.0363154 ],</span>
+<span class="go">       [0.93776132, 0.06223868],</span>
+<span class="go">       [0.755881  , 0.244119  ],</span>
+<span class="go">       [0.91795535, 0.08204465],</span>
 <span class="go">       [0.0203811 , 0.9796189 ],</span>
-<span class="go">       [0.02708978, 0.97291022],</span>
-<span class="go">       [0.94347331, 0.05652669]])</span>
+<span class="go">       [0.021179  , 0.978821  ],</span>
+<span class="go">       [0.92843328, 0.07156672]])</span>
 </pre></div>
 </div>
 <p>See <a class="reference external" href="http://dask-ml-benchmarks.readthedocs.io/en/latest/auto_examples/plot_parallel_post_fit_scaling.html">parallelizing prediction</a> for an example of how this

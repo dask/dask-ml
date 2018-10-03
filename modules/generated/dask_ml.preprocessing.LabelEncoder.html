@@ -30,6 +30,7 @@
   <link rel="stylesheet" href="../../_static/css/nbsphinx.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dask_ml.compose.ColumnTransformer" href="../generted/dask_ml.compose.ColumnTransformer.html" />
     <link rel="prev" title="dask_ml.preprocessing.OrdinalEncoder" href="dask_ml.preprocessing.OrdinalEncoder.html" /> 
 
   
@@ -175,7 +176,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-compose-composite-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.compose</span></code>: Composite Estimators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-impute-imputing-missing-data"><code class="docutils literal notranslate"><span class="pre">dask_ml.impute</span></code>: Imputing Missing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.impute"><code class="docutils literal notranslate"><span class="pre">dask_ml.impute</span></code>: Imputing Missing Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-metrics-metrics"><code class="docutils literal notranslate"><span class="pre">dask_ml.metrics</span></code>: Metrics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.tensorflow"><code class="docutils literal notranslate"><span class="pre">dask_ml.tensorflow</span></code>: Tensorflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.xgboost"><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code>: XGBoost</a></li>
@@ -304,7 +305,7 @@ dask or pandas Series with a categorical dtype.</p>
 <span class="go">LabelEncoder()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">le</span><span class="o">.</span><span class="n">classes_</span>
 <span class="go">array([1, 2, 6])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">le</span><span class="o">.</span><span class="n">transform</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span> 
+<span class="gp">&gt;&gt;&gt; </span><span class="n">le</span><span class="o">.</span><span class="n">transform</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span> <span class="c1">#doctest: +ELLIPSIS</span>
 <span class="go">array([0, 0, 1, 2]...)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">le</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
 <span class="go">array([1, 1, 2, 6])</span>
@@ -317,7 +318,7 @@ hashable and comparable) to numerical labels.</p>
 <span class="go">LabelEncoder()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">le</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
 <span class="go">[&#39;amsterdam&#39;, &#39;paris&#39;, &#39;tokyo&#39;]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">le</span><span class="o">.</span><span class="n">transform</span><span class="p">([</span><span class="s2">&quot;tokyo&quot;</span><span class="p">,</span> <span class="s2">&quot;tokyo&quot;</span><span class="p">,</span> <span class="s2">&quot;paris&quot;</span><span class="p">])</span> 
+<span class="gp">&gt;&gt;&gt; </span><span class="n">le</span><span class="o">.</span><span class="n">transform</span><span class="p">([</span><span class="s2">&quot;tokyo&quot;</span><span class="p">,</span> <span class="s2">&quot;tokyo&quot;</span><span class="p">,</span> <span class="s2">&quot;paris&quot;</span><span class="p">])</span> <span class="c1">#doctest: +ELLIPSIS</span>
 <span class="go">array([2, 2, 1]...)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">le</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
 <span class="go">[&#39;tokyo&#39;, &#39;tokyo&#39;, &#39;paris&#39;]</span>
@@ -529,6 +530,8 @@ component of a nested object.</p>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../generted/dask_ml.compose.ColumnTransformer.html" class="btn btn-neutral float-right" title="dask_ml.compose.ColumnTransformer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="dask_ml.preprocessing.OrdinalEncoder.html" class="btn btn-neutral" title="dask_ml.preprocessing.OrdinalEncoder" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

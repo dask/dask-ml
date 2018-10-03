@@ -29,7 +29,8 @@
   <link rel="stylesheet" href="../../_static/css/explore.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/css/nbsphinx.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
-    <link rel="search" title="Search" href="../../search.html" /> 
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="prev" title="dask_ml.compose.ColumnTransformer" href="dask_ml.compose.ColumnTransformer.html" /> 
 
   
   <script src="../../_static/js/modernizr.min.js"></script>
@@ -143,7 +144,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Use</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../preprocessing.html">Preprocessing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../cross_validation.html">Cross Validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../hyper-parameter-search.html">Hyper Parameter Search</a></li>
@@ -155,7 +156,24 @@
 <li class="toctree-l1"><a class="reference internal" href="../../clustering.html">Clustering</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../xgboost.html">XGBoost</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tensorflow.html">Tensorflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api.html">API Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.model_selection"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>: Model Selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.linear_model"><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>: Generalized Linear Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-wrappers-meta-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.wrappers</span></code>: Meta-Estimators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.cluster"><code class="docutils literal notranslate"><span class="pre">dask_ml.cluster</span></code>: Clustering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.decomposition"><code class="docutils literal notranslate"><span class="pre">dask_ml.decomposition</span></code>: Matrix Decomposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.preprocessing"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>: Preprocessing Data</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#dask-ml-compose-composite-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.compose</span></code>: Composite Estimators</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="dask_ml.compose.ColumnTransformer.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.compose</span></code>.ColumnTransformer</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">dask_ml.compose.make_column_transformer</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.impute"><code class="docutils literal notranslate"><span class="pre">dask_ml.impute</span></code>: Imputing Missing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-metrics-metrics"><code class="docutils literal notranslate"><span class="pre">dask_ml.metrics</span></code>: Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.tensorflow"><code class="docutils literal notranslate"><span class="pre">dask_ml.tensorflow</span></code>: Tensorflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.xgboost"><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code>: XGBoost</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption"><span class="caption-text">Develop</span></p>
 <ul>
@@ -208,6 +226,8 @@
     
       <li><a href="../../index.html">Docs</a> &raquo;</li>
         
+          <li><a href="../api.html">API Reference</a> &raquo;</li>
+        
       <li>dask_ml.compose.make_column_transformer</li>
     
     
@@ -229,6 +249,84 @@
             
   <div class="section" id="dask-ml-compose-make-column-transformer">
 <h1>dask_ml.compose.make_column_transformer<a class="headerlink" href="#dask-ml-compose-make-column-transformer" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="dask_ml.compose.make_column_transformer">
+<code class="descclassname">dask_ml.compose.</code><code class="descname">make_column_transformer</code><span class="sig-paren">(</span><em>*transformers</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.compose.make_column_transformer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a ColumnTransformer from the given transformers.</p>
+<p>This is a shorthand for the ColumnTransformer constructor; it does not
+require, and does not permit, naming the transformers. Instead, they will
+be given names automatically based on their types. It also does not allow
+weighting.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>*transformers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuples of column selections and transformers</span></dt>
+<dd></dd>
+<dt><strong>remainder</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘drop’, ‘passthrough’} or estimator, default ‘drop’</span></dt>
+<dd><p class="first last">By default, only the specified columns in <cite>transformers</cite> are
+transformed and combined in the output, and the non-specified
+columns are dropped. (default of <code class="docutils literal notranslate"><span class="pre">'drop'</span></code>).
+By specifying <code class="docutils literal notranslate"><span class="pre">remainder='passthrough'</span></code>, all remaining columns that
+were not specified in <cite>transformers</cite> will be automatically passed
+through. This subset of columns is concatenated with the output of
+the transformers.
+By setting <code class="docutils literal notranslate"><span class="pre">remainder</span></code> to be an estimator, the remaining
+non-specified columns will use the <code class="docutils literal notranslate"><span class="pre">remainder</span></code> estimator. The
+estimator must support <cite>fit</cite> and <cite>transform</cite>.</p>
+</dd>
+<dt><strong>sparse_threshold</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, default = 0.3</span></dt>
+<dd><p class="first last">If the transformed output consists of a mix of sparse and dense data,
+it will be stacked as a sparse matrix if the density is lower than this
+value. Use <code class="docutils literal notranslate"><span class="pre">sparse_threshold=0</span></code> to always return dense.
+When the transformed output consists of all sparse or all dense data,
+the stacked result will be sparse or dense, respectively, and this
+keyword will be ignored.</p>
+</dd>
+<dt><strong>n_jobs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int or None, optional (default=None)</span></dt>
+<dd><p class="first last">Number of jobs to run in parallel.
+<code class="docutils literal notranslate"><span class="pre">None</span></code> means 1 unless in a <code class="xref py py-obj docutils literal notranslate"><span class="pre">joblib.parallel_backend</span></code> context.
+<code class="docutils literal notranslate"><span class="pre">-1</span></code> means using all processors. See <a class="reference external" href="http://scikit-learn.org/stable/glossary.html#term-n-jobs" title="(in scikit-learn v0.20.0)"><span class="xref std std-term">Glossary</span></a>
+for more details.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>ct</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ColumnTransformer</span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.compose.ColumnTransformer.html#sklearn.compose.ColumnTransformer" title="(in scikit-learn v0.20.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.compose.ColumnTransformer</span></code></a></dt>
+<dd>Class that allows combining the outputs of multiple transformer objects used on column subsets of the data into a single feature space.</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">StandardScaler</span><span class="p">,</span> <span class="n">OneHotEncoder</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.compose</span> <span class="k">import</span> <span class="n">make_column_transformer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">make_column_transformer</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">([</span><span class="s1">&#39;numerical_column&#39;</span><span class="p">],</span> <span class="n">StandardScaler</span><span class="p">()),</span>
+<span class="gp">... </span>    <span class="p">([</span><span class="s1">&#39;categorical_column&#39;</span><span class="p">],</span> <span class="n">OneHotEncoder</span><span class="p">()))</span>
+<span class="gp">... </span>    <span class="c1"># doctest: +NORMALIZE_WHITESPACE +ELLIPSIS</span>
+<span class="go">ColumnTransformer(n_jobs=None, remainder=&#39;drop&#39;, sparse_threshold=0.3,</span>
+<span class="go">         transformer_weights=None,</span>
+<span class="go">         transformers=[(&#39;standardscaler&#39;,</span>
+<span class="go">                        StandardScaler(...),</span>
+<span class="go">                        [&#39;numerical_column&#39;]),</span>
+<span class="go">                       (&#39;onehotencoder&#39;,</span>
+<span class="go">                        OneHotEncoder(...),</span>
+<span class="go">                        [&#39;categorical_column&#39;])])</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </div>
 
 
@@ -236,6 +334,13 @@
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="dask_ml.compose.ColumnTransformer.html" class="btn btn-neutral" title="dask_ml.compose.ColumnTransformer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

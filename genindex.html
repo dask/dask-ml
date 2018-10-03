@@ -241,6 +241,7 @@
  | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#Q"><strong>Q</strong></a>
@@ -258,6 +259,8 @@
 
       <ul>
         <li><a href="modules/generated/dask_ml.cluster.SpectralClustering.html#dask_ml.cluster.SpectralClustering.__init__">(dask_ml.cluster.SpectralClustering method)</a>
+</li>
+        <li><a href="modules/generted/dask_ml.compose.ColumnTransformer.html#dask_ml.compose.ColumnTransformer.__init__">(dask_ml.compose.ColumnTransformer method)</a>
 </li>
         <li><a href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA.__init__">(dask_ml.decomposition.PCA method)</a>
 </li>
@@ -312,6 +315,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/generated/dask_ml.metrics.accuracy_score.html#dask_ml.metrics.accuracy_score">accuracy_score() (in module dask_ml.metrics)</a>
 </li>
+      <li><a href="modules/api.html#dask_ml.preprocessing.OneHotEncoder.active_features_">active_features_ (dask_ml.preprocessing.OneHotEncoder attribute)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/generated/dask_ml.xgboost.XGBClassifier.html#dask_ml.xgboost.XGBClassifier.apply">apply() (dask_ml.xgboost.XGBClassifier method)</a>
@@ -329,6 +334,10 @@
       <li><a href="modules/api.html#dask_ml.preprocessing.Categorizer">Categorizer (class in dask_ml.preprocessing)</a>, <a href="modules/generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer">[1]</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/api.html#dask_ml.compose.ColumnTransformer">ColumnTransformer (class in dask_ml.compose)</a>, <a href="modules/generted/dask_ml.compose.ColumnTransformer.html#dask_ml.compose.ColumnTransformer">[1]</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="D">D</h2>
@@ -339,6 +348,8 @@
       <li><a href="modules/api.html#module-dask_ml.compose">dask_ml.compose (module)</a>
 </li>
       <li><a href="modules/api.html#module-dask_ml.decomposition">dask_ml.decomposition (module)</a>
+</li>
+      <li><a href="modules/api.html#module-dask_ml.impute">dask_ml.impute (module)</a>
 </li>
       <li><a href="modules/api.html#module-dask_ml.linear_model">dask_ml.linear_model (module)</a>
 </li>
@@ -392,10 +403,16 @@
         <li><a href="modules/generated/dask_ml.xgboost.XGBRegressor.html#dask_ml.xgboost.XGBRegressor.feature_importances_">(dask_ml.xgboost.XGBRegressor attribute)</a>
 </li>
       </ul></li>
-      <li><a href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA.fit">fit() (dask_ml.decomposition.PCA method)</a>
+      <li><a href="modules/api.html#dask_ml.preprocessing.OneHotEncoder.feature_indices_">feature_indices_ (dask_ml.preprocessing.OneHotEncoder attribute)</a>
+</li>
+      <li><a href="modules/api.html#dask_ml.compose.ColumnTransformer.fit">fit() (dask_ml.compose.ColumnTransformer method)</a>, <a href="modules/generted/dask_ml.compose.ColumnTransformer.html#dask_ml.compose.ColumnTransformer.fit">[1]</a>
 
       <ul>
+        <li><a href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA.fit">(dask_ml.decomposition.PCA method)</a>
+</li>
         <li><a href="modules/generated/dask_ml.decomposition.TruncatedSVD.html#dask_ml.decomposition.TruncatedSVD.fit">(dask_ml.decomposition.TruncatedSVD method)</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.impute.SimpleImputer.fit">(dask_ml.impute.SimpleImputer method)</a>
 </li>
         <li><a href="modules/generated/dask_ml.linear_model.LinearRegression.html#dask_ml.linear_model.LinearRegression.fit">(dask_ml.linear_model.LinearRegression method)</a>
 </li>
@@ -416,6 +433,8 @@
         <li><a href="modules/api.html#dask_ml.preprocessing.LabelEncoder.fit">(dask_ml.preprocessing.LabelEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder.fit">[1]</a>
 </li>
         <li><a href="modules/api.html#dask_ml.preprocessing.MinMaxScaler.fit">(dask_ml.preprocessing.MinMaxScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.fit">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.OneHotEncoder.fit">(dask_ml.preprocessing.OneHotEncoder method)</a>
 </li>
         <li><a href="modules/api.html#dask_ml.preprocessing.OrdinalEncoder.fit">(dask_ml.preprocessing.OrdinalEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder.fit">[1]</a>
 </li>
@@ -441,9 +460,13 @@
       <li><a href="modules/generated/dask_ml.cluster.KMeans.html#dask_ml.cluster.KMeans.fit_transform">fit_transform() (dask_ml.cluster.KMeans method)</a>
 
       <ul>
+        <li><a href="modules/api.html#dask_ml.compose.ColumnTransformer.fit_transform">(dask_ml.compose.ColumnTransformer method)</a>, <a href="modules/generted/dask_ml.compose.ColumnTransformer.html#dask_ml.compose.ColumnTransformer.fit_transform">[1]</a>
+</li>
         <li><a href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA.fit_transform">(dask_ml.decomposition.PCA method)</a>
 </li>
         <li><a href="modules/generated/dask_ml.decomposition.TruncatedSVD.html#dask_ml.decomposition.TruncatedSVD.fit_transform">(dask_ml.decomposition.TruncatedSVD method)</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.impute.SimpleImputer.fit_transform">(dask_ml.impute.SimpleImputer method)</a>
 </li>
         <li><a href="modules/api.html#dask_ml.preprocessing.Categorizer.fit_transform">(dask_ml.preprocessing.Categorizer method)</a>, <a href="modules/generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer.fit_transform">[1]</a>
 </li>
@@ -452,6 +475,8 @@
         <li><a href="modules/api.html#dask_ml.preprocessing.LabelEncoder.fit_transform">(dask_ml.preprocessing.LabelEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder.fit_transform">[1]</a>
 </li>
         <li><a href="modules/api.html#dask_ml.preprocessing.MinMaxScaler.fit_transform">(dask_ml.preprocessing.MinMaxScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.fit_transform">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.OneHotEncoder.fit_transform">(dask_ml.preprocessing.OneHotEncoder method)</a>
 </li>
         <li><a href="modules/api.html#dask_ml.preprocessing.OrdinalEncoder.fit_transform">(dask_ml.preprocessing.OrdinalEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder.fit_transform">[1]</a>
 </li>
@@ -476,6 +501,12 @@
       </ul></li>
       <li><a href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA.get_covariance">get_covariance() (dask_ml.decomposition.PCA method)</a>
 </li>
+      <li><a href="modules/api.html#dask_ml.compose.ColumnTransformer.get_feature_names">get_feature_names() (dask_ml.compose.ColumnTransformer method)</a>, <a href="modules/generted/dask_ml.compose.ColumnTransformer.html#dask_ml.compose.ColumnTransformer.get_feature_names">[1]</a>
+
+      <ul>
+        <li><a href="modules/api.html#dask_ml.preprocessing.OneHotEncoder.get_feature_names">(dask_ml.preprocessing.OneHotEncoder method)</a>
+</li>
+      </ul></li>
       <li><a href="modules/generated/dask_ml.model_selection.KFold.html#dask_ml.model_selection.KFold.get_n_splits">get_n_splits() (dask_ml.model_selection.KFold method)</a>
 
       <ul>
@@ -487,9 +518,13 @@
       <ul>
         <li><a href="modules/generated/dask_ml.cluster.SpectralClustering.html#dask_ml.cluster.SpectralClustering.get_params">(dask_ml.cluster.SpectralClustering method)</a>
 </li>
+        <li><a href="modules/api.html#dask_ml.compose.ColumnTransformer.get_params">(dask_ml.compose.ColumnTransformer method)</a>, <a href="modules/generted/dask_ml.compose.ColumnTransformer.html#dask_ml.compose.ColumnTransformer.get_params">[1]</a>
+</li>
         <li><a href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA.get_params">(dask_ml.decomposition.PCA method)</a>
 </li>
         <li><a href="modules/generated/dask_ml.decomposition.TruncatedSVD.html#dask_ml.decomposition.TruncatedSVD.get_params">(dask_ml.decomposition.TruncatedSVD method)</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.impute.SimpleImputer.get_params">(dask_ml.impute.SimpleImputer method)</a>
 </li>
         <li><a href="modules/generated/dask_ml.linear_model.LinearRegression.html#dask_ml.linear_model.LinearRegression.get_params">(dask_ml.linear_model.LinearRegression method)</a>
 </li>
@@ -510,6 +545,8 @@
         <li><a href="modules/api.html#dask_ml.preprocessing.LabelEncoder.get_params">(dask_ml.preprocessing.LabelEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder.get_params">[1]</a>
 </li>
         <li><a href="modules/api.html#dask_ml.preprocessing.MinMaxScaler.get_params">(dask_ml.preprocessing.MinMaxScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.get_params">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.OneHotEncoder.get_params">(dask_ml.preprocessing.OneHotEncoder method)</a>
 </li>
         <li><a href="modules/api.html#dask_ml.preprocessing.OrdinalEncoder.get_params">(dask_ml.preprocessing.OrdinalEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder.get_params">[1]</a>
 </li>
@@ -565,6 +602,8 @@
 </li>
         <li><a href="modules/api.html#dask_ml.preprocessing.MinMaxScaler.inverse_transform">(dask_ml.preprocessing.MinMaxScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.inverse_transform">[1]</a>
 </li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.OneHotEncoder.inverse_transform">(dask_ml.preprocessing.OneHotEncoder method)</a>
+</li>
         <li><a href="modules/api.html#dask_ml.preprocessing.OrdinalEncoder.inverse_transform">(dask_ml.preprocessing.OrdinalEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder.inverse_transform">[1]</a>
 </li>
         <li><a href="modules/api.html#dask_ml.preprocessing.QuantileTransformer.inverse_transform">(dask_ml.preprocessing.QuantileTransformer method)</a>, <a href="modules/generated/dask_ml.preprocessing.QuantileTransformer.html#dask_ml.preprocessing.QuantileTransformer.inverse_transform">[1]</a>
@@ -614,6 +653,8 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/api.html#dask_ml.compose.make_column_transformer">make_column_transformer() (in module dask_ml.compose)</a>, <a href="modules/generted/dask_ml.compose.make_column_transformer.html#dask_ml.compose.make_column_transformer">[1]</a>
+</li>
       <li><a href="modules/generated/dask_ml.metrics.mean_absolute_error.html#dask_ml.metrics.mean_absolute_error">mean_absolute_error() (in module dask_ml.metrics)</a>
 </li>
   </ul></td>
@@ -625,8 +666,24 @@
   </ul></td>
 </tr></table>
 
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/api.html#dask_ml.preprocessing.OneHotEncoder.n_values_">n_values_ (dask_ml.preprocessing.OneHotEncoder attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/api.html#dask_ml.compose.ColumnTransformer.named_transformers_">named_transformers_ (dask_ml.compose.ColumnTransformer attribute)</a>, <a href="modules/generted/dask_ml.compose.ColumnTransformer.html#dask_ml.compose.ColumnTransformer.named_transformers_">[1]</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/api.html#dask_ml.preprocessing.OneHotEncoder">OneHotEncoder (class in dask_ml.preprocessing)</a>
+</li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/api.html#dask_ml.preprocessing.OrdinalEncoder">OrdinalEncoder (class in dask_ml.preprocessing)</a>, <a href="modules/generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder">[1]</a>
 </li>
@@ -755,9 +812,13 @@
       <ul>
         <li><a href="modules/generated/dask_ml.cluster.SpectralClustering.html#dask_ml.cluster.SpectralClustering.set_params">(dask_ml.cluster.SpectralClustering method)</a>
 </li>
+        <li><a href="modules/api.html#dask_ml.compose.ColumnTransformer.set_params">(dask_ml.compose.ColumnTransformer method)</a>, <a href="modules/generted/dask_ml.compose.ColumnTransformer.html#dask_ml.compose.ColumnTransformer.set_params">[1]</a>
+</li>
         <li><a href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA.set_params">(dask_ml.decomposition.PCA method)</a>
 </li>
         <li><a href="modules/generated/dask_ml.decomposition.TruncatedSVD.html#dask_ml.decomposition.TruncatedSVD.set_params">(dask_ml.decomposition.TruncatedSVD method)</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.impute.SimpleImputer.set_params">(dask_ml.impute.SimpleImputer method)</a>
 </li>
         <li><a href="modules/generated/dask_ml.linear_model.LinearRegression.html#dask_ml.linear_model.LinearRegression.set_params">(dask_ml.linear_model.LinearRegression method)</a>
 </li>
@@ -779,6 +840,8 @@
 </li>
         <li><a href="modules/api.html#dask_ml.preprocessing.MinMaxScaler.set_params">(dask_ml.preprocessing.MinMaxScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.set_params">[1]</a>
 </li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.OneHotEncoder.set_params">(dask_ml.preprocessing.OneHotEncoder method)</a>
+</li>
         <li><a href="modules/api.html#dask_ml.preprocessing.OrdinalEncoder.set_params">(dask_ml.preprocessing.OrdinalEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder.set_params">[1]</a>
 </li>
         <li><a href="modules/api.html#dask_ml.preprocessing.QuantileTransformer.set_params">(dask_ml.preprocessing.QuantileTransformer method)</a>, <a href="modules/generated/dask_ml.preprocessing.QuantileTransformer.html#dask_ml.preprocessing.QuantileTransformer.set_params">[1]</a>
@@ -799,6 +862,8 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/generated/dask_ml.model_selection.ShuffleSplit.html#dask_ml.model_selection.ShuffleSplit">ShuffleSplit (class in dask_ml.model_selection)</a>
+</li>
+      <li><a href="modules/api.html#dask_ml.impute.SimpleImputer">SimpleImputer (class in dask_ml.impute)</a>
 </li>
       <li><a href="modules/generated/dask_ml.cluster.SpectralClustering.html#dask_ml.cluster.SpectralClustering">SpectralClustering (class in dask_ml.cluster)</a>
 </li>
@@ -822,10 +887,14 @@
 </li>
       <li><a href="modules/generated/dask_ml.model_selection.train_test_split.html#dask_ml.model_selection.train_test_split">train_test_split() (in module dask_ml.model_selection)</a>
 </li>
-      <li><a href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA.transform">transform() (dask_ml.decomposition.PCA method)</a>
+      <li><a href="modules/api.html#dask_ml.compose.ColumnTransformer.transform">transform() (dask_ml.compose.ColumnTransformer method)</a>, <a href="modules/generted/dask_ml.compose.ColumnTransformer.html#dask_ml.compose.ColumnTransformer.transform">[1]</a>
 
       <ul>
+        <li><a href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA.transform">(dask_ml.decomposition.PCA method)</a>
+</li>
         <li><a href="modules/generated/dask_ml.decomposition.TruncatedSVD.html#dask_ml.decomposition.TruncatedSVD.transform">(dask_ml.decomposition.TruncatedSVD method)</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.impute.SimpleImputer.transform">(dask_ml.impute.SimpleImputer method)</a>
 </li>
         <li><a href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV.transform">(dask_ml.model_selection.GridSearchCV method)</a>
 </li>
@@ -838,6 +907,8 @@
         <li><a href="modules/api.html#dask_ml.preprocessing.LabelEncoder.transform">(dask_ml.preprocessing.LabelEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder.transform">[1]</a>
 </li>
         <li><a href="modules/api.html#dask_ml.preprocessing.MinMaxScaler.transform">(dask_ml.preprocessing.MinMaxScaler method)</a>, <a href="modules/generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.transform">[1]</a>
+</li>
+        <li><a href="modules/api.html#dask_ml.preprocessing.OneHotEncoder.transform">(dask_ml.preprocessing.OneHotEncoder method)</a>
 </li>
         <li><a href="modules/api.html#dask_ml.preprocessing.OrdinalEncoder.transform">(dask_ml.preprocessing.OrdinalEncoder method)</a>, <a href="modules/generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder.transform">[1]</a>
 </li>
