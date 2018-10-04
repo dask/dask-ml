@@ -521,7 +521,7 @@ class TestPolynomialFeatures:
         assert_eq_ar(res_a2, res_b)
 
     def test_df_transform(self):
-        a = dpp.PolynomialFeatures()
+        a = dpp.PolynomialFeatures(preserve_dataframe=True)
         b = spp.PolynomialFeatures()
 
         # pandas dataframe
@@ -551,7 +551,7 @@ class TestPolynomialFeatures:
         assert a.transform(df_none_divisions).shape[1] == n_cols
 
     def test_daskdf_transform(self):
-        a = dpp.PolynomialFeatures()
+        a = dpp.PolynomialFeatures(preserve_dataframe=True)
         b = spp.PolynomialFeatures()
 
         # dask dataframe
@@ -563,3 +563,17 @@ class TestPolynomialFeatures:
         res_b = b.fit_transform(df.compute())
         assert_eq_ar(trans_dask_df.compute().values, res_b)
         assert_eq_df(trans_dask_df.compute().reset_index(drop=True), res_pandas_df)
+
+    def test_df_dont_preserve_df(self):
+        a = dpp.PolynomialFeatures()
+        b = spp.PolynomialFeatures()
+
+        res_dask_df = a.fit_transform(df)
+        res_pandas_df = a.fit_transform(df.compute())
+        res_sklearn_df = b.fit_transform(df.compute())
+        res_sklearn_arr = b.fit_transform(df.compute().values)
+        assert_eq_ar(res_dask_df.compute(), res_pandas_df)
+        assert_eq_ar(res_dask_df.compute(), res_sklearn_df)
+        assert_eq_ar(res_dask_df.compute(), res_sklearn_arr)
+        assert_eq_ar(res_pandas_df, res_sklearn_df)
+        assert_eq_ar(res_pandas_df, res_sklearn_arr)

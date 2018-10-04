@@ -922,6 +922,10 @@ class PolynomialFeatures(skdata.PolynomialFeatures):
 
     __doc__ = skdata.PolynomialFeatures.__doc__
 
+    def __init__(self, preserve_dataframe=False, *args, **kwargs):
+        super(PolynomialFeatures, self).__init__(*args, **kwargs)
+        self.preserve_dataframe = preserve_dataframe
+
     def fit(self, X, y=None):
 
         self._transformer = skdata.PolynomialFeatures()
@@ -944,13 +948,15 @@ class PolynomialFeatures(skdata.PolynomialFeatures):
             chunks = (X.chunks[0], n_cols)
             XP = X.map_blocks(self._transformer.transform, dtype=X.dtype, chunks=chunks)
         elif isinstance(X, pd.DataFrame):
-            data = X.pipe(self._transformer.transform)
-            columns = self._transformer.get_feature_names(X.columns)
-            XP = pd.DataFrame(data=data, columns=columns)
+            XP = X.pipe(self._transformer.transform)
+            if self.preserve_dataframe:
+                columns = self._transformer.get_feature_names(X.columns)
+                XP = pd.DataFrame(data=XP, columns=columns)
         elif isinstance(X, dd.DataFrame):
-            data = X.map_partitions(self._transformer.transform)
-            columns = self._transformer.get_feature_names(X.columns)
-            XP = dd.from_dask_array(data, columns)
+            XP = X.map_partitions(self._transformer.transform)
+            if self.preserve_dataframe:
+                columns = self._transformer.get_feature_names(X.columns)
+                XP = dd.from_dask_array(XP, columns)
         else:
             # typically X is instance of np.ndarray
             XP = self._transformer.transform(X)
