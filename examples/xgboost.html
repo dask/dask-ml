@@ -452,7 +452,7 @@ via the dashboard.</p>
 <td style="vertical-align: top; border: 0px solid white">
 <h3>Client</h3>
 <ul>
-  <li><b>Scheduler: </b>tcp://127.0.0.1:41428
+  <li><b>Scheduler: </b>tcp://127.0.0.1:41792
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
@@ -545,12 +545,12 @@ using all the workers Dask has available.</p>
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="o">%%</span><span class="k">time</span>
-params = {&#39;objective&#39;: &#39;binary:logistic&#39;,
-          &#39;max_depth&#39;: 4, &#39;eta&#39;: 0.01, &#39;subsample&#39;: 0.5,
-          &#39;min_child_weight&#39;: 0.5}
+<span></span><span class="o">%%time</span>
+<span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;objective&#39;</span><span class="p">:</span> <span class="s1">&#39;binary:logistic&#39;</span><span class="p">,</span>
+          <span class="s1">&#39;max_depth&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;eta&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s1">&#39;subsample&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+          <span class="s1">&#39;min_child_weight&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">}</span>
 
-bst = dask_xgboost.train(client, params, X_train, y_train, num_boost_round=10)
+<span class="n">bst</span> <span class="o">=</span> <span class="n">dask_xgboost</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">num_boost_round</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -559,8 +559,8 @@ bst = dask_xgboost.train(client, params, X_train, y_train, num_boost_round=10)
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-CPU times: user 2.4 s, sys: 132 ms, total: 2.53 s
-Wall time: 11.2 s
+CPU times: user 3.14 s, sys: 160 ms, total: 3.3 s
+Wall time: 13.3 s
 </pre></div></div>
 </div>
 </div>
@@ -583,7 +583,7 @@ Wall time: 11.2 s
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>&lt;xgboost.core.Booster at 0x2abb087852e8&gt;
+<span></span>&lt;xgboost.core.Booster at 0x2b9a4c62b2b0&gt;
 </pre></div>
 </div>
 </div>

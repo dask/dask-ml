@@ -434,7 +434,7 @@ the estimator requires all numeric data.</p>
 <span class="gp">In [26]: </span><span class="n">pipe</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span>
 <span class="gp">   ....: </span>   <span class="n">Categorizer</span><span class="p">(),</span>
 <span class="gp">   ....: </span>   <span class="n">DummyEncoder</span><span class="p">(),</span>
-<span class="gp">   ....: </span>   <span class="n">LogisticRegression</span><span class="p">()</span>
+<span class="gp">   ....: </span>   <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">solver</span><span class="o">=</span><span class="s1">&#39;lbfgs&#39;</span><span class="p">)</span>
 <span class="gp">   ....: </span><span class="p">)</span>
 <span class="gp">   ....: </span>
 
@@ -443,7 +443,7 @@ the estimator requires all numeric data.</p>
 <span class="go">Pipeline(memory=None,</span>
 <span class="go">     steps=[(&#39;categorizer&#39;, Categorizer(categories=None, columns=None)), (&#39;dummyencoder&#39;, DummyEncoder(columns=None, drop_first=False)), (&#39;logisticregression&#39;, LogisticRegression(C=1.0, class_weight=None, dual=False, fit_intercept=True,</span>
 <span class="go">          intercept_scaling=1, max_iter=100, multi_class=&#39;warn&#39;,</span>
-<span class="go">          n_jobs=None, penalty=&#39;l2&#39;, random_state=None, solver=&#39;warn&#39;,</span>
+<span class="go">          n_jobs=None, penalty=&#39;l2&#39;, random_state=None, solver=&#39;lbfgs&#39;,</span>
 <span class="go">          tol=0.0001, verbose=0, warm_start=False))])</span>
 </pre></div>
 </div>

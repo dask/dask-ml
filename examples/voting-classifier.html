@@ -487,8 +487,8 @@ used dask).</p>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-CPU times: user 12 ms, sys: 12 ms, total: 24 ms
-Wall time: 1.51 s
+CPU times: user 24 ms, sys: 8 ms, total: 32 ms
+Wall time: 1.6 s
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -541,7 +541,7 @@ cluster</a>
 <td style="vertical-align: top; border: 0px solid white">
 <h3>Client</h3>
 <ul>
-  <li><b>Scheduler: </b>tcp://127.0.0.1:35913
+  <li><b>Scheduler: </b>tcp://127.0.0.1:40799
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
@@ -568,11 +568,11 @@ for more info).</p>
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="o">%%</span><span class="k">time</span>
-with joblib.parallel_backend(&quot;dask&quot;, scatter=[X, y]):
-    clf.fit(X, y)
+<span></span><span class="o">%%time</span>
+<span class="k">with</span> <span class="n">joblib</span><span class="o">.</span><span class="n">parallel_backend</span><span class="p">(</span><span class="s2">&quot;dask&quot;</span><span class="p">,</span> <span class="n">scatter</span><span class="o">=</span><span class="p">[</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">]):</span>
+    <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 
-print(clf)
+<span class="k">print</span><span class="p">(</span><span class="n">clf</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -589,8 +589,8 @@ VotingClassifier(estimators=[(&#39;sgd&#39;, SGDClassifier(alpha=0.0001, average
   max_iter=-1, probability=False, random_state=None, shrinking=True,
   tol=0.001, verbose=False))],
          flatten_transform=None, n_jobs=-1, voting=&#39;hard&#39;, weights=None)
-CPU times: user 84 ms, sys: 12 ms, total: 96 ms
-Wall time: 996 ms
+CPU times: user 116 ms, sys: 4 ms, total: 120 ms
+Wall time: 1.14 s
 </pre></div></div>
 </div>
 <p>Note, that we see no advantage of using dask because we are using a
