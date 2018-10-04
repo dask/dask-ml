@@ -123,7 +123,7 @@ def test_grid_search_no_score():
     # Test grid-search on classifier that has no score function.
     clf = LinearSVC(random_state=0)
     X, y = make_blobs(random_state=0, centers=2)
-    Cs = [.1, 1, 10]
+    Cs = [0.1, 1, 10]
     clf_no_score = LinearSVCNoScore(random_state=0)
 
     # XXX: It seems there's some global shared state in LinearSVC - fitting
@@ -152,9 +152,9 @@ def test_grid_search_no_score():
 
 
 def test_grid_search_score_method():
-    X, y = make_classification(n_samples=100, n_classes=2, flip_y=.2, random_state=0)
+    X, y = make_classification(n_samples=100, n_classes=2, flip_y=0.2, random_state=0)
     clf = LinearSVC(random_state=0)
-    grid = {"C": [.1]}
+    grid = {"C": [0.1]}
 
     search_no_scoring = dcv.GridSearchCV(clf, grid, scoring=None).fit(X, y)
     search_accuracy = dcv.GridSearchCV(clf, grid, scoring="accuracy").fit(X, y)
@@ -260,7 +260,7 @@ def test_classes__property():
     # Test that classes_ property matches best_estimator_.classes_
     X = np.arange(100).reshape(10, 10)
     y = np.array([0] * 5 + [1] * 5)
-    Cs = [.1, 1, 10]
+    Cs = [0.1, 1, 10]
 
     grid_search = dcv.GridSearchCV(LinearSVC(random_state=0), {"C": Cs})
     grid_search.fit(X, y)
@@ -418,7 +418,7 @@ def test_grid_search_sparse():
     y_pred2 = cv.predict(X_[180:])
     C2 = cv.best_estimator_.C
 
-    assert np.mean(y_pred == y_pred2) >= .9
+    assert np.mean(y_pred == y_pred2) >= 0.9
     assert C == C2
 
 
@@ -611,14 +611,16 @@ def test_gridsearch_no_predict():
     # test grid-search with an estimator without predict.
     # slight duplication of a test from KDE
     def custom_scoring(estimator, X):
-        return 42 if estimator.bandwidth == .1 else 0
+        return 42 if estimator.bandwidth == 0.1 else 0
 
-    X, _ = make_blobs(cluster_std=.1, random_state=1, centers=[[0, 1], [1, 0], [0, 0]])
+    X, _ = make_blobs(cluster_std=0.1, random_state=1, centers=[[0, 1], [1, 0], [0, 0]])
     search = dcv.GridSearchCV(
-        KernelDensity(), param_grid=dict(bandwidth=[.01, .1, 1]), scoring=custom_scoring
+        KernelDensity(),
+        param_grid=dict(bandwidth=[0.01, 0.1, 1]),
+        scoring=custom_scoring,
     )
     search.fit(X)
-    assert search.best_params_["bandwidth"] == .1
+    assert search.best_params_["bandwidth"] == 0.1
     assert search.best_score_ == 42
 
 
@@ -852,15 +854,15 @@ def test_search_iid_param():
 
         # Test the first candidate
         assert search.cv_results_["param_C"][0] == 1
-        assert_array_almost_equal(test_cv_scores, [1, 1. / 3.])
+        assert_array_almost_equal(test_cv_scores, [1, 1.0 / 3.0])
         assert_array_almost_equal(train_cv_scores, [1, 1])
 
         # for first split, 1/4 of dataset is in test, for second 3/4.
         # take weighted average and weighted std
-        expected_test_mean = 1 * 1. / 4. + 1. / 3. * 3. / 4.
+        expected_test_mean = 1 * 1.0 / 4.0 + 1.0 / 3.0 * 3.0 / 4.0
         expected_test_std = np.sqrt(
-            1. / 4 * (expected_test_mean - 1) ** 2
-            + 3. / 4 * (expected_test_mean - 1. / 3.) ** 2
+            1.0 / 4 * (expected_test_mean - 1) ** 2
+            + 3.0 / 4 * (expected_test_mean - 1.0 / 3.0) ** 2
         )
         assert_almost_equal(test_mean, expected_test_mean)
         assert_almost_equal(test_std, expected_test_std)
@@ -911,7 +913,7 @@ def test_search_iid_param():
 
         assert search.cv_results_["param_C"][0] == 1
         # scores are the same as above
-        assert_array_almost_equal(test_cv_scores, [1, 1. / 3.])
+        assert_array_almost_equal(test_cv_scores, [1, 1.0 / 3.0])
         # Unweighted mean/std is used
         assert_almost_equal(test_mean, np.mean(test_cv_scores))
         assert_almost_equal(test_std, np.std(test_cv_scores))
@@ -984,7 +986,7 @@ def test_grid_search_correct_score_results():
     n_splits = 3
     clf = LinearSVC(random_state=0)
     X, y = make_blobs(random_state=0, centers=2)
-    Cs = [.1, 1, 10]
+    Cs = [0.1, 1, 10]
     for score in ["f1", "roc_auc"]:
         # XXX: It seems there's some global shared state in LinearSVC - fitting
         # multiple `SVC` instances in parallel using threads sometimes results

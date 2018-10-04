@@ -316,7 +316,7 @@ def test_pca_check_projection():
     # Test that the projection of data is correct
     rng = np.random.RandomState(0)
     n, p = 100, 3
-    X = rng.randn(n, p) * .1
+    X = rng.randn(n, p) * 0.1
     X[:10] += np.array([3, 4, 5])
     Xt = 0.1 * rng.randn(1, p) + np.array([3, 4, 5])
     dX = da.from_array(X, chunks=(n, p))
@@ -326,7 +326,7 @@ def test_pca_check_projection():
         Yt = dd.PCA(n_components=2, svd_solver=solver).fit(dX).transform(dXt)
         Yt /= np.sqrt((Yt ** 2).sum())
 
-        assert_almost_equal(np.abs(Yt[0][0]), 1., 1)
+        assert_almost_equal(np.abs(Yt[0][0]), 1.0, 1)
 
 
 def test_pca_inverse():
@@ -334,7 +334,7 @@ def test_pca_inverse():
     rng = np.random.RandomState(0)
     n, p = 50, 3
     X = rng.randn(n, p)  # spherical data
-    X[:, 1] *= .00001  # make middle component relatively small
+    X[:, 1] *= 0.00001  # make middle component relatively small
     X += [5, 4, 3]  # make a large mean
     dX = da.from_array(X, chunks=(n // 2, p))
 
@@ -419,7 +419,7 @@ def test_randomized_pca_check_projection():
     # Test that the projection by randomized PCA on dense data is correct
     rng = np.random.RandomState(0)
     n, p = 100, 3
-    X = rng.randn(n, p) * .1
+    X = rng.randn(n, p) * 0.1
     X[:10] += np.array([3, 4, 5])
     Xt = 0.1 * rng.randn(1, p) + np.array([3, 4, 5])
     X = da.from_array(X, chunks=(n, p))
@@ -432,7 +432,7 @@ def test_randomized_pca_check_projection():
     )
     Yt /= np.sqrt((Yt ** 2).sum())
 
-    assert_almost_equal(np.abs(Yt[0][0]), 1., 1)
+    assert_almost_equal(np.abs(Yt[0][0]), 1.0, 1)
 
 
 @pytest.mark.xfail(reason="chunks")
@@ -454,7 +454,7 @@ def test_randomized_pca_inverse():
     rng = np.random.RandomState(0)
     n, p = 50, 3
     X = rng.randn(n, p)  # spherical data
-    X[:, 1] *= .00001  # make middle component relatively small
+    X[:, 1] *= 0.00001  # make middle component relatively small
     X += [5, 4, 3]  # make a large mean
     dX = da.from_array(X, chunks=(n, p))
 
@@ -480,7 +480,7 @@ def test_pca_dim():
     # Check automated dimensionality setting
     rng = np.random.RandomState(0)
     n, p = 100, 5
-    X = rng.randn(n, p) * .1
+    X = rng.randn(n, p) * 0.1
     X[:10] += np.array([3, 4, 5, 1, 2])
     pca = dd.PCA(n_components="mle", svd_solver="full").fit(X)
     assert_equal(pca.n_components, "mle")
@@ -493,7 +493,7 @@ def test_infer_dim_1():
     n, p = 1000, 5
     rng = np.random.RandomState(0)
     X = (
-        rng.randn(n, p) * .1
+        rng.randn(n, p) * 0.1
         + rng.randn(n, 1) * np.array([3, 4, 5, 1, 2])
         + np.array([1, 0, 7, 4, 6])
     )
@@ -505,7 +505,7 @@ def test_infer_dim_1():
     for k in range(p):
         ll.append(_assess_dimension_(spect, k, n, p))
     ll = np.array(ll)
-    assert_greater(ll[1], ll.max() - .01 * n)
+    assert_greater(ll[1], ll.max() - 0.01 * n)
 
 
 def test_infer_dim_2():
@@ -513,7 +513,7 @@ def test_infer_dim_2():
     # Or at least use explicit variable names...
     n, p = 1000, 5
     rng = np.random.RandomState(0)
-    X = rng.randn(n, p) * .1
+    X = rng.randn(n, p) * 0.1
     X[:10] += np.array([3, 4, 5, 1, 2])
     X[10:20] += np.array([6, 0, 7, 2, -1])
     dX = da.from_array(X, chunks=(n, p))
@@ -526,7 +526,7 @@ def test_infer_dim_2():
 def test_infer_dim_3():
     n, p = 100, 5
     rng = np.random.RandomState(0)
-    X = rng.randn(n, p) * .1
+    X = rng.randn(n, p) * 0.1
     X[:10] += np.array([3, 4, 5, 1, 2])
     X[10:20] += np.array([6, 0, 7, 2, -1])
     X[30:40] += 2 * np.array([-1, 1, -1, 1, -1])
@@ -554,7 +554,7 @@ def test_infer_dim_by_explained_variance():
     rng = np.random.RandomState(0)
     # more features than samples
     X = rng.rand(5, 20)
-    pca = dd.PCA(n_components=.5, svd_solver="full").fit(X)
+    pca = dd.PCA(n_components=0.5, svd_solver="full").fit(X)
     assert_equal(pca.n_components, 0.5)
     assert_equal(pca.n_components_, 2)
 
@@ -563,7 +563,7 @@ def test_pca_score():
     # Test that probabilistic PCA scoring yields a reasonable score
     n, p = 1000, 3
     rng = np.random.RandomState(0)
-    X = rng.randn(n, p) * .1 + np.array([3, 4, 5])
+    X = rng.randn(n, p) * 0.1 + np.array([3, 4, 5])
     dX = da.from_array(X, chunks=(n // 2, p))
     for solver in solver_list:
         pca = dd.PCA(n_components=2, svd_solver=solver)
@@ -577,13 +577,13 @@ def test_pca_score2():
     # Test that probabilistic PCA correctly separated different datasets
     n, p = 100, 3
     rng = np.random.RandomState(0)
-    X = rng.randn(n, p) * .1 + np.array([3, 4, 5])
+    X = rng.randn(n, p) * 0.1 + np.array([3, 4, 5])
     dX = da.from_array(X, chunks=(n // 2, p))
     for solver in solver_list:
         pca = dd.PCA(n_components=2, svd_solver=solver)
         pca.fit(dX)
         ll1 = pca.score(dX)
-        ll2 = pca.score(rng.randn(n, p) * .2 + np.array([3, 4, 5]))
+        ll2 = pca.score(rng.randn(n, p) * 0.2 + np.array([3, 4, 5]))
         assert_greater(ll1, ll2)
 
         # Test that it gives different scores if whiten=True
@@ -644,7 +644,7 @@ def test_pca_zero_noise_variance_edge_cases():
     n, p = 100, 3
 
     rng = np.random.RandomState(0)
-    X = rng.randn(n, p) * .1 + np.array([3, 4, 5])
+    X = rng.randn(n, p) * 0.1 + np.array([3, 4, 5])
     dX = da.from_array(X, chunks=(n, p))
     # arpack raises ValueError for n_components == min(n_samples,
     # n_features)

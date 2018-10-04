@@ -156,7 +156,7 @@ class RobustScaler(skdata.RobustScaler):
                 ]
             )
 
-        quantiles = [da.percentile(col, [q_min, 50., q_max]) for col in X.T]
+        quantiles = [da.percentile(col, [q_min, 50.0, q_max]) for col in X.T]
         quantiles = da.vstack(quantiles).compute()
         self.center_ = quantiles[:, 1]
         self.scale_ = quantiles[:, 2] - quantiles[:, 0]

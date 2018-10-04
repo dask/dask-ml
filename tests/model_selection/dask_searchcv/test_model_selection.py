@@ -84,9 +84,9 @@ class assert_dask_compute(Callback):
 def test_visualize():
     pytest.importorskip("graphviz")
 
-    X, y = make_classification(n_samples=100, n_classes=2, flip_y=.2, random_state=0)
+    X, y = make_classification(n_samples=100, n_classes=2, flip_y=0.2, random_state=0)
     clf = SVC(random_state=0, gamma="auto")
-    grid = {"C": [.1, .5, .9]}
+    grid = {"C": [0.1, 0.5, 0.9]}
     gs = dcv.GridSearchCV(clf, grid).fit(X, y)
 
     assert hasattr(gs, "dask_graph_")
