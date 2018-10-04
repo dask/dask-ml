@@ -84,7 +84,7 @@ def r2_score(
         output_scores[valid_score] = 1 - (
             numerator[valid_score] / denominator[valid_score]
         )
-        output_scores[nonzero_numerator & ~nonzero_denominator] = 0.
+        output_scores[nonzero_numerator & ~nonzero_denominator] = 0.0
 
     result = output_scores.mean(axis=0)
     if compute:
