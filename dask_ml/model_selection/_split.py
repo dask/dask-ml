@@ -150,17 +150,16 @@ class ShuffleSplit(BaseCrossValidator):
 
     def split(self, X, y=None, groups=None):
         X = check_array(X)
-
+        rng = check_random_state(self.random_state)
         for i in range(self.n_splits):
+            seeds = rng.randint(0, 2 ** 32 - 1, size=len(X.chunks[0]), dtype="u8")
             if self.blockwise:
-                yield self._split_blockwise(X)
+                yield self._split_blockwise(X, seeds)
             else:
                 yield self._split(X)
 
-    def _split_blockwise(self, X):
+    def _split_blockwise(self, X, seeds):
         chunks = X.chunks[0]
-        rng = check_random_state(self.random_state)
-        seeds = rng.randint(0, 2 ** 32 - 1, size=len(chunks), dtype="u8")
 
         train_pct, test_pct = _maybe_normalize_split_sizes(
             self.train_size, self.test_size
