@@ -142,7 +142,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         eigen_solver=None,
         random_state=None,
         n_init=10,
-        gamma=1.,
+        gamma=1.0,
         affinity="rbf",
         n_neighbors=10,
         eigen_tol=0.0,

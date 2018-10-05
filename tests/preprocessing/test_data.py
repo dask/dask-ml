@@ -216,7 +216,7 @@ class TestQuantileTransformer(object):
         X = rs.uniform(size=(100, 3), chunks=50)
         a.fit(X)
         b.fit(X)
-        assert_estimator_equal(a, b, atol=.02)
+        assert_estimator_equal(a, b, atol=0.02)
 
         # set the quantiles, so that from here out, we're exact
         a.quantiles_ = b.quantiles_

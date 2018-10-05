@@ -112,7 +112,7 @@ class GaussianNB(BaseEstimator):
         jll = []
         for i in range(np.size(self.classes_)):
             jointi = da.log(self.class_prior_[i])
-            n_ij = -0.5 * da.sum(da.log(2. * np.pi * self.sigma_[i, :]))
+            n_ij = -0.5 * da.sum(da.log(2.0 * np.pi * self.sigma_[i, :]))
             n_ij -= 0.5 * da.sum(
                 ((X - self.theta_[i, :]) ** 2) / (self.sigma_[i, :]), 1
             )

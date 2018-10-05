@@ -131,7 +131,7 @@ def test_partial_fit_doesnt_mutate_inputs():
 def test_explicit(c, s, a, b):
     X, y = make_classification(n_samples=1000, n_features=10, chunks=(200, 10))
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
-    params = [{"alpha": .1}, {"alpha": .2}]
+    params = [{"alpha": 0.1}, {"alpha": 0.2}]
 
     def additional_calls(scores):
         """ Progress through predefined updates, checking along the way """

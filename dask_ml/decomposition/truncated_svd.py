@@ -7,7 +7,7 @@ from ..utils import svd_flip
 
 class TruncatedSVD(BaseEstimator, TransformerMixin):
     def __init__(
-        self, n_components=2, algorithm="tsqr", n_iter=5, random_state=None, tol=0.
+        self, n_components=2, algorithm="tsqr", n_iter=5, random_state=None, tol=0.0
     ):
         """Dimensionality reduction using truncated SVD (aka LSA).
 
