@@ -12,6 +12,7 @@ from scipy.linalg import pinv, svd
 from sklearn.base import BaseEstimator, ClusterMixin
 from sklearn.utils import check_random_state
 
+from .._utils import draw_seed
 from ..metrics.pairwise import PAIRWISE_KERNEL_FUNCTIONS, pairwise_kernels
 from ..utils import _format_bytes, _log_array, check_array
 from .k_means import KMeans
@@ -189,7 +190,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         if isinstance(self.assign_labels, six.string_types):
             if self.assign_labels == "kmeans":
                 km = KMeans(
-                    n_clusters=n_clusters, random_state=rng.randint(2 ** 32 - 1)
+                    n_clusters=n_clusters, random_state=draw_seed(rng, 2 ** 32 - 1)
                 )
             elif self.assign_labels == "sklearn-kmeans":
                 km = sklearn.cluster.KMeans(n_clusters=n_clusters, random_state=rng)

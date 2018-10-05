@@ -6,6 +6,7 @@ from sklearn.decomposition.base import _BasePCA
 from sklearn.utils.extmath import fast_logdet
 from sklearn.utils.validation import check_is_fitted, check_random_state
 
+from .._utils import draw_seed
 from ..utils import svd_flip
 
 
@@ -243,7 +244,7 @@ class PCA(_BasePCA):
         else:
             # randomized
             random_state = check_random_state(self.random_state)
-            seed = random_state.randint(np.iinfo("int32").max)
+            seed = draw_seed(random_state, np.iinfo("int32").max)
             n_power_iter = self.iterated_power
             U, S, V = da.linalg.svd_compressed(
                 X, n_components, n_power_iter=n_power_iter, seed=seed
