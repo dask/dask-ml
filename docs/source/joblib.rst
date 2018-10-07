@@ -6,7 +6,7 @@ Joblib
 Many Scikit-Learn algorithms are written for parallel execution using
 `Joblib <http://joblib.readthedocs.io/en/latest/>`__, which natively provides
 thread-based and process-based parallelism.  Joblib is what backs the
-``njobs=`` parameter in normal use of Scikit-Learn.
+``n_jobs=`` parameter in normal use of Scikit-Learn.
 
 Dask can scale these Joblib-backed algorithms out to a cluster of machines by
 providing an alternative Joblib backend.  The following video demonstrates how
