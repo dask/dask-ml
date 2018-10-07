@@ -54,7 +54,7 @@ from .methods import (
     pipeline,
     score,
 )
-from .utils import is_dask_collection, to_indexable, to_keys, unzip
+from .utils import DeprecationDict, is_dask_collection, to_indexable, to_keys, unzip
 
 try:
     from cytoolz import get, pluck
@@ -66,7 +66,6 @@ __all__ = ["GridSearchCV", "RandomizedSearchCV"]
 
 
 if SK_VERSION >= packaging.version.parse("0.19.1"):
-    from sklearn.utils.deprecation import DeprecationDict
 
     _RETURN_TRAIN_SCORE_DEFAULT = "warn"
 
