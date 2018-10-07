@@ -919,8 +919,16 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
 
 
 class PolynomialFeatures(skdata.PolynomialFeatures):
+    """    preserve_dataframe : boolean
+            If True, preserve pandas and dask dataframes after transforming.
+            Using False (default) returns numpy or dask arrays and mimics
+            sklearn's default behaviour
 
-    __doc__ = skdata.PolynomialFeatures.__doc__
+        Examples
+    """
+
+    splitted_orig_doc = skdata.PolynomialFeatures.__doc__.split("    Examples\n")
+    __doc__ = "".join([splitted_orig_doc[0], __doc__, splitted_orig_doc[1]])
 
     def __init__(self, preserve_dataframe=False, *args, **kwargs):
         super(PolynomialFeatures, self).__init__(*args, **kwargs)
