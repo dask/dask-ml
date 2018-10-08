@@ -93,7 +93,7 @@ def test_multiclass():
     y = da.from_array(y, chunks=50)
 
     clf = ParallelPostFit(
-        LogisticRegression(random_state=0, n_jobs=1, solver="lbfgs", multiclass="auto")
+        LogisticRegression(random_state=0, n_jobs=1, solver="lbfgs", multi_class="auto")
     )
 
     clf.fit(X, y)
