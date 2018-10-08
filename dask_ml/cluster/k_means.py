@@ -157,7 +157,7 @@ class KMeans(TransformerMixin, BaseEstimator):
             X = X.values
 
         if isinstance(X, dd.DataFrame):
-            X = X.to_dask_array(True)
+            X = X.to_dask_array(lengths=True)
 
         X = check_array(
             X,
