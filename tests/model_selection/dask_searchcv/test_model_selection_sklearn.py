@@ -43,6 +43,7 @@ from sklearn.svm import SVC, LinearSVC
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 
 from dask_ml import model_selection as dcv
+from dask_ml._compat import SK_VERSION
 from dask_ml.model_selection.utils_test import (
     CheckingClassifier,
     FailingClassifier,
@@ -212,10 +213,6 @@ def test_grid_search_groups():
         gs.fit(X, y)
 
 
-@pytest.mark.skipif(
-    sk_version < packaging.version.parse("0.19.1"),
-    reason="only deprecated for >= 0.19.1",
-)
 def test_return_train_score_warn():
     # Test that warnings are raised. Will be removed in sklearn 0.21
     X = np.arange(100).reshape(10, 10)
@@ -244,6 +241,14 @@ def test_return_train_score_warn():
         "mean_train_score",
         "std_train_score",
     }
+
+    include_train_score = SK_VERSION >= packaging.version.parse("0.21.dev0")
+
+    if not include_train_score:
+        result = train_keys & set(results)
+        assert result == {}
+    else:
+        assert all(x in results for x in train_keys)
 
     for key in results:
         if key in train_keys:

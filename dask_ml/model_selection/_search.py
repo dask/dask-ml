@@ -34,6 +34,7 @@ from sklearn.utils.metaestimators import if_delegate_has_method
 from sklearn.utils.multiclass import type_of_target
 from sklearn.utils.validation import _num_samples, check_is_fitted
 
+from .._compat import SK_VERSION
 from ._normalize import normalize_estimator
 from .methods import (
     MISSING,
@@ -64,7 +65,7 @@ except ImportError:  # pragma: no cover
 __all__ = ["GridSearchCV", "RandomizedSearchCV"]
 
 
-if SK_VERSION >= packaging.version.parse("0.19.1"):
+if SK_VERSION <= packaging.version.parse("0.21.dev0"):
 
     _RETURN_TRAIN_SCORE_DEFAULT = "warn"
 
@@ -84,7 +85,7 @@ if SK_VERSION >= packaging.version.parse("0.19.1"):
 
 
 else:
-    _RETURN_TRAIN_SCORE_DEFAULT = True
+    _RETURN_TRAIN_SCORE_DEFAULT = False
 
     def handle_deprecated_train_score(results, return_train_score):
         return results
