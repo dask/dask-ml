@@ -7,7 +7,6 @@ from sklearn.decomposition import PCA
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.linear_model import LinearRegression, LogisticRegression
 
-from dask_ml._compat import SK_GE_020
 from dask_ml.datasets import make_classification
 from dask_ml.utils import assert_eq_ar, assert_estimator_equal
 from dask_ml.wrappers import ParallelPostFit
@@ -93,12 +92,8 @@ def test_multiclass():
     X = da.from_array(X, chunks=50)
     y = da.from_array(y, chunks=50)
 
-    if SK_GE_020:
-        kwargs = {"multi_class": "auto"}
-    else:
-        kwargs = {}
     clf = ParallelPostFit(
-        LogisticRegression(random_state=0, n_jobs=1, solver="lbfgs", **kwargs)
+        LogisticRegression(random_state=0, n_jobs=1, solver="lbfgs", multiclass="auto")
     )
 
     clf.fit(X, y)
