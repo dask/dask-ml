@@ -65,3 +65,13 @@ search as follows:
 
    with joblib.parallel_backend('dask'):
        search.fit(digits.data, digits.target)
+
+
+Note that the Dask joblib backend is useful for scaling out CPU-bound workloads;
+workloads with datasets that fit in RAM, but have many individual operations
+that can be done in parallel. To scale out to RAM-bound workloads
+(larger-than-memory datasets) use one of the following alternatives:
+
+* :ref:`parallel-meta-estimators`
+* :ref:`hyperparameter.incremental`
+* or one of the estimators from the :ref:`api`
