@@ -242,13 +242,13 @@ def test_return_train_score_warn():
         "std_train_score",
     }
 
-    include_train_score = SK_VERSION >= packaging.version.parse("0.21.dev0")
+    include_train_score = SK_VERSION <= packaging.version.parse("0.21.dev0")
 
-    if not include_train_score:
+    if include_train_score:
+        assert all(x in results for x in train_keys)
+    else:
         result = train_keys & set(results)
         assert result == {}
-    else:
-        assert all(x in results for x in train_keys)
 
     for key in results:
         if key in train_keys:
