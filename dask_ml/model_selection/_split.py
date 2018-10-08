@@ -154,7 +154,7 @@ class ShuffleSplit(BaseCrossValidator):
         X = check_array(X)
         rng = check_random_state(self.random_state)
         for i in range(self.n_splits):
-            seeds = draw_seed(rng, 0, 2 ** 32 - 1, size=len(X.chunks[0]), dtype="u8")
+            seeds = draw_seed(rng, 0, 2 ** 32 - 1, size=len(X.chunks[0]), dtype="uint")
             if self.blockwise:
                 yield self._split_blockwise(X, seeds)
             else:
@@ -251,7 +251,7 @@ class KFold(BaseCrossValidator):
         seeds = [None] * len(chunks)
         if self.shuffle:
             rng = check_random_state(self.random_state)
-            seeds = draw_seed(rng, 0, 2 ** 32 - 1, size=len(chunks), dtype="u8")
+            seeds = draw_seed(rng, 0, 2 ** 32 - 1, size=len(chunks), dtype="uint")
 
         test_current = 0
         for fold_size in fold_sizes:
