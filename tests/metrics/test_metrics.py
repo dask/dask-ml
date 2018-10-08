@@ -10,7 +10,6 @@ from dask.array.utils import assert_eq
 
 import dask_ml.metrics
 import dask_ml.wrappers
-from dask_ml._compat import dummy_context
 
 
 def test_pairwise_distances(X_blobs):

@@ -1,7 +1,5 @@
 import dask.dataframe as dd
-import packaging.version
 import pandas as pd
-import pytest
 import sklearn.compose
 import sklearn.preprocessing
 from sklearn.base import clone

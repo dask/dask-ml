@@ -3,7 +3,6 @@ import dask.array as da
 import numpy as np
 import pandas as pd
 import sklearn.preprocessing
-from packaging import version
 
 from ..utils import check_array
 from .label import _encode, _encode_dask_array

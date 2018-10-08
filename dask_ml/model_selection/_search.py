@@ -15,7 +15,6 @@ from dask.utils import derived_from
 from sklearn import model_selection
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, clone, is_classifier
 from sklearn.exceptions import NotFittedError
-from sklearn.metrics.scorer import check_scoring
 from sklearn.model_selection._search import BaseSearchCV, _check_param_grid
 from sklearn.model_selection._split import (
     BaseShuffleSplit,

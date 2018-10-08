@@ -4,7 +4,6 @@ import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import sklearn.impute
-from packaging.version import parse
 
 from .utils import check_array
 

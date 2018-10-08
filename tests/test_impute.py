@@ -1,7 +1,6 @@
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
-import packaging.version
 import pandas as pd
 import pandas.util.testing as tm
 import pytest
