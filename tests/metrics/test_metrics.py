@@ -24,7 +24,7 @@ def test_pairwise_distances_argmin_min(X_blobs):
 
     # X_blobs has 500 rows per block.
     # Ensure 500 rows in the scikit-learn version too.
-    working_memory = 80 * 500 / 2 ** 20
+    working_memory = float(80 * 500) / 2 ** 20
 
     ctx = sklearn.config_context(working_memory=working_memory)
 
