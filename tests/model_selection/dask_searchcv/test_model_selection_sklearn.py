@@ -25,6 +25,7 @@ from sklearn.datasets import (
     make_multilabel_classification,
 )
 from sklearn.exceptions import FitFailedWarning, NotFittedError
+from sklearn.impute import SimpleImputer
 from sklearn.linear_model import Ridge
 from sklearn.metrics import accuracy_score, f1_score, make_scorer, roc_auc_score
 from sklearn.model_selection import (
@@ -42,7 +43,6 @@ from sklearn.svm import SVC, LinearSVC
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 
 from dask_ml import model_selection as dcv
-from dask_ml._compat import SK_VERSION
 from dask_ml.model_selection.utils_test import (
     CheckingClassifier,
     FailingClassifier,
@@ -1102,15 +1102,7 @@ def test_grid_search_allows_nans():
     X[2, :] = np.nan
     y = [0, 0, 1, 1, 1]
 
-    if SK_VERSION >= packaging.version.parse("0.20.0.dev0"):
-        from sklearn.impute import SimpleImputer
-
-        imputer = SimpleImputer(strategy="mean", missing_values=np.nan)
-    else:
-        from sklearn.preprocessing import Imputer
-
-        imputer = Imputer(strategy="mean", missing_values="NaN")
-
+    imputer = SimpleImputer(strategy="mean", missing_values=np.nan)
     p = Pipeline([("imputer", imputer), ("classifier", MockClassifier())])
     dcv.GridSearchCV(p, {"classifier__foo_param": [1, 2, 3]}, cv=2).fit(X, y)
 

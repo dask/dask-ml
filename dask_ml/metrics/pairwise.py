@@ -11,17 +11,15 @@ from dask.array.random import doc_wraps
 from sklearn import metrics
 from sklearn.metrics.pairwise import KERNEL_PARAMS
 
-from .._compat import SK_VERSION
 from ..utils import row_norms
 
 
 def pairwise_distances_argmin_min(
     X, Y, axis=1, metric="euclidean", batch_size=None, metric_kwargs=None
 ):
-    if SK_VERSION >= packaging.version.parse("0.20.0.dev0"):
-        if batch_size is not None:
-            msg = "'batch_size' is deprecated. Use sklearn.config_context " "instead.'"
-            warnings.warn(msg, FutureWarning)
+    if batch_size is not None:
+        msg = "'batch_size' is deprecated. Use sklearn.config_context " "instead.'"
+        warnings.warn(msg, FutureWarning)
     else:
         if batch_size is None:
             batch_size = max(X.chunks[0])

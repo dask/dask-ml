@@ -5,14 +5,8 @@ import pandas as pd
 import sklearn.preprocessing
 from packaging import version
 
-from .._compat import SK_VERSION
 from ..utils import check_array
 from .label import _encode, _encode_dask_array
-
-# scikit-learn pre 0.20 had OneHotEncoder but we don't support its semantics.
-
-if SK_VERSION < version.Version("0.20.0dev0"):
-    raise ImportError("scikit-learn>= 0.20 required from OneHotEncoder")
 
 
 class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
