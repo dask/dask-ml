@@ -4,6 +4,8 @@ Changelog
 Version 0.10.0
 ~~~~~~~~~~~~~~
 
+Note that this version of Dask-ML requires scikit-learn >= 0.20.0.
+
 Enhancements
 ------------
 
