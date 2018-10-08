@@ -40,7 +40,6 @@ from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.svm import SVC
 
 import dask_ml.model_selection as dcv
-from dask_ml._compat import HAS_MULTIPLE_METRICS
 from dask_ml.model_selection import check_cv, compute_n_splits
 from dask_ml.model_selection._search import _normalize_n_jobs
 from dask_ml.model_selection.methods import CVCache
@@ -545,7 +544,6 @@ def test_feature_union_fit_failure():
     check_scores_all_nan(gs, "union__bad__parameter")
 
 
-@pytest.mark.skipif(not HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
 def test_feature_union_fit_failure_multiple_metrics():
     scoring = {"score_1": _passthrough_scorer, "score_2": _passthrough_scorer}
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
@@ -800,7 +798,6 @@ def test_scheduler_param_distributed(loop):
             assert client.run_on_scheduler(f)  # some work happened on cluster
 
 
-@pytest.mark.skipif(not HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
 def test_cv_multiplemetrics():
     X, y = make_classification(random_state=0)
 
@@ -829,7 +826,6 @@ def test_cv_multiplemetrics():
     assert isinstance(a.best_params_, type(b.best_params_))
 
 
-@pytest.mark.skipif(not HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
 def test_cv_multiplemetrics_requires_refit_metric():
     X, y = make_classification(random_state=0)
 
@@ -845,7 +841,6 @@ def test_cv_multiplemetrics_requires_refit_metric():
         a.fit(X, y)
 
 
-@pytest.mark.skipif(not HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
 def test_cv_multiplemetrics_no_refit():
     X, y = make_classification(random_state=0)
 

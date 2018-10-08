@@ -42,7 +42,7 @@ from sklearn.svm import SVC, LinearSVC
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 
 from dask_ml import model_selection as dcv
-from dask_ml._compat import HAS_MULTIPLE_METRICS, SK_VERSION
+from dask_ml._compat import SK_VERSION
 from dask_ml.model_selection.utils_test import (
     CheckingClassifier,
     FailingClassifier,
@@ -213,7 +213,7 @@ def test_grid_search_groups():
 
 
 @pytest.mark.skipif(
-    SK_VERSION < packaging.version.parse("0.19.1"),
+    sk_version < packaging.version.parse("0.19.1"),
     reason="only deprecated for >= 0.19.1",
 )
 def test_return_train_score_warn():
@@ -320,7 +320,6 @@ def test_no_refit():
         ) in str(exc.value)
 
 
-@pytest.mark.skipif(not HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
 def test_no_refit_multiple_metrics():
     clf = DecisionTreeClassifier()
     scoring = {"score_1": "accuracy", "score_2": "accuracy"}
@@ -1205,7 +1204,6 @@ def test_search_train_scores_set_to_false():
         assert not key.endswith("train_score")
 
 
-@pytest.mark.skipif(not HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
 def test_multiple_metrics():
     scoring = {"AUC": "roc_auc", "Accuracy": make_scorer(accuracy_score)}
 

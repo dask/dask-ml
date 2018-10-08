@@ -34,7 +34,7 @@ from sklearn.utils.metaestimators import if_delegate_has_method
 from sklearn.utils.multiclass import type_of_target
 from sklearn.utils.validation import _num_samples, check_is_fitted
 
-from .._compat import HAS_MULTIPLE_METRICS, SK_VERSION
+from .._compat import SK_VERSION
 from ._normalize import normalize_estimator
 from .methods import (
     MISSING,
@@ -1049,7 +1049,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
     def best_score_(self):
         check_is_fitted(self, "cv_results_")
         self._check_if_refit("best_score_")
-        if HAS_MULTIPLE_METRICS and self.multimetric_:
+        if self.multimetric_:
             key = self.refit
         else:
             key = "score"
@@ -1134,38 +1134,33 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             Parameters passed to the ``fit`` method of the estimator
         """
         estimator = self.estimator
-        if HAS_MULTIPLE_METRICS:
-            from sklearn.metrics.scorer import _check_multimetric_scoring
+        from sklearn.metrics.scorer import _check_multimetric_scoring
 
-            scorer, multimetric = _check_multimetric_scoring(
-                estimator, scoring=self.scoring
-            )
-            if not multimetric:
-                scorer = scorer["score"]
-            self.multimetric_ = multimetric
+        scorer, multimetric = _check_multimetric_scoring(
+            estimator, scoring=self.scoring
+        )
+        if not multimetric:
+            scorer = scorer["score"]
+        self.multimetric_ = multimetric
 
-            if self.multimetric_:
-                if self.refit is not False and (
-                    not isinstance(self.refit, str)
-                    or
-                    # This will work for both dict / list (tuple)
-                    self.refit not in scorer
-                ):
-                    raise ValueError(
-                        "For multi-metric scoring, the parameter "
-                        "refit must be set to a scorer key "
-                        "to refit an estimator with the best "
-                        "parameter setting on the whole data and "
-                        "make the best_* attributes "
-                        "available for that metric. If this is "
-                        "not needed, refit should be set to "
-                        "False explicitly. %r was ."
-                        "passed." % self.refit
-                    )
-        else:
-            scorer = check_scoring(estimator, scoring=self.scoring)
-            multimetric = False
-
+        if self.multimetric_:
+            if self.refit is not False and (
+                not isinstance(self.refit, str)
+                or
+                # This will work for both dict / list (tuple)
+                self.refit not in scorer
+            ):
+                raise ValueError(
+                    "For multi-metric scoring, the parameter "
+                    "refit must be set to a scorer key "
+                    "to refit an estimator with the best "
+                    "parameter setting on the whole data and "
+                    "make the best_* attributes "
+                    "available for that metric. If this is "
+                    "not needed, refit should be set to "
+                    "False explicitly. %r was ."
+                    "passed." % self.refit
+                )
         self.scorer_ = scorer
 
         error_score = self.error_score
@@ -1210,7 +1205,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         self.cv_results_ = results
 
         if self.refit:
-            if HAS_MULTIPLE_METRICS and self.multimetric_:
+            if self.multimetric_:
                 key = self.refit
             else:
                 key = "score"
