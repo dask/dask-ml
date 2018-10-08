@@ -25,6 +25,7 @@ from sklearn.datasets import (
     make_multilabel_classification,
 )
 from sklearn.exceptions import FitFailedWarning, NotFittedError
+from sklearn.impute import SimpleImputer
 from sklearn.linear_model import Ridge
 from sklearn.metrics import accuracy_score, f1_score, make_scorer, roc_auc_score
 from sklearn.model_selection import (
@@ -42,7 +43,7 @@ from sklearn.svm import SVC, LinearSVC
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 
 from dask_ml import model_selection as dcv
-from dask_ml._compat import HAS_MULTIPLE_METRICS, SK_VERSION
+from dask_ml._compat import SK_VERSION
 from dask_ml.model_selection.utils_test import (
     CheckingClassifier,
     FailingClassifier,
@@ -212,10 +213,6 @@ def test_grid_search_groups():
         gs.fit(X, y)
 
 
-@pytest.mark.skipif(
-    SK_VERSION < packaging.version.parse("0.19.1"),
-    reason="only deprecated for >= 0.19.1",
-)
 def test_return_train_score_warn():
     # Test that warnings are raised. Will be removed in sklearn 0.21
     X = np.arange(100).reshape(10, 10)
@@ -244,6 +241,14 @@ def test_return_train_score_warn():
         "mean_train_score",
         "std_train_score",
     }
+
+    include_train_score = SK_VERSION <= packaging.version.parse("0.21.dev0")
+
+    if include_train_score:
+        assert all(x in results for x in train_keys)
+    else:
+        result = train_keys & set(results)
+        assert result == {}
 
     for key in results:
         if key in train_keys:
@@ -320,7 +325,6 @@ def test_no_refit():
         ) in str(exc.value)
 
 
-@pytest.mark.skipif(not HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
 def test_no_refit_multiple_metrics():
     clf = DecisionTreeClassifier()
     scoring = {"score_1": "accuracy", "score_2": "accuracy"}
@@ -1103,15 +1107,7 @@ def test_grid_search_allows_nans():
     X[2, :] = np.nan
     y = [0, 0, 1, 1, 1]
 
-    if SK_VERSION >= packaging.version.parse("0.20.0.dev0"):
-        from sklearn.impute import SimpleImputer
-
-        imputer = SimpleImputer(strategy="mean", missing_values=np.nan)
-    else:
-        from sklearn.preprocessing import Imputer
-
-        imputer = Imputer(strategy="mean", missing_values="NaN")
-
+    imputer = SimpleImputer(strategy="mean", missing_values=np.nan)
     p = Pipeline([("imputer", imputer), ("classifier", MockClassifier())])
     dcv.GridSearchCV(p, {"classifier__foo_param": [1, 2, 3]}, cv=2).fit(X, y)
 
@@ -1205,7 +1201,6 @@ def test_search_train_scores_set_to_false():
         assert not key.endswith("train_score")
 
 
-@pytest.mark.skipif(not HAS_MULTIPLE_METRICS, reason="Added in 0.19.0")
 def test_multiple_metrics():
     scoring = {"AUC": "roc_auc", "Accuracy": make_scorer(accuracy_score)}
 

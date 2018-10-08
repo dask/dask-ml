@@ -1,20 +1,14 @@
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
-import packaging.version
 import pandas as pd
 import pandas.util.testing as tm
 import pytest
+import sklearn.impute
 
 import dask_ml.datasets
-from dask_ml._compat import SK_VERSION
+import dask_ml.impute
 from dask_ml.utils import assert_estimator_equal
-
-if SK_VERSION >= packaging.version.parse("0.20.0.dev0"):
-    import sklearn.impute
-    import dask_ml.impute
-else:
-    pytestmark = pytest.mark.skip(reason="Requires sklearn 0.20.0")
 
 rng = np.random.RandomState(0)
 

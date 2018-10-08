@@ -3,14 +3,14 @@
 Joblib
 ======
 
-Dask.distributed integrates with `Joblib <http://joblib.readthedocs.io/en/latest/>`__
-by providing an alternative
-cluster-computing backend, alongside Joblib's builtin threading and
-multiprocessing backends. This enables training a scikit-learn model in
-parallel using a cluster of machines.
+Many Scikit-Learn algorithms are written for parallel execution using
+`Joblib <http://joblib.readthedocs.io/en/latest/>`__, which natively provides
+thread-based and process-based parallelism.  Joblib is what backs the
+``n_jobs=`` parameter in normal use of Scikit-Learn.
 
-The following video demonstrates how to use Dask to parallelize a grid
-search across a cluster.
+Dask can scale these Joblib-backed algorithms out to a cluster of machines by
+providing an alternative Joblib backend.  The following video demonstrates how
+to use Dask to parallelize a grid search across a cluster.
 
 .. raw:: html
 
@@ -22,44 +22,34 @@ search across a cluster.
             allowfullscreen>
     </iframe>
 
-`Joblib <http://joblib.readthedocs.io/en/latest/>`__
-is a library for simple parallel programming primarily developed and
-used by the Scikit Learn community.  As of version 0.10.0 it contains a plugin
-mechanism to allow Joblib code to use other parallel frameworks to execute
-computations.  The ``dask.distributed`` scheduler implements such a plugin in
-the ``dask_ml.joblib`` module and registers it appropriately with Joblib
-when imported.  As a result, any joblib code (including many scikit-learn
-algorithms) will run on the distributed scheduler if you enclose it in a
-context manager as follows:
+To use the Dask backend to Joblib you have to create a Client, and wrap your
+code with ``joblib.parallel_backend('dask')``.
 
 .. code-block:: python
 
-   import dask_ml.joblib  # registers joblib plugin
    from dask.distributed import Client
+   from scikit_learn.externals import joblib
 
    client = Client(processes=False)             # create local cluster
    # client = Client("scheduler-address:8786")  # or connect to remote cluster
 
-   from joblib import Parallel, parallel_backend
+   with joblib.parallel_backend('dask'):
+       # Your scikit-learn code
 
-   with parallel_backend('dask'):
-       # normal Joblib code
-
-Note that scikit-learn bundles joblib internally, so if you want to specify the
-joblib backend you'll need to import ``parallel_backend`` from scikit-learn
-instead of ``joblib``. As an example you might distributed a randomized cross
-validated parameter search as follows.
+As an example you might distribute a randomized cross validated parameter
+search as follows:
 
 .. code-block:: python
 
-   import dask_ml.joblib  # registers joblib plugin
-   # Scikit-learn bundles joblib, so you need to import from
-   # `sklearn.externals.joblib` instead of `joblib` directly
-   from sklearn.externals.joblib import parallel_backend
-   from sklearn.datasets import load_digits
-   from sklearn.grid_search import RandomizedSearchCV
-   from sklearn.svm import SVC
    import numpy as np
+   from dask.distributed import Client
+
+   from sklearn.externals import joblib
+   from sklearn.datasets import load_digits
+   from sklearn.model_selection import RandomizedSearchCV
+   from sklearn.svm import SVC
+
+   client = Client(processes=False)             # create local cluster
 
    digits = load_digits()
 
@@ -73,17 +63,15 @@ validated parameter search as follows.
    model = SVC(kernel='rbf')
    search = RandomizedSearchCV(model, param_space, cv=3, n_iter=50, verbose=10)
 
-   with parallel_backend('dask'):
+   with joblib.parallel_backend('dask'):
        search.fit(digits.data, digits.target)
 
 
-For large arguments that are used by multiple tasks, it may be more efficient
-to pre-scatter the data to every worker, rather than serializing it once for
-every task. This can be done using the ``scatter`` keyword argument, which
-takes an iterable of objects to send to each worker.
+Note that the Dask joblib backend is useful for scaling out CPU-bound workloads;
+workloads with datasets that fit in RAM, but have many individual operations
+that can be done in parallel. To scale out to RAM-bound workloads
+(larger-than-memory datasets) use one of the following alternatives:
 
-.. code-block:: python
-
-   # Serialize the training data only once to each worker
-   with parallel_backend('dask', scatter=[digits.data, digits.target]):
-       search.fit(digits.data, digits.target)
+* :ref:`parallel-meta-estimators`
+* :ref:`hyperparameter.incremental`
+* or one of the estimators from the :ref:`api`
