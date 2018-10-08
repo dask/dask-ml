@@ -428,7 +428,7 @@ def train_test_split(*arrays, **options):
             blockwise = False
 
         rng = check_random_state(random_state)
-        rng = draw_seed(rng, 0, 2 ** 32)
+        rng = draw_seed(rng, 0, 2 ** 32 - 1, dtype="uint")
         return list(
             itertools.chain.from_iterable(
                 arr.random_split([train_size, test_size], random_state=rng)
