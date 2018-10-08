@@ -98,7 +98,6 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "import dask_ml.joblib\n",
     "from sklearn.externals import joblib\n",
     "from distributed import Client\n",
     "\n",
@@ -110,7 +109,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "To train the voting classifier, we call the classifier's fit method, but enclosed in joblib's ```parallel_backend``` context manager. This distributes training of sub-estimators acoss the cluster. By providing the data in the ```scatter``` argument, the data is pre-emptively sent to each worker in the cluster (follow the [link](http://distributed.readthedocs.io/en/latest/api.html#distributed.client.Client.scatter) for more info)."
+    "To train the voting classifier, we call the classifier's fit method, but enclosed in joblib's ```parallel_backend``` context manager. This distributes training of sub-estimators acoss the cluster."
    ]
   },
   {
@@ -120,7 +119,7 @@
    "outputs": [],
    "source": [
     "%%time \n",
-    "with joblib.parallel_backend(\"dask\", scatter=[X, y]):\n",
+    "with joblib.parallel_backend(\"dask\"):\n",
     "    clf.fit(X, y)\n",
     "\n",
     "print(clf)"

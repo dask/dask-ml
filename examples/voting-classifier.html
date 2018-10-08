@@ -487,8 +487,8 @@ used dask).</p>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-CPU times: user 20 ms, sys: 12 ms, total: 32 ms
-Wall time: 1.54 s
+CPU times: user 12 ms, sys: 24 ms, total: 36 ms
+Wall time: 1.6 s
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -521,8 +521,7 @@ cluster</a>
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">dask_ml.joblib</span>
-<span class="kn">from</span> <span class="nn">sklearn.externals</span> <span class="kn">import</span> <span class="n">joblib</span>
+<span></span><span class="kn">from</span> <span class="nn">sklearn.externals</span> <span class="kn">import</span> <span class="n">joblib</span>
 <span class="kn">from</span> <span class="nn">distributed</span> <span class="kn">import</span> <span class="n">Client</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">()</span>
@@ -541,7 +540,7 @@ cluster</a>
 <td style="vertical-align: top; border: 0px solid white">
 <h3>Client</h3>
 <ul>
-  <li><b>Scheduler: </b>tcp://127.0.0.1:44800
+  <li><b>Scheduler: </b>tcp://127.0.0.1:41780
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
@@ -557,11 +556,7 @@ cluster</a>
 </div>
 <p>To train the voting classifier, we call the classifier’s fit method, but
 enclosed in joblib’s <code class="docutils literal notranslate"><span class="pre">parallel_backend</span></code> context manager. This
-distributes training of sub-estimators acoss the cluster. By providing
-the data in the <code class="docutils literal notranslate"><span class="pre">scatter</span></code> argument, the data is pre-emptively sent to
-each worker in the cluster (follow the
-<a class="reference external" href="http://distributed.readthedocs.io/en/latest/api.html#distributed.client.Client.scatter">link</a>
-for more info).</p>
+distributes training of sub-estimators acoss the cluster.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
 <span></span>In [6]:
@@ -569,7 +564,7 @@ for more info).</p>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="o">%%time</span>
-<span class="k">with</span> <span class="n">joblib</span><span class="o">.</span><span class="n">parallel_backend</span><span class="p">(</span><span class="s2">&quot;dask&quot;</span><span class="p">,</span> <span class="n">scatter</span><span class="o">=</span><span class="p">[</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">]):</span>
+<span class="k">with</span> <span class="n">joblib</span><span class="o">.</span><span class="n">parallel_backend</span><span class="p">(</span><span class="s2">&quot;dask&quot;</span><span class="p">):</span>
     <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 
 <span class="k">print</span><span class="p">(</span><span class="n">clf</span><span class="p">)</span>
@@ -589,8 +584,8 @@ VotingClassifier(estimators=[(&#39;sgd&#39;, SGDClassifier(alpha=0.0001, average
   max_iter=-1, probability=False, random_state=None, shrinking=True,
   tol=0.001, verbose=False))],
          flatten_transform=None, n_jobs=-1, voting=&#39;hard&#39;, weights=None)
-CPU times: user 108 ms, sys: 4 ms, total: 112 ms
-Wall time: 1.11 s
+CPU times: user 144 ms, sys: 16 ms, total: 160 ms
+Wall time: 1.3 s
 </pre></div></div>
 </div>
 <p>Note, that we see no advantage of using dask because we are using a

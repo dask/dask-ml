@@ -231,52 +231,42 @@
             
   <div class="section" id="joblib">
 <span id="id1"></span><h1>Joblib<a class="headerlink" href="#joblib" title="Permalink to this headline">¶</a></h1>
-<p>Dask.distributed integrates with <a class="reference external" href="http://joblib.readthedocs.io/en/latest/">Joblib</a>
-by providing an alternative
-cluster-computing backend, alongside Joblib’s builtin threading and
-multiprocessing backends. This enables training a scikit-learn model in
-parallel using a cluster of machines.</p>
-<p>The following video demonstrates how to use Dask to parallelize a grid
-search across a cluster.</p>
+<p>Many Scikit-Learn algorithms are written for parallel execution using
+<a class="reference external" href="http://joblib.readthedocs.io/en/latest/">Joblib</a>, which natively provides
+thread-based and process-based parallelism.  Joblib is what backs the
+<code class="docutils literal notranslate"><span class="pre">n_jobs=</span></code> parameter in normal use of Scikit-Learn.</p>
+<p>Dask can scale these Joblib-backed algorithms out to a cluster of machines by
+providing an alternative Joblib backend.  The following video demonstrates how
+to use Dask to parallelize a grid search across a cluster.</p>
 <iframe width="560"
         height="315"
         src="https://www.youtube.com/embed/5Zf6DQaf7jk"
         frameborder="0"
         allow="autoplay; encrypted-media"
         allowfullscreen>
-</iframe><p><a class="reference external" href="http://joblib.readthedocs.io/en/latest/">Joblib</a>
-is a library for simple parallel programming primarily developed and
-used by the Scikit Learn community.  As of version 0.10.0 it contains a plugin
-mechanism to allow Joblib code to use other parallel frameworks to execute
-computations.  The <code class="docutils literal notranslate"><span class="pre">dask.distributed</span></code> scheduler implements such a plugin in
-the <code class="docutils literal notranslate"><span class="pre">dask_ml.joblib</span></code> module and registers it appropriately with Joblib
-when imported.  As a result, any joblib code (including many scikit-learn
-algorithms) will run on the distributed scheduler if you enclose it in a
-context manager as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dask_ml.joblib</span>  <span class="c1"># registers joblib plugin</span>
-<span class="kn">from</span> <span class="nn">dask.distributed</span> <span class="kn">import</span> <span class="n">Client</span>
+</iframe><p>To use the Dask backend to Joblib you have to create a Client, and wrap your
+code with <code class="docutils literal notranslate"><span class="pre">joblib.parallel_backend('dask')</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dask.distributed</span> <span class="kn">import</span> <span class="n">Client</span>
+<span class="kn">from</span> <span class="nn">scikit_learn.externals</span> <span class="kn">import</span> <span class="n">joblib</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>             <span class="c1"># create local cluster</span>
 <span class="c1"># client = Client(&quot;scheduler-address:8786&quot;)  # or connect to remote cluster</span>
 
-<span class="kn">from</span> <span class="nn">joblib</span> <span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">parallel_backend</span>
-
-<span class="k">with</span> <span class="n">parallel_backend</span><span class="p">(</span><span class="s1">&#39;dask&#39;</span><span class="p">):</span>
-    <span class="c1"># normal Joblib code</span>
+<span class="k">with</span> <span class="n">joblib</span><span class="o">.</span><span class="n">parallel_backend</span><span class="p">(</span><span class="s1">&#39;dask&#39;</span><span class="p">):</span>
+    <span class="c1"># Your scikit-learn code</span>
 </pre></div>
 </div>
-<p>Note that scikit-learn bundles joblib internally, so if you want to specify the
-joblib backend you’ll need to import <code class="docutils literal notranslate"><span class="pre">parallel_backend</span></code> from scikit-learn
-instead of <code class="docutils literal notranslate"><span class="pre">joblib</span></code>. As an example you might distributed a randomized cross
-validated parameter search as follows.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dask_ml.joblib</span>  <span class="c1"># registers joblib plugin</span>
-<span class="c1"># Scikit-learn bundles joblib, so you need to import from</span>
-<span class="c1"># `sklearn.externals.joblib` instead of `joblib` directly</span>
-<span class="kn">from</span> <span class="nn">sklearn.externals.joblib</span> <span class="kn">import</span> <span class="n">parallel_backend</span>
+<p>As an example you might distribute a randomized cross validated parameter
+search as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">dask.distributed</span> <span class="kn">import</span> <span class="n">Client</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.externals</span> <span class="kn">import</span> <span class="n">joblib</span>
 <span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">load_digits</span>
-<span class="kn">from</span> <span class="nn">sklearn.grid_search</span> <span class="kn">import</span> <span class="n">RandomizedSearchCV</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">RandomizedSearchCV</span>
 <span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">SVC</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>             <span class="c1"># create local cluster</span>
 
 <span class="n">digits</span> <span class="o">=</span> <span class="n">load_digits</span><span class="p">()</span>
 
@@ -290,19 +280,19 @@ validated parameter search as follows.</p>
 <span class="n">model</span> <span class="o">=</span> <span class="n">SVC</span><span class="p">(</span><span class="n">kernel</span><span class="o">=</span><span class="s1">&#39;rbf&#39;</span><span class="p">)</span>
 <span class="n">search</span> <span class="o">=</span> <span class="n">RandomizedSearchCV</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">param_space</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">n_iter</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 
-<span class="k">with</span> <span class="n">parallel_backend</span><span class="p">(</span><span class="s1">&#39;dask&#39;</span><span class="p">):</span>
+<span class="k">with</span> <span class="n">joblib</span><span class="o">.</span><span class="n">parallel_backend</span><span class="p">(</span><span class="s1">&#39;dask&#39;</span><span class="p">):</span>
     <span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">digits</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">digits</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>For large arguments that are used by multiple tasks, it may be more efficient
-to pre-scatter the data to every worker, rather than serializing it once for
-every task. This can be done using the <code class="docutils literal notranslate"><span class="pre">scatter</span></code> keyword argument, which
-takes an iterable of objects to send to each worker.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Serialize the training data only once to each worker</span>
-<span class="k">with</span> <span class="n">parallel_backend</span><span class="p">(</span><span class="s1">&#39;dask&#39;</span><span class="p">,</span> <span class="n">scatter</span><span class="o">=</span><span class="p">[</span><span class="n">digits</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">digits</span><span class="o">.</span><span class="n">target</span><span class="p">]):</span>
-    <span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">digits</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">digits</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
-</pre></div>
-</div>
+<p>Note that the Dask joblib backend is useful for scaling out CPU-bound workloads;
+workloads with datasets that fit in RAM, but have many individual operations
+that can be done in parallel. To scale out to RAM-bound workloads
+(larger-than-memory datasets) use one of the following alternatives:</p>
+<ul class="simple">
+<li><a class="reference internal" href="meta-estimators.html#parallel-meta-estimators"><span class="std std-ref">Parallel Meta-estimators</span></a></li>
+<li><a class="reference internal" href="hyper-parameter-search.html#hyperparameter-incremental"><span class="std std-ref">Incremental Hyperparameter Optimization</span></a></li>
+<li>or one of the estimators from the <a class="reference internal" href="modules/api.html#api"><span class="std std-ref">API Reference</span></a></li>
+</ul>
 </div>
 
 

@@ -457,8 +457,9 @@ grid-search over many hyper-parameters, on a small dataset.</p>
 single-machine parallelism. This lets you train most estimators
 (anything that accepts an <code class="docutils literal notranslate"><span class="pre">n_jobs</span></code> parameter) using all the cores of
 your laptop or workstation.</p>
-<p>Dask registers a joblib backend. This lets you train those estimators
-using all the cores of your <em>cluster</em>, by changing one line of code.</p>
+<p>Alternatively, Scikit-Learn can use Dask for parallelism. This lets you
+train those estimators using all the cores of your <em>cluster</em> without
+significantly changing your code.</p>
 <p>This is most useful for training large models on medium-sized datasets.
 You may have a large model when searching over many hyper-parameters, or
 when using an ensemble method with many individual estimators. For too
@@ -467,15 +468,15 @@ cluster-wide parallelism isn’t helpful. For too large datasets (larger
 than a single machine’s memory), the scikit-learn estimators may not be
 able to cope (though Dask-ML provides other ways for working with larger
 than memory datasets).</p>
+<div class="section" id="Create-Scikit-Learn-Pipeline">
+<h3>Create Scikit-Learn Pipeline<a class="headerlink" href="#Create-Scikit-Learn-Pipeline" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
 <span></span>In [ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">dask_ml.joblib</span>  <span class="c1"># register the distriubted backend</span>
-
-<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
 <span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
@@ -526,6 +527,9 @@ a simple classifier.</p>
 </pre></div>
 </div>
 </div>
+</div>
+<div class="section" id="Define-Grid-for-Parameter-Search">
+<h3>Define Grid for Parameter Search<a class="headerlink" href="#Define-Grid-for-Parameter-Search" title="Permalink to this headline">¶</a></h3>
 <p>Grid search over some parameters.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre>
@@ -571,22 +575,15 @@ cluster of machines to train the model, perform the fit in a
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">sklearn.externals</span> <span class="kn">import</span> <span class="n">joblib</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="k">with</span> <span class="n">joblib</span><span class="o">.</span><span class="n">parallel_backend</span><span class="p">(</span><span class="s1">&#39;dask&#39;</span><span class="p">,</span> <span class="n">scatter</span><span class="o">=</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">target</span><span class="p">]):</span>
+
+<span class="k">with</span> <span class="n">joblib</span><span class="o">.</span><span class="n">parallel_backend</span><span class="p">(</span><span class="s1">&#39;dask&#39;</span><span class="p">):</span>
     <span class="n">grid_search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <p>If you had your distributed dashboard open during that fit, you’ll
 notice that each worker performs some of the fit tasks.</p>
+</div>
 </div>
 <div class="section" id="Parallel,-Distributed-Prediction">
 <h2>Parallel, Distributed Prediction<a class="headerlink" href="#Parallel,-Distributed-Prediction" title="Permalink to this headline">¶</a></h2>
@@ -635,14 +632,14 @@ prefix your parameter names with <code class="docutils literal notranslate"><spa
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">svc</span> <span class="o">=</span> <span class="n">ParallelPostFit</span><span class="p">(</span><span class="n">SVC</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+<span></span><span class="n">svc</span> <span class="o">=</span> <span class="n">ParallelPostFit</span><span class="p">(</span><span class="n">SVC</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="s1">&#39;scale&#39;</span><span class="p">))</span>
 
 <span class="n">param_grid</span> <span class="o">=</span> <span class="p">{</span>
     <span class="c1"># use estimator__param instead of param</span>
     <span class="s1">&#39;estimator__C&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>
 <span class="p">}</span>
 
-<span class="n">grid_search</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">svc</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">iid</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">grid_search</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">svc</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">iid</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

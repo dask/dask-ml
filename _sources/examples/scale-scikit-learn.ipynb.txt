@@ -64,9 +64,16 @@
     "\n",
     "Scikit-learn uses [joblib](http://joblib.readthedocs.io/) for single-machine parallelism. This lets you train most estimators (anything that accepts an `n_jobs` parameter) using all the cores of your laptop or workstation.\n",
     "\n",
-    "Dask registers a joblib backend. This lets you train those estimators using all the cores of your *cluster*, by changing one line of code.\n",
+    "Alternatively, Scikit-Learn can use Dask for parallelism.  This lets you train those estimators using all the cores of your *cluster* without significantly changing your code.\n",
     "\n",
     "This is most useful for training large models on medium-sized datasets. You may have a large model when searching over many hyper-parameters, or when using an ensemble method with many individual estimators. For too small datasets, training times will typically be small enough that cluster-wide parallelism isn't helpful. For too large datasets (larger than a single machine's memory), the scikit-learn estimators may not be able to cope (though Dask-ML provides other ways for working with larger than memory datasets)."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Create Scikit-Learn Pipeline"
    ]
   },
   {
@@ -75,8 +82,6 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "import dask_ml.joblib  # register the distriubted backend\n",
-    "\n",
     "from pprint import pprint\n",
     "from time import time\n",
     "import logging\n",
@@ -134,6 +139,13 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
+    "### Define Grid for Parameter Search"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
     "Grid search over some parameters."
    ]
   },
@@ -185,16 +197,9 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "from sklearn.externals import joblib"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "with joblib.parallel_backend('dask', scatter=[data.data, data.target]):\n",
+    "from sklearn.externals import joblib\n",
+    "\n",
+    "with joblib.parallel_backend('dask'):\n",
     "    grid_search.fit(data.data, data.target)"
    ]
   },
@@ -253,14 +258,14 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "svc = ParallelPostFit(SVC(random_state=0))\n",
+    "svc = ParallelPostFit(SVC(random_state=0, gamma='scale'))\n",
     "\n",
     "param_grid = {\n",
     "    # use estimator__param instead of param\n",
     "    'estimator__C': [0.01, 1.0, 10],\n",
     "}\n",
     "\n",
-    "grid_search = GridSearchCV(svc, param_grid, iid=False)"
+    "grid_search = GridSearchCV(svc, param_grid, iid=False, cv=3)"
    ]
   },
   {
@@ -351,7 +356,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.6.5"
+   "version": "3.6.4"
   }
  },
  "nbformat": 4,
