@@ -159,12 +159,6 @@ class TestKMeans:
         km.fit(X)
         km.transform(X)
 
-    def test_dask_dataframe_raises(self):
-        km = DKKMeans(n_clusters=3)
-        X = dd.from_pandas(pd.DataFrame({"A": range(50)}), npartitions=2)
-        with pytest.raises(TypeError):
-            km.fit(X)
-
     def test_dtypes(self):
         X = da.random.uniform(size=(100, 2), chunks=(50, 2))
         X2 = X.astype("f4")
