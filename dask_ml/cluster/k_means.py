@@ -156,10 +156,8 @@ class KMeans(TransformerMixin, BaseEstimator):
         if isinstance(X, pd.DataFrame):
             X = X.values
 
-        elif isinstance(X, dd.DataFrame):
-            raise TypeError(
-                "Cannot fit on dask.dataframe due to unknown " "partition lengths."
-            )
+        if isinstance(X, dd.DataFrame):
+            X = X.to_dask_array(lengths=True)
 
         X = check_array(
             X,
