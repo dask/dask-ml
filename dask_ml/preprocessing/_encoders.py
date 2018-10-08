@@ -111,7 +111,7 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
         dtype=np.float64,
         handle_unknown="error",
     ):
-        super().__init__(
+        super(OneHotEncoder, self).__init__(
             n_values, categorical_features, categories, sparse, dtype, handle_unknown
         )
 
