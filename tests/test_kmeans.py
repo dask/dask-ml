@@ -180,3 +180,12 @@ class TestKMeans:
             assert a.labels_.dtype == b.labels_.dtype
             assert a.transform(xx).dtype == b.transform(xx).dtype
             assert a.transform(yy).dtype == b.transform(yy).dtype
+
+
+def test_dataframes():
+    df = dd.from_pandas(
+        pd.DataFrame({"A": [1, 2, 3, 4, 5], "B": [6, 7, 8, 9, 10]}), npartitions=2
+    )
+
+    kmeans = DKKMeans()
+    kmeans.fit(df)
