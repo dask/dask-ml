@@ -2,16 +2,9 @@ import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
-from packaging import version
+import sklearn.compose
 from scipy import sparse
-
-from .._compat import SK_VERSION
-
-if SK_VERSION >= version.Version("0.20.0dev0"):
-    import sklearn.compose
-    from sklearn.compose._column_transformer import _get_transformer_list
-else:
-    raise ImportError("scikit-learn >= 0.20 required from ColumnTransformer")
+from sklearn.compose._column_transformer import _get_transformer_list
 
 
 class ColumnTransformer(sklearn.compose.ColumnTransformer):

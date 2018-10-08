@@ -1,9 +1,5 @@
 """Utilties for Preprocessing data.
 """
-from .._compat import SK_VERSION
-from packaging.version import parse
-
-
 from .data import (
     StandardScaler,
     MinMaxScaler,
@@ -14,6 +10,7 @@ from .data import (
     OrdinalEncoder,
 )
 from .label import LabelEncoder
+from ._encoders import OneHotEncoder
 
 
 __all__ = [
@@ -25,12 +22,5 @@ __all__ = [
     "DummyEncoder",
     "OrdinalEncoder",
     "LabelEncoder",
+    "OneHotEncoder",
 ]
-
-if SK_VERSION >= parse("0.20.0.dev0"):
-    from ._encoders import OneHotEncoder  # noqa
-
-    __all__.append("OneHotEncoder")
-
-del SK_VERSION
-del parse

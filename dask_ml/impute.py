@@ -3,15 +3,9 @@ import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
-from packaging.version import parse
+import sklearn.impute
 
-from ._compat import SK_VERSION
 from .utils import check_array
-
-if SK_VERSION >= parse("0.20.0.dev0"):
-    import sklearn.impute
-else:
-    raise ImportError("dask_ml.impute is only available with scikit-learn>= 0.20")
 
 
 class SimpleImputer(sklearn.impute.SimpleImputer):
