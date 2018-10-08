@@ -5,8 +5,10 @@ import packaging.version
 import pandas as pd
 import pandas.util.testing as tm
 import pytest
+import sklearn.impute
 
 import dask_ml.datasets
+import dask_ml.impute
 from dask_ml.utils import assert_estimator_equal
 
 rng = np.random.RandomState(0)
