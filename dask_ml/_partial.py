@@ -162,11 +162,11 @@ def fit(model, x, y, compute=True, shuffle_blocks=True, random_state=None, **kwa
     >>> da.learn.predict(sgd, z)  # doctest: +SKIP
     dask.array<x_11, shape=(400,), chunks=((100, 100, 100, 100),), dtype=int64>
     """
-    if not hasattr(x, 'chunks') and hasattr(x, 'to_dask_array'):
+    if not hasattr(x, "chunks") and hasattr(x, "to_dask_array"):
         x = x.to_dask_array()
     assert x.ndim == 2
     if y is not None:
-        if not hasattr(y, 'chunks') and hasattr(y, 'to_dask_array'):
+        if not hasattr(y, "chunks") and hasattr(y, "to_dask_array"):
             y = y.to_dask_array()
         assert y.ndim == 1
         assert x.chunks[0] == y.chunks[0]
@@ -218,7 +218,7 @@ def predict(model, x):
 
     See docstring for ``da.learn.fit``
     """
-    if not hasattr(x, 'chunks') and hasattr(x, 'to_dask_array'):
+    if not hasattr(x, "chunks") and hasattr(x, "to_dask_array"):
         index = x.index
         x = x.to_dask_array()
     else:
