@@ -18,6 +18,8 @@ from sklearn.utils import check_random_state
 
 from dask_ml.utils import check_array, check_matching_blocks
 
+from .._utils import draw_seed
+
 logger = logging.getLogger(__name__)
 
 
@@ -150,17 +152,16 @@ class ShuffleSplit(BaseCrossValidator):
 
     def split(self, X, y=None, groups=None):
         X = check_array(X)
-
+        rng = check_random_state(self.random_state)
         for i in range(self.n_splits):
+            seeds = draw_seed(rng, 0, 2 ** 32 - 1, size=len(X.chunks[0]), dtype="uint")
             if self.blockwise:
-                yield self._split_blockwise(X)
+                yield self._split_blockwise(X, seeds)
             else:
                 yield self._split(X)
 
-    def _split_blockwise(self, X):
+    def _split_blockwise(self, X, seeds):
         chunks = X.chunks[0]
-        rng = check_random_state(self.random_state)
-        seeds = rng.randint(0, 2 ** 32 - 1, size=len(chunks), dtype="u8")
 
         train_pct, test_pct = _maybe_normalize_split_sizes(
             self.train_size, self.test_size
@@ -250,7 +251,7 @@ class KFold(BaseCrossValidator):
         seeds = [None] * len(chunks)
         if self.shuffle:
             rng = check_random_state(self.random_state)
-            seeds = rng.randint(0, 2 ** 32 - 1, size=len(chunks), dtype="u8")
+            seeds = draw_seed(rng, 0, 2 ** 32 - 1, size=len(chunks), dtype="uint")
 
         test_current = 0
         for fold_size in fold_sizes:
@@ -427,7 +428,7 @@ def train_test_split(*arrays, **options):
             blockwise = False
 
         rng = check_random_state(random_state)
-        rng = rng.randint(0, 2 ** 32)
+        rng = draw_seed(rng, 0, 2 ** 32 - 1, dtype="uint")
         return list(
             itertools.chain.from_iterable(
                 arr.random_split([train_size, test_size], random_state=rng)

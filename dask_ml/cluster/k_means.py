@@ -13,6 +13,7 @@ from sklearn.cluster import k_means_ as sk_k_means
 from sklearn.utils.extmath import squared_norm
 from sklearn.utils.validation import check_is_fitted
 
+from .._utils import draw_seed
 from ..metrics import (
     euclidean_distances,
     pairwise_distances,
@@ -386,7 +387,7 @@ def init_pp(X, n_clusters, random_state):
 def init_random(X, n_clusters, random_state):
     """K-means initialization using randomly chosen points"""
     logger.info("Initializing randomly")
-    idx = sorted(random_state.randint(0, len(X), size=n_clusters))
+    idx = sorted(draw_seed(random_state, 0, len(X), size=n_clusters))
     centers = X[idx].compute()
     return centers
 
@@ -454,7 +455,11 @@ def init_scalable(
     else:
         # Step 7, 8 without weights
         # dask RandomState objects aren't valid for scikit-learn
-        rng2 = random_state.randint(0, 2 ** 32 - 1, chunks=()).compute().item()
+        rng2 = (
+            draw_seed(random_state, 0, 2 ** 32 - 1, dtype="uint", chunks=())
+            .compute()
+            .item()
+        )
         km = sk_k_means.KMeans(n_clusters, random_state=rng2)
         km.fit(centers)
 
