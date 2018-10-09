@@ -6,6 +6,7 @@ import warnings
 from abc import ABCMeta
 
 import dask
+import dask.dataframe as dd
 import numpy as np
 import six
 import sklearn.utils
@@ -161,8 +162,12 @@ def fit(model, x, y, compute=True, shuffle_blocks=True, random_state=None, **kwa
     >>> da.learn.predict(sgd, z)  # doctest: +SKIP
     dask.array<x_11, shape=(400,), chunks=((100, 100, 100, 100),), dtype=int64>
     """
+    if not hasattr(x, 'chunks') and hasattr(x, 'to_dask_array'):
+        x = x.to_dask_array()
     assert x.ndim == 2
     if y is not None:
+        if not hasattr(y, 'chunks') and hasattr(y, 'to_dask_array'):
+            y = y.to_dask_array()
         assert y.ndim == 1
         assert x.chunks[0] == y.chunks[0]
     assert hasattr(model, "partial_fit")
@@ -213,13 +218,21 @@ def predict(model, x):
 
     See docstring for ``da.learn.fit``
     """
+    if not hasattr(x, 'chunks') and hasattr(x, 'to_dask_array'):
+        index = x.index
+        x = x.to_dask_array()
+    else:
+        index = None
     assert x.ndim == 2
     if len(x.chunks[1]) > 1:
         x = x.rechunk(chunks=(x.chunks[0], sum(x.chunks[1])))
     func = partial(_predict, model)
     xx = np.zeros((1, x.shape[1]), dtype=x.dtype)
     dt = model.predict(xx).dtype
-    return x.map_blocks(func, chunks=(x.chunks[0], (1,)), dtype=dt).squeeze()
+    result = x.map_blocks(func, chunks=(x.chunks[0], (1,)), dtype=dt).squeeze()
+    if index is not None:
+        result = dd.from_dask_array(result, index=index)
+    return result
 
 
 def _copy_partial_doc(cls):
