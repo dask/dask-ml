@@ -219,18 +219,14 @@ def predict(model, x):
     See docstring for ``da.learn.fit``
     """
     if not hasattr(x, "chunks") and hasattr(x, "to_dask_array"):
-        index = x.index
         x = x.to_dask_array()
-    else:
-        index = None
     assert x.ndim == 2
     if len(x.chunks[1]) > 1:
         x = x.rechunk(chunks=(x.chunks[0], sum(x.chunks[1])))
     func = partial(_predict, model)
     xx = np.zeros((1, x.shape[1]), dtype=x.dtype)
     dt = model.predict(xx).dtype
-    result = x.map_blocks(func, chunks=(x.chunks[0], (1,)), dtype=dt).squeeze()
-    return result
+    return x.map_blocks(func, chunks=(x.chunks[0], (1,)), dtype=dt).squeeze()
 
 
 def _copy_partial_doc(cls):
