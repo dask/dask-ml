@@ -176,12 +176,11 @@ boolean mask array or callable
         """
         types = set(type(X) for X in Xs)
 
-        if self.sparse_output_:
-            return sparse.hstack(Xs).tocsr()
+        if da.Array in types:
+            Xs2 = [x.to_dask_array() if hasattr(x, "to_dask_array") else x for x in Xs]
+            return da.concatenate(Xs2, allow_unknown_chunksizes=True, axis=1)
         elif dd.Series in types or dd.DataFrame in types:
             return dd.concat(Xs, axis="columns")
-        elif da.Array in types:
-            return da.hstack(Xs)
         elif self.preserve_dataframe and (pd.Series in types or pd.DataFrame in types):
             return pd.concat(Xs, axis="columns")
         else:

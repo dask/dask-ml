@@ -1,5 +1,6 @@
 import dask.array as da
 import dask.dataframe as dd
+import numpy as np
 import pandas as pd
 import scipy.sparse
 import sklearn.compose
@@ -57,8 +58,10 @@ def test_mixed_sparse():
         ("a", dask_ml.feature_extraction.text.HashingVectorizer(n_features=10)),
         ("b", dask_ml.feature_extraction.text.HashingVectorizer(n_features=20)),
     )
+    transformer.sparse_output_ = True
 
     out = transformer.fit_transform(ddf)
     assert isinstance(out, da.Array)
     assert out.shape[1] == 31
-    assert isinstance(out.compute(), scipy.sparse.sparse_matrix)
+    assert isinstance(out.compute(), scipy.sparse.spmatrix)
+    assert np.issubdtype(out.dtype, float)
