@@ -230,8 +230,6 @@ def predict(model, x):
     xx = np.zeros((1, x.shape[1]), dtype=x.dtype)
     dt = model.predict(xx).dtype
     result = x.map_blocks(func, chunks=(x.chunks[0], (1,)), dtype=dt).squeeze()
-    if index is not None:
-        result = dd.from_dask_array(result, index=index)
     return result
 
 

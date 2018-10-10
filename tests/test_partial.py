@@ -87,6 +87,5 @@ def test_dataframes():
 
         sol = sgd.predict(df[["x"]])
         result = predict(sgd, ddf[["x"]])
-        assert isinstance(result, dd.Series)
 
-        da.utils.assert_eq(sol, result.to_dask_array())
+        da.utils.assert_eq(sol, result)
