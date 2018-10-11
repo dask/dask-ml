@@ -37,15 +37,13 @@ class HashingVectorizer(sklearn.feature_extraction.text.HashingVectorizer):
 
         See the :doc:`examples/text-vectorization` for more.
         """
-        transformer = super(HashingVectorizer, self).transform
-
         msg = "'X' should be a 1-dimensional array with length 'num_samples'."
 
         if not dask.is_dask_collection(X):
-            return transformer(X)
+            return super(HashingVectorizer, self).transform(X)
 
         if isinstance(X, db.Bag):
-            bag2 = X.map_partitions(transformer)
+            bag2 = X.map_partitions(_transform, estimator=self)
             objs = bag2.to_delayed()
             arrs = [
                 da.from_delayed(obj, (np.nan, self.n_features), self.dtype)
@@ -53,13 +51,13 @@ class HashingVectorizer(sklearn.feature_extraction.text.HashingVectorizer):
             ]
             result = da.concatenate(arrs, axis=0)
         elif isinstance(X, dd.Series):
-            result = X.map_partitions(transformer)
+            result = X.map_partitions(_transform, self)
         elif isinstance(X, da.Array):
             # dask.Array
             chunks = ((np.nan,) * X.numblocks[0], (self.n_features,))
             if X.ndim == 1:
                 result = X.map_blocks(
-                    transformer, dtype="f8", chunks=chunks, new_axis=1
+                    _transform, estimator=self, dtype="f8", chunks=chunks, new_axis=1
                 )
             else:
                 raise ValueError(msg)
@@ -67,3 +65,7 @@ class HashingVectorizer(sklearn.feature_extraction.text.HashingVectorizer):
             raise ValueError(msg)
 
         return result
+
+
+def _transform(part, estimator):
+    return sklearn.feature_extraction.text.HashingVectorizer.transform(estimator, part)

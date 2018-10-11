@@ -197,13 +197,13 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         -------
         transformed : array-like
         """
-        transform = self._check_method("transform")
+        self._check_method("transform")
         X = self._check_array(X)
 
         if isinstance(X, da.Array):
-            return X.map_blocks(transform)
+            return X.map_blocks(_transform, estimator=self._postfit_estimator)
         elif isinstance(X, dd._Frame):
-            return _apply_partitionwise(X, transform)
+            return X.map_partitions(_transform, estimator=self._postfit_estimator)
         else:
             return transform(X)
 
@@ -268,12 +268,14 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         X = self._check_array(X)
 
         if isinstance(X, da.Array):
-            return X.map_blocks(
+            result = X.map_blocks(
                 _predict, dtype="int", estimator=self._postfit_estimator, drop_axis=1
             )
+            return result
 
         elif isinstance(X, dd._Frame):
-            return _apply_partitionwise(X, _predict, estimator=self._postfit_estimator)
+            return X.map_partitions(_predict,
+                    estimator=self._postfit_estimator, meta=np.array([1]))
 
         else:
             return _predict(X, estimator=self._postfit_estimator)
@@ -309,8 +311,8 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
                 chunks=(X.chunks[0], len(self.classes_)),
             )
         elif isinstance(X, dd._Frame):
-            return _apply_partitionwise(
-                X, _predict_proba, estimator=self._postfit_estimator
+            return X.map_partitions(
+                _predict_proba, estimator=self._postfit_estimator
             )
         else:
             return _predict_proba(X, estimator=self._postfit_estimator)
@@ -508,32 +510,13 @@ def _first_block(dask_object):
         return dask_object
 
 
-def _apply_partitionwise(X, func, **kwargs):
-    """Apply a prediction partition-wise to a dask.dataframe"""
-    sample = func(X._meta_nonempty, **kwargs)
-    if sample.ndim <= 1:
-        p = ()
-    else:
-        p = (sample.shape[1],)
-
-    if isinstance(sample, np.ndarray):
-        blocks = X.to_delayed()
-        arrays = [
-            da.from_delayed(
-                dask.delayed(func)(block, **kwargs),
-                shape=(np.nan,) + p,
-                dtype=sample.dtype,
-            )
-            for block in blocks
-        ]
-        return da.concatenate(arrays)
-    else:
-        return X.map_partitions(func, meta=sample)
-
-
 def _predict(part, estimator):
     return estimator.predict(part)
 
 
 def _predict_proba(part, estimator):
     return estimator.predict_proba(part)
+
+
+def _transform(part, estimator):
+    return estimator.transform(part)
