@@ -139,7 +139,10 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         if isinstance(X, da.Array):
             if X.ndim == 2 and X.numblocks[1] > 1:
                 logger.debug("auto-rechunking 'X'")
-                X = X.rechunk({0: "auto", 1: -1})
+                if not np.isnan(X.chunks[0]).any():
+                    X = X.rechunk({0: "auto", 1: -1})
+                else:
+                    X = X.rechunk({1: -1})
         return X
 
     @property
