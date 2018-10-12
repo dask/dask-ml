@@ -1,6 +1,8 @@
 import dask
 import dask.array as da
+import dask.dataframe as dd
 import numpy as np
+import pandas as pd
 import pytest
 from sklearn.base import clone
 from sklearn.linear_model import SGDClassifier
@@ -72,3 +74,18 @@ def test_fit_shuffle_blocks():
             shuffle_blocks=True,
             random_state=da.random.RandomState(42),
         )
+
+
+def test_dataframes():
+    df = pd.DataFrame({"x": range(10), "y": [0, 1] * 5})
+    ddf = dd.from_pandas(df, npartitions=2)
+
+    with dask.config.set(scheduler="single-threaded"):
+        sgd = SGDClassifier(max_iter=5)
+
+        sgd = fit(sgd, ddf[["x"]], ddf.y, classes=[0, 1])
+
+        sol = sgd.predict(df[["x"]])
+        result = predict(sgd, ddf[["x"]])
+
+        da.utils.assert_eq(sol, result)
