@@ -3,7 +3,6 @@ import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import sklearn.compose
-from scipy import sparse
 from sklearn.compose._column_transformer import _get_transformer_list
 
 
