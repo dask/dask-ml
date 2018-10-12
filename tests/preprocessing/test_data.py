@@ -492,20 +492,14 @@ class TestPolynomialFeatures:
         assert_estimator_equal(a.fit(df), b.fit(df.compute()))
         assert_estimator_equal(a.fit(df), b.fit(df.compute().values))
 
-    def test_estimator_comparison(self):
-        a = dpp.PolynomialFeatures()
-        b = spp.PolynomialFeatures()
-
-        a.fit_transform(X).compute()
-        b.fit_transform(X.compute())
-        assert_estimator_equal(a, b)
-
     def test_array_transform(self):
         a = dpp.PolynomialFeatures()
         b = spp.PolynomialFeatures()
 
-        res_a = a.fit_transform(X).compute()
+        res_a = a.fit_transform(X)
         res_b = b.fit_transform(X.compute())
+        assert_estimator_equal(a, b)
+        assert dask.is_dask_collection(res_a)
         assert_eq_ar(res_a, res_b)
 
     def test_transform_array(self):
@@ -519,16 +513,6 @@ class TestPolynomialFeatures:
         res_b = b.fit_transform(X.compute())
         assert_eq_ar(res_a1, res_b)
         assert_eq_ar(res_a2, res_b)
-
-    def test_df_transform(self):
-        a = dpp.PolynomialFeatures(preserve_dataframe=True)
-        b = spp.PolynomialFeatures()
-
-        # pandas dataframe
-        res_pdf = a.fit_transform(df.compute()).values
-        # spp returns a numpy array
-        res_b = b.fit_transform(df.compute())
-        assert_eq_ar(res_pdf, res_b)
 
     def test_transformed_shape(self):
         # checks if the transformed objects have the correct columns
@@ -550,30 +534,22 @@ class TestPolynomialFeatures:
         # dask data frame with nan rows
         assert a.transform(df_none_divisions).shape[1] == n_cols
 
-    def test_daskdf_transform(self):
+    @pytest.mark.parametrize("daskify", [False, True])
+    def test_df_transform(self, daskify):
+        frame = df
+        if not daskify:
+            frame = frame.compute()
         a = dpp.PolynomialFeatures(preserve_dataframe=True)
-        b = spp.PolynomialFeatures()
+        b = dpp.PolynomialFeatures()
+        c = spp.PolynomialFeatures()
 
-        # dask dataframe
-        trans_dask_df = a.fit_transform(df)
-
-        # pandas dataframe
-        res_pandas_df = a.fit_transform(df.compute())
-        # spp returns a numpy array
-        res_b = b.fit_transform(df.compute())
-        assert_eq_ar(trans_dask_df.compute().values, res_b)
-        assert_eq_df(trans_dask_df.compute().reset_index(drop=True), res_pandas_df)
-
-    def test_df_dont_preserve_df(self):
-        a = dpp.PolynomialFeatures()
-        b = spp.PolynomialFeatures()
-
-        res_dask_df = a.fit_transform(df)
-        res_pandas_df = a.fit_transform(df.compute())
-        res_sklearn_df = b.fit_transform(df.compute())
-        res_sklearn_arr = b.fit_transform(df.compute().values)
-        assert_eq_ar(res_dask_df.compute(), res_pandas_df)
-        assert_eq_ar(res_dask_df.compute(), res_sklearn_df)
-        assert_eq_ar(res_dask_df.compute(), res_sklearn_arr)
-        assert_eq_ar(res_pandas_df, res_sklearn_df)
-        assert_eq_ar(res_pandas_df, res_sklearn_arr)
+        res_df = a.fit_transform(frame)
+        res_arr = b.fit_transform(frame)
+        res_c = c.fit_transform(frame)
+        if daskify:
+            res_pandas = a.fit_transform(frame.compute())
+            assert dask.is_dask_collection(res_df)
+            assert dask.is_dask_collection(res_arr)
+            assert_eq_df(res_df.compute().reset_index(drop=True), res_pandas)
+        assert_eq_ar(res_df.values, res_c)
+        assert_eq_ar(res_df.values, res_arr)
