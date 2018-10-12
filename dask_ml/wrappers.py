@@ -205,7 +205,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         elif isinstance(X, dd._Frame):
             return X.map_partitions(_transform, estimator=self._postfit_estimator)
         else:
-            return transform(X)
+            return _transform(X, estimator=self._postfit_estimator)
 
     def score(self, X, y):
         """Returns the score on the given data.
@@ -274,8 +274,9 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
             return result
 
         elif isinstance(X, dd._Frame):
-            return X.map_partitions(_predict,
-                    estimator=self._postfit_estimator, meta=np.array([1]))
+            return X.map_partitions(
+                _predict, estimator=self._postfit_estimator, meta=np.array([1])
+            )
 
         else:
             return _predict(X, estimator=self._postfit_estimator)
@@ -311,9 +312,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
                 chunks=(X.chunks[0], len(self.classes_)),
             )
         elif isinstance(X, dd._Frame):
-            return X.map_partitions(
-                _predict_proba, estimator=self._postfit_estimator
-            )
+            return X.map_partitions(_predict_proba, estimator=self._postfit_estimator)
         else:
             return _predict_proba(X, estimator=self._postfit_estimator)
 
