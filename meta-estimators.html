@@ -294,7 +294,7 @@ We’ll make a larger dask array <code class="docutils literal notranslate"><spa
 <span class="gp">   ...: </span>
 
 <span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_big</span><span class="p">)</span>
-<span class="gh">Out[9]: </span><span class="go">dask.array&lt;predict, shape=(100000,), dtype=int64, chunksize=(10000,)&gt;</span>
+<span class="gh">Out[9]: </span><span class="go">dask.array&lt;_predict, shape=(100000,), dtype=int64, chunksize=(10000,)&gt;</span>
 </pre></div>
 </div>
 <p>This returned a <code class="docutils literal notranslate"><span class="pre">dask.array</span></code>. Like any dask array, the actual <code class="docutils literal notranslate"><span class="pre">compute</span></code> will
@@ -307,12 +307,12 @@ cluster of machines.</p>
 <span class="go">       [0.00464304, 0.99535696],</span>
 <span class="go">       [0.00902734, 0.99097266],</span>
 <span class="go">       [0.01299259, 0.98700741],</span>
-<span class="go">       [0.92958233, 0.07041767],</span>
+<span class="go">       [0.95296878, 0.04703122],</span>
 <span class="go">       [0.755881  , 0.244119  ],</span>
-<span class="go">       [0.93507817, 0.06492183],</span>
+<span class="go">       [0.94124115, 0.05875885],</span>
 <span class="go">       [0.0203811 , 0.9796189 ],</span>
 <span class="go">       [0.021179  , 0.978821  ],</span>
-<span class="go">       [0.96400094, 0.03599906]])</span>
+<span class="go">       [0.95425296, 0.04574704]])</span>
 </pre></div>
 </div>
 <p>See <a class="reference external" href="http://dask-ml-benchmarks.readthedocs.io/en/latest/auto_examples/plot_parallel_post_fit_scaling.html">parallelizing prediction</a> for an example of how this
