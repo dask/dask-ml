@@ -1,4 +1,3 @@
-import functools
 import six
 from sklearn.metrics import make_scorer
 from sklearn.metrics.scorer import check_scoring as sklearn_check_scoring
@@ -47,7 +46,7 @@ def get_scorer(scoring, compute=True):
         scorer = scoring
         kwargs = {}
 
-    kwargs['compute'] = compute
+    kwargs["compute"] = compute
 
     return make_scorer(scorer, **kwargs)
 
@@ -71,5 +70,6 @@ def check_scoring(estimator, scoring=None, **kwargs):
                 "to a scorer." % scoring
             )
     if scoring in SCORERS.keys():
-        return SCORERS[scoring]
+        func, kwargs = SCORERS[scoring]
+        return make_scorer(func, **kwargs)
     return res
