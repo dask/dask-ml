@@ -38,6 +38,16 @@ def test_no_method_raises():
     assert m.match("The wrapped estimator (.|\n)* 'predict_proba' method.")
 
 
+def test_laziness():
+    clf = ParallelPostFit(LinearRegression())
+    X, y = make_classification(chunks=50)
+    clf.fit(X, y)
+
+    x = clf.score(X, y, compute=False)
+    assert dask.is_dask_collection(x)
+    assert 0 < x.compute() < 1
+
+
 @pytest.mark.parametrize("kind", ["numpy", "dask.dataframe", "dask.array"])
 def test_predict(kind):
     X, y = make_classification(chunks=100)

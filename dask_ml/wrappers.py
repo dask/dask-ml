@@ -210,7 +210,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         else:
             return _transform(X, estimator=self._postfit_estimator)
 
-    def score(self, X, y):
+    def score(self, X, y, compute=True):
         """Returns the score on the given data.
 
         Parameters
@@ -247,7 +247,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
             if not dask.is_dask_collection(X) and not dask.is_dask_collection(y):
                 scorer = sklearn.metrics.get_scorer(scoring)
             else:
-                scorer = get_scorer(scoring)
+                scorer = get_scorer(scoring, compute=compute)
             return scorer(self, X, y)
         else:
             return self._postfit_estimator.score(X, y)

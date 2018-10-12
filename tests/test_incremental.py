@@ -97,10 +97,6 @@ def test_scoring_string(scheduler, xy_classification, scoring):
     X, y = xy_classification
     with scheduler() as (s, [a, b]):
         clf = Incremental(SGDClassifier(tol=1e-3), scoring=scoring)
-        if scoring:
-            assert dask_ml.metrics.scorer.SCORERS[scoring] == check_scoring(
-                clf, scoring=scoring
-            )
         assert callable(check_scoring(clf, scoring=scoring))
         clf.fit(X, y, classes=np.unique(y))
         clf.score(X, y)
@@ -167,4 +163,4 @@ def test_replace_scoring(estimator, fit_kwargs, scoring, xy_classification, mock
         inc.score(X, y)
 
     assert patch.call_count == 1
-    patch.assert_called_with(scoring)
+    patch.assert_called_with(scoring, compute=True)
