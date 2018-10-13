@@ -465,6 +465,42 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
         """
         return ParameterGrid(self.parameters)
 
+    def _get_cv_results(self, history, model_hist):
+        cv_results = {}
+        best_scores = {}
+        best_scores = {k: hist[-1]["score"] for k, hist in model_hist.items()}
+
+        cv_results = {}
+        for k, hist in model_hist.items():
+            pf_times = list(toolz.pluck("partial_fit_time", hist))
+            score_times = list(toolz.pluck("score_time", hist))
+            cv_results[k] = {
+                "mean_partial_fit_time": np.mean(pf_times),
+                "mean_score_time": np.mean(score_times),
+                "std_partial_fit_time": np.std(pf_times),
+                "std_score_time": np.std(score_times),
+                "test_score": best_scores[k],
+                "model_id": k,
+                "params": hist[0]["params"],
+                "partial_fit_calls": hist[-1]["partial_fit_calls"],
+            }
+        cv_results = list(cv_results.values())  # list of dicts
+        cv_results = {k: [res[k] for res in cv_results] for k in cv_results[0]}
+
+        # Every model will have the same params because this class uses either
+        # ParameterSampler or ParameterGrid
+        cv_results.update(
+            {
+                "param_" + k: v
+                for params in cv_results["params"]
+                for k, v in params.items()
+            }
+        )
+        cv_results = {k: np.array(v) for k, v in cv_results.items()}
+
+        order = (-1 * cv_results["test_score"]).argsort()
+        cv_results["rank_test_score"] = order.argsort() + 1
+        return cv_results
 
     def _get_best(self, results, history_results):
         # type: (Dict, Dict) -> Estimator
@@ -515,22 +551,24 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
             random_state=self.random_state,
         )
         results = self._process_results(results)
-        best_estimator, best_index = self._get_best(results, history_results)
-        best_estimator = yield best_estimator
         model_history, models, history = results
+
+        cv_results = self._get_cv_results(history, model_history)
+        best_estimator = yield best_est
 
         # Clean up models we're hanging onto
         ids = list(results.models)
         for model_id in ids:
             del results.models[model_id]
 
+        self.cv_results_ = cv_results
         self.scorer_ = scorer
         self.history_ = history
         self.model_history_ = model_history
         self.best_estimator_ = best_estimator
-        self.best_index_ = best_index
-        self.best_score_ = history_results[best_index]["score"]
-        self.best_params_ = history_results[best_index]["params"]
+        self.best_index_ = best_idx
+        self.best_score_ = cv_results["test_score"][best_idx]
+        self.best_params_ = cv_results["params"][best_idx]
         self.n_splits_ = 1
         self.multimetric_ = False  # TODO: is this always true?
         raise gen.Return(self)

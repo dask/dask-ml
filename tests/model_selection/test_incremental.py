@@ -193,7 +193,7 @@ def test_explicit(c, s, a, b):
 
 
 @gen_cluster(client=True)
-def test_search(c, s, a, b):
+def test_search_basic(c, s, a, b):
     X, y = make_classification(n_samples=1000, n_features=5, chunks=(100, 5))
     model = SGDClassifier(tol=1e-3, loss="log", penalty="elasticnet")
 
@@ -209,6 +209,26 @@ def test_search(c, s, a, b):
     assert search.best_score_ > 0
     assert "visualize" not in search.__dict__
     assert search.best_params_
+    assert search.cv_results_ and isinstance(search.cv_results_, dict)
+    assert {
+        "mean_partial_fit_time",
+        "mean_score_time",
+        "std_partial_fit_time",
+        "std_score_time",
+        "test_score",
+        "rank_test_score",
+        "model_id",
+        "params",
+        "partial_fit_calls",
+        "param_alpha",
+        "param_l1_ratio",
+    }.issubset(set(search.cv_results_.keys()))
+    assert all(isinstance(v, np.ndarray) for v in search.cv_results_.values())
+    assert (
+        search.cv_results_["test_score"][search.best_index_]
+        >= search.cv_results_["test_score"]
+    ).all()
+    assert search.cv_results_["rank_test_score"][search.best_index_] == 1
     X_, = yield c.compute([X])
 
     proba = search.predict_proba(X_)
