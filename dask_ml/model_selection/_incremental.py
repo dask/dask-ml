@@ -846,7 +846,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         patience=False,
         tol=0.001,
         scores_per_fit=1,
-        max_iter=None,
+        max_iter=100,
         random_state=None,
         scoring=None,
     ):
