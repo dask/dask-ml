@@ -200,7 +200,9 @@ def test_search_basic(c, s, a, b):
 
     params = {"alpha": np.logspace(-2, 2, 100), "l1_ratio": np.linspace(0.01, 1, 200)}
 
-    search = IncrementalSearchCV(model, params, n_initial_parameters=20, max_iter=10)
+    search = IncrementalSearchCV(
+        model, params, n_initial_parameters=20, max_iter=10, decay_rate=0
+    )
     yield search.fit(X, y, classes=[0, 1])
 
     assert search.history_
