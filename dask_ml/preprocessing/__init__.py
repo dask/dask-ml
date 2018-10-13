@@ -24,5 +24,5 @@ __all__ = [
     "OrdinalEncoder",
     "LabelEncoder",
     "OneHotEncoder",
-    "PolynomialFeatures"
+    "PolynomialFeatures",
 ]
