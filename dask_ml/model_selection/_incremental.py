@@ -1,6 +1,5 @@
 from __future__ import division
 
-import itertools
 import operator
 from collections import defaultdict, namedtuple
 from copy import deepcopy
@@ -18,7 +17,6 @@ from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
 from sklearn.utils.metaestimators import if_delegate_has_method
 from sklearn.utils.validation import check_is_fitted
-from toolz import first
 from tornado import gen
 
 from ..utils import check_array
@@ -502,21 +500,24 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
         cv_results["rank_test_score"] = order.argsort() + 1
         return cv_results
 
-    def _get_best(self, results, history_results):
-        # type: (Dict, Dict) -> Estimator
-        """Select the best estimator from the set of estimators."""
-        best_model_id = first(results.info)
-        key = operator.itemgetter("model_id")
-        best_index = -1
-        # history_results is sorted by (model_id, partial_fit_calls)
-        # best is the model_id with the highest partial fit calls
-        for k, v in itertools.groupby(history_results, key=key):
-            v = list(v)
-            best_index += len(v)
-            if k == best_model_id:
-                break
+    def _get_best(self, results, cv_results):
+        scores = {
+            k: v[-1]["score"] for k, v in results.info.items() if k in results.models
+        }
 
-        return results.models[best_model_id], best_index
+        # Could use max(scores, key=score.get), but what if score is repeated?
+        # Happens in the test case a lot
+        model_ids = list(scores.keys())
+        scores = [scores[k] for k in model_ids]
+        model_idx = np.argmax(scores)
+        best_model_id = model_ids[model_idx]
+
+        best_est = results.models[best_model_id]
+
+        idx = cv_results["model_id"] == best_model_id
+        assert idx.sum() == 1
+        best_idx = np.argmax(idx)
+        return best_idx, best_est
 
     def _process_results(self, results):
         """Called with the output of `fit` immediately after it finishes.
@@ -554,6 +555,7 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
         model_history, models, history = results
 
         cv_results = self._get_cv_results(history, model_history)
+        best_idx, best_est = self._get_best(results, cv_results)
         best_estimator = yield best_est
 
         # Clean up models we're hanging onto
