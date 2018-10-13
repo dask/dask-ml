@@ -631,14 +631,15 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
     .. note::
 
-       IncrementalSearch depends on the optional ``distributed`` library.
+       This class depends on the optional ``distributed`` library.
 
     This incremental hyper-parameter optimization class starts training the
     model on many hyper-parameters on a small amount of data, and then only
     continues training those models that seem to be performing well.
+
     The number of actively trained hyper-parameter combinations decays
-    with an exponential given by the initial number of parameters and the
-    decay rate.
+    with an inverse decay given by the initial number of parameters and the
+    decay rate:
 
         n_models = n_initial_parameters * (n_batches ** -decay_rate)
 
@@ -817,6 +818,24 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
     >>> search = IncrementalSearchCV(model, params, random_state=0,
     ...                              n_initial_parameters=1000,
     ...                              patience=20, max_iter=100)
+
+    ``tol`` and ``patience`` are for stopping training on a "plateau", or when
+    the hold-out score flattens and/or falls. For example, setting ``tol=0``
+    and ``patience=2`` will dictate that scores will always increase until
+    ``max_iter`` calls are reached. Fitting stops as soon as the score drops
+    below the previous score.
+
+    >>> search = IncrementalSearchCV(model, params, random_state=0,
+    ...                              n_initial_parameters=1,
+    ...                              patience=2, max_iter=3)
+    >>> search.fit(X, y, classes=[0, 1])
+    >>> scores = [h["score"] for h in search.model_history_[0]]
+    >>> scores
+    ... array([0.10, 0.20, 0.30])
+
+    Setting ``tol`` to be negative will allow the score to decrease before
+    the estimator (potentially) obtains a higher score.
+
     """
 
     def __init__(
