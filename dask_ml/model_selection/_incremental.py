@@ -718,6 +718,72 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
         If None, the estimator's default scorer (if available) is used.
 
+    Attributes
+    ----------
+    cv_results_ : dict of np.ndarrays
+        This dictionary has keys
+
+        * ``mean_partial_fit_time``
+        * ``mean_score_time``
+        * ``std_partial_fit_time``
+        * ``std_score_time``
+        * ``test_score``
+        * ``rank_test_score``
+        * ``model_id``
+        * ``partial_fit_calls``
+        * ``params``
+        * ``param_{key}``, where ``key`` is every key in ``params``.
+
+        The values in the ``test_score`` key correspond to the last score a model
+        received on the hold out dataset. The key ``model_id`` corresponds with
+        ``history_``. This dictionary can be imported into Pandas.
+
+    model_history_ : dict of lists of dict
+        A dictionary of each models history. This is a reorganization of
+        ``history_``: the same information is present but organized per model.
+
+        This data has the structure  ``{model_id: hist}`` where ``hist`` is a
+        subset of ``history_`` and ``model_id`` are model identifiers.
+
+    history_ : list of dicts
+        Information about each model after each ``partial_fit`` call. Each dict
+        the keys
+
+        * ``partial_fit_time``
+        * ``score_time``
+        * ``score``
+        * ``model_id``
+        * ``params``
+        * ``partial_fit_calls``
+
+        The key ``model_id`` corresponds to the ``model_id`` in ``cv_results_``.
+        This list of dicts can be imported into Pandas.
+
+    best_score_ : float
+        Best score achieved on the hold out data, where "best" means "the highest
+        score on the hold out set after a model's last partial fit call."
+
+    best_estimator_ : BaseEstimator
+        The model that achieved ``best_score_``.
+
+    best_index_ : int
+        Index indicating which estimator in ``cv_results_`` corresponds to
+        the highest score.
+
+    best_params_ : dict
+        Dictionary of best parameters found on the hold-out data.
+
+    scorer_ :
+        The function used to score models, which has a call signature of
+        ``scorer_(estimator, X, y)``.
+
+    n_splits_ : int
+        Number of cross validation splits.
+
+    multimetric_ : bool
+        Whether this cross validation search uses multiple metrics.
+
+
     Examples
     --------
     Connect to the client and create the data
