@@ -65,14 +65,15 @@ def test_basic(c, s, a, b):
 
     # `<` not `==` because we randomly dropped one model
     assert len(history) < n_parameters * 10
-    for key in {
-        "partial_fit_time",
-        "score_time",
-        "model_id",
-        "params",
-        "partial_fit_calls",
-    }:
-        assert key in history[0]
+    for h in history:
+        assert {
+            "partial_fit_time",
+            "score_time",
+            "score",
+            "model_id",
+            "params",
+            "partial_fit_calls",
+        }.issubset(set(h.keys()))
 
     groups = toolz.groupby("partial_fit_calls", history)
     assert len(groups[1]) > len(groups[2]) > len(groups[3]) > len(groups[max(groups)])
@@ -178,8 +179,12 @@ def test_explicit(c, s, a, b):
 
     assert meta["params"] == {"alpha": 0.1}
     assert meta["partial_fit_calls"] == 6 + 1
-    assert len(models) == len(info) == 1
+    assert len(info) > len(models) == 1
+    assert set(models.keys()).issubset(set(info.keys()))
     assert meta["partial_fit_calls"] == history[-1]["partial_fit_calls"]
+    calls = {k: [h["partial_fit_calls"] for h in hist] for k, hist in info.items()}
+    for k, call in calls.items():
+        assert (np.diff(call) >= 1).all()
     assert set(models.keys()) == {0}
     del models[0]
 
@@ -197,8 +202,8 @@ def test_search(c, s, a, b):
     search = IncrementalSearchCV(model, params, n_initial_parameters=20, max_iter=10)
     yield search.fit(X, y, classes=[0, 1])
 
-    assert search.history_results_
-    for d in search.history_results_:
+    assert search.history_
+    for d in search.history_:
         assert d["partial_fit_calls"] <= search.max_iter + 1
     assert isinstance(search.best_estimator_, SGDClassifier)
     assert search.best_score_ > 0
@@ -231,9 +236,9 @@ def test_search_patience(c, s, a, b):
     )
     yield search.fit(X, y, classes=[0, 1])
 
-    assert search.history_results_
-    for d in search.history_results_:
         assert d["partial_fit_calls"] <= 3
+    assert search.history_
+    for h in search.history_:
     assert isinstance(search.best_estimator_, SGDClassifier)
     assert search.best_score_ > 0
     assert "visualize" not in search.__dict__
@@ -252,7 +257,7 @@ def test_search_max_iter(c, s, a, b):
 
     search = IncrementalSearchCV(model, params, n_initial_parameters=10, max_iter=1)
     yield search.fit(X, y, classes=[0, 1])
-    for d in search.history_results_:
+    for d in search.history_:
         assert d["partial_fit_calls"] <= 1
 
 
@@ -267,7 +272,7 @@ def test_gridsearch(c, s, a, b):
     search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
     yield search.fit(X, y, classes=[0, 1])
 
-    assert {frozenset(d["params"].items()) for d in search.history_results_} == {
+    assert {frozenset(d["params"].items()) for d in search.history_} == {
         frozenset(d.items()) for d in ParameterGrid(params)
     }
 

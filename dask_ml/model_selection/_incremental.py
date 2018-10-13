@@ -2,7 +2,7 @@ from __future__ import division
 
 import itertools
 import operator
-from collections import namedtuple
+from collections import defaultdict, namedtuple
 from copy import deepcopy
 from time import time
 
@@ -256,6 +256,12 @@ def _fit(
 
     models = {k: client.submit(operator.getitem, v, 0) for k, v in models.items()}
     yield wait(models)
+
+    info = defaultdict(list)
+    for h in history:
+        info[h["model_id"]].append(h)
+    info = dict(info)
+
     raise gen.Return(Results(info, models, history))
 
 
@@ -459,27 +465,6 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
         """
         return ParameterGrid(self.parameters)
 
-    def _get_history_results(self, results):
-        # type: (Results) -> Dict
-        """Construct the CV results.
-
-        Has the following keys:
-
-        * params
-        * test_score
-        * mean_test_score
-        * rank_test_score
-        * mean_partial_fit_time
-        * std_partial_fit_time
-        * mean_score_time
-        * std_score_time
-        * partial_fit_calls
-        * model_id
-        """
-        info, model, history = results
-        key = operator.itemgetter("model_id")
-        hist2 = sorted(history, key=key)
-        return hist2
 
     def _get_best(self, results, history_results):
         # type: (Dict, Dict) -> Estimator
@@ -530,9 +515,9 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
             random_state=self.random_state,
         )
         results = self._process_results(results)
-        history_results = self._get_history_results(results)
         best_estimator, best_index = self._get_best(results, history_results)
         best_estimator = yield best_estimator
+        model_history, models, history = results
 
         # Clean up models we're hanging onto
         ids = list(results.models)
@@ -540,7 +525,8 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
             del results.models[model_id]
 
         self.scorer_ = scorer
-        self.history_results_ = history_results
+        self.history_ = history
+        self.model_history_ = model_history
         self.best_estimator_ = best_estimator
         self.best_index_ = best_index
         self.best_score_ = history_results[best_index]["score"]
