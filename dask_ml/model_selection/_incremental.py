@@ -817,22 +817,25 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
     ...                              n_initial_parameters=1000,
     ...                              patience=20, max_iter=100)
 
-    ``tol`` and ``patience`` are for stopping training on a "plateau", or when
-    the hold-out score flattens and/or falls. For example, setting ``tol=0``
-    and ``patience=2`` will dictate that scores will always increase until
-    ``max_iter`` calls are reached. Fitting stops as soon as the score drops
-    below the previous score.
+    Often, additional training leads to little or no gain in scores at the
+    end of training. In these cases, stopping training is beneficial because
+    there's no gain from more training and less computation is required. Two
+    parameters control detecting "little or no gain": ``patience`` and ``tol``.
+    Training continues if at least one score is more than ``tol`` above
+    the other scores in the most recent ``patience`` calls to
+    ``model.partial_fit``.
+
+    For example, setting ``tol=0`` and ``patience=2`` means training will end
+    on any model as soon as that models score decreases or ``max_iter`` calls
+    to ``model.partial_fit`` are reached.
 
     >>> search = IncrementalSearchCV(model, params, random_state=0,
     ...                              n_initial_parameters=1,
-    ...                              patience=2, max_iter=3)
+    ...                              patience=2, max_iter=10)
     >>> search.fit(X, y, classes=[0, 1])
     >>> scores = [h["score"] for h in search.model_history_[0]]
     >>> scores
-    ... array([0.10, 0.20, 0.30])
-
-    Setting ``tol`` to be negative will allow the score to decrease before
-    the estimator (potentially) obtains a higher score.
+    ... array([0.10, 0.20, 0.30, 0.29])
 
     """
 
