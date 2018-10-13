@@ -849,7 +849,35 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         else:
             return ParameterSampler(self.parameters, self.n_initial_parameters)
 
+    def _stop_on_plateau(self, info, instructions):
+        out = {}
+        for k, steps in instructions.items():
+            records = info[k]
+            current_calls = records[-1]["partial_fit_calls"]
+            if self.max_iter and current_calls >= self.max_iter:
+                out[k] = 0
+            elif self.patience and current_calls >= self.patience:
+                plateau = [
+                    h["score"]
+                    for h in records
+                    if current_calls - h["partial_fit_calls"] <= self.patience
+                ]
+                if all(score <= plateau[0] + self.tol for score in plateau[1:]):
+                    out[k] = 0
+                else:
+                    out[k] = steps
+
+            else:
+                out[k] = steps
+        return out
+
     def _additional_calls(self, info):
+        instructions = self._adapt(info)
+
+        out = self._stop_on_plateau(info, instructions)
+        return out
+
+    def _adapt(self, info):
         if self.n_initial_parameters == "grid":
             start = len(ParameterGrid(self.parameters))
         else:
@@ -876,20 +904,5 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         if len(best) == 1:
             [best] = best
             return {best: 0}
-
-        out = {}
-        for k in best:
-            records = info[k]
-            if self.max_iter and len(records) >= self.max_iter:
-                out[k] = 0
-            elif self.patience and len(records) >= self.patience:
-                old = records[-self.patience]["score"]
-                if all(d["score"] < old + self.tol for d in records[-self.patience :]):
-                    out[k] = 0
-                else:
-                    out[k] = next_time_step - current_time_step
-
-            else:
-                out[k] = next_time_step - current_time_step
-
-        return out
+        steps = next_time_step - current_time_step
+        return {b: steps for b in best}
