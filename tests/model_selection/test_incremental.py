@@ -4,6 +4,7 @@ import numpy as np
 import toolz
 from dask.distributed import Future
 from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
+from sklearn.base import BaseEstimator
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import ParameterGrid, ParameterSampler
@@ -240,33 +241,78 @@ def test_search_basic(c, s, a, b):
 
 
 @gen_cluster(client=True, timeout=None)
-def test_search_patience(c, s, a, b):
+def test_search_plateau_patience(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
 
     class ConstantClassifier(SGDClassifier):
-        def score(*args, **kwargs):
-            return 0.5
 
-    model = ConstantClassifier(tol=1e-3)
+        def __init__(self, value=0):
+            self.value = value
+            super(ConstantClassifier, self).__init__(tol=1e-3)
 
-    params = {"alpha": np.logspace(-2, 10, 100), "l1_ratio": np.linspace(0.01, 1, 200)}
+        def score(self, *args, **kwargs):
+            return self.value
+
+    params = {"value": np.random.rand(10)}
+    model = ConstantClassifier()
 
     search = IncrementalSearchCV(
         model, params, n_initial_parameters=10, patience=5, tol=0, max_iter=10
     )
     yield search.fit(X, y, classes=[0, 1])
 
-        assert d["partial_fit_calls"] <= 3
     assert search.history_
     for h in search.history_:
+        assert h["partial_fit_calls"] <= 5
     assert isinstance(search.best_estimator_, SGDClassifier)
-    assert search.best_score_ > 0
+    assert search.best_score_ == params["value"].max() == search.best_estimator_.value
     assert "visualize" not in search.__dict__
 
     X_test, y_test = yield c.compute([X, y])
 
     search.predict(X_test)
     search.score(X_test, y_test)
+
+
+@gen_cluster(client=True, timeout=None)
+def test_search_plateau_tol(c, s, a, b):
+
+    class LinearFunction(BaseEstimator):
+
+        def __init__(self, intercept=0, slope=1, foo=0):
+            self._num_calls = 0
+            self.intercept = intercept
+            self.slope = slope
+            super(LinearFunction, self).__init__()
+
+        def fit(self, *args):
+            return self
+
+        def partial_fit(self, *args, **kwargs):
+            self._num_calls += 1
+            return self
+
+        def score(self, *args, **kwargs):
+            return self.intercept + self.slope * self._num_calls
+
+    model = LinearFunction(slope=1)
+    params = {"foo": np.linspace(0, 1)}
+
+    # every 3 calls, score will increase by 3. tol=1: model did improved enough
+    search = IncrementalSearchCV(
+        model, params, patience=3, tol=1, max_iter=10, decay_rate=0
+    )
+    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+    yield search.fit(X, y)
+    assert set(search.cv_results_["partial_fit_calls"]) == {10}
+
+    # Every 3 calls, score increases by 3. tol=4: model didn't improve enough
+    search = IncrementalSearchCV(
+        model, params, patience=3, tol=4, decay_rate=0, max_iter=10
+    )
+    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+    yield search.fit(X, y)
+    assert set(search.cv_results_["partial_fit_calls"]) == {3}
 
 
 @gen_cluster(client=True)
