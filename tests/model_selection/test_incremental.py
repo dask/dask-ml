@@ -10,7 +10,7 @@ from sklearn.model_selection import ParameterGrid, ParameterSampler
 from tornado import gen
 
 from dask_ml.datasets import make_classification
-from dask_ml.model_selection import IncrementalSearch
+from dask_ml.model_selection import IncrementalSearchCV
 from dask_ml.model_selection._incremental import _partial_fit, _score, fit
 
 
@@ -194,7 +194,7 @@ def test_search(c, s, a, b):
 
     params = {"alpha": np.logspace(-2, 2, 100), "l1_ratio": np.linspace(0.01, 1, 200)}
 
-    search = IncrementalSearch(model, params, n_initial_parameters=10, max_iter=10)
+    search = IncrementalSearchCV(model, params, n_initial_parameters=20, max_iter=10)
     yield search.fit(X, y, classes=[0, 1])
 
     assert search.history_results_
@@ -226,7 +226,9 @@ def test_search_patience(c, s, a, b):
 
     params = {"alpha": np.logspace(-2, 10, 100), "l1_ratio": np.linspace(0.01, 1, 200)}
 
-    search = IncrementalSearch(model, params, n_initial_parameters=10, patience=2)
+    search = IncrementalSearchCV(
+        model, params, n_initial_parameters=10, patience=5, tol=0, max_iter=10
+    )
     yield search.fit(X, y, classes=[0, 1])
 
     assert search.history_results_
@@ -248,7 +250,7 @@ def test_search_max_iter(c, s, a, b):
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = {"alpha": np.logspace(-2, 10, 10), "l1_ratio": np.linspace(0.01, 1, 20)}
 
-    search = IncrementalSearch(model, params, n_initial_parameters=10, max_iter=1)
+    search = IncrementalSearchCV(model, params, n_initial_parameters=10, max_iter=1)
     yield search.fit(X, y, classes=[0, 1])
     for d in search.history_results_:
         assert d["partial_fit_calls"] <= 1
@@ -262,7 +264,7 @@ def test_gridsearch(c, s, a, b):
 
     params = {"alpha": np.logspace(-2, 10, 3), "l1_ratio": np.linspace(0.01, 1, 2)}
 
-    search = IncrementalSearch(model, params, n_initial_parameters="grid")
+    search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
     yield search.fit(X, y, classes=[0, 1])
 
     assert {frozenset(d["params"].items()) for d in search.history_results_} == {
@@ -277,7 +279,7 @@ def test_numpy_array(c, s, a, b):
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = {"alpha": np.logspace(-2, 10, 10), "l1_ratio": np.linspace(0.01, 1, 20)}
 
-    search = IncrementalSearch(model, params, n_initial_parameters=10)
+    search = IncrementalSearchCV(model, params, n_initial_parameters=10)
     yield search.fit(X, y, classes=[0, 1])
 
 
@@ -286,7 +288,7 @@ def test_transform(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     model = MiniBatchKMeans(random_state=0)
     params = {"n_clusters": [3, 4, 5], "n_init": [1, 2]}
-    search = IncrementalSearch(model, params, n_initial_parameters="grid")
+    search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
     yield search.fit(X, y)
     X_, = yield c.compute([X])
     result = search.transform(X_)

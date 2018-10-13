@@ -396,7 +396,7 @@ def fit(
 # ----------------------------------------------------------------------------
 
 
-class BaseIncrementalSearch(BaseEstimator, MetaEstimatorMixin):
+class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
     """Base class for estimators using the incremental `fit`.
 
     Subclasses must implement the following abstract method
@@ -599,7 +599,7 @@ class BaseIncrementalSearch(BaseEstimator, MetaEstimatorMixin):
         return self.scorer_(self.best_estimator_, X, y)
 
 
-class IncrementalSearch(BaseIncrementalSearch):
+class IncrementalSearchCV(BaseIncrementalSearchCV):
     """
     Incrementally search for hyper-parameters on models that support partial_fit
 
@@ -715,16 +715,16 @@ class IncrementalSearch(BaseIncrementalSearch):
     ...           'l1_ratio': np.linspace(0, 1, num=1000),
     ...           'average': [True, False]}
 
-    >>> search = IncrementalSearch(model, params, random_state=0)
+    >>> search = IncrementalSearchCV(model, params, random_state=0)
     >>> search.fit(X, y, classes=[0, 1])
-    IncrementalSearch(...)
+    IncrementalSearchCV(...)
 
     Alternatively you can provide keywords to start with more hyper-parameters,
     but stop those that don't seem to improve with more data.
 
-    >>> search = IncrementalSearch(model, params, random_state=0,
-    ...                            n_initial_parameters=1000,
-    ...                            patience=20, max_iter=100)
+    >>> search = IncrementalSearchCV(model, params, random_state=0,
+    ...                              n_initial_parameters=1000,
+    ...                              patience=20, max_iter=100)
     """
 
     def __init__(
@@ -747,7 +747,7 @@ class IncrementalSearch(BaseIncrementalSearch):
         self.tol = tol
         self.scores_per_fit = scores_per_fit
         self.max_iter = max_iter
-        super(IncrementalSearch, self).__init__(
+        super(IncrementalSearchCV, self).__init__(
             estimator, param_distribution, test_size, random_state, scoring
         )
 
