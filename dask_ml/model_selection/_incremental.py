@@ -824,13 +824,14 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         example = toolz.first(info.values())
         time_step = example[-1]["partial_fit_calls"]
 
-        current_time_step = time_step + 1
-        next_time_step = current_time_step
-        while inverse(current_time_step) == inverse(next_time_step) and (
-            not self.patience
-            or next_time_step - current_time_step < self.scores_per_fit
-        ):
-            next_time_step += 1
+        current_time_step = time_step
+        next_time_step = current_time_step + 1
+        if self.decay_rate:
+            while inverse(current_time_step) == inverse(next_time_step) and (
+                not self.patience
+                or next_time_step - current_time_step < self.scores_per_fit
+            ):
+                next_time_step += 1
 
         target = inverse(next_time_step)
         best = toolz.topk(target, info, key=lambda k: info[k][-1]["score"])
