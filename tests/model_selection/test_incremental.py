@@ -4,13 +4,14 @@ import numpy as np
 import toolz
 from dask.distributed import Future
 from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
+from sklearn.base import BaseEstimator
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from tornado import gen
 
 from dask_ml.datasets import make_classification
-from dask_ml.model_selection import IncrementalSearch
+from dask_ml.model_selection import IncrementalSearchCV
 from dask_ml.model_selection._incremental import _partial_fit, _score, fit
 
 
@@ -65,14 +66,15 @@ def test_basic(c, s, a, b):
 
     # `<` not `==` because we randomly dropped one model
     assert len(history) < n_parameters * 10
-    for key in {
-        "partial_fit_time",
-        "score_time",
-        "model_id",
-        "params",
-        "partial_fit_calls",
-    }:
-        assert key in history[0]
+    for h in history:
+        assert {
+            "partial_fit_time",
+            "score_time",
+            "score",
+            "model_id",
+            "params",
+            "partial_fit_calls",
+        }.issubset(set(h.keys()))
 
     groups = toolz.groupby("partial_fit_calls", history)
     assert len(groups[1]) > len(groups[2]) > len(groups[3]) > len(groups[max(groups)])
@@ -178,8 +180,12 @@ def test_explicit(c, s, a, b):
 
     assert meta["params"] == {"alpha": 0.1}
     assert meta["partial_fit_calls"] == 6 + 1
-    assert len(models) == len(info) == 1
+    assert len(info) > len(models) == 1
+    assert set(models.keys()).issubset(set(info.keys()))
     assert meta["partial_fit_calls"] == history[-1]["partial_fit_calls"]
+    calls = {k: [h["partial_fit_calls"] for h in hist] for k, hist in info.items()}
+    for k, call in calls.items():
+        assert (np.diff(call) >= 1).all()
     assert set(models.keys()) == {0}
     del models[0]
 
@@ -188,22 +194,44 @@ def test_explicit(c, s, a, b):
 
 
 @gen_cluster(client=True)
-def test_search(c, s, a, b):
+def test_search_basic(c, s, a, b):
     X, y = make_classification(n_samples=1000, n_features=5, chunks=(100, 5))
     model = SGDClassifier(tol=1e-3, loss="log", penalty="elasticnet")
 
     params = {"alpha": np.logspace(-2, 2, 100), "l1_ratio": np.linspace(0.01, 1, 200)}
 
-    search = IncrementalSearch(model, params, n_initial_parameters=10, max_iter=10)
+    search = IncrementalSearchCV(
+        model, params, n_initial_parameters=20, max_iter=10, decay_rate=0
+    )
     yield search.fit(X, y, classes=[0, 1])
 
-    assert search.history_results_
-    for d in search.history_results_:
+    assert search.history_
+    for d in search.history_:
         assert d["partial_fit_calls"] <= search.max_iter + 1
     assert isinstance(search.best_estimator_, SGDClassifier)
     assert search.best_score_ > 0
     assert "visualize" not in search.__dict__
     assert search.best_params_
+    assert search.cv_results_ and isinstance(search.cv_results_, dict)
+    assert {
+        "mean_partial_fit_time",
+        "mean_score_time",
+        "std_partial_fit_time",
+        "std_score_time",
+        "test_score",
+        "rank_test_score",
+        "model_id",
+        "params",
+        "partial_fit_calls",
+        "param_alpha",
+        "param_l1_ratio",
+    }.issubset(set(search.cv_results_.keys()))
+    assert all(isinstance(v, np.ndarray) for v in search.cv_results_.values())
+    assert (
+        search.cv_results_["test_score"][search.best_index_]
+        >= search.cv_results_["test_score"]
+    ).all()
+    assert search.cv_results_["rank_test_score"][search.best_index_] == 1
     X_, = yield c.compute([X])
 
     proba = search.predict_proba(X_)
@@ -215,25 +243,31 @@ def test_search(c, s, a, b):
 
 
 @gen_cluster(client=True, timeout=None)
-def test_search_patience(c, s, a, b):
+def test_search_plateau_patience(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
 
     class ConstantClassifier(SGDClassifier):
-        def score(*args, **kwargs):
-            return 0.5
 
-    model = ConstantClassifier(tol=1e-3)
+        def __init__(self, value=0):
+            self.value = value
+            super(ConstantClassifier, self).__init__(tol=1e-3)
 
-    params = {"alpha": np.logspace(-2, 10, 100), "l1_ratio": np.linspace(0.01, 1, 200)}
+        def score(self, *args, **kwargs):
+            return self.value
 
-    search = IncrementalSearch(model, params, n_initial_parameters=10, patience=2)
+    params = {"value": np.random.rand(10)}
+    model = ConstantClassifier()
+
+    search = IncrementalSearchCV(
+        model, params, n_initial_parameters=10, patience=5, tol=0, max_iter=10
+    )
     yield search.fit(X, y, classes=[0, 1])
 
-    assert search.history_results_
-    for d in search.history_results_:
-        assert d["partial_fit_calls"] <= 3
+    assert search.history_
+    for h in search.history_:
+        assert h["partial_fit_calls"] <= 5
     assert isinstance(search.best_estimator_, SGDClassifier)
-    assert search.best_score_ > 0
+    assert search.best_score_ == params["value"].max() == search.best_estimator_.value
     assert "visualize" not in search.__dict__
 
     X_test, y_test = yield c.compute([X, y])
@@ -242,15 +276,56 @@ def test_search_patience(c, s, a, b):
     search.score(X_test, y_test)
 
 
+@gen_cluster(client=True, timeout=None)
+def test_search_plateau_tol(c, s, a, b):
+
+    class LinearFunction(BaseEstimator):
+
+        def __init__(self, intercept=0, slope=1, foo=0):
+            self._num_calls = 0
+            self.intercept = intercept
+            self.slope = slope
+            super(LinearFunction, self).__init__()
+
+        def fit(self, *args):
+            return self
+
+        def partial_fit(self, *args, **kwargs):
+            self._num_calls += 1
+            return self
+
+        def score(self, *args, **kwargs):
+            return self.intercept + self.slope * self._num_calls
+
+    model = LinearFunction(slope=1)
+    params = {"foo": np.linspace(0, 1)}
+
+    # every 3 calls, score will increase by 3. tol=1: model did improved enough
+    search = IncrementalSearchCV(
+        model, params, patience=3, tol=1, max_iter=10, decay_rate=0
+    )
+    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+    yield search.fit(X, y)
+    assert set(search.cv_results_["partial_fit_calls"]) == {10}
+
+    # Every 3 calls, score increases by 3. tol=4: model didn't improve enough
+    search = IncrementalSearchCV(
+        model, params, patience=3, tol=4, decay_rate=0, max_iter=10
+    )
+    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+    yield search.fit(X, y)
+    assert set(search.cv_results_["partial_fit_calls"]) == {3}
+
+
 @gen_cluster(client=True)
 def test_search_max_iter(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = {"alpha": np.logspace(-2, 10, 10), "l1_ratio": np.linspace(0.01, 1, 20)}
 
-    search = IncrementalSearch(model, params, n_initial_parameters=10, max_iter=1)
+    search = IncrementalSearchCV(model, params, n_initial_parameters=10, max_iter=1)
     yield search.fit(X, y, classes=[0, 1])
-    for d in search.history_results_:
+    for d in search.history_:
         assert d["partial_fit_calls"] <= 1
 
 
@@ -262,10 +337,10 @@ def test_gridsearch(c, s, a, b):
 
     params = {"alpha": np.logspace(-2, 10, 3), "l1_ratio": np.linspace(0.01, 1, 2)}
 
-    search = IncrementalSearch(model, params, n_initial_parameters="grid")
+    search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
     yield search.fit(X, y, classes=[0, 1])
 
-    assert {frozenset(d["params"].items()) for d in search.history_results_} == {
+    assert {frozenset(d["params"].items()) for d in search.history_} == {
         frozenset(d.items()) for d in ParameterGrid(params)
     }
 
@@ -277,7 +352,7 @@ def test_numpy_array(c, s, a, b):
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = {"alpha": np.logspace(-2, 10, 10), "l1_ratio": np.linspace(0.01, 1, 20)}
 
-    search = IncrementalSearch(model, params, n_initial_parameters=10)
+    search = IncrementalSearchCV(model, params, n_initial_parameters=10)
     yield search.fit(X, y, classes=[0, 1])
 
 
@@ -286,7 +361,7 @@ def test_transform(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     model = MiniBatchKMeans(random_state=0)
     params = {"n_clusters": [3, 4, 5], "n_init": [1, 2]}
-    search = IncrementalSearch(model, params, n_initial_parameters="grid")
+    search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
     yield search.fit(X, y)
     X_, = yield c.compute([X])
     result = search.transform(X_)
