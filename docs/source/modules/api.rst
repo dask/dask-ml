@@ -142,7 +142,8 @@ with Dask Arrays or DataFrames.
    preprocessing.DummyEncoder
    preprocessing.OrdinalEncoder
    preprocessing.LabelEncoder
-
+   preprocessing.PolynomialFeatures
+   
 :mod:`dask_ml.compose`: Composite Estimators
 ============================================
 
