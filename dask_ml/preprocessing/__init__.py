@@ -8,6 +8,7 @@ from .data import (
     Categorizer,
     DummyEncoder,
     OrdinalEncoder,
+    PolynomialFeatures,
 )
 from .label import LabelEncoder
 from ._encoders import OneHotEncoder
@@ -23,4 +24,5 @@ __all__ = [
     "OrdinalEncoder",
     "LabelEncoder",
     "OneHotEncoder",
+    "PolynomialFeatures",
 ]

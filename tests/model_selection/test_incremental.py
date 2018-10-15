@@ -321,3 +321,26 @@ def test_transform(c, s, a, b):
     X_, = yield c.compute([X])
     result = search.transform(X_)
     assert result.shape == (100, search.best_estimator_.n_clusters)
+
+
+@gen_cluster(client=True)
+def test_small(c, s, a, b):
+    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+    model = SGDClassifier(tol=1e-3, penalty="elasticnet")
+    params = {"alpha": [0.1, 0.5, 0.75, 1.0]}
+    search = IncrementalSearch(model, params, n_initial_parameters="grid")
+    yield search.fit(X, y, classes=[0, 1])
+    X_, = yield c.compute([X])
+    search.predict(X_)
+
+
+@gen_cluster(client=True)
+def test_smaller(c, s, a, b):
+    # infininte loop
+    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+    model = SGDClassifier(tol=1e-3, penalty="elasticnet")
+    params = {"alpha": [0.1, 0.5]}
+    search = IncrementalSearch(model, params, n_initial_parameters="grid")
+    yield search.fit(X, y, classes=[0, 1])
+    X_, = yield c.compute([X])
+    search.predict(X_)
