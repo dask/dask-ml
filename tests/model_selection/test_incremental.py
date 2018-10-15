@@ -256,12 +256,12 @@ def test_search_patience(c, s, a, b):
     )
     yield search.fit(X, y, classes=[0, 1])
 
-        assert d["partial_fit_calls"] <= 3
     assert search.history_
     for h in search.history_:
-    assert isinstance(search.best_estimator_, SGDClassifier)
-    assert search.best_score_ > 0
-    assert "visualize" not in search.__dict__
+        assert isinstance(search.best_estimator_, SGDClassifier)
+        assert search.best_score_ > 0
+        assert "visualize" not in search.__dict__
+        assert h["partial_fit_calls"] <= 3
 
     X_test, y_test = yield c.compute([X, y])
 
