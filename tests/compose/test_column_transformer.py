@@ -1,5 +1,6 @@
 import dask.dataframe as dd
 import pandas as pd
+import pytest
 import sklearn.compose
 import sklearn.preprocessing
 from sklearn.base import clone
@@ -8,7 +9,7 @@ import dask_ml.compose
 import dask_ml.preprocessing
 
 df = pd.DataFrame({"A": pd.Categorical(["a", "a", "b", "a"]), "B": [1.0, 2, 4, 5]})
-ddf = dd.from_pandas(df, npartitions=2)
+ddf = dd.from_pandas(df, npartitions=2).reset_index(drop=True)  # unknown divisions
 
 
 def test_column_transformer():
@@ -26,7 +27,8 @@ def test_column_transformer():
     b.fit(ddf)
 
     expected = a.transform(df)
-    result = b.transform(ddf)
+    with pytest.warns(None):
+        result = b.transform(ddf)
 
     assert isinstance(result, dd.DataFrame)
     expected = pd.DataFrame(expected, index=result.index, columns=result.columns)
