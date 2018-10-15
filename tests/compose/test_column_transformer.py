@@ -65,3 +65,33 @@ def test_mixed_sparse():
     assert out.shape[1] == 31
     assert isinstance(out.compute(), scipy.sparse.spmatrix)
     assert np.issubdtype(out.dtype, float)
+
+
+def test_mixed_array():
+    class ArrayTransformer(dask_ml.preprocessing.StandardScaler):
+        def transform(self, X):
+            return X.values
+
+        def fit(self, X, y=None):
+            return self
+
+    df = pd.DataFrame({"x": [1, 2, 3, 4, 5, 6], "s": ["A", "B", "C", "D", "E", "F"]})
+    ddf = dd.from_pandas(df, npartitions=3)
+
+    transformer = dask_ml.compose.make_column_transformer(
+        (["x"], ArrayTransformer()), remainder="passthrough"
+    )
+
+    out = transformer.fit_transform(ddf)
+    assert isinstance(out, da.Array)
+    da.utils.assert_eq(out, ddf.values, check_graph=False)
+
+    # transformer = dask_ml.compose.make_column_transformer(
+    #     (["x"], ArrayTransformer()),
+    #     remainder='passthrough',
+    #     return_type='dataframe',
+    # )
+
+    # out = transformer.fit_transform(ddf)
+    # assert isinstance(out, dd.DataFrame)
+    # dd.utils.assert_eq(out, ddf)
