@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.preprocessing.QuantileTransformer &mdash; dask-ml 0.1 documentation</title>
+  <title>dask_ml.preprocessing.PolynomialFeatures &mdash; dask-ml 0.1 documentation</title>
   
 
   
@@ -30,8 +30,8 @@
   <link rel="stylesheet" href="../../_static/css/nbsphinx.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="dask_ml.preprocessing.Categorizer" href="dask_ml.preprocessing.Categorizer.html" />
-    <link rel="prev" title="dask_ml.preprocessing.MinMaxScaler" href="dask_ml.preprocessing.MinMaxScaler.html" /> 
+    <link rel="next" title="dask_ml.compose.ColumnTransformer" href="../generted/dask_ml.compose.ColumnTransformer.html" />
+    <link rel="prev" title="dask_ml.preprocessing.LabelEncoder" href="dask_ml.preprocessing.LabelEncoder.html" /> 
 
   
   <script src="../../_static/js/modernizr.min.js"></script>
@@ -167,13 +167,13 @@
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.StandardScaler.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.StandardScaler</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.RobustScaler.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.RobustScaler</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.MinMaxScaler.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.MinMaxScaler</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.QuantileTransformer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.QuantileTransformer.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.QuantileTransformer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.StandardScaler.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.StandardScaler</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.Categorizer.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.Categorizer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.DummyEncoder.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.DummyEncoder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.OrdinalEncoder.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.OrdinalEncoder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.LabelEncoder.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.LabelEncoder</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.PolynomialFeatures.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.PolynomialFeatures</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.PolynomialFeatures</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-compose-composite-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.compose</span></code>: Composite Estimators</a></li>
@@ -237,13 +237,13 @@
         
           <li><a href="../api.html">API Reference</a> &raquo;</li>
         
-      <li><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.QuantileTransformer</li>
+      <li><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.PolynomialFeatures</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../../_sources/modules/generated/dask_ml.preprocessing.QuantileTransformer.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/modules/generated/dask_ml.preprocessing.PolynomialFeatures.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -256,101 +256,80 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="dask-ml-preprocessing-quantiletransformer">
-<h1><a class="reference internal" href="../api.html#module-dask_ml.preprocessing" title="dask_ml.preprocessing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code></a>.QuantileTransformer<a class="headerlink" href="#dask-ml-preprocessing-quantiletransformer" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="dask-ml-preprocessing-polynomialfeatures">
+<h1><a class="reference internal" href="../api.html#module-dask_ml.preprocessing" title="dask_ml.preprocessing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code></a>.PolynomialFeatures<a class="headerlink" href="#dask-ml-preprocessing-polynomialfeatures" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="dask_ml.preprocessing.QuantileTransformer">
-<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">QuantileTransformer</code><span class="sig-paren">(</span><em>n_quantiles=1000</em>, <em>output_distribution='uniform'</em>, <em>ignore_implicit_zeros=False</em>, <em>subsample=100000</em>, <em>random_state=None</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transforms features using quantile information.</p>
-<p>This implementation differs from the scikit-learn implementation
-by using approximate quantiles. The scikit-learn docstring follows.</p>
-<p>This method transforms the features to follow a uniform or a normal
-distribution. Therefore, for a given feature, this transformation tends
-to spread out the most frequent values. It also reduces the impact of
-(marginal) outliers: this is therefore a robust preprocessing scheme.</p>
-<p>The transformation is applied on each feature independently.
-The cumulative density function of a feature is used to project the
-original values. Features values of new/unseen data that fall below
-or above the fitted range will be mapped to the bounds of the output
-distribution. Note that this transform is non-linear. It may distort linear
-correlations between variables measured at the same scale but renders
-variables measured at different scales more directly comparable.</p>
-<p>Read more in the <a class="reference external" href="http://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-transformer" title="(in scikit-learn v0.20.0)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<dt id="dask_ml.preprocessing.PolynomialFeatures">
+<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">PolynomialFeatures</code><span class="sig-paren">(</span><em>degree=2</em>, <em>interaction_only=False</em>, <em>include_bias=True</em>, <em>preserve_dataframe=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate polynomial and interaction features.</p>
+<p>Generate a new feature matrix consisting of all polynomial combinations
+of the features with degree less than or equal to the specified degree.
+For example, if an input sample is two dimensional and of the form
+[a, b], the degree-2 polynomial features are [1, a, b, a^2, ab, b^2].</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>n_quantiles</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional (default=1000)</span></dt>
-<dd><p class="first last">Number of quantiles to be computed. It corresponds to the number
-of landmarks used to discretize the cumulative density function.</p>
+<dt><strong>degree</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer</span></dt>
+<dd><p class="first last">The degree of the polynomial features. Default = 2.</p>
 </dd>
-<dt><strong>output_distribution</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional (default=’uniform’)</span></dt>
-<dd><p class="first last">Marginal distribution for the transformed data. The choices are
-‘uniform’ (default) or ‘normal’.</p>
+<dt><strong>interaction_only</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, default = False</span></dt>
+<dd><p class="first last">If true, only interaction features are produced: features that are
+products of at most <code class="docutils literal notranslate"><span class="pre">degree</span></code> <em>distinct</em> input features (so not
+<code class="docutils literal notranslate"><span class="pre">x[1]</span> <span class="pre">**</span> <span class="pre">2</span></code>, <code class="docutils literal notranslate"><span class="pre">x[0]</span> <span class="pre">*</span> <span class="pre">x[2]</span> <span class="pre">**</span> <span class="pre">3</span></code>, etc.).</p>
 </dd>
-<dt><strong>ignore_implicit_zeros</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional (default=False)</span></dt>
-<dd><p class="first last">Only applies to sparse matrices. If True, the sparse entries of the
-matrix are discarded to compute the quantile statistics. If False,
-these entries are treated as zeros.</p>
+<dt><strong>include_bias</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean</span></dt>
+<dd><p class="first last">If True (default), then include a bias column, the feature in which
+all polynomial powers are zero (i.e. a column of ones - acts as an
+intercept term in a linear model).</p>
 </dd>
-<dt><strong>subsample</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional (default=1e5)</span></dt>
-<dd><p class="first last">Maximum number of samples used to estimate the quantiles for
-computational efficiency. Note that the subsampling procedure may
-differ for value-identical sparse and dense matrices.</p>
-</dd>
-<dt><strong>random_state</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, RandomState instance or None, optional (default=None)</span></dt>
-<dd><p class="first last">If int, random_state is the seed used by the random number generator;
-If RandomState instance, random_state is the random number generator;
-If None, the random number generator is the RandomState instance used
-by np.random. Note that this is used by subsampling and smoothing
-noise.</p>
-</dd>
-<dt><strong>copy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional, (default=True)</span></dt>
-<dd><p class="first last">Set to False to perform inplace transformation and avoid a copy (if the
-input is already a numpy array).</p>
+<dt><strong>preserve_dataframe</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean</span></dt>
+<dd><p class="first last">If True, preserve pandas and dask dataframes after transforming.
+Using False (default) returns numpy or dask arrays and mimics
+sklearn’s default behaviour</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>quantiles_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray, shape (n_quantiles, n_features)</span></dt>
-<dd><p class="first last">The values corresponding the quantiles of reference.</p>
+<dt><strong>powers_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array, shape (n_output_features, n_input_features)</span></dt>
+<dd><p class="first last">powers_[i, j] is the exponent of the jth input in the ith output.</p>
 </dd>
-<dt><strong>references_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray, shape(n_quantiles, )</span></dt>
-<dd><p class="first last">Quantiles of references.</p>
+<dt><strong>n_input_features_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The total number of input features.</p>
+</dd>
+<dt><strong>n_output_features_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The total number of polynomial output features. The number of output
+features is computed by iterating over all suitably sized combinations
+of input features.</p>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
-<div class="admonition seealso">
-<p class="first admonition-title">See also</p>
-<dl class="last docutils">
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">quantile_transform</span></code></dt>
-<dd>Equivalent function without the estimator API.</dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">PowerTransformer</span></code></dt>
-<dd>Perform mapping to a normal distribution using a power transform.</dd>
-<dt><a class="reference internal" href="dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler" title="dask_ml.preprocessing.StandardScaler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StandardScaler</span></code></a></dt>
-<dd>Perform standardization that is faster, but less robust to outliers.</dd>
-<dt><a class="reference internal" href="dask_ml.preprocessing.RobustScaler.html#dask_ml.preprocessing.RobustScaler" title="dask_ml.preprocessing.RobustScaler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RobustScaler</span></code></a></dt>
-<dd>Perform robust standardization that removes the influence of outliers but does not put outliers and inliers on the same scale.</dd>
-</dl>
-</div>
 <p class="rubric">Notes</p>
-<p>NaNs are treated as missing values: disregarded in fit, and maintained in
-transform.</p>
-<p>For a comparison of the different scalers, transformers, and normalizers,
-see <a class="reference external" href="http://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.20.0)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
+<p>Be aware that the number of features in the output array scales
+polynomially in the number of features of the input array, and
+exponentially in the degree. High degrees can cause overfitting.</p>
+<p>See <a class="reference external" href="http://scikit-learn.org/stable/auto_examples/linear_model/plot_polynomial_interpolation.html#sphx-glr-auto-examples-linear-model-plot-polynomial-interpolation-py" title="(in scikit-learn v0.20.0)"><span class="xref std std-ref">examples/linear_model/plot_polynomial_interpolation.py</span></a></p>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">QuantileTransformer</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">qt</span> <span class="o">=</span> <span class="n">QuantileTransformer</span><span class="p">(</span><span class="n">n_quantiles</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">qt</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="c1"># doctest: +ELLIPSIS</span>
-<span class="go">array([...])</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span>
+<span class="go">array([[0, 1],</span>
+<span class="go">       [2, 3],</span>
+<span class="go">       [4, 5]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">poly</span> <span class="o">=</span> <span class="n">PolynomialFeatures</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">poly</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="go">array([[ 1.,  0.,  1.,  0.,  0.,  1.],</span>
+<span class="go">       [ 1.,  2.,  3.,  4.,  6.,  9.],</span>
+<span class="go">       [ 1.,  4.,  5., 16., 20., 25.]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">poly</span> <span class="o">=</span> <span class="n">PolynomialFeatures</span><span class="p">(</span><span class="n">interaction_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">poly</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="go">array([[ 1.,  0.,  1.,  0.],</span>
+<span class="go">       [ 1.,  2.,  3.,  6.],</span>
+<span class="go">       [ 1.,  4.,  5., 20.]])</span>
 </pre></div>
 </div>
 <p class="rubric">Methods</p>
@@ -360,52 +339,49 @@ see <a class="reference external" href="http://scikit-learn.org/stable/auto_exam
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.QuantileTransformer.fit" title="dask_ml.preprocessing.QuantileTransformer.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X[,&nbsp;y])</td>
-<td>Compute the quantiles used for transforming.</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.PolynomialFeatures.fit" title="dask_ml.preprocessing.PolynomialFeatures.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X[,&nbsp;y])</td>
+<td>Compute number of output features.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.QuantileTransformer.fit_transform" title="dask_ml.preprocessing.QuantileTransformer.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(X[,&nbsp;y])</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.PolynomialFeatures.fit_transform" title="dask_ml.preprocessing.PolynomialFeatures.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(X[,&nbsp;y])</td>
 <td>Fit to data, then transform it.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.QuantileTransformer.get_params" title="dask_ml.preprocessing.QuantileTransformer.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.PolynomialFeatures.get_feature_names" title="dask_ml.preprocessing.PolynomialFeatures.get_feature_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_feature_names</span></code></a>([input_features])</td>
+<td>Return feature names for output features</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.PolynomialFeatures.get_params" title="dask_ml.preprocessing.PolynomialFeatures.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.QuantileTransformer.inverse_transform" title="dask_ml.preprocessing.QuantileTransformer.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(X)</td>
-<td>Back-projection to the original space.</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.QuantileTransformer.set_params" title="dask_ml.preprocessing.QuantileTransformer.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.PolynomialFeatures.set_params" title="dask_ml.preprocessing.PolynomialFeatures.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.QuantileTransformer.transform" title="dask_ml.preprocessing.QuantileTransformer.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(X)</td>
-<td>Feature-wise transformation of the data.</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.PolynomialFeatures.transform" title="dask_ml.preprocessing.PolynomialFeatures.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(X[,&nbsp;y])</td>
+<td>Transform data to polynomial features</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
-<dt id="dask_ml.preprocessing.QuantileTransformer.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>n_quantiles=1000</em>, <em>output_distribution='uniform'</em>, <em>ignore_implicit_zeros=False</em>, <em>subsample=100000</em>, <em>random_state=None</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.preprocessing.PolynomialFeatures.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>degree=2</em>, <em>interaction_only=False</em>, <em>include_bias=True</em>, <em>preserve_dataframe=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.preprocessing.QuantileTransformer.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the quantiles used for transforming.</p>
+<dt id="dask_ml.preprocessing.PolynomialFeatures.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute number of output features.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray or sparse matrix, shape (n_samples, n_features)</span></dt>
-<dd><p class="first last">The data used to scale along the features axis. If a sparse
-matrix is provided, it will be converted into a sparse
-<code class="docutils literal notranslate"><span class="pre">csc_matrix</span></code>. Additionally, the sparse matrix needs to be
-nonnegative if <cite>ignore_implicit_zeros</cite> is False.</p>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape (n_samples, n_features)</span></dt>
+<dd><p class="first last">The data.</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">instance</span></dt>
 <dd></dd>
 </dl>
 </td>
@@ -415,8 +391,8 @@ nonnegative if <cite>ignore_implicit_zeros</cite> is False.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.preprocessing.QuantileTransformer.fit_transform">
-<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em>, <em>**fit_params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer.fit_transform" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.preprocessing.PolynomialFeatures.fit_transform">
+<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em>, <em>**fit_params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.fit_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit to data, then transform it.</p>
 <p>Fits transformer to X and y with optional parameters fit_params
 and returns a transformed version of X.</p>
@@ -446,8 +422,34 @@ and returns a transformed version of X.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.preprocessing.QuantileTransformer.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer.get_params" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.preprocessing.PolynomialFeatures.get_feature_names">
+<code class="descname">get_feature_names</code><span class="sig-paren">(</span><em>input_features=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.get_feature_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return feature names for output features</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>input_features</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of string, length n_features, optional</span></dt>
+<dd><p class="first last">String names for input features if available. By default,
+“x0”, “x1”, … “xn_features” is used.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>output_feature_names</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of string, length n_output_features</span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.preprocessing.PolynomialFeatures.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get parameters for this estimator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -473,37 +475,8 @@ contained subobjects that are estimators.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.preprocessing.QuantileTransformer.inverse_transform">
-<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer.inverse_transform" title="Permalink to this definition">¶</a></dt>
-<dd><p>Back-projection to the original space.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray or sparse matrix, shape (n_samples, n_features)</span></dt>
-<dd><p class="first last">The data used to scale along the features axis. If a sparse
-matrix is provided, it will be converted into a sparse
-<code class="docutils literal notranslate"><span class="pre">csc_matrix</span></code>. Additionally, the sparse matrix needs to be
-nonnegative if <cite>ignore_implicit_zeros</cite> is False.</p>
-</dd>
-</dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>Xt</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray or sparse matrix, shape (n_samples, n_features)</span></dt>
-<dd><p class="first last">The projected data.</p>
-</dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="dask_ml.preprocessing.QuantileTransformer.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer.set_params" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.preprocessing.PolynomialFeatures.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
 (such as pipelines). The latter have parameters of the form
@@ -524,26 +497,25 @@ component of a nested object.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.preprocessing.QuantileTransformer.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer.transform" title="Permalink to this definition">¶</a></dt>
-<dd><p>Feature-wise transformation of the data.</p>
+<dt id="dask_ml.preprocessing.PolynomialFeatures.transform">
+<code class="descname">transform</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform data to polynomial features</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray or sparse matrix, shape (n_samples, n_features)</span></dt>
-<dd><p class="first last">The data used to scale along the features axis. If a sparse
-matrix is provided, it will be converted into a sparse
-<code class="docutils literal notranslate"><span class="pre">csc_matrix</span></code>. Additionally, the sparse matrix needs to be
-nonnegative if <cite>ignore_implicit_zeros</cite> is False.</p>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like or sparse matrix, shape [n_samples, n_features]</span></dt>
+<dd><p class="first last">The data to transform, row by row.
+Sparse input should preferably be in CSC format.</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>Xt</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray or sparse matrix, shape (n_samples, n_features)</span></dt>
-<dd><p class="first last">The projected data.</p>
+<dt><strong>XP</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray or CSC sparse matrix, shape [n_samples, NP]</span></dt>
+<dd><p class="first last">The matrix of features, where NP is the number of polynomial
+features generated from the combination of inputs.</p>
 </dd>
 </dl>
 </td>
@@ -564,10 +536,10 @@ nonnegative if <cite>ignore_implicit_zeros</cite> is False.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="dask_ml.preprocessing.Categorizer.html" class="btn btn-neutral float-right" title="dask_ml.preprocessing.Categorizer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../generted/dask_ml.compose.ColumnTransformer.html" class="btn btn-neutral float-right" title="dask_ml.compose.ColumnTransformer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="dask_ml.preprocessing.MinMaxScaler.html" class="btn btn-neutral" title="dask_ml.preprocessing.MinMaxScaler" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="dask_ml.preprocessing.LabelEncoder.html" class="btn btn-neutral" title="dask_ml.preprocessing.LabelEncoder" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

@@ -1,0 +1,16 @@
+:mod:`dask_ml.preprocessing`.PolynomialFeatures
+======================================================
+
+.. currentmodule:: dask_ml.preprocessing
+
+.. autoclass:: PolynomialFeatures
+
+   
+   .. automethod:: __init__
+   
+
+.. include:: dask_ml.preprocessing.PolynomialFeatures.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>

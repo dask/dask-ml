@@ -305,6 +305,7 @@
 <ul class="simple">
 <li>Changed <a class="reference internal" href="modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit" title="dask_ml.wrappers.ParallelPostFit"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.wrappers.ParallelPostFit</span></code></a> to automatically rechunk input arrays to methods like <code class="docutils literal notranslate"><span class="pre">predict</span></code> when they
 have more than one block along the features (<a class="reference external" href="https://github.com/dask/dask-ml/issues/376">GH#376</a>)</li>
+<li>Bug in <a class="reference internal" href="modules/api.html#dask_ml.impute.SimpleImputer" title="dask_ml.impute.SimpleImputer"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.impute.SimpleImputer</span></code></a> with Dask DataFrames filling the count of the most frequent item, rather than the item itself (<a class="reference external" href="https://github.com/dask/dask-ml/issues/385">GH#385</a>).</li>
 </ul>
 </div>
 </div>

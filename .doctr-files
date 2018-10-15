@@ -47,6 +47,7 @@
 ./_sources/modules/generated/dask_ml.preprocessing.LabelEncoder.rst.txt
 ./_sources/modules/generated/dask_ml.preprocessing.MinMaxScaler.rst.txt
 ./_sources/modules/generated/dask_ml.preprocessing.OrdinalEncoder.rst.txt
+./_sources/modules/generated/dask_ml.preprocessing.PolynomialFeatures.rst.txt
 ./_sources/modules/generated/dask_ml.preprocessing.QuantileTransformer.rst.txt
 ./_sources/modules/generated/dask_ml.preprocessing.RobustScaler.rst.txt
 ./_sources/modules/generated/dask_ml.preprocessing.StandardScaler.rst.txt
@@ -167,6 +168,7 @@
 ./modules/generated/dask_ml.preprocessing.LabelEncoder.html
 ./modules/generated/dask_ml.preprocessing.MinMaxScaler.html
 ./modules/generated/dask_ml.preprocessing.OrdinalEncoder.html
+./modules/generated/dask_ml.preprocessing.PolynomialFeatures.html
 ./modules/generated/dask_ml.preprocessing.QuantileTransformer.html
 ./modules/generated/dask_ml.preprocessing.RobustScaler.html
 ./modules/generated/dask_ml.preprocessing.StandardScaler.html
