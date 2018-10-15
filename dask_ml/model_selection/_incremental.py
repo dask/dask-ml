@@ -772,13 +772,18 @@ class IncrementalSearch(BaseIncrementalSearch):
 
         current_time_step = time_step + 1
         next_time_step = current_time_step
+
+        if inverse(current_time_step) == 0:
+            # we'll never get out of here
+            next_time_step = 1
+
         while inverse(current_time_step) == inverse(next_time_step) and (
             not self.patience
             or next_time_step - current_time_step < self.scores_per_fit
         ):
             next_time_step += 1
 
-        target = inverse(next_time_step)
+        target = max(1, inverse(next_time_step))
         best = toolz.topk(target, info, key=lambda k: info[k][-1]["score"])
 
         if len(best) == 1:
