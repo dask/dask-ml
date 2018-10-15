@@ -66,7 +66,7 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
         elif self.strategy == "constant":
             avg = np.full(len(X.columns), self.fill_value)
         else:
-            avg = [X[col].value_counts().nlargest(1).values for col in X.columns]
+            avg = [X[col].value_counts().nlargest(1).index for col in X.columns]
             avg = np.concatenate(*dask.compute(avg))
 
         self.statistics_ = pd.Series(dask.compute(avg)[0], index=X.columns)
