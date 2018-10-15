@@ -21,7 +21,7 @@ dependencies:
   - pytest-mock
   - python=2.7
   - sortedcontainers
-  - scikit-learn
+  - scikit-learn>=0.20.0
   - scipy
   - six
   - sparse
@@ -29,6 +29,7 @@ dependencies:
   - sphinx_rtd_theme
   - sphinx-gallery
   - tensorflow
+  - testpath<0.4
   - tornado
   - toolz
   - xgboost

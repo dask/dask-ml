@@ -216,7 +216,7 @@ class TestQuantileTransformer(object):
         X = rs.uniform(size=(100, 3), chunks=50)
         a.fit(X)
         b.fit(X)
-        assert_estimator_equal(a, b, atol=.02)
+        assert_estimator_equal(a, b, atol=0.02)
 
         # set the quantiles, so that from here out, we're exact
         a.quantiles_ = b.quantiles_
@@ -471,3 +471,85 @@ class TestOrdinalEncoder:
         assert_eq_df(df, enc.inverse_transform(enc.transform(df)))
         assert_eq_df(df, enc.inverse_transform(enc.transform(df).values))
         assert_eq_df(df, enc.inverse_transform(enc.transform(df).values))
+
+
+class TestPolynomialFeatures:
+    def test_basic(self):
+        a = dpp.PolynomialFeatures()
+        b = spp.PolynomialFeatures()
+
+        a.fit(X)
+        b.fit(X.compute())
+        assert_estimator_equal(a._transformer, b)
+
+    def test_input_types(self):
+        a = dpp.PolynomialFeatures()
+        b = spp.PolynomialFeatures()
+
+        assert_estimator_equal(a.fit(df), a.fit(df.compute()))
+        assert_estimator_equal(a.fit(df), a.fit(df.compute().values))
+        assert_estimator_equal(a.fit(df.values), a.fit(df.compute().values))
+        assert_estimator_equal(a.fit(df), b.fit(df.compute()))
+        assert_estimator_equal(a.fit(df), b.fit(df.compute().values))
+
+    def test_array_transform(self):
+        a = dpp.PolynomialFeatures()
+        b = spp.PolynomialFeatures()
+
+        res_a = a.fit_transform(X)
+        res_b = b.fit_transform(X.compute())
+        assert_estimator_equal(a, b)
+        assert dask.is_dask_collection(res_a)
+        assert_eq_ar(res_a, res_b)
+
+    def test_transform_array(self):
+        a = dpp.PolynomialFeatures()
+        b = spp.PolynomialFeatures()
+
+        # pass numpy array to fit_transform
+        res_a1 = a.fit_transform(X.compute())
+        # pass dask array to fit_transform
+        res_a2 = a.fit_transform(X).compute()
+        res_b = b.fit_transform(X.compute())
+        assert_eq_ar(res_a1, res_b)
+        assert_eq_ar(res_a2, res_b)
+
+    def test_transformed_shape(self):
+        # checks if the transformed objects have the correct columns
+        a = dpp.PolynomialFeatures()
+        a.fit(X)
+        n_cols = len(a.get_feature_names())
+        # dask array
+        assert a.transform(X).shape[1] == n_cols
+        # numpy array
+        assert a.transform(X.compute()).shape[1] == n_cols
+        # dask dataframe
+        assert a.transform(df).shape[1] == n_cols
+        # pandas dataframe
+        assert a.transform(df.compute()).shape[1] == n_cols
+        X_nan_rows = df.values
+        df_none_divisions = X_nan_rows.to_dask_dataframe(columns=df.columns)
+        # dask array with nan rows
+        assert a.transform(X_nan_rows).shape[1] == n_cols
+        # dask data frame with nan rows
+        assert a.transform(df_none_divisions).shape[1] == n_cols
+
+    @pytest.mark.parametrize("daskify", [False, True])
+    def test_df_transform(self, daskify):
+        frame = df
+        if not daskify:
+            frame = frame.compute()
+        a = dpp.PolynomialFeatures(preserve_dataframe=True)
+        b = dpp.PolynomialFeatures()
+        c = spp.PolynomialFeatures()
+
+        res_df = a.fit_transform(frame)
+        res_arr = b.fit_transform(frame)
+        res_c = c.fit_transform(frame)
+        if daskify:
+            res_pandas = a.fit_transform(frame.compute())
+            assert dask.is_dask_collection(res_df)
+            assert dask.is_dask_collection(res_arr)
+            assert_eq_df(res_df.compute().reset_index(drop=True), res_pandas)
+        assert_eq_ar(res_df.values, res_c)
+        assert_eq_ar(res_df.values, res_arr)

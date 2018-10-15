@@ -10,7 +10,6 @@ from dask.array.utils import assert_eq
 
 import dask_ml.metrics
 import dask_ml.wrappers
-from dask_ml._compat import SK_GE_020, dummy_context
 
 
 def test_pairwise_distances(X_blobs):
@@ -23,14 +22,11 @@ def test_pairwise_distances(X_blobs):
 def test_pairwise_distances_argmin_min(X_blobs):
     centers = X_blobs[::100].compute()
 
-    if SK_GE_020:
-        # X_blobs has 500 rows per block.
-        # Ensure 500 rows in the scikit-learn version too.
-        working_memory = 80 * 500 / 2 ** 20
+    # X_blobs has 500 rows per block.
+    # Ensure 500 rows in the scikit-learn version too.
+    working_memory = float(80 * 500) / 2 ** 20
 
-        ctx = sklearn.config_context(working_memory=working_memory)
-    else:
-        ctx = dummy_context()
+    ctx = sklearn.config_context(working_memory=working_memory)
 
     with ctx:
         a_, b_ = sklearn.metrics.pairwise_distances_argmin_min(
@@ -163,13 +159,10 @@ def test_log_loss_scoring(y):
         labels=labels,
     )
 
-    if SK_GE_020:
-        kwargs = {"multi_class": "auto"}
-    else:
-        kwargs = {}
-
     clf = dask_ml.wrappers.ParallelPostFit(
-        sklearn.linear_model.LogisticRegression(n_jobs=1, solver="lbfgs", **kwargs)
+        sklearn.linear_model.LogisticRegression(
+            n_jobs=1, solver="lbfgs", multi_class="auto"
+        )
     )
     clf.fit(X, y)
 

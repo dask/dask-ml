@@ -4,10 +4,19 @@ Changelog
 Version 0.10.0
 ~~~~~~~~~~~~~~
 
+Note that this version of Dask-ML requires scikit-learn >= 0.20.0.
+
 Enhancements
 ------------
 
 - Added support for :class:`dask.dataframe.DataFrame` to :meth:`dask_ml.model_selection.train_test_split` (:issue:`351`)
+
+Bug Fixes
+---------
+
+- Changed :class:`dask_ml.wrappers.ParallelPostFit` to automatically rechunk input arrays to methods like ``predict`` when they
+  have more than one block along the features (:issue:`376`)
+- Bug in :class:`dask_ml.impute.SimpleImputer` with Dask DataFrames filling the count of the most frequent item, rather than the item itself (:issue:`385`).
 
 Version 0.9.0
 ~~~~~~~~~~~~~

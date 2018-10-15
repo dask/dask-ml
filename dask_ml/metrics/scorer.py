@@ -5,10 +5,10 @@ from sklearn.metrics.scorer import check_scoring as sklearn_check_scoring
 from . import accuracy_score, log_loss, mean_squared_error, r2_score
 
 # Scorers
-accuracy_scorer = make_scorer(accuracy_score)
-neg_mean_squared_error_scorer = make_scorer(mean_squared_error, greater_is_better=False)
-r2_scorer = make_scorer(r2_score)
-neg_log_loss_scorer = make_scorer(log_loss, greater_is_better=False, needs_proba=True)
+accuracy_scorer = (accuracy_score, {})
+neg_mean_squared_error_scorer = (mean_squared_error, dict(greater_is_better=False))
+r2_scorer = (r2_score, {})
+neg_log_loss_scorer = (log_loss, dict(greater_is_better=False, needs_proba=True))
 
 
 SCORERS = dict(
@@ -36,7 +36,7 @@ def get_scorer(scoring, compute=True):
     # and don't have back-compat code
     if isinstance(scoring, six.string_types):
         try:
-            scorer = SCORERS[scoring]
+            scorer, kwargs = SCORERS[scoring]
         except KeyError:
             raise ValueError(
                 "{} is not a valid scoring value. "
@@ -44,8 +44,11 @@ def get_scorer(scoring, compute=True):
             )
     else:
         scorer = scoring
+        kwargs = {}
 
-    return scorer
+    kwargs["compute"] = compute
+
+    return make_scorer(scorer, **kwargs)
 
 
 def check_scoring(estimator, scoring=None, **kwargs):
@@ -67,5 +70,6 @@ def check_scoring(estimator, scoring=None, **kwargs):
                 "to a scorer." % scoring
             )
     if scoring in SCORERS.keys():
-        return SCORERS[scoring]
+        func, kwargs = SCORERS[scoring]
+        return make_scorer(func, **kwargs)
     return res

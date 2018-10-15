@@ -139,5 +139,5 @@ Scikit-Learn should feel at home with Dask-ML.
    roadmap.rst
    history.rst
 
-.. _Dask: https://dask.pydata.org/
+.. _Dask: https://dask.org/
 .. _Scikit-Learn: http://scikit-learn.org/

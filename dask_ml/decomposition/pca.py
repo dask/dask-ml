@@ -6,6 +6,7 @@ from sklearn.decomposition.base import _BasePCA
 from sklearn.utils.extmath import fast_logdet
 from sklearn.utils.validation import check_is_fitted, check_random_state
 
+from .._utils import draw_seed
 from ..utils import svd_flip
 
 
@@ -211,7 +212,7 @@ class PCA(_BasePCA):
             # Small problem, just call full PCA
             if max(X.shape) <= 500:
                 solver = "full"
-            elif n_components >= 1 and n_components < .8 * min(X.shape):
+            elif n_components >= 1 and n_components < 0.8 * min(X.shape):
                 solver = "randomized"
             # This is also the case of n_components in (0,1)
             else:
@@ -243,7 +244,7 @@ class PCA(_BasePCA):
         else:
             # randomized
             random_state = check_random_state(self.random_state)
-            seed = random_state.randint(np.iinfo("int32").max)
+            seed = draw_seed(random_state, np.iinfo("int32").max)
             n_power_iter = self.iterated_power
             U, S, V = da.linalg.svd_compressed(
                 X, n_components, n_power_iter=n_power_iter, seed=seed
@@ -281,7 +282,7 @@ class PCA(_BasePCA):
             else:
                 noise_variance = explained_variance[n_components:].mean()
         else:
-            noise_variance = 0.
+            noise_variance = 0.0
 
         (
             self.n_samples_,
@@ -427,8 +428,8 @@ class PCA(_BasePCA):
         Xr = X - self.mean_
         n_features = X.shape[1]
         precision = self.get_precision()  # [n_features, n_features]
-        log_like = -.5 * (Xr * (da.dot(Xr, precision))).sum(axis=1)
-        log_like -= .5 * (n_features * da.log(2. * np.pi) - fast_logdet(precision))
+        log_like = -0.5 * (Xr * (da.dot(Xr, precision))).sum(axis=1)
+        log_like -= 0.5 * (n_features * da.log(2.0 * np.pi) - fast_logdet(precision))
         return log_like
 
     def score(self, X, y=None):

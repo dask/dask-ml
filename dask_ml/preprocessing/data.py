@@ -15,6 +15,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import data as skdata
 from sklearn.utils.validation import check_is_fitted, check_random_state
 
+from dask_ml._utils import copy_learned_attributes
 from dask_ml.utils import check_array, handle_zeros_in_scale
 
 _PANDAS_VERSION = LooseVersion(pd.__version__)
@@ -156,7 +157,7 @@ class RobustScaler(skdata.RobustScaler):
                 ]
             )
 
-        quantiles = [da.percentile(col, [q_min, 50., q_max]) for col in X.T]
+        quantiles = [da.percentile(col, [q_min, 50.0, q_max]) for col in X.T]
         quantiles = da.vstack(quantiles).compute()
         self.center_ = quantiles[:, 1]
         self.scale_ = quantiles[:, 2] - quantiles[:, 0]
@@ -915,3 +916,61 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
             X[col] = series
 
         return X
+
+
+class PolynomialFeatures(skdata.PolynomialFeatures):
+    """    preserve_dataframe : boolean
+            If True, preserve pandas and dask dataframes after transforming.
+            Using False (default) returns numpy or dask arrays and mimics
+            sklearn's default behaviour
+
+        Examples
+    """
+
+    splitted_orig_doc = skdata.PolynomialFeatures.__doc__.split("    Examples\n")
+    __doc__ = "".join([splitted_orig_doc[0], __doc__, splitted_orig_doc[1]])
+
+    def __init__(
+        self,
+        degree=2,
+        interaction_only=False,
+        include_bias=True,
+        preserve_dataframe=False,
+    ):
+        super(PolynomialFeatures, self).__init__(degree, interaction_only, include_bias)
+        self.preserve_dataframe = preserve_dataframe
+
+    def fit(self, X, y=None):
+        self._transformer = skdata.PolynomialFeatures()
+        X_sample = X
+        if isinstance(X, dd.DataFrame):
+            X_sample = X._meta_nonempty
+        if isinstance(X, da.Array):
+            X_sample = np.ones((1, X.shape[1]), dtype=X.dtype)
+
+        # pandas dataframe treated by sklearn and returns np.array
+        self._transformer.fit(X_sample)
+        copy_learned_attributes(self._transformer, self)
+        return self
+
+    def transform(self, X, y=None):
+        if isinstance(X, da.Array):
+            n_cols = len(self._transformer.get_feature_names())
+            X = check_array(X, accept_multiple_blocks=False, accept_unknown_chunks=True)
+            chunks = (X.chunks[0], n_cols)
+            XP = X.map_blocks(self._transformer.transform, dtype=X.dtype, chunks=chunks)
+        elif isinstance(X, pd.DataFrame):
+            XP = X.pipe(self._transformer.transform)
+            if self.preserve_dataframe:
+                columns = self._transformer.get_feature_names(X.columns)
+                XP = pd.DataFrame(data=XP, columns=columns)
+        elif isinstance(X, dd.DataFrame):
+            XP = X.map_partitions(self._transformer.transform)
+            if self.preserve_dataframe:
+                columns = self._transformer.get_feature_names(X.columns)
+                XP = dd.from_dask_array(XP, columns)
+        else:
+            # typically X is instance of np.ndarray
+            XP = self._transformer.transform(X)
+
+        return XP

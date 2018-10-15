@@ -29,9 +29,9 @@ class MockClassifier(object):
 
     def score(self, X=None, Y=None):
         if self.foo_param > 1:
-            score = 1.
+            score = 1.0
         else:
-            score = 0.
+            score = 0.0
         return score
 
     def get_params(self, deep=False):
@@ -184,7 +184,7 @@ class CheckingClassifier(BaseEstimator, ClassifierMixin):
 
     def score(self, X=None, Y=None):
         if self.foo_param > 1:
-            score = 1.
+            score = 1.0
         else:
-            score = 0.
+            score = 0.0
         return score

@@ -228,7 +228,7 @@ class LogisticRegression(_GLM):
         C : array, shape = [n_samples,]
             Predicted class labels for each sample
         """
-        return self.predict_proba(X) > .5  # TODO: verify, multiclass broken
+        return self.predict_proba(X) > 0.5  # TODO: verify, multiclass broken
 
     def predict_proba(self, X):
         """Probability estimates for samples in X.

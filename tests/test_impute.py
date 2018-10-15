@@ -1,20 +1,14 @@
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
-import packaging.version
 import pandas as pd
 import pandas.util.testing as tm
 import pytest
+import sklearn.impute
 
 import dask_ml.datasets
-from dask_ml._compat import SK_VERSION
+import dask_ml.impute
 from dask_ml.utils import assert_estimator_equal
-
-if SK_VERSION >= packaging.version.parse("0.20.0.dev0"):
-    import sklearn.impute
-    import dask_ml.impute
-else:
-    pytestmark = pytest.mark.skip(reason="Requires sklearn 0.20.0")
 
 rng = np.random.RandomState(0)
 
@@ -108,3 +102,13 @@ def test_frame_strategies(daskify, strategy):
     else:
         expected = pd.Series([2], index=["A"])
     tm.assert_series_equal(b.statistics_, expected, check_dtype=False)
+
+
+def test_impute_most_frequent():
+    # https://github.com/dask/dask-ml/issues/385
+    data = dd.from_pandas(pd.DataFrame([1, 1, 1, 1, np.nan, np.nan]), 2)
+    model = dask_ml.impute.SimpleImputer(strategy="most_frequent")
+    result = model.fit_transform(data)
+    expected = dd.from_pandas(pd.DataFrame({0: [1.0] * 6}), 2)
+    dd.utils.assert_eq(result, expected)
+    assert model.statistics_[0] == 1.0

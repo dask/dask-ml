@@ -51,6 +51,32 @@ def test_blockwise_shufflesplit():
     )
 
 
+def test_blockwise_shufflesplit_rng():
+    # Regression test for issue #380
+    n_splits = 2
+    splitter = dask_ml.model_selection.ShuffleSplit(n_splits=n_splits, random_state=0)
+    gen = splitter.split(dX)
+
+    train_indices = []
+    test_indices = []
+    for train_idx, test_idx in gen:
+        train_indices.append(train_idx)
+        test_indices.append(test_idx)
+
+    assert not np.array_equal(train_indices[0], train_indices[1])
+    assert not np.array_equal(test_indices[0], test_indices[1])
+
+    # Test that splitting is reproducible
+    n_splits = 2
+
+    split1 = dask_ml.model_selection.ShuffleSplit(n_splits=n_splits, random_state=0)
+
+    split2 = dask_ml.model_selection.ShuffleSplit(n_splits=n_splits, random_state=0)
+    for (train_1, test_1), (train_2, test_2) in zip(split1.split(dX), split2.split(dX)):
+        da.utils.assert_eq(train_1, train_2)
+        da.utils.assert_eq(test_1, test_2)
+
+
 @pytest.mark.parametrize("shuffle", [False, True])
 def test_kfold(shuffle):
     splitter = dask_ml.model_selection.KFold(

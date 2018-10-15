@@ -15,7 +15,7 @@ install_requires = [
     "numba",
     "numpy",
     "pandas>=0.21.0",  # CategoricalDtype
-    "scikit-learn",
+    "scikit-learn>=0.20",
     "scipy",
     "dask-glm",
     "six",

@@ -29,7 +29,7 @@ dependencies:
   - pytest-mock
   - python=3.6
   - sortedcontainers
-  - scikit-learn
+  - scikit-learn>=0.20.0
   - scipy
   - six
   - sparse
@@ -37,6 +37,7 @@ dependencies:
   - sphinx_rtd_theme
   - sphinx-gallery
   - tensorflow
+  - testpath<0.4
   - tornado
   - toolz
   - xgboost
@@ -47,4 +48,4 @@ dependencies:
     - git+https://github.com/dask/distributed.git
     - git+https://github.com/dask/dask-tensorflow.git
     - git+https://github.com/dask/dask-xgboost.git
-    - dask_sphinx_theme >=1.0.4
+    - dask_sphinx_theme >=1.1.0

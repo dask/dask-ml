@@ -23,6 +23,7 @@ scikit-learn counterparts.
    StandardScaler
    LabelEncoder
    OneHotEncoder
+   PolynomialFeatures
 
 These can be used just like the scikit-learn versions, except that:
 
@@ -167,7 +168,7 @@ In this toy example, we use a dataset with two columns. ``'A'`` is numeric and
    pipe = make_pipeline(
       Categorizer(),
       DummyEncoder(),
-      LogisticRegression()
+      LogisticRegression(solver='lbfgs')
    )
    pipe.fit(X, y)
 
