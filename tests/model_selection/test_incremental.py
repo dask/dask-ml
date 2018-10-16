@@ -337,7 +337,7 @@ def test_small(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = {"alpha": [0.1, 0.5, 0.75, 1.0]}
-    search = IncrementalSearch(model, params, n_initial_parameters="grid")
+    search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
     yield search.fit(X, y, classes=[0, 1])
     X_, = yield c.compute([X])
     search.predict(X_)
@@ -349,7 +349,7 @@ def test_smaller(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = {"alpha": [0.1, 0.5]}
-    search = IncrementalSearch(model, params, n_initial_parameters="grid")
+    search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
     yield search.fit(X, y, classes=[0, 1])
     X_, = yield c.compute([X])
     search.predict(X_)
