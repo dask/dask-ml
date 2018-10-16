@@ -1,7 +1,6 @@
 import random
 
 import numpy as np
-import pytest
 import toolz
 from dask.distributed import Future
 from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
