@@ -1,6 +1,7 @@
 import random
 
 import numpy as np
+import pytest
 import toolz
 from dask.distributed import Future
 from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
@@ -195,13 +196,18 @@ def test_explicit(c, s, a, b):
 
 @gen_cluster(client=True)
 def test_search_basic(c, s, a, b):
+    for decay_rate in {0, 1}:
+        _test_search_basic(decay_rate, c, s, a, b)
+
+
+def _test_search_basic(decay_rate, c, s, a, b):
     X, y = make_classification(n_samples=1000, n_features=5, chunks=(100, 5))
     model = SGDClassifier(tol=1e-3, loss="log", penalty="elasticnet")
 
     params = {"alpha": np.logspace(-2, 2, 100), "l1_ratio": np.linspace(0.01, 1, 200)}
 
     search = IncrementalSearchCV(
-        model, params, n_initial_parameters=20, max_iter=10, decay_rate=0
+        model, params, n_initial_parameters=20, max_iter=10, decay_rate=decay_rate
     )
     yield search.fit(X, y, classes=[0, 1])
 
@@ -228,8 +234,15 @@ def test_search_basic(c, s, a, b):
     }.issubset(set(search.cv_results_.keys()))
 
     assert all(isinstance(v, np.ndarray) for v in search.cv_results_.values())
-    assert all(search.cv_results_["test_score"] >= 0)
-    assert all(search.cv_results_["rank_test_score"] >= 1)
+    if decay_rate == 0:
+        assert (
+            search.cv_results_["test_score"][search.best_index_]
+            >= search.cv_results_["test_score"]
+        ).all()
+        assert search.cv_results_["rank_test_score"][search.best_index_] == 1
+    else:
+        assert all(search.cv_results_["test_score"] >= 0)
+        assert all(search.cv_results_["rank_test_score"] >= 1)
     assert all(search.cv_results_["partial_fit_calls"] >= 1)
     assert len(np.unique(search.cv_results_["model_id"])) == len(
         search.cv_results_["model_id"]
@@ -250,7 +263,6 @@ def test_search_plateau_patience(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
 
     class ConstantClassifier(SGDClassifier):
-
         def __init__(self, value=0):
             self.value = value
             super(ConstantClassifier, self).__init__(tol=1e-3)
@@ -282,9 +294,7 @@ def test_search_plateau_patience(c, s, a, b):
 
 @gen_cluster(client=True, timeout=None)
 def test_search_plateau_tol(c, s, a, b):
-
     class LinearFunction(BaseEstimator):
-
         def __init__(self, intercept=0, slope=1, foo=0):
             self._num_calls = 0
             self.intercept = intercept
