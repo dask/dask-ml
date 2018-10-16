@@ -253,7 +253,7 @@ block of a Dask Array to the underlying estimator’s <code class="docutils lite
 <p class="last"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.wrappers.Incremetnal</span></code> currently does not work well with
 hyper-parameter optimization like <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v0.20.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>.
 If you need to do hyper-parameter optimization on larger-than-memory datasets,
-we recommend <a class="reference internal" href="modules/generated/dask_ml.model_selection.IncrementalSearch.html#dask_ml.model_selection.IncrementalSearch" title="dask_ml.model_selection.IncrementalSearch"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearch</span></code></a>. See
+we recommend <code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearch</span></code>. See
 <a class="reference internal" href="hyper-parameter-search.html#hyperparameter-incremental"><span class="std std-ref">Incremental Hyperparameter Optimization</span></a> for an introduction.</p>
 </div>
 <div class="section" id="incremental-meta-estimator">
@@ -329,18 +329,18 @@ can also explicitly pass <code class="docutils literal notranslate"><span class=
 </div>
 <p>We can get the accuracy score on our dataset.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gh">Out[9]: </span><span class="go">0.62</span>
+<span class="gh">Out[9]: </span><span class="go">0.69</span>
 </pre></div>
 </div>
 <p>All of the attributes learned durning training, like <code class="docutils literal notranslate"><span class="pre">coef_</span></code>, are available
 on the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> instance.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[-27.61404197,  -3.38836515,  21.62172224,   1.7730271 ,</span>
-<span class="go">         12.7964191 ,   5.18453364, -49.32409525, -25.68424923,</span>
-<span class="go">        -28.68078514,   3.33415571,  14.34782821, -29.26424309,</span>
-<span class="go">          8.00561978,   0.6210833 , -37.42187819, -23.87676237,</span>
-<span class="go">        -17.98545196, -23.93178647, -43.83572077,  44.96114665]])</span>
+<span class="go">array([[ 12.73721479,  11.23034932,  -5.04505569,   8.22553349,</span>
+<span class="go">         -9.54809578,  -9.48374003,  46.82649373, -45.1209949 ,</span>
+<span class="go">        -68.83936374,  24.75920654,  33.74432654,   7.7040932 ,</span>
+<span class="go">          9.18365806, -40.76653845,  37.77023719, -36.16719066,</span>
+<span class="go">        -25.97948233, -30.13129744,  -0.68111156, -33.47061314]])</span>
 </pre></div>
 </div>
 <p>If necessary, the actual estimator trained is available as <code class="docutils literal notranslate"><span class="pre">Incremental.estimator_</span></code></p>
@@ -382,7 +382,7 @@ larger than memory datasets.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2017, Dask developers.
+        &copy; Copyright 2017, Dask developers
 
     </p>
   </div>
@@ -401,21 +401,14 @@ larger than memory datasets.</p>
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'0.1',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
 
   
 

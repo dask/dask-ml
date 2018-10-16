@@ -37,7 +37,6 @@
 ./_sources/modules/generated/dask_ml.metrics.mean_squared_error.rst.txt
 ./_sources/modules/generated/dask_ml.metrics.r2_score.rst.txt
 ./_sources/modules/generated/dask_ml.model_selection.GridSearchCV.rst.txt
-./_sources/modules/generated/dask_ml.model_selection.IncrementalSearch.rst.txt
 ./_sources/modules/generated/dask_ml.model_selection.KFold.rst.txt
 ./_sources/modules/generated/dask_ml.model_selection.RandomizedSearchCV.rst.txt
 ./_sources/modules/generated/dask_ml.model_selection.ShuffleSplit.rst.txt
@@ -158,7 +157,6 @@
 ./modules/generated/dask_ml.metrics.mean_squared_error.html
 ./modules/generated/dask_ml.metrics.r2_score.html
 ./modules/generated/dask_ml.model_selection.GridSearchCV.html
-./modules/generated/dask_ml.model_selection.IncrementalSearch.html
 ./modules/generated/dask_ml.model_selection.KFold.html
 ./modules/generated/dask_ml.model_selection.RandomizedSearchCV.html
 ./modules/generated/dask_ml.model_selection.ShuffleSplit.html

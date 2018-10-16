@@ -402,7 +402,7 @@ fit in memory on a single machine.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.IncrementalSearch.html#dask_ml.model_selection.IncrementalSearch" title="dask_ml.model_selection.IncrementalSearch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearch</span></code></a>(…)</td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearchCV</span></code>(…)</td>
 <td>Incrementally search for hyper-parameters on models that support partial_fit</td>
 </tr>
 </tbody>
@@ -415,7 +415,7 @@ estimators and hyperparameter combinationms) and repeatedly calls the underlying
 <p class="last">These estimators require the optional <code class="docutils literal notranslate"><span class="pre">distributed</span></code> library.</p>
 </div>
 <p>Here’s an example training on a “large” dataset (a Dask array) with the
-<code class="docutils literal notranslate"><span class="pre">IncrementalSearch</span></code></p>
+<code class="docutils literal notranslate"><span class="pre">IncrementalSearchCV</span></code>.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">from</span> <span class="nn">dask.distributed</span> <span class="kn">import</span> <span class="n">Client</span>
 
 <span class="gp">In [2]: </span><span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">()</span>
@@ -445,22 +445,22 @@ common to each clone of the estimator:</p>
 </div>
 <p>Finally we create many random models in this parameter space and
 train-and-score them until we find the best one.</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="kn">from</span> <span class="nn">dask_ml.model_selection</span> <span class="kn">import</span> <span class="n">IncrementalSearch</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="kn">from</span> <span class="nn">dask_ml.model_selection</span> <span class="kn">import</span> <span class="n">IncrementalSearchCV</span>
 
-<span class="gp">In [10]: </span><span class="n">search</span> <span class="o">=</span> <span class="n">IncrementalSearch</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">In [10]: </span><span class="n">search</span> <span class="o">=</span> <span class="n">IncrementalSearchCV</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
 <span class="gp">In [11]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 <span class="gh">Out[11]: </span><span class="go"></span>
-<span class="go">IncrementalSearch(decay_rate=1.0,</span>
-<span class="go">         estimator=SGDClassifier(alpha=0.0001, average=False, class_weight=None,</span>
+<span class="go">IncrementalSearchCV(decay_rate=1.0,</span>
+<span class="go">          estimator=SGDClassifier(alpha=0.0001, average=False, class_weight=None,</span>
 <span class="go">       early_stopping=False, epsilon=0.1, eta0=0.0, fit_intercept=True,</span>
 <span class="go">       l1_ratio=0.15, learning_rate=&#39;optimal&#39;, loss=&#39;hinge&#39;, max_iter=None,</span>
 <span class="go">       n_iter=None, n_iter_no_change=5, n_jobs=None, penalty=&#39;elasticnet&#39;,</span>
 <span class="go">       power_t=0.5, random_state=0, shuffle=True, tol=0.001,</span>
 <span class="go">       validation_fraction=0.1, verbose=0, warm_start=False),</span>
-<span class="go">         max_iter=None, n_initial_parameters=10, param_distribution=None,</span>
-<span class="go">         patience=False, random_state=0, scores_per_fit=1, scoring=None,</span>
-<span class="go">         test_size=None, tol=0.001)</span>
+<span class="go">          max_iter=None, n_initial_parameters=10, param_distribution=None,</span>
+<span class="go">          patience=False, random_state=0, scores_per_fit=1, scoring=None,</span>
+<span class="go">          test_size=None, tol=0.001)</span>
 </pre></div>
 </div>
 <p>Note that when you do post-fit tasks like <code class="docutils literal notranslate"><span class="pre">search.score</span></code>, the underlying
@@ -480,24 +480,24 @@ to use post-estimation features like scoring or prediction, we recommend using
 <span class="gp">   ....: </span>                                      <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
 <span class="gp">   ....: </span>
 
-<span class="gp">In [15]: </span><span class="n">search</span> <span class="o">=</span> <span class="n">IncrementalSearch</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">In [15]: </span><span class="n">search</span> <span class="o">=</span> <span class="n">IncrementalSearchCV</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
 <span class="gp">In [16]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 <span class="gh">Out[16]: </span><span class="go"></span>
-<span class="go">IncrementalSearch(decay_rate=1.0,</span>
-<span class="go">         estimator=ParallelPostFit(estimator=SGDClassifier(alpha=0.0001, average=False, class_weight=None,</span>
+<span class="go">IncrementalSearchCV(decay_rate=1.0,</span>
+<span class="go">          estimator=ParallelPostFit(estimator=SGDClassifier(alpha=0.0001, average=False, class_weight=None,</span>
 <span class="go">       early_stopping=False, epsilon=0.1, eta0=0.0, fit_intercept=True,</span>
 <span class="go">       l1_ratio=0.15, learning_rate=&#39;optimal&#39;, loss=&#39;hinge&#39;, max_iter=None,</span>
 <span class="go">       n_iter=None, n_iter_no_change=5, n_jobs=None, penalty=&#39;elasticnet&#39;,</span>
 <span class="go">       power_t=0.5, random_state=0, shuffle=True, tol=0.001,</span>
 <span class="go">       validation_fraction=0.1, verbose=0, warm_start=False),</span>
 <span class="go">        scoring=None),</span>
-<span class="go">         max_iter=None, n_initial_parameters=10, param_distribution=None,</span>
-<span class="go">         patience=False, random_state=0, scores_per_fit=1, scoring=None,</span>
-<span class="go">         test_size=None, tol=0.001)</span>
+<span class="go">          max_iter=None, n_initial_parameters=10, param_distribution=None,</span>
+<span class="go">          patience=False, random_state=0, scores_per_fit=1, scoring=None,</span>
+<span class="go">          test_size=None, tol=0.001)</span>
 
 <span class="gp">In [17]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="go">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               Out[17]: 0.586405</span>
+<span class="go">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     Out[17]: 0.5869304</span>
 </pre></div>
 </div>
 <p>Note that the parameter names include the <code class="docutils literal notranslate"><span class="pre">estimator__</span></code> prefix,
@@ -526,7 +526,7 @@ underlying the <code class="docutils literal notranslate"><span class="pre">Para
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2017, Dask developers.
+        &copy; Copyright 2017, Dask developers
 
     </p>
   </div>
@@ -545,21 +545,14 @@ underlying the <code class="docutils literal notranslate"><span class="pre">Para
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'0.1',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
 
   
 

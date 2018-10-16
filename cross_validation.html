@@ -254,9 +254,9 @@ This document only describes the extensions made to support Dask arrays.</p>
 
 <span class="gp">In [8]: </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="go">                                                                                  Out[8]: </span>
-<span class="go">array([[-1.13718099, -0.5403331 ,  0.07110488, -0.3837625 ],</span>
-<span class="go">       [ 1.32182416, -1.42513178, -0.36385896, -0.35096927],</span>
-<span class="go">       [-1.50683048,  0.8588574 ,  0.94145644, -1.12419445]])</span>
+<span class="go">array([[-0.7688553 ,  1.27282308,  2.67125589,  0.82920398],</span>
+<span class="go">       [ 0.72278447,  1.44812909, -0.48500419, -0.13090068],</span>
+<span class="go">       [-1.32835409,  0.3065724 ,  0.43893223,  0.65025546]])</span>
 </pre></div>
 </div>
 <p>While it’s possible to pass dask arrays to <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v0.20.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
@@ -289,7 +289,7 @@ For very large datasets, creating and transmitting <code class="docutils literal
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2017, Dask developers.
+        &copy; Copyright 2017, Dask developers
 
     </p>
   </div>
@@ -308,21 +308,14 @@ For very large datasets, creating and transmitting <code class="docutils literal
 
   
 
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'0.1',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
 
   
 
