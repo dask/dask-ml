@@ -113,5 +113,5 @@ If necessary, the actual estimator trained is available as ``Incremental.estimat
 Incremental Learning and Hyper-parameter Optimization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-See :ref:`_hyperparameter.incremental` for more on how to do hyperparameter optimization on
+See :ref:`hyperparameter.incremental` for more on how to do hyperparameter optimization on
 larger than memory datasets.
