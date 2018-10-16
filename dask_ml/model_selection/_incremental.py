@@ -747,12 +747,13 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         The key ``model_id`` corresponds to the ``model_id`` in ``cv_results_``.
         This list of dicts can be imported into Pandas.
 
-    best_score_ : float
-        Best score achieved on the hold out data, where "best" means "the highest
-        score on the hold out set after a model's last partial fit call."
-
     best_estimator_ : BaseEstimator
-        The model that achieved ``best_score_``.
+        The model with the highest validation score among all the models
+        retained by the "inverse decay" algorithm.
+
+    best_score_ : float
+        Score achieved by ``best_estimator_`` on the vaidation set after the
+        final call to ``partial_fit``.
 
     best_index_ : int
         Index indicating which estimator in ``cv_results_`` corresponds to
@@ -814,18 +815,9 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
     the other scores in the most recent ``patience`` calls to
     ``model.partial_fit``.
 
-    For example, setting ``tol=0`` and ``patience=2`` means training will end
-    on any model as soon as that models score decreases or ``max_iter`` calls
-    to ``model.partial_fit`` are reached.
-
-    >>> search = IncrementalSearchCV(model, params, random_state=0,
-    ...                              n_initial_parameters=1,
-    ...                              patience=2, max_iter=10)
-    >>> search.fit(X, y, classes=[0, 1])
-    >>> scores = [h["score"] for h in search.model_history_[0]]
-    >>> scores
-    ... array([0.10, 0.20, 0.30, 0.29])
-
+    For example, setting ``tol=0`` and ``patience=2`` means training will stop
+    after two consecutive calls to ``model.partial_fit`` without improvement,
+    or when ``max_iter`` total calls to ``model.parital_fit`` are reached.
     """
 
     def __init__(
