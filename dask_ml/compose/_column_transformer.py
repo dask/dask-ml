@@ -1,3 +1,5 @@
+import warnings
+
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
@@ -179,7 +181,9 @@ boolean mask array or callable
         if self.sparse_output_:
             return sparse.hstack(Xs).tocsr()
         elif dd.Series in types or dd.DataFrame in types:
-            return dd.concat(Xs, axis="columns")
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", "Concatenating", UserWarning)
+                return dd.concat(Xs, axis="columns")
         elif da.Array in types:
             return da.hstack(Xs)
         elif self.preserve_dataframe and (pd.Series in types or pd.DataFrame in types):

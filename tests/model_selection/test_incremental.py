@@ -39,7 +39,7 @@ def test_basic(c, s, a, b):
         del ret[random.choice(list(some_keys))]
         return ret
 
-    info, models, history = yield fit(
+    info, models, history, best = yield fit(
         model,
         param_list,
         X_train,
@@ -88,7 +88,7 @@ def test_basic(c, s, a, b):
 
     # smoke test for ndarray X_test and y_test
     X_test, y_test = yield c.compute([X_test, y_test])
-    info, models, history = yield fit(
+    info, models, history, best = yield fit(
         model,
         param_list,
         X_train,
@@ -160,7 +160,7 @@ def test_explicit(c, s, a, b):
         else:
             raise Exception()
 
-    info, models, history = yield fit(
+    info, models, history, best = yield fit(
         model,
         params,
         X,
@@ -223,12 +223,24 @@ def test_search_basic(c, s, a, b):
         "param_alpha",
         "param_l1_ratio",
     }.issubset(set(search.cv_results_.keys()))
+
     assert all(isinstance(v, np.ndarray) for v in search.cv_results_.values())
-    assert (
-        search.cv_results_["test_score"][search.best_index_]
-        >= search.cv_results_["test_score"]
-    ).all()
-    assert search.cv_results_["rank_test_score"][search.best_index_] == 1
+    assert all(search.cv_results_["test_score"] >= 0)
+    assert all(search.cv_results_["rank_test_score"] >= 1)
+    assert all(search.cv_results_["partial_fit_calls"] >= 1)
+    assert len(np.unique(search.cv_results_["model_id"])) == len(
+        search.cv_results_["model_id"]
+    )
+    assert sorted(search.model_history_.keys()) == list(range(20))
+    assert set(search.model_history_[0][0].keys()) == {
+        "model_id",
+        "params",
+        "partial_fit_calls",
+        "partial_fit_time",
+        "score",
+        "score_time",
+    }
+
     X_, = yield c.compute([X])
 
     proba = search.predict_proba(X_)
@@ -256,12 +268,12 @@ def test_search_patience(c, s, a, b):
     )
     yield search.fit(X, y, classes=[0, 1])
 
-        assert d["partial_fit_calls"] <= 3
     assert search.history_
     for h in search.history_:
-    assert isinstance(search.best_estimator_, SGDClassifier)
-    assert search.best_score_ > 0
-    assert "visualize" not in search.__dict__
+        assert isinstance(search.best_estimator_, SGDClassifier)
+        assert search.best_score_ > 0
+        assert "visualize" not in search.__dict__
+        assert h["partial_fit_calls"] <= 3
 
     X_test, y_test = yield c.compute([X, y])
 
@@ -318,3 +330,26 @@ def test_transform(c, s, a, b):
     X_, = yield c.compute([X])
     result = search.transform(X_)
     assert result.shape == (100, search.best_estimator_.n_clusters)
+
+
+@gen_cluster(client=True)
+def test_small(c, s, a, b):
+    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+    model = SGDClassifier(tol=1e-3, penalty="elasticnet")
+    params = {"alpha": [0.1, 0.5, 0.75, 1.0]}
+    search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
+    yield search.fit(X, y, classes=[0, 1])
+    X_, = yield c.compute([X])
+    search.predict(X_)
+
+
+@gen_cluster(client=True)
+def test_smaller(c, s, a, b):
+    # infininte loop
+    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+    model = SGDClassifier(tol=1e-3, penalty="elasticnet")
+    params = {"alpha": [0.1, 0.5]}
+    search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
+    yield search.fit(X, y, classes=[0, 1])
+    X_, = yield c.compute([X])
+    search.predict(X_)

@@ -1,6 +1,5 @@
 from __future__ import division
 
-import itertools
 import operator
 from collections import defaultdict, namedtuple
 from copy import deepcopy
@@ -9,6 +8,7 @@ from time import time
 import dask
 import dask.array as da
 import numpy as np
+import scipy.stats
 import toolz
 from dask.distributed import Future, default_client, futures_of, wait
 from distributed.utils import log_errors
@@ -18,13 +18,12 @@ from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
 from sklearn.utils.metaestimators import if_delegate_has_method
 from sklearn.utils.validation import check_is_fitted
-from toolz import first
 from tornado import gen
 
 from ..utils import check_array
 from ._split import train_test_split
 
-Results = namedtuple("Results", ["info", "models", "history"])
+Results = namedtuple("Results", ["info", "models", "history", "best"])
 
 
 def _partial_fit(model_and_meta, X, y, fit_params):
@@ -42,11 +41,11 @@ def _partial_fit(model_and_meta, X, y, fit_params):
     Returns
     -------
     Results
-        A named tuple with three fields: info, models, history
+        A namedtuple with four fields: info, models, history, best
 
         * info : Dict[model_id, List[Dict]]
             Keys are integers identifying each model. Values are a
-            List of Dictk
+            List of Dict
         * models : Dict[model_id, Future[Estimator]]
             A dictionary with the same keys as `info`. The values
             are futures to the fitted models.
@@ -67,6 +66,9 @@ def _partial_fit(model_and_meta, X, y, fit_params):
                 Score on the test set for the model at this point in history
             * score_time : float
                 Time (in seconds) spent on this scoring.
+        * best : Tuple[model_id, Future[Estimator]]]
+            The estimator with the highest validation score in the final
+            round.
     """
     with log_errors():
         start = time()
@@ -256,13 +258,15 @@ def _fit(
 
     models = {k: client.submit(operator.getitem, v, 0) for k, v in models.items()}
     yield wait(models)
+    scores = yield client.gather(scores)
+    best = max(scores.items(), key=lambda x: x[1]["score"])
 
     info = defaultdict(list)
     for h in history:
         info[h["model_id"]].append(h)
     info = dict(info)
 
-    raise gen.Return(Results(info, models, history))
+    raise gen.Return(Results(info, models, history, best))
 
 
 def fit(
@@ -352,12 +356,12 @@ def fit(
     >>> client = Client(processes=False)
 
     >>> from dask_ml.model_selection._incremental import fit
-    >>> info, models, history = fit(model, params,
-    ...                             X_train, y_train,
-    ...                             X_test, y_test,
-    ...                             additional_calls=remove_worst,
-    ...                             fit_params={'classes': [0, 1]},
-    ...                             random_state=0)
+    >>> info, models, history, best = fit(model, params,
+    ...                                   X_train, y_train,
+    ...                                   X_test, y_test,
+    ...                                   additional_calls=remove_worst,
+    ...                                   fit_params={'classes': [0, 1]},
+    ...                                   random_state=0)
 
     >>> models
     {2: <Future: status: finished, type: SGDClassifier, key: ...}
@@ -497,26 +501,10 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
             }
         )
         cv_results = {k: np.array(v) for k, v in cv_results.items()}
-
-        order = (-1 * cv_results["test_score"]).argsort()
-        cv_results["rank_test_score"] = order.argsort() + 1
+        cv_results["rank_test_score"] = scipy.stats.rankdata(
+            -cv_results["test_score"], method="min"
+        ).astype(int)
         return cv_results
-
-    def _get_best(self, results, history_results):
-        # type: (Dict, Dict) -> Estimator
-        """Select the best estimator from the set of estimators."""
-        best_model_id = first(results.info)
-        key = operator.itemgetter("model_id")
-        best_index = -1
-        # history_results is sorted by (model_id, partial_fit_calls)
-        # best is the model_id with the highest partial fit calls
-        for k, v in itertools.groupby(history_results, key=key):
-            v = list(v)
-            best_index += len(v)
-            if k == best_model_id:
-                break
-
-        return results.models[best_model_id], best_index
 
     def _process_results(self, results):
         """Called with the output of `fit` immediately after it finishes.
@@ -551,10 +539,11 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
             random_state=self.random_state,
         )
         results = self._process_results(results)
-        model_history, models, history = results
+        model_history, models, history, bst = results
 
         cv_results = self._get_cv_results(history, model_history)
-        best_estimator = yield best_est
+        best_idx = bst[0]
+        best_estimator = yield models[best_idx]
 
         # Clean up models we're hanging onto
         ids = list(results.models)
@@ -884,13 +873,18 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
         current_time_step = time_step + 1
         next_time_step = current_time_step
+
+        if inverse(current_time_step) == 0:
+            # we'll never get out of here
+            next_time_step = 1
+
         while inverse(current_time_step) == inverse(next_time_step) and (
             not self.patience
             or next_time_step - current_time_step < self.scores_per_fit
         ):
             next_time_step += 1
 
-        target = inverse(next_time_step)
+        target = max(1, inverse(next_time_step))
         best = toolz.topk(target, info, key=lambda k: info[k][-1]["score"])
 
         if len(best) == 1:
