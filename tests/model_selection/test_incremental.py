@@ -232,7 +232,7 @@ def test_search_basic(c, s, a, b):
         search.cv_results_["model_id"]
     )
     assert sorted(search.model_history_.keys()) == list(range(20))
-    assert search.model_history_[0][0].keys() == {
+    assert set(search.model_history_[0][0].keys()) == {
         "model_id",
         "params",
         "partial_fit_calls",
