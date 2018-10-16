@@ -23,7 +23,7 @@ from tornado import gen
 from ..utils import check_array
 from ._split import train_test_split
 
-Results = namedtuple("Results", ["info", "models", "history"])
+Results = namedtuple("Results", ["info", "models", "history", "best"])
 
 
 def _partial_fit(model_and_meta, X, y, fit_params):
@@ -41,11 +41,11 @@ def _partial_fit(model_and_meta, X, y, fit_params):
     Returns
     -------
     Results
-        A named tuple with three fields: info, models, history
+        A namedtuple with four fields: info, models, history, best
 
         * info : Dict[model_id, List[Dict]]
             Keys are integers identifying each model. Values are a
-            List of Dictk
+            List of Dict
         * models : Dict[model_id, Future[Estimator]]
             A dictionary with the same keys as `info`. The values
             are futures to the fitted models.
@@ -66,6 +66,9 @@ def _partial_fit(model_and_meta, X, y, fit_params):
                 Score on the test set for the model at this point in history
             * score_time : float
                 Time (in seconds) spent on this scoring.
+        * best : Tuple[model_id, Future[Estimator]]]
+            The estimator with the highest validation score in the final
+            round.
     """
     with log_errors():
         start = time()
@@ -255,13 +258,15 @@ def _fit(
 
     models = {k: client.submit(operator.getitem, v, 0) for k, v in models.items()}
     yield wait(models)
+    scores = yield client.gather(scores)
+    best = max(scores.items(), key=lambda x: x[1]["score"])
 
     info = defaultdict(list)
     for h in history:
         info[h["model_id"]].append(h)
     info = dict(info)
 
-    raise gen.Return(Results(info, models, history))
+    raise gen.Return(Results(info, models, history, best))
 
 
 def fit(
@@ -351,12 +356,12 @@ def fit(
     >>> client = Client(processes=False)
 
     >>> from dask_ml.model_selection._incremental import fit
-    >>> info, models, history = fit(model, params,
-    ...                             X_train, y_train,
-    ...                             X_test, y_test,
-    ...                             additional_calls=remove_worst,
-    ...                             fit_params={'classes': [0, 1]},
-    ...                             random_state=0)
+    >>> info, models, history, best = fit(model, params,
+    ...                                   X_train, y_train,
+    ...                                   X_test, y_test,
+    ...                                   additional_calls=remove_worst,
+    ...                                   fit_params={'classes': [0, 1]},
+    ...                                   random_state=0)
 
     >>> models
     {2: <Future: status: finished, type: SGDClassifier, key: ...}
@@ -501,25 +506,6 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
         ).astype(int)
         return cv_results
 
-    def _get_best(self, results, cv_results):
-        scores = {
-            k: v[-1]["score"] for k, v in results.info.items() if k in results.models
-        }
-
-        # Could use max(scores, key=score.get), but what if score is repeated?
-        # Happens in the test case a lot
-        model_ids = list(scores.keys())
-        scores = [scores[k] for k in model_ids]
-        model_idx = np.argmax(scores)
-        best_model_id = model_ids[model_idx]
-
-        best_est = results.models[best_model_id]
-
-        idx = cv_results["model_id"] == best_model_id
-        assert idx.sum() == 1
-        best_idx = np.argmax(idx)
-        return best_idx, best_est
-
     def _process_results(self, results):
         """Called with the output of `fit` immediately after it finishes.
 
@@ -553,11 +539,11 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
             random_state=self.random_state,
         )
         results = self._process_results(results)
-        model_history, models, history = results
+        model_history, models, history, bst = results
 
         cv_results = self._get_cv_results(history, model_history)
-        best_idx, best_est = self._get_best(results, cv_results)
-        best_estimator = yield best_est
+        best_idx = bst[0]
+        best_estimator = yield models[best_idx]
 
         # Clean up models we're hanging onto
         ids = list(results.models)
@@ -632,14 +618,15 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
     .. note::
 
-       IncrementalSearch depends on the optional ``distributed`` library.
+       This class depends on the optional ``distributed`` library.
 
     This incremental hyper-parameter optimization class starts training the
     model on many hyper-parameters on a small amount of data, and then only
     continues training those models that seem to be performing well.
+
     The number of actively trained hyper-parameter combinations decays
-    with an exponential given by the initial number of parameters and the
-    decay rate.
+    with an inverse decay given by the initial number of parameters and the
+    decay rate:
 
         n_models = n_initial_parameters * (n_batches ** -decay_rate)
 
@@ -719,6 +706,73 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
         If None, the estimator's default scorer (if available) is used.
 
+    Attributes
+    ----------
+    cv_results_ : dict of np.ndarrays
+        This dictionary has keys
+
+        * ``mean_partial_fit_time``
+        * ``mean_score_time``
+        * ``std_partial_fit_time``
+        * ``std_score_time``
+        * ``test_score``
+        * ``rank_test_score``
+        * ``model_id``
+        * ``partial_fit_calls``
+        * ``params``
+        * ``param_{key}``, where ``key`` is every key in ``params``.
+
+        The values in the ``test_score`` key correspond to the last score a model
+        received on the hold out dataset. The key ``model_id`` corresponds with
+        ``history_``. This dictionary can be imported into Pandas.
+
+    model_history_ : dict of lists of dict
+        A dictionary of each models history. This is a reorganization of
+        ``history_``: the same information is present but organized per model.
+
+        This data has the structure  ``{model_id: hist}`` where ``hist`` is a
+        subset of ``history_`` and ``model_id`` are model identifiers.
+
+    history_ : list of dicts
+        Information about each model after each ``partial_fit`` call. Each dict
+        the keys
+
+        * ``partial_fit_time``
+        * ``score_time``
+        * ``score``
+        * ``model_id``
+        * ``params``
+        * ``partial_fit_calls``
+
+        The key ``model_id`` corresponds to the ``model_id`` in ``cv_results_``.
+        This list of dicts can be imported into Pandas.
+
+    best_estimator_ : BaseEstimator
+        The model with the highest validation score among all the models
+        retained by the "inverse decay" algorithm.
+
+    best_score_ : float
+        Score achieved by ``best_estimator_`` on the vaidation set after the
+        final call to ``partial_fit``.
+
+    best_index_ : int
+        Index indicating which estimator in ``cv_results_`` corresponds to
+        the highest score.
+
+    best_params_ : dict
+        Dictionary of best parameters found on the hold-out data.
+
+    scorer_ :
+        The function used to score models, which has a call signature of
+        ``scorer_(estimator, X, y)``.
+
+    n_splits_ : int
+        Number of cross validation splits.
+
+    multimetric_ : bool
+        Whether this cross validation search uses multiple metrics.
+
+
     Examples
     --------
     Connect to the client and create the data
@@ -752,6 +806,18 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
     >>> search = IncrementalSearchCV(model, params, random_state=0,
     ...                              n_initial_parameters=1000,
     ...                              patience=20, max_iter=100)
+
+    Often, additional training leads to little or no gain in scores at the
+    end of training. In these cases, stopping training is beneficial because
+    there's no gain from more training and less computation is required. Two
+    parameters control detecting "little or no gain": ``patience`` and ``tol``.
+    Training continues if at least one score is more than ``tol`` above
+    the other scores in the most recent ``patience`` calls to
+    ``model.partial_fit``.
+
+    For example, setting ``tol=0`` and ``patience=2`` means training will stop
+    after two consecutive calls to ``model.partial_fit`` without improvement,
+    or when ``max_iter`` total calls to ``model.parital_fit`` are reached.
     """
 
     def __init__(
@@ -764,7 +830,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         patience=False,
         tol=0.001,
         scores_per_fit=1,
-        max_iter=None,
+        max_iter=100,
         random_state=None,
         scoring=None,
     ):
@@ -798,16 +864,20 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         example = toolz.first(info.values())
         time_step = example[-1]["partial_fit_calls"]
 
-        current_time_step = time_step
-        next_time_step = current_time_step + 1
-        if self.decay_rate:
-            while inverse(current_time_step) == inverse(next_time_step) and (
-                not self.patience
-                or next_time_step - current_time_step < self.scores_per_fit
-            ):
-                next_time_step += 1
+        current_time_step = time_step + 1
+        next_time_step = current_time_step
 
-        target = inverse(next_time_step)
+        if inverse(current_time_step) == 0:
+            # we'll never get out of here
+            next_time_step = 1
+
+        while inverse(current_time_step) == inverse(next_time_step) and (
+            not self.patience
+            or next_time_step - current_time_step < self.scores_per_fit
+        ):
+            next_time_step += 1
+
+        target = max(1, inverse(next_time_step))
         best = toolz.topk(target, info, key=lambda k: info[k][-1]["score"])
 
         if len(best) == 1:
