@@ -226,12 +226,15 @@ def test_search_basic(c, s, a, b):
         "param_alpha",
         "param_l1_ratio",
     }.issubset(set(search.cv_results_.keys()))
+
     assert all(isinstance(v, np.ndarray) for v in search.cv_results_.values())
-    assert (
-        search.cv_results_["test_score"][search.best_index_]
-        >= search.cv_results_["test_score"]
-    ).all()
-    assert search.cv_results_["rank_test_score"][search.best_index_] == 1
+    assert all(search.cv_results_["test_score"] >= 0)
+    assert all(search.cv_results_["rank_test_score"] >= 1)
+    assert all(search.cv_results_["partial_fit_calls"] >= 1)
+    assert len(np.unique(search.cv_results_["model_id"])) == len(
+        search.cv_results_["model_id"]
+    )
+
     X_, = yield c.compute([X])
 
     proba = search.predict_proba(X_)
@@ -269,6 +272,7 @@ def test_search_plateau_patience(c, s, a, b):
     assert isinstance(search.best_estimator_, SGDClassifier)
     assert search.best_score_ == params["value"].max() == search.best_estimator_.value
     assert "visualize" not in search.__dict__
+    assert search.best_score_ > 0
 
     X_test, y_test = yield c.compute([X, y])
 

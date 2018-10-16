@@ -8,6 +8,7 @@ from time import time
 import dask
 import dask.array as da
 import numpy as np
+import scipy.stats
 import toolz
 from dask.distributed import Future, default_client, futures_of, wait
 from distributed.utils import log_errors
@@ -495,9 +496,9 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
             }
         )
         cv_results = {k: np.array(v) for k, v in cv_results.items()}
-
-        order = (-1 * cv_results["test_score"]).argsort()
-        cv_results["rank_test_score"] = order.argsort() + 1
+        cv_results["rank_test_score"] = scipy.stats.rankdata(
+            -cv_results["test_score"], method="min"
+        ).astype(int)
         return cv_results
 
     def _get_best(self, results, cv_results):
