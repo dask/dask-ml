@@ -458,7 +458,7 @@ train-and-score them until we find the best one.</p>
 <span class="go">       n_iter=None, n_iter_no_change=5, n_jobs=None, penalty=&#39;elasticnet&#39;,</span>
 <span class="go">       power_t=0.5, random_state=0, shuffle=True, tol=0.001,</span>
 <span class="go">       validation_fraction=0.1, verbose=0, warm_start=False),</span>
-<span class="go">          max_iter=None, n_initial_parameters=10, param_distribution=None,</span>
+<span class="go">          max_iter=100, n_initial_parameters=10, param_distribution=None,</span>
 <span class="go">          patience=False, random_state=0, scores_per_fit=1, scoring=None,</span>
 <span class="go">          test_size=None, tol=0.001)</span>
 </pre></div>
@@ -492,12 +492,12 @@ to use post-estimation features like scoring or prediction, we recommend using
 <span class="go">       power_t=0.5, random_state=0, shuffle=True, tol=0.001,</span>
 <span class="go">       validation_fraction=0.1, verbose=0, warm_start=False),</span>
 <span class="go">        scoring=None),</span>
-<span class="go">          max_iter=None, n_initial_parameters=10, param_distribution=None,</span>
+<span class="go">          max_iter=100, n_initial_parameters=10, param_distribution=None,</span>
 <span class="go">          patience=False, random_state=0, scores_per_fit=1, scoring=None,</span>
 <span class="go">          test_size=None, tol=0.001)</span>
 
 <span class="gp">In [17]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="go">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     Out[17]: 0.5869304</span>
+<span class="go">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    Out[17]: 0.5851796</span>
 </pre></div>
 </div>
 <p>Note that the parameter names include the <code class="docutils literal notranslate"><span class="pre">estimator__</span></code> prefix,
