@@ -618,14 +618,15 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
     .. note::
 
-       IncrementalSearch depends on the optional ``distributed`` library.
+       This class depends on the optional ``distributed`` library.
 
     This incremental hyper-parameter optimization class starts training the
     model on many hyper-parameters on a small amount of data, and then only
     continues training those models that seem to be performing well.
+
     The number of actively trained hyper-parameter combinations decays
-    with an exponential given by the initial number of parameters and the
-    decay rate.
+    with an inverse decay given by the initial number of parameters and the
+    decay rate:
 
         n_models = n_initial_parameters * (n_batches ** -decay_rate)
 
@@ -705,6 +706,73 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
         If None, the estimator's default scorer (if available) is used.
 
+    Attributes
+    ----------
+    cv_results_ : dict of np.ndarrays
+        This dictionary has keys
+
+        * ``mean_partial_fit_time``
+        * ``mean_score_time``
+        * ``std_partial_fit_time``
+        * ``std_score_time``
+        * ``test_score``
+        * ``rank_test_score``
+        * ``model_id``
+        * ``partial_fit_calls``
+        * ``params``
+        * ``param_{key}``, where ``key`` is every key in ``params``.
+
+        The values in the ``test_score`` key correspond to the last score a model
+        received on the hold out dataset. The key ``model_id`` corresponds with
+        ``history_``. This dictionary can be imported into Pandas.
+
+    model_history_ : dict of lists of dict
+        A dictionary of each models history. This is a reorganization of
+        ``history_``: the same information is present but organized per model.
+
+        This data has the structure  ``{model_id: hist}`` where ``hist`` is a
+        subset of ``history_`` and ``model_id`` are model identifiers.
+
+    history_ : list of dicts
+        Information about each model after each ``partial_fit`` call. Each dict
+        the keys
+
+        * ``partial_fit_time``
+        * ``score_time``
+        * ``score``
+        * ``model_id``
+        * ``params``
+        * ``partial_fit_calls``
+
+        The key ``model_id`` corresponds to the ``model_id`` in ``cv_results_``.
+        This list of dicts can be imported into Pandas.
+
+    best_estimator_ : BaseEstimator
+        The model with the highest validation score among all the models
+        retained by the "inverse decay" algorithm.
+
+    best_score_ : float
+        Score achieved by ``best_estimator_`` on the vaidation set after the
+        final call to ``partial_fit``.
+
+    best_index_ : int
+        Index indicating which estimator in ``cv_results_`` corresponds to
+        the highest score.
+
+    best_params_ : dict
+        Dictionary of best parameters found on the hold-out data.
+
+    scorer_ :
+        The function used to score models, which has a call signature of
+        ``scorer_(estimator, X, y)``.
+
+    n_splits_ : int
+        Number of cross validation splits.
+
+    multimetric_ : bool
+        Whether this cross validation search uses multiple metrics.
+
+
     Examples
     --------
     Connect to the client and create the data
@@ -738,6 +806,18 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
     >>> search = IncrementalSearchCV(model, params, random_state=0,
     ...                              n_initial_parameters=1000,
     ...                              patience=20, max_iter=100)
+
+    Often, additional training leads to little or no gain in scores at the
+    end of training. In these cases, stopping training is beneficial because
+    there's no gain from more training and less computation is required. Two
+    parameters control detecting "little or no gain": ``patience`` and ``tol``.
+    Training continues if at least one score is more than ``tol`` above
+    the other scores in the most recent ``patience`` calls to
+    ``model.partial_fit``.
+
+    For example, setting ``tol=0`` and ``patience=2`` means training will stop
+    after two consecutive calls to ``model.partial_fit`` without improvement,
+    or when ``max_iter`` total calls to ``model.parital_fit`` are reached.
     """
 
     def __init__(
@@ -750,7 +830,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         patience=False,
         tol=0.001,
         scores_per_fit=1,
-        max_iter=None,
+        max_iter=100,
         random_state=None,
         scoring=None,
     ):
