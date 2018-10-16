@@ -23,7 +23,7 @@ from tornado import gen
 from ..utils import check_array
 from ._split import train_test_split
 
-Results = namedtuple("Results", ["info", "models", "history"])
+Results = namedtuple("Results", ["info", "models", "history", "best"])
 
 
 def _partial_fit(model_and_meta, X, y, fit_params):
@@ -41,11 +41,11 @@ def _partial_fit(model_and_meta, X, y, fit_params):
     Returns
     -------
     Results
-        A named tuple with three fields: info, models, history
+        A namedtuple with four fields: info, models, history, best
 
         * info : Dict[model_id, List[Dict]]
             Keys are integers identifying each model. Values are a
-            List of Dictk
+            List of Dict
         * models : Dict[model_id, Future[Estimator]]
             A dictionary with the same keys as `info`. The values
             are futures to the fitted models.
@@ -66,6 +66,9 @@ def _partial_fit(model_and_meta, X, y, fit_params):
                 Score on the test set for the model at this point in history
             * score_time : float
                 Time (in seconds) spent on this scoring.
+        * best : Tuple[model_id, Future[Estimator]]]
+            The estimator with the highest validation score in the final
+            round.
     """
     with log_errors():
         start = time()
@@ -256,12 +259,14 @@ def _fit(
     models = {k: client.submit(operator.getitem, v, 0) for k, v in models.items()}
     yield wait(models)
 
+    best = max(scores.items(), key=operator.itemgetter(1))
+
     info = defaultdict(list)
     for h in history:
         info[h["model_id"]].append(h)
     info = dict(info)
 
-    raise gen.Return(Results(info, models, history))
+    raise gen.Return(Results(info, models, history, best))
 
 
 def fit(
@@ -351,12 +356,12 @@ def fit(
     >>> client = Client(processes=False)
 
     >>> from dask_ml.model_selection._incremental import fit
-    >>> info, models, history = fit(model, params,
-    ...                             X_train, y_train,
-    ...                             X_test, y_test,
-    ...                             additional_calls=remove_worst,
-    ...                             fit_params={'classes': [0, 1]},
-    ...                             random_state=0)
+    >>> info, models, history, best = fit(model, params,
+    ...                                   X_train, y_train,
+    ...                                   X_test, y_test,
+    ...                                   additional_calls=remove_worst,
+    ...                                   fit_params={'classes': [0, 1]},
+    ...                                   random_state=0)
 
     >>> models
     {2: <Future: status: finished, type: SGDClassifier, key: ...}
@@ -501,25 +506,6 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
         ).astype(int)
         return cv_results
 
-    def _get_best(self, results, cv_results):
-        scores = {
-            k: v[-1]["score"] for k, v in results.info.items() if k in results.models
-        }
-
-        # Could use max(scores, key=score.get), but what if score is repeated?
-        # Happens in the test case a lot
-        model_ids = list(scores.keys())
-        scores = [scores[k] for k in model_ids]
-        model_idx = np.argmax(scores)
-        best_model_id = model_ids[model_idx]
-
-        best_est = results.models[best_model_id]
-
-        idx = cv_results["model_id"] == best_model_id
-        assert idx.sum() == 1
-        best_idx = np.argmax(idx)
-        return best_idx, best_est
-
     def _process_results(self, results):
         """Called with the output of `fit` immediately after it finishes.
 
@@ -553,11 +539,11 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
             random_state=self.random_state,
         )
         results = self._process_results(results)
-        model_history, models, history = results
+        model_history, models, history, bst = results
 
         cv_results = self._get_cv_results(history, model_history)
-        best_idx, best_est = self._get_best(results, cv_results)
-        best_estimator = yield best_est
+        best_idx = bst[0]
+        best_estimator = yield models[best_idx]
 
         # Clean up models we're hanging onto
         ids = list(results.models)

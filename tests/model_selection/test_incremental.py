@@ -39,7 +39,7 @@ def test_basic(c, s, a, b):
         del ret[random.choice(list(some_keys))]
         return ret
 
-    info, models, history = yield fit(
+    info, models, history, best = yield fit(
         model,
         param_list,
         X_train,
@@ -88,7 +88,7 @@ def test_basic(c, s, a, b):
 
     # smoke test for ndarray X_test and y_test
     X_test, y_test = yield c.compute([X_test, y_test])
-    info, models, history = yield fit(
+    info, models, history, best = yield fit(
         model,
         param_list,
         X_train,
@@ -160,7 +160,7 @@ def test_explicit(c, s, a, b):
         else:
             raise Exception()
 
-    info, models, history = yield fit(
+    info, models, history, best = yield fit(
         model,
         params,
         X,
