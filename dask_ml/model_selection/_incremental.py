@@ -258,8 +258,8 @@ def _fit(
 
     models = {k: client.submit(operator.getitem, v, 0) for k, v in models.items()}
     yield wait(models)
-
-    best = max(scores.items(), key=operator.itemgetter(1))
+    scores = yield client.gather(scores)
+    best = max(scores.items(), key=lambda x: x[1]["score"])
 
     info = defaultdict(list)
     for h in history:
