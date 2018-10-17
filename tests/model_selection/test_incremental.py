@@ -196,9 +196,10 @@ def test_explicit(c, s, a, b):
 @gen_cluster(client=True)
 def test_search_basic(c, s, a, b):
     for decay_rate in {0, 1}:
-        _test_search_basic(decay_rate, c, s, a, b)
+        yield _test_search_basic(decay_rate, c, s, a, b)
 
 
+@gen.coroutine
 def _test_search_basic(decay_rate, c, s, a, b):
     X, y = make_classification(n_samples=1000, n_features=5, chunks=(100, 5))
     model = SGDClassifier(tol=1e-3, loss="log", penalty="elasticnet")
