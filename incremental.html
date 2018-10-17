@@ -329,18 +329,18 @@ can also explicitly pass <code class="docutils literal notranslate"><span class=
 </div>
 <p>We can get the accuracy score on our dataset.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gh">Out[9]: </span><span class="go">0.63</span>
+<span class="gh">Out[9]: </span><span class="go">0.7</span>
 </pre></div>
 </div>
 <p>All of the attributes learned durning training, like <code class="docutils literal notranslate"><span class="pre">coef_</span></code>, are available
 on the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> instance.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[ -9.93125181, -21.98378237,  16.6851748 ,  33.75466324,</span>
-<span class="go">         -9.05750183,  -5.11669255,  -7.98585457, -35.46252886,</span>
-<span class="go">         10.27991851, -14.41308411, -24.84675158, -56.81000982,</span>
-<span class="go">        -27.76643046,   3.5229689 , -33.65491154,  -9.58330133,</span>
-<span class="go">        -30.51368013, -51.15536085,  18.9815829 ,  -1.81190526]])</span>
+<span class="go">array([[-11.79387217,   1.81532414, -12.78515068,  25.44519776,</span>
+<span class="go">         66.70832299,  11.0842436 , -19.05258883,  26.2382543 ,</span>
+<span class="go">        -22.66701629, -20.42333664, -45.36323768, -36.56049931,</span>
+<span class="go">        -20.91410751, -25.20387099,  31.73405434, -52.05646376,</span>
+<span class="go">         -2.66845914,  39.87931599,  -3.21308497, -45.70747334]])</span>
 </pre></div>
 </div>
 <p>If necessary, the actual estimator trained is available as <code class="docutils literal notranslate"><span class="pre">Incremental.estimator_</span></code></p>
@@ -356,7 +356,7 @@ on the <code class="docutils literal notranslate"><span class="pre">Incremental<
 </div>
 <div class="section" id="incremental-learning-and-hyper-parameter-optimization">
 <h3>Incremental Learning and Hyper-parameter Optimization<a class="headerlink" href="#incremental-learning-and-hyper-parameter-optimization" title="Permalink to this headline">¶</a></h3>
-<p>See <span class="xref std std-ref">_hyperparameter.incremental</span> for more on how to do hyperparameter optimization on
+<p>See <a class="reference internal" href="hyper-parameter-search.html#hyperparameter-incremental"><span class="std std-ref">Incremental Hyperparameter Optimization</span></a> for more on how to do hyperparameter optimization on
 larger than memory datasets.</p>
 </div>
 </div>
