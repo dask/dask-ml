@@ -612,23 +612,21 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
         return self.scorer_(self.best_estimator_, X, y)
 
 
-class IncrementalSearchCV(BaseIncrementalSearchCV):
+class AdaptiveSearchCV(BaseIncrementalSearchCV):
     """
-    Incrementally search for hyper-parameters on models that support partial_fit
+    Adaptively search for hyper-parameters on models that support partial_fit
 
     .. note::
 
        This class depends on the optional ``distributed`` library.
 
-    This incremental hyper-parameter optimization class starts training the
+    This adaptive hyper-parameter optimization class starts training the
     model on many hyper-parameters on a small amount of data, and then only
     continues training those models that seem to be performing well.
 
     The number of actively trained hyper-parameter combinations decays
     with an inverse decay given by the initial number of parameters and the
-    decay rate:
-
-        n_models = n_initial_parameters * (n_batches ** -decay_rate)
+    decay rate.
 
     See the :ref:`User Guide <hyperparameter.incremental>` for more.
 
@@ -796,14 +794,14 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
     ...           'l1_ratio': np.linspace(0, 1, num=1000),
     ...           'average': [True, False]}
 
-    >>> search = IncrementalSearchCV(model, params, random_state=0)
+    >>> search = AdaptiveSearchCV(model, params, random_state=0)
     >>> search.fit(X, y, classes=[0, 1])
-    IncrementalSearchCV(...)
+    AdaptiveSearchCV(...)
 
     Alternatively you can provide keywords to start with more hyper-parameters,
     but stop those that don't seem to improve with more data.
 
-    >>> search = IncrementalSearchCV(model, params, random_state=0,
+    >>> search = AdaptiveSearchCV(model, params, random_state=0,
     ...                              n_initial_parameters=1000,
     ...                              patience=20, max_iter=100)
 
@@ -840,7 +838,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         self.tol = tol
         self.scores_per_fit = scores_per_fit
         self.max_iter = max_iter
-        super(IncrementalSearchCV, self).__init__(
+        super(AdaptiveSearchCV, self).__init__(
             estimator, param_distribution, test_size, random_state, scoring
         )
 

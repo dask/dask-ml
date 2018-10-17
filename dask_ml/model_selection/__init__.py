@@ -19,8 +19,8 @@ __all__ = [
 
 
 try:
-    from ._incremental import IncrementalSearchCV  # noqa: F401
+    from ._incremental import AdaptiveSearchCV  # noqa: F401
 
-    __all__.extend(["IncrementalSearchCV"])
+    __all__.extend(["AdaptiveSearchCV"])
 except ImportError:
     pass

@@ -190,7 +190,7 @@ hyperparameter optimization. These should be used when your full dataset doesn't
 fit in memory on a single machine.
 
 .. autosummary::
-   dask_ml.model_selection.IncrementalSearchCV
+   dask_ml.model_selection.AdaptiveSearchCV
 
 Broadly speaking, incremental optimization starts with a batch of models (underlying
 estimators and hyperparameter combinationms) and repeatedly calls the underlying estimator's
@@ -201,7 +201,7 @@ estimators and hyperparameter combinationms) and repeatedly calls the underlying
    These estimators require the optional ``distributed`` library.
 
 Here's an example training on a "large" dataset (a Dask array) with the
-``IncrementalSearchCV``.
+``AdaptiveSearchCV``.
 
 .. ipython:: python
 
@@ -234,9 +234,9 @@ train-and-score them until we find the best one.
 
 .. ipython:: python
 
-    from dask_ml.model_selection import IncrementalSearchCV
+    from dask_ml.model_selection import AdaptiveSearchCV
 
-    search = IncrementalSearchCV(model, params, random_state=0)
+    search = AdaptiveSearchCV(model, params, random_state=0)
     search.fit(X, y, classes=[0, 1])
 
 Note that when you do post-fit tasks like ``search.score``, the underlying
@@ -256,7 +256,7 @@ to use post-estimation features like scoring or prediction, we recommend using
    model = ParallelPostFit(SGDClassifier(tol=1e-3,
                                          penalty="elasticnet",
                                          random_state=0))
-   search = IncrementalSearchCV(model, params, random_state=0)
+   search = AdaptiveSearchCV(model, params, random_state=0)
    search.fit(X, y, classes=[0, 1])
    search.score(X, y)
 
