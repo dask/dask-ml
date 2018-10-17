@@ -9,7 +9,7 @@ Note that this version of Dask-ML requires scikit-learn >= 0.20.0.
 Enhancements
 ------------
 
-- Added :class:`dask_ml.model_selection.IncrementalSearchCV`, a meta-estimator for hyperparamter optimization on larger-than-memory datasets (:pr:`356`). See :ref:`hyperparameter.incremental` for more.
+- Added :class:`dask_ml.model_selection.AdaptiveSearchCV`, a meta-estimator for hyperparamter optimization on larger-than-memory datasets (:pr:`356`). See :ref:`hyperparameter.incremental` for more.
 - Added :class:`dask_ml.preprocessing.PolynomialTransformer`, a drop-in replacement for the scikit-learn version (:issue:`347`).
 - Added auto-rechunking to Dask Arrays with more than one block along the features in :class:`dask_ml.model_selection.ParallelPostFit` (:issue:`376`)
 - Added support for Dask DataFrame inputs to :class:`dask_ml.cluster.KMeans` (:issue:`390`)
