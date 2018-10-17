@@ -872,7 +872,8 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
             next_time_step = 1
 
         while inverse(current_time_step) == inverse(next_time_step) and (
-            not self.patience
+            self.decay_rate
+            and not self.patience
             or next_time_step - current_time_step < self.scores_per_fit
         ):
             next_time_step += 1
