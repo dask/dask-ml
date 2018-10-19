@@ -129,13 +129,13 @@ boolean mask array or callable
 
     See also
     --------
-    sklearn.compose.make_column_transformer : convenience function for
+    dask_ml.compose.make_column_transformer : convenience function for
         combining the outputs of multiple transformer objects applied to
         column subsets of the original feature space.
 
     Examples
     --------
-    >>> from sklearn.compose import ColumnTransformer
+    >>> from dask_ml.compose import ColumnTransformer
     >>> from sklearn.preprocessing import Normalizer
     >>> ct = ColumnTransformer(
     ...     [("norm1", Normalizer(norm='l1'), [0, 1]),

@@ -51,7 +51,7 @@ provides the follwoing:
    :toctree: generated/
    :template: class.rst
 
-   model_selection.IncrementalSearch
+   model_selection.IncrementalSearchCV
 
 
 :mod:`dask_ml.linear_model`: Generalized Linear Models
@@ -169,11 +169,14 @@ Meta-estimators for building composite models with transformers.
 ============================================
 
 .. automodule:: dask_ml.impute
+
+.. currentmodule:: dask_ml
+
 .. autosummary::
    :toctree: generated/
    :template: class.rst
 
-   preprocessing.impute.SimpleImputer
+   impute.SimpleImputer
 
 
 :mod:`dask_ml.metrics`: Metrics
