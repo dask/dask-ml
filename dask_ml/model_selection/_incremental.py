@@ -851,6 +851,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
             return ParameterSampler(self.parameters, self.n_initial_parameters)
 
     def _additional_calls(self, info):
+        # First, have an adaptive algorithm
         if self.n_initial_parameters == "grid":
             start = len(ParameterGrid(self.parameters))
         else:
@@ -883,20 +884,27 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         if len(best) == 1:
             [best] = best
             return {best: 0}
+        steps = next_time_step - current_time_step
+        instructions = {b: steps for b in best}
 
+        # Second, stop on plateau if any models have already converged
         out = {}
-        for k in best:
+        for k, steps in instructions.items():
             records = info[k]
-            if self.max_iter and len(records) >= self.max_iter:
+            current_calls = records[-1]["partial_fit_calls"]
+            if self.max_iter and current_calls >= self.max_iter:
                 out[k] = 0
-            elif self.patience and len(records) >= self.patience:
-                old = records[-self.patience]["score"]
-                if all(d["score"] < old + self.tol for d in records[-self.patience :]):
+            elif self.patience and current_calls >= self.patience:
+                plateau = [
+                    h["score"]
+                    for h in records
+                    if current_calls - h["partial_fit_calls"] <= self.patience
+                ]
+                if all(score <= plateau[0] + self.tol for score in plateau[1:]):
                     out[k] = 0
                 else:
-                    out[k] = next_time_step - current_time_step
+                    out[k] = steps
 
             else:
-                out[k] = next_time_step - current_time_step
-
+                out[k] = steps
         return out
