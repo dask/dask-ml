@@ -26,8 +26,8 @@ You can try Dask-ML on a small cloud instance by clicking the following button:
 What does this offer?
 ---------------------
 
-See the navigation pane to the left for a list of categories of
-functionality.
+The overarching goal of Dask-ML is to enable scalable machine learning.
+See the navigation pane to the left for details on specific features.
 
 How does this work?
 -------------------
@@ -40,18 +40,18 @@ Parallelize Scikit-Learn Directly
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Scikit-Learn already provides parallel computing on a single machine with
-`Joblib <http://joblib.readthedocs.io/en/latest/>`__.
-Dask can now step in and take over this parallelism for many
-Scikit-Learn estimators.  This works well for modest data sizes but large
-computations, such as random forests, hyper-parameter optimization, and more.
+`Joblib <http://joblib.readthedocs.io/en/latest/>`__. Dask extends this
+parallelism to many machines in a cluster. This works well for modest data
+sizes but large computations, such as random forests, hyper-parameter
+optimization, and more.
 
 .. code-block:: python
 
    from dask.distributed import Client
-   client = Client()  # start a local Dask client
-
-   import dask_ml.joblib
    from sklearn.externals.joblib import parallel_backend
+
+   client = Client()  # Connect to a Dask Cluster
+
    with parallel_backend('dask'):
        # Your normal scikit-learn code here
 

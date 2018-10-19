@@ -246,8 +246,8 @@ popular machine learning libraries like <a class="reference external" href="http
 </div>
 <div class="section" id="what-does-this-offer">
 <h2>What does this offer?<a class="headerlink" href="#what-does-this-offer" title="Permalink to this headline">¶</a></h2>
-<p>See the navigation pane to the left for a list of categories of
-functionality.</p>
+<p>The overarching goal of Dask-ML is to enable scalable machine learning.
+See the navigation pane to the left for details on specific features.</p>
 </div>
 <div class="section" id="how-does-this-work">
 <h2>How does this work?<a class="headerlink" href="#how-does-this-work" title="Permalink to this headline">¶</a></h2>
@@ -257,15 +257,15 @@ Generally solutions fall into the following three categories:</p>
 <div class="section" id="parallelize-scikit-learn-directly">
 <h3>Parallelize Scikit-Learn Directly<a class="headerlink" href="#parallelize-scikit-learn-directly" title="Permalink to this headline">¶</a></h3>
 <p>Scikit-Learn already provides parallel computing on a single machine with
-<a class="reference external" href="http://joblib.readthedocs.io/en/latest/">Joblib</a>.
-Dask can now step in and take over this parallelism for many
-Scikit-Learn estimators.  This works well for modest data sizes but large
-computations, such as random forests, hyper-parameter optimization, and more.</p>
+<a class="reference external" href="http://joblib.readthedocs.io/en/latest/">Joblib</a>. Dask extends this
+parallelism to many machines in a cluster. This works well for modest data
+sizes but large computations, such as random forests, hyper-parameter
+optimization, and more.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dask.distributed</span> <span class="kn">import</span> <span class="n">Client</span>
-<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">()</span>  <span class="c1"># start a local Dask client</span>
-
-<span class="kn">import</span> <span class="nn">dask_ml.joblib</span>
 <span class="kn">from</span> <span class="nn">sklearn.externals.joblib</span> <span class="kn">import</span> <span class="n">parallel_backend</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">()</span>  <span class="c1"># Connect to a Dask Cluster</span>
+
 <span class="k">with</span> <span class="n">parallel_backend</span><span class="p">(</span><span class="s1">&#39;dask&#39;</span><span class="p">):</span>
     <span class="c1"># Your normal scikit-learn code here</span>
 </pre></div>

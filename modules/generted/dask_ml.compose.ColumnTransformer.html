@@ -372,7 +372,7 @@ of the individual transformers and the <cite>sparse_threshold</cite> keyword.</p
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <dl class="last docutils">
-<dt><a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.compose.make_column_transformer.html#sklearn.compose.make_column_transformer" title="(in scikit-learn v0.20.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.compose.make_column_transformer</span></code></a></dt>
+<dt><a class="reference internal" href="dask_ml.compose.make_column_transformer.html#dask_ml.compose.make_column_transformer" title="dask_ml.compose.make_column_transformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.compose.make_column_transformer</span></code></a></dt>
 <dd>convenience function for combining the outputs of multiple transformer objects applied to column subsets of the original feature space.</dd>
 </dl>
 </div>
@@ -384,7 +384,7 @@ dropped from the resulting transformed feature matrix, unless specified
 in the <cite>passthrough</cite> keyword. Those columns specified with <cite>passthrough</cite>
 are added at the right to the output of the transformers.</p>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.compose</span> <span class="k">import</span> <span class="n">ColumnTransformer</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dask_ml.compose</span> <span class="k">import</span> <span class="n">ColumnTransformer</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">Normalizer</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ct</span> <span class="o">=</span> <span class="n">ColumnTransformer</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="p">[(</span><span class="s2">&quot;norm1&quot;</span><span class="p">,</span> <span class="n">Normalizer</span><span class="p">(</span><span class="n">norm</span><span class="o">=</span><span class="s1">&#39;l1&#39;</span><span class="p">),</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span>

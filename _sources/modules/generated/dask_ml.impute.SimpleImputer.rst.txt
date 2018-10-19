@@ -1,0 +1,16 @@
+:mod:`dask_ml.impute`.SimpleImputer
+==========================================
+
+.. currentmodule:: dask_ml.impute
+
+.. autoclass:: SimpleImputer
+
+   
+   .. automethod:: __init__
+   
+
+.. include:: dask_ml.impute.SimpleImputer.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>

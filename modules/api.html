@@ -164,6 +164,7 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.model_selection.KFold.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.KFold</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.model_selection.GridSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.GridSearchCV</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.model_selection.RandomizedSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.RandomizedSearchCV</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.model_selection.IncrementalSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.IncrementalSearchCV</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#module-dask_ml.linear_model"><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>: Generalized Linear Models</a><ul>
@@ -205,7 +206,8 @@
 <li class="toctree-l3"><a class="reference internal" href="generted/dask_ml.compose.make_column_transformer.html">dask_ml.compose.make_column_transformer</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#module-dask_ml.impute"><code class="docutils literal notranslate"><span class="pre">dask_ml.impute</span></code>: Imputing Missing Data</a><ul class="simple">
+<li class="toctree-l2"><a class="reference internal" href="#module-dask_ml.impute"><code class="docutils literal notranslate"><span class="pre">dask_ml.impute</span></code>: Imputing Missing Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.impute.SimpleImputer.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.impute</span></code>.SimpleImputer</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#dask-ml-metrics-metrics"><code class="docutils literal notranslate"><span class="pre">dask_ml.metrics</span></code>: Metrics</a><ul>
@@ -368,8 +370,8 @@ provides the follwoing:</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_selection.IncrementalSearch</span></code></td>
-<td></td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV" title="dask_ml.model_selection.IncrementalSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_selection.IncrementalSearchCV</span></code></a>(…[,&nbsp;…])</td>
+<td>Incrementally search for hyper-parameters on models that support partial_fit</td>
 </tr>
 </tbody>
 </table>
@@ -3435,7 +3437,7 @@ of the individual transformers and the <cite>sparse_threshold</cite> keyword.</p
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <dl class="last docutils">
-<dt><a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.compose.make_column_transformer.html#sklearn.compose.make_column_transformer" title="(in scikit-learn v0.20.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.compose.make_column_transformer</span></code></a></dt>
+<dt><a class="reference internal" href="generted/dask_ml.compose.make_column_transformer.html#dask_ml.compose.make_column_transformer" title="dask_ml.compose.make_column_transformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.compose.make_column_transformer</span></code></a></dt>
 <dd>convenience function for combining the outputs of multiple transformer objects applied to column subsets of the original feature space.</dd>
 </dl>
 </div>
@@ -3447,7 +3449,7 @@ dropped from the resulting transformed feature matrix, unless specified
 in the <cite>passthrough</cite> keyword. Those columns specified with <cite>passthrough</cite>
 are added at the right to the output of the transformers.</p>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.compose</span> <span class="k">import</span> <span class="n">ColumnTransformer</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dask_ml.compose</span> <span class="k">import</span> <span class="n">ColumnTransformer</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">Normalizer</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ct</span> <span class="o">=</span> <span class="n">ColumnTransformer</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="p">[(</span><span class="s2">&quot;norm1&quot;</span><span class="p">,</span> <span class="n">Normalizer</span><span class="p">(</span><span class="n">norm</span><span class="o">=</span><span class="s1">&#39;l1&#39;</span><span class="p">),</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span>
@@ -3770,19 +3772,19 @@ for more details.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.impute.SimpleImputer.fit" title="dask_ml.impute.SimpleImputer.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X[,&nbsp;y])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.impute.SimpleImputer.html#dask_ml.impute.SimpleImputer.fit" title="dask_ml.impute.SimpleImputer.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X[,&nbsp;y])</td>
 <td>Fit the imputer on X.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.impute.SimpleImputer.fit_transform" title="dask_ml.impute.SimpleImputer.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(X[,&nbsp;y])</td>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.impute.SimpleImputer.html#dask_ml.impute.SimpleImputer.fit_transform" title="dask_ml.impute.SimpleImputer.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(X[,&nbsp;y])</td>
 <td>Fit to data, then transform it.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.impute.SimpleImputer.get_params" title="dask_ml.impute.SimpleImputer.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.impute.SimpleImputer.html#dask_ml.impute.SimpleImputer.get_params" title="dask_ml.impute.SimpleImputer.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.impute.SimpleImputer.set_params" title="dask_ml.impute.SimpleImputer.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</td>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.impute.SimpleImputer.html#dask_ml.impute.SimpleImputer.set_params" title="dask_ml.impute.SimpleImputer.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.impute.SimpleImputer.transform" title="dask_ml.impute.SimpleImputer.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(X)</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.impute.SimpleImputer.html#dask_ml.impute.SimpleImputer.transform" title="dask_ml.impute.SimpleImputer.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(X)</td>
 <td>Impute all missing values in X.</td>
 </tr>
 </tbody>
@@ -3920,8 +3922,9 @@ component of a nested object.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.impute.SimpleImputer</span></code></td>
-<td></td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.impute.SimpleImputer.html#dask_ml.impute.SimpleImputer" title="dask_ml.impute.SimpleImputer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">impute.SimpleImputer</span></code></a>([missing_values,&nbsp;…])</td>
+<td><p class="rubric">Methods</p>
+</td>
 </tr>
 </tbody>
 </table>

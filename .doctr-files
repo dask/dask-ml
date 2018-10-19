@@ -28,6 +28,7 @@
 ./_sources/modules/generated/dask_ml.cluster.SpectralClustering.rst.txt
 ./_sources/modules/generated/dask_ml.decomposition.PCA.rst.txt
 ./_sources/modules/generated/dask_ml.decomposition.TruncatedSVD.rst.txt
+./_sources/modules/generated/dask_ml.impute.SimpleImputer.rst.txt
 ./_sources/modules/generated/dask_ml.linear_model.LinearRegression.rst.txt
 ./_sources/modules/generated/dask_ml.linear_model.LogisticRegression.rst.txt
 ./_sources/modules/generated/dask_ml.linear_model.PoissonRegression.rst.txt
@@ -37,6 +38,7 @@
 ./_sources/modules/generated/dask_ml.metrics.mean_squared_error.rst.txt
 ./_sources/modules/generated/dask_ml.metrics.r2_score.rst.txt
 ./_sources/modules/generated/dask_ml.model_selection.GridSearchCV.rst.txt
+./_sources/modules/generated/dask_ml.model_selection.IncrementalSearchCV.rst.txt
 ./_sources/modules/generated/dask_ml.model_selection.KFold.rst.txt
 ./_sources/modules/generated/dask_ml.model_selection.RandomizedSearchCV.rst.txt
 ./_sources/modules/generated/dask_ml.model_selection.ShuffleSplit.rst.txt
@@ -148,6 +150,7 @@
 ./modules/generated/dask_ml.cluster.SpectralClustering.html
 ./modules/generated/dask_ml.decomposition.PCA.html
 ./modules/generated/dask_ml.decomposition.TruncatedSVD.html
+./modules/generated/dask_ml.impute.SimpleImputer.html
 ./modules/generated/dask_ml.linear_model.LinearRegression.html
 ./modules/generated/dask_ml.linear_model.LogisticRegression.html
 ./modules/generated/dask_ml.linear_model.PoissonRegression.html
@@ -157,6 +160,7 @@
 ./modules/generated/dask_ml.metrics.mean_squared_error.html
 ./modules/generated/dask_ml.metrics.r2_score.html
 ./modules/generated/dask_ml.model_selection.GridSearchCV.html
+./modules/generated/dask_ml.model_selection.IncrementalSearchCV.html
 ./modules/generated/dask_ml.model_selection.KFold.html
 ./modules/generated/dask_ml.model_selection.RandomizedSearchCV.html
 ./modules/generated/dask_ml.model_selection.ShuffleSplit.html
