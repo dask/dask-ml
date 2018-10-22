@@ -12,38 +12,9 @@ from dask_ml.wrappers import Incremental
 from dask_ml.utils import ConstantFunction
 from sklearn.model_selection import ParameterSampler
 from dask_ml.model_selection._incremental import fit as incremental_fit
-from dask_ml.model_selection._successive_halving import stop_on_plateau
 from toolz import partial
 
 import pytest
-
-
-def test_stop_on_plateau(loop):
-    with cluster() as (s, [a, b]):
-        with Client(s["address"], loop=loop):
-            model = ConstantFunction()
-            params = {"value": np.random.rand(40)}
-
-            n, d = 20, 10
-            X, y = make_classification(
-                n_samples=n, n_features=d, random_state=1, chunks=n
-            )
-            param_list = list(ParameterSampler(params, 20))
-            addtl_calls = partial(stop_on_plateau, patience=10, tol=1e-3)
-            info, models, history = incremental_fit(
-                model,
-                param_list,
-                X,
-                y,
-                X,
-                y,
-                additional_calls=addtl_calls,
-                random_state=42,
-            )
-            pf_calls = {}
-            for hist in history:
-                pf_calls[hist["model_id"]] = hist["partial_fit_calls"]
-            assert set(pf_calls.values()) == {10}
 
 
 @pytest.mark.parametrize(  # noqa: F811
