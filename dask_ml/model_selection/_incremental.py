@@ -840,6 +840,10 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
             return ParameterSampler(self.parameters, self.n_initial_parameters)
 
     def _additional_calls(self, info):
+        instructions = self._adapt(info)
+        return self._stop_on_plateau(instructions, info)
+
+    def _adapt(self, info):
         # First, have an adaptive algorithm
         if self.n_initial_parameters == "grid":
             start = len(ParameterGrid(self.parameters))
@@ -875,7 +879,9 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
             return {best: 0}
         steps = next_time_step - current_time_step
         instructions = {b: steps for b in best}
+        return instructions
 
+    def _stop_on_plateau(self, instructions, info):
         # Second, stop on plateau if any models have already converged
         out = {}
         for k, steps in instructions.items():
