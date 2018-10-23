@@ -769,7 +769,7 @@ def test_normalize_n_jobs():
         ("synchronous", 4),
         ("sync", 4),
         ("multiprocessing", 4),
-        pytest.param(dask.get, 4, marks=[pytest.mark.filterwarnings("ignore")]),
+        (dask.local.get_sync, 4),
     ],
 )
 def test_scheduler_param(scheduler, n_jobs):
