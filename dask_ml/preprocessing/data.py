@@ -945,7 +945,11 @@ class PolynomialFeatures(skdata.PolynomialFeatures):
         self.preserve_dataframe = preserve_dataframe
 
     def fit(self, X, y=None):
-        self._transformer = skdata.PolynomialFeatures()
+        self._transformer = skdata.PolynomialFeatures(
+            degree=self.degree,
+            interaction_only=self.interaction_only,
+            include_bias=self.include_bias,
+        )
         X_sample = X
         if isinstance(X, dd.DataFrame):
             X_sample = X._meta_nonempty
