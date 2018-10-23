@@ -1187,10 +1187,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         self.n_splits_ = n_splits
 
         n_jobs = _normalize_n_jobs(self.n_jobs)
-        scheduler = dask.base.get_scheduler(
-            scheduler=(self.scheduler if isinstance(self.scheduler, str) else None),
-            get=self.scheduler if callable(self.scheduler) else None,
-        )
+        scheduler = dask.base.get_scheduler(scheduler=self.scheduler)
 
         if not scheduler:
             scheduler = dask.threaded.get
