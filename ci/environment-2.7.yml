@@ -19,7 +19,7 @@ dependencies:
   - pytest
   - pytest-cov
   - pytest-mock
-  - python=2.7
+  - python=2.7.14
   - sortedcontainers
   - scikit-learn>=0.20.0
   - scipy
