@@ -155,7 +155,7 @@ def test_score(xy_classification):
 )
 def test_replace_scoring(estimator, fit_kwargs, scoring, xy_classification, mocker):
     X, y = xy_classification
-    inc = Incremental(estimator(max_iter=1000, random_state=0))
+    inc = Incremental(estimator(max_iter=1000, random_state=0, tol=1e-3))
     inc.fit(X, y, **fit_kwargs)
 
     patch = mocker.patch.object(dask_ml.wrappers, "get_scorer")
