@@ -3,7 +3,8 @@
 
 from __future__ import absolute_import, division, print_function
 
-from dask import delayed, persist, compute, set_options
+import dask
+from dask import delayed, persist, compute
 import functools
 import numpy as np
 import dask.array as da
@@ -338,7 +339,7 @@ def lbfgs(X, y, regularizer=None, lamduh=1.0, max_iter=100, tol=1e-4,
         loss, gradient = compute(loss_fn, gradient_fn)
         return loss, gradient.copy()
 
-    with set_options(fuse_ave_width=0):  # optimizations slows this down
+    with dask.config.set(fuse_ave_width=0):  # optimizations slows this down
         beta, loss, info = fmin_l_bfgs_b(
             compute_loss_grad, beta0, fprime=None,
             args=(X, y),

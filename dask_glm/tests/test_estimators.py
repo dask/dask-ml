@@ -1,4 +1,5 @@
 import pytest
+import dask
 
 from dask_glm.estimators import LogisticRegression, LinearRegression, PoissonRegression
 from dask_glm.datasets import make_classification, make_regression, make_poisson
@@ -63,26 +64,24 @@ def test_lm(fit_intercept):
 
 @pytest.mark.parametrize('fit_intercept', [True, False])
 def test_big(fit_intercept):
-    import dask
-    dask.set_options(get=dask.get)
-    X, y = make_classification()
-    lr = LogisticRegression(fit_intercept=fit_intercept)
-    lr.fit(X, y)
-    lr.predict(X)
-    lr.predict_proba(X)
+    with dask.config.set(scheduler='synchronous'):
+        X, y = make_classification()
+        lr = LogisticRegression(fit_intercept=fit_intercept)
+        lr.fit(X, y)
+        lr.predict(X)
+        lr.predict_proba(X)
     if fit_intercept:
         assert lr.intercept_ is not None
 
 
 @pytest.mark.parametrize('fit_intercept', [True, False])
 def test_poisson_fit(fit_intercept):
-    import dask
-    dask.set_options(get=dask.get)
-    X, y = make_poisson()
-    pr = PoissonRegression(fit_intercept=fit_intercept)
-    pr.fit(X, y)
-    pr.predict(X)
-    pr.get_deviance(X, y)
+    with dask.config.set(scheduler='synchronous'):
+        X, y = make_poisson()
+        pr = PoissonRegression(fit_intercept=fit_intercept)
+        pr.fit(X, y)
+        pr.predict(X)
+        pr.get_deviance(X, y)
     if fit_intercept:
         assert pr.intercept_ is not None
 
