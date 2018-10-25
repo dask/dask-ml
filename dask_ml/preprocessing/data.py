@@ -678,7 +678,11 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
                 categories, ordered = self.dtypes_[col]
 
             # use .values to avoid warning from pandas
-            inds = X[list(X.columns[slice_])].values
+            cols_slice = list(X.columns[slice_])
+            if big:
+                inds = X[cols_slice].to_dask_array(lengths=chunks)
+            else:
+                inds = X[cols_slice].values
             codes = inds.argmax(1)
 
             if self.drop_first:
