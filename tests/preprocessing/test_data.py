@@ -557,6 +557,6 @@ class TestPolynomialFeatures:
     def test_transformer_params(self):
         pf = dpp.PolynomialFeatures(degree=3, interaction_only=True, include_bias=False)
         pf.fit(X)
-        assert pf._transformer.degree == 3
-        assert pf._transformer.interaction_only
-        assert not pf._transformer.include_bias
+        assert pf._transformer.degree == pf.degree
+        assert pf._transformer.interaction_only is pf.interaction_only
+        assert pf._transformer.include_bias is pf.include_bias
