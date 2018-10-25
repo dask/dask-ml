@@ -193,7 +193,7 @@ fit in memory on a single machine.
    dask_ml.model_selection.IncrementalSearchCV
 
 Broadly speaking, incremental optimization starts with a batch of models (underlying
-estimators and hyperparameter combinationms) and repeatedly calls the underlying estimator's
+estimators and hyperparameter combinations) and repeatedly calls the underlying estimator's
 ``partial_fit`` method with batches of data.
 
 .. note::

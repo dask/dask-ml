@@ -408,7 +408,7 @@ fit in memory on a single machine.</p>
 </tbody>
 </table>
 <p>Broadly speaking, incremental optimization starts with a batch of models (underlying
-estimators and hyperparameter combinationms) and repeatedly calls the underlying estimator’s
+estimators and hyperparameter combinations) and repeatedly calls the underlying estimator’s
 <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> method with batches of data.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -497,7 +497,7 @@ to use post-estimation features like scoring or prediction, we recommend using
 <span class="go">          test_size=None, tol=0.001)</span>
 
 <span class="gp">In [17]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="go">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    Out[17]: 0.5870506</span>
+<span class="go">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    Out[17]: 0.5870492</span>
 </pre></div>
 </div>
 <p>Note that the parameter names include the <code class="docutils literal notranslate"><span class="pre">estimator__</span></code> prefix,
