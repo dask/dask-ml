@@ -1,93 +1,88 @@
-import numpy as np
-import scipy.stats
-from sklearn.linear_model import SGDClassifier
-
 import dask.array as da
+import numpy as np
+import pytest
+import scipy.stats
+import sklearn.datasets
 from dask.distributed import Client
-from distributed.utils_test import loop, cluster, gen_cluster  # noqa: F401
+from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
+from sklearn.linear_model import SGDClassifier
+from sklearn.model_selection import ParameterSampler
+from toolz import partial
+from tornado import gen
 
 from dask_ml.datasets import make_classification
 from dask_ml.model_selection import HyperbandCV
-from dask_ml.wrappers import Incremental
-from dask_ml.utils import ConstantFunction
-from sklearn.model_selection import ParameterSampler
 from dask_ml.model_selection._incremental import fit as incremental_fit
-from toolz import partial
-
-import pytest
-
-
-@pytest.mark.parametrize(  # noqa: F811
-    "array_type,library",
-    [("dask.array", "dask-ml"), ("numpy", "sklearn"), ("numpy", "ConstantFunction")],
-)
-@pytest.mark.parametrize("max_iter", [27, 81])
-def test_basic(array_type, library, max_iter, loop):
-    with cluster() as (s, [a, b]):
-        with Client(s["address"], loop=loop):
-            n, d = (200, 2)
-
-            rng = da.random.RandomState(42)
-
-            # create observations we know linear models can fit
-            X = rng.normal(size=(n, d), chunks=n // 2)
-            coef_star = rng.uniform(size=d, chunks=d)
-            y = da.sign(X.dot(coef_star))
-
-            if array_type == "numpy":
-                X = X.compute()
-                y = y.compute()
-
-            params = {
-                "loss": [
-                    "hinge",
-                    "log",
-                    "modified_huber",
-                    "squared_hinge",
-                    "perceptron",
-                ],
-                "average": [True, False],
-                "learning_rate": ["constant", "invscaling", "optimal"],
-                "eta0": np.logspace(-2, 0, num=1000),
-            }
-            model = SGDClassifier(
-                tol=-np.inf, penalty="elasticnet", random_state=42, eta0=0.1
-            )
-            if library == "dask-ml":
-                model = Incremental(model)
-                params = {"estimator__" + k: v for k, v in params.items()}
-            elif library == "ConstantFunction":
-                model = ConstantFunction()
-                params = {"value": np.linspace(0, 1, num=1000)}
-
-            search = HyperbandCV(
-                model, params, max_iter=max_iter, random_state=42
-            )
-            search.fit(X, y, classes=da.unique(y))
-
-            score = search.best_estimator_.score(X, y)
-            if library == "sklearn":
-                assert score > 0.67
-            if library == "dask-ml":
-                assert score > 0.67
-            elif library == "test":
-                assert score > 0.9
-            assert type(search.best_estimator_) == type(model)
-            assert isinstance(search.best_params_, dict)
-
-            num_fit_models = len(set(search.cv_results_["model_id"]))
-            num_models = {27: 49, 81: 143}
-            assert num_fit_models == num_models[max_iter]
-            best_idx = search.best_index_
-            assert search.cv_results_["test_score"][best_idx] == max(
-                search.cv_results_["test_score"]
-            )
-            model_ids = {h["model_id"] for h in search.history_}
-            assert len(model_ids) > max_iter
-            assert all("bracket" in id_ for id_ in model_ids)
+from dask_ml.utils import ConstantFunction
+from dask_ml.wrappers import Incremental
 
 
-@pytest.mark.parametrize("max_iter,aggressiveness", [(27, 3), (64, 4)])
+@gen_cluster(client=True, timeout=5000)
+def test_basic(c, s, a, b):
+    for array_type, library, max_iter in [
+        ("dask.array", "dask-ml", 9),
+        ("numpy", "sklearn", 9),
+        ("numpy", "ConstantFunction", 27),
+        ("numpy", "ConstantFunction", 81),
+    ]:
+        print(" " * 20, array_type, library, max_iter)
+        yield _test_basic(array_type, library, max_iter, c)
+
+
+@gen.coroutine
+def _test_basic(array_type, library, max_iter, c):
+    n, d = (200, 2)
+
+    rng = da.random.RandomState(42)
+
+    # create observations we know linear models can fit
+    X = rng.normal(size=(n, d), chunks=n // 2)
+    coef_star = rng.uniform(size=d, chunks=d)
+    y = da.sign(X.dot(coef_star))
+
+    if array_type == "numpy":
+        X = yield c.compute(X)
+        y = yield c.compute(y)
+
+    params = {
+        "loss": ["hinge", "log", "modified_huber", "squared_hinge", "perceptron"],
+        "average": [True, False],
+        "learning_rate": ["constant", "invscaling", "optimal"],
+        "eta0": np.logspace(-2, 0, num=1000),
+    }
+    model = SGDClassifier(tol=-np.inf, penalty="elasticnet", random_state=42, eta0=0.1)
+    if library == "dask-ml":
+        model = Incremental(model)
+        params = {"estimator__" + k: v for k, v in params.items()}
+    elif library == "ConstantFunction":
+        model = ConstantFunction()
+        params = {"value": np.linspace(0, 1, num=1000)}
+
+    search = HyperbandCV(model, params, max_iter=max_iter, random_state=42)
+    classes = c.compute(da.unique(y))
+    yield search.fit(X, y, classes=classes)
+
+    X, y = sklearn.datasets.make_classification(
+        n_features=d, n_informative=d, n_repeated=0, n_redundant=0
+    )
+    score = search.best_estimator_.score(X, y)
+    assert type(search.best_estimator_) == type(model)
+    assert isinstance(search.best_params_, dict)
+
+    num_fit_models = len(set(search.cv_results_["model_id"]))
+    num_models = {9: 17, 27: 49, 81: 143}
+    assert num_fit_models == num_models[max_iter]
+    best_idx = search.best_index_
+    if isinstance(model, ConstantFunction):
+        assert search.cv_results_["test_score"][best_idx] == max(
+            search.cv_results_["test_score"]
+        )
+    model_ids = {h["model_id"] for h in search.history_}
+    assert len(model_ids) > max_iter
+    assert all("bracket" in id_ for id_ in model_ids)
+
+
+@pytest.mark.parametrize("max_iter,aggressiveness", [(9, 3), (27, 3), (64, 4)])
 def test_hyperband_mirrors_paper(loop, max_iter, aggressiveness):
     with cluster() as (s, [a, b]):
         with Client(s["address"], loop=loop):
@@ -144,9 +139,7 @@ def test_integration(loop):  # noqa: F811
             X, y = make_classification(n_samples=10, n_features=4, chunks=10)
             model = ConstantFunction()
             params = {"value": scipy.stats.uniform(0, 1)}
-            alg = HyperbandCV(
-                model, params, max_iter=9, random_state=42
-            )
+            alg = HyperbandCV(model, params, max_iter=9, random_state=42)
             alg.fit(X, y)
             cv_res_keys = set(alg.cv_results_.keys())
             gt_zero = lambda x: x >= 0

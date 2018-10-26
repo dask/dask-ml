@@ -15,7 +15,8 @@ from dask.distributed import default_client
 from ._split import train_test_split
 from ._search import DaskBaseSearchCV
 from ._incremental import fit as _incremental_fit
-from ._successive_halving import _SHA
+from ._incremental import AdaptiveSearchCV
+from ._successive_halving import SuccessiveHalving
 
 logger = logging.getLogger(__name__)
 
@@ -223,106 +224,72 @@ class HyperbandCV(DaskBaseSearchCV):
 
     @gen.coroutine
     def _fit(self, X, y, **fit_params):
-        N, R, brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
-        SHAs = {
-            b: _SHA(
-                n,
-                r,
-                limit=b + 1,
-                eta=self.aggressiveness,
-                patience=self.patience,
-                tol=self.tol,
-                verbose=self.verbose,
-                bracket=b,
-            )
-            for n, r, b in zip(N, R, brackets)
-        }
-        if isinstance(self.params, list):
-            _params = self.params[::-1]
-            param_lists = [[_params.pop() for _ in range(n)] for n in N]
-        else:
-            param_lists = [list(ParameterSampler(self.params, n)) for n in N]
-
         if isinstance(X, np.ndarray):
             X = da.from_array(X, chunks=X.shape)
         if isinstance(y, np.ndarray):
             y = da.from_array(y, chunks=y.shape)
-        r = train_test_split(X, y, random_state=self.random_state)
-        X_train, X_test, y_train, y_test = r
 
-        # We always want a concrete scorer because we're always scoring NumPy arrays
-        self.scorer_ = check_scoring(self.model, scoring=self.scoring)
-
-        hists = {}
-        params = {}
-        models = {}
-
-        _start = time()
-        results = yield {
-            bracket: _incremental_fit(
-                self.model,
-                param_list,
-                X_train,
-                y_train,
-                X_test,
-                y_test,
-                additional_calls=SHA.fit,
-                fit_params=fit_params,
-                scorer=self.scorer_,
-                random_state=self.random_state,
-            )
-            for (bracket, SHA), param_list in zip(SHAs.items(), param_lists)
+        N, R, brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
+        SHAs = {
+            b: SuccessiveHalving(self.model, self.params, n, r, limit=b + 1)
+            for n, r, b in zip(N, R, brackets)
         }
-        self._fit_time = time() - _start
+        SHAs = yield {b: SHA.fit(X, y, classes=da.unique(y)) for b, SHA in SHAs.items()}
 
-        infos = {}
-        for (bracket, result), param_list in zip(results.items(), param_lists):
-            # first argument is the information on the best model; no need with
-            # cv_results_
-            b_info, b_models, hist = result
-            hists[bracket] = hist
-            params[bracket] = param_list
-            models[bracket] = b_models
-            infos[bracket] = b_info
+        # Rename model IDs
+        key = lambda b, old: "bracket={}-{}".format(b, old)
+        for b, SHA in SHAs.items():
+            new_ids = {old: key(b, old) for old in SHA.cv_results_["model_id"]}
+            SHA.cv_results_["model_id"] = np.array(
+                [new_ids[old] for old in SHA.cv_results_["model_id"]]
+            )
+            SHA.model_history_ = {
+                new_ids[old]: v for old, v in SHA.model_history_.items()
+            }
+            for hist in SHA.model_history_.values():
+                for h in hist:
+                    h["model_id"] = new_ids[h["model_id"]]
 
-        # Recreating the scores for each model
-        key = lambda bracket, ident: "bracket={}-{}".format(bracket, ident)
-        cv_results, best_idx, best_model_id = _get_cv_results(hists, params, key=key)
-        best_model = [
-            model_future
-            for bracket, bracket_models in models.items()
-            for model_id, model_future in bracket_models.items()
-            if best_model_id == key(bracket, model_id)
+        keys = list(SHA.cv_results_.keys())
+        cv_results = {
+            k: sum([SHA.cv_results_[k].tolist() for SHA in SHAs.values()], [])
+            for k in keys
+        }
+
+        scores = {b: SHA.best_score_ for b, SHA in SHAs.items()}
+        best_bracket = max(scores, key=scores.get)
+
+        best_estimator = SHAs[best_bracket].best_estimator_
+
+        model_history = {
+            ident: hist
+            for SHA in SHAs.values()
+            for ident, hist in SHA.model_history_.items()
+        }
+        history = sum([SHA.history_ for b, SHA in SHAs.items()], [])
+
+        best_model_id = SHAs[best_bracket].cv_results_["model_id"][
+            SHAs[best_bracket].best_index_
         ]
-        assert len(best_model) == 1
+        best_index = np.argwhere(np.array(cv_results["model_id"]) == best_model_id)
+        best_index = best_index.flat[0]
 
-        # Make sure we get the best model
-        self.best_estimator_ = (yield best_model[0])
-
-        # Clean up models we're hanging onto
-        brackets = list(models.keys())
-        model_ids = {b: list(b_models.keys()) for b, b_models in models.items()}
-        for bracket in brackets:
-            for model_id in model_ids[bracket]:
-                del models[bracket][model_id]
-        self.cv_results_ = cv_results
-        self.best_index_ = best_idx
-        self.n_splits_ = 1
-        self.multimetric_ = False
-
-        meta, _ = _get_meta(hists, brackets, key=key)
-
-        for bracket, SHA in SHAs.items():
-            for h in SHA._history:
-                h["model_id"] = key(bracket, h["model_id"])
-                h["bracket"] = bracket
-        self.history_ = sum([SHA._history for SHA in SHAs.values()], [])
+        meta, _ = _get_meta(
+            {b: SHA.history_ for b, SHA in SHAs.items()}, brackets, key=key
+        )
 
         self.metadata_ = {
             "models": sum(m["models"] for m in meta),
             "partial_fit_calls": sum(m["partial_fit_calls"] for m in meta),
             "brackets": meta,
         }
+
+        self.best_index_ = best_index
+        self.best_estimator_ = best_estimator
+        self.model_history_ = model_history
+        self.history_ = history
+        self.cv_results_ = cv_results
+        self.multimetric_ = SHAs[best_bracket].multimetric_
         raise gen.Return(self)
 
     def metadata(self):
