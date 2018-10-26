@@ -232,6 +232,7 @@ def _test_search_basic(decay_rate, c, s, a, b):
         "param_alpha",
         "param_l1_ratio",
     }.issubset(set(search.cv_results_.keys()))
+    assert len(search.cv_results_["param_alpha"]) == 20
 
     assert all(isinstance(v, np.ndarray) for v in search.cv_results_.values())
     if decay_rate == 0:
