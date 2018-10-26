@@ -34,25 +34,17 @@ class BlockTransformer(FunctionTransformer):
         )
 
     def fit(self, X):
-        self._transformer = FunctionTransformer(
-            func=self.func,
-            inverse_func=self.inverse_func,
-            accept_sparse=self.accept_sparse,
-            check_inverse=self.check_inverse,
-            kw_args=self.kw_args,
-            inv_kw_args=self.inv_kw_args,
-        )
         return self
 
     def transform(self, X):
         if isinstance(X, da.Array):
             X = check_array(X, accept_dask_array=True, accept_unknown_chunks=True)
             XP = X.map_blocks(
-                self._transformer.transform, dtype=X.dtype, chunks=X.chunks
+                super(BlockTransformer, self).transform, dtype=X.dtype, chunks=X.chunks
             )
         else:
             X = check_array(X, accept_dask_array=False)
-            XP = self._transformer.transform(X)
+            XP = super(BlockTransformer, self).transform(X)
         return XP
 
     def inverse_transform(self, X):
