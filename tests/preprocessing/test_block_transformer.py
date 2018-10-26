@@ -25,6 +25,6 @@ class TestBlockTransformer:
         func_trans = spp.FunctionTransformer()
 
         X_t = func_trans.fit_transform(X)
-        X_dask_t = block_trans.fit_transform(X)
-        # assert dask.is_dask_collection(X_dask_t)
+        X_dask_t = block_trans.fit_transform(X_dask)
+        assert dask.is_dask_collection(X_dask_t)
         assert_eq_ar(X_t, X_dask_t)
