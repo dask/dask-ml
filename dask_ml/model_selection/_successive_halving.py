@@ -14,7 +14,7 @@ class SuccessiveHalving(AdaptiveSearchCV):
         param_distribution,
         n_initial_parameters,
         resource,
-        eta=3,
+        aggressiveness=3,
         limit=None,
         **kwargs,
     ):
@@ -27,17 +27,17 @@ class SuccessiveHalving(AdaptiveSearchCV):
             Number of models to evaluate initially
         resource : int
             Number of times to call partial fit initially
-        eta : float, default=3
+        aggressizeness : float, default=3
             How aggressive to be in culling off the models. Higher
             values correspond to being more aggressive in killing off
-            models. The "infinite horizon" theory suggests eta=np.e=2.718...
+            models. The "infinite horizon" theory suggests aggressizeness=np.e=2.718...
             is optimal.
         """
         self._steps = 0  # TODO: set this in self.fit
         self._meta = defaultdict(list)
         self.n_initial_parameters = n_initial_parameters
         self.resource = resource
-        self.eta = eta
+        self.aggressiveness = aggressiveness
         self.limit = limit
         self.estimator = estimator
         super(SuccessiveHalving, self).__init__(
@@ -48,7 +48,7 @@ class SuccessiveHalving(AdaptiveSearchCV):
         )
 
     def _adapt(self, info):
-        n, r, eta = self.n_initial_parameters, self.resource, self.eta
+        n, r, eta = self.n_initial_parameters, self.resource, self.aggressiveness
         n_i = int(math.floor(n * eta ** -self._steps))
         r_i = np.round(r * eta ** self._steps).astype(int)
 

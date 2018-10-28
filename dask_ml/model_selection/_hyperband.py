@@ -227,7 +227,8 @@ class HyperbandCV(AdaptiveSearchCV):
 
         N, R, brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
         SHAs = {
-            b: SuccessiveHalving(self.model, self.params, n, r, limit=b + 1)
+            b: SuccessiveHalving(self.model, self.params, n, r, limit=b + 1,
+                                 aggressiveness=self.aggressiveness)
             for n, r, b in zip(N, R, brackets)
         }
         SHAs = yield {b: SHA.fit(X, y, classes=da.unique(y)) for b, SHA in SHAs.items()}
