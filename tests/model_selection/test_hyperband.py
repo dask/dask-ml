@@ -146,8 +146,8 @@ def test_integration(loop):  # noqa: F811
             for column, dtype, condition in [
                 ("params", dict, lambda d: set(d.keys()) == {"value"}),
                 ("test_score", float, None),
-                ("mean_test_score", float, None),
-                ("rank_test_score", np.int64, None),
+                ("test_score", float, None),
+                ("rank_test_score", int, None),
                 ("mean_partial_fit_time", float, gt_zero),
                 ("std_partial_fit_time", float, gt_zero),
                 ("mean_score_time", float, gt_zero),

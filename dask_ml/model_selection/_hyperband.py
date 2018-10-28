@@ -46,7 +46,7 @@ def _get_hyperband_params(R, eta=3):
     return list(map(int, N)), R, brackets
 
 
-class HyperbandCV(DaskBaseSearchCV):
+class HyperbandCV(AdaptiveSearchCV):
     """Find the best parameters for a particular model with an adaptive
     cross-validation algorithm.
 
@@ -192,24 +192,20 @@ class HyperbandCV(DaskBaseSearchCV):
         params,
         max_iter,
         aggressiveness=3,
-        random_state=None,
-        scoring=None,
-        test_size=0.15,
         patience=np.inf,
-        tol=0.001,
-        verbose=0,
+        **kwargs,
     ):
         self.model = model
         self.params = params
         self.max_iter = max_iter
         self.aggressiveness = aggressiveness
-        self.test_size = test_size
-        self.random_state = random_state
-        self.patience = patience
-        self.tol = tol
-        self.verbose = verbose
 
-        super(HyperbandCV, self).__init__(model, scoring=scoring)
+        super(HyperbandCV, self).__init__(
+            model,
+            params,
+            max_iter=self.max_iter,
+            **kwargs
+        )
 
     def fit(self, X, y, **fit_params):
         """Find the best parameters for a particular model
@@ -224,10 +220,10 @@ class HyperbandCV(DaskBaseSearchCV):
 
     @gen.coroutine
     def _fit(self, X, y, **fit_params):
-        if isinstance(X, np.ndarray):
-            X = da.from_array(X, chunks=X.shape)
-        if isinstance(y, np.ndarray):
-            y = da.from_array(y, chunks=y.shape)
+        X, y = self._check_array(X, y)
+
+        X_train, X_test, y_train, y_test = self._get_train_test_split(X, y)
+        scorer = check_scoring(self.estimator, scoring=self.scoring)
 
         N, R, brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
         SHAs = {
@@ -246,9 +242,11 @@ class HyperbandCV(DaskBaseSearchCV):
             SHA.model_history_ = {
                 new_ids[old]: v for old, v in SHA.model_history_.items()
             }
-            for hist in SHA.model_history_.values():
+            for b, hist in SHA.model_history_.items():
                 for h in hist:
+                    h["wall_time"] = SHA._meta[h["model_id"]].pop(0)
                     h["model_id"] = new_ids[h["model_id"]]
+                    h["bracket"] = b
 
         keys = list(SHA.cv_results_.keys())
         cv_results = {
@@ -284,11 +282,16 @@ class HyperbandCV(DaskBaseSearchCV):
             "brackets": meta,
         }
 
-        self.best_index_ = best_index
+        self.best_index_ = int(best_index)
         self.best_estimator_ = best_estimator
+        self.best_score_ = scores[best_bracket]
+        self.best_params_ = cv_results["params"][best_index]
+        self.scorer_ = scorer
+
         self.model_history_ = model_history
         self.history_ = history
         self.cv_results_ = cv_results
+
         self.multimetric_ = SHAs[best_bracket].multimetric_
         raise gen.Return(self)
 
@@ -338,7 +341,7 @@ def _get_meta(hists, brackets, key=None):
 
         info_hist = {key(bracket, h["model_id"]): [] for h in hist}
         for h in hist:
-            info_hist[key(bracket, h["model_id"])] += [dict(bracket=bracket, **h)]
+            info_hist[key(bracket, h["model_id"])] += [h]
         hist = info_hist
         history_.update(hist)
 
