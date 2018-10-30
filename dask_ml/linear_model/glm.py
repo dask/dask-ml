@@ -61,7 +61,10 @@ _base_doc = textwrap.dedent(
     solver : {{'admm', 'gradient_descent', 'newton', 'lbfgs', 'proximal_grad'}}
         Solver to use. See :ref:`api.algorithms` for details
 
-    multiclass : str, default 'ovr'
+    max_iter : int, default 100
+        Maximum number of iterations taken for the solvers to converge.
+
+    multi_class : str, default 'ovr'
         Ignored. Multiclass solvers not currently supported.
 
     verbose : int, default 0
@@ -80,6 +83,7 @@ _base_doc = textwrap.dedent(
     ----------
     coef_ : array, shape (n_classes, n_features)
         The learned value for the model's coefficients
+
     intercept_ : float of None
         The learned value for the intercept, if one was added
         to the model
@@ -109,11 +113,11 @@ class _GLM(BaseEstimator):
         class_weight=None,
         random_state=None,
         solver="admm",
-        multiclass="ovr",
+        max_iter=100,
+        multi_class="ovr",
         verbose=0,
         warm_start=False,
         n_jobs=1,
-        max_iter=100,
         solver_kwargs=None,
     ):
         self.penalty = penalty
@@ -125,11 +129,11 @@ class _GLM(BaseEstimator):
         self.class_weight = class_weight
         self.random_state = random_state
         self.solver = solver
-        self.multiclass = multiclass
+        self.max_iter = max_iter
+        self.multi_class = multi_class
         self.verbose = verbose
         self.warm_start = warm_start
         self.n_jobs = n_jobs
-        self.max_iter = max_iter
         self.solver_kwargs = solver_kwargs
 
     def _get_solver_kwargs(self):
@@ -199,7 +203,7 @@ class _GLM(BaseEstimator):
 
 class LogisticRegression(_GLM):
     __doc__ = _base_doc.format(
-        regression_type="logistic_regression",
+        regression_type="logistic regression",
         examples=textwrap.dedent(
             """
             >>> from dask_glm.datasets import make_classification
@@ -208,7 +212,7 @@ class LogisticRegression(_GLM):
             >>> lr.fit(X, y)
             >>> lr.predict(X)
             >>> lr.predict_proba(X)
-            >>> est.score(X, y)"""
+            >>> lr.score(X, y)"""
         ),
     )
 
@@ -228,7 +232,7 @@ class LogisticRegression(_GLM):
         C : array, shape = [n_samples,]
             Predicted class labels for each sample
         """
-        return self.predict_proba(X) > 0.5  # TODO: verify, multiclass broken
+        return self.predict_proba(X) > 0.5  # TODO: verify, multi_class broken
 
     def predict_proba(self, X):
         """Probability estimates for samples in X.
@@ -265,7 +269,7 @@ class LogisticRegression(_GLM):
 
 class LinearRegression(_GLM):
     __doc__ = _base_doc.format(
-        regression_type="linear_regression",
+        regression_type="linear regression",
         examples=textwrap.dedent(
             """
             >>> from dask_glm.datasets import make_regression
@@ -274,7 +278,7 @@ class LinearRegression(_GLM):
             >>> lr.fit(X, y)
             >>> lr.predict(X)
             >>> lr.predict(X)
-            >>> est.score(X, y)"""
+            >>> lr.score(X, y)"""
         ),
     )
 
@@ -326,7 +330,7 @@ class LinearRegression(_GLM):
 
 class PoissonRegression(_GLM):
     __doc__ = _base_doc.format(
-        regression_type="poisson_regression",
+        regression_type="poisson regression",
         examples=textwrap.dedent(
             """
             >>> from dask_glm.datasets import make_counts
