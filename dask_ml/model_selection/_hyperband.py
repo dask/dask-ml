@@ -187,13 +187,7 @@ class HyperbandCV(AdaptiveSearchCV):
     """
 
     def __init__(
-        self,
-        model,
-        params,
-        max_iter,
-        aggressiveness=3,
-        patience=np.inf,
-        **kwargs,
+        self, model, params, max_iter, aggressiveness=3, patience=np.inf, **kwargs
     ):
         self.model = model
         self.params = params
@@ -201,10 +195,7 @@ class HyperbandCV(AdaptiveSearchCV):
         self.aggressiveness = aggressiveness
 
         super(HyperbandCV, self).__init__(
-            model,
-            params,
-            max_iter=self.max_iter,
-            **kwargs
+            model, params, max_iter=self.max_iter, **kwargs
         )
 
     def fit(self, X, y, **fit_params):
@@ -227,8 +218,14 @@ class HyperbandCV(AdaptiveSearchCV):
 
         N, R, brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
         SHAs = {
-            b: SuccessiveHalving(self.model, self.params, n, r, limit=b + 1,
-                                 aggressiveness=self.aggressiveness)
+            b: SuccessiveHalving(
+                self.model,
+                self.params,
+                n,
+                r,
+                limit=b + 1,
+                aggressiveness=self.aggressiveness,
+            )
             for n, r, b in zip(N, R, brackets)
         }
         SHAs = yield {b: SHA.fit(X, y, classes=da.unique(y)) for b, SHA in SHAs.items()}
@@ -274,12 +271,12 @@ class HyperbandCV(AdaptiveSearchCV):
         best_index = best_index.flat[0]
 
         meta, _ = _get_meta(
-            {b: SHA.history_ for b, SHA in SHAs.items()}, brackets, key=key
+            {b: SHA.history_ for b, SHA in SHAs.items()}, brackets, SHAs, key=key
         )
 
         self.metadata_ = {
-            "models": sum(m["models"] for m in meta),
-            "partial_fit_calls": sum(m["partial_fit_calls"] for m in meta),
+            "models": sum(m["models"] for m in meta.values()),
+            "partial_fit_calls": sum(m["partial_fit_calls"] for m in meta.values()),
             "brackets": meta,
         }
 
@@ -322,20 +319,36 @@ class HyperbandCV(AdaptiveSearchCV):
             bracket["iters"].update({1})
             bracket["iters"] = sorted(list(bracket["iters"]))
         num_partial_fit = sum(b["partial_fit_calls"] for b in bracket_info)
-        bracket_info = reversed(sorted(bracket_info, key=lambda x: x["bracket"]))
+        bracket_info = list(reversed(sorted(bracket_info, key=lambda x: x["bracket"])))
+
+        N, R, brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
+        SHAs = {
+            b: SuccessiveHalving(
+                self.model,
+                self.params,
+                n,
+                r,
+                limit=b + 1,
+                aggressiveness=self.aggressiveness,
+            )
+            for n, r, b in zip(N, R, brackets)
+        }
+        for bracket in bracket_info:
+            b = bracket["bracket"]
+            bracket["SuccessiveHalving params"] = _get_SHA_params(SHAs[b])
 
         info = {
             "partial_fit_calls": num_partial_fit,
             "models": num_models,
-            "brackets": list(bracket_info),
+            "brackets": {"bracket=" + str(b.pop("bracket")): b for b in bracket_info},
         }
         return info
 
 
-def _get_meta(hists, brackets, key=None):
+def _get_meta(hists, brackets, SHAs, key=None):
     if key is None:
         key = lambda bracket, ident: "bracket={}-{}".format(bracket, ident)
-    meta_ = []
+    meta_ = {}
     history_ = {}
     for bracket in brackets:
         hist = hists[bracket]
@@ -348,15 +361,21 @@ def _get_meta(hists, brackets, key=None):
 
         calls = {k: max(hi["partial_fit_calls"] for hi in h) for k, h in hist.items()}
         iters = {hi["partial_fit_calls"] for h in hist.values() for hi in h}
-        meta_ += [
-            {
-                "bracket": "bracket=" + str(bracket),
-                "iters": sorted(list(iters)),
-                "models": len(hist),
-                "partial_fit_calls": sum(calls.values()),
-            }
-        ]
+        meta_["bracket=" + str(bracket)] = {
+            "iters": sorted(list(iters)),
+            "models": len(hist),
+            "partial_fit_calls": sum(calls.values()),
+            "SuccessiveHalving params": _get_SHA_params(SHAs[bracket]),
+        }
     return meta_, history_
+
+
+def _get_SHA_params(SHA):
+    return {
+        k: v
+        for k, v in SHA.get_params().items()
+        if "estimator" not in k and k != "param_distribution"
+    }
 
 
 def _get_cv_results(hists, params, key=None):
@@ -446,7 +465,7 @@ def _hyperband_paper_alg(R, eta=3):
             hist["iters"] += [r_i]
             to_keep = math.floor(n_i / eta)
             T = {model for i, model in enumerate(T) if i < to_keep}
-        hists["bracket={s}".format(s=s)] = hist
+        hists[s] = hist
     info = [
         {
             "bracket": k,

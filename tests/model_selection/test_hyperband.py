@@ -15,6 +15,7 @@ from dask_ml.model_selection import HyperbandCV
 from dask_ml.model_selection._incremental import fit as incremental_fit
 from dask_ml.utils import ConstantFunction
 from dask_ml.wrappers import Incremental
+from dask_ml.model_selection._successive_halving import SuccessiveHalving
 
 
 @gen_cluster(client=True, timeout=5000)
@@ -99,8 +100,8 @@ def test_hyperband_mirrors_paper(loop, max_iter, aggressiveness):
             )
             alg.fit(X, y)
             metadata = alg.metadata()
-            paper_iters = [b.pop("iters") for b in metadata["brackets"]]
-            actual_iters = [b.pop("iters") for b in alg.metadata_["brackets"]]
+            paper_iters = [b.pop("iters") for b in metadata["brackets"].values()]
+            actual_iters = [b.pop("iters") for b in alg.metadata_["brackets"].values()]
             assert metadata == alg.metadata_
             for paper_iter, actual_iter in zip(paper_iters, actual_iters):
                 assert set(paper_iter).issubset(set(actual_iter))
@@ -120,8 +121,8 @@ def test_hyperband_patience(loop):
 
             alg.fit(X, y)
 
-            actual_iters = [b.pop("iters") for b in alg.metadata_["brackets"]]
-            paper_iters = [b.pop("iters") for b in alg.metadata()["brackets"]]
+            actual_iters = [b.pop("iters") for b in alg.metadata_["brackets"].values()]
+            paper_iters = [b.pop("iters") for b in alg.metadata()["brackets"].values()]
             for paper_iter, actual_iter in zip(paper_iters, actual_iters):
                 paper_iter = {k for k in paper_iter if k <= 15}
                 assert set(paper_iter).issubset(actual_iter)
@@ -186,3 +187,22 @@ def test_integration(loop):  # noqa: F811
                 "params",
             }
             assert all(set(h.keys()) == keys for h in alg.history_)
+
+
+@gen_cluster(client=True, timeout=5000)
+def test_successive_halving_params(c, s, a, b):
+    X, y = make_classification(n_samples=10, n_features=4, chunks=10)
+    model = ConstantFunction()
+    params = {"value": scipy.stats.uniform(0, 1)}
+    alg = HyperbandCV(model, params, max_iter=9, random_state=42)
+
+    kwargs = {
+        k: v["SuccessiveHalving params"] for k, v in alg.metadata()["brackets"].items()
+    }
+    SHAs = {k: SuccessiveHalving(model, params, **v) for k, v in kwargs.items()}
+
+    metadata = alg.metadata()["brackets"]
+    for b, SHA in SHAs.items():
+        yield SHA.fit(X, y)
+        assert metadata[b]["models"] == SHA.metadata_["models"]
+        assert metadata[b]["partial_fit_calls"] == SHA.metadata_["partial_fit_calls"]

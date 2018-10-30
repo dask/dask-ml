@@ -35,6 +35,7 @@ class SuccessiveHalving(AdaptiveSearchCV):
         """
         self._steps = 0  # TODO: set this in self.fit
         self._meta = defaultdict(list)
+        self._pf_calls = {}
         self.n_initial_parameters = n_initial_parameters
         self.resource = resource
         self.aggressiveness = aggressiveness
@@ -51,10 +52,15 @@ class SuccessiveHalving(AdaptiveSearchCV):
         n, r, eta = self.n_initial_parameters, self.resource, self.aggressiveness
         n_i = int(math.floor(n * eta ** -self._steps))
         r_i = np.round(r * eta ** self._steps).astype(int)
+        self._pf_calls.update({k: v[-1]["partial_fit_calls"] for k, v in info.items()})
 
         tick = time()
         for k in info.keys():
             self._meta[k] += [tick]
+        self.metadata_ = {
+            "models": len(self._pf_calls),
+            "partial_fit_calls": sum(self._pf_calls.values()),
+        }
 
         # Initial case
         # partial fit has already been called once
