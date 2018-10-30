@@ -553,3 +553,10 @@ class TestPolynomialFeatures:
             assert_eq_df(res_df.compute().reset_index(drop=True), res_pandas)
         assert_eq_ar(res_df.values, res_c)
         assert_eq_ar(res_df.values, res_arr)
+
+    def test_transformer_params(self):
+        pf = dpp.PolynomialFeatures(degree=3, interaction_only=True, include_bias=False)
+        pf.fit(X)
+        assert pf._transformer.degree == pf.degree
+        assert pf._transformer.interaction_only is pf.interaction_only
+        assert pf._transformer.include_bias is pf.include_bias
