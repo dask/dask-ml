@@ -228,7 +228,7 @@ class HyperbandCV(AdaptiveSearchCV):
             )
             for n, r, b in zip(N, R, brackets)
         }
-        SHAs = yield {b: SHA.fit(X, y, classes=da.unique(y)) for b, SHA in SHAs.items()}
+        SHAs = yield {b: SHA.fit(X, y, **fit_params) for b, SHA in SHAs.items()}
 
         # Rename model IDs
         key = lambda b, old: "bracket={}-{}".format(b, old)
