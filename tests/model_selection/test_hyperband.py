@@ -115,23 +115,28 @@ def test_hyperband_patience(loop):
             X, y = make_classification(chunks=5, n_features=5)
             model = ConstantFunction()
             params = {"value": scipy.stats.uniform(0, 1)}
-            alg = HyperbandCV(
-                model, params, max_iter=27, random_state=0, patience=10, tol=1e-3
-            )
+            max_iter = 27
 
+            alg = HyperbandCV(model, params, max_iter=max_iter, patience=True)
             alg.fit(X, y)
+            alg_patience = max_iter // alg.aggressiveness
 
             actual_iters = [b.pop("iters") for b in alg.metadata_["brackets"].values()]
             paper_iters = [b.pop("iters") for b in alg.metadata()["brackets"].values()]
             for paper_iter, actual_iter in zip(paper_iters, actual_iters):
-                paper_iter = {k for k in paper_iter if k <= 15}
-                assert set(paper_iter).issubset(actual_iter)
-                assert all(x <= 15 for x in actual_iter)
+                trimmed_paper_iter = {k for k in paper_iter if k <= alg_patience}
+                assert trimmed_paper_iter.issubset(set(actual_iter))
+                assert all(x <= alg_patience + 1 for x in actual_iter)
+
             assert (
                 alg.metadata_["partial_fit_calls"]
                 <= alg.metadata()["partial_fit_calls"]
             )
-            assert alg.metadata_["models"] == alg.metadata()["models"]
+
+            alg = HyperbandCV(model, params, max_iter=max_iter, patience=1)
+            with pytest.warns(UserWarning, match="The goal of `patience`"):
+                alg.fit(X, y)
+
 
 
 def test_integration(loop):  # noqa: F811

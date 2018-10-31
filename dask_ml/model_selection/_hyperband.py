@@ -3,6 +3,7 @@ from __future__ import division
 import logging
 import math
 from time import time
+from warnings import warn
 
 import numpy as np
 from sklearn.model_selection import ParameterSampler
@@ -87,9 +88,14 @@ class HyperbandCV(AdaptiveSearchCV):
         A random state for this class.
     scoring : str or callable, optional
         The scoring method by which to score different classifiers.
-    verbose : int
-        Controls the verbosity of this object. Higher number means reporting
-        values more often.
+    patience : bool, optional
+        Controls whether to stop models that have already converged.
+    tol : float, optional
+        The tolerance to detect if a plateau is present. Passed to
+        :func:`~dask_ml.model_selection.IncrementalSearchCV`
+    **kwargs : dict, optional
+        Parameters to pass to
+        :func:`~dask_ml.model_selection.IncrementalSearchCV`
 
     Examples
     --------
@@ -187,15 +193,25 @@ class HyperbandCV(AdaptiveSearchCV):
     """
 
     def __init__(
-        self, model, params, max_iter, aggressiveness=3, patience=np.inf, **kwargs
+        self,
+        model,
+        params,
+        max_iter,
+        aggressiveness=3,
+        patience=False,
+        tol=1e-3,
+        **kwargs
     ):
         self.model = model
         self.params = params
         self.max_iter = max_iter
         self.aggressiveness = aggressiveness
 
+        self.patience = patience
+        self.tol = tol
+
         super(HyperbandCV, self).__init__(
-            model, params, max_iter=self.max_iter, **kwargs
+            model, params, max_iter=self.max_iter, patience=patience, tol=tol, **kwargs
         )
 
     def fit(self, X, y, **fit_params):
@@ -216,6 +232,24 @@ class HyperbandCV(AdaptiveSearchCV):
         X_train, X_test, y_train, y_test = self._get_train_test_split(X, y)
         scorer = check_scoring(self.estimator, scoring=self.scoring)
 
+        if (
+            not isinstance(self.patience, bool)
+            and self.patience < max(self.max_iter // self.aggressiveness, 1)
+        ):
+            msg = (
+                "Careful. patience={}, but values of patience=True (or maybe "
+                "patience>={}) are recommended.\n\n"
+                "The goal of `patience` is to stop training models that have "
+                "already converged *when few models remain*."
+                "Setting patience=True accomplishes this goal. Please continue "
+                "with caution or good reason"
+            )
+            warn(msg.format(self.patience, self.max_iter // self.aggressiveness))
+        if self.patience:
+            patience = max(self.max_iter // self.aggressiveness, 1)
+        else:
+            patience = False
+
         N, R, brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
         SHAs = {
             b: SuccessiveHalving(
@@ -225,12 +259,14 @@ class HyperbandCV(AdaptiveSearchCV):
                 r,
                 limit=b + 1,
                 aggressiveness=self.aggressiveness,
+                patience=patience,
+                tol=self.tol,
             )
             for n, r, b in zip(N, R, brackets)
         }
         SHAs = yield {b: SHA.fit(X, y, **fit_params) for b, SHA in SHAs.items()}
 
-        # Rename model IDs
+        # This for-loop rename model IDs and pulls out wall times
         key = lambda b, old: "bracket={}-{}".format(b, old)
         for b, SHA in SHAs.items():
             new_ids = {old: key(b, old) for old in SHA.cv_results_["model_id"]}
@@ -240,11 +276,17 @@ class HyperbandCV(AdaptiveSearchCV):
             SHA.model_history_ = {
                 new_ids[old]: v for old, v in SHA.model_history_.items()
             }
-            for b, hist in SHA.model_history_.items():
+            for hist in SHA.model_history_.values():
                 for h in hist:
-                    h["wall_time"] = SHA._meta[h["model_id"]].pop(0)
-                    h["model_id"] = new_ids[h["model_id"]]
+                    ident = h["model_id"]
+                    calls = h["partial_fit_calls"]
+                    if calls in SHA._times[ident]:
+                        h["wall_time"] = SHA._times[ident].pop(calls)
+                    else:
+                        h["wall_time"] = None
+                    h["model_id"] = new_ids[ident]
                     h["bracket"] = b
+                assert SHA._times[ident] == {}
 
         keys = list(SHA.cv_results_.keys())
         cv_results = {

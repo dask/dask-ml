@@ -34,7 +34,7 @@ class SuccessiveHalving(AdaptiveSearchCV):
             is optimal.
         """
         self._steps = 0  # TODO: set this in self.fit
-        self._meta = defaultdict(list)
+        self._times = defaultdict(dict)
         self._pf_calls = {}
         self.n_initial_parameters = n_initial_parameters
         self.resource = resource
@@ -55,8 +55,8 @@ class SuccessiveHalving(AdaptiveSearchCV):
         self._pf_calls.update({k: v[-1]["partial_fit_calls"] for k, v in info.items()})
 
         tick = time()
-        for k in info.keys():
-            self._meta[k] += [tick]
+        for k, v in info.items():
+            self._times[k] = {v[-1]["partial_fit_calls"]: tick}
         self.metadata_ = {
             "models": len(self._pf_calls),
             "partial_fit_calls": sum(self._pf_calls.values()),

@@ -829,6 +829,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         self.tol = tol
         self.scores_per_fit = scores_per_fit
         self.max_iter = max_iter
+        self._to_reach = {}
         super(IncrementalSearchCV, self).__init__(
             estimator, param_distribution, test_size, random_state, scoring
         )
@@ -840,8 +841,23 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
             return ParameterSampler(self.parameters, self.n_initial_parameters)
 
     def _additional_calls(self, info):
+        calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
+        patience = int(self.patience)
+        patience_calls = max(patience // 3, 1)
+
+        if self._to_reach and patience:
+            calls_to_make = {k: self._to_reach[k] - v for k, v in calls.items()}
+            if sum(calls_to_make.values()) > 0:
+                out = self._stop_on_plateau(calls_to_make, info)
+                return {k: min(v, patience_calls) for k, v in out.items()}
+
         instructions = self._adapt(info)
-        return self._stop_on_plateau(instructions, info)
+        out = self._stop_on_plateau(instructions, info)
+
+        if patience:
+            self._to_reach = {k: v + calls[k] for k, v in out.items()}
+            return {k: min(v, patience_calls) for k, v in out.items()}
+        return out
 
     def _adapt(self, info):
         # First, have an adaptive algorithm
