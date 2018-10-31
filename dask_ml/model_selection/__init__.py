@@ -11,7 +11,6 @@ __all__ = [
     "RandomizedSearchCV",
     "ShuffleSplit",
     "KFold",
-    "HyperbandCV",
     "train_test_split",
     "compute_n_splits",
     "check_cv",
@@ -20,7 +19,11 @@ __all__ = [
 
 try:
     from ._incremental import IncrementalSearchCV  # noqa: F401
+    from ._hyperband import HyperbandSearchCV  # noqa: F401
+    from ._successive_halving import SuccessiveHalvingSearchCV  # noqa: F401
 
-    __all__.extend(["IncrementalSearchCV"])
+    __all__.extend(
+        ["IncrementalSearchCV", "HyperbandSearchCV", "SuccessiveHalvingSearchCV"]
+    )
 except ImportError:
     pass

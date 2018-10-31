@@ -17,7 +17,7 @@ from ._split import train_test_split
 from ._search import DaskBaseSearchCV
 from ._incremental import fit as _incremental_fit
 from ._incremental import AdaptiveSearchCV
-from ._successive_halving import SuccessiveHalving
+from ._successive_halving import SuccessiveHalvingSearchCV
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +47,7 @@ def _get_hyperband_params(R, eta=3):
     return list(map(int, N)), R, brackets
 
 
-class HyperbandCV(AdaptiveSearchCV):
+class HyperbandSearchCV(AdaptiveSearchCV):
     """Find the best parameters for a particular model with an adaptive
     cross-validation algorithm.
 
@@ -100,7 +100,7 @@ class HyperbandCV(AdaptiveSearchCV):
     Examples
     --------
     >>> import numpy as np
-    >>> from dask_ml.model_selection import HyperbandCV
+    >>> from dask_ml.model_selection import HyperbandSearchCV
     >>> from dask_ml.datasets import make_classification
     >>> from sklearn.linear_model import SGDClassifier
     >>>
@@ -110,7 +110,7 @@ class HyperbandCV(AdaptiveSearchCV):
     >>>           'loss': ['hinge', 'log', 'modified_huber', 'squared_hinge'],
     >>>           'average': [True, False]}
     >>>
-    >>> search = HyperbandCV(est, params)
+    >>> search = HyperbandSearchCV(est, params)
     >>> search.fit(X, y, classes=np.unique(y))
     >>> search.best_params_
     {'loss': 'log', 'average': False, 'alpha': 0.0080502}
@@ -136,7 +136,7 @@ class HyperbandCV(AdaptiveSearchCV):
     metadata_ : dict
         Information about every model that was trained. This variable can also
         be obtained without fitting through
-        :func:`~dask_ml.model_selection.HyperbandCV.metadata`.
+        :func:`~dask_ml.model_selection.HyperbandSearchCV.metadata`.
     history_ : list of dicts
         Information about every model after every time it is scored.
     best_params_ : dict
@@ -210,7 +210,7 @@ class HyperbandCV(AdaptiveSearchCV):
         self.patience = patience
         self.tol = tol
 
-        super(HyperbandCV, self).__init__(
+        super(HyperbandSearchCV, self).__init__(
             model, params, max_iter=self.max_iter, patience=patience, tol=tol, **kwargs
         )
 
@@ -250,7 +250,7 @@ class HyperbandCV(AdaptiveSearchCV):
 
         N, R, brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
         SHAs = {
-            b: SuccessiveHalving(
+            b: SuccessiveHalvingSearchCV(
                 self.model,
                 self.params,
                 n,
@@ -328,8 +328,8 @@ class HyperbandCV(AdaptiveSearchCV):
 
     def metadata(self):
         """Get information about how much computation is required for
-        :func:`~dask_ml.model_selection.HyperbandCV.fit`. This can be called
-        before or after  :func:`~dask_ml.model_selection.HyperbandCV.fit`.
+        :func:`~dask_ml.model_selection.HyperbandSearchCV.fit`. This can be called
+        before or after  :func:`~dask_ml.model_selection.HyperbandSearchCV.fit`.
 
         Returns
         -------
@@ -356,7 +356,7 @@ class HyperbandCV(AdaptiveSearchCV):
 
         N, R, brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
         SHAs = {
-            b: SuccessiveHalving(
+            b: SuccessiveHalvingSearchCV(
                 self.model,
                 self.params,
                 n,
@@ -368,7 +368,7 @@ class HyperbandCV(AdaptiveSearchCV):
         }
         for bracket in bracket_info:
             b = bracket["bracket"]
-            bracket["SuccessiveHalving params"] = _get_SHA_params(SHAs[b])
+            bracket["SuccessiveHalvingSearchCV params"] = _get_SHA_params(SHAs[b])
 
         info = {
             "partial_fit_calls": num_partial_fit,
@@ -398,7 +398,7 @@ def _get_meta(hists, brackets, SHAs, key=None):
             "iters": sorted(list(iters)),
             "models": len(hist),
             "partial_fit_calls": sum(calls.values()),
-            "SuccessiveHalving params": _get_SHA_params(SHAs[bracket]),
+            "SuccessiveHalvingSearchCV params": _get_SHA_params(SHAs[bracket]),
         }
     return meta_, history_
 

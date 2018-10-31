@@ -6,7 +6,7 @@ from collections import defaultdict
 from ._incremental import AdaptiveSearchCV
 
 
-class SuccessiveHalving(AdaptiveSearchCV):
+class SuccessiveHalvingSearchCV(AdaptiveSearchCV):
     def __init__(
         self,
         estimator,
@@ -39,7 +39,7 @@ class SuccessiveHalving(AdaptiveSearchCV):
         self.aggressiveness = aggressiveness
         self.limit = limit
         self.estimator = estimator
-        super(SuccessiveHalving, self).__init__(
+        super(SuccessiveHalvingSearchCV, self).__init__(
             estimator,
             param_distribution,
             n_initial_parameters=n_initial_parameters,

@@ -11,11 +11,11 @@ from toolz import partial
 from tornado import gen
 
 from dask_ml.datasets import make_classification
-from dask_ml.model_selection import HyperbandCV
+from dask_ml.model_selection import HyperbandSearchCV
 from dask_ml.model_selection._incremental import fit as incremental_fit
 from dask_ml.utils import ConstantFunction
 from dask_ml.wrappers import Incremental
-from dask_ml.model_selection._successive_halving import SuccessiveHalving
+from dask_ml.model_selection import SuccessiveHalvingSearchCV
 
 
 @gen_cluster(client=True, timeout=5000)
@@ -59,7 +59,7 @@ def _test_basic(array_type, library, max_iter, c):
         model = ConstantFunction()
         params = {"value": np.linspace(0, 1, num=1000)}
 
-    search = HyperbandCV(model, params, max_iter=max_iter, random_state=42)
+    search = HyperbandSearchCV(model, params, max_iter=max_iter, random_state=42)
     classes = c.compute(da.unique(y))
     yield search.fit(X, y, classes=classes)
 
@@ -91,7 +91,7 @@ def test_hyperband_mirrors_paper(loop, max_iter, aggressiveness):
             X, y = make_classification(chunks=5, n_features=5)
             model = ConstantFunction()
             params = {"value": np.random.rand(max_iter)}
-            alg = HyperbandCV(
+            alg = HyperbandSearchCV(
                 model,
                 params,
                 max_iter=max_iter,
@@ -117,7 +117,7 @@ def test_hyperband_patience(loop):
             params = {"value": scipy.stats.uniform(0, 1)}
             max_iter = 27
 
-            alg = HyperbandCV(model, params, max_iter=max_iter, patience=True)
+            alg = HyperbandSearchCV(model, params, max_iter=max_iter, patience=True)
             alg.fit(X, y)
             alg_patience = max_iter // alg.aggressiveness
 
@@ -133,7 +133,7 @@ def test_hyperband_patience(loop):
                 <= alg.metadata()["partial_fit_calls"]
             )
 
-            alg = HyperbandCV(model, params, max_iter=max_iter, patience=1)
+            alg = HyperbandSearchCV(model, params, max_iter=max_iter, patience=1)
             with pytest.warns(UserWarning, match="The goal of `patience`"):
                 alg.fit(X, y)
 
@@ -145,7 +145,7 @@ def test_integration(loop):  # noqa: F811
             X, y = make_classification(n_samples=10, n_features=4, chunks=10)
             model = ConstantFunction()
             params = {"value": scipy.stats.uniform(0, 1)}
-            alg = HyperbandCV(model, params, max_iter=9, random_state=42)
+            alg = HyperbandSearchCV(model, params, max_iter=9, random_state=42)
             alg.fit(X, y)
             cv_res_keys = set(alg.cv_results_.keys())
             gt_zero = lambda x: x >= 0
@@ -199,12 +199,12 @@ def test_successive_halving_params(c, s, a, b):
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
     model = ConstantFunction()
     params = {"value": scipy.stats.uniform(0, 1)}
-    alg = HyperbandCV(model, params, max_iter=9, random_state=42)
+    alg = HyperbandSearchCV(model, params, max_iter=9, random_state=42)
 
     kwargs = {
-        k: v["SuccessiveHalving params"] for k, v in alg.metadata()["brackets"].items()
+        k: v["SuccessiveHalvingSearchCV params"] for k, v in alg.metadata()["brackets"].items()
     }
-    SHAs = {k: SuccessiveHalving(model, params, **v) for k, v in kwargs.items()}
+    SHAs = {k: SuccessiveHalvingSearchCV(model, params, **v) for k, v in kwargs.items()}
 
     metadata = alg.metadata()["brackets"]
     for b, SHA in SHAs.items():
