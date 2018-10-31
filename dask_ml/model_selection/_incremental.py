@@ -181,6 +181,7 @@ def _fit(
 
     d_partial_fit = dask.delayed(_partial_fit)
     d_score = dask.delayed(_score)
+    start_time = time()
     for ident, model in models.items():
         model = d_partial_fit(model, X_future, y_future, fit_params)
         score = d_score(model, X_test, y_test, scorer)
@@ -207,6 +208,7 @@ def _fit(
 
         for meta in metas:
             ident = meta["model_id"]
+            meta["elapsed_wall_time"] = time() - start_time
 
             info[ident].append(meta)
             history.append(meta)

@@ -188,7 +188,7 @@ def test_integration(loop):  # noqa: F811
                 "partial_fit_time",
                 "model_id",
                 "bracket",
-                "wall_time",
+                "elapsed_wall_time",
                 "params",
             }
             assert all(set(h.keys()) == keys for h in alg.history_)

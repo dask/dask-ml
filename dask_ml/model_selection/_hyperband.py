@@ -276,15 +276,8 @@ class HyperbandCV(AdaptiveSearchCV):
             }
             for hist in SHA.model_history_.values():
                 for h in hist:
-                    ident = h["model_id"]
-                    calls = h["partial_fit_calls"]
-                    if calls in SHA._times[ident]:
-                        h["wall_time"] = SHA._times[ident].pop(calls)
-                    else:
-                        h["wall_time"] = None
-                    h["model_id"] = new_ids[ident]
+                    h["model_id"] = new_ids[h["model_id"]]
                     h["bracket"] = b
-                assert SHA._times[ident] == {}
 
         keys = list(SHA.cv_results_.keys())
         cv_results = {

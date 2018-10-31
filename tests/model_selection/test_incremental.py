@@ -257,6 +257,7 @@ def _test_search_basic(decay_rate, c, s, a, b):
         "partial_fit_time",
         "score",
         "score_time",
+        "elapsed_wall_time",
     }
 
     X_, = yield c.compute([X])

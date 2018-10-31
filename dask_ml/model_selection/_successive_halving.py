@@ -2,7 +2,6 @@ import copy
 import numpy as np
 import math
 import toolz
-from time import time
 from collections import defaultdict
 from ._incremental import AdaptiveSearchCV
 
@@ -34,7 +33,6 @@ class SuccessiveHalving(AdaptiveSearchCV):
             is optimal.
         """
         self._steps = 0  # TODO: set this in self.fit
-        self._times = defaultdict(dict)
         self._pf_calls = {}
         self.n_initial_parameters = n_initial_parameters
         self.resource = resource
@@ -54,9 +52,6 @@ class SuccessiveHalving(AdaptiveSearchCV):
         r_i = np.round(r * eta ** self._steps).astype(int)
         self._pf_calls.update({k: v[-1]["partial_fit_calls"] for k, v in info.items()})
 
-        tick = time()
-        for k, v in info.items():
-            self._times[k] = {v[-1]["partial_fit_calls"]: tick}
         self.metadata_ = {
             "models": len(self._pf_calls),
             "partial_fit_calls": sum(self._pf_calls.values()),
