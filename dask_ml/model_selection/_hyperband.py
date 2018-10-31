@@ -51,15 +51,18 @@ class HyperbandSearchCV(AdaptiveSearchCV):
     """Find the best parameters for a particular model with an adaptive
     cross-validation algorithm.
 
-    This algorithm is performant and only requires computational budget
-    as input (performant := "finds the best parameters with minimal
-    ``partial_fit`` calls). It does not require a trade-off between "evaluate many
-    parameters" and "train for a long time" like RandomizedSearchCV. Hyperband
-    will find close to the best possible parameters with the given
-    computational budget [1]_.*
+    Hyperband will find close to the best possible
+    parameters with the given computational budget [1]_.* It does this by
+    focusing on spending time training high-performing models. This means that
+    it stops training models that perform poorly.
+
+    This algorithm performs well, has theoritical justification [1]_ and only
+    requires computational budget as input. It does not require a trade-off
+    between "evaluate many parameters" and "train for a long time" like
+    RandomizedSearchCV.
 
     :sup:`* This will happen with high probability, and "close" means "within
-    a log factor of the lower bound"`
+    a log factor of the lower bound on the score"`
 
     Parameters
     ----------
@@ -67,32 +70,65 @@ class HyperbandSearchCV(AdaptiveSearchCV):
         An object that has support for ``partial_fit``, ``get_params``,
         ``set_params`` and ``score``. This can be an instance of scikit-learn's
         BaseEstimator
+
     params : dict, list
-        The various parameters to search over. If dict, will be fed to
-        :func:`~sklearn.model_selection.ParameterSampler`. If list, each
-        element will be fed to the model.
+        Dictionary with parameters names (string) as keys and distributions
+        or lists of parameters to try. Distributions must provide a ``rvs``
+        method for sampling (such as those from scipy.stats.distributions).
+        If a list is given, it is sampled uniformly.
+
     max_iter : int
         The maximum number of partial_fit calls to any one model. This should
         be the number of ``partial_fit`` calls required for the model to
         converge. See the notes on how to set this parameter.
+
     aggressiveness : int, default=3
         How aggressive to be in model tuning. It is not recommended to change
         this value, and if changed we recommend ``eta=4``.
         Some theory behind Hyperband suggests ``eta=np.e``. Higher
         values imply higher confidence in model selection.
-    test_size : float, optional
-        Hyperband uses one test set for all example, and this controls the
-        size of that test set. It should be a floating point value between 0
-        and 1 to represent the number of examples to put into the test set.
-    random_state : int or np.random.RandomState
-        A random state for this class.
-    scoring : str or callable, optional
-        The scoring method by which to score different classifiers.
-    patience : bool, optional
-        Controls whether to stop models that have already converged.
-    tol : float, optional
-        The tolerance to detect if a plateau is present. Passed to
-        :func:`~dask_ml.model_selection.IncrementalSearchCV`
+
+    test_size : float
+        Fraction of the dataset to hold out for computing test scores.
+        Defaults to the size of a single partition of the input training set
+
+        .. note::
+
+           The training dataset should fit in memory on a single machine.
+           Adjust the ``test_size`` parameter as necessary to achieve this.
+
+    random_state : int, RandomState instance or None, optional, default: None
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`.
+
+    scoring : string, callable, list/tuple, dict or None, default: None
+        A single string (see :ref:`scoring_parameter`) or a callable
+        (see :ref:`scoring`) to evaluate the predictions on the test set.
+
+        For evaluating multiple metrics, either give a list of (unique) strings
+        or a dict with names as keys and callables as values.
+
+        NOTE that when using custom scorers, each scorer should return a single
+        value. Metric functions returning a list/array of values can be wrapped
+        into multiple scorers that return one value each.
+
+        See :ref:`multimetric_grid_search` for an example.
+
+        If None, the estimator's default scorer (if available) is used.
+
+    patience : int, default False
+        Maximum number of non-improving scores before we stop training a
+        model. Off by default.
+
+    tol : float, default 0.001
+        The required level of improvement to consider stopping training on
+        that model. The most recent score must be at at most ``tol`` better
+        than the all of the previous ``patience`` scores for that model.
+        Increasing ``tol`` will tend to reduce training time, at the cost
+        of worse models.
+
     **kwargs : dict, optional
         Parameters to pass to
         :func:`~dask_ml.model_selection.IncrementalSearchCV`
@@ -155,10 +191,6 @@ class HyperbandSearchCV(AdaptiveSearchCV):
     Notes
     -----
 
-    Hyperband is an adaptive model selection scheme that spends time on
-    high-performing models, because our goal is to find the highest performing
-    model. This means that it stops training models that perform poorly.
-
     Setting Hyperband parameters
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     To set ``max_iter`` and the chunk size for ``X`` and ``y``, you need to
@@ -166,16 +198,21 @@ class HyperbandSearchCV(AdaptiveSearchCV):
 
     * how many "epochs" or "passes through ``X``" to train the model for
       (``epochs`` below)
-    * how many parameters to sample (``params_to_sample`` below)
+    * a rough idea of how many hyper-parameter combinations to sample (``params_to_sample`` below)
 
     To determine the chunk size and ``max_iter``,
 
-    1. Set ``frac = epochs / params_to_sample``, where ``frac`` is ``chunks / len(X)``
-    2. Set ``max_iter = params_to_sample``
+    1. Let ``max_iter = params_to_sample``
+    2. Let the chunks size be ``chunks_size = epochs * len(X) / params_to_sample``
 
-    The number of parameters to sample will depend on how complex the search
-    space is. If you're tuning many parameters, you'll need to increase
-    ``params_to_sample``.
+    Then, the estimator that sees the most examples see
+    ``max_iter * chunks_size = len(X) * epochs`` examples. Hyperband will
+    actually sample some more hyper-parameter combinations, so a rough idea of
+    parameters to sample works.
+
+    If the search space is complex, evaluate more estimators initially. Increase
+    ``params_to_sample`` by a factor of 2, and decrease ``chunk_size`` by a
+    factor of 2.
 
     Limitations
     ^^^^^^^^^^^

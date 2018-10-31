@@ -7,6 +7,48 @@ from ._incremental import AdaptiveSearchCV
 
 
 class SuccessiveHalvingSearchCV(AdaptiveSearchCV):
+    """
+    Perform the successive halving algorithm.
+
+    Parameters
+    ----------
+    Parameters
+    ----------
+    estimator : estimator object.
+        A object of that type is instantiated for each initial hyperparameter
+        combination. This is assumed to implement the scikit-learn estimator
+        interface. Either estimator needs to provide a `score`` function,
+        or ``scoring`` must be passed. The estimator must implement
+        ``partial_fit``, ``set_params``, and work well with ``clone``.
+
+    param_distributions : dict
+        Dictionary with parameters names (string) as keys and distributions
+        or lists of parameters to try. Distributions must provide a ``rvs``
+        method for sampling (such as those from scipy.stats.distributions).
+        If a list is given, it is sampled uniformly.
+
+    n_initial_parameters : int, default=10
+        Number of parameter settings that are sampled.
+        This trades off runtime vs quality of the solution.
+
+        Alternatively, you can set this to ``"grid"`` to do a full grid search.
+
+    resource : int
+        Number of times to call partial fit initially. Estimators are trained
+        for ``resource`` calls to ``partial_fit`` at first, then additional
+        times increasing by ``aggressivenes``.
+
+    aggressizeness : float, default=3
+        How aggressive to be in culling off the models. Higher
+        values correspond to being more aggressive in killing off
+        models. The "infinite horizon" theory suggests ``aggressizeness == np.e``
+        is optimal.
+
+    kwargs : dict
+        Parameters to pass to
+        :class:`~dask_ml.model_selection.IncrementalSearchCV`.
+
+    """
     def __init__(
         self,
         estimator,
@@ -17,21 +59,6 @@ class SuccessiveHalvingSearchCV(AdaptiveSearchCV):
         limit=None,
         **kwargs,
     ):
-        """
-        Perform the successive halving algorithm.
-
-        Parameters
-        ----------
-        n_initial_parameters : int
-            Number of models to evaluate initially
-        resource : int
-            Number of times to call partial fit initially
-        aggressizeness : float, default=3
-            How aggressive to be in culling off the models. Higher
-            values correspond to being more aggressive in killing off
-            models. The "infinite horizon" theory suggests aggressizeness=np.e=2.718...
-            is optimal.
-        """
         self._steps = 0  # TODO: set this in self.fit
         self._pf_calls = {}
         self.n_initial_parameters = n_initial_parameters
