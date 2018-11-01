@@ -16,7 +16,7 @@ from dask.distributed import default_client
 from ._split import train_test_split
 from ._search import DaskBaseSearchCV
 from ._incremental import fit as _incremental_fit
-from ._incremental import AdaptiveSearchCV
+from ._incremental import AdaptiveSearchCV, INC_ATTRS
 from ._successive_halving import SuccessiveHalvingSearchCV
 
 logger = logging.getLogger(__name__)
@@ -47,8 +47,7 @@ def _get_hyperband_params(R, eta=3):
     return list(map(int, N)), R, brackets
 
 
-class HyperbandSearchCV(AdaptiveSearchCV):
-    """Find the best parameters for a particular model with an adaptive
+DOC = """Find the best parameters for a particular model with an adaptive
     cross-validation algorithm.
 
     Hyperband will find close to the best possible
@@ -151,43 +150,7 @@ class HyperbandSearchCV(AdaptiveSearchCV):
     >>> search.best_params_
     {'loss': 'log', 'average': False, 'alpha': 0.0080502}
 
-    Attributes
-    ----------
-    cv_results_ : dict of lists
-        Information about the cross validation scores for each model.
-        All lists are ordered the same, and this value can be imported into
-        a pandas DataFrame. This dict has keys of
-
-        * ``rank_test_score``
-        * ``model_id``
-        * ``mean_fit_time``
-        * ``mean_score_time``
-        * ``std_fit_time``
-        * ``std_score_time``
-        * ``mean_test_score``
-        * ``test_score``
-        * ``partial_fit_calls``
-        * ``params``
-
-    metadata_ : dict
-        Information about every model that was trained. This variable can also
-        be obtained without fitting through
-        :func:`~dask_ml.model_selection.HyperbandSearchCV.metadata`.
-    history_ : list of dicts
-        Information about every model after every time it is scored.
-    best_params_ : dict
-        The params that produced the best performing model
-    best_estimator_ : any
-        The best performing model
-    best_index_ : int
-        The index of the best performing model to be used in ``cv_results_``.
-    n_splits_ : int
-        The number of cross-validation splits.
-    best_score_ : float
-        The best validation score on the test set.
-    best_params_ : dict
-        The params that are given to the model that achieves ``best_score_``.
-
+    """ + INC_ATTRS + """
     Notes
     -----
 
@@ -228,6 +191,10 @@ class HyperbandSearchCV(AdaptiveSearchCV):
            Rostamizadeh, and A. Talwalkar.  https://arxiv.org/abs/1603.06560
 
     """
+
+
+class HyperbandSearchCV(AdaptiveSearchCV):
+    __doc__ = DOC
 
     def __init__(
         self,

@@ -3,15 +3,12 @@ import numpy as np
 import math
 import toolz
 from collections import defaultdict
-from ._incremental import AdaptiveSearchCV
+from ._incremental import AdaptiveSearchCV, INC_ATTRS
 
 
-class SuccessiveHalvingSearchCV(AdaptiveSearchCV):
-    """
+DOC = """
     Perform the successive halving algorithm.
 
-    Parameters
-    ----------
     Parameters
     ----------
     estimator : estimator object.
@@ -48,7 +45,10 @@ class SuccessiveHalvingSearchCV(AdaptiveSearchCV):
         Parameters to pass to
         :class:`~dask_ml.model_selection.IncrementalSearchCV`.
 
-    """
+    """ + INC_ATTRS
+class SuccessiveHalvingSearchCV(AdaptiveSearchCV):
+    __doc__ = DOC
+
     def __init__(
         self,
         estimator,
