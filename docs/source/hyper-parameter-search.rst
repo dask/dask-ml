@@ -3,43 +3,104 @@ Hyper Parameter Search
 
 *Tools for performing hyperparameter optimization of Scikit-Learn API-compatible models using Dask*.
 
-There are two kinds of hyperparameter optimization estimators
-in Dask-ML. The appropriate one to use depends on the size of your dataset and
-whether the underlying estimator implements the `partial_fit` method.
+Issues in hyper-parameter searches
+----------------------------------
+Two scenarios can occur during hyper-parameter optimization. The
+hyper-parameter search can be both
 
-If your dataset is relatively small or the underlying estimator doesn't implement
-``partial_fit``, you can use :class:`dask_ml.model_selection.GridSearchCV` or
-:class:`dask_ml.model_selection.RandomizedSearchCV`.
-These are drop-in replacements for their scikit-learn counterparts, that should offer better performance and handling of Dask Arrays and DataFrames.
-The underlying estimator will need to be able to train on each cross-validation split of the data.
-See :ref:`hyperparameter.drop-in` for more.
+1. compute constrained
+2. memory constrained
 
-Dask-ML's :ref:`*incremental* hyperparameter optimizers
-<hyperparameter.incremental>` are useful if the data is large and the estimator implements
-``partial_fit``.
+These issues are independent and both can happen the same time. Being memory
+constrained has to do with dataset size, and being compute constrained has to
+do with estimator complexity and number of possible hyper-parameter
+combinations.
 
-If the search is large and takes a long time, these `incremental` searches can
+An example of being compute constrained is with almost any neural network or
+deep learning framework. An example of being memory constrained is when the
+dataset doesn't fit in RAM. Dask-ML covers all 4 combinations of these two
+constraints.
+
+Neither compute nor memory constrained
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Scikit-learn handles this case.
+
+.. autosummary::
+   sklearn.model_selection.GridSearchCV
+   sklearn.model_selection.RandomizedSearchCV
+
+Compute constrained, but not memory constrained
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+More detail in :ref:`hyperparameter.drop-in`
+
+.. autosummary::
+   dask_ml.model_selection.GridSearchCV
+   dask_ml.model_selection.RandomizedSearchCV
+
+Both :class:`~dask_ml.model_selection.GridSearchCV` and
+:class:`~dask_ml.model_selection.RandomizedSearchCV` are especially good for
+pipelines because they avoid repeated work. They are drop in replacement
+for the Scikit-learn versions.
+
+Dask-ML also supports using some an "`adaptive`" algorithm (described below) to
+reduce the amount of computation necessary with a class that can support any
+estimator by fitting on a random subset of data:
+
+.. autosummary::
+   dask_ml.model_selection.HyperbandSearchCV
+   dask_ml.model_selection.BlackBox
+
+For an example, this is especially useful with clustering tools. An example is
+in the docstring of :class:`~dask_ml.model_selection.BlackBox`.
+
+:class:`~dask_ml.model_selection.BlackBox` is useful for algorithms that
+`adapt` prior performance because it implements ``partial_fit`` support and can
+be used with :class:`~dask_ml.model_selection.HyperbandSearchCV`.
+
+Memory constrained, but not compute constrained
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+More detail in :ref:`hyperparameter.incremental`
+
+.. autosummary::
+   dask_ml.model_selection.IncrementalSearchCV
+
+By default :class:`~dask_ml.model_selection.IncrementalSearchCV` mirrors
+:class:`~dask_ml.model_selection.RandomizedSearchCV` and
+:class:`~dask_ml.model_selection.GridSearchCV` but calls `partial_fit` instead
+of `fit`. This means that it can scale to much larger datasets, including ones
+that don't fit in the memory of a single machine.
+
+Memory constrained and compute constrained
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For more detail, see :ref:`hyperparameter.hyperband`.
+
+.. autosummary::
+   dask_ml.model_selection.HyperbandSearchCV
+   dask_ml.model_selection.IncrementalSearchCV
+   dask_ml.model_selection.SuccessiveHalvingSearchCV
+
+These searches can
 reduce time to solution by (cleverly) deciding which parameters to evaluate.
 These searches `adapt` to history to decide which parameters to continue
 evaluating and are called "`adaptive` model selection algorithms".
 
-This can be summarized with a table:
-
-
+This can drastically reduce the computation required and make the problem many
+times simpler. This requires that the estimator implement ``partial_fit`` (or
+:class:`~dask_ml.model_selection.BlackBox` is used).
 
 .. _hyperparameter.drop-in:
 
 Drop-In Replacements for Scikit-Learn
 -------------------------------------
 
-Dask-ML implements GridSearchCV and RandomizedSearchCV.
+Dask-ML implements drop-in replacements for
+:class:`~sklearn.model_selection.GridSearchCV` and
+:class:`~sklearn.model_selection.RandomizedSearchCV`.
 
 .. autosummary::
-   sklearn.model_selection.GridSearchCV
    dask_ml.model_selection.GridSearchCV
-   sklearn.model_selection.RandomizedSearchCV
    dask_ml.model_selection.RandomizedSearchCV
-   dask_ml.model_selection.HyperbandCV
 
 The varians in Dask-ML implement many (but not all) of the same parameters,
 and should be a drop-in replacement for the subset that they do implement.
@@ -196,17 +257,8 @@ expensive early steps, this can be a big win when performing a grid search.
 Incremental Hyperparameter Optimization
 ---------------------------------------
 
-The second category of hyperparameter optimization uses *incremental*
-hyperparameter optimization. These should be used if either you are either
-
-* memory constrained; your full dataset doesn't fit in memory on a single machine.
-* compute constrained; you have a complex model that needs a lot of training,
-  and/or many parameters to search over
-
 .. autosummary::
-   dask_ml.model_selection.HyperbandSearchCV
    dask_ml.model_selection.IncrementalSearchCV
-   dask_ml.model_selection.SuccessiveHalvingSearchCV
 
 .. note::
 
@@ -214,17 +266,10 @@ hyperparameter optimization. These should be used if either you are either
 
 These are make repeated calls to the ``partial_fit`` method of the estimator.
 Naturally, these classes determine when to stop calling ``partial_fit`` by
-`adapting to previous calls`. That is, incremental optimization starts with a
-batch estimators and hyperparameter combinations, then culls off poor
-performing models (after repeated calls to ``partial_fit`` with batches of
-data).
+`adapting to previous calls`. The most basic level of this is to stop training
+if the score doens't improve, which ``IncrementalSearchCV`` does. For more
+advanced methods, see :ref:`hyperparameter.hyperband`.
 
-We most recommend use of :class:`~dask_ml.model_selection.HyperbandSearchCV`.
-The two other implementations,
-:class:`~dask_ml.model_selection.IncrementalSearchCV` and
-:class:`~dask_ml.model_selection.SuccessiveHalvingSearchCV` are inspired and
-used by :class:`~dask_ml.model_selection.HyperbandSearchCV` respectively. We
-recommend it for reasons detailed in :ref:`_hyperparameter.hyperband`.
 
 Basic use
 ^^^^^^^^^
@@ -237,7 +282,7 @@ Basic use
     from dask_ml.datasets import make_classification
     # X, y = make_classification(n_samples=5000000, n_features=20,
     #                           chunks=100000, random_state=0)
-    X, y = make_classification(chunks=20)
+    X, y = make_classification(chunks=20, random_state=0)
 
 Our underlying estimator is an ``SGDClassifier``. We specify a few parameters
 common to each clone of the estimator:
@@ -289,11 +334,20 @@ underlying the ``ParallelPostFit``.
 
 .. _hyperparameter.hyperband:
 
-HyperbandSearchCV benefits
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Adaptive hyperparameter search
+------------------------------
 
 .. autosummary::
    dask_ml.model_selection.HyperbandSearchCV
+   dask_ml.model_selection.IncrementalSearchCV
+   dask_ml.model_selection.SuccessiveHalvingSearchCV
+
+We most recommend use of :class:`~dask_ml.model_selection.HyperbandSearchCV`.
+The two other implementations,
+:class:`~dask_ml.model_selection.IncrementalSearchCV` and
+:class:`~dask_ml.model_selection.SuccessiveHalvingSearchCV` are inspired and
+used by :class:`~dask_ml.model_selection.HyperbandSearchCV` respectively. We
+recommend it for reasons detailed in :ref:`hyperparameter.hyperband`.
 
 HyperbandSearchCV offers two benefits:
 
@@ -301,7 +355,7 @@ HyperbandSearchCV offers two benefits:
 2. It requires only two inputs
 
 High performing models
-""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^
 
 Hyperband requires minimal computation because it has guarantees on
 finding the best set of parameters possible with a given number of
@@ -314,7 +368,7 @@ balances two extremes:
     * i.e., when the hyper-parameters exactly determine the output
 
 Parameters
-""""""""""
+^^^^^^^^^^
 
 :class:`~dask_ml.model_selection.HyperbandSearchCV` requires knowing two items:
 
