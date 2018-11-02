@@ -15,16 +15,17 @@ The underlying estimator will need to be able to train on each cross-validation 
 See :ref:`hyperparameter.drop-in` for more.
 
 Dask-ML's :ref:`*incremental* hyperparameter optimizers
-<hyperparameter.incremental>` are useful if the estimator implement
-``partial_fit`` and either
+<hyperparameter.incremental>` are useful if the data is large and the estimator implements
+``partial_fit``.
 
-* the data is large; or
-* the search is large and takes a long time
+If the search is large and takes a long time, these `incremental` searches can
+reduce time to solution by (cleverly) deciding which parameters to evaluate.
+These searches `adapt` to history to decide which parameters to continue
+evaluating and are called "`adaptive` model selection algorithms".
 
-These `incremental` searches can reduce time to solution by (cleverly)
-deciding which parameters to evaluate. These searches `adapt` to history to
-decide which parameters to continue evaluating and are called "`adaptive` model
-selection algorithms".
+This can be summarized with a table:
+
+
 
 .. _hyperparameter.drop-in:
 

@@ -9,7 +9,7 @@ from dask_ml.model_selection import SuccessiveHalvingSearchCV
 @gen_cluster(client=True)
 def test_basic_successive_halving(c, s, a, b):
     model = SGDClassifier(tol=1e-3)
-    params = {'alpha': np.logspace(-3, 0, num=1000)}
+    params = {"alpha": np.logspace(-3, 0, num=1000)}
     n, r = 10, 5
     search = SuccessiveHalvingSearchCV(model, params, n, r)
 

@@ -1,10 +1,9 @@
 import copy
-import numpy as np
 import math
-import toolz
 from collections import defaultdict
-from ._incremental import AdaptiveSearchCV, INC_ATTRS
 
+import numpy as np
+import toolz
 
 DOC = """
     Perform the successive halving algorithm.

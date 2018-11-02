@@ -5,18 +5,18 @@ import math
 from time import time
 from warnings import warn
 
+import dask.array as da
 import numpy as np
-from sklearn.model_selection import ParameterSampler
+from dask.distributed import default_client
+from sklearn.base import BaseEstimator, MetaEstimatorMixin
 from sklearn.metrics.scorer import check_scoring
+from sklearn.model_selection import ParameterSampler
+from sklearn.utils.metaestimators import if_delegate_has_method
 from tornado import gen
 
-import dask.array as da
-from dask.distributed import default_client
-
-from ._split import train_test_split
+from ._incremental import INC_ATTRS, IncrementalSearchCV, fit as _incremental_fit
 from ._search import DaskBaseSearchCV
-from ._incremental import fit as _incremental_fit
-from ._incremental import AdaptiveSearchCV, INC_ATTRS
+from ._split import train_test_split
 from ._successive_halving import SuccessiveHalvingSearchCV
 
 logger = logging.getLogger(__name__)
@@ -47,7 +47,8 @@ def _get_hyperband_params(R, eta=3):
     return list(map(int, N)), R, brackets
 
 
-DOC = """Find the best parameters for a particular model with an adaptive
+DOC = (
+    """Find the best parameters for a particular model with an adaptive
     cross-validation algorithm.
 
     Hyperband will find close to the best possible
@@ -150,7 +151,9 @@ DOC = """Find the best parameters for a particular model with an adaptive
     >>> search.best_params_
     {'loss': 'log', 'average': False, 'alpha': 0.0080502}
 
-    """ + INC_ATTRS + """
+    """
+    + INC_ATTRS
+    + """
     Notes
     -----
 
@@ -191,6 +194,7 @@ DOC = """Find the best parameters for a particular model with an adaptive
            Rostamizadeh, and A. Talwalkar.  https://arxiv.org/abs/1603.06560
 
     """
+)
 
 
 class HyperbandSearchCV(AdaptiveSearchCV):
@@ -234,9 +238,8 @@ class HyperbandSearchCV(AdaptiveSearchCV):
         X, y = self._check_array(X, y)
         scorer = check_scoring(self.estimator, scoring=self.scoring)
 
-        if (
-            not isinstance(self.patience, bool)
-            and self.patience < max(self.max_iter // self.aggressiveness, 1)
+        if not isinstance(self.patience, bool) and self.patience < max(
+            self.max_iter // self.aggressiveness, 1
         ):
             msg = (
                 "Careful. patience={}, but values of patience=True (or maybe "
