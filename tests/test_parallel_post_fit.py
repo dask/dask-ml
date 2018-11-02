@@ -74,6 +74,10 @@ def test_predict(kind):
     expected = base.predict_proba(X)
     assert_eq_ar(result, expected)
 
+    result = wrap.predict_log_proba(X)
+    expected = base.predict_log_proba(X)
+    assert_eq_ar(result, expected)
+
 
 @pytest.mark.parametrize("kind", ["numpy", "dask.dataframe", "dask.array"])
 def test_transform(kind):
@@ -118,6 +122,10 @@ def test_multiclass():
     expected = clf.estimator.predict_proba(X)
 
     assert isinstance(result, da.Array)
+    assert_eq_ar(result, expected)
+
+    result = clf.predict_log_proba(X)
+    expected = clf.estimator.predict_log_proba(X)
     assert_eq_ar(result, expected)
 
 
