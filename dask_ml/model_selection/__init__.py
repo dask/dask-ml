@@ -3,8 +3,10 @@
 These estimators will operate in parallel. Their scalability depends
 on the underlying estimators being used.
 """
-from ._search import GridSearchCV, RandomizedSearchCV, check_cv, compute_n_splits
-from ._split import KFold, ShuffleSplit, train_test_split
+from ._search import GridSearchCV, RandomizedSearchCV, compute_n_splits, check_cv
+from ._split import ShuffleSplit, KFold, train_test_split
+from ._black_box import BlackBox
+
 
 __all__ = [
     "GridSearchCV",
@@ -14,6 +16,7 @@ __all__ = [
     "train_test_split",
     "compute_n_splits",
     "check_cv",
+    "BlackBox",
 ]
 
 

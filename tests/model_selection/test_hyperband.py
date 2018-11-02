@@ -5,17 +5,19 @@ import scipy.stats
 import sklearn.datasets
 from dask.distributed import Client
 from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
-from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import SGDClassifier, LogisticRegression
+from sklearn.base import clone
 from sklearn.model_selection import ParameterSampler
 from toolz import partial
 from tornado import gen
 
 from dask_ml.datasets import make_classification
+from sklearn.datasets import make_classification as sk_make_classification
 from dask_ml.model_selection import HyperbandSearchCV
 from dask_ml.model_selection._incremental import fit as incremental_fit
 from dask_ml.utils import ConstantFunction
 from dask_ml.wrappers import Incremental
-from dask_ml.model_selection import SuccessiveHalvingSearchCV
+from dask_ml.model_selection import SuccessiveHalvingSearchCV, BlackBox
 
 
 @pytest.mark.parametrize(
@@ -216,3 +218,33 @@ def test_successive_halving_params(c, s, a, b):
         yield SHA.fit(X, y)
         assert metadata[b]["models"] == SHA.metadata_["models"]
         assert metadata[b]["partial_fit_calls"] == SHA.metadata_["partial_fit_calls"]
+
+
+def test_black_box():
+    params = {"C": np.logspace(-3, 1, num=400)}
+    est = LogisticRegression(solver="lbfgs")
+    wrapper = BlackBox(est, max_calls=2)
+
+    X, y = sk_make_classification(n_samples=20, n_features=5)
+    wrapper.partial_fit(X, y)
+    wrapper.partial_fit(X, y)
+    assert wrapper._calls == 2
+
+
+@gen_cluster(client=True, timeout=5000)
+def test_black_box_w_hyperband(c, s, a, b):
+    max_iter = 9
+    params = {"C": np.logspace(-3, 1, num=400)}
+    est = LogisticRegression(solver="lbfgs")
+    wrapper = BlackBox(est, max_calls=max_iter)
+    X, y = sk_make_classification(n_samples=20, n_features=5)
+
+    w2 = clone(wrapper)
+    assert type(w2) == type(wrapper)
+    assert type(w2.set_params(C=2 * np.pi)) == type(w2)
+
+    search = HyperbandSearchCV(wrapper, params, 9)
+    yield search.fit(X, y)
+    assert search.best_estimator_._calls == 9
+    assert search.best_score_ > 0
+    assert type(search.best_estimator_) == type(wrapper)
