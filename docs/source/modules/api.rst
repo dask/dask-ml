@@ -56,16 +56,7 @@ provides the follwoing:
    model_selection.SuccessiveHalvingSearchCV
 
 The classes above are useful because they adapt to prior estimator evaluations,
-but require ``partial_fit``. It can be useful to provide this support for any
-estimator by fitting on a subset of the provided data, which will reduce the
-computation required but work with certain algorithms like
-``HyperbandSearchCV``.
-
-.. autosummary::
-   :toctree: generated/
-   :template: class.rst
-
-   model_selection.BlackBox
+but require ``partial_fit``.
 
 
 :mod:`dask_ml.linear_model`: Generalized Linear Models

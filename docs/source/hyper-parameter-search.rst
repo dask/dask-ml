@@ -42,21 +42,6 @@ Both :class:`~dask_ml.model_selection.GridSearchCV` and
 pipelines because they avoid repeated work. They are drop in replacement
 for the Scikit-learn versions.
 
-Dask-ML also supports using some an "`adaptive`" algorithm (described below) to
-reduce the amount of computation necessary with a class that can support any
-estimator by fitting on a random subset of data:
-
-.. autosummary::
-   dask_ml.model_selection.HyperbandSearchCV
-   dask_ml.model_selection.BlackBox
-
-For an example, this is especially useful with clustering tools. An example is
-in the docstring of :class:`~dask_ml.model_selection.BlackBox`.
-
-:class:`~dask_ml.model_selection.BlackBox` is useful for algorithms that
-`adapt` prior performance because it implements ``partial_fit`` support and can
-be used with :class:`~dask_ml.model_selection.HyperbandSearchCV`.
-
 Memory constrained, but not compute constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 More detail in :ref:`hyperparameter.incremental`
@@ -86,8 +71,7 @@ These searches `adapt` to history to decide which parameters to continue
 evaluating and are called "`adaptive` model selection algorithms".
 
 This can drastically reduce the computation required and make the problem many
-times simpler. This requires that the estimator implement ``partial_fit`` (or
-:class:`~dask_ml.model_selection.BlackBox` is used).
+times simpler. These classes require that the estimator implement ``partial_fit``.
 
 .. _hyperparameter.drop-in:
 

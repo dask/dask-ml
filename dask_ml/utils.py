@@ -364,7 +364,7 @@ class ConstantFunction(BaseEstimator):
         self._partial_fit_called = True
 
         # Mirroring sklearn's SGDClassifier epoch counting
-        if not hasattr(self, 't_'):
+        if not hasattr(self, "t_"):
             self.t_ = 1
         self.t_ += X.shape[0]
         self.coef_ = X[0]
