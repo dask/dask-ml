@@ -5,7 +5,10 @@ from collections import defaultdict
 import numpy as np
 import toolz
 
-DOC = """
+from ._incremental import INC_ATTRS, IncrementalSearchCV
+
+DOC = (
+    """
     Perform the successive halving algorithm.
 
     Parameters
@@ -44,8 +47,12 @@ DOC = """
         Parameters to pass to
         :class:`~dask_ml.model_selection.IncrementalSearchCV`.
 
-    """ + INC_ATTRS
-class SuccessiveHalvingSearchCV(AdaptiveSearchCV):
+    """
+    + INC_ATTRS
+)
+
+
+class SuccessiveHalvingSearchCV(IncrementalSearchCV):
     __doc__ = DOC
 
     def __init__(

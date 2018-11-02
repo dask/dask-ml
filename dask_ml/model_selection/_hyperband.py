@@ -197,7 +197,7 @@ DOC = (
 )
 
 
-class HyperbandSearchCV(AdaptiveSearchCV):
+class HyperbandSearchCV(IncrementalSearchCV):
     __doc__ = DOC
 
     def __init__(
