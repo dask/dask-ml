@@ -302,7 +302,11 @@ class HyperbandSearchCV(IncrementalSearchCV):
             for SHA in SHAs.values()
             for ident, hist in SHA.model_history_.items()
         }
+
+        # Order history by time
         history = sum([SHA.history_ for b, SHA in SHAs.items()], [])
+        idx = np.argsort([v["elapsed_wall_time"] for v in history])
+        history = [history[i] for i in idx]
 
         best_model_id = SHAs[best_bracket].cv_results_["model_id"][
             SHAs[best_bracket].best_index_

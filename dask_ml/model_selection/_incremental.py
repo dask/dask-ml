@@ -181,7 +181,6 @@ def _fit(
 
     d_partial_fit = dask.delayed(_partial_fit)
     d_score = dask.delayed(_score)
-    start_time = time()
     for ident, model in models.items():
         model = d_partial_fit(model, X_future, y_future, fit_params)
         score = d_score(model, X_test, y_test, scorer)
@@ -201,6 +200,7 @@ def _fit(
 
     new_scores = list(_scores.values())
     history = []
+    start_time = time()
 
     # async for future, result in seq:
     while True:

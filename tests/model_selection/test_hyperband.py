@@ -1,4 +1,5 @@
 import dask.array as da
+from collections import defaultdict
 import numpy as np
 import pytest
 import scipy.stats
@@ -198,6 +199,14 @@ def test_integration(c, s, a, b):
         "params",
     }
     assert all(set(h.keys()) == keys for h in alg.history_)
+    times = [v["elapsed_wall_time"] for v in alg.history_]
+    assert (np.diff(times) >= 0).all()
+    history = defaultdict(list)
+    for h in alg.history_:
+        history[h["model_id"]] += [h]
+    for model_hist in history.values():
+        calls = [h["partial_fit_calls"] for h in model_hist]
+        assert (np.diff(calls) >= 1).all() or len(calls) == 1
 
 
 @gen_cluster(client=True, timeout=5000)
