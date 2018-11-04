@@ -291,6 +291,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
             k: sum([SHA.cv_results_[k].tolist() for SHA in SHAs.values()], [])
             for k in keys
         }
+        cv_results = {k: np.array(v) for k, v in cv_results.items()}
 
         scores = {b: SHA.best_score_ for b, SHA in SHAs.items()}
         best_bracket = max(scores, key=scores.get)

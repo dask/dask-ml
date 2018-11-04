@@ -95,7 +95,7 @@ def test_basic(array_type, library, max_iter):
     _test_basic()
 
 
-@pytest.mark.parametrize("max_iter,aggressiveness", [(9, 3), (27, 3), (30, 4)])
+@pytest.mark.parametrize("max_iter,aggressiveness", [(27, 3), (30, 4)])
 def test_hyperband_mirrors_paper(max_iter, aggressiveness):
     @gen_cluster(client=True, timeout=5000)
     def _test_mirrors_paper(c, s, a, b):
@@ -156,21 +156,22 @@ def test_integration(c, s, a, b):
     yield alg.fit(X, y)
     cv_res_keys = set(alg.cv_results_.keys())
     gt_zero = lambda x: x >= 0
+    gt_one = lambda x: x >= 1
     for column, dtype, condition in [
         ("params", dict, lambda d: set(d.keys()) == {"value"}),
-        ("test_score", float, None),
-        ("test_score", float, None),
-        ("rank_test_score", int, None),
+        ("test_score", float, gt_zero),
+        ("test_score", float, gt_zero),
+        ("rank_test_score", int, gt_one),
         ("mean_partial_fit_time", float, gt_zero),
         ("std_partial_fit_time", float, gt_zero),
         ("mean_score_time", float, gt_zero),
         ("std_score_time", float, gt_zero),
-        ("model_id", str, None),
+        ("model_id", None, lambda x: isinstance(x, str)),
         ("partial_fit_calls", int, gt_zero),
-        ("param_value", float, None),
+        ("param_value", float, gt_zero),
     ]:
         if dtype:
-            assert all(isinstance(x, dtype) for x in alg.cv_results_[column])
+            assert alg.cv_results_[column].dtype == dtype
         if condition:
             assert all(condition(x) for x in alg.cv_results_[column])
         cv_res_keys -= {column}
@@ -182,12 +183,19 @@ def test_integration(c, s, a, b):
     alg.best_estimator_.score(X, y)
     alg.score(X, y)
 
+    # Test types/format of all parameters we set after fitting
     assert isinstance(alg.best_index_, int)
-    assert isinstance(alg.best_score_, float)
     assert isinstance(alg.best_estimator_, ConstantFunction)
+    assert isinstance(alg.best_score_, float)
     assert isinstance(alg.best_params_, dict)
     assert isinstance(alg.history_, list)
+    assert all(isinstance(h, dict) for h in alg.history_)
+    assert isinstance(alg.model_history_, dict)
+    assert all(vi in alg.history_ for v in alg.model_history_.values() for vi in v)
+    assert all(isinstance(v, np.ndarray) for v in alg.cv_results_.values())
+    assert isinstance(alg.multimetric_, bool)
     assert all("bracket=" in h["model_id"] for h in alg.history_)
+
     keys = {
         "score",
         "score_time",
