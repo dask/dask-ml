@@ -163,6 +163,9 @@ DOC = (
     + """
     Notes
     -----
+    In ``model_id``, the bracket ID prefix corresponds to how strongly that
+    bracket adapts to history. i.e., ``bracket=0`` corresponds to a completely
+    passive bracket that doesn't adapt at all.
 
     Setting Hyperband parameters
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
