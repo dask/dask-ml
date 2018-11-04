@@ -37,6 +37,13 @@ def _get_hyperband_params(R, eta=3):
         The number of iterations for each bracket
     brackets : list
         The bracket identifier.
+
+    Notes
+    -----
+    The bracket index is a measure of how strong that n,r combination
+    adapts to prior input. i.e., a bracket ID of 0 means "doesn't adapt
+    at all" and bracket index of 5 means "adapts pretty strongly"
+
     """
     s_max = math.floor(math.log(R, eta))
     B = (s_max + 1) * R
@@ -256,20 +263,28 @@ class HyperbandSearchCV(IncrementalSearchCV):
             patience = False
 
         N, R, brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
-        SHAs = {
-            b: SuccessiveHalvingSearchCV(
-                self.model,
-                self.params,
-                n,
-                r,
-                limit=b + 1,
-                aggressiveness=self.aggressiveness,
-                patience=patience,
-                tol=self.tol,
+
+        # These brackets are ordered by adaptivity; most adaptive comes
+        # first
+        SHAs = [
+            (
+                b,
+                SuccessiveHalvingSearchCV(
+                    self.model,
+                    self.params,
+                    n,
+                    r,
+                    limit=b + 1,
+                    aggressiveness=self.aggressiveness,
+                    patience=patience,
+                    tol=self.tol,
+                ),
             )
             for n, r, b in zip(N, R, brackets)
-        }
-        SHAs = yield {b: SHA.fit(X, y, **fit_params) for b, SHA in SHAs.items()}
+        ]
+        # Which bracket to run first? Going to go with most adaptive;
+        # hopefully less adaptive can fill in for any blank spots
+        SHAs = yield {b: SHA.fit(X, y, **fit_params) for b, SHA in SHAs}
 
         # This for-loop rename model IDs and pulls out wall times
         key = lambda b, old: "bracket={}-{}".format(b, old)
