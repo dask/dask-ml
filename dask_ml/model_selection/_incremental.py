@@ -494,13 +494,9 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
         # Every model will have the same params because this class uses either
         # ParameterSampler or ParameterGrid
         params = defaultdict(list)
-        all_keys = {param for d in cv_results["params"] for param in d}
         for model_params in cv_results["params"]:
             for k, v in model_params.items():
                 params[k] += [v]
-            missing = all_keys - set(model_params.keys())
-            for k in missing:
-                params[k] += [None]
 
         for k, v in params.items():
             cv_results["param_" + k] = v
