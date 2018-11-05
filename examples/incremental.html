@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Incrementally Train Large Datasets &mdash; dask-ml 0.1 documentation</title>
+  <title>Incrementally Train Large Datasets &mdash; dask-ml 0.11.1 documentation</title>
   
 
   
@@ -117,6 +117,10 @@
 
           
             
+            
+              <div class="version">
+                0.11.1.dev16+g80785a9
+              </div>
             
           
 
@@ -482,7 +486,7 @@ run the cell</p>
 <td style="vertical-align: top; border: 0px solid white">
 <h3>Client</h3>
 <ul>
-  <li><b>Scheduler: </b>tcp://127.0.0.1:38156
+  <li><b>Scheduler: </b>tcp://127.0.0.1:43121
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
@@ -707,7 +711,7 @@ sequential fitting of many batches.</p>
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.5457
+<span></span>0.5997
 </pre></div>
 </div>
 </div>
@@ -745,16 +749,16 @@ we can use the <code class="docutils literal notranslate"><span class="pre">Incr
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Score: 0.5247
-Score: 0.5506
-Score: 0.5259
-Score: 0.5519
-Score: 0.5382
-Score: 0.5502
-Score: 0.5632
-Score: 0.5624
-Score: 0.5708
-Score: 0.5632
+Score: 0.5699
+Score: 0.5721
+Score: 0.5882
+Score: 0.6019
+Score: 0.612
+Score: 0.6193
+Score: 0.6078
+Score: 0.6145
+Score: 0.625
+Score: 0.6256
 </pre></div></div>
 </div>
 </div>
@@ -798,11 +802,11 @@ Score: 0.5632
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>array([0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1,
-       1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1,
-       1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0,
-       0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0,
-       0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1])
+<span></span>array([0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1,
+       0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1,
+       0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0,
+       0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0,
+       1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0])
 </pre></div>
 </div>
 </div>
@@ -822,7 +826,7 @@ Score: 0.5632
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.5632
+<span></span>0.6256
 </pre></div>
 </div>
 </div>
