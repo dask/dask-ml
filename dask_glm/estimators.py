@@ -14,7 +14,7 @@ from .utils import (
 class _GLM(BaseEstimator):
     """ Base estimator for Generalized Linear Models
 
-    You should not use this class directly, you should use on of its subclasses
+    You should not use this class directly, you should use one of its subclasses
     instead.
 
     This class should be subclassed and paired with a GLM Family object like
@@ -81,7 +81,7 @@ class _GLM(BaseEstimator):
 
 class LogisticRegression(_GLM):
     """
-    Esimator for logistic regression.
+    Estimator for logistic regression.
 
     Parameters
     ----------
@@ -135,7 +135,7 @@ class LogisticRegression(_GLM):
 
 class LinearRegression(_GLM):
     """
-    Esimator for a linear model using Ordinary Least Squares.
+    Estimator for a linear model using Ordinary Least Squares.
 
     Parameters
     ----------
@@ -185,7 +185,7 @@ class LinearRegression(_GLM):
 
 class PoissonRegression(_GLM):
     """
-    Esimator for Poisson Regression.
+    Estimator for Poisson Regression.
 
     Parameters
     ----------

@@ -25,8 +25,8 @@ def compute_stepsize_dask(beta, step, Xbeta, Xstep, y, curr_val,
     ----------
     beta : array-like
     step : float
-    XBeta : array-lie
-    Xstep :
+    XBeta : array-like
+    Xstep : float
     y : array-like
     curr_val : float
     famlily : Family, optional
@@ -36,7 +36,7 @@ def compute_stepsize_dask(beta, step, Xbeta, Xstep, y, curr_val,
 
     Returns
     -------
-    stepSize : flaot
+    stepSize : float
     beta : array-like
     xBeta : array-like
     func : callable
@@ -141,7 +141,7 @@ def gradient_descent(X, y, max_iter=100, tol=1e-14, family=Logistic, **kwargs):
 
 @normalize
 def newton(X, y, max_iter=50, tol=1e-8, family=Logistic, **kwargs):
-    """Newtons Method for Logistic Regression.
+    """Newton's Method for Logistic Regression.
 
     Parameters
     ----------
@@ -205,7 +205,7 @@ def admm(X, y, regularizer='l1', lamduh=0.1, rho=1, over_relax=1,
     X : array-like, shape (n_samples, n_features)
     y : array-like, shape (n_samples,)
     regularizer : str or Regularizer
-    lambuh : float
+    lamduh : float
     rho : float
     over_relax : FLOAT
     max_iter : int
@@ -311,6 +311,8 @@ def lbfgs(X, y, regularizer=None, lamduh=1.0, max_iter=100, tol=1e-4,
     ----------
     X : array-like, shape (n_samples, n_features)
     y : array-like, shape (n_samples,)
+    regularizer : str or Regularizer
+    lamduh : float
     max_iter : int
         maximum number of iterations to attempt before declaring
         failure to converge
@@ -318,6 +320,8 @@ def lbfgs(X, y, regularizer=None, lamduh=1.0, max_iter=100, tol=1e-4,
         Maximum allowed change from prior iteration required to
         declare convergence
     family : Family
+    verbose : bool, default False
+        whether to print diagnostic information during convergence
 
     Returns
     -------
@@ -352,11 +356,14 @@ def lbfgs(X, y, regularizer=None, lamduh=1.0, max_iter=100, tol=1e-4,
 def proximal_grad(X, y, regularizer='l1', lamduh=0.1, family=Logistic,
                   max_iter=100, tol=1e-8, **kwargs):
     """
+    Proximal Gradient Method
 
     Parameters
     ----------
     X : array-like, shape (n_samples, n_features)
     y : array-like, shape (n_samples,)
+    regularizer : str or Regularizer
+    lamduh : float
     max_iter : int
         maximum number of iterations to attempt before declaring
         failure to converge
@@ -364,8 +371,6 @@ def proximal_grad(X, y, regularizer='l1', lamduh=0.1, family=Logistic,
         Maximum allowed change from prior iteration required to
         declare convergence
     family : Family
-    verbose : bool, default False
-        whether to print diagnostic information during convergence
 
     Returns
     -------
