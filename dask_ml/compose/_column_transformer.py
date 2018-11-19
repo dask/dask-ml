@@ -1,3 +1,5 @@
+import warnings
+
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
@@ -126,13 +128,13 @@ boolean mask array or callable
 
     See also
     --------
-    sklearn.compose.make_column_transformer : convenience function for
+    dask_ml.compose.make_column_transformer : convenience function for
         combining the outputs of multiple transformer objects applied to
         column subsets of the original feature space.
 
     Examples
     --------
-    >>> from sklearn.compose import ColumnTransformer
+    >>> from dask_ml.compose import ColumnTransformer
     >>> from sklearn.preprocessing import Normalizer
     >>> ct = ColumnTransformer(
     ...     [("norm1", Normalizer(norm='l1'), [0, 1]),
@@ -179,7 +181,11 @@ boolean mask array or callable
             Xs2 = [x.to_dask_array() if hasattr(x, "to_dask_array") else x for x in Xs]
             return da.concatenate(Xs2, allow_unknown_chunksizes=True, axis=1)
         elif dd.Series in types or dd.DataFrame in types:
-            return dd.concat(Xs, axis="columns")
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", "Concatenating", UserWarning)
+                return dd.concat(Xs, axis="columns")
+        elif da.Array in types:
+            return da.hstack(Xs)
         elif self.preserve_dataframe and (pd.Series in types or pd.DataFrame in types):
             return pd.concat(Xs, axis="columns")
         else:

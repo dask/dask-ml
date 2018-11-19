@@ -23,6 +23,7 @@ scikit-learn counterparts.
    StandardScaler
    LabelEncoder
    OneHotEncoder
+   PolynomialFeatures
 
 These can be used just like the scikit-learn versions, except that:
 

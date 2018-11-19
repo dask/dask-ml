@@ -1,6 +1,7 @@
 import dask
 import dask.array as da
 import dask.dataframe as dd
+import numpy as np
 import pytest
 import sklearn.datasets
 from sklearn.decomposition import PCA
@@ -35,6 +36,16 @@ def test_no_method_raises():
         clf.predict_proba(X)
 
     assert m.match("The wrapped estimator (.|\n)* 'predict_proba' method.")
+
+
+def test_laziness():
+    clf = ParallelPostFit(LinearRegression())
+    X, y = make_classification(chunks=50)
+    clf.fit(X, y)
+
+    x = clf.score(X, y, compute=False)
+    assert dask.is_dask_collection(x)
+    assert 0 < x.compute() < 1
 
 
 @pytest.mark.parametrize("kind", ["numpy", "dask.dataframe", "dask.array"])
@@ -119,3 +130,8 @@ def test_auto_rechunk():
     assert clf.predict(X).compute().shape == (1000,)
     assert clf.predict_proba(X).compute().shape == (1000, 2)
     assert clf.score(X, y) == clf.score(X.compute(), y.compute())
+
+    X, y = make_classification(n_samples=1000, n_features=20, chunks=100)
+    X = X.rechunk({0: 100, 1: 10})
+    X._chunks = (tuple(np.nan for _ in X.chunks[0]), X.chunks[1])
+    clf.predict(X)

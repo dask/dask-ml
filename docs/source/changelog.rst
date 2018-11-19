@@ -1,7 +1,7 @@
 Changelog
 =========
 
-Version 0.10.0
+Version 0.11.0
 ~~~~~~~~~~~~~~
 
 Note that this version of Dask-ML requires scikit-learn >= 0.20.0.
@@ -9,13 +9,27 @@ Note that this version of Dask-ML requires scikit-learn >= 0.20.0.
 Enhancements
 ------------
 
-- Added support for :class:`dask.dataframe.DataFrame` to :meth:`dask_ml.model_selection.train_test_split` (:issue:`351`)
+- Added :class:`dask_ml.model_selection.IncrementalSearchCV`, a meta-estimator for hyperparamter optimization on larger-than-memory datasets (:pr:`356`). See :ref:`hyperparameter.incremental` for more.
+- Added :class:`dask_ml.preprocessing.PolynomialTransformer`, a drop-in replacement for the scikit-learn version (:issue:`347`).
+- Added auto-rechunking to Dask Arrays with more than one block along the features in :class:`dask_ml.model_selection.ParallelPostFit` (:issue:`376`)
+- Added support for Dask DataFrame inputs to :class:`dask_ml.cluster.KMeans` (:issue:`390`)
+- Added a ``compute`` keyword to :meth:`dask_ml.wrappers.ParallelPostFit.score` to support lazily evaluating a model's score (:pr:`402`)
 
 Bug Fixes
 ---------
 
 - Changed :class:`dask_ml.wrappers.ParallelPostFit` to automatically rechunk input arrays to methods like ``predict`` when they
-  have more than one block along the features (:issue:`376`)
+  have more than one block along the features (:issue:`376`).
+- Bug in :class:`dask_ml.impute.SimpleImputer` with Dask DataFrames filling the count of the most frequent item, rather than the item itself (:issue:`385`).
+- Bug in :class:`dask_ml.model_selection.ShuffleSplit` returning the same split when the ``random_state`` was set (:issue:`380`).
+
+Version 0.10.0
+~~~~~~~~~~~~~~
+
+Enhancements
+------------
+
+- Added support for :class:`dask.dataframe.DataFrame` to :meth:`dask_ml.model_selection.train_test_split` (:issue:`351`)
 
 Version 0.9.0
 ~~~~~~~~~~~~~

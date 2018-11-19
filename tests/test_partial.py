@@ -1,6 +1,8 @@
 import dask
 import dask.array as da
+import dask.dataframe as dd
 import numpy as np
+import pandas as pd
 import pytest
 from sklearn.base import clone
 from sklearn.linear_model import SGDClassifier
@@ -22,7 +24,7 @@ Z = da.from_array(z, chunks=(2, 2))
 
 def test_fit():
     with dask.config.set(scheduler="single-threaded"):
-        sgd = SGDClassifier(max_iter=5)
+        sgd = SGDClassifier(max_iter=5, tol=1e-3)
 
         sgd = fit(sgd, X, Y, classes=np.array([-1, 0, 1]))
 
@@ -39,7 +41,7 @@ def test_fit_rechunking():
 
     assert X.numblocks[1] > 1
 
-    clf = Incremental(SGDClassifier(max_iter=5))
+    clf = Incremental(SGDClassifier(max_iter=5, tol=1e-3))
     clf.fit(X, y, classes=list(range(n_classes)))
 
 
@@ -49,7 +51,9 @@ def test_fit_shuffle_blocks():
     y = da.from_array(np.ones(N), chunks=1)
     classes = [0, 1]
 
-    sgd = SGDClassifier(max_iter=5, random_state=0, fit_intercept=False, shuffle=False)
+    sgd = SGDClassifier(
+        max_iter=5, random_state=0, fit_intercept=False, shuffle=False, tol=1e-3
+    )
 
     sgd1 = fit(clone(sgd), X, y, random_state=0, classes=classes)
     sgd2 = fit(clone(sgd), X, y, random_state=42, classes=classes)
@@ -72,3 +76,18 @@ def test_fit_shuffle_blocks():
             shuffle_blocks=True,
             random_state=da.random.RandomState(42),
         )
+
+
+def test_dataframes():
+    df = pd.DataFrame({"x": range(10), "y": [0, 1] * 5})
+    ddf = dd.from_pandas(df, npartitions=2)
+
+    with dask.config.set(scheduler="single-threaded"):
+        sgd = SGDClassifier(max_iter=5, tol=1e-3)
+
+        sgd = fit(sgd, ddf[["x"]], ddf.y, classes=[0, 1])
+
+        sol = sgd.predict(df[["x"]])
+        result = predict(sgd, ddf[["x"]])
+
+        da.utils.assert_eq(sol, result)

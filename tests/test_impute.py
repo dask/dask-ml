@@ -102,3 +102,13 @@ def test_frame_strategies(daskify, strategy):
     else:
         expected = pd.Series([2], index=["A"])
     tm.assert_series_equal(b.statistics_, expected, check_dtype=False)
+
+
+def test_impute_most_frequent():
+    # https://github.com/dask/dask-ml/issues/385
+    data = dd.from_pandas(pd.DataFrame([1, 1, 1, 1, np.nan, np.nan]), 2)
+    model = dask_ml.impute.SimpleImputer(strategy="most_frequent")
+    result = model.fit_transform(data)
+    expected = dd.from_pandas(pd.DataFrame({0: [1.0] * 6}), 2)
+    dd.utils.assert_eq(result, expected)
+    assert model.statistics_[0] == 1.0
