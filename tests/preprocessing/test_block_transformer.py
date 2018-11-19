@@ -19,12 +19,8 @@ X_dask = da.from_array(X, chunks=(5, 4))
 
 
 class TestBlockTransformer:
-    @pytest.mark.filterwarnings("ignore::FutureWarning")
-    def test_identity(self):
-        block_trans = dpp.BlockTransformer()
-        func_trans = spp.FunctionTransformer()
+    def test_multiple_two(self):
+        multiply_by_two = lambda x: 2 * x
+        bt = dpp.BlockTransformer(multiply_by_two)
 
-        X_t = func_trans.fit_transform(X)
-        X_dask_t = block_trans.fit_transform(X_dask)
-        assert dask.is_dask_collection(X_dask_t)
-        assert_eq_ar(X_t, X_dask_t)
+        assert_eq_ar(bt.transform(X), 2 * X)
