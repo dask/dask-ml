@@ -27,10 +27,11 @@ class BlockTransformer(BaseEstimator, TransformerMixin):
         Dictionary of additional keyword arguments to pass to func.
     """
 
-    def __init__(self, func, *, validate=True, kw_args=None):
+    def __init__(self, func, *, validate=True, kw_args=None, preserve_dataframe=True):
         self.func = func
         self.validate = validate
         self.kw_args = kw_args
+        self.preserve_datafame = preserve_dataframe
 
     def fit(self, X):
         return self
