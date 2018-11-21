@@ -22,16 +22,28 @@ df = df_dask.compute()
 
 
 class TestBlockTransformer:
-    def test_multiple_two(self):
-        multiply_by_two = lambda x: 2 * x
-        bt = dpp.BlockTransformer(multiply_by_two)
+    @pytest.mark.parametrize("func", [lambda x: 2 * x])
+    @pytest.mark.parametrize("preserve", [True, False])
+    @pytest.mark.parametrize("validation", [True, False])
+    @pytest.mark.parametrize("daskify", [True, False])
+    def test_multiple_two(self, daskify, validation, preserve, func):
+        X = np.arange(100).reshape((25, 4))
+        df = pd.DataFrame(X).rename(columns=str)
+        if daskify:
+            X = da.from_array(X, chunks=(5, 4))
+            df = dd.from_pandas(df, npartitions=2)
+        bt = dpp.BlockTransformer(
+            func, validate=validation, preserve_dataframe=preserve
+        )
 
-        assert_eq_ar(bt.transform(X), 2 * X)
-        assert dask.is_dask_collection(bt.transform(X_dask))
-        assert_eq_ar(bt.transform(X_dask), 2 * X)
-        assert_eq_df(bt.transform(df), 2 * df)
-        assert dask.is_dask_collection(bt.transform(df_dask))
-        assert_eq_df(bt.transform(df_dask), 2 * df)
+        if daskify:
+            assert dask.is_dask_collection(bt.transform(X))
+        else:
+            if preserve:
+                assert_eq_df(bt.transform(df), func(df))
+
+        # assert dask.is_dask_collection(bt.transform(df_dask))
+        # assert_eq_df(bt.transform(df_dask), 2 * df)
 
     def test_validate(self, mocker):
         m = mocker.patch("dask_ml.preprocessing._block_transformer.check_array")

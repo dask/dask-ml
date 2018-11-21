@@ -1,4 +1,6 @@
 import dask.array as da
+import dask.dataframe as dd
+import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
 from dask_ml.utils import check_array, handle_zeros_in_scale
@@ -31,21 +33,32 @@ class BlockTransformer(BaseEstimator, TransformerMixin):
         self.func = func
         self.validate = validate
         self.kw_args = kw_args
-        self.preserve_datafame = preserve_dataframe
+        self.preserve_dataframe = preserve_dataframe
 
     def fit(self, X):
         return self
 
     def transform(self, X):
-        def func_forwarded(arr):
-            return self.func(arr, **(self.kw_args if self.kw_args else {}))
-
+        kwargs = self.kw_args if self.kw_args else {}
+        if isinstance(X, dd.DataFrame):
+            if self.validate:
+                X = check_array(
+                    X,
+                    accept_dask_dataframe=True,
+                    preserve_pandas_dataframe=self.preserve_dataframe,
+                )
+            XP = X.map_partitions(self.func, **kwargs)
         if isinstance(X, da.Array):
             if self.validate:
                 X = check_array(X, accept_dask_array=True, accept_unknown_chunks=True)
-            XP = X.map_blocks(func_forwarded, dtype=X.dtype, chunks=X.chunks)
+            XP = X.map_blocks(self.func, dtype=X.dtype, chunks=X.chunks, **kwargs)
         else:
             if self.validate:
-                X = check_array(X, accept_dask_array=False)
-            XP = func_forwarded(X)
+                X = check_array(
+                    X,
+                    accept_dask_array=False,
+                    preserve_pandas_dataframe=self.preserve_dataframe,
+                )
+
+            XP = self.func(X, **kwargs)
         return XP
