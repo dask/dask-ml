@@ -40,25 +40,31 @@ class BlockTransformer(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         kwargs = self.kw_args if self.kw_args else {}
-        if isinstance(X, dd.DataFrame):
-            if self.validate:
-                X = check_array(
-                    X,
-                    accept_dask_dataframe=True,
-                    preserve_pandas_dataframe=self.preserve_dataframe,
-                )
-            XP = X.map_partitions(self.func, **kwargs)
+
         if isinstance(X, da.Array):
             if self.validate:
                 X = check_array(X, accept_dask_array=True, accept_unknown_chunks=True)
             XP = X.map_blocks(self.func, dtype=X.dtype, chunks=X.chunks, **kwargs)
-        else:
+        elif isinstance(X, dd.DataFrame):
+            if self.validate:
+                X = check_array(X, accept_dask_dataframe=True)
+            XP = X.map_partitions(self.func, **kwargs)
+            # validate and preserve_dataframe lead to awkward situations
+            if not self.preserve_dataframe and isinstance(XP, dd.DataFrame):
+                XP = XP.values
+        elif isinstance(X, pd.DataFrame):
             if self.validate:
                 X = check_array(
                     X,
                     accept_dask_array=False,
                     preserve_pandas_dataframe=self.preserve_dataframe,
                 )
-
+            XP = self.func(X, **kwargs)
+            # validate and preserve_dataframe lead to awkward situations
+            if not self.preserve_dataframe and isinstance(XP, pd.DataFrame):
+                XP = XP.values
+        else:
+            if self.validate:
+                X = check_array(X, accept_dask_array=False)
             XP = self.func(X, **kwargs)
         return XP
