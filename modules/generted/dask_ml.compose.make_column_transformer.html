@@ -119,7 +119,7 @@
             
             
               <div class="version">
-                0.11.1.dev16+g80785a9
+                0.11.1.dev18+gdd2c616
               </div>
             
           
@@ -261,13 +261,13 @@
 <p>This is a shorthand for the ColumnTransformer constructor; it does not
 require, and does not permit, naming the transformers. Instead, they will
 be given names automatically based on their types. It also does not allow
-weighting.</p>
+weighting with <code class="docutils literal notranslate"><span class="pre">transformer_weights</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>*transformers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuples of column selections and transformers</span></dt>
+<dt><strong>*transformers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuples of transformers and column selections</span></dt>
 <dd></dd>
 <dt><strong>remainder</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘drop’, ‘passthrough’} or estimator, default ‘drop’</span></dt>
 <dd><p class="first last">By default, only the specified columns in <cite>transformers</cite> are
@@ -292,7 +292,7 @@ keyword will be ignored.</p>
 <dt><strong>n_jobs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int or None, optional (default=None)</span></dt>
 <dd><p class="first last">Number of jobs to run in parallel.
 <code class="docutils literal notranslate"><span class="pre">None</span></code> means 1 unless in a <code class="xref py py-obj docutils literal notranslate"><span class="pre">joblib.parallel_backend</span></code> context.
-<code class="docutils literal notranslate"><span class="pre">-1</span></code> means using all processors. See <a class="reference external" href="http://scikit-learn.org/stable/glossary.html#term-n-jobs" title="(in scikit-learn v0.20.0)"><span class="xref std std-term">Glossary</span></a>
+<code class="docutils literal notranslate"><span class="pre">-1</span></code> means using all processors. See <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-n-jobs" title="(in scikit-learn v0.20.1)"><span class="xref std std-term">Glossary</span></a>
 for more details.</p>
 </dd>
 </dl>
@@ -309,7 +309,7 @@ for more details.</p>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <dl class="last docutils">
-<dt><a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.compose.ColumnTransformer.html#sklearn.compose.ColumnTransformer" title="(in scikit-learn v0.20.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.compose.ColumnTransformer</span></code></a></dt>
+<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.compose.ColumnTransformer.html#sklearn.compose.ColumnTransformer" title="(in scikit-learn v0.20.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.compose.ColumnTransformer</span></code></a></dt>
 <dd>Class that allows combining the outputs of multiple transformer objects used on column subsets of the data into a single feature space.</dd>
 </dl>
 </div>
@@ -317,8 +317,8 @@ for more details.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">StandardScaler</span><span class="p">,</span> <span class="n">OneHotEncoder</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.compose</span> <span class="k">import</span> <span class="n">make_column_transformer</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">make_column_transformer</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="p">([</span><span class="s1">&#39;numerical_column&#39;</span><span class="p">],</span> <span class="n">StandardScaler</span><span class="p">()),</span>
-<span class="gp">... </span>    <span class="p">([</span><span class="s1">&#39;categorical_column&#39;</span><span class="p">],</span> <span class="n">OneHotEncoder</span><span class="p">()))</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="n">StandardScaler</span><span class="p">(),</span> <span class="p">[</span><span class="s1">&#39;numerical_column&#39;</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="n">OneHotEncoder</span><span class="p">(),</span> <span class="p">[</span><span class="s1">&#39;categorical_column&#39;</span><span class="p">]))</span>
 <span class="gp">... </span>    <span class="c1"># doctest: +NORMALIZE_WHITESPACE +ELLIPSIS</span>
 <span class="go">ColumnTransformer(n_jobs=None, remainder=&#39;drop&#39;, sparse_threshold=0.3,</span>
 <span class="go">         transformer_weights=None,</span>

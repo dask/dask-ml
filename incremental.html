@@ -119,7 +119,7 @@
             
             
               <div class="version">
-                0.11.1.dev16+g80785a9
+                0.11.1.dev18+gdd2c616
               </div>
             
           
@@ -255,7 +255,7 @@ block of a Dask Array to the underlying estimator’s <code class="docutils lite
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.wrappers.Incremetnal</span></code> currently does not work well with
-hyper-parameter optimization like <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v0.20.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>.
+hyper-parameter optimization like <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v0.20.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>.
 If you need to do hyper-parameter optimization on larger-than-memory datasets,
 we recommend <code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearch</span></code>. See
 <a class="reference internal" href="hyper-parameter-search.html#hyperparameter-incremental"><span class="std std-ref">Incremental Hyperparameter Optimization</span></a> for an introduction.</p>
@@ -317,7 +317,7 @@ scikit-learn compatible estimator, and will be trained normally via its
 <p>Notice that we call the regular <code class="docutils literal notranslate"><span class="pre">.fit</span></code> method, not <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> for
 training. Dask-ML takes care of passing each block to the underlying estimator
 for you.</p>
-<p>Just like <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html#sklearn.linear_model.SGDClassifier.partial_fit" title="(in scikit-learn v0.20.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sklearn.linear_model.SGDClassifier.partial_fit()</span></code></a>, we need to
+<p>Just like <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html#sklearn.linear_model.SGDClassifier.partial_fit" title="(in scikit-learn v0.20.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sklearn.linear_model.SGDClassifier.partial_fit()</span></code></a>, we need to
 pass the <code class="docutils literal notranslate"><span class="pre">classes</span></code> argument to <code class="docutils literal notranslate"><span class="pre">fit</span></code>. In general, any argument that is
 required for the underlying estimators <code class="docutils literal notranslate"><span class="pre">parital_fit</span></code> becomes required for
 the wrapped <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</p>
@@ -333,18 +333,18 @@ can also explicitly pass <code class="docutils literal notranslate"><span class=
 </div>
 <p>We can get the accuracy score on our dataset.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gh">Out[9]: </span><span class="go">0.6</span>
+<span class="gh">Out[9]: </span><span class="go">0.65</span>
 </pre></div>
 </div>
 <p>All of the attributes learned durning training, like <code class="docutils literal notranslate"><span class="pre">coef_</span></code>, are available
 on the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> instance.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[-68.15927258, -14.37123407,   0.94445583, -24.33582993,</span>
-<span class="go">        -11.45181407,  25.04470519, -10.07584656,  39.91274628,</span>
-<span class="go">         11.87344205,  57.17994469, -11.72351495,  33.06819853,</span>
-<span class="go">         10.50341037,   8.04215345,   6.40651984, -15.66921191,</span>
-<span class="go">         -5.83119826,   4.22483008, -12.10500917,  -2.74888382]])</span>
+<span class="go">array([[ -2.23764435,   0.90219283, -43.23168267, -38.90108835,</span>
+<span class="go">        -52.24575062, -27.70305396, -14.88893109,   1.41018968,</span>
+<span class="go">        -15.99756649,  65.75744816,   0.54414405, -53.3029562 ,</span>
+<span class="go">         24.65702708,  16.39513875, -46.93164221,   8.13339719,</span>
+<span class="go">          7.20646731,  11.16244238,  -9.7042865 ,  19.84925414]])</span>
 </pre></div>
 </div>
 <p>If necessary, the actual estimator trained is available as <code class="docutils literal notranslate"><span class="pre">Incremental.estimator_</span></code></p>

@@ -119,7 +119,7 @@
             
             
               <div class="version">
-                0.11.1.dev16+g80785a9
+                0.11.1.dev18+gdd2c616
               </div>
             
           
@@ -266,6 +266,12 @@
 <dt id="dask_ml.preprocessing.StandardScaler">
 <em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">StandardScaler</code><span class="sig-paren">(</span><em>copy=True</em>, <em>with_mean=True</em>, <em>with_std=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.StandardScaler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Standardize features by removing the mean and scaling to unit variance</p>
+<p>The standard score of a sample <cite>x</cite> is calculated as:</p>
+<blockquote>
+<div>z = (x - u) / s</div></blockquote>
+<p>where <cite>u</cite> is the mean of the training samples or zero if <cite>with_mean=False</cite>,
+and <cite>s</cite> is the standard deviation of the training samples or one if
+<cite>with_std=False</cite>.</p>
 <p>Centering and scaling happen independently on each feature by computing
 the relevant statistics on the samples in the training set. Mean and
 standard deviation are then stored to be used on later data using the
@@ -283,7 +289,7 @@ that others, it might dominate the objective function and make the
 estimator unable to learn from other features correctly as expected.</p>
 <p>This scaler can also be applied to sparse CSR or CSC matrices by passing
 <cite>with_mean=False</cite> to avoid breaking the sparsity structure of the data.</p>
-<p>Read more in the <a class="reference external" href="http://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.20.0)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.20.1)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -311,8 +317,8 @@ unit standard deviation).</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>scale_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray or None, shape (n_features,)</span></dt>
-<dd><p class="first">Per feature relative scaling of the data. Equal to <code class="docutils literal notranslate"><span class="pre">None</span></code> when
-<code class="docutils literal notranslate"><span class="pre">with_std=False</span></code>.</p>
+<dd><p class="first">Per feature relative scaling of the data. This is calculated using
+<cite>np.sqrt(var_)</cite>. Equal to <code class="docutils literal notranslate"><span class="pre">None</span></code> when <code class="docutils literal notranslate"><span class="pre">with_std=False</span></code>.</p>
 <div class="last versionadded">
 <p><span class="versionmodified">New in version 0.17: </span><em>scale_</em></p>
 </div>
@@ -342,7 +348,7 @@ Will be reset on new calls to fit, but increments across
 <dl class="last docutils">
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">scale</span></code></dt>
 <dd>Equivalent function without the estimator API.</dd>
-<dt><a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html#sklearn.decomposition.PCA" title="(in scikit-learn v0.20.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.decomposition.PCA</span></code></a></dt>
+<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html#sklearn.decomposition.PCA" title="(in scikit-learn v0.20.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.decomposition.PCA</span></code></a></dt>
 <dd>Further removes the linear correlation across features with ‘whiten=True’.</dd>
 </dl>
 </div>
@@ -350,7 +356,7 @@ Will be reset on new calls to fit, but increments across
 <p>NaNs are treated as missing values: disregarded in fit, and maintained in
 transform.</p>
 <p>For a comparison of the different scalers, transformers, and normalizers,
-see <a class="reference external" href="http://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.20.0)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
+see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.20.1)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">StandardScaler</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>

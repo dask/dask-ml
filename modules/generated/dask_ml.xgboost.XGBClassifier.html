@@ -119,7 +119,7 @@
             
             
               <div class="version">
-                0.11.1.dev16+g80785a9
+                0.11.1.dev18+gdd2c616
               </div>
             
           
@@ -264,8 +264,14 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.coef_" title="dask_ml.xgboost.XGBClassifier.coef_"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coef_</span></code></a></dt>
+<dd><p class="first last">Coefficients property</p>
+</dd>
 <dt><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.feature_importances_" title="dask_ml.xgboost.XGBClassifier.feature_importances_"><code class="xref py py-obj docutils literal notranslate"><span class="pre">feature_importances_</span></code></a></dt>
-<dd><p class="first last">Returns</p>
+<dd><p class="first last">Feature importances property</p>
+</dd>
+<dt><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.intercept_" title="dask_ml.xgboost.XGBClassifier.intercept_"><code class="xref py py-obj docutils literal notranslate"><span class="pre">intercept_</span></code></a></dt>
+<dd><p class="first last">Intercept (bias) property</p>
 </dd>
 </dl>
 </td>
@@ -354,14 +360,39 @@ leaf x ends up in. Leaves are numbered within
 </table>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="dask_ml.xgboost.XGBClassifier.coef_">
+<code class="descname">coef_</code><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.coef_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Coefficients property</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Coefficients are defined only for linear learners</p>
+<p class="last">Coefficients are only defined when the linear model is chosen as base
+learner (<cite>booster=gblinear</cite>). It is not defined for other base learner types, such
+as tree learners (<cite>booster=gbtree</cite>).</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>coef_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array of shape <code class="docutils literal notranslate"><span class="pre">[n_features]</span></code></span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.evals_result">
 <code class="descname">evals_result</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.evals_result" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the evaluation results.</p>
-<p>If eval_set is passed to the <cite>fit</cite> function, you can call evals_result() to
-get evaluation results for all passed eval_sets. When eval_metric is also
-passed to the <cite>fit</cite> function, the evals_result will contain the eval_metrics
-passed to the <cite>fit</cite> function</p>
+<p>If <strong>eval_set</strong> is passed to the <cite>fit</cite> function, you can call
+<code class="docutils literal notranslate"><span class="pre">evals_result()</span></code> to get evaluation results for all passed <strong>eval_sets</strong>.
+When <strong>eval_metric</strong> is also passed to the <cite>fit</cite> function, the
+<strong>evals_result</strong> will contain the <strong>eval_metrics</strong> passed to the <cite>fit</cite> function.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -379,12 +410,20 @@ passed to the <cite>fit</cite> function</p>
 <dl class="attribute">
 <dt id="dask_ml.xgboost.XGBClassifier.feature_importances_">
 <code class="descname">feature_importances_</code><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.feature_importances_" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
+<dd><p>Feature importances property</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Feature importance is defined only for tree boosters</p>
+<p class="last">Feature importance is only defined when the decision tree model is chosen as base
+learner (<cite>booster=gbtree</cite>). It is not defined for other base learner types, such
+as linear learners (<cite>booster=gblinear</cite>).</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>feature_importances_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array of shape = [n_features]</span></dt>
+<dt><strong>feature_importances_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array of shape <code class="docutils literal notranslate"><span class="pre">[n_features]</span></code></span></dt>
 <dd></dd>
 </dl>
 </td>
@@ -468,15 +507,54 @@ supported.</div></blockquote>
 <dd><p>Get xgboost type parameters.</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="dask_ml.xgboost.XGBClassifier.intercept_">
+<code class="descname">intercept_</code><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.intercept_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Intercept (bias) property</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Intercept is defined only for linear learners</p>
+<p class="last">Intercept (bias) is only defined when the linear model is chosen as base
+learner (<cite>booster=gblinear</cite>). It is not defined for other base learner types, such
+as tree learners (<cite>booster=gbtree</cite>).</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>intercept_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array of shape <code class="docutils literal notranslate"><span class="pre">[n_features]</span></code></span></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.load_model">
 <code class="descname">load_model</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.load_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load the model from a file.
-Parameters
-———-
-fname : string or a memory buffer</p>
-<blockquote>
-<div>Input file name or memory buffer(see also save_raw)</div></blockquote>
+<dd><p>Load the model from a file.</p>
+<p>The model is loaded from an XGBoost internal binary format which is
+universal among the various XGBoost interfaces. Auxiliary attributes of
+the Python Booster object (such as feature names) will not be loaded.
+Label encodings (text labels to numeric labels) will be also lost.
+<strong>If you are using only the Python interface, we recommend pickling the
+model object for best results.</strong></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>fname</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string or a memory buffer</span></dt>
+<dd><p class="first last">Input file name or memory buffer(see also save_raw)</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -516,6 +594,10 @@ a nonzero value, e.g.</p>
 <dd><p class="first last">Limit number of trees in the prediction; defaults to best_ntree_limit if defined
 (i.e. it has been trained with early stopping), otherwise 0 (use all trees).</p>
 </dd>
+<dt><strong>validate_features</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">When this is True, validate that the Booster’s and data’s feature_names are identical.
+Otherwise, it is assumed that the feature_names are the same.</p>
+</dd>
 <dt><strong>Returns</strong></dt>
 <dd></dd>
 <dt><strong>——-</strong></dt>
@@ -532,34 +614,67 @@ a nonzero value, e.g.</p>
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.predict_proba">
 <code class="descname">predict_proba</code><span class="sig-paren">(</span><em>data</em>, <em>ntree_limit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.predict_proba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict the probability of each <cite>data</cite> example being of a given class.
-NOTE: This function is not thread safe.</p>
-<blockquote>
-<div>For each booster object, predict can only be called from one thread.
-If you want to run prediction using multiple thread, call xgb.copy() to make copies
-of model object and then call predict</div></blockquote>
-<dl class="docutils">
-<dt>data <span class="classifier-delimiter">:</span> <span class="classifier">DMatrix</span></dt>
-<dd>The dmatrix storing the input.</dd>
-<dt>ntree_limit <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd>Limit number of trees in the prediction; defaults to best_ntree_limit if defined
-(i.e. it has been trained with early stopping), otherwise 0 (use all trees).</dd>
+<dd><p>Predict the probability of each <cite>data</cite> example being of a given class.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>This function is not thread safe</p>
+<p class="last">For each booster object, predict can only be called from one thread.
+If you want to run prediction using multiple thread, call <code class="docutils literal notranslate"><span class="pre">xgb.copy()</span></code> to make copies
+of model object and then call predict</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">DMatrix</span></dt>
+<dd><p class="first last">The dmatrix storing the input.</p>
+</dd>
+<dt><strong>ntree_limit</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">Limit number of trees in the prediction; defaults to best_ntree_limit if defined
+(i.e. it has been trained with early stopping), otherwise 0 (use all trees).</p>
+</dd>
+<dt><strong>validate_features</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">When this is True, validate that the Booster’s and data’s feature_names are identical.
+Otherwise, it is assumed that the feature_names are the same.</p>
+</dd>
 </dl>
-<dl class="docutils">
-<dt>prediction <span class="classifier-delimiter">:</span> <span class="classifier">numpy array</span></dt>
-<dd>a numpy array with the probability of each data example being of a given class.</dd>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>prediction</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array</span></dt>
+<dd><p class="first last">a numpy array with the probability of each data example being of a given class.</p>
+</dd>
 </dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.save_model">
 <code class="descname">save_model</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.save_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Save the model to a file.
-Parameters
-———-
-fname : string</p>
-<blockquote>
-<div>Output file name</div></blockquote>
+<dd><p>Save the model to a file.</p>
+<p>The model is saved in an XGBoost internal binary format which is
+universal among the various XGBoost interfaces. Auxiliary attributes of
+the Python Booster object (such as feature names) will not be loaded.
+Label encodings (text labels to numeric labels) will be also lost.
+<strong>If you are using only the Python interface, we recommend pickling the
+model object for best results.</strong></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>fname</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">Output file name</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -600,23 +715,13 @@ each label set be correctly predicted.</p>
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.set_params">
 <code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.set_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the parameters of this estimator.</p>
-<p>The method works on simple estimators as well as on nested objects
-(such as pipelines). The latter have parameters of the form
-<code class="docutils literal notranslate"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it’s possible to update each
-component of a nested object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>self</strong></dt>
-<dd></dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
+<dd><p>Set the parameters of this estimator.
+Modification of the sklearn method to allow unknown kwargs. This allows using
+the full range of xgboost parameters that are not defined as member variables
+in sklearn grid search.
+Returns
+——-
+self</p>
 </dd></dl>
 
 </dd></dl>
