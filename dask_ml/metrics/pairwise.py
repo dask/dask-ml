@@ -56,6 +56,9 @@ def pairwise_distances(X, Y, metric="euclidean", n_jobs=None, **kwargs):
 def euclidean_distances(
     X, Y=None, Y_norm_squared=None, squared=False, X_norm_squared=None
 ):
+    if Y is None:
+        Y = X
+        
     if X_norm_squared is not None:
         XX = X_norm_squared
         if XX.shape == (1, X.shape[0]):
