@@ -689,7 +689,12 @@ def test_pca_bad_solver():
 
 @pytest.mark.parametrize(
     "svd_solver",
-    ["full", pytest.mark.xfail(reason="svd_compressed promotes")("randomized")],
+    [
+        "full",
+        pytest.param(
+            "randomized", marks=pytest.mark.xfail(reason="svd_compressed promotes")
+        ),
+    ],
 )
 def test_pca_float_dtype_preservation(svd_solver):
     # Ensure that PCA does not upscale the dtype when input is float32
