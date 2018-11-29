@@ -375,8 +375,8 @@ def test_pca_validation():
 
                 assert_raises_regex(
                     ValueError,
-                    "n_components={}L? must be between "
-                    "{}L? and min\(n_samples, n_features\)="
+                    r"n_components={}L? must be between "
+                    "{}L? and min\\(n_samples, n_features\\)="
                     "{}L? with svd_solver='{}'".format(
                         n_components, lower_limit[solver], smallest_d, solver_reported
                     ),
@@ -389,9 +389,9 @@ def test_pca_validation():
 
                 assert_raises_regex(
                     ValueError,
-                    "n_components={}L? must be "
+                    r"n_components={}L? must be "
                     "strictly less than "
-                    "min\(n_samples, n_features\)={}L?"
+                    "min\\(n_samples, n_features\\)={}L?"
                     " with svd_solver='arpack'".format(n_components, smallest_d),
                     dd.PCA(n_components, svd_solver=solver).fit,
                     data,
