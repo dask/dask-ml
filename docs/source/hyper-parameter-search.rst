@@ -37,55 +37,36 @@ More detail in :ref:`hyperparameter.drop-in`
    dask_ml.model_selection.GridSearchCV
    dask_ml.model_selection.RandomizedSearchCV
 
-Both :class:`~dask_ml.model_selection.GridSearchCV` and
-:class:`~dask_ml.model_selection.RandomizedSearchCV` are especially good for
-pipelines because they avoid repeated work. They are drop in replacement
-for the Scikit-learn versions.
-
-For :class:`~dask_ml.model_selection.IncrementalSearchCV`, also solves "compute
-but not memory constrained" if  ``decay_rate=0``. This has the advantage of
-limiting some computation by stopping when performance stops increasing, though
-:class:`~dask_ml.model_selection.GridSearchCV` and
-:class:`~dask_ml.model_selection.RandomizedSearchCV` avoid repeated work.
-
+They are drop in replacement for the Scikit-learn versions.
 
 Memory constrained, but not compute constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-More detail in :ref:`hyperparameter.drop-in`
-
-.. autosummary::
-   dask_ml.model_selection.GridSearchCV
-   dask_ml.model_selection.RandomizedSearchCV
-   dask_ml.model_selection.IncrementalSearchCV
-
-These classes work with Dask collections
-:class:`~dask_ml.model_selection.IncrementalSearchCV` can be used here as well,
-as long as parameter ``decay_rate=0``.
-
-:class:`~dask_ml.model_selection.GridSearchCV` and
-:class:`~dask_ml.model_selection.RandomizedSearchCV` avoid repeated work and
-have flexible backends. :class:`~dask_ml.model_selection.IncrementalSearchCV`
-can stop when performance stops improving.
-
-Memory constrained and compute constrained
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+More detail in :ref:`hyperparameter.incremental`.
 
 .. autosummary::
    dask_ml.model_selection.IncrementalSearchCV
 
-These searches can
-reduce time to solution by (cleverly) deciding which parameters to evaluate.
-These searches `adapt` to history to decide which parameters to continue
-evaluating and are called "`adaptive` model selection algorithms".
+:class:`~dask_ml.model_selection.IncrementalSearchCV` calls ``partial_fit`` on
+each chunk of the data. :class:`~dask_ml.model_selection.GridSearchCV` and
+:class:`~dask_ml.model_selection.RandomizedSearchCV` also work with Dask
+objects, but call ``fit`` on each chunk of the data individually.
+
+Compute and memory constrained
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autosummary::
+   dask_ml.model_selection.IncrementalSearchCV
+
+This requires changing the ``decay_rate`` to be non-zero. The recommended value
+is ``decay_rate=1``.
+
+These searches can reduce time to solution by (cleverly) deciding which
+parameters to evaluate.  These searches `adapt` to history to decide which
+parameters to continue evaluating and are called "`adaptive` model selection
+algorithms".
 
 This can drastically reduce the computation required and make the problem many
 times simpler. These classes require that the estimator implement ``partial_fit``.
-
-:class:`~dask_ml.model_selection.GridSearchCV` and
-:class:`~dask_ml.model_selection.RandomizedSearchCV` are good fits here if
-significant computation is done at a beginning of a pipeline (e.g., for text
-classification). For more detail see the section on :ref:`Avoiding repeated
-work <avoid-repeated-work>`
 
 .. _hyperparameter.drop-in:
 
