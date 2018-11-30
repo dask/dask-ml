@@ -624,12 +624,6 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
     model on many hyper-parameters on a small amount of data, and then only
     continues training those models that seem to be performing well.
 
-    The number of actively trained hyper-parameter combinations decays
-    with an inverse decay given by the initial number of parameters and the
-    decay rate:
-
-        n_models = n_initial_parameters * (n_batches ** -decay_rate)
-
     See the :ref:`User Guide <hyperparameter.incremental>` for more.
 
     Parameters
@@ -653,10 +647,10 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
         Alternatively, you can set this to ``"grid"`` to do a full grid search.
 
-    decay_rate : float, default 1.0
+    decay_rate : float, default 0.0
         How quickly to decrease the number partial future fit calls.
         Higher `decay_rate` will result in lower training times, at the cost
-        of worse models.
+        of worse models. If changed, we recommend ``decay_rate == 1``.
 
     patience : int, default False
         Maximum number of non-improving scores before we stop training a
@@ -825,7 +819,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         estimator,
         param_distribution,
         n_initial_parameters=10,
-        decay_rate=1.0,
+        decay_rate=0.0,
         test_size=None,
         patience=False,
         tol=0.001,
