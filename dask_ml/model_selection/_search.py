@@ -1130,6 +1130,13 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             train/test set.
         **fit_params
             Parameters passed to the ``fit`` method of the estimator
+
+        Notes
+        -----
+        The arguments ``X`` and ``y`` can be Dask arrays, Dask dataframes or
+        Dask delayed objects. The data is never gathered on one machine because
+        ``estimator.fit`` is called on each chunk of the Dask data.
+
         """
         estimator = self.estimator
         from sklearn.metrics.scorer import _check_multimetric_scoring

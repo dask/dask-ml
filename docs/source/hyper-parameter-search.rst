@@ -163,6 +163,8 @@ to pull it locally to your computer:
     # Pass to fit without ever leaving the cluster
     search.fit(df[['x', 'x2']], df['y'])
 
+The data is not collected to one machine because the ``estimator.fit`` is
+called on each chunk of the Dask array/dataframe/future.
 
 .. _avoid-repeated-work:
 
