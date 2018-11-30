@@ -3,31 +3,86 @@ Hyper Parameter Search
 
 *Tools for performing hyperparameter optimization of Scikit-Learn API-compatible models using Dask*.
 
-There are two kinds of hyperparameter optimization estimators
-in Dask-ML. The appropriate one to use depends on the size of your dataset and
-whether the underlying estimator implements the `partial_fit` method.
+Issues in hyper-parameter searches
+----------------------------------
+Two scenarios can occur during hyper-parameter optimization. The
+hyper-parameter search can be both
 
-If your dataset is relatively small or the underlying estimator doesn't implement
-``partial_fit``, you can use :class:`dask_ml.model_selection.GridSearchCV` or
-:class:`dask_ml.model_selection.RandomizedSearchCV`.
-These are drop-in replacements for their scikit-learn counterparts, that should offer better performance and handling of Dask Arrays and DataFrames.
-The underlying estimator will need to be able to train on each cross-validation split of the data.
-See :ref:`hyperparameter.drop-in` for more.
+1. compute constrained
+2. memory constrained
 
-If your data is large and the underlying estimator implements ``partial_fit``, you can
-Dask-ML's :ref:`*incremental* hyperparameter optimizers <hyperparameter.incremental>`.
+These issues are independent and both can happen the same time. Being memory
+constrained has to do with dataset size, and being compute constrained has to
+do with estimator complexity and number of possible hyper-parameter
+combinations.
+
+An example of being compute constrained is with almost any neural network or
+deep learning framework. An example of being memory constrained is when the
+dataset doesn't fit in RAM. Dask-ML covers all 4 combinations of these two
+constraints.
+
+Neither compute nor memory constrained
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Scikit-learn handles this case.
+
+.. autosummary::
+   sklearn.model_selection.GridSearchCV
+   sklearn.model_selection.RandomizedSearchCV
+
+Compute constrained, but not memory constrained
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+More detail in :ref:`hyperparameter.drop-in`
+
+.. autosummary::
+   dask_ml.model_selection.GridSearchCV
+   dask_ml.model_selection.RandomizedSearchCV
+
+Both :class:`~dask_ml.model_selection.GridSearchCV` and
+:class:`~dask_ml.model_selection.RandomizedSearchCV` are especially good for
+pipelines because they avoid repeated work. They are drop in replacement
+for the Scikit-learn versions.
+
+Memory constrained, but not compute constrained
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+More detail in :ref:`hyperparameter.incremental`
+
+.. autosummary::
+   dask_ml.model_selection.IncrementalSearchCV
+
+By default :class:`~dask_ml.model_selection.IncrementalSearchCV` mirrors
+:class:`~dask_ml.model_selection.RandomizedSearchCV` and
+:class:`~dask_ml.model_selection.GridSearchCV` but calls `partial_fit` instead
+of `fit`. This means that it can scale to much larger datasets, including ones
+that don't fit in the memory of a single machine.
+
+Memory constrained and compute constrained
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autosummary::
+   dask_ml.model_selection.IncrementalSearchCV
+
+These searches can
+reduce time to solution by (cleverly) deciding which parameters to evaluate.
+These searches `adapt` to history to decide which parameters to continue
+evaluating and are called "`adaptive` model selection algorithms".
+
+This can drastically reduce the computation required and make the problem many
+times simpler. These classes require that the estimator implement ``partial_fit``.
+
+For ``IncrementalSearchCV`` to be adaptive, the parameter ``decay_rate`` need
+to be non-zero, preferably 1.
 
 .. _hyperparameter.drop-in:
 
 Drop-In Replacements for Scikit-Learn
 -------------------------------------
 
-Dask-ML implements GridSearchCV and RandomizedSearchCV.
+Dask-ML implements drop-in replacements for
+:class:`~sklearn.model_selection.GridSearchCV` and
+:class:`~sklearn.model_selection.RandomizedSearchCV`.
 
 .. autosummary::
-   sklearn.model_selection.GridSearchCV
    dask_ml.model_selection.GridSearchCV
-   sklearn.model_selection.RandomizedSearchCV
    dask_ml.model_selection.RandomizedSearchCV
 
 The varians in Dask-ML implement many (but not all) of the same parameters,
@@ -185,23 +240,21 @@ expensive early steps, this can be a big win when performing a grid search.
 Incremental Hyperparameter Optimization
 ---------------------------------------
 
-The second category of hyperparameter optimization uses *incremental*
-hyperparameter optimization. These should be used when your full dataset doesn't
-fit in memory on a single machine.
-
 .. autosummary::
    dask_ml.model_selection.IncrementalSearchCV
-
-Broadly speaking, incremental optimization starts with a batch of models (underlying
-estimators and hyperparameter combinations) and repeatedly calls the underlying estimator's
-``partial_fit`` method with batches of data.
 
 .. note::
 
    These estimators require the optional ``distributed`` library.
 
-Here's an example training on a "large" dataset (a Dask array) with the
-``IncrementalSearchCV``.
+These are make repeated calls to the ``partial_fit`` method of the estimator.
+Naturally, these classes determine when to stop calling ``partial_fit`` by
+`adapting to previous calls`. The most basic level of this is to stop training
+if the score doens't improve, which ``IncrementalSearchCV`` does.
+
+
+Basic use
+^^^^^^^^^
 
 .. ipython:: python
 
@@ -209,10 +262,11 @@ Here's an example training on a "large" dataset (a Dask array) with the
     client = Client()
     import numpy as np
     from dask_ml.datasets import make_classification
-    X, y = make_classification(n_samples=5000000, n_features=20,
-                               chunks=100000, random_state=0)
+    # X, y = make_classification(n_samples=5000000, n_features=20,
+    #                           chunks=100000, random_state=0)
+    X, y = make_classification(chunks=20, random_state=0)
 
-Our underlying estimator is an SGDClassifier. We specify a few parameters
+Our underlying estimator is an ``SGDClassifier``. We specify a few parameters
 common to each clone of the estimator:
 
 .. ipython:: python
@@ -236,8 +290,10 @@ train-and-score them until we find the best one.
 
     from dask_ml.model_selection import IncrementalSearchCV
 
-    search = IncrementalSearchCV(model, params, random_state=0)
-    search.fit(X, y, classes=[0, 1])
+    search = IncrementalSearchCV(model, params, 9, random_state=0)
+    _ = search.fit(X, y, classes=[0, 1])
+    search.best_score_
+    search.best_params_
 
 Note that when you do post-fit tasks like ``search.score``, the underlying
 estimator's score method is used. If that is unable to handle a
@@ -248,16 +304,10 @@ to use post-estimation features like scoring or prediction, we recommend using
 .. ipython:: python
 
    from dask_ml.wrappers import ParallelPostFit
-
-   params = {'estimator__alpha': np.logspace(-2, 1, num=1000),
-             'estimator__l1_ratio': np.linspace(0, 1, num=1000),
-             'estimator__average': [True, False]}
-
-   model = ParallelPostFit(SGDClassifier(tol=1e-3,
-                                         penalty="elasticnet",
-                                         random_state=0))
-   search = IncrementalSearchCV(model, params, random_state=0)
-   search.fit(X, y, classes=[0, 1])
+   params = {'estimator__alpha': np.logspace(-2, 1, num=1000)}
+   model = ParallelPostFit(SGDClassifier(tol=1e-3, random_state=0))
+   search = IncrementalSearchCV(model, params, 9, random_state=0)
+   _ = search.fit(X, y, classes=[0, 1])
    search.score(X, y)
 
 Note that the parameter names include the ``estimator__`` prefix,
