@@ -6,7 +6,7 @@ Hyper Parameter Search
 Issues in hyper-parameter searches
 ----------------------------------
 Two scenarios can occur during hyper-parameter optimization. The
-hyper-parameter search can be both
+hyper-parameter search can be
 
 1. compute constrained
 2. memory constrained
@@ -42,18 +42,30 @@ Both :class:`~dask_ml.model_selection.GridSearchCV` and
 pipelines because they avoid repeated work. They are drop in replacement
 for the Scikit-learn versions.
 
+For :class:`~dask_ml.model_selection.IncrementalSearchCV`, also solves "compute
+but not memory constrained" if  ``decay_rate=0``. This has the advantage of
+limiting some computation by stopping when performance stops increasing, though
+:class:`~dask_ml.model_selection.GridSearchCV` and
+:class:`~dask_ml.model_selection.RandomizedSearchCV` avoid repeated work.
+
+
 Memory constrained, but not compute constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-More detail in :ref:`hyperparameter.incremental`
+More detail in :ref:`hyperparameter.drop-in`
 
 .. autosummary::
+   dask_ml.model_selection.GridSearchCV
+   dask_ml.model_selection.RandomizedSearchCV
    dask_ml.model_selection.IncrementalSearchCV
 
-By default :class:`~dask_ml.model_selection.IncrementalSearchCV` mirrors
-:class:`~dask_ml.model_selection.RandomizedSearchCV` and
-:class:`~dask_ml.model_selection.GridSearchCV` but calls `partial_fit` instead
-of `fit`. This means that it can scale to much larger datasets, including ones
-that don't fit in the memory of a single machine.
+These classes work with Dask collections
+:class:`~dask_ml.model_selection.IncrementalSearchCV` can be used here as well,
+as long as parameter ``decay_rate=0``.
+
+:class:`~dask_ml.model_selection.GridSearchCV` and
+:class:`~dask_ml.model_selection.RandomizedSearchCV` avoid repeated work and
+have flexible backends. :class:`~dask_ml.model_selection.IncrementalSearchCV`
+can stop when performance stops improving.
 
 Memory constrained and compute constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -69,8 +81,11 @@ evaluating and are called "`adaptive` model selection algorithms".
 This can drastically reduce the computation required and make the problem many
 times simpler. These classes require that the estimator implement ``partial_fit``.
 
-For ``IncrementalSearchCV`` to be adaptive, the parameter ``decay_rate`` need
-to be non-zero, preferably 1.
+:class:`~dask_ml.model_selection.GridSearchCV` and
+:class:`~dask_ml.model_selection.RandomizedSearchCV` are good fits here if
+significant computation is done at a beginning of a pipeline (e.g., for text
+classification). For more detail see the section on :ref:`Avoiding repeated
+work <avoid-repeated-work>`
 
 .. _hyperparameter.drop-in:
 
