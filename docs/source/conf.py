@@ -100,7 +100,7 @@ author = "Dask developers"
 # built documents.
 #
 # The short X.Y version.
-version = ""
+# version = ""
 
 release = packaging.version.parse(version).base_version
 
