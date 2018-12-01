@@ -11,6 +11,9 @@ import numpy as np
 import packaging.version
 from dask.base import tokenize
 from dask.delayed import delayed
+
+from dask.distributed import Client, as_completed #TODO Make this optional
+
 from dask.utils import derived_from
 from sklearn import model_selection
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, clone, is_classifier
@@ -1194,7 +1197,27 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         if scheduler is dask.threaded.get and n_jobs == 1:
             scheduler = dask.local.get_sync
 
-        out = scheduler(dsk, keys, num_workers=n_jobs)
+        if isinstance(scheduler.__self__, dask.distributed.Client):
+            out = []
+
+            # FIXME: Hack to pull out fit-score futures how should we do this cleaner?
+            keys_2 = [keys[0]] + [k for k in dsk.keys() if 'fit-score' in k[0]]
+
+            # FIXME: Ignore the last 4 items in the graph as they are not needed right now
+            dsk_2 = {k: dsk[k] for k in list(dsk.keys())[0:-4]}
+
+            futures = scheduler(dsk_2, keys_2, num_workers=n_jobs, sync=False)
+            # TODO: should we get batches of futures instead of getting them one at a time?
+            for future, result in as_completed(futures, with_results=True):
+                if future.status == 'finished':
+                    out.append(result)
+                    future.cancel()
+                # FIXME: Hack to break out of loop. How to do it cleaner?
+                if len(out) == len(futures)-1:
+                    break
+            # TODO: Now that we have the results of the random search cv. we need to continue the graph.
+        else:
+            out = scheduler(dsk, keys, num_workers=n_jobs)
 
         results = handle_deprecated_train_score(out[0], self.return_train_score)
         self.cv_results_ = results
