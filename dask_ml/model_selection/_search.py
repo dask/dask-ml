@@ -1198,7 +1198,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             scheduler = dask.local.get_sync
 
         if isinstance(scheduler.__self__, dask.distributed.Client):
-            cv_results_key = [k for k, v in dsk.items() if 'cv-results' in k][0]
+            cv_results_key = [k for k in dsk.keys() if 'cv-results' in k][0]
             score_keys = dsk[cv_results_key][1]
             futures = scheduler(dsk, score_keys, num_workers=n_jobs, sync=False)
 
