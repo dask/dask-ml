@@ -13,6 +13,7 @@ import pytest
 from dask.base import tokenize
 from dask.callbacks import Callback
 from dask.delayed import delayed
+from dask.distributed import Client
 from dask.utils import tmpdir
 from sklearn.datasets import load_iris, make_classification
 from sklearn.decomposition import PCA
@@ -769,6 +770,7 @@ def test_normalize_n_jobs():
         ("synchronous", 4),
         ("sync", 4),
         ("multiprocessing", 4),
+        (Client(), 4),
         pytest.param(dask.get, 4, marks=[pytest.mark.filterwarnings("ignore")]),
     ],
 )
