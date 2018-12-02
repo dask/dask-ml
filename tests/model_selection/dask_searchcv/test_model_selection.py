@@ -760,17 +760,17 @@ def test_normalize_n_jobs():
     with pytest.raises(TypeError):
         _normalize_n_jobs("not an integer")
 
-
+from dask.distributed import Client, LocalCluster
 @pytest.mark.parametrize(
     "scheduler,n_jobs",
     [
+        (Client(), 4),
         (None, 4),
         ("threading", 4),
         ("threading", 1),
         ("synchronous", 4),
         ("sync", 4),
         ("multiprocessing", 4),
-        (Client(), 4),
         pytest.param(dask.get, 4, marks=[pytest.mark.filterwarnings("ignore")]),
     ],
 )
@@ -784,6 +784,9 @@ def test_scheduler_param(scheduler, n_jobs):
         n_jobs=n_jobs,
     )
     gs.fit(X, y)
+
+    if hasattr(scheduler, 'close'):
+        scheduler.close()
 
 
 @pytest.mark.skipif("not has_distributed")
