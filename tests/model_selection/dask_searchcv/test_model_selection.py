@@ -13,7 +13,6 @@ import pytest
 from dask.base import tokenize
 from dask.callbacks import Callback
 from dask.delayed import delayed
-from dask.distributed import Client
 from dask.utils import tmpdir
 from sklearn.datasets import load_iris, make_classification
 from sklearn.decomposition import PCA
@@ -763,7 +762,6 @@ def test_normalize_n_jobs():
 @pytest.mark.parametrize(
     "scheduler,n_jobs",
     [
-        (Client(), 4),
         (None, 4),
         ("threading", 4),
         ("threading", 1),
@@ -785,10 +783,6 @@ def test_scheduler_param(scheduler, n_jobs):
             n_jobs=n_jobs,
         )
         gs.fit(X, y)
-
-    if hasattr(scheduler, 'close'):
-        scheduler.close()
-
 
 @pytest.mark.skipif("not has_distributed")
 def test_scheduler_param_distributed(loop):
