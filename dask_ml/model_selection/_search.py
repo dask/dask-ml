@@ -1198,26 +1198,23 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             scheduler = dask.local.get_sync
 
         if isinstance(scheduler.__self__, dask.distributed.Client):
-            out = []
+            cv_results_key = [k for k, v in dsk.items() if 'cv-results' in k][0]
+            score_keys = dsk[cv_results_key][1]
+            futures = scheduler(dsk, score_keys, num_workers=n_jobs, sync=False)
 
-            # FIXME: Hack to pull out fit-score futures how should we do this cleaner?
-            keys_2 = [keys[0]] + [k for k in dsk.keys() if 'fit-score' in k[0]]
-
-            # FIXME: Ignore the last 4 items in the graph as they are not needed right now
-            dsk_2 = {k: dsk[k] for k in list(dsk.keys())[0:-4]}
-
-            futures = scheduler(dsk_2, keys_2, num_workers=n_jobs, sync=False)
-            # TODO: should we get batches of futures instead of getting them one at a time?
+            scores = []
             for future, result in as_completed(futures, with_results=True):
                 if future.status == 'finished':
-                    out.append(result)
+                    scores.append(result)
                     future.cancel()
-                # FIXME: Hack to break out of loop. How to do it cleaner?
-                if len(out) == len(futures)-1:
+                if len(scores) == len(score_keys):
                     break
-            # TODO: Now that we have the results of the random search cv. we need to continue the graph.
-        else:
-            out = scheduler(dsk, keys, num_workers=n_jobs)
+            
+            tmp_cv_results = list(dsk[cv_results_key])
+            tmp_cv_results[1] = scores
+            dsk[cv_results_key] = tuple(tmp_cv_results)
+
+        out = scheduler(dsk, keys, num_workers=n_jobs)
 
         results = handle_deprecated_train_score(out[0], self.return_train_score)
         self.cv_results_ = results
