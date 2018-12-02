@@ -1169,12 +1169,12 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             raise ValueError(
                 "error_score must be the string 'raise' or a" " numeric value."
             )
-        candidate_params = list(self._get_param_iterator())
+
         dsk, keys, n_splits = build_graph(
             estimator,
             self.cv,
             self.scorer_,
-            candidate_params,
+            list(self._get_param_iterator()),
             X,
             y,
             groups,
