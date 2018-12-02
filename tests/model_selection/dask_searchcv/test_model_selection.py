@@ -760,7 +760,6 @@ def test_normalize_n_jobs():
     with pytest.raises(TypeError):
         _normalize_n_jobs("not an integer")
 
-from dask.distributed import Client, LocalCluster
 @pytest.mark.parametrize(
     "scheduler,n_jobs",
     [
@@ -776,14 +775,16 @@ from dask.distributed import Client, LocalCluster
 )
 def test_scheduler_param(scheduler, n_jobs):
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
-    gs = dcv.GridSearchCV(
-        MockClassifier(),
-        {"foo_param": [0, 1, 2]},
-        cv=3,
-        scheduler=scheduler,
-        n_jobs=n_jobs,
-    )
-    gs.fit(X, y)
+
+    with scheduler() as (s, [_, _]):
+        gs = dcv.GridSearchCV(
+            MockClassifier(),
+            {"foo_param": [0, 1, 2]},
+            cv=3,
+            scheduler=s,
+            n_jobs=n_jobs,
+        )
+        gs.fit(X, y)
 
     if hasattr(scheduler, 'close'):
         scheduler.close()
