@@ -12,7 +12,10 @@ import packaging.version
 from dask.base import tokenize
 from dask.delayed import delayed
 
-from dask.distributed import Client, as_completed #TODO Make this optional
+try:
+    import dask.distributed
+except ImportError:
+    dask.distributed = None
 
 from dask.utils import derived_from
 from sklearn import model_selection
@@ -1197,13 +1200,13 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         if scheduler is dask.threaded.get and n_jobs == 1:
             scheduler = dask.local.get_sync
 
-        if isinstance(scheduler.__self__, dask.distributed.Client):
+        if isinstance(getattr(scheduler, '__self__', None), dask.distributed.Client):
             cv_results_key = next(k for k in dsk.keys() if 'cv-results' in k)
             score_keys = dsk[cv_results_key][1]
             futures = scheduler(dsk, score_keys, num_workers=n_jobs, sync=False)
 
             score_map = {}
-            for future, result in as_completed(futures, with_results=True):
+            for future, result in dask.distributed.as_completed(futures, with_results=True):
                 if future.status == 'finished':
                     score_map[future.key] = result
                     future.cancel()
