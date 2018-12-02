@@ -1202,15 +1202,16 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             score_keys = dsk[cv_results_key][1]
             futures = scheduler(dsk, score_keys, num_workers=n_jobs, sync=False)
 
-            scores = []
-            # Fixme: Have to be careful here, this can return out of order, how to ensure we keep params and results in sync?
+            score_map = {}
             for future, result in as_completed(futures, with_results=True):
                 if future.status == 'finished':
-                    scores.append(result)
+                    score_map[future.key] = result
                     future.cancel()
-                if len(scores) == len(score_keys):
+                if len(score_map) == len(score_keys):
                     break
 
+            # Make sure the returned scores is in the same order as the score_keys
+            scores = [score_map[k] for k in score_keys]
             tmp_cv_results = list(dsk[cv_results_key])
             tmp_cv_results[1] = scores
             dsk[cv_results_key] = tuple(tmp_cv_results)
