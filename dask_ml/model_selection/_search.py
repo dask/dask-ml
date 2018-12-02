@@ -1210,7 +1210,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
                 if len(score_map) == len(score_keys):
                     break
 
-            # Make sure the returned scores is in the same order as the score_keys
+            # Sort scores by score_keys so parameters line up
             scores = [score_map[k] for k in score_keys]
             tmp_cv_results = list(dsk[cv_results_key])
             tmp_cv_results[1] = scores
