@@ -1169,12 +1169,12 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             raise ValueError(
                 "error_score must be the string 'raise' or a" " numeric value."
             )
-
+        candidate_params = list(self._get_param_iterator())
         dsk, keys, n_splits = build_graph(
             estimator,
             self.cv,
             self.scorer_,
-            list(self._get_param_iterator()),
+            candidate_params,
             X,
             y,
             groups,
@@ -1203,13 +1203,14 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             futures = scheduler(dsk, score_keys, num_workers=n_jobs, sync=False)
 
             scores = []
+            # Fixme: Have to be careful here, this can return out of order, how to ensure we keep params and results in sync?
             for future, result in as_completed(futures, with_results=True):
                 if future.status == 'finished':
                     scores.append(result)
                     future.cancel()
                 if len(scores) == len(score_keys):
                     break
-            
+
             tmp_cv_results = list(dsk[cv_results_key])
             tmp_cv_results[1] = scores
             dsk[cv_results_key] = tuple(tmp_cv_results)
