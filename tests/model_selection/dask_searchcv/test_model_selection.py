@@ -797,6 +797,39 @@ def test_scheduler_param_distributed(loop):
 
             assert client.run_on_scheduler(f)  # some work happened on cluster
 
+from sklearn.base import BaseEstimator
+import os.path
+
+
+class TestAsCompletedEstimator(BaseEstimator):
+    def __init__(self, kill_file=None):
+        self.kill_file = kill_file
+
+    def fit(self):
+        if self.kill_file:
+            if not os.path.isfile(self.kill_file):
+                self.kill_file.write('done')
+                # kill worker
+
+        return 1
+
+    def transform(self):
+        pass
+
+@pytest.mark.skipif("not has_distributed")
+def test_gather_as_completed_distributed(loop, tmpdir):
+    X, y = make_classification(n_samples=100, n_features=10, random_state=0)
+    with cluster() as (s, [a, b]):
+        with Client(s["address"], loop=loop) as client:
+            kill_file = tmpdir.join('is_killed.txt')
+            est = TestAsCompletedEstimator(kill_file)
+            est.fit()
+            est.fit()
+
+    tmpdir.remove()
+
+
+
 
 def test_cv_multiplemetrics():
     X, y = make_classification(random_state=0)
