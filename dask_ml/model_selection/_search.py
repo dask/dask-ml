@@ -116,6 +116,7 @@ def build_cv_graph(
     return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
     cache_cv=True,
 ):
+
     X, y, groups = to_indexable(X, y, groups)
     cv = check_cv(cv, y, is_classifier(estimator))
     # "pairwise" estimators require a different graph for CV splitting
@@ -199,7 +200,6 @@ def build_result_graph(
         metrics = list(scorer.keys())
     else:
         metrics = None
-
     dsk[cv_results] = (
         create_cv_results,
         scores,
@@ -220,7 +220,6 @@ def build_result_graph(
         best_params = "best-params-" + main_token
         dsk[best_params] = (get_best_params, candidate_params, cv_results, scorer)
         best_estimator = "best-estimator-" + main_token
-
         if fit_params:
             fit_params = (
                 dict,
@@ -237,6 +236,7 @@ def build_result_graph(
         keys.append(best_estimator)
 
     return dsk, keys
+
 
 def normalize_params(params):
     """Take a list of dictionaries, and tokenize/normalize."""
@@ -1020,17 +1020,17 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
     """Base class for hyper parameter search with cross-validation."""
 
     def __init__(
-            self,
-            estimator,
-            scoring=None,
-            iid=True,
-            refit=True,
-            cv=None,
-            error_score="raise",
-            return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
-            scheduler=None,
-            n_jobs=-1,
-            cache_cv=True,
+        self,
+        estimator,
+        scoring=None,
+        iid=True,
+        refit=True,
+        cv=None,
+        error_score="raise",
+        return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
+        scheduler=None,
+        n_jobs=-1,
+        cache_cv=True,
     ):
         self.scoring = scoring
         self.estimator = estimator
@@ -1159,10 +1159,9 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
 
         if self.multimetric_:
             if self.refit is not False and (
-                    not isinstance(self.refit, str)
-                    or
-                    # This will work for both dict / list (tuple)
-                    self.refit not in scorer
+                not isinstance(self.refit, str)
+                # This will work for both dict / list (tuple)
+                or self.refit not in scorer
             ):
                 raise ValueError(
                     "For multi-metric scoring, the parameter "
@@ -1184,7 +1183,6 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             )
 
         candidate_params = list(self._get_param_iterator())
-
         dsk, keys, n_splits, main_token, X_name, y_name, weights = build_cv_graph(
             estimator,
             self.cv,
@@ -1198,7 +1196,6 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             return_train_score=self.return_train_score,
             cache_cv=self.cache_cv
         )
-
         self.dask_graph_ = dsk
         self.n_splits_ = n_splits
 
