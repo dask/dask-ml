@@ -1238,10 +1238,10 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             multimetric
         )
 
-        self.dask_graph_ = dsk
-        self.n_splits_ = n_splits
         out = scheduler(dsk, keys, num_workers=n_jobs)
         results = handle_deprecated_train_score(out[0], self.return_train_score)
+        self.dask_graph_ = dsk
+        self.n_splits_ = n_splits
         self.cv_results_ = results
 
         if self.refit:
