@@ -1165,10 +1165,9 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
 
         if self.multimetric_:
             if self.refit is not False and (
-                    not isinstance(self.refit, str)
-                    or
-                    # This will work for both dict / list (tuple)
-                    self.refit not in scorer
+                not isinstance(self.refit, str)
+                # This will work for both dict / list (tuple)
+                or self.refit not in scorer
             ):
                 raise ValueError(
                     "For multi-metric scoring, the parameter "

@@ -14,13 +14,13 @@ ddf = dd.from_pandas(df, npartitions=2).reset_index(drop=True)  # unknown divisi
 
 def test_column_transformer():
     a = sklearn.compose.make_column_transformer(
-        (["A"], sklearn.preprocessing.OneHotEncoder(sparse=False)),
-        (["B"], sklearn.preprocessing.StandardScaler()),
+        (sklearn.preprocessing.OneHotEncoder(sparse=False), ["A"]),
+        (sklearn.preprocessing.StandardScaler(), ["B"]),
     )
 
     b = dask_ml.compose.make_column_transformer(
-        (["A"], dask_ml.preprocessing.OneHotEncoder(sparse=False)),
-        (["B"], dask_ml.preprocessing.StandardScaler()),
+        (dask_ml.preprocessing.OneHotEncoder(sparse=False), ["A"]),
+        (dask_ml.preprocessing.StandardScaler(), ["B"]),
     )
 
     a.fit(df)
