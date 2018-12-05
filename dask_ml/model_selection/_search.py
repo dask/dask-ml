@@ -1197,8 +1197,6 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             return_train_score=self.return_train_score,
             cache_cv=self.cache_cv
         )
-        self.dask_graph_ = dsk
-        self.n_splits_ = n_splits
 
         n_jobs = _normalize_n_jobs(self.n_jobs)
         scheduler = dask.base.get_scheduler(scheduler=self.scheduler)
@@ -1240,6 +1238,8 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             multimetric
         )
 
+        self.dask_graph_ = dsk
+        self.n_splits_ = n_splits
         out = scheduler(dsk, keys, num_workers=n_jobs)
         results = handle_deprecated_train_score(out[0], self.return_train_score)
         self.cv_results_ = results
