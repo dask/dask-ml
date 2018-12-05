@@ -66,13 +66,12 @@ try:
 except ImportError:  # pragma: no cover
     from toolz import get, pluck
 
-
 __all__ = ["GridSearchCV", "RandomizedSearchCV"]
-
 
 if SK_VERSION <= packaging.version.parse("0.21.dev0"):
 
     _RETURN_TRAIN_SCORE_DEFAULT = "warn"
+
 
     def handle_deprecated_train_score(results, return_train_score):
         if return_train_score == "warn":
@@ -92,6 +91,7 @@ if SK_VERSION <= packaging.version.parse("0.21.dev0"):
 else:
     _RETURN_TRAIN_SCORE_DEFAULT = False
 
+
     def handle_deprecated_train_score(results, return_train_score):
         return results
 
@@ -108,23 +108,20 @@ class TokenIterator(object):
         return self.token if c == 0 else self.token + str(c)
 
 
-def build_graph(
-    estimator,
-    cv,
-    scorer,
-    candidate_params,
-    X,
-    y=None,
-    groups=None,
-    fit_params=None,
-    iid=True,
-    refit=True,
-    error_score="raise",
-    return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
-    cache_cv=True,
-    multimetric=False,
+def build_cv_graph(
+        estimator,
+        cv,
+        scorer,
+        candidate_params,
+        X,
+        y=None,
+        groups=None,
+        fit_params=None,
+        iid=True,
+        error_score="raise",
+        return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
+        cache_cv=True,
 ):
-
     X, y, groups = to_indexable(X, y, groups)
     cv = check_cv(cv, y, is_classifier(estimator))
     # "pairwise" estimators require a different graph for CV splitting
@@ -183,17 +180,36 @@ def build_graph(
         return_train_score,
     )
 
+    return dsk, scores, n_splits, main_token, X_name, y_name, weights
+
+
+def build_result_graph(
+        dsk,
+        main_token,
+        estimator,
+        X_name,
+        y_name,
+        fit_params,
+        n_splits,
+        error_score,
+        scorer,
+        candidate_params,
+        scores,
+        weights,
+        refit,
+        multimetric
+):
+
     cv_results = "cv-results-" + main_token
-    candidate_params_name = "cv-parameters-" + main_token
-    dsk[candidate_params_name] = (decompress_params, fields, params)
     if multimetric:
         metrics = list(scorer.keys())
     else:
         metrics = None
+
     dsk[cv_results] = (
         create_cv_results,
         scores,
-        candidate_params_name,
+        candidate_params,
         n_splits,
         error_score,
         weights,
@@ -208,8 +224,9 @@ def build_graph(
             scorer = "score"
 
         best_params = "best-params-" + main_token
-        dsk[best_params] = (get_best_params, candidate_params_name, cv_results, scorer)
+        dsk[best_params] = (get_best_params, candidate_params, cv_results, scorer)
         best_estimator = "best-estimator-" + main_token
+
         if fit_params:
             fit_params = (
                 dict,
@@ -225,8 +242,7 @@ def build_graph(
         )
         keys.append(best_estimator)
 
-    return dsk, keys, n_splits
-
+    return dsk, keys
 
 def normalize_params(params):
     """Take a list of dictionaries, and tokenize/normalize."""
@@ -266,20 +282,20 @@ def _group_fit_params(steps, fit_params):
 
 
 def do_fit_and_score(
-    dsk,
-    main_token,
-    est,
-    cv,
-    fields,
-    tokens,
-    params,
-    X,
-    y,
-    fit_params,
-    n_splits,
-    error_score,
-    scorer,
-    return_train_score,
+        dsk,
+        main_token,
+        est,
+        cv,
+        fields,
+        tokens,
+        params,
+        X,
+        y,
+        fit_params,
+        n_splits,
+        error_score,
+        scorer,
+        return_train_score,
 ):
     if not isinstance(est, Pipeline):
         # Fitting and scoring can all be done as a single task
@@ -372,18 +388,18 @@ def do_fit_and_score(
 
 
 def do_fit(
-    dsk,
-    next_token,
-    est,
-    cv,
-    fields,
-    tokens,
-    params,
-    Xs,
-    ys,
-    fit_params,
-    n_splits,
-    error_score,
+        dsk,
+        next_token,
+        est,
+        cv,
+        fields,
+        tokens,
+        params,
+        Xs,
+        ys,
+        fit_params,
+        n_splits,
+        error_score,
 ):
     if isinstance(est, Pipeline) and params is not None:
         return _do_pipeline(
@@ -442,18 +458,18 @@ def do_fit(
 
 
 def do_fit_transform(
-    dsk,
-    next_token,
-    est,
-    cv,
-    fields,
-    tokens,
-    params,
-    Xs,
-    ys,
-    fit_params,
-    n_splits,
-    error_score,
+        dsk,
+        next_token,
+        est,
+        cv,
+        fields,
+        tokens,
+        params,
+        Xs,
+        ys,
+        fit_params,
+        n_splits,
+        error_score,
 ):
     if isinstance(est, Pipeline) and params is not None:
         return _do_pipeline(
@@ -560,24 +576,24 @@ def _group_ids_by_index(index, tokens):
 
 
 def _do_fit_step(
-    dsk,
-    next_token,
-    step,
-    cv,
-    fields,
-    tokens,
-    params,
-    Xs,
-    ys,
-    fit_params,
-    n_splits,
-    error_score,
-    step_fields_lk,
-    fit_params_lk,
-    field_to_index,
-    step_name,
-    none_passthrough,
-    is_transform,
+        dsk,
+        next_token,
+        step,
+        cv,
+        fields,
+        tokens,
+        params,
+        Xs,
+        ys,
+        fit_params,
+        n_splits,
+        error_score,
+        step_fields_lk,
+        fit_params_lk,
+        field_to_index,
+        step_name,
+        none_passthrough,
+        is_transform,
 ):
     sub_fields, sub_inds = map(list, unzip(step_fields_lk[step_name], 2))
     sub_fit_params = fit_params_lk[step_name]
@@ -699,19 +715,19 @@ def _do_fit_step(
 
 
 def _do_pipeline(
-    dsk,
-    next_token,
-    est,
-    cv,
-    fields,
-    tokens,
-    params,
-    Xs,
-    ys,
-    fit_params,
-    n_splits,
-    error_score,
-    is_transform,
+        dsk,
+        next_token,
+        est,
+        cv,
+        fields,
+        tokens,
+        params,
+        Xs,
+        ys,
+        fit_params,
+        n_splits,
+        error_score,
+        is_transform,
 ):
     if "steps" in fields:
         raise NotImplementedError("Setting Pipeline.steps in a gridsearch")
@@ -792,18 +808,18 @@ def _do_n_samples(dsk, token, Xs, n_splits):
 
 
 def _do_featureunion(
-    dsk,
-    next_token,
-    est,
-    cv,
-    fields,
-    tokens,
-    params,
-    Xs,
-    ys,
-    fit_params,
-    n_splits,
-    error_score,
+        dsk,
+        next_token,
+        est,
+        cv,
+        fields,
+        tokens,
+        params,
+        Xs,
+        ys,
+        fit_params,
+        n_splits,
+        error_score,
 ):
     if "transformer_list" in fields:
         raise NotImplementedError(
@@ -874,7 +890,7 @@ def _do_featureunion(
     m = 0
     seen = {}
     for steps, Xs, wt, (w, wl), nsamp in zip(
-        zip(*fit_steps), zip(*tr_Xs), weight_tokens, weights, n_samples
+            zip(*fit_steps), zip(*tr_Xs), weight_tokens, weights, n_samples
     ):
         if (steps, wt) in seen:
             out_append(seen[steps, wt])
@@ -953,7 +969,7 @@ def compute_n_splits(cv, X, y=None, groups=None):
         return cv.get_n_splits(X, None, None)
 
     elif isinstance(cv, (LeaveOneGroupOut, LeavePGroupsOut)) and not is_dask_collection(
-        groups
+            groups
     ):
         # Only `groups` is referenced for these classes
         return cv.get_n_splits(None, None, groups)
@@ -1010,17 +1026,17 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
     """Base class for hyper parameter search with cross-validation."""
 
     def __init__(
-        self,
-        estimator,
-        scoring=None,
-        iid=True,
-        refit=True,
-        cv=None,
-        error_score="raise",
-        return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
-        scheduler=None,
-        n_jobs=-1,
-        cache_cv=True,
+            self,
+            estimator,
+            scoring=None,
+            iid=True,
+            refit=True,
+            cv=None,
+            error_score="raise",
+            return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
+            scheduler=None,
+            n_jobs=-1,
+            cache_cv=True,
     ):
         self.scoring = scoring
         self.estimator = estimator
@@ -1149,10 +1165,10 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
 
         if self.multimetric_:
             if self.refit is not False and (
-                not isinstance(self.refit, str)
-                or
-                # This will work for both dict / list (tuple)
-                self.refit not in scorer
+                    not isinstance(self.refit, str)
+                    or
+                    # This will work for both dict / list (tuple)
+                    self.refit not in scorer
             ):
                 raise ValueError(
                     "For multi-metric scoring, the parameter "
@@ -1173,22 +1189,22 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
                 "error_score must be the string 'raise' or a" " numeric value."
             )
 
-        dsk, keys, n_splits = build_graph(
+        candidate_params = list(self._get_param_iterator())
+
+        dsk, keys, n_splits, main_token, X_name, y_name, weights = build_cv_graph(
             estimator,
             self.cv,
             self.scorer_,
-            list(self._get_param_iterator()),
+            candidate_params,
             X,
-            y,
-            groups,
-            fit_params,
-            iid=self.iid,
-            refit=self.refit,
+            y=y,
+            groups=groups,
+            fit_params=fit_params,
             error_score=error_score,
             return_train_score=self.return_train_score,
-            cache_cv=self.cache_cv,
-            multimetric=multimetric,
+            cache_cv=self.cache_cv
         )
+
         self.dask_graph_ = dsk
         self.n_splits_ = n_splits
 
@@ -1201,26 +1217,39 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             scheduler = dask.local.get_sync
 
         if dask.distributed and isinstance(getattr(scheduler, '__self__', None), dask.distributed.Client):
-            cv_results_key = next(k for k in dsk.keys() if 'cv-results' in k)
-            score_keys = dsk[cv_results_key][1]
-            futures = scheduler(dsk, score_keys, num_workers=n_jobs, sync=False)
+            futures = scheduler(dsk, keys, num_workers=n_jobs, sync=False)
 
             score_map = {}
             for future, result in dask.distributed.as_completed(futures, with_results=True):
                 if future.status == 'finished':
                     score_map[future.key] = result
                     future.cancel()
-                if len(score_map) == len(score_keys):
+                if len(score_map) == len(keys):
                     break
 
             # Sort scores by score_keys so parameters line up
-            scores = [score_map[k] for k in score_keys]
-            tmp_cv_results = list(dsk[cv_results_key])
-            tmp_cv_results[1] = scores
-            dsk[cv_results_key] = tuple(tmp_cv_results)
+            scores = [score_map[k] for k in keys]
+        else:
+            scores = scheduler(dsk, keys, num_workers=n_jobs)
+
+        dsk, keys = build_result_graph(
+            dsk,
+            main_token,
+            estimator,
+            X_name,
+            y_name,
+            fit_params,
+            n_splits,
+            error_score,
+            self.scorer_,
+            candidate_params,
+            scores,
+            weights,
+            self.refit,
+            multimetric
+        )
 
         out = scheduler(dsk, keys, num_workers=n_jobs)
-
         results = handle_deprecated_train_score(out[0], self.return_train_score)
         self.cv_results_ = results
 
@@ -1492,18 +1521,18 @@ class GridSearchCV(StaticDaskSearchMixin, DaskBaseSearchCV):
     )
 
     def __init__(
-        self,
-        estimator,
-        param_grid,
-        scoring=None,
-        iid=True,
-        refit=True,
-        cv=None,
-        error_score="raise",
-        return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
-        scheduler=None,
-        n_jobs=-1,
-        cache_cv=True,
+            self,
+            estimator,
+            param_grid,
+            scoring=None,
+            iid=True,
+            refit=True,
+            cv=None,
+            error_score="raise",
+            return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
+            scheduler=None,
+            n_jobs=-1,
+            cache_cv=True,
     ):
         super(GridSearchCV, self).__init__(
             estimator=estimator,
@@ -1595,22 +1624,21 @@ class RandomizedSearchCV(StaticDaskSearchMixin, DaskBaseSearchCV):
     )
 
     def __init__(
-        self,
-        estimator,
-        param_distributions,
-        n_iter=10,
-        random_state=None,
-        scoring=None,
-        iid=True,
-        refit=True,
-        cv=None,
-        error_score="raise",
-        return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
-        scheduler=None,
-        n_jobs=-1,
-        cache_cv=True,
+            self,
+            estimator,
+            param_distributions,
+            n_iter=10,
+            random_state=None,
+            scoring=None,
+            iid=True,
+            refit=True,
+            cv=None,
+            error_score="raise",
+            return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
+            scheduler=None,
+            n_jobs=-1,
+            cache_cv=True,
     ):
-
         super(RandomizedSearchCV, self).__init__(
             estimator=estimator,
             scoring=scoring,
