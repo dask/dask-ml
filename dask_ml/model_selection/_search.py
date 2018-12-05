@@ -42,7 +42,6 @@ from .methods import (
     cv_extract_params,
     cv_n_samples,
     cv_split,
-    decompress_params,
     feature_union,
     feature_union_concat,
     fit,
@@ -60,6 +59,10 @@ try:
 except ImportError:  # pragma: no cover
     from toolz import get, pluck
 
+try:
+    from dask.distributed import as_completed
+except ImportError:
+    pass
 
 __all__ = ["GridSearchCV", "RandomizedSearchCV"]
 
@@ -1208,14 +1211,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
 
         if 'Client' in type(getattr(scheduler, '__self__', None)).__name__:
             futures = scheduler(dsk, keys, num_workers=n_jobs, sync=False)
-            score_map = {}
-            for future, result in dask.distributed.as_completed(futures, with_results=True):
-                if future.status == 'finished':
-                    score_map[future.key] = result
-                    future.cancel()
-                if len(score_map) == len(keys):
-                    break
-
+            score_map = {f.key: res for f, res in as_completed(futures, with_results=True)}
             # Sort scores by score_keys so parameters line up
             scores = [score_map[k] for k in keys]
         else:
