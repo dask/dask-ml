@@ -12,11 +12,6 @@ import packaging.version
 from dask.base import tokenize
 from dask.delayed import delayed
 
-try:
-    import dask.distributed
-except ImportError:
-    dask.distributed = None
-
 from dask.utils import derived_from
 from sklearn import model_selection
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, clone, is_classifier
@@ -1165,9 +1160,10 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
 
         if self.multimetric_:
             if self.refit is not False and (
-                not isinstance(self.refit, str)
-                # This will work for both dict / list (tuple)
-                or self.refit not in scorer
+                    not isinstance(self.refit, str)
+                    or
+                    # This will work for both dict / list (tuple)
+                    self.refit not in scorer
             ):
                 raise ValueError(
                     "For multi-metric scoring, the parameter "
@@ -1215,9 +1211,8 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         if scheduler is dask.threaded.get and n_jobs == 1:
             scheduler = dask.local.get_sync
 
-        if dask.distributed and isinstance(getattr(scheduler, '__self__', None), dask.distributed.Client):
+        if 'Client' in type(getattr(scheduler, '__self__', None)).__name__:
             futures = scheduler(dsk, keys, num_workers=n_jobs, sync=False)
-
             score_map = {}
             for future, result in dask.distributed.as_completed(futures, with_results=True):
                 if future.status == 'finished':
