@@ -1211,11 +1211,17 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
 
         if 'Client' in type(getattr(scheduler, '__self__', None)).__name__:
             futures = scheduler(dsk, keys, num_workers=n_jobs, sync=False)
-            score_map = {f.key: res for f, res in as_completed(futures, with_results=True)}
-            # Sort scores by score_keys so parameters line up
-            scores = [score_map[k] for k in keys]
+            scores_map = {
+                f.key: res
+                for batch in as_completed(futures, with_results=True).batches()
+                for f, res in batch
+            }
+            scores = [scores_map[k] for k in keys]
         else:
             scores = scheduler(dsk, keys, num_workers=n_jobs)
+
+        for key in keys:
+            dsk.pop(key)
 
         dsk, keys = build_result_graph(
             dsk,
