@@ -175,7 +175,7 @@ def build_cv_graph(
         return_train_score,
     )
 
-    return dsk, scores, n_splits, main_token, X_name, y_name, weights
+    return dsk, scores, n_splits, main_token, X_name, y_name, weights, fit_params
 
 
 def build_result_graph(
@@ -1183,7 +1183,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             )
 
         candidate_params = list(self._get_param_iterator())
-        dsk, keys, n_splits, main_token, X_name, y_name, weights = build_cv_graph(
+        dsk, keys, n_splits, main_token, X_name, y_name, weights, fit_params = build_cv_graph(
             estimator,
             self.cv,
             self.scorer_,
@@ -1192,6 +1192,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             y=y,
             groups=groups,
             fit_params=fit_params,
+            iid=self.iid,
             error_score=error_score,
             return_train_score=self.return_train_score,
             cache_cv=self.cache_cv
