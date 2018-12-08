@@ -70,7 +70,6 @@ if SK_VERSION <= packaging.version.parse("0.21.dev0"):
 
     _RETURN_TRAIN_SCORE_DEFAULT = "warn"
 
-
     def handle_deprecated_train_score(results, return_train_score):
         if return_train_score == "warn":
             results = DeprecationDict(results)
@@ -88,7 +87,6 @@ if SK_VERSION <= packaging.version.parse("0.21.dev0"):
 
 else:
     _RETURN_TRAIN_SCORE_DEFAULT = False
-
 
     def handle_deprecated_train_score(results, return_train_score):
         return results
@@ -1187,19 +1185,19 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         candidate_params = list(self._get_param_iterator())
         (dsk, keys, n_splits, main_token, X_name, y_name, weights, fit_params) = \
             build_cv_graph(
-                estimator,
-                self.cv,
-                self.scorer_,
-                candidate_params,
-                X,
-                y=y,
-                groups=groups,
-                fit_params=fit_params,
-                iid=self.iid,
-                error_score=error_score,
-                return_train_score=self.return_train_score,
-                cache_cv=self.cache_cv
-            )
+                    estimator,
+                    self.cv,
+                    self.scorer_,
+                    candidate_params,
+                    X,
+                    y=y,
+                    groups=groups,
+                    fit_params=fit_params,
+                    iid=self.iid,
+                    error_score=error_score,
+                    return_train_score=self.return_train_score,
+                    cache_cv=self.cache_cv
+                )
 
         n_jobs = _normalize_n_jobs(self.n_jobs)
         scheduler = dask.base.get_scheduler(scheduler=self.scheduler)
