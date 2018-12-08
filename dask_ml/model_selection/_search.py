@@ -105,18 +105,18 @@ class TokenIterator(object):
 
 
 def build_cv_graph(
-        estimator,
-        cv,
-        scorer,
-        candidate_params,
-        X,
-        y=None,
-        groups=None,
-        fit_params=None,
-        iid=True,
-        error_score="raise",
-        return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
-        cache_cv=True,
+    estimator,
+    cv,
+    scorer,
+    candidate_params,
+    X,
+    y=None,
+    groups=None,
+    fit_params=None,
+    iid=True,
+    error_score="raise",
+    return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
+    cache_cv=True,
 ):
     X, y, groups = to_indexable(X, y, groups)
     cv = check_cv(cv, y, is_classifier(estimator))
@@ -180,20 +180,20 @@ def build_cv_graph(
 
 
 def build_result_graph(
-        dsk,
-        main_token,
-        estimator,
-        X_name,
-        y_name,
-        fit_params,
-        n_splits,
-        error_score,
-        scorer,
-        candidate_params,
-        scores,
-        weights,
-        refit,
-        multimetric
+    dsk,
+    main_token,
+    estimator,
+    X_name,
+    y_name,
+    fit_params,
+    n_splits,
+    error_score,
+    scorer,
+    candidate_params,
+    scores,
+    weights,
+    refit,
+    multimetric,
 ):
     cv_results = "cv-results-" + main_token
     if multimetric:
@@ -1183,20 +1183,28 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             )
 
         candidate_params = list(self._get_param_iterator())
-        (dsk, keys, n_splits, main_token, X_name, y_name, weights, fit_params) = \
-            build_cv_graph(
-                estimator,
-                self.cv,
-                self.scorer_,
-                candidate_params,
-                X,
-                y=y,
-                groups=groups,
-                fit_params=fit_params,
-                iid=self.iid,
-                error_score=error_score,
-                return_train_score=self.return_train_score,
-                cache_cv=self.cache_cv
+        (
+            dsk,
+            keys,
+            n_splits,
+            main_token,
+            X_name,
+            y_name,
+            weights,
+            fit_params,
+        ) = build_cv_graph(
+            estimator,
+            self.cv,
+            self.scorer_,
+            candidate_params,
+            X,
+            y=y,
+            groups=groups,
+            fit_params=fit_params,
+            iid=self.iid,
+            error_score=error_score,
+            return_train_score=self.return_train_score,
+            cache_cv=self.cache_cv,
         )
 
         n_jobs = _normalize_n_jobs(self.n_jobs)
@@ -1207,7 +1215,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         if scheduler is dask.threaded.get and n_jobs == 1:
             scheduler = dask.local.get_sync
 
-        if 'Client' in type(getattr(scheduler, '__self__', None)).__name__:
+        if "Client" in type(getattr(scheduler, "__self__", None)).__name__:
             futures = scheduler(dsk, keys, num_workers=n_jobs, sync=False)
             scores_map = {
                 f.key: res
@@ -1235,7 +1243,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             scores,
             weights,
             self.refit,
-            multimetric
+            multimetric,
         )
 
         out = scheduler(dsk, keys, num_workers=n_jobs)
