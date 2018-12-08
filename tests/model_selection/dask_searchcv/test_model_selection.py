@@ -797,56 +797,6 @@ def test_scheduler_param_distributed(loop):
 
             assert client.run_on_scheduler(f)  # some work happened on cluster
 
-from time import sleep
-from sklearn.base import BaseEstimator
-import os.path
-from dask.distributed import get_client
-import sys
-
-class TestAsCompletedEstimator(BaseEstimator):
-    def __init__(self, i=None, out_path=None, num_cv=None, scheduler=None, loop=None):
-        self.i = i
-        self.num_cv = num_cv
-        self.out_path = out_path
-        self.scheduler = scheduler
-        self.loop = loop
-
-    def fit(self, X, y):
-        out_file = self.out_path.join(f'{self.i}.txt')
-
-        if self.i == (self.num_cv-1):
-            files = os.listdir(self.out_path)
-            while len(files) < (self.num_cv-1):
-                files = os.listdir(self.out_path)
-                sleep(0.05)
-            c = get_client()
-            t = 1
-
-        out_file.write('done')
-
-        return 1
-
-    def score(self, X, y):
-        return 1
-
-    def transform(self):
-        pass
-
-"""
-@pytest.mark.skipif("not has_distributed")
-def test_gather_as_completed_distributed(loop, tmpdir):
-    num_cv = 3
-    ids = list(range(0, num_cv))
-
-    X, y = make_classification(n_samples=100, n_features=10, random_state=0)
-    with cluster() as (s, [a, b]):
-        with Client(s["address"], loop=loop) as client:
-            gs = dcv.GridSearchCV(TestAsCompletedEstimator(out_path=tmpdir, num_cv=num_cv), {"i": ids}, cv=3)
-            gs.fit(X, y)
-
-    tmpdir.remove()
-"""
-
 
 def test_cv_multiplemetrics():
     X, y = make_classification(random_state=0)
