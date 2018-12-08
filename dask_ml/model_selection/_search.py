@@ -1221,7 +1221,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             scores = scheduler(dsk, keys, num_workers=n_jobs)
 
         for key in keys:
-            dsk.pop(key)
+            dsk.pop(key, None)
 
         dsk, keys = build_result_graph(
             dsk,
