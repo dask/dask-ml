@@ -175,68 +175,38 @@ def build_cv_graph(
         scorer,
         return_train_score,
     )
+    keys = [weights] + scores
+    return dsk, keys, n_splits, main_token, X_name, y_name, fit_params
 
-    return dsk, scores, n_splits, main_token, X_name, y_name, weights, fit_params
 
-
-def build_result_graph(
-    dsk,
-    main_token,
-    estimator,
-    X_name,
-    y_name,
-    fit_params,
-    n_splits,
-    error_score,
-    scorer,
-    candidate_params,
-    scores,
-    weights,
-    refit,
-    multimetric,
-):
-    cv_results = "cv-results-" + main_token
-    if multimetric:
-        metrics = list(scorer.keys())
-    else:
-        metrics = None
-    dsk[cv_results] = (
-        create_cv_results,
-        scores,
+def build_refit_graph(
+        dsk,
+        main_token,
+        estimator,
+        scorer,
+        X_name,
+        y_name,
+        fit_params,
         candidate_params,
-        n_splits,
-        error_score,
-        weights,
-        metrics,
-    )
-    keys = [cv_results]
+        cv_results
 
-    if refit:
-        if multimetric:
-            scorer = refit
-        else:
-            scorer = "score"
-
-        best_params = "best-params-" + main_token
-        dsk[best_params] = (get_best_params, candidate_params, cv_results, scorer)
-        best_estimator = "best-estimator-" + main_token
-        if fit_params:
-            fit_params = (
-                dict,
-                (zip, list(fit_params.keys()), list(pluck(1, fit_params.values()))),
-            )
-        dsk[best_estimator] = (
-            fit_best,
-            clone(estimator),
-            best_params,
-            X_name,
-            y_name,
-            fit_params,
+):
+    best_params = get_best_params(candidate_params, cv_results, scorer)
+    best_estimator = "best-estimator-" + main_token
+    if fit_params:
+        fit_params = (
+            dict,
+            (zip, list(fit_params.keys()), list(pluck(1, fit_params.values()))),
         )
-        keys.append(best_estimator)
-
-    return dsk, keys
-
+    dsk[best_estimator] = (
+        fit_best,
+        clone(estimator),
+        best_params,
+        X_name,
+        y_name,
+        fit_params,
+    )
+    return dsk, [best_params]
 
 def normalize_params(params):
     """Take a list of dictionaries, and tokenize/normalize."""
@@ -1190,7 +1160,6 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             main_token,
             X_name,
             y_name,
-            weights,
             fit_params,
         ) = build_cv_graph(
             estimator,
@@ -1217,51 +1186,62 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
 
         if "Client" in type(getattr(scheduler, "__self__", None)).__name__:
             futures = scheduler(dsk, keys, num_workers=n_jobs, sync=False)
-            scores_map = {
+            result_map = {
                 f.key: res
                 for batch in as_completed(futures, with_results=True).batches()
                 for f, res in batch
             }
-            scores = [scores_map[k] for k in keys]
+            out = [result_map[k] for k in keys]
         else:
-            scores = scheduler(dsk, keys, num_workers=n_jobs)
+            out = scheduler(dsk, keys, num_workers=n_jobs)
 
-        for key in keys:
-            dsk.pop(key, None)
+        weights = out[0]
+        scores = out[1::]
 
-        dsk, keys = build_result_graph(
-            dsk,
-            main_token,
-            estimator,
-            X_name,
-            y_name,
-            fit_params,
+        if multimetric:
+            metrics = list(scorer.keys())
+        else:
+            metrics = None
+
+        cv_results = create_cv_results(
+            scores,
+            candidate_params,
             n_splits,
             error_score,
-            self.scorer_,
-            candidate_params,
-            scores,
             weights,
-            self.refit,
-            multimetric,
+            metrics,
         )
 
-        out = scheduler(dsk, keys, num_workers=n_jobs)
-        results = handle_deprecated_train_score(out[0], self.return_train_score)
+        results = handle_deprecated_train_score(cv_results, self.return_train_score)
         self.dask_graph_ = dsk
         self.n_splits_ = n_splits
         self.cv_results_ = results
 
         if self.refit:
             if self.multimetric_:
-                key = self.refit
+                scorer = self.refit
             else:
-                key = "score"
+                scorer = "score"
+
+            dsk, keys = build_refit_graph(
+                dsk,
+                main_token,
+                estimator,
+                scorer,
+                X_name,
+                y_name,
+                fit_params,
+                candidate_params,
+                cv_results
+            )
+
+            out = scheduler(dsk, keys, num_workers=n_jobs)
+
             self.best_index_ = np.flatnonzero(results["rank_test_{}".format(key)] == 1)[
                 0
             ]
 
-            self.best_estimator_ = out[1]
+            self.best_estimator_ = out[0]
 
         return self
 
