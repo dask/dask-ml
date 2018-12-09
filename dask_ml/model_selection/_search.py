@@ -48,7 +48,6 @@ from .methods import (
     fit_and_score,
     fit_best,
     fit_transform,
-    get_best_params,
     pipeline,
     score,
 )
@@ -179,9 +178,7 @@ def build_cv_graph(
     return dsk, keys, n_splits, fit_params
 
 
-def build_refit_graph(
-    estimator, scorer, X, y, groups, fit_params, candidate_params, cv_results
-):
+def build_refit_graph(estimator, X, y, groups, best_params, fit_params):
     X, y, groups = to_indexable(X, y, groups)
     dsk = {}
     X_name, y_name, groups_name = to_keys(dsk, X, y, groups)
@@ -190,7 +187,6 @@ def build_refit_graph(
         normalize_estimator(estimator), X_name, y_name, groups_name, fit_params
     )
 
-    best_params = get_best_params(candidate_params, cv_results, scorer)
     best_estimator = "best-estimator-" + main_token
     if fit_params:
         fit_params = (
@@ -1214,23 +1210,16 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             else:
                 scorer = "score"
 
-            dsk, keys = build_refit_graph(
-                estimator,
-                scorer,
-                X,
-                y,
-                groups,
-                fit_params,
-                candidate_params,
-                cv_results,
-            )
-
-            out = scheduler(dsk, keys, num_workers=n_jobs)
-
             self.best_index_ = np.flatnonzero(
                 results["rank_test_{}".format(scorer)] == 1
             )[0]
 
+            best_params = candidate_params[self.best_index_]
+            dsk, keys = build_refit_graph(
+                estimator, X, y, groups, best_params, fit_params
+            )
+
+            out = scheduler(dsk, keys, num_workers=n_jobs)
             self.best_estimator_ = out[0]
 
         return self
