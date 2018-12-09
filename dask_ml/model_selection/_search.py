@@ -175,30 +175,19 @@ def build_cv_graph(
         scorer,
         return_train_score,
     )
-    keys = [weights] + scores
+    keys = [weights] + scores if weights else scores
     return dsk, keys, n_splits, fit_params
 
 
 def build_refit_graph(
-        estimator,
-        scorer,
-        X,
-        y,
-        groups,
-        fit_params,
-        candidate_params,
-        cv_results
+    estimator, scorer, X, y, groups, fit_params, candidate_params, cv_results
 ):
     X, y, groups = to_indexable(X, y, groups)
     dsk = {}
     X_name, y_name, groups_name = to_keys(dsk, X, y, groups)
 
     main_token = tokenize(
-        normalize_estimator(estimator),
-        X_name,
-        y_name,
-        groups_name,
-        fit_params,
+        normalize_estimator(estimator), X_name, y_name, groups_name, fit_params
     )
 
     best_params = get_best_params(candidate_params, cv_results, scorer)
@@ -217,6 +206,7 @@ def build_refit_graph(
         fit_params,
     )
     return dsk, [best_estimator]
+
 
 def normalize_params(params):
     """Take a list of dictionaries, and tokenize/normalize."""
@@ -1163,12 +1153,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             )
 
         candidate_params = list(self._get_param_iterator())
-        (
-            dsk,
-            keys,
-            n_splits,
-            fit_params,
-        ) = build_cv_graph(
+        (dsk, keys, n_splits, fit_params) = build_cv_graph(
             estimator,
             self.cv,
             self.scorer_,
@@ -1202,8 +1187,12 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         else:
             out = scheduler(dsk, keys, num_workers=n_jobs)
 
-        weights = out[0]
-        scores = out[1::]
+        if self.iid:
+            weights = out[0]
+            scores = out[1::]
+        else:
+            weights = None
+            scores = out
 
         if multimetric:
             metrics = list(scorer.keys())
@@ -1211,12 +1200,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             metrics = None
 
         cv_results = create_cv_results(
-            scores,
-            candidate_params,
-            n_splits,
-            error_score,
-            weights,
-            metrics,
+            scores, candidate_params, n_splits, error_score, weights, metrics
         )
 
         results = handle_deprecated_train_score(cv_results, self.return_train_score)
@@ -1238,14 +1222,14 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
                 groups,
                 fit_params,
                 candidate_params,
-                cv_results
+                cv_results,
             )
 
             out = scheduler(dsk, keys, num_workers=n_jobs)
 
-            self.best_index_ = np.flatnonzero(results["rank_test_{}".format(scorer)] == 1)[
-                0
-            ]
+            self.best_index_ = np.flatnonzero(
+                results["rank_test_{}".format(scorer)] == 1
+            )[0]
 
             self.best_estimator_ = out[0]
 
