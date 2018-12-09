@@ -798,6 +798,47 @@ def test_scheduler_param_distributed(loop):
             assert client.run_on_scheduler(f)  # some work happened on cluster
 
 
+from distributed.diagnostics.plugin import SchedulerPlugin
+
+class AsCompletedPlugin(SchedulerPlugin):
+    def __init__(self):
+        self.finshed_tasks = set()
+        self.events = []
+
+    def transition(self, key, start, finish, *args, **kwargs):
+        self.events.append((key, start, finish))
+
+        if 'fit-score' in key and key in self.finshed_tasks:
+            print(f'{key,start,finish} shiiiiit')
+            raise Exception
+
+        if start == 'memory' and finish == 'released':
+            self.finshed_tasks.add(key)
+
+
+    def restart(self, schduler, **kwargs):
+        self.finshed_tasks = set()
+        self.events = []
+
+from dask.distributed import LocalCluster
+@pytest.mark.skipif("not has_distributed")
+def test_as_completed_distributed():
+
+    lc = LocalCluster(n_workers=2)
+    acpg = AsCompletedPlugin()
+    lc.scheduler.add_plugin(acpg)
+    X, y = make_classification(n_samples=100, n_features=10, random_state=0)
+    with Client(lc) as client:
+        gs = dcv.GridSearchCV(MockClassifier(), {"foo_param": [0, 1, 2]}, cv=3, refit=False)
+        gs.fit(X, y)
+
+        def f(dask_scheduler):
+            return len(dask_scheduler.transition_log)
+
+        client.run_on_scheduler(f)
+        t = 1
+        assert client.run_on_scheduler(f)  # some work happened on cluster
+
 def test_cv_multiplemetrics():
     X, y = make_classification(random_state=0)
 

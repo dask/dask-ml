@@ -176,21 +176,31 @@ def build_cv_graph(
         return_train_score,
     )
     keys = [weights] + scores
-    return dsk, keys, n_splits, main_token, X_name, y_name, fit_params
+    return dsk, keys, n_splits, fit_params
 
 
 def build_refit_graph(
-        dsk,
-        main_token,
         estimator,
         scorer,
-        X_name,
-        y_name,
+        X,
+        y,
+        groups,
         fit_params,
         candidate_params,
         cv_results
-
 ):
+    X, y, groups = to_indexable(X, y, groups)
+    dsk = {}
+    X_name, y_name, groups_name = to_keys(dsk, X, y, groups)
+
+    main_token = tokenize(
+        normalize_estimator(estimator),
+        X_name,
+        y_name,
+        groups_name,
+        fit_params,
+    )
+
     best_params = get_best_params(candidate_params, cv_results, scorer)
     best_estimator = "best-estimator-" + main_token
     if fit_params:
@@ -206,7 +216,7 @@ def build_refit_graph(
         y_name,
         fit_params,
     )
-    return dsk, [best_params]
+    return dsk, [best_estimator]
 
 def normalize_params(params):
     """Take a list of dictionaries, and tokenize/normalize."""
@@ -1157,9 +1167,6 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             dsk,
             keys,
             n_splits,
-            main_token,
-            X_name,
-            y_name,
             fit_params,
         ) = build_cv_graph(
             estimator,
@@ -1224,12 +1231,11 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
                 scorer = "score"
 
             dsk, keys = build_refit_graph(
-                dsk,
-                main_token,
                 estimator,
                 scorer,
-                X_name,
-                y_name,
+                X,
+                y,
+                groups,
                 fit_params,
                 candidate_params,
                 cv_results
@@ -1237,7 +1243,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
 
             out = scheduler(dsk, keys, num_workers=n_jobs)
 
-            self.best_index_ = np.flatnonzero(results["rank_test_{}".format(key)] == 1)[
+            self.best_index_ = np.flatnonzero(results["rank_test_{}".format(scorer)] == 1)[
                 0
             ]
 
