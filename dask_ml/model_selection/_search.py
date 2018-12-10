@@ -1197,8 +1197,10 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
 
         if multimetric:
             metrics = list(scorer.keys())
+            scorer = self.refit
         else:
             metrics = None
+            scorer = "score"
 
         cv_results = create_cv_results(
             scores, candidate_params, n_splits, error_score, weights, metrics
@@ -1210,11 +1212,6 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         self.cv_results_ = results
 
         if self.refit:
-            if self.multimetric_:
-                scorer = self.refit
-            else:
-                scorer = "score"
-
             self.best_index_ = np.flatnonzero(
                 results["rank_test_{}".format(scorer)] == 1
             )[0]
