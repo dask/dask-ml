@@ -3,75 +3,19 @@ Hyper Parameter Search
 
 *Tools for performing hyperparameter optimization of Scikit-Learn API-compatible models using Dask*.
 
-Issues in hyper-parameter searches
-----------------------------------
-Two scenarios can occur during hyper-parameter optimization. The
-hyper-parameter search can be both
+There are two kinds of hyperparameter optimization estimators
+in Dask-ML. The appropriate one to use depends on the size of your dataset and
+whether the underlying estimator implements the `partial_fit` method.
 
-1. compute constrained
-2. memory constrained
+If your dataset is relatively small or the underlying estimator doesn't implement
+``partial_fit``, you can use :class:`dask_ml.model_selection.GridSearchCV` or
+:class:`dask_ml.model_selection.RandomizedSearchCV`.
+These are drop-in replacements for their scikit-learn counterparts, that should offer better performance and handling of Dask Arrays and DataFrames.
+The underlying estimator will need to be able to train on each cross-validation split of the data.
+See :ref:`hyperparameter.drop-in` for more.
 
-These issues are independent and both can happen the same time. Being memory
-constrained has to do with dataset size, and being compute constrained has to
-do with estimator complexity and number of possible hyper-parameter
-combinations.
-
-An example of being compute constrained is with almost any neural network or
-deep learning framework. An example of being memory constrained is when the
-dataset doesn't fit in RAM. Dask-ML covers all 4 combinations of these two
-constraints.
-
-Neither compute nor memory constrained
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Scikit-learn handles this case.
-
-.. autosummary::
-   sklearn.model_selection.GridSearchCV
-   sklearn.model_selection.RandomizedSearchCV
-
-Compute constrained, but not memory constrained
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-More detail in :ref:`hyperparameter.drop-in`
-
-.. autosummary::
-   dask_ml.model_selection.GridSearchCV
-   dask_ml.model_selection.RandomizedSearchCV
-
-Both :class:`~dask_ml.model_selection.GridSearchCV` and
-:class:`~dask_ml.model_selection.RandomizedSearchCV` are especially good for
-pipelines because they avoid repeated work. They are drop in replacement
-for the Scikit-learn versions.
-
-Memory constrained, but not compute constrained
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-More detail in :ref:`hyperparameter.incremental`
-
-.. autosummary::
-   dask_ml.model_selection.IncrementalSearchCV
-
-By default :class:`~dask_ml.model_selection.IncrementalSearchCV` mirrors
-:class:`~dask_ml.model_selection.RandomizedSearchCV` and
-:class:`~dask_ml.model_selection.GridSearchCV` but calls `partial_fit` instead
-of `fit`. This means that it can scale to much larger datasets, including ones
-that don't fit in the memory of a single machine.
-
-Memory constrained and compute constrained
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-For more detail, see :ref:`hyperparameter.hyperband`.
-
-.. autosummary::
-   dask_ml.model_selection.HyperbandSearchCV
-   dask_ml.model_selection.IncrementalSearchCV
-   dask_ml.model_selection.SuccessiveHalvingSearchCV
-
-These searches can
-reduce time to solution by (cleverly) deciding which parameters to evaluate.
-These searches `adapt` to history to decide which parameters to continue
-evaluating and are called "`adaptive` model selection algorithms".
-
-This can drastically reduce the computation required and make the problem many
-times simpler. These classes require that the estimator implement ``partial_fit``.
+If your data is large and the underlying estimator implements ``partial_fit``, you can
+Dask-ML's :ref:`*incremental* hyperparameter optimizers <hyperparameter.incremental>`.
 
 .. _hyperparameter.drop-in:
 
