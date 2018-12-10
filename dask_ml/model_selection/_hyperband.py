@@ -69,13 +69,13 @@ DOC = (
     RandomizedSearchCV.
 
     :sup:`* This will happen with high probability, and "close" means "within
-    a log factor of the lower bound on the score"`
+    a log factor of the lower bound on the best possible score"`
 
     Parameters
     ----------
     model : object
         An object that has support for ``partial_fit``, ``get_params``,
-        ``set_params`` and ``score``. This can be an instance of scikit-learn's
+        ``set_params`` and ``score``. This can be an instance of Scikit-Learn's
         BaseEstimator
 
     params : dict, list
@@ -101,7 +101,7 @@ DOC = (
 
         .. note::
 
-           The training dataset should fit in memory on a single machine.
+           The testing dataset should fit in memory on a single machine.
            Adjust the ``test_size`` parameter as necessary to achieve this.
 
     random_state : int, RandomState instance or None, optional, default: None
@@ -169,8 +169,8 @@ DOC = (
 
     Setting Hyperband parameters
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    To set ``max_iter`` and the chunk size for ``X`` and ``y``, you need to
-    know
+    To set ``max_iter`` and the chunk size for ``X`` and ``y``, it is required
+    to know
 
     * how many "epochs" or "passes through ``X``" to train the model for
       (``epochs`` below)
@@ -195,7 +195,7 @@ DOC = (
     There are some limitations to the `current` implementation of Hyperband:
 
     1. The full dataset is requested to be in distributed memory
-    2. The testing dataset must fit in the memory of a single worker
+    2. The testing dataset should fit in the memory of a single worker
 
     References
     ----------
