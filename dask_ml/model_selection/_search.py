@@ -103,6 +103,19 @@ class TokenIterator(object):
         return self.token if c == 0 else self.token + str(c)
 
 
+def map_fit_params(dsk, fit_params):
+    if fit_params:
+        # A mapping of {name: (name, graph-key)}
+        param_values = to_indexable(*fit_params.values(), allow_scalars=True)
+        fit_params = {
+            k: (k, v) for (k, v) in zip(fit_params, to_keys(dsk, *param_values))
+        }
+    else:
+        fit_params = {}
+
+    return fit_params
+
+
 def build_cv_graph(
     estimator,
     cv,
@@ -126,14 +139,7 @@ def build_cv_graph(
     X_name, y_name, groups_name = to_keys(dsk, X, y, groups)
     n_splits = compute_n_splits(cv, X, y, groups)
 
-    if fit_params:
-        # A mapping of {name: (name, graph-key)}
-        param_values = to_indexable(*fit_params.values(), allow_scalars=True)
-        fit_params = {
-            k: (k, v) for (k, v) in zip(fit_params, to_keys(dsk, *param_values))
-        }
-    else:
-        fit_params = {}
+    fit_params = map_fit_params(dsk, fit_params)
 
     fields, tokens, params = normalize_params(candidate_params)
     main_token = tokenize(
@@ -175,17 +181,16 @@ def build_cv_graph(
         return_train_score,
     )
     keys = [weights] + scores if weights else scores
-    return dsk, keys, n_splits, fit_params
+    return dsk, keys, n_splits
 
 
-def build_refit_graph(estimator, X, y, groups, best_params, fit_params):
-    X, y, groups = to_indexable(X, y, groups)
+def build_refit_graph(estimator, X, y, best_params, fit_params):
+    X, y = to_indexable(X, y)
     dsk = {}
-    X_name, y_name, groups_name = to_keys(dsk, X, y, groups)
+    X_name, y_name = to_keys(dsk, X, y)
 
-    main_token = tokenize(
-        normalize_estimator(estimator), X_name, y_name, groups_name, fit_params
-    )
+    fit_params = map_fit_params(dsk, fit_params)
+    main_token = tokenize(normalize_estimator(estimator), X_name, y_name, fit_params)
 
     best_estimator = "best-estimator-" + main_token
     if fit_params:
@@ -1149,7 +1154,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             )
 
         candidate_params = list(self._get_param_iterator())
-        (dsk, keys, n_splits, fit_params) = build_cv_graph(
+        dsk, keys, n_splits = build_cv_graph(
             estimator,
             self.cv,
             self.scorer_,
@@ -1215,9 +1220,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             )[0]
 
             best_params = candidate_params[self.best_index_]
-            dsk, keys = build_refit_graph(
-                estimator, X, y, groups, best_params, fit_params
-            )
+            dsk, keys = build_refit_graph(estimator, X, y, best_params, fit_params)
 
             out = scheduler(dsk, keys, num_workers=n_jobs)
             self.best_estimator_ = out[0]
