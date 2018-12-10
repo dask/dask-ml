@@ -1190,7 +1190,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
 
         if self.iid:
             weights = out[0]
-            scores = out[1::]
+            scores = out[1:]
         else:
             weights = None
             scores = out
