@@ -194,7 +194,7 @@ def fit(model, x, y, compute=True, shuffle_blocks=True, random_state=None, **kwa
         }
     )
 
-    graphs = {x.name: x.__dask_graph__()}
+    graphs = {x.name: x.__dask_graph__(), name: dsk}
     if hasattr(y, "__dask_graph__"):
         graphs[y.name] = y.__dask_graph__()
 
