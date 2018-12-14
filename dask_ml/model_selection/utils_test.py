@@ -1,6 +1,17 @@
+from ast import literal_eval
+
 import numpy as np
+import pytest
+
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import _num_samples, check_array
+
+try:
+    from dask.distributed import get_worker
+    has_distributed = True
+except ImportError:
+    get_worker = pytest.fixture(lambda: None)
+    has_distributed = False
 
 
 # This class doesn't inherit from BaseEstimator to test hyperparameter search
@@ -188,3 +199,35 @@ class CheckingClassifier(BaseEstimator, ClassifierMixin):
         else:
             score = 0.0
         return score
+
+
+class AsCompletedEstimator(BaseEstimator):
+    def __init__(self, killed_workers, lock, counter, foo_param=None):
+        self.foo_param = foo_param
+        self.killed_workers = killed_workers
+        self.lock = lock
+        self.counter = counter
+
+    def fit(self, X, y):
+        w = get_worker()
+        for e in w.executing:
+            t = literal_eval(e)
+            self.lock.acquire()
+            c = self.counter.get()
+            killed_workers = self.killed_workers.get()
+            self.counter.set(self.counter.get() + 1)
+            self.lock.release()
+            if c >=8 and t not in killed_workers:
+                killed_workers[t] = True
+                self.killed_workers.set(killed_workers)
+                exit(1)
+        return self
+
+    def transform(self, X):
+        return X
+
+    def predict(self, X):
+        return 1
+
+    def score(self, X, y):
+        return 1

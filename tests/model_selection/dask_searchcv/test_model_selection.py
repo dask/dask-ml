@@ -44,6 +44,7 @@ from dask_ml.model_selection import check_cv, compute_n_splits
 from dask_ml.model_selection._search import _normalize_n_jobs
 from dask_ml.model_selection.methods import CVCache
 from dask_ml.model_selection.utils_test import (
+    AsCompletedEstimator,
     CheckXClassifier,
     FailingClassifier,
     MockClassifier,
@@ -54,6 +55,8 @@ from dask_ml.model_selection.utils_test import (
 try:
     from distributed import Client
     from distributed.utils_test import cluster, loop
+    from distributed.diagnostics.plugin import SchedulerPlugin
+    from dask.distributed import LocalCluster, Lock, Variable, wait
 
     has_distributed = True
 except ImportError:
@@ -798,54 +801,46 @@ def test_scheduler_param_distributed(loop):
             assert client.run_on_scheduler(f)  # some work happened on cluster
 
 
-"""
-from distributed.diagnostics.plugin import SchedulerPlugin
-
-
-class AsCompletedPlugin(SchedulerPlugin):
-    def __init__(self):
-        self.finshed_tasks = set()
-        self.events = []
-
-    def transition(self, key, start, finish, *args, **kwargs):
-        self.events.append((key, start, finish))
-
-        if "fit-score" in key and key in self.finshed_tasks:
-            print(f"{key,start,finish} shiiiiit")
-            raise Exception
-
-        if start == "memory" and finish == "released":
-            self.finshed_tasks.add(key)
-
-    def restart(self, schduler, **kwargs):
-        self.finshed_tasks = set()
-        self.events = []
-
-
-from dask.distributed import LocalCluster
-
-
 @pytest.mark.skipif("not has_distributed")
 def test_as_completed_distributed():
+    with LocalCluster() as clstr:
+        with Client(clstr) as client:
+            counter = Variable("counter")
+            counter.set(0)
+            lock = Lock("lock")
+            killed_workers = Variable("killed_workers")
+            killed_workers.set({})
 
-    lc = LocalCluster(n_workers=2)
-    acpg = AsCompletedPlugin()
-    lc.scheduler.add_plugin(acpg)
-    X, y = make_classification(n_samples=100, n_features=10, random_state=0)
-    with Client(lc) as client:
-        gs = dcv.GridSearchCV(
-            MockClassifier(), {"foo_param": [0, 1, 2]}, cv=3, refit=False
-        )
-        gs.fit(X, y)
+            X, y = make_classification(n_samples=100, n_features=10, random_state=0)
+            gs = dcv.GridSearchCV(
+                AsCompletedEstimator(killed_workers, lock, counter),
+                param_grid={"foo_param": [0, 1, 2]},
+                cv=3,
+                refit=False,
+                cache_cv=False,
+            )
+            gs.fit(X, y)
 
-        def f(dask_scheduler):
-            return len(dask_scheduler.transition_log)
+            def f(dask_scheduler):
+                return dask_scheduler.transition_log
 
-        client.run_on_scheduler(f)
-        t = 1
-        assert client.run_on_scheduler(f)  # some work happened on cluster
+            def check_reprocess(transition_log):
+                finished = set()
+                for transition in transition_log:
+                    key, start_state, end_state = (
+                        transition[0],
+                        transition[1],
+                        transition[2],
+                    )
+                    assert key not in finished
+                    if (
+                        "score" in key
+                        and start_state == "memory"
+                        and end_state == "forgotten"
+                    ):
+                        finished.add(key)
 
-"""
+            check_reprocess(client.run_on_scheduler(f))
 
 
 def test_cv_multiplemetrics():
