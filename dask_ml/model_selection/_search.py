@@ -1178,13 +1178,15 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             scheduler = dask.local.get_sync
 
         if "Client" in type(getattr(scheduler, "__self__", None)).__name__:
-            futures = scheduler(dsk, keys, allow_other_workers=True, num_workers=n_jobs, sync=False)
+            futures = scheduler(
+                dsk, keys, allow_other_workers=True, num_workers=n_jobs, sync=False
+            )
             result_map = {}
             while len(result_map) != len(keys):
                 for f in as_completed(futures):
-                    if f.status == 'finished':
+                    if f.status == "finished":
                         result_map[f.key] = f.result()
-                    elif f.status == 'error':
+                    elif f.status == "error":
                         f.retry()
 
             out = [result_map[k] for k in keys]

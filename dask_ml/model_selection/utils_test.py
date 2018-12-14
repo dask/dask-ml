@@ -8,6 +8,7 @@ from sklearn.utils.validation import _num_samples, check_array
 
 try:
     from dask.distributed import get_worker
+
     has_distributed = True
 except ImportError:
     get_worker = pytest.fixture(lambda: None)
@@ -202,10 +203,11 @@ class CheckingClassifier(BaseEstimator, ClassifierMixin):
 
 
 class AsCompletedEstimator(BaseEstimator):
-    def __init__(self, killed_workers, lock, counter, foo_param=None):
+    def __init__(self, killed_workers, lock, counter, min_complete, foo_param=None):
         self.foo_param = foo_param
         self.killed_workers = killed_workers
         self.lock = lock
+        self.min_complete = min_complete
         self.counter = counter
 
     def fit(self, X, y):
@@ -217,7 +219,7 @@ class AsCompletedEstimator(BaseEstimator):
             killed_workers = self.killed_workers.get()
             self.counter.set(self.counter.get() + 1)
             self.lock.release()
-            if c >=8 and t not in killed_workers:
+            if c > self.min_complete and t not in killed_workers:
                 killed_workers[t] = True
                 self.killed_workers.set(killed_workers)
                 exit(1)

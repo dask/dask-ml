@@ -813,7 +813,7 @@ def test_as_completed_distributed():
 
             X, y = make_classification(n_samples=100, n_features=10, random_state=0)
             gs = dcv.GridSearchCV(
-                AsCompletedEstimator(killed_workers, lock, counter),
+                AsCompletedEstimator(killed_workers, lock, counter, min_complete=7),
                 param_grid={"foo_param": [0, 1, 2]},
                 cv=3,
                 refit=False,
