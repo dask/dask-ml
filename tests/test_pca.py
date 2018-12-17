@@ -16,7 +16,6 @@ from sklearn.utils.testing import (
     assert_less,
     assert_raises,
     assert_raises_regex,
-    assert_true,
 )
 
 import dask_ml.decomposition as dd
@@ -590,7 +589,7 @@ def test_pca_score2():
         pca = dd.PCA(n_components=2, whiten=True, svd_solver=solver)
         pca.fit(dX)
         ll2 = pca.score(dX)
-        assert_true(ll1 > ll2)
+        assert ll1 > ll2
 
 
 def test_pca_score3():
@@ -607,7 +606,7 @@ def test_pca_score3():
         pca.fit(dXl)
         ll[k] = pca.score(dXt)
 
-    assert_true(ll.argmax() == 1)
+    assert ll.argmax() == 1
 
 
 def test_pca_score_with_different_solvers():
