@@ -119,7 +119,7 @@
             
             
               <div class="version">
-                0.11.1.dev27+g1588e12
+                0.11.1.dev32+g0994a94
               </div>
             
           
@@ -304,18 +304,18 @@ div.nblast {
 
 /* input prompt */
 div.nbinput div.prompt pre {
-    color: #303F9F;
+    color: #307FC1;
 }
 
 /* output prompt */
 div.nboutput div.prompt pre {
-    color: #D84315;
+    color: #BF5B3D;
 }
 
 /* all prompts */
 div.nbinput div.prompt,
 div.nboutput div.prompt {
-    min-width: 9ex;
+    min-width: 7ex;
     padding-top: 0.4em;
     padding-right: 0.4em;
     text-align: right;
@@ -355,9 +355,9 @@ div.nboutput div.output_area {
 
 /* input area */
 div.nbinput div.input_area {
-    border: 1px solid #cfcfcf;
+    border: 1px solid #e0e0e0;
     border-radius: 2px;
-    background: #f7f7f7;
+    background: #f5f5f5;
 }
 
 /* override MathJax center alignment in output cells */
@@ -365,7 +365,7 @@ div.nboutput div[class*=MathJax] {
     text-align: left !important;
 }
 
-/* override sphinx.ext.pngmath center alignment in output cells */
+/* override sphinx.ext.imgmath center alignment in output cells */
 div.nboutput div.math p {
     text-align: left;
 }
@@ -414,17 +414,48 @@ div.nboutput div.output_area.stderr {
 
 .ansi-bold { font-weight: bold; }
 .ansi-underline { text-decoration: underline; }
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
 </style>
 <p>You can run this notebook in a <a class="reference external" href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab/tree/examples/scale-scikit-learn.ipynb">live session</a> <a class="reference external" href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab/tree/examples/scale-scikit-learn.ipynb&gt;"><img alt="Binder" src="https://mybinder.org/badge.svg" /></a> or view it <a class="reference external" href="https://github.com/dask/dask-examples/blob/master/examples/scale-scikit-learn.ipynb">on Github</a>.</p>
 <div class="section" id="Scale-Scikit-Learn-for-Small-Data-Problems">
 <h1>Scale Scikit-Learn for Small Data Problems<a class="headerlink" href="#Scale-Scikit-Learn-for-Small-Data-Problems" title="Permalink to this headline">¶</a></h1>
-<p>This example demonstrates how Dask can scale scikit-learn to a cluster
-of machines for a CPU-bound problem. We’ll fit a large model, a
-grid-search over many hyper-parameters, on a small dataset.</p>
+<p>This example demonstrates how Dask can scale scikit-learn to a cluster of machines for a CPU-bound problem. We’ll fit a large model, a grid-search over many hyper-parameters, on a small dataset.</p>
 <p>This video talks demonstrates the same example on a larger cluster.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -435,16 +466,14 @@ grid-search over many hyper-parameters, on a small dataset.</p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="output_area docutils container">
+<div class="output_area rendered_html docutils container">
 <iframe width="560" height="315" src="https://www.youtube.com/embed/5Zf6DQaf7jk" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen> </iframe></div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -457,26 +486,14 @@ grid-search over many hyper-parameters, on a small dataset.</p>
 </div>
 <div class="section" id="Distributed-Training">
 <h2>Distributed Training<a class="headerlink" href="#Distributed-Training" title="Permalink to this headline">¶</a></h2>
-<p>Scikit-learn uses <a class="reference external" href="http://joblib.readthedocs.io/">joblib</a> for
-single-machine parallelism. This lets you train most estimators
-(anything that accepts an <code class="docutils literal notranslate"><span class="pre">n_jobs</span></code> parameter) using all the cores of
-your laptop or workstation.</p>
-<p>Alternatively, Scikit-Learn can use Dask for parallelism. This lets you
-train those estimators using all the cores of your <em>cluster</em> without
-significantly changing your code.</p>
-<p>This is most useful for training large models on medium-sized datasets.
-You may have a large model when searching over many hyper-parameters, or
-when using an ensemble method with many individual estimators. For too
-small datasets, training times will typically be small enough that
-cluster-wide parallelism isn’t helpful. For too large datasets (larger
-than a single machine’s memory), the scikit-learn estimators may not be
-able to cope (though Dask-ML provides other ways for working with larger
+<p>Scikit-learn uses <a class="reference external" href="http://joblib.readthedocs.io/">joblib</a> for single-machine parallelism. This lets you train most estimators (anything that accepts an <code class="docutils literal notranslate"><span class="pre">n_jobs</span></code> parameter) using all the cores of your laptop or workstation.</p>
+<p>Alternatively, Scikit-Learn can use Dask for parallelism. This lets you train those estimators using all the cores of your <em>cluster</em> without significantly changing your code.</p>
+<p>This is most useful for training large models on medium-sized datasets. You may have a large model when searching over many hyper-parameters, or when using an ensemble method with many individual estimators. For too small datasets, training times will typically be small enough that cluster-wide parallelism isn’t helpful. For too large datasets (larger than a single machine’s memory), the scikit-learn estimators may not be able to cope (though Dask-ML provides other ways for working with larger
 than memory datasets).</p>
 <div class="section" id="Create-Scikit-Learn-Pipeline">
 <h3>Create Scikit-Learn Pipeline<a class="headerlink" href="#Create-Scikit-Learn-Pipeline" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -494,8 +511,7 @@ than memory datasets).</p>
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -515,11 +531,9 @@ than memory datasets).</p>
 </pre></div>
 </div>
 </div>
-<p>We’ll define a small pipeline that combines text feature extraction with
-a simple classifier.</p>
+<p>We’ll define a small pipeline that combines text feature extraction with a simple classifier.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -536,8 +550,7 @@ a simple classifier.</p>
 <h3>Define Grid for Parameter Search<a class="headerlink" href="#Define-Grid-for-Parameter-Search" title="Permalink to this headline">¶</a></h3>
 <p>Grid search over some parameters.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -555,8 +568,7 @@ a simple classifier.</p>
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -568,13 +580,9 @@ a simple classifier.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">grid_search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>That would use the default joblib backend (multiple processes) for
-parallelism. To use the Dask distributed backend, which will use a
-cluster of machines to train the model, perform the fit in a
-<code class="docutils literal notranslate"><span class="pre">parallel_backend</span></code> context.</p>
+<p>That would use the default joblib backend (multiple processes) for parallelism. To use the Dask distributed backend, which will use a cluster of machines to train the model, perform the fit in a <code class="docutils literal notranslate"><span class="pre">parallel_backend</span></code> context.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -585,30 +593,16 @@ cluster of machines to train the model, perform the fit in a
 </pre></div>
 </div>
 </div>
-<p>If you had your distributed dashboard open during that fit, you’ll
-notice that each worker performs some of the fit tasks.</p>
+<p>If you had your distributed dashboard open during that fit, you’ll notice that each worker performs some of the fit tasks.</p>
 </div>
 </div>
 <div class="section" id="Parallel,-Distributed-Prediction">
 <h2>Parallel, Distributed Prediction<a class="headerlink" href="#Parallel,-Distributed-Prediction" title="Permalink to this headline">¶</a></h2>
-<p>Sometimes, you’re train on a small dataset, but need to predict for a
-much larger batch of data. In this case, you’d like your estimator to
-handle NumPy arrays and pandas DataFrames for training, and dask arrays
-or DataFrames for prediction.
-<code class="docutils literal notranslate"><span class="pre">`dask_ml.wrappers.ParallelPostFit</span></code> &lt;<a class="reference external" href="http://ml.dask.org/modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit">http://ml.dask.org/modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit</a>&gt;`__
-provides exactly that. It’s a meta-estimator. It does nothing during
-training; the underlying estimator (probably a scikit-learn estimator)
-will probably be in-memory on a single machine. But tasks like
-<code class="docutils literal notranslate"><span class="pre">predict</span></code>, <code class="docutils literal notranslate"><span class="pre">score</span></code>, etc. are parallelized and distributed.</p>
-<p>Most of the time, using <code class="docutils literal notranslate"><span class="pre">ParallelPostFit</span></code> is as simple as wrapping the
-original estimator. When used inside a GridSearch, you’ll need to update
-the keys of the parameters, just like with any meta-estimator. The only
-complication comes when using <code class="docutils literal notranslate"><span class="pre">ParallelPostFit</span></code> with another
-meta-estimator like <code class="docutils literal notranslate"><span class="pre">GridSearchCV</span></code>. In this case, you’ll need to
-prefix your parameter names with <code class="docutils literal notranslate"><span class="pre">estimator__</span></code>.</p>
+<p>Sometimes, you’re train on a small dataset, but need to predict for a much larger batch of data. In this case, you’d like your estimator to handle NumPy arrays and pandas DataFrames for training, and dask arrays or DataFrames for prediction. <code class="docutils literal notranslate"><span class="pre">`dask_ml.wrappers.ParallelPostFit</span></code> &lt;<a class="reference external" href="http://ml.dask.org/modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit">http://ml.dask.org/modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit</a>&gt;`__ provides exactly that. It’s a meta-estimator. It does nothing during training; the underlying estimator
+(probably a scikit-learn estimator) will probably be in-memory on a single machine. But tasks like <code class="docutils literal notranslate"><span class="pre">predict</span></code>, <code class="docutils literal notranslate"><span class="pre">score</span></code>, etc. are parallelized and distributed.</p>
+<p>Most of the time, using <code class="docutils literal notranslate"><span class="pre">ParallelPostFit</span></code> is as simple as wrapping the original estimator. When used inside a GridSearch, you’ll need to update the keys of the parameters, just like with any meta-estimator. The only complication comes when using <code class="docutils literal notranslate"><span class="pre">ParallelPostFit</span></code> with another meta-estimator like <code class="docutils literal notranslate"><span class="pre">GridSearchCV</span></code>. In this case, you’ll need to prefix your parameter names with <code class="docutils literal notranslate"><span class="pre">estimator__</span></code>.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -620,8 +614,7 @@ prefix your parameter names with <code class="docutils literal notranslate"><spa
 </div>
 <p>We’ll load the small NumPy arrays for training.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -631,8 +624,7 @@ prefix your parameter names with <code class="docutils literal notranslate"><spa
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -649,8 +641,7 @@ prefix your parameter names with <code class="docutils literal notranslate"><spa
 </div>
 <p>And fit as usual.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -658,11 +649,9 @@ prefix your parameter names with <code class="docutils literal notranslate"><spa
 </pre></div>
 </div>
 </div>
-<p>We’ll simulate a large dask array by replicating the training data a few
-times. In reality, you would load this from your file system.</p>
+<p>We’ll simulate a large dask array by replicating the training data a few times. In reality, you would load this from your file system.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -671,8 +660,7 @@ times. In reality, you would load this from your file system.</p>
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -684,12 +672,9 @@ times. In reality, you would load this from your file system.</p>
 </pre></div>
 </div>
 </div>
-<p>Operations like <code class="docutils literal notranslate"><span class="pre">predict</span></code>, or <code class="docutils literal notranslate"><span class="pre">predict_proba</span></code> return dask, rather
-than NumPy arrays. When you compute, the work will be done in parallel,
-out of core or distributed on the cluster.</p>
+<p>Operations like <code class="docutils literal notranslate"><span class="pre">predict</span></code>, or <code class="docutils literal notranslate"><span class="pre">predict_proba</span></code> return dask, rather than NumPy arrays. When you compute, the work will be done in parallel, out of core or distributed on the cluster.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -698,8 +683,7 @@ out of core or distributed on the cluster.</p>
 </pre></div>
 </div>
 </div>
-<p>At this point predicted could be written to disk, or aggregated before
-returning to the client.</p>
+<p>At this point predicted could be written to disk, or aggregated before returning to the client.</p>
 </div>
 </div>
 
@@ -749,6 +733,7 @@ returning to the client.</p>
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     
 
   

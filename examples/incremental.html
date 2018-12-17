@@ -119,7 +119,7 @@
             
             
               <div class="version">
-                0.11.1.dev27+g1588e12
+                0.11.1.dev32+g0994a94
               </div>
             
           
@@ -312,18 +312,18 @@ div.nblast {
 
 /* input prompt */
 div.nbinput div.prompt pre {
-    color: #303F9F;
+    color: #307FC1;
 }
 
 /* output prompt */
 div.nboutput div.prompt pre {
-    color: #D84315;
+    color: #BF5B3D;
 }
 
 /* all prompts */
 div.nbinput div.prompt,
 div.nboutput div.prompt {
-    min-width: 9ex;
+    min-width: 7ex;
     padding-top: 0.4em;
     padding-right: 0.4em;
     text-align: right;
@@ -363,9 +363,9 @@ div.nboutput div.output_area {
 
 /* input area */
 div.nbinput div.input_area {
-    border: 1px solid #cfcfcf;
+    border: 1px solid #e0e0e0;
     border-radius: 2px;
-    background: #f7f7f7;
+    background: #f5f5f5;
 }
 
 /* override MathJax center alignment in output cells */
@@ -373,7 +373,7 @@ div.nboutput div[class*=MathJax] {
     text-align: left !important;
 }
 
-/* override sphinx.ext.pngmath center alignment in output cells */
+/* override sphinx.ext.imgmath center alignment in output cells */
 div.nboutput div.math p {
     text-align: left;
 }
@@ -422,50 +422,65 @@ div.nboutput div.output_area.stderr {
 
 .ansi-bold { font-weight: bold; }
 .ansi-underline { text-decoration: underline; }
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
 </style>
 <p>You can run this notebook in a <a class="reference external" href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab/tree/examples/incremental.ipynb">live session</a> <a class="reference external" href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab/tree/examples/incremental.ipynb&gt;"><img alt="Binder" src="https://mybinder.org/badge.svg" /></a> or view it <a class="reference external" href="https://github.com/dask/dask-examples/blob/master/examples/incremental.ipynb">on Github</a>.</p>
 <div class="section" id="Incrementally-Train-Large-Datasets">
 <h1>Incrementally Train Large Datasets<a class="headerlink" href="#Incrementally-Train-Large-Datasets" title="Permalink to this headline">¶</a></h1>
-<p>We can train models on large datasets one batch at a time. Many
-Scikit-Learn estimators implement a <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> method to enable
-incremental learning in batches.</p>
+<p>We can train models on large datasets one batch at a time. Many Scikit-Learn estimators implement a <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> method to enable incremental learning in batches.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">est</span> <span class="o">=</span> <span class="n">SGDClassifier</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 <span class="n">est</span><span class="o">.</span><span class="n">partial_fit</span><span class="p">(</span><span class="n">X_train_1</span><span class="p">,</span> <span class="n">y_train_1</span><span class="p">)</span>
 <span class="n">est</span><span class="o">.</span><span class="n">partial_fit</span><span class="p">(</span><span class="n">X_train_2</span><span class="p">,</span> <span class="n">y_train_2</span><span class="p">)</span>
 <span class="o">...</span>
 </pre></div>
 </div>
-<p>The Scikit-Learn documentation discusses this approach in more depth in
-their <a class="reference external" href="http://scikit-learn.org/stable/modules/scaling_strategies.html">user
-guide</a>.</p>
-<p>This notebook demonstrates the use of Dask-ML’s <code class="docutils literal notranslate"><span class="pre">Incremental</span></code>
-meta-estimator, which automates the use of Scikit-Learn’s
-<code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> over Dask arrays and dataframes. Scikit-Learn handles
-all of the computation while Dask handles the data management, loading
-and moving batches of data as necessary. This allows scaling to large
-datasets distributed across many machines, or to datasets that do not
-fit in memory, all with a familiar workflow.</p>
+<p>The Scikit-Learn documentation discusses this approach in more depth in their <a class="reference external" href="http://scikit-learn.org/stable/modules/scaling_strategies.html">user guide</a>.</p>
+<p>This notebook demonstrates the use of Dask-ML’s <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> meta-estimator, which automates the use of Scikit-Learn’s <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> over Dask arrays and dataframes. Scikit-Learn handles all of the computation while Dask handles the data management, loading and moving batches of data as necessary. This allows scaling to large datasets distributed across many machines, or to datasets that do not fit in memory, all with a familiar workflow.</p>
 <p>This example shows …</p>
 <ul class="simple">
-<li>wrapping a Scikit-Learn estimator that implements <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>
-with the <a class="reference external" href="http://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental">Dask-ML
-Incremental</a>
-meta-estimator</li>
+<li>wrapping a Scikit-Learn estimator that implements <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> with the <a class="reference external" href="http://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental">Dask-ML Incremental</a> meta-estimator</li>
 <li>training, predicting, and scoring on this wrapped estimator</li>
 </ul>
-<p>Although this example uses Scikit-Learn’s SGDClassifer, the
-<code class="docutils literal notranslate"><span class="pre">Incremental</span></code> meta-estimator will work for any class that implements
-<code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> and the <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html">scikit-learn base estimator
-API</a>.</p>
+<p>Although this example uses Scikit-Learn’s SGDClassifer, the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> meta-estimator will work for any class that implements <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> and the <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html">scikit-learn base estimator API</a>.</p>
 <div class="section" id="Setup-Dask">
 <h2>Setup Dask<a class="headerlink" href="#Setup-Dask" title="Permalink to this headline">¶</a></h2>
-<p>We first start a Dask client in order to get access to the Dask
-dashboard, which will provide progress and performance metrics.</p>
-<p>You can view the dashboard by clicking on the dashboard link after you
-run the cell</p>
+<p>We first start a Dask client in order to get access to the Dask dashboard, which will provide progress and performance metrics.</p>
+<p>You can view the dashboard by clicking on the dashboard link after you run the cell</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -476,17 +491,16 @@ run the cell</p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="output_area docutils container">
+<div class="output_area rendered_html docutils container">
 <table style="border: 2px solid white;">
 <tr>
 <td style="vertical-align: top; border: 0px solid white">
 <h3>Client</h3>
 <ul>
-  <li><b>Scheduler: </b>tcp://127.0.0.1:41172
+  <li><b>Scheduler: </b>tcp://127.0.0.1:45326
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
@@ -503,12 +517,10 @@ run the cell</p>
 </div>
 <div class="section" id="Create-Data">
 <h2>Create Data<a class="headerlink" href="#Create-Data" title="Permalink to this headline">¶</a></h2>
-<p>We create a synthetic dataset that is large enough to be interesting,
-but small enough to run quickly.</p>
+<p>We create a synthetic dataset that is large enough to be interesting, but small enough to run quickly.</p>
 <p>Our dataset has 1,000,000 examples and 100 features.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -526,8 +538,7 @@ but small enough to run quickly.</p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
@@ -535,19 +546,13 @@ but small enough to run quickly.</p>
 </pre></div>
 </div>
 </div>
-<p>For more information on creating dask arrays and dataframes from real
-data, see documentation on <a class="reference external" href="https://dask.pydata.org/en/latest/array-creation.html">Dask
-arrays</a> and
-<a class="reference external" href="https://dask.pydata.org/en/latest/dataframe-create.html">Dask
-dataframes</a>.</p>
+<p>For more information on creating dask arrays and dataframes from real data, see documentation on <a class="reference external" href="https://dask.pydata.org/en/latest/array-creation.html">Dask arrays</a> and <a class="reference external" href="https://dask.pydata.org/en/latest/dataframe-create.html">Dask dataframes</a>.</p>
 </div>
 <div class="section" id="Split-data-for-training-and-testing">
 <h2>Split data for training and testing<a class="headerlink" href="#Split-data-for-training-and-testing" title="Permalink to this headline">¶</a></h2>
-<p>We split our dataset into training and testing data to aid evaluation by
-making sure we have a fair test:</p>
+<p>We split our dataset into training and testing data to aid evaluation by making sure we have a fair test:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -558,8 +563,7 @@ making sure we have a fair test:</p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
@@ -570,12 +574,9 @@ making sure we have a fair test:</p>
 </div>
 <div class="section" id="Persist-data-in-memory">
 <h2>Persist data in memory<a class="headerlink" href="#Persist-data-in-memory" title="Permalink to this headline">¶</a></h2>
-<p>This dataset is small enough to fit in distributed memory, so we call
-<code class="docutils literal notranslate"><span class="pre">dask.persist</span></code> to ask Dask to execute the computations above and keep
-the results in memory.</p>
+<p>This dataset is small enough to fit in distributed memory, so we call <code class="docutils literal notranslate"><span class="pre">dask.persist</span></code> to ask Dask to execute the computations above and keep the results in memory.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -583,23 +584,14 @@ the results in memory.</p>
 </pre></div>
 </div>
 </div>
-<p>If you are working in a situation where your dataset does not fit in
-memory then you should skip this step. Everything will still work, but
-will be slower and use less memory.</p>
-<p>Calling <code class="docutils literal notranslate"><span class="pre">dask.persist</span></code> will preserve our data in memory, so no
-computation will be needed as we pass over our data many times. For
-example if our data came from CSV files and was not persisted, then the
-CSV files would have to be re-read on each pass. This is desirable if
-the data does not fit in RAM, but not slows down our computation
-otherwise.</p>
+<p>If you are working in a situation where your dataset does not fit in memory then you should skip this step. Everything will still work, but will be slower and use less memory.</p>
+<p>Calling <code class="docutils literal notranslate"><span class="pre">dask.persist</span></code> will preserve our data in memory, so no computation will be needed as we pass over our data many times. For example if our data came from CSV files and was not persisted, then the CSV files would have to be re-read on each pass. This is desirable if the data does not fit in RAM, but not slows down our computation otherwise.</p>
 </div>
 <div class="section" id="Precompute-classes">
 <h2>Precompute classes<a class="headerlink" href="#Precompute-classes" title="Permalink to this headline">¶</a></h2>
-<p>We pre-compute the classes from our training data, which is required for
-this classification example:</p>
+<p>We pre-compute the classes from our training data, which is required for this classification example:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -609,8 +601,7 @@ this classification example:</p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
@@ -623,8 +614,7 @@ this classification example:</p>
 <h2>Create Scikit-Learn model<a class="headerlink" href="#Create-Scikit-Learn-model" title="Permalink to this headline">¶</a></h2>
 <p>We make the underlying Scikit-Learn estimator, an <code class="docutils literal notranslate"><span class="pre">SGDClassifier</span></code>:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -634,19 +624,13 @@ this classification example:</p>
 </pre></div>
 </div>
 </div>
-<p>Here we use <code class="docutils literal notranslate"><span class="pre">SGDClassifier</span></code>, but any estimator that implements the
-<code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> method will work. A list of Scikit-Learn models that
-implement this API is available
-<a class="reference external" href="http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning">here</a>.</p>
+<p>Here we use <code class="docutils literal notranslate"><span class="pre">SGDClassifier</span></code>, but any estimator that implements the <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> method will work. A list of Scikit-Learn models that implement this API is available <a class="reference external" href="http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning">here</a>.</p>
 </div>
 <div class="section" id="Wrap-with-Dask-ML’s-Incremental-meta-estimator">
 <h2>Wrap with Dask-ML’s Incremental meta-estimator<a class="headerlink" href="#Wrap-with-Dask-ML’s-Incremental-meta-estimator" title="Permalink to this headline">¶</a></h2>
-<p>We now wrap our <code class="docutils literal notranslate"><span class="pre">SGDClassifer</span></code> with the
-<code class="docutils literal notranslate"><span class="pre">`dask_ml.wrappers.Incremental</span></code> &lt;<a class="reference external" href="http://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental">http://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental</a>&gt;`__
-meta-estimator.</p>
+<p>We now wrap our <code class="docutils literal notranslate"><span class="pre">SGDClassifer</span></code> with the <code class="docutils literal notranslate"><span class="pre">`dask_ml.wrappers.Incremental</span></code> &lt;<a class="reference external" href="http://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental">http://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental</a>&gt;`__ meta-estimator.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -656,22 +640,15 @@ meta-estimator.</p>
 </pre></div>
 </div>
 </div>
-<p>Recall that <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> only does data management while leaving the
-actual algorithm to the underlying Scikit-Learn estimator.</p>
-<p>Note: We set the scoring parameter above in the Dask estimator to tell
-it to handle scoring. This works better when using Dask arrays for test
-data.</p>
+<p>Recall that <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> only does data management while leaving the actual algorithm to the underlying Scikit-Learn estimator.</p>
+<p>Note: We set the scoring parameter above in the Dask estimator to tell it to handle scoring. This works better when using Dask arrays for test data.</p>
 </div>
 <div class="section" id="Model-training">
 <h2>Model training<a class="headerlink" href="#Model-training" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">Incremental</span></code> implements a <code class="docutils literal notranslate"><span class="pre">fit</span></code> method, which will perform one loop
-over the dataset, calling <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> over each chunk in the Dask
-array.</p>
-<p>You may want to watch the dashboard during this fit process to see the
-sequential fitting of many batches.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Incremental</span></code> implements a <code class="docutils literal notranslate"><span class="pre">fit</span></code> method, which will perform one loop over the dataset, calling <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> over each chunk in the Dask array.</p>
+<p>You may want to watch the dashboard during this fit process to see the sequential fitting of many batches.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -680,8 +657,7 @@ sequential fitting of many batches.</p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
@@ -696,8 +672,7 @@ sequential fitting of many batches.</p>
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -706,24 +681,20 @@ sequential fitting of many batches.</p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.5162
+<span></span>0.5751
 </pre></div>
 </div>
 </div>
 </div>
 <div class="section" id="Pass-over-the-training-data-many-times">
 <h2>Pass over the training data many times<a class="headerlink" href="#Pass-over-the-training-data-many-times" title="Permalink to this headline">¶</a></h2>
-<p>Calling <code class="docutils literal notranslate"><span class="pre">.fit</span></code> passes over all chunks our data once. However, in many
-cases we may want to pass over the training data many times. To do this
-we can use the <code class="docutils literal notranslate"><span class="pre">Incremental.partial_fit</span></code> method and a for loop.</p>
+<p>Calling <code class="docutils literal notranslate"><span class="pre">.fit</span></code> passes over all chunks our data once. However, in many cases we may want to pass over the training data many times. To do this we can use the <code class="docutils literal notranslate"><span class="pre">Incremental.partial_fit</span></code> method and a for loop.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -733,8 +704,7 @@ we can use the <code class="docutils literal notranslate"><span class="pre">Incr
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -749,26 +719,24 @@ we can use the <code class="docutils literal notranslate"><span class="pre">Incr
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Score: 0.5148
-Score: 0.5142
-Score: 0.5183
-Score: 0.51
-Score: 0.5233
-Score: 0.5364
-Score: 0.5352
-Score: 0.5346
-Score: 0.534
-Score: 0.5433
+Score: 0.5801
+Score: 0.592
+Score: 0.5703
+Score: 0.5926
+Score: 0.58
+Score: 0.5972
+Score: 0.5975
+Score: 0.6238
+Score: 0.6229
+Score: 0.6144
 </pre></div></div>
 </div>
 </div>
 <div class="section" id="Predict-and-Score">
 <h2>Predict and Score<a class="headerlink" href="#Predict-and-Score" title="Permalink to this headline">¶</a></h2>
-<p>Finally we can also call <code class="docutils literal notranslate"><span class="pre">Incremental.predict</span></code> and
-<code class="docutils literal notranslate"><span class="pre">Incremental.score</span></code> on our testing data</p>
+<p>Finally we can also call <code class="docutils literal notranslate"><span class="pre">Incremental.predict</span></code> and <code class="docutils literal notranslate"><span class="pre">Incremental.score</span></code> on our testing data</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -777,8 +745,7 @@ Score: 0.5433
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
@@ -787,8 +754,7 @@ Score: 0.5433
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -797,22 +763,20 @@ Score: 0.5433
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>array([0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0,
-       1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0,
-       1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1,
-       0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1,
-       1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0])
+<span></span>array([0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0,
+       1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0,
+       1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0,
+       0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0,
+       1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1])
 </pre></div>
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -821,32 +785,23 @@ Score: 0.5433
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.5433
+<span></span>0.6144
 </pre></div>
 </div>
 </div>
 </div>
 <div class="section" id="Learn-more">
 <h2>Learn more<a class="headerlink" href="#Learn-more" title="Permalink to this headline">¶</a></h2>
-<p>In this notebook we went over using Dask-ML’s <code class="docutils literal notranslate"><span class="pre">Incremental</span></code>
-meta-estimator to automate the process of incremental training with
-Scikit-Learn estimators that implement the <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> method. If
-you want to learn more about this process you might want to investigate
-the following documentation:</p>
+<p>In this notebook we went over using Dask-ML’s <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> meta-estimator to automate the process of incremental training with Scikit-Learn estimators that implement the <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> method. If you want to learn more about this process you might want to investigate the following documentation:</p>
 <ol class="arabic simple">
 <li><a class="reference external" href="http://scikit-learn.org/stable/modules/scaling_strategies.html">http://scikit-learn.org/stable/modules/scaling_strategies.html</a></li>
-<li><a class="reference external" href="http://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental">Dask-ML Incremental API
-documentation</a></li>
-<li><a class="reference external" href="http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning">List of Scikit-Learn estimators compatible with Dask-ML’s
-Incremental</a></li>
-<li>For more info on the train-test split for model evaluation, see
-<a class="reference external" href="https://jakevdp.github.io/PythonDataScienceHandbook/05.03-hyperparameters-and-model-validation.html">Hyperparameters and Model
-Validation</a>.</li>
+<li><a class="reference external" href="http://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental">Dask-ML Incremental API documentation</a></li>
+<li><a class="reference external" href="http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning">List of Scikit-Learn estimators compatible with Dask-ML’s Incremental</a></li>
+<li>For more info on the train-test split for model evaluation, see <a class="reference external" href="https://jakevdp.github.io/PythonDataScienceHandbook/05.03-hyperparameters-and-model-validation.html">Hyperparameters and Model Validation</a>.</li>
 </ol>
 </div>
 </div>
@@ -897,6 +852,7 @@ Validation</a>.</li>
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     
 
   

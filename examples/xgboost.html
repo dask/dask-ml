@@ -119,7 +119,7 @@
             
             
               <div class="version">
-                0.11.1.dev27+g1588e12
+                0.11.1.dev32+g0994a94
               </div>
             
           
@@ -307,18 +307,18 @@ div.nblast {
 
 /* input prompt */
 div.nbinput div.prompt pre {
-    color: #303F9F;
+    color: #307FC1;
 }
 
 /* output prompt */
 div.nboutput div.prompt pre {
-    color: #D84315;
+    color: #BF5B3D;
 }
 
 /* all prompts */
 div.nbinput div.prompt,
 div.nboutput div.prompt {
-    min-width: 9ex;
+    min-width: 7ex;
     padding-top: 0.4em;
     padding-right: 0.4em;
     text-align: right;
@@ -358,9 +358,9 @@ div.nboutput div.output_area {
 
 /* input area */
 div.nbinput div.input_area {
-    border: 1px solid #cfcfcf;
+    border: 1px solid #e0e0e0;
     border-radius: 2px;
-    background: #f7f7f7;
+    background: #f5f5f5;
 }
 
 /* override MathJax center alignment in output cells */
@@ -368,7 +368,7 @@ div.nboutput div[class*=MathJax] {
     text-align: left !important;
 }
 
-/* override sphinx.ext.pngmath center alignment in output cells */
+/* override sphinx.ext.imgmath center alignment in output cells */
 div.nboutput div.math p {
     text-align: left;
 }
@@ -417,24 +417,52 @@ div.nboutput div.output_area.stderr {
 
 .ansi-bold { font-weight: bold; }
 .ansi-underline { text-decoration: underline; }
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
 </style>
 <p>You can run this notebook in a <a class="reference external" href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab/tree/examples/xgboost.ipynb">live session</a> <a class="reference external" href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab/tree/examples/xgboost.ipynb&gt;"><img alt="Binder" src="https://mybinder.org/badge.svg" /></a> or view it <a class="reference external" href="https://github.com/dask/dask-examples/blob/master/examples/xgboost.ipynb">on Github</a>.</p>
 <div class="section" id="Scale-XGBoost">
 <h1>Scale XGBoost<a class="headerlink" href="#Scale-XGBoost" title="Permalink to this headline">¶</a></h1>
-<p>Dask and XGBoost can work together to train gradient boosted trees in
-parallel. This notebook shows how to use Dask and XGBoost together.</p>
-<p>XGBoost provides a powerful prediction framework, and it works well in
-practice. It wins Kaggle contests and is popular in industry because it
-has good performance and can be easily interpreted (i.e., it’s easy to
-find the important features from a XGBoost model).</p>
+<p>Dask and XGBoost can work together to train gradient boosted trees in parallel. This notebook shows how to use Dask and XGBoost together.</p>
+<p>XGBoost provides a powerful prediction framework, and it works well in practice. It wins Kaggle contests and is popular in industry because it has good performance and can be easily interpreted (i.e., it’s easy to find the important features from a XGBoost model).</p>
 <div class="section" id="Setup-Dask">
 <h2>Setup Dask<a class="headerlink" href="#Setup-Dask" title="Permalink to this headline">¶</a></h2>
-<p>We setup a Dask client, which provides performance and progress metrics
-via the dashboard.</p>
+<p>We setup a Dask client, which provides performance and progress metrics via the dashboard.</p>
 <p>You can view the dashboard by clicking the link after running the cell.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -446,17 +474,16 @@ via the dashboard.</p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="output_area docutils container">
+<div class="output_area rendered_html docutils container">
 <table style="border: 2px solid white;">
 <tr>
 <td style="vertical-align: top; border: 0px solid white">
 <h3>Client</h3>
 <ul>
-  <li><b>Scheduler: </b>tcp://127.0.0.1:34884
+  <li><b>Scheduler: </b>tcp://127.0.0.1:39207
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
@@ -473,11 +500,9 @@ via the dashboard.</p>
 </div>
 <div class="section" id="Create-data">
 <h2>Create data<a class="headerlink" href="#Create-data" title="Permalink to this headline">¶</a></h2>
-<p>First we create a bunch of synthetic data, with 100,000 examples and 20
-features.</p>
+<p>First we create a bunch of synthetic data, with 100,000 examples and 20 features.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -491,8 +516,7 @@ features.</p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
@@ -500,20 +524,13 @@ features.</p>
 </pre></div>
 </div>
 </div>
-<p>Dask-XGBoost works with both arrays and dataframes. For more information
-on creating dask arrays and dataframes from real data, see documentation
-on <a class="reference external" href="https://dask.pydata.org/en/latest/array-creation.html">Dask
-arrays</a> or
-<a class="reference external" href="https://dask.pydata.org/en/latest/dataframe-create.html">Dask
-dataframes</a>.</p>
+<p>Dask-XGBoost works with both arrays and dataframes. For more information on creating dask arrays and dataframes from real data, see documentation on <a class="reference external" href="https://dask.pydata.org/en/latest/array-creation.html">Dask arrays</a> or <a class="reference external" href="https://dask.pydata.org/en/latest/dataframe-create.html">Dask dataframes</a>.</p>
 </div>
 <div class="section" id="Split-data-for-training-and-testing">
 <h2>Split data for training and testing<a class="headerlink" href="#Split-data-for-training-and-testing" title="Permalink to this headline">¶</a></h2>
-<p>We split our dataset into training and testing data to aid evaluation by
-making sure we have a fair test:</p>
+<p>We split our dataset into training and testing data to aid evaluation by making sure we have a fair test:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -523,14 +540,12 @@ making sure we have a fair test:</p>
 </pre></div>
 </div>
 </div>
-<p>Now, let’s try to do something with this data using
-<a class="reference external" href="https://github.com/dask/dask-xgboost">dask-xgboost</a>.</p>
+<p>Now, let’s try to do something with this data using <a class="reference external" href="https://github.com/dask/dask-xgboost">dask-xgboost</a>.</p>
 </div>
 <div class="section" id="Train-Dask-XGBoost">
 <h2>Train Dask-XGBoost<a class="headerlink" href="#Train-Dask-XGBoost" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -539,13 +554,10 @@ making sure we have a fair test:</p>
 </pre></div>
 </div>
 </div>
-<p>dask-xgboost is a small wrapper around xgboost. Dask sets XGBoost up,
-gives XGBoost data and lets XGBoost do it’s training in the background
-using all the workers Dask has available.</p>
+<p>dask-xgboost is a small wrapper around xgboost. Dask sets XGBoost up, gives XGBoost data and lets XGBoost do it’s training in the background using all the workers Dask has available.</p>
 <p>Let’s do some training:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -563,8 +575,8 @@ using all the workers Dask has available.</p>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-CPU times: user 2.64 s, sys: 104 ms, total: 2.75 s
-Wall time: 11.4 s
+CPU times: user 2.66 s, sys: 136 ms, total: 2.8 s
+Wall time: 12.3 s
 </pre></div></div>
 </div>
 </div>
@@ -572,8 +584,7 @@ Wall time: 11.4 s
 <h2>Visualize results<a class="headerlink" href="#Visualize-results" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">bst</span></code> object is a regular <code class="docutils literal notranslate"><span class="pre">xgboost.Booster</span></code> object.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -582,24 +593,19 @@ Wall time: 11.4 s
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>&lt;xgboost.core.Booster at 0x2b51ba359358&gt;
+<span></span>&lt;xgboost.core.Booster at 0x2b4ebc6ae518&gt;
 </pre></div>
 </div>
 </div>
-<p>This means all the methods mentioned in the <a class="reference external" href="https://xgboost.readthedocs.io/en/latest/python/python_intro.html#">XGBoost
-documentation</a>
-are available. We show two examples to expand on this, but these
-examples are of XGBoost instead of Dask.</p>
+<p>This means all the methods mentioned in the <a class="reference external" href="https://xgboost.readthedocs.io/en/latest/python/python_intro.html#">XGBoost documentation</a> are available. We show two examples to expand on this, but these examples are of XGBoost instead of Dask.</p>
 <div class="section" id="Plot-feature-importance">
 <h3>Plot feature importance<a class="headerlink" href="#Plot-feature-importance" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -620,17 +626,13 @@ examples are of XGBoost instead of Dask.</p>
 <img alt="../_images/examples_xgboost_20_0.png" src="../_images/examples_xgboost_20_0.png" />
 </div>
 </div>
-<p>We specified that only 4 features were informative while creating our
-data, and only 3 features show up as important.</p>
+<p>We specified that only 4 features were informative while creating our data, and only 3 features show up as important.</p>
 </div>
 <div class="section" id="Plot-the-Receiver-Operating-Characteristic-curve">
 <h3>Plot the Receiver Operating Characteristic curve<a class="headerlink" href="#Plot-the-Receiver-Operating-Characteristic-curve" title="Permalink to this headline">¶</a></h3>
-<p>We can use a fancier metric to determine how well our classifier is
-doing by plotting the <a class="reference external" href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">Receiver Operating Characteristic (ROC)
-curve</a>:</p>
+<p>We can use a fancier metric to determine how well our classifier is doing by plotting the <a class="reference external" href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">Receiver Operating Characteristic (ROC) curve</a>:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -640,8 +642,7 @@ curve</a>:</p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
@@ -650,8 +651,7 @@ curve</a>:</p>
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -662,8 +662,7 @@ curve</a>:</p>
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -692,25 +691,17 @@ curve</a>:</p>
 <img alt="../_images/examples_xgboost_25_0.png" src="../_images/examples_xgboost_25_0.png" />
 </div>
 </div>
-<p>This Receiver Operating Characteristic (ROC) curve tells how well our
-classifier is doing. We can tell it’s doing well by how far it bends the
-upper-left. A perfect classifier would be in the upper-left corner, and
-a random classifier would follow the horizontal line.</p>
-<p>The area under this curve is <code class="docutils literal notranslate"><span class="pre">area</span> <span class="pre">=</span> <span class="pre">0.76</span></code>. This tells us the
-probability that our classifier will predict correctly for a randomly
-chosen instance.</p>
+<p>This Receiver Operating Characteristic (ROC) curve tells how well our classifier is doing. We can tell it’s doing well by how far it bends the upper-left. A perfect classifier would be in the upper-left corner, and a random classifier would follow the horizontal line.</p>
+<p>The area under this curve is <code class="docutils literal notranslate"><span class="pre">area</span> <span class="pre">=</span> <span class="pre">0.76</span></code>. This tells us the probability that our classifier will predict correctly for a randomly chosen instance.</p>
 </div>
 </div>
 <div class="section" id="Learn-more">
 <h2>Learn more<a class="headerlink" href="#Learn-more" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Similar example that uses DataFrames for a real world dataset:
-<a class="reference external" href="http://ml.dask.org/examples/xgboost.html">http://ml.dask.org/examples/xgboost.html</a></li>
+<li>Similar example that uses DataFrames for a real world dataset: <a class="reference external" href="http://ml.dask.org/examples/xgboost.html">http://ml.dask.org/examples/xgboost.html</a></li>
 <li>Recorded screencast stepping through the real world example above:</li>
-<li>A blogpost on dask-xgboost
-<a class="reference external" href="http://matthewrocklin.com/blog/work/2017/03/28/dask-xgboost">http://matthewrocklin.com/blog/work/2017/03/28/dask-xgboost</a></li>
-<li>XGBoost documentation:
-<a class="reference external" href="https://xgboost.readthedocs.io/en/latest/python/python_intro">https://xgboost.readthedocs.io/en/latest/python/python_intro</a>.html#</li>
+<li>A blogpost on dask-xgboost <a class="reference external" href="http://matthewrocklin.com/blog/work/2017/03/28/dask-xgboost">http://matthewrocklin.com/blog/work/2017/03/28/dask-xgboost</a></li>
+<li>XGBoost documentation: <a class="reference external" href="https://xgboost.readthedocs.io/en/latest/python/python_intro">https://xgboost.readthedocs.io/en/latest/python/python_intro</a>.html#</li>
 <li>Dask-XGBoost documentation: <a class="reference external" href="http://ml.dask.org/xgboost.html">http://ml.dask.org/xgboost.html</a></li>
 </ul>
 </div>
@@ -762,6 +753,7 @@ chosen instance.</p>
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     
 
   

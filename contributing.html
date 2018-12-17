@@ -119,7 +119,7 @@
             
             
               <div class="version">
-                0.11.1.dev27+g1588e12
+                0.11.1.dev32+g0994a94
               </div>
             
           
@@ -326,17 +326,17 @@ use</p>
 <h2>Pre-Commit Hooks<a class="headerlink" href="#pre-commit-hooks" title="Permalink to this headline">¶</a></h2>
 <p>Here’s an example pre-commit configuration, which goes at <code class="docutils literal notranslate"><span class="pre">.pre-commit-config.yaml</span></code>
 in the root of your git repository.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">repos</span><span class="p p-Indicator">:</span>
-<span class="p p-Indicator">-</span>   <span class="l l-Scalar l-Scalar-Plain">repo</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">https://github.com/ambv/black</span>
-    <span class="l l-Scalar l-Scalar-Plain">rev</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">stable</span>
-    <span class="l l-Scalar l-Scalar-Plain">hooks</span><span class="p p-Indicator">:</span>
-    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">id</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">black</span>
-      <span class="l l-Scalar l-Scalar-Plain">language_version</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">python3.6</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">repos</span><span class="p">:</span>
+<span class="p p-Indicator">-</span>   <span class="nt">repo</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://github.com/ambv/black</span>
+    <span class="nt">rev</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">stable</span>
+    <span class="nt">hooks</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">black</span>
+      <span class="nt">language_version</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">python3.6</span>
 
-<span class="p p-Indicator">-</span>   <span class="l l-Scalar l-Scalar-Plain">repo</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">https://github.com/pre-commit/mirrors-isort</span>
-    <span class="l l-Scalar l-Scalar-Plain">rev</span><span class="p p-Indicator">:</span> <span class="s">&quot;f35773e46d096de5c45365f1a47eeeef36fc83ed&quot;</span>
-    <span class="l l-Scalar l-Scalar-Plain">hooks</span><span class="p p-Indicator">:</span>
-    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">id</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">isort</span>
+<span class="p p-Indicator">-</span>   <span class="nt">repo</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://github.com/pre-commit/mirrors-isort</span>
+    <span class="nt">rev</span><span class="p">:</span> <span class="s">&quot;f35773e46d096de5c45365f1a47eeeef36fc83ed&quot;</span>
+    <span class="nt">hooks</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">isort</span>
 </pre></div>
 </div>
 <p>Then install <a class="reference external" href="https://github.com/pre-commit/pre-commit">pre commit</a> and
@@ -429,6 +429,7 @@ notebook should be first included in Dask-ML repository under
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     
 
   

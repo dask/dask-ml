@@ -119,7 +119,7 @@
             
             
               <div class="version">
-                0.11.1.dev27+g1588e12
+                0.11.1.dev32+g0994a94
               </div>
             
           
@@ -300,18 +300,18 @@ div.nblast {
 
 /* input prompt */
 div.nbinput div.prompt pre {
-    color: #303F9F;
+    color: #307FC1;
 }
 
 /* output prompt */
 div.nboutput div.prompt pre {
-    color: #D84315;
+    color: #BF5B3D;
 }
 
 /* all prompts */
 div.nbinput div.prompt,
 div.nboutput div.prompt {
-    min-width: 9ex;
+    min-width: 7ex;
     padding-top: 0.4em;
     padding-right: 0.4em;
     text-align: right;
@@ -351,9 +351,9 @@ div.nboutput div.output_area {
 
 /* input area */
 div.nbinput div.input_area {
-    border: 1px solid #cfcfcf;
+    border: 1px solid #e0e0e0;
     border-radius: 2px;
-    background: #f7f7f7;
+    background: #f5f5f5;
 }
 
 /* override MathJax center alignment in output cells */
@@ -361,7 +361,7 @@ div.nboutput div[class*=MathJax] {
     text-align: left !important;
 }
 
-/* override sphinx.ext.pngmath center alignment in output cells */
+/* override sphinx.ext.imgmath center alignment in output cells */
 div.nboutput div.math p {
     text-align: left;
 }
@@ -410,21 +410,48 @@ div.nboutput div.output_area.stderr {
 
 .ansi-bold { font-weight: bold; }
 .ansi-underline { text-decoration: underline; }
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
 </style>
 <p>You can run this notebook in a <a class="reference external" href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab/tree/examples/parallel-prediction.ipynb">live session</a> <a class="reference external" href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab/tree/examples/parallel-prediction.ipynb&gt;"><img alt="Binder" src="https://mybinder.org/badge.svg" /></a> or view it <a class="reference external" href="https://github.com/dask/dask-examples/blob/master/examples/parallel-prediction.ipynb">on Github</a>.</p>
 <div class="section" id="Score-and-Predict-Large-Datasets">
 <h1>Score and Predict Large Datasets<a class="headerlink" href="#Score-and-Predict-Large-Datasets" title="Permalink to this headline">¶</a></h1>
-<p>Sometimes you’ll train on a smaller dataset that fits in memory, but
-need to predict or score for a much larger (possibly larger than memory)
-dataset. Perhaps your <a class="reference external" href="http://scikit-learn.org/stable/modules/learning_curve.html">learning
-curve</a>
-has leveled off, or you only have labels for a subset of the data.</p>
-<p>In this situation, you can use
-<a class="reference external" href="http://ml.dask.org/modules/generated/dask_ml.wrappers.ParallelPostFit.html">ParallelPostFit</a>
-to parallelize and distribute the scoring or prediction steps.</p>
+<p>Sometimes you’ll train on a smaller dataset that fits in memory, but need to predict or score for a much larger (possibly larger than memory) dataset. Perhaps your <a class="reference external" href="http://scikit-learn.org/stable/modules/learning_curve.html">learning curve</a> has leveled off, or you only have labels for a subset of the data.</p>
+<p>In this situation, you can use <a class="reference external" href="http://ml.dask.org/modules/generated/dask_ml.wrappers.ParallelPostFit.html">ParallelPostFit</a> to parallelize and distribute the scoring or prediction steps.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -439,17 +466,16 @@ to parallelize and distribute the scoring or prediction steps.</p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="output_area docutils container">
+<div class="output_area rendered_html docutils container">
 <table style="border: 2px solid white;">
 <tr>
 <td style="vertical-align: top; border: 0px solid white">
 <h3>Client</h3>
 <ul>
-  <li><b>Scheduler: </b>inproc://10.20.0.46/5074/1
+  <li><b>Scheduler: </b>inproc://10.20.5.194/5590/1
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
@@ -464,8 +490,7 @@ to parallelize and distribute the scoring or prediction steps.</p>
 </table></div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -477,8 +502,7 @@ to parallelize and distribute the scoring or prediction steps.</p>
 </div>
 <p>We’ll generate a small random dataset with scikit-learn.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -490,8 +514,7 @@ to parallelize and distribute the scoring or prediction steps.</p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
@@ -503,11 +526,9 @@ to parallelize and distribute the scoring or prediction steps.</p>
 </pre></div>
 </div>
 </div>
-<p>And we’ll clone that dataset many times with <code class="docutils literal notranslate"><span class="pre">dask.array</span></code>. <code class="docutils literal notranslate"><span class="pre">X_large</span></code>
-and <code class="docutils literal notranslate"><span class="pre">y_large</span></code> represent our larger than memory dataset.</p>
+<p>And we’ll clone that dataset many times with <code class="docutils literal notranslate"><span class="pre">dask.array</span></code>. <code class="docutils literal notranslate"><span class="pre">X_large</span></code> and <code class="docutils literal notranslate"><span class="pre">y_large</span></code> represent our larger than memory dataset.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -522,8 +543,7 @@ and <code class="docutils literal notranslate"><span class="pre">y_large</span><
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
@@ -531,13 +551,9 @@ and <code class="docutils literal notranslate"><span class="pre">y_large</span><
 </pre></div>
 </div>
 </div>
-<p>Since our training dataset fits in memory, we can use a scikit-learn
-estimator as the actual estimator fit during traning. But we know that
-we’ll want to predict for a large dataset, so we’ll wrap the
-scikit-learn estimator with <code class="docutils literal notranslate"><span class="pre">ParallelPostFit</span></code>.</p>
+<p>Since our training dataset fits in memory, we can use a scikit-learn estimator as the actual estimator fit during traning. But we know that we’ll want to predict for a large dataset, so we’ll wrap the scikit-learn estimator with <code class="docutils literal notranslate"><span class="pre">ParallelPostFit</span></code>.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -547,8 +563,7 @@ scikit-learn estimator with <code class="docutils literal notranslate"><span cla
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -556,11 +571,9 @@ scikit-learn estimator with <code class="docutils literal notranslate"><span cla
 </pre></div>
 </div>
 </div>
-<p>Now we’ll call <code class="docutils literal notranslate"><span class="pre">clf.fit</span></code>. Dask-ML does nothing here, so this step can
-only use datasets that fit in memory.</p>
+<p>Now we’ll call <code class="docutils literal notranslate"><span class="pre">clf.fit</span></code>. Dask-ML does nothing here, so this step can only use datasets that fit in memory.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -569,8 +582,7 @@ only use datasets that fit in memory.</p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
@@ -583,11 +595,9 @@ only use datasets that fit in memory.</p>
 </pre></div>
 </div>
 </div>
-<p>Now that training is done, we’ll turn to predicting for the full (larger
-than memory) dataset.</p>
+<p>Now that training is done, we’ll turn to predicting for the full (larger than memory) dataset.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -597,8 +607,7 @@ than memory) dataset.</p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
@@ -606,15 +615,10 @@ than memory) dataset.</p>
 </pre></div>
 </div>
 </div>
-<p>y_pred is Dask arary. Workers can write the predicted values to a shared
-file system, without ever having to collect the data on a single
-machine.</p>
-<p>Or we can check the models score on the entire large dataset. The
-computation will be done in parallel, and no single machine will have to
-hold all the data.</p>
+<p>y_pred is Dask arary. Workers can write the predicted values to a shared file system, without ever having to collect the data on a single machine.</p>
+<p>Or we can check the models score on the entire large dataset. The computation will be done in parallel, and no single machine will have to hold all the data.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>In [9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -623,8 +627,7 @@ hold all the data.</p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Out[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
@@ -680,6 +683,7 @@ hold all the data.</p>
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     
 
   
