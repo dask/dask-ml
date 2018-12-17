@@ -149,11 +149,11 @@ DOC = (
     >>>
     >>> X, y = make_classification(chunks=20)
     >>> est = SGDClassifier(tol=1e-3)
-    >>> params = {'alpha': np.logspace(-4, 0, num=1000),
-    >>>           'loss': ['hinge', 'log', 'modified_huber', 'squared_hinge'],
-    >>>           'average': [True, False]}
+    >>> param_dist = {'alpha': np.logspace(-4, 0, num=1000),
+    >>>               'loss': ['hinge', 'log', 'modified_huber', 'squared_hinge'],
+    >>>               'average': [True, False]}
     >>>
-    >>> search = HyperbandSearchCV(est, params)
+    >>> search = HyperbandSearchCV(est, param_dist)
     >>> search.fit(X, y, classes=np.unique(y))
     >>> search.best_params_
     {'loss': 'log', 'average': False, 'alpha': 0.0080502}
@@ -212,36 +212,31 @@ class HyperbandSearchCV(IncrementalSearchCV):
 
     def __init__(
         self,
-        model,
-        params,
+        estimator,
+        param_distribution,
         max_iter,
         aggressiveness=3,
+        test_size=None,
         patience=False,
         tol=1e-3,
-        **kwargs
+        scores_per_fit=1,
+        random_state=None,
+        scoring=None,
     ):
-        self.model = model
-        self.params = params
-        self.max_iter = max_iter
         self.aggressiveness = aggressiveness
-
-        self.patience = patience
-        self.tol = tol
+        self.param_distribution = param_distribution
 
         super(HyperbandSearchCV, self).__init__(
-            model, params, max_iter=self.max_iter, patience=patience, tol=tol, **kwargs
+            estimator,
+            param_distribution,
+            max_iter=max_iter,
+            patience=patience,
+            tol=tol,
+            test_size=test_size,
+            scores_per_fit=scores_per_fit,
+            random_state=random_state,
+            scoring=scoring,
         )
-
-    def fit(self, X, y, **fit_params):
-        """Find the best parameters for a particular model
-
-        Parameters
-        ----------
-        X, y : array-like
-        **fit_params
-            Additional partial fit keyword arguments for the estimator.
-        """
-        return default_client().sync(self._fit, X, y, **fit_params)
 
     @gen.coroutine
     def _fit(self, X, y, **fit_params):
@@ -254,8 +249,8 @@ class HyperbandSearchCV(IncrementalSearchCV):
             msg = (
                 "Careful. patience={}, but values of patience=True (or maybe "
                 "patience>={}) are recommended.\n\n"
-                "The goal of `patience` is to stop training models that have "
-                "already converged *when few models remain*."
+                "The goal of `patience` is to stop training estimators that have "
+                "already converged *when few estimators remain*."
                 "Setting patience=True accomplishes this goal. Please continue "
                 "with caution or good reason"
             )
@@ -273,8 +268,8 @@ class HyperbandSearchCV(IncrementalSearchCV):
             (
                 b,
                 SuccessiveHalvingSearchCV(
-                    self.model,
-                    self.params,
+                    self.estimator,
+                    self.param_distribution,
                     n,
                     r,
                     limit=b + 1,
@@ -289,7 +284,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
         # hopefully less adaptive can fill in for any blank spots
         SHAs = yield {b: SHA.fit(X, y, **fit_params) for b, SHA in SHAs}
 
-        # This for-loop rename model IDs and pulls out wall times
+        # This for-loop rename estimator IDs and pulls out wall times
         key = lambda b, old: "bracket={}-{}".format(b, old)
         for b, SHA in SHAs.items():
             new_ids = {old: key(b, old) for old in SHA.cv_results_["model_id"]}
@@ -387,8 +382,8 @@ class HyperbandSearchCV(IncrementalSearchCV):
         N, R, brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
         SHAs = {
             b: SuccessiveHalvingSearchCV(
-                self.model,
-                self.params,
+                self.estimator,
+                self.param_distribution,
                 n,
                 r,
                 limit=b + 1,

@@ -65,7 +65,7 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         limit=None,
         **kwargs,
     ):
-        self._steps = 0  # TODO: set this in self.fit
+        self._steps = 0
         self._pf_calls = {}
         self.n_initial_parameters = n_initial_parameters
         self.resource = resource
