@@ -163,7 +163,7 @@ DOC = (
     + """
     Notes
     -----
-    In ``model_id``, the bracket ID prefix corresponds to how strongly that
+    In ``estimator_id``, the bracket ID prefix corresponds to how strongly that
     bracket adapts to history. i.e., ``bracket=0`` corresponds to a completely
     passive bracket that doesn't adapt at all.
 
@@ -287,16 +287,16 @@ class HyperbandSearchCV(IncrementalSearchCV):
         # This for-loop rename estimator IDs and pulls out wall times
         key = lambda b, old: "bracket={}-{}".format(b, old)
         for b, SHA in SHAs.items():
-            new_ids = {old: key(b, old) for old in SHA.cv_results_["model_id"]}
-            SHA.cv_results_["model_id"] = np.array(
-                [new_ids[old] for old in SHA.cv_results_["model_id"]]
+            new_ids = {old: key(b, old) for old in SHA.cv_results_["estimator_id"]}
+            SHA.cv_results_["estimator_id"] = np.array(
+                [new_ids[old] for old in SHA.cv_results_["estimator_id"]]
             )
             SHA.model_history_ = {
                 new_ids[old]: v for old, v in SHA.model_history_.items()
             }
             for hist in SHA.model_history_.values():
                 for h in hist:
-                    h["model_id"] = new_ids[h["model_id"]]
+                    h["estimator_id"] = new_ids[h["estimator_id"]]
                     h["bracket"] = b
 
         keys = list(SHA.cv_results_.keys())
@@ -322,10 +322,10 @@ class HyperbandSearchCV(IncrementalSearchCV):
         idx = np.argsort([v["elapsed_wall_time"] for v in history])
         history = [history[i] for i in idx]
 
-        best_model_id = SHAs[best_bracket].cv_results_["model_id"][
+        best_model_id = SHAs[best_bracket].cv_results_["estimator_id"][
             SHAs[best_bracket].best_index_
         ]
-        best_index = np.argwhere(np.array(cv_results["model_id"]) == best_model_id)
+        best_index = np.argwhere(np.array(cv_results["estimator_id"]) == best_model_id)
         best_index = best_index.flat[0]
 
         meta, _ = _get_meta(
@@ -411,9 +411,9 @@ def _get_meta(hists, brackets, SHAs, key=None):
     for bracket in brackets:
         hist = hists[bracket]
 
-        info_hist = {key(bracket, h["model_id"]): [] for h in hist}
+        info_hist = {key(bracket, h["estimator_id"]): [] for h in hist}
         for h in hist:
-            info_hist[key(bracket, h["model_id"])] += [h]
+            info_hist[key(bracket, h["estimator_id"])] += [h]
         hist = info_hist
         history_.update(hist)
 
@@ -440,13 +440,13 @@ def _get_cv_results(hists, params, key=None):
     if key is None:
         key = lambda bracket, ident: "bracket={}-{}".format(bracket, ident)
     info = {
-        key(bracket, h["model_id"]): {
+        key(bracket, h["estimator_id"]): {
             "bracket": bracket,
             "score": None,
             "partial_fit_calls": -np.inf,
             "fit_times": [],
             "score_times": [],
-            "model_id": h["model_id"],
+            "estimator_id": h["estimator_id"],
             "params": param,
         }
         for bracket, hist in hists.items()
@@ -455,7 +455,7 @@ def _get_cv_results(hists, params, key=None):
 
     for bracket, hist in hists.items():
         for h in hist:
-            k = key(bracket, h["model_id"])
+            k = key(bracket, h["estimator_id"])
             if info[k]["partial_fit_calls"] < h["partial_fit_calls"]:
                 info[k]["partial_fit_calls"] = h["partial_fit_calls"]
                 info[k]["score"] = h["score"]
@@ -464,7 +464,7 @@ def _get_cv_results(hists, params, key=None):
 
     info = list(info.values())
     scores = np.array([v["score"] for v in info])
-    idents = [key(v["bracket"], v["model_id"]) for v in info]
+    idents = [key(v["bracket"], v["estimator_id"]) for v in info]
 
     best_idx = int(np.argmax(scores))
     best_ident = idents[best_idx]
@@ -484,7 +484,7 @@ def _get_cv_results(hists, params, key=None):
         "mean_score_time": get_map(np.mean, "score_times", info),
         "std_score_time": get_map(np.std, "score_times", info),
         "partial_fit_calls": [v["partial_fit_calls"] for v in info],
-        "model_id": idents,
+        "estimator_id": idents,
     }
     params = sum(params.values(), [])
     all_params = {k for param in params for k in param}

@@ -73,7 +73,7 @@ def test_basic(array_type, library, max_iter):
         assert type(search.best_estimator_) == type(model)
         assert isinstance(search.best_params_, dict)
 
-        num_fit_models = len(set(search.cv_results_["model_id"]))
+        num_fit_models = len(set(search.cv_results_["estimator_id"]))
         num_pf_calls = sum(
             [v[-1]["partial_fit_calls"] for v in search.model_history_.values()]
         )
@@ -87,7 +87,7 @@ def test_basic(array_type, library, max_iter):
             assert search.cv_results_["test_score"][best_idx] == max(
                 search.cv_results_["test_score"]
             )
-        model_ids = {h["model_id"] for h in search.history_}
+        model_ids = {h["estimator_id"] for h in search.history_}
         if max_iter % 3 == 0:
             assert len(model_ids) > max_iter
         assert all("bracket" in id_ for id_ in model_ids)
@@ -166,7 +166,7 @@ def test_integration(c, s, a, b):
         ("std_partial_fit_time", float, gt_zero),
         ("mean_score_time", float, gt_zero),
         ("std_score_time", float, gt_zero),
-        ("model_id", None, lambda x: isinstance(x, str)),
+        ("estimator_id", None, lambda x: isinstance(x, str)),
         ("partial_fit_calls", int, gt_zero),
         ("param_value", float, gt_zero),
     ]:
@@ -194,14 +194,14 @@ def test_integration(c, s, a, b):
     assert all(vi in alg.history_ for v in alg.model_history_.values() for vi in v)
     assert all(isinstance(v, np.ndarray) for v in alg.cv_results_.values())
     assert isinstance(alg.multimetric_, bool)
-    assert all("bracket=" in h["model_id"] for h in alg.history_)
+    assert all("bracket=" in h["estimator_id"] for h in alg.history_)
 
     keys = {
         "score",
         "score_time",
         "partial_fit_calls",
         "partial_fit_time",
-        "model_id",
+        "estimator_id",
         "bracket",
         "elapsed_wall_time",
         "params",
@@ -211,7 +211,7 @@ def test_integration(c, s, a, b):
     assert (np.diff(times) >= 0).all()
     history = defaultdict(list)
     for h in alg.history_:
-        history[h["model_id"]] += [h]
+        history[h["estimator_id"]] += [h]
     for model_hist in history.values():
         calls = [h["partial_fit_calls"] for h in model_hist]
         assert (np.diff(calls) >= 1).all() or len(calls) == 1

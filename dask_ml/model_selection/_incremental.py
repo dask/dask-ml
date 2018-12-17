@@ -44,17 +44,17 @@ def _partial_fit(model_and_meta, X, y, fit_params):
     Results
         A namedtuple with four fields: info, models, history, best
 
-        * info : Dict[model_id, List[Dict]]
+        * info : Dict[estimator_id, List[Dict]]
             Keys are integers identifying each model. Values are a
             List of Dict
-        * models : Dict[model_id, Future[Estimator]]
+        * models : Dict[estimator_id, Future[Estimator]]
             A dictionary with the same keys as `info`. The values
             are futures to the fitted models.
         * history : List[Dict]
             The history of model fitting for each model. Each element
             of the list is a dictionary with the following elements:
 
-            * model_id : int
+            * estimator_id : int
                 A superset of the keys for `info` and `models`.
             * params : Dict[str, Any]
                 Parameters this model was trained with.
@@ -67,7 +67,7 @@ def _partial_fit(model_and_meta, X, y, fit_params):
                 Score on the test set for the model at this point in history
             * score_time : float
                 Time (in seconds) spent on this scoring.
-        * best : Tuple[model_id, Future[Estimator]]]
+        * best : Tuple[estimator_id, Future[Estimator]]]
             The estimator with the highest validation score in the final
             round.
     """
@@ -103,7 +103,7 @@ def _create_model(model, ident, **params):
     """ Create a model by cloning and then setting params """
     with log_errors(pdb=True):
         model = clone(model).set_params(**params)
-        return model, {"model_id": ident, "params": params, "partial_fit_calls": 0}
+        return model, {"estimator_id": ident, "params": params, "partial_fit_calls": 0}
 
 
 @gen.coroutine
@@ -207,7 +207,7 @@ def _fit(
         metas = yield client.gather(new_scores)
 
         for meta in metas:
-            ident = meta["model_id"]
+            ident = meta["estimator_id"]
             meta["elapsed_wall_time"] = time() - start_time
 
             info[ident].append(meta)
@@ -266,7 +266,7 @@ def _fit(
 
     info = defaultdict(list)
     for h in history:
-        info[h["model_id"]].append(h)
+        info[h["estimator_id"]].append(h)
     info = dict(info)
 
     raise gen.Return(Results(info, models, history, best))
@@ -331,7 +331,7 @@ def fit(
     ...                            chunks=100000, random_state=0)
 
     >>> from sklearn.linear_model import SGDClassifier
-    >>> model = SGDClassifier(tol=1e-3, penalty='elasticnet', random_state=0)
+    >>> est = SGDClassifier(tol=1e-3, penalty='elasticnet', random_state=0)
 
     >>> from sklearn.model_selection import ParameterSampler
     >>> params = {'alpha': np.logspace(-2, 1, num=1000),
@@ -344,13 +344,13 @@ def fit(
     >>> y_train = y[100000:]
 
     >>> def remove_worst(scores):
-    ...    last_score = {model_id: info[-1]['score']
-    ...                  for model_id, info in scores.items()}
+    ...    last_score = {est_id: info[-1]['score']
+    ...                  for est_id, info in scores.items()}
     ...    worst_score = min(last_score.values())
     ...    out = {}
-    ...    for model_id, score in last_score.items():
+    ...    for est_id, score in last_score.items():
     ...        if score != worst_score:
-    ...            out[model_id] = 1  # do one more training step
+    ...            out[est_id] = 1  # do one more training step
     ...    if len(out) == 1:
     ...        out = {k: 0 for k in out}  # no more work to do, stops execution
     ...    return out
@@ -359,19 +359,19 @@ def fit(
     >>> client = Client(processes=False)
 
     >>> from dask_ml.model_selection._incremental import fit
-    >>> info, models, history, best = fit(model, params,
-    ...                                   X_train, y_train,
-    ...                                   X_test, y_test,
-    ...                                   additional_calls=remove_worst,
-    ...                                   fit_params={'classes': [0, 1]},
-    ...                                   random_state=0)
+    >>> info, ests, history, best = fit(est, params,
+    ...                                 X_train, y_train,
+    ...                                 X_test, y_test,
+    ...                                 additional_calls=remove_worst,
+    ...                                 fit_params={'classes': [0, 1]},
+    ...                                 random_state=0)
 
-    >>> models
+    >>> ests
     {2: <Future: status: finished, type: SGDClassifier, key: ...}
-    >>> models[2].result()
+    >>> ests[2].result()
     SGDClassifier(...)
     >>> info[2][-1]  # doctest: +SKIP
-    {'model_id': 2,
+    {'estimator_id': 2,
      'params': {'l1_ratio': 0.9529529529529529, 'average': False,
                 'alpha': 0.014933932161242525},
      'partial_fit_calls': 8,
@@ -488,7 +488,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
                 "std_partial_fit_time": np.std(pf_times),
                 "std_score_time": np.std(score_times),
                 "test_score": best_scores[k],
-                "model_id": k,
+                "estimator_id": k,
                 "params": hist[0]["params"],
                 "partial_fit_calls": hist[-1]["partial_fit_calls"],
             }
@@ -615,21 +615,21 @@ INC_ATTRS = """
         * ``std_score_time``
         * ``test_score``
         * ``rank_test_score``
-        * ``model_id``
+        * ``estimator_id``
         * ``partial_fit_calls``
         * ``params``
         * ``param_{key}``, where ``key`` is every key in ``params``.
 
         The values in the ``test_score`` key correspond to the last score a model
-        received on the hold out dataset. The key ``model_id`` corresponds with
+        received on the hold out dataset. The key ``estimator_id`` corresponds with
         ``history_``. This dictionary can be imported into Pandas.
 
     model_history_ : dict of lists of dict
         A dictionary of each models history. This is a reorganization of
         ``history_``: the same information is present but organized per model.
 
-        This data has the structure  ``{model_id: hist}`` where ``hist`` is a
-        subset of ``history_`` and ``model_id`` are model identifiers.
+        This data has the structure  ``{estimator_id: hist}`` where ``hist`` is a
+        subset of ``history_`` and ``estimator_id`` are model identifiers.
 
     history_ : list of dicts
         Information about each model after each ``partial_fit`` call. Each dict
@@ -638,11 +638,11 @@ INC_ATTRS = """
         * ``partial_fit_time``
         * ``score_time``
         * ``score``
-        * ``model_id``
+        * ``estimator_id``
         * ``params``
         * ``partial_fit_calls``
 
-        The key ``model_id`` corresponds to the ``model_id`` in ``cv_results_``.
+        The key ``estimator_id`` corresponds to the ``estimator_id`` in ``cv_results_``.
         This list of dicts can be imported into Pandas.
 
     best_estimator_ : BaseEstimator
