@@ -377,6 +377,7 @@ class ConstantFunction(BaseEstimator):
         return self
 
 
+
 __all__ = [
     "assert_estimator_equal",
     "check_array",

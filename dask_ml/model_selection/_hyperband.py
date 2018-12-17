@@ -398,7 +398,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
         info = {
             "partial_fit_calls": num_partial_fit,
             "models": num_models,
-            "brackets": {"bracket=" + str(b.pop("bracket")): b for b in bracket_info},
+            "brackets": {"bracket=" + str(b["bracket"]): b for b in bracket_info},
         }
         return info
 
@@ -422,6 +422,7 @@ def _get_meta(hists, brackets, SHAs, key=None):
         meta_["bracket=" + str(bracket)] = {
             "iters": sorted(list(iters)),
             "models": len(hist),
+            "bracket": bracket,
             "partial_fit_calls": sum(calls.values()),
             "SuccessiveHalvingSearchCV params": _get_SHA_params(SHAs[bracket]),
         }

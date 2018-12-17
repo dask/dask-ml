@@ -208,8 +208,6 @@ Basic use
     client = Client()
     import numpy as np
     from dask_ml.datasets import make_classification
-    # X, y = make_classification(n_samples=5000000, n_features=20,
-    #                           chunks=100000, random_state=0)
     X, y = make_classification(chunks=20, random_state=0)
 
 Our underlying estimator is an ``SGDClassifier``. We specify a few parameters
