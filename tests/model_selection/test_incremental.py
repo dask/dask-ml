@@ -249,8 +249,8 @@ def _test_search_basic(decay_rate, c, s, a, b):
     assert len(np.unique(search.cv_results_["estimator_id"])) == len(
         search.cv_results_["estimator_id"]
     )
-    assert sorted(search.model_history_.keys()) == list(range(20))
-    assert set(search.model_history_[0][0].keys()) == {
+    assert sorted(search.estimator_history_.keys()) == list(range(20))
+    assert set(search.estimator_history_[0][0].keys()) == {
         "estimator_id",
         "params",
         "partial_fit_calls",

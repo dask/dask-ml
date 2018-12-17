@@ -75,7 +75,7 @@ def test_basic(array_type, library, max_iter):
 
         num_fit_models = len(set(search.cv_results_["estimator_id"]))
         num_pf_calls = sum(
-            [v[-1]["partial_fit_calls"] for v in search.model_history_.values()]
+            [v[-1]["partial_fit_calls"] for v in search.estimator_history_.values()]
         )
         models = {9: 17, 15: 17, 20: 17, 27: 49, 30: 49, 81: 143}
         pf_calls = {9: 69, 15: 101, 20: 144, 27: 357, 30: 379, 81: 1581}
@@ -190,8 +190,8 @@ def test_integration(c, s, a, b):
     assert isinstance(alg.best_params_, dict)
     assert isinstance(alg.history_, list)
     assert all(isinstance(h, dict) for h in alg.history_)
-    assert isinstance(alg.model_history_, dict)
-    assert all(vi in alg.history_ for v in alg.model_history_.values() for vi in v)
+    assert isinstance(alg.estimator_history_, dict)
+    assert all(vi in alg.history_ for v in alg.estimator_history_.values() for vi in v)
     assert all(isinstance(v, np.ndarray) for v in alg.cv_results_.values())
     assert isinstance(alg.multimetric_, bool)
     assert all("bracket=" in h["estimator_id"] for h in alg.history_)
