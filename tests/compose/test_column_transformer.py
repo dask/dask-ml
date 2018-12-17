@@ -44,16 +44,28 @@ def test_column_transformer():
 
 
 def test_column_transformer_unk_chunksize():
-    names = ['a', 'b', 'c']
+    names = ["a", "b", "c"]
     x = dd.from_pandas(pd.DataFrame(np.arange(12).reshape(4, 3), columns=names), 2)
-    features = sklearn.pipeline.Pipeline([
-        ('features', sklearn.pipeline.FeatureUnion([
-            ('ratios', dask_ml.compose.ColumnTransformer([
-                ('a_b', SumTransformer(), ['a', 'b']),
-                ('b_c', SumTransformer(), ['b', 'c'])
-            ]))
-        ]))
-    ])
+    features = sklearn.pipeline.Pipeline(
+        [
+            (
+                "features",
+                sklearn.pipeline.FeatureUnion(
+                    [
+                        (
+                            "ratios",
+                            dask_ml.compose.ColumnTransformer(
+                                [
+                                    ("a_b", SumTransformer(), ["a", "b"]),
+                                    ("b_c", SumTransformer(), ["b", "c"]),
+                                ]
+                            ),
+                        )
+                    ]
+                ),
+            )
+        ]
+    )
 
     # Checks:
     #   ValueError: Tried to concatenate arrays with unknown shape (nan, 1).
