@@ -1,4 +1,3 @@
-import dask.bag as db
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
@@ -45,12 +44,8 @@ def test_column_transformer():
 
 
 def test_column_transformer_unk_chunksize():
-    cols = 3
-    rows = 4
-    a = 0x61  # character code for 'a'.
-    names = list(map(chr, a + np.arange(cols)))
-    x = db.from_sequence(gen_ints(rows, cols)).to_dataframe(columns=names)
-
+    names = ['a', 'b', 'c']
+    x = dd.from_pandas(pd.DataFrame(np.arange(12).reshape(4, 3), columns=names), 2)
     features = sklearn.pipeline.Pipeline([
         ('features', sklearn.pipeline.FeatureUnion([
             ('ratios', dask_ml.compose.ColumnTransformer([
@@ -65,15 +60,9 @@ def test_column_transformer_unk_chunksize():
     #               To force concatenation pass allow_unknown_chunksizes=True.
     out = features.fit_transform(x)
 
-    exp = np.array([[1, 3], [3, 5], [5, 7], [7, 9]], dtype=np.int32)
+    exp = np.array([[1, 3], [7, 9], [13, 15], [19, 21]])
     assert isinstance(out, np.ndarray)
     np.testing.assert_array_equal(out, exp)
-
-
-# Generator ensures the DataFrame shape has NaN in first dim.
-def gen_ints(r, c):
-    for i in range(r):
-        yield i + np.arange(c)
 
 
 # Some basic transformer.
@@ -82,5 +71,4 @@ class SumTransformer(BaseEstimator):
         return self
 
     def transform(self, X):
-        out = X.map_partitions(lambda x: x.values.sum(axis=-1).reshape(-1, 1))
-        return out
+        return X.map_partitions(lambda x: x.values.sum(axis=-1).reshape(-1, 1))

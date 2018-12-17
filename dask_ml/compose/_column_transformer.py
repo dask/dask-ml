@@ -185,8 +185,8 @@ boolean mask array or callable
                 warnings.filterwarnings("ignore", "Concatenating", UserWarning)
                 return dd.concat(Xs, axis="columns")
         elif da.Array in types:
-            # To avoid changing dask core, this is the definition of the
-            # dask.array.hstack inlined:
+            # To allow compatibility with dask core 1.0.0, this is the
+            # definition of the dask.array.hstack inlined:
             if all(x.ndim == 1 for x in Xs):
                 # tup, axis, allow_unknown_chunksizes
                 return da.concatenate(Xs, 0, True)
