@@ -5,7 +5,7 @@ import pytest
 import sklearn.compose
 import sklearn.pipeline
 import sklearn.preprocessing
-from sklearn.base import clone, BaseEstimator
+from sklearn.base import BaseEstimator, clone
 
 import dask_ml.compose
 import dask_ml.preprocessing
