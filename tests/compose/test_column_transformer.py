@@ -5,7 +5,7 @@ import pytest
 import sklearn.compose
 import sklearn.pipeline
 import sklearn.preprocessing
-from sklearn.base import clone, BaseEstimator
+from sklearn.base import BaseEstimator, clone
 
 import dask_ml.compose
 import dask_ml.preprocessing
@@ -44,16 +44,28 @@ def test_column_transformer():
 
 
 def test_column_transformer_unk_chunksize():
-    names = ['a', 'b', 'c']
+    names = ["a", "b", "c"]
     x = dd.from_pandas(pd.DataFrame(np.arange(12).reshape(4, 3), columns=names), 2)
-    features = sklearn.pipeline.Pipeline([
-        ('features', sklearn.pipeline.FeatureUnion([
-            ('ratios', dask_ml.compose.ColumnTransformer([
-                ('a_b', SumTransformer(one_d=False), ['a', 'b']),
-                ('b_c', SumTransformer(one_d=False), ['b', 'c'])
-            ]))
-        ]))
-    ])
+    features = sklearn.pipeline.Pipeline(
+        [
+            (
+                "features",
+                sklearn.pipeline.FeatureUnion(
+                    [
+                        (
+                            "ratios",
+                            dask_ml.compose.ColumnTransformer(
+                                [
+                                    ("a_b", SumTransformer(one_d=False), ["a", "b"]),
+                                    ("b_c", SumTransformer(one_d=False), ["b", "c"]),
+                                ]
+                            ),
+                        )
+                    ]
+                ),
+            )
+        ]
+    )
 
     # Checks:
     #   ValueError: Tried to concatenate arrays with unknown shape (nan, 1).
@@ -73,28 +85,42 @@ def test_sklearn_col_trans_disallows_hstack_then_block():
     # that code path.
 
     # This is the same example as above except that `one_d=True`.
-    names = ['a', 'b', 'c']
+    names = ["a", "b", "c"]
     x = dd.from_pandas(pd.DataFrame(np.arange(12).reshape(4, 3), columns=names), 2)
-    features = sklearn.pipeline.Pipeline([
-        ('features', sklearn.pipeline.FeatureUnion([
-            ('ratios', dask_ml.compose.ColumnTransformer([
-                ('a_b', SumTransformer(one_d=True), ['a', 'b']),
-                ('b_c', SumTransformer(one_d=True), ['b', 'c'])
-            ]))
-        ]))
-    ])
+    features = sklearn.pipeline.Pipeline(
+        [
+            (
+                "features",
+                sklearn.pipeline.FeatureUnion(
+                    [
+                        (
+                            "ratios",
+                            dask_ml.compose.ColumnTransformer(
+                                [
+                                    ("a_b", SumTransformer(one_d=True), ["a", "b"]),
+                                    ("b_c", SumTransformer(one_d=True), ["b", "c"]),
+                                ]
+                            ),
+                        )
+                    ]
+                ),
+            )
+        ]
+    )
 
-    exp_msg = ("The output of the 'a_b' transformer should be 2D "
-               "(scipy matrix, array, or pandas DataFrame).")
+    exp_msg = (
+        "The output of the 'a_b' transformer should be 2D "
+        "(scipy matrix, array, or pandas DataFrame)."
+    )
 
     with pytest.raises(ValueError, message=exp_msg) as ex:
         features.fit_transform(x)
 
     cause = ex.traceback[-1]
-    place = cause.frame.f_globals['__name__']
+    place = cause.frame.f_globals["__name__"]
     func = cause.name
-    assert place == 'sklearn.compose._column_transformer'
-    assert func == '_validate_output'
+    assert place == "sklearn.compose._column_transformer"
+    assert func == "_validate_output"
 
 
 # Some basic transformer.
