@@ -5,7 +5,6 @@ import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import sklearn.compose
-from scipy import sparse
 from sklearn.compose._column_transformer import _get_transformer_list
 
 
@@ -178,8 +177,9 @@ boolean mask array or callable
         """
         types = set(type(X) for X in Xs)
 
-        if self.sparse_output_:
-            return sparse.hstack(Xs).tocsr()
+        if da.Array in types:
+            Xs2 = [x.to_dask_array() if hasattr(x, "to_dask_array") else x for x in Xs]
+            return da.concatenate(Xs2, allow_unknown_chunksizes=True, axis=1)
         elif dd.Series in types or dd.DataFrame in types:
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", "Concatenating", UserWarning)
