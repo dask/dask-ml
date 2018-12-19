@@ -185,7 +185,15 @@ boolean mask array or callable
                 warnings.filterwarnings("ignore", "Concatenating", UserWarning)
                 return dd.concat(Xs, axis="columns")
         elif da.Array in types:
-            return da.hstack(Xs)
+            # To allow compatibility with dask core 1.0.0, this is the `else`
+            # part of the definition of the dask.array.hstack inlined.
+            # The `then` branch is removed because _validate_output in
+            # sklearn.compose.ColumnTransformer ensures ndim == 2, so the
+            # check `all(x.ndim == 1 for x in Xs)` should always fail.
+            #
+            # Once dask.array.hstack supports allow_unknown_chunksizes,
+            # changed this to da.hstack(Xs, allow_unknown_chunksizes=True)
+            return da.concatenate(Xs, axis=1, allow_unknown_chunksizes=True)
         elif self.preserve_dataframe and (pd.Series in types or pd.DataFrame in types):
             return pd.concat(Xs, axis="columns")
         else:

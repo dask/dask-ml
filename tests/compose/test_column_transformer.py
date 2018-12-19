@@ -1,9 +1,11 @@
 import dask.dataframe as dd
+import numpy as np
 import pandas as pd
 import pytest
 import sklearn.compose
+import sklearn.pipeline
 import sklearn.preprocessing
-from sklearn.base import clone
+from sklearn.base import BaseEstimator, clone
 
 import dask_ml.compose
 import dask_ml.preprocessing
@@ -39,3 +41,101 @@ def test_column_transformer():
     expected = clone(a).fit_transform(df)
     expected = pd.DataFrame(expected, index=result.index, columns=result.columns)
     dd.utils.assert_eq(result, expected)
+
+
+def test_column_transformer_unk_chunksize():
+    names = ["a", "b", "c"]
+    x = dd.from_pandas(pd.DataFrame(np.arange(12).reshape(4, 3), columns=names), 2)
+    features = sklearn.pipeline.Pipeline(
+        [
+            (
+                "features",
+                sklearn.pipeline.FeatureUnion(
+                    [
+                        (
+                            "ratios",
+                            dask_ml.compose.ColumnTransformer(
+                                [
+                                    ("a_b", SumTransformer(one_d=False), ["a", "b"]),
+                                    ("b_c", SumTransformer(one_d=False), ["b", "c"]),
+                                ]
+                            ),
+                        )
+                    ]
+                ),
+            )
+        ]
+    )
+
+    # Checks:
+    #   ValueError: Tried to concatenate arrays with unknown shape (nan, 1).
+    #               To force concatenation pass allow_unknown_chunksizes=True.
+    out = features.fit_transform(x)
+
+    exp = np.array([[1, 3], [7, 9], [13, 15], [19, 21]])
+    assert isinstance(out, np.ndarray)
+    np.testing.assert_array_equal(out, exp)
+
+
+def test_sklearn_col_trans_disallows_hstack_then_block():
+    # Test that sklearn ColumnTransformer (to which dask-ml ColumnTransformer
+    # delegates) disallows 1-D values.  This shows that if da.hstack were
+    # used in dask's ColumnTransformer, the `then` branch in hstack would not
+    # be executed because a ValueError is thrown by sklearn before executing
+    # that code path.
+
+    # This is the same example as above except that `one_d=True`.
+    names = ["a", "b", "c"]
+    x = dd.from_pandas(pd.DataFrame(np.arange(12).reshape(4, 3), columns=names), 2)
+    features = sklearn.pipeline.Pipeline(
+        [
+            (
+                "features",
+                sklearn.pipeline.FeatureUnion(
+                    [
+                        (
+                            "ratios",
+                            dask_ml.compose.ColumnTransformer(
+                                [
+                                    ("a_b", SumTransformer(one_d=True), ["a", "b"]),
+                                    ("b_c", SumTransformer(one_d=True), ["b", "c"]),
+                                ]
+                            ),
+                        )
+                    ]
+                ),
+            )
+        ]
+    )
+
+    exp_msg = (
+        "The output of the 'a_b' transformer should be 2D "
+        "(scipy matrix, array, or pandas DataFrame)."
+    )
+
+    with pytest.raises(ValueError, message=exp_msg) as ex:
+        features.fit_transform(x)
+
+    cause = ex.traceback[-1]
+    place = cause.frame.f_globals["__name__"]
+    func = cause.name
+    assert place == "sklearn.compose._column_transformer"
+    assert func == "_validate_output"
+
+
+# Some basic transformer.
+class SumTransformer(BaseEstimator):
+    def __init__(self, one_d):
+        self.one_d = one_d
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        return X.map_partitions(lambda x: self.to_vec(x.values.sum(axis=-1)))
+
+    def to_vec(self, x):
+        if self.one_d:
+            return x.flatten()
+        else:
+            return x.reshape(-1, 1)
