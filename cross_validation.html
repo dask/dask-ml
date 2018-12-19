@@ -119,7 +119,7 @@
             
             
               <div class="version">
-                0.11.1.dev32+g0994a94
+                0.11.1.dev40+gcfec774
               </div>
             
           
@@ -258,12 +258,12 @@ This document only describes the extensions made to support Dask arrays.</p>
 
 <span class="gp">In [8]: </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="go">                                                                                  Out[8]: </span>
-<span class="go">array([[-1.13718099, -0.5403331 ,  0.07110488, -0.3837625 ],</span>
-<span class="go">       [ 0.70530725, -1.30363125, -0.12527161, -0.16084649],</span>
-<span class="go">       [ 0.78238736,  0.78854356,  0.84887241,  1.10977114]])</span>
+<span class="go">array([[-0.45656184, -0.13857792, -1.52033112,  0.27454601],</span>
+<span class="go">       [ 0.5042455 , -1.07535059,  0.21960535, -0.13748034],</span>
+<span class="go">       [-1.34564068,  1.35118465,  0.48875575,  1.04930275]])</span>
 </pre></div>
 </div>
-<p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v0.20.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
+<p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v0.20.2)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
 using the Dask version for performance reasons. There are two major difference that let make the Dask version
 faster.</p>
 <p>First, <strong>the Dask version shuffles blockwise</strong>.
