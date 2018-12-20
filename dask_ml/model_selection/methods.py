@@ -1,7 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 import warnings
-from collections import Mapping, defaultdict
+from collections import defaultdict
 from distutils.version import LooseVersion
 from threading import Lock
 from timeit import default_timer
@@ -16,6 +16,7 @@ from sklearn.utils import safe_indexing
 from sklearn.utils.validation import check_consistent_length
 from toolz import pluck
 
+from .._compat import Mapping
 from .utils import _index_param_value, _num_samples, copy_estimator
 
 # Copied from scikit-learn/sklearn/utils/fixes.py, can be removed once we drop
