@@ -16,7 +16,6 @@ from sklearn.utils.testing import (
     assert_less,
     assert_raises,
     assert_raises_regex,
-    assert_true,
 )
 
 import dask_ml.decomposition as dd
@@ -375,8 +374,8 @@ def test_pca_validation():
 
                 assert_raises_regex(
                     ValueError,
-                    "n_components={}L? must be between "
-                    "{}L? and min\(n_samples, n_features\)="
+                    r"n_components={}L? must be between "
+                    "{}L? and min\\(n_samples, n_features\\)="
                     "{}L? with svd_solver='{}'".format(
                         n_components, lower_limit[solver], smallest_d, solver_reported
                     ),
@@ -389,9 +388,9 @@ def test_pca_validation():
 
                 assert_raises_regex(
                     ValueError,
-                    "n_components={}L? must be "
+                    r"n_components={}L? must be "
                     "strictly less than "
-                    "min\(n_samples, n_features\)={}L?"
+                    "min\\(n_samples, n_features\\)={}L?"
                     " with svd_solver='arpack'".format(n_components, smallest_d),
                     dd.PCA(n_components, svd_solver=solver).fit,
                     data,
@@ -590,7 +589,7 @@ def test_pca_score2():
         pca = dd.PCA(n_components=2, whiten=True, svd_solver=solver)
         pca.fit(dX)
         ll2 = pca.score(dX)
-        assert_true(ll1 > ll2)
+        assert ll1 > ll2
 
 
 def test_pca_score3():
@@ -607,7 +606,7 @@ def test_pca_score3():
         pca.fit(dXl)
         ll[k] = pca.score(dXt)
 
-    assert_true(ll.argmax() == 1)
+    assert ll.argmax() == 1
 
 
 def test_pca_score_with_different_solvers():
@@ -689,7 +688,12 @@ def test_pca_bad_solver():
 
 @pytest.mark.parametrize(
     "svd_solver",
-    ["full", pytest.mark.xfail(reason="svd_compressed promotes")("randomized")],
+    [
+        "full",
+        pytest.param(
+            "randomized", marks=pytest.mark.xfail(reason="svd_compressed promotes")
+        ),
+    ],
 )
 def test_pca_float_dtype_preservation(svd_solver):
     # Ensure that PCA does not upscale the dtype when input is float32
