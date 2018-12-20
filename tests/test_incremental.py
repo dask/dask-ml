@@ -139,7 +139,9 @@ def test_score(xy_classification):
     client = distributed.Client(n_workers=2)
 
     X, y = xy_classification
-    inc = Incremental(SGDClassifier(max_iter=1000, random_state=0), scoring="accuracy")
+    inc = Incremental(
+        SGDClassifier(max_iter=1000, random_state=0, tol=1e-3), scoring="accuracy"
+    )
 
     with client:
         inc.fit(X, y, classes=[0, 1])
