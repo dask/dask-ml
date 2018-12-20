@@ -58,7 +58,7 @@ def euclidean_distances(
 ):
     if Y is None:
         Y = X
-        
+
     if X_norm_squared is not None:
         XX = X_norm_squared
         if XX.shape == (1, X.shape[0]):
