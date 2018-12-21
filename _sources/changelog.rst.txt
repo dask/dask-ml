@@ -1,6 +1,15 @@
 Changelog
 =========
 
+Version 0.12.0
+~~~~~~~~~~~~~~
+
+API Breaking Changes
+--------------------
+
+- :class:`dask_ml.model_selectoin.IncrementalSearchCV` now returns Dask objects for post-fit methods like ``.predict``, etc (:issues:`423`).
+
+
 Version 0.11.0
 ~~~~~~~~~~~~~~
 
