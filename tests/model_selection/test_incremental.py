@@ -270,30 +270,6 @@ def _test_search_basic(decay_rate, c, s, a, b):
 
 
 @gen_cluster(client=True, timeout=None)
-def test_missing_params(c, s, a, b):
-    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
-
-    class SetKwargs(BaseEstimator):
-        def __init__(self, **kwargs):
-            for k, v in kwargs.items():
-                setattr(self, k, v)
-            super(SetKwargs, self).__init__()
-
-        def score(self, *args, **kwargs):
-            return np.random.rand()
-        def fit(self, *args, **kwargs):
-            pass
-        def partial_fit(self, *args, **kwargs):
-            pass
-
-    params = [{"value": 0.1}, {"rate": 0.2}]
-    model = SetKwargs()
-
-    search = BaseIncrementalSearchCV(model, params)
-    search.fit(X, y)
-    1 / 0
-
-@gen_cluster(client=True, timeout=None)
 def test_search_plateau_patience(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
 
