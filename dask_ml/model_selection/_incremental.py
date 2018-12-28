@@ -650,7 +650,9 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
     decay_rate : float, default 0.0
         How quickly to decrease the number partial future fit calls.
         Higher `decay_rate` will result in lower training times, at the cost
-        of worse models. If changed, we recommend ``decay_rate == 1``.
+        of worse models. This is best changed for compute bound model selection
+        problems. If changed, note that ``decay_rate == 1`` has some
+        theoritical motivation [1]_.
 
     patience : int, default False
         Maximum number of non-improving scores before we stop training a
@@ -812,6 +814,14 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
     For example, setting ``tol=0`` and ``patience=2`` means training will stop
     after two consecutive calls to ``model.partial_fit`` without improvement,
     or when ``max_iter`` total calls to ``model.parital_fit`` are reached.
+
+    References
+    ----------
+    .. [1] Li, L., Jamieson, K., DeSalvo, G., Rostamizadeh, A., & Talwalkar, A.
+           (2017). Hyperband: A novel bandit-based approach to hyperparameter
+           optimization. The Journal of Machine Learning Research, 18(1),
+           6765-6816. http://www.jmlr.org/papers/volume18/16-558/16-558.pdf
+
     """
 
     def __init__(
