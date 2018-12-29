@@ -44,6 +44,14 @@ More detail in :ref:`hyperparameter.drop-in`
 
 They are drop in replacement for the Scikit-learn versions.
 
+:class:`~dask_ml.model_selection.GridSearchCV` and
+:class:`~dask_ml.model_selection.RandomizedSearchCV` work best if each CV split
+fits in a single worker's RAM because ``fit`` is called on each cross
+validation split of the data. If each cross validation split does not fit into
+RAM, look :ref:`below <hyperparameter.memory>`.
+
+.. _hyperparamter.memory:
+
 Memory constrained, but not compute constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 More detail in :ref:`hyperparameter.incremental`.
@@ -52,9 +60,7 @@ More detail in :ref:`hyperparameter.incremental`.
    dask_ml.model_selection.IncrementalSearchCV
 
 :class:`~dask_ml.model_selection.IncrementalSearchCV` calls ``partial_fit`` on
-each chunk of the data. :class:`~dask_ml.model_selection.GridSearchCV` and
-:class:`~dask_ml.model_selection.RandomizedSearchCV` also work with Dask
-objects, but call ``fit`` on each chunk of the data individually.
+each chunk of the data.
 
 Compute and memory constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -147,8 +153,8 @@ to pull it locally to your computer:
     # Pass to fit without ever leaving the cluster
     search.fit(df[['x', 'x2']], df['y'])
 
-The data is not collected to one machine because the ``estimator.fit`` is
-called on each chunk of the Dask array/dataframe/future.
+This example will compute each CV split and store it on a single machine so
+``fit`` can be called.
 
 .. _avoid-repeated-work:
 

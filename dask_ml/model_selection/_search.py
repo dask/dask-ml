@@ -1133,9 +1133,10 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
 
         Notes
         -----
-        The arguments ``X`` and ``y`` can be Dask arrays, Dask dataframes or
-        Dask delayed objects. The data is never gathered on one machine because
-        ``estimator.fit`` is called on each chunk of the Dask data.
+        This class performs best when each cross validation split fits into
+        RAM because ``fit`` is called on each cross validation split. For
+        example, if using :class:`~sklearn.model_selection.KFold` with k
+        chunks, a :math:`1 - 1/k` fraction of the dataset should fit into RAM.
 
         """
         estimator = self.estimator
