@@ -194,7 +194,19 @@ def fit(model, x, y, compute=True, shuffle_blocks=True, random_state=None, **kwa
         }
     )
 
-    new_dsk = dask.sharedict.merge((name, dsk), x.dask, getattr(y, "dask", {}))
+    graphs = {x.name: x.__dask_graph__(), name: dsk}
+    if hasattr(y, "__dask_graph__"):
+        graphs[y.name] = y.__dask_graph__()
+
+    try:
+        from dask.highlevelgraph import HighLevelGraph
+
+        new_dsk = HighLevelGraph.merge(*graphs.values())
+    except ImportError:
+        from dask import sharedict
+
+        new_dsk = sharedict.merge(graphs.values)
+
     value = Delayed((name, nblocks - 1), new_dsk)
 
     if compute:
