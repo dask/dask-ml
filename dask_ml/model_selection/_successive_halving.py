@@ -59,28 +59,32 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         self,
         estimator,
         param_distribution,
-        n_initial_parameters,
-        resource,
+        n_initial_parameters=15,
+        start_iter=9,
         aggressiveness=3,
         limit=None,
+        max_iter=100,
         **kwargs,
     ):
         self._steps = 0
         self._pf_calls = {}
         self.n_initial_parameters = n_initial_parameters
-        self.resource = resource
+        self.start_iter = start_iter
         self.aggressiveness = aggressiveness
         self.limit = limit
         self.estimator = estimator
+        self.max_iter = max_iter
+
         super(SuccessiveHalvingSearchCV, self).__init__(
             estimator,
             param_distribution,
             n_initial_parameters=n_initial_parameters,
+            max_iter=max_iter,
             **kwargs,
         )
 
     def _adapt(self, info):
-        n, r, eta = self.n_initial_parameters, self.resource, self.aggressiveness
+        n, r, eta = self.n_initial_parameters, self.start_iter, self.aggressiveness
         n_i = int(math.floor(n * eta ** -self._steps))
         r_i = np.round(r * eta ** self._steps).astype(int)
         self._pf_calls.update({k: v[-1]["partial_fit_calls"] for k, v in info.items()})

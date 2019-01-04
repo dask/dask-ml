@@ -214,7 +214,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
         self,
         estimator,
         param_distribution,
-        max_iter,
+        max_iter=81,
         aggressiveness=3,
         test_size=None,
         patience=False,
@@ -225,6 +225,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
     ):
         self.aggressiveness = aggressiveness
         self.param_distribution = param_distribution
+        self.max_iter = max_iter
 
         super(HyperbandSearchCV, self).__init__(
             estimator,
@@ -270,12 +271,13 @@ class HyperbandSearchCV(IncrementalSearchCV):
                 SuccessiveHalvingSearchCV(
                     self.estimator,
                     self.param_distribution,
-                    n,
-                    r,
+                    n_initial_parameters=n,
+                    start_iter=r,
                     limit=b + 1,
                     aggressiveness=self.aggressiveness,
                     patience=patience,
                     tol=self.tol,
+                    max_iter=self.max_iter,
                 ),
             )
             for n, r, b in zip(N, R, brackets)
@@ -384,10 +386,11 @@ class HyperbandSearchCV(IncrementalSearchCV):
             b: SuccessiveHalvingSearchCV(
                 self.estimator,
                 self.param_distribution,
-                n,
-                r,
+                n_initial_parameters=n,
+                start_iter=r,
                 limit=b + 1,
                 aggressiveness=self.aggressiveness,
+                max_iter=self.max_iter,
             )
             for n, r, b in zip(N, R, brackets)
         }
