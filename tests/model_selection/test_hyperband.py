@@ -127,14 +127,15 @@ def test_hyperband_patience(c, s, a, b):
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
     model = ConstantFunction()
     params = {"value": scipy.stats.uniform(0, 1)}
-    max_iter = 16
+    max_iter = 27
 
     alg = HyperbandSearchCV(model, params, max_iter=max_iter, patience=True)
     yield alg.fit(X, y)
-    alg_patience = max_iter // alg.aggressiveness
 
+    alg_patience = max_iter // alg.aggressiveness
     actual_iters = [b.pop("iters") for b in alg.metadata_["brackets"].values()]
     paper_iters = [b.pop("iters") for b in alg.metadata()["brackets"].values()]
+
     for paper_iter, actual_iter in zip(paper_iters, actual_iters):
         trimmed_paper_iter = {k for k in paper_iter if k <= alg_patience}
         assert trimmed_paper_iter.issubset(set(actual_iter))
@@ -237,7 +238,7 @@ def test_successive_halving_params(c, s, a, b):
         assert metadata[b]["partial_fit_calls"] == SHA.metadata_["partial_fit_calls"]
 
 
-def test_get_set_params():
+def test_correct_params():
     """
     Test to make sure that successive halving gets/sets parameters correctly
 
@@ -273,22 +274,34 @@ def test_get_set_params():
     ) - {"estimator__value", "estimator__sleep"}
     assert all(set(SHA) == SHA_params for SHA in SHAs_params)
 
-    # Make sure can set/get params just fine
-    new_params = {
-        "max_iter": 253,
-        "test_size": 0.212,
-        "patience": -1,
-        "tol": 0,
-        "scores_per_fit": 3,
-        "random_state": 42,
-        "scoring": False,
-    }
-    SHA = SuccessiveHalvingSearchCV(ConstantFunction, {"value": [0, 1]}, **new_params)
-    for k, v in new_params.items():
-        assert getattr(SHA, k) == v
 
-    new_params = {k: v for k, v in new_params.items() if k not in {"start_iter"}}
-    new_params["aggressiveness"] = 3.5
-    search = HyperbandSearchCV(ConstantFunction, {"value": [0, 1]}, **new_params)
-    for k, v in new_params.items():
-        assert getattr(search, k) == v
+def test_params_passed():
+    params = {
+        "aggressiveness": 3.5,
+        "estimator": ConstantFunction(value=0.4),
+        "max_iter": 253,
+        "random_state": 42,
+        "scores_per_fit": 3,
+        "scoring": False,
+        "test_size": 0.212,
+        "tol": 0,
+        "param_distribution": {"value": [0, 1]},
+    }
+    params["patience"] = (params["max_iter"] // params["aggressiveness"]) + 4
+    hyperband = HyperbandSearchCV(**params)
+    for k, v in params.items():
+        assert getattr(hyperband, k) == v
+
+    brackets = hyperband.metadata()["brackets"]
+    SHAs_params = [
+        bracket["SuccessiveHalvingSearchCV params"] for bracket in brackets.values()
+    ]
+
+    equality = {
+        k: all(SHA_params[k] == v for SHA_params in SHAs_params)
+        for k, v in params.items()
+        if k != "random_state"
+    }
+    assert all(equality.values())
+    seeds = [SHA_params["random_state"] for SHA_params in SHAs_params]
+    assert len(set(seeds)) == len(seeds)

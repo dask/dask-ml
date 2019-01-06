@@ -12,6 +12,7 @@ from sklearn.base import BaseEstimator, MetaEstimatorMixin
 from sklearn.metrics.scorer import check_scoring
 from sklearn.model_selection import ParameterSampler
 from sklearn.utils.metaestimators import if_delegate_has_method
+from sklearn.utils import check_random_state
 from tornado import gen
 
 from ._incremental import INC_ATTRS, IncrementalSearchCV, fit as _incremental_fit
@@ -240,29 +241,9 @@ class HyperbandSearchCV(IncrementalSearchCV):
             scoring=scoring,
         )
 
-    @gen.coroutine
-    def _fit(self, X, y, **fit_params):
-        X, y = self._check_array(X, y)
-        scorer = check_scoring(self.estimator, scoring=self.scoring)
-
-        if not isinstance(self.patience, bool) and self.patience < max(
-            self.max_iter // self.aggressiveness, 1
-        ):
-            msg = (
-                "Careful. patience={}, but values of patience=True (or maybe "
-                "patience>={}) are recommended.\n\n"
-                "The goal of `patience` is to stop training estimators that have "
-                "already converged *when few estimators remain*."
-                "Setting patience=True accomplishes this goal. Please continue "
-                "with caution or good reason"
-            )
-            warn(msg.format(self.patience, self.max_iter // self.aggressiveness))
-        if self.patience:
-            patience = max(self.max_iter // self.aggressiveness, 1)
-        else:
-            patience = False
-
-        N, R, brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
+    def _get_SHAs(self, N, R, brackets):
+        patience = _get_patience(self.patience, self.max_iter, self.aggressiveness)
+        seed_start = check_random_state(self.random_state).randint(2**31)
 
         # These brackets are ordered by adaptivity; most adaptive comes
         # first
@@ -276,13 +257,27 @@ class HyperbandSearchCV(IncrementalSearchCV):
                     start_iter=r,
                     limit=b + 1,
                     aggressiveness=self.aggressiveness,
+                    max_iter=self.max_iter,
                     patience=patience,
                     tol=self.tol,
-                    max_iter=self.max_iter,
+                    test_size=self.test_size,
+                    scores_per_fit=self.scores_per_fit,
+                    random_state=seed_start + i,
+                    scoring=self.scoring,
                 ),
             )
-            for n, r, b in zip(N, R, brackets)
+            for i, (n, r, b) in enumerate(zip(N, R, brackets))
         ]
+        return SHAs
+
+    @gen.coroutine
+    def _fit(self, X, y, **fit_params):
+        X, y = self._check_array(X, y)
+        scorer = check_scoring(self.estimator, scoring=self.scoring)
+
+        N, R, brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
+
+        SHAs = self._get_SHAs(N, R, brackets)
         # Which bracket to run first? Going to go with most adaptive;
         # hopefully less adaptive can fill in for any blank spots
         SHAs = yield {b: SHA.fit(X, y, **fit_params) for b, SHA in SHAs}
@@ -383,18 +378,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
         bracket_info = list(reversed(sorted(bracket_info, key=lambda x: x["bracket"])))
 
         N, R, brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
-        SHAs = {
-            b: SuccessiveHalvingSearchCV(
-                self.estimator,
-                self.param_distribution,
-                n_initial_parameters=n,
-                start_iter=r,
-                limit=b + 1,
-                aggressiveness=self.aggressiveness,
-                max_iter=self.max_iter,
-            )
-            for n, r, b in zip(N, R, brackets)
-        }
+        SHAs = {bracket: SHA for bracket, SHA in self._get_SHAs(N, R, brackets)}
         for bracket in bracket_info:
             b = bracket["bracket"]
             bracket["SuccessiveHalvingSearchCV params"] = _get_SHA_params(SHAs[b])
@@ -437,7 +421,7 @@ def _get_SHA_params(SHA):
     return {
         k: v
         for k, v in SHA.get_params().items()
-        if "estimator_" not in k# and k != "param_distribution"
+        if "estimator_" not in k  # and k != "param_distribution"
     }
 
 
@@ -539,3 +523,21 @@ def _hyperband_paper_alg(R, eta=3):
         for k, hist in hists.items()
     ]
     return info
+
+
+def _get_patience(patience, max_iter, aggressiveness):
+    if not isinstance(patience, bool) and patience < max(max_iter // aggressiveness, 1):
+        msg = (
+            "Careful. patience={}, but values of patience=True (or maybe "
+            "patience>={}) are recommended.\n\n"
+            "The goal of `patience` is to stop training estimators that have "
+            "already converged *when few estimators remain*."
+            "Setting patience=True accomplishes this goal. Please continue "
+            "with caution or good reason"
+        )
+        warn(msg.format(patience, max_iter // aggressiveness))
+    elif isinstance(patience, bool) and patience:
+        return max(max_iter // aggressiveness, 1)
+    elif isinstance(patience, bool) and not patience:
+        return False
+    return int(patience)
