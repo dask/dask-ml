@@ -223,9 +223,10 @@ class HyperbandSearchCV(IncrementalSearchCV):
         random_state=None,
         scoring=None,
     ):
-        self.aggressiveness = aggressiveness
+        self.estimator = estimator
         self.param_distribution = param_distribution
         self.max_iter = max_iter
+        self.aggressiveness = aggressiveness
 
         super(HyperbandSearchCV, self).__init__(
             estimator,
@@ -436,7 +437,7 @@ def _get_SHA_params(SHA):
     return {
         k: v
         for k, v in SHA.get_params().items()
-        if "estimator" not in k and k != "param_distribution"
+        if "estimator_" not in k# and k != "param_distribution"
     }
 
 

@@ -228,10 +228,67 @@ def test_successive_halving_params(c, s, a, b):
         k: v["SuccessiveHalvingSearchCV params"]
         for k, v in alg.metadata()["brackets"].items()
     }
-    SHAs = {k: SuccessiveHalvingSearchCV(model, params, **v) for k, v in kwargs.items()}
+    SHAs = {k: SuccessiveHalvingSearchCV(**v) for k, v in kwargs.items()}
 
     metadata = alg.metadata()["brackets"]
     for b, SHA in SHAs.items():
         yield SHA.fit(X, y)
         assert metadata[b]["models"] == SHA.metadata_["models"]
         assert metadata[b]["partial_fit_calls"] == SHA.metadata_["partial_fit_calls"]
+
+
+def test_get_set_params():
+    """
+    Test to make sure that successive halving gets/sets parameters correctly
+
+    Make sure Hyperband/SuccessiveHalving have the expected parameters,
+    then make sure that setting values on init propgates to having value in object
+
+    """
+    est = ConstantFunction()
+    params = {"value": [0, 1]}
+    search = HyperbandSearchCV(est, params)
+
+    base = {
+        "estimator",
+        "estimator__value",
+        "estimator__sleep",
+        "param_distribution",
+        "max_iter",
+        "test_size",
+        "patience",
+        "tol",
+        "scores_per_fit",
+        "random_state",
+        "scoring",
+    }
+    assert set(search.get_params().keys()) == base.union({"aggressiveness"})
+    meta = search.metadata()
+    SHAs_params = [
+        bracket["SuccessiveHalvingSearchCV params"]
+        for bracket in meta["brackets"].values()
+    ]
+    SHA_params = base.union(
+        {"n_initial_parameters", "start_iter", "aggressiveness", "limit", "max_iter"}
+    ) - {"estimator__value", "estimator__sleep"}
+    assert all(set(SHA) == SHA_params for SHA in SHAs_params)
+
+    # Make sure can set/get params just fine
+    new_params = {
+        "max_iter": 253,
+        "test_size": 0.212,
+        "patience": -1,
+        "tol": 0,
+        "scores_per_fit": 3,
+        "random_state": 42,
+        "scoring": False,
+    }
+    SHA = SuccessiveHalvingSearchCV(ConstantFunction, {"value": [0, 1]}, **new_params)
+    for k, v in new_params.items():
+        assert getattr(SHA, k) == v
+
+    new_params = {k: v for k, v in new_params.items() if k not in {"start_iter"}}
+    new_params["aggressiveness"] = 3.5
+    search = HyperbandSearchCV(ConstantFunction, {"value": [0, 1]}, **new_params)
+    for k, v in new_params.items():
+        assert getattr(search, k) == v

@@ -64,23 +64,35 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         aggressiveness=3,
         limit=None,
         max_iter=100,
-        **kwargs,
+        test_size=None,
+        patience=False,
+        tol=1e-3,
+        scores_per_fit=1,
+        random_state=None,
+        scoring=None,
     ):
-        self._steps = 0
-        self._pf_calls = {}
+        self.estimator = estimator
+        self.param_distribution = param_distribution
+
         self.n_initial_parameters = n_initial_parameters
         self.start_iter = start_iter
         self.aggressiveness = aggressiveness
         self.limit = limit
-        self.estimator = estimator
-        self.max_iter = max_iter
+
+        self._steps = 0
+        self._pf_calls = {}
 
         super(SuccessiveHalvingSearchCV, self).__init__(
             estimator,
             param_distribution,
             n_initial_parameters=n_initial_parameters,
             max_iter=max_iter,
-            **kwargs,
+            test_size=test_size,
+            patience=patience,
+            tol=tol,
+            scores_per_fit=scores_per_fit,
+            random_state=random_state,
+            scoring=scoring,
         )
 
     def _adapt(self, info):
