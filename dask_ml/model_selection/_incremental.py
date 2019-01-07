@@ -4,6 +4,7 @@ import operator
 from collections import defaultdict, namedtuple
 from copy import deepcopy
 from time import time
+import warnings
 
 import dask
 import dask.array as da
@@ -851,7 +852,11 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         if self.n_initial_parameters == "grid":
             return ParameterGrid(self.parameters)
         else:
-            return ParameterSampler(self.parameters, self.n_initial_parameters)
+            return ParameterSampler(
+                self.parameters,
+                self.n_initial_parameters,
+                random_state=self.random_state,
+            )
 
     def _additional_calls(self, info):
         calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}

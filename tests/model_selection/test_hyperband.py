@@ -66,7 +66,7 @@ def test_basic(array_type, library, max_iter):
         classes = c.compute(da.unique(y))
         yield search.fit(X, y, classes=classes)
 
-        X, y = sklearn.datasets.make_classification(
+        X, y = sk_make_classification(
             n_features=d, n_informative=d, n_repeated=0, n_redundant=0
         )
         score = search.best_estimator_.score(X, y)
@@ -305,3 +305,21 @@ def test_params_passed():
     assert all(equality.values())
     seeds = [SHA_params["random_state"] for SHA_params in SHAs_params]
     assert len(set(seeds)) == len(seeds)
+
+
+@gen_cluster(client=True, timeout=5000)
+def test_same_params_w_same_random_state(c, s, a, b):
+    values = scipy.stats.uniform(0, 1)
+    h1 = HyperbandSearchCV(
+        ConstantFunction(), {"value": values}, random_state=0, max_iter=9,
+    )
+    h2 = HyperbandSearchCV(
+        ConstantFunction(), {"value": values}, random_state=0, max_iter=9,
+    )
+    X, y = make_classification(n_samples=10, n_features=4, chunks=10)
+    yield h1.fit(X, y)
+    yield h2.fit(X, y)
+
+    v1 = np.sort(h1.cv_results_["param_value"])
+    v2 = np.sort(h2.cv_results_["param_value"])
+    assert np.allclose(v1, v2)
