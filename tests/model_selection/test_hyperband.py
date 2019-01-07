@@ -305,7 +305,8 @@ def test_params_passed():
 
 @gen_cluster(client=True, timeout=5000)
 def test_same_params_w_same_random_state(c, s, a, b):
-    seed = 0
+    import time
+    seed = int(time.time()) % int(1e6)
     values = scipy.stats.uniform(0, 1)
     h1 = HyperbandSearchCV(
         ConstantFunction(), {"value": values}, random_state=seed, max_iter=9
@@ -314,17 +315,25 @@ def test_same_params_w_same_random_state(c, s, a, b):
         ConstantFunction(), {"value": values}, random_state=seed, max_iter=9
     )
     passive = IncrementalSearchCV(
-        ConstantFunction(), {"value": values}, random_state=seed, max_iter=9, n_initial_parameters=20
+        ConstantFunction(),
+        {"value": values},
+        random_state=seed,
+        max_iter=2,
+        n_initial_parameters=h1.metadata()["models"],
     )
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
     yield h1.fit(X, y)
     yield h2.fit(X, y)
     yield passive.fit(X, y)
 
-    v_h1 = np.sort(h1.cv_results_["param_value"])
-    v_h2 = np.sort(h2.cv_results_["param_value"])
+    v_h1 = h1.cv_results_["param_value"]
+    v_h2 = h2.cv_results_["param_value"]
     assert np.allclose(v_h1, v_h2)
 
-    v_passive = np.sort(passive.cv_results_["param_value"])
+    v_passive = passive.cv_results_["param_value"]
+    # Sanity checks to make sure all unique floats
+    assert len(set(v_passive)) == len(v_passive)
+    assert len(set(v_h1)) == len(v_h1)
     same = set(v_passive).intersection(set(v_h1))
-    assert len(same) != {}
+    passive_models = h1.metadata()["brackets"]["bracket=0"]["models"]
+    assert len(same) == passive_models

@@ -261,11 +261,11 @@ class HyperbandSearchCV(IncrementalSearchCV):
                     tol=self.tol,
                     test_size=self.test_size,
                     scores_per_fit=self.scores_per_fit,
-                    random_state=seed_start + i if i > 0 else self.random_state,
+                    random_state=seed_start + b if b != 0 else self.random_state,
                     scoring=self.scoring,
                 ),
             )
-            for i, (n, r, b) in enumerate(zip(N, R, brackets))
+            for n, r, b in zip(N, R, brackets)
         ]
         return SHAs
 
