@@ -12,7 +12,6 @@ from tornado import gen
 
 from dask_ml.datasets import make_classification
 from dask_ml.model_selection import IncrementalSearchCV
-from dask_ml.model_selection._incremental import BaseIncrementalSearchCV
 from dask_ml.model_selection._incremental import _partial_fit, _score, fit
 
 
