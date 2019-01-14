@@ -119,7 +119,7 @@
             
             
               <div class="version">
-                0.11.1.dev52+ge6f0155
+                0.11.1.dev54+g470835c
               </div>
             
           
@@ -1374,7 +1374,7 @@ distribution. Therefore, for a given feature, this transformation tends
 to spread out the most frequent values. It also reduces the impact of
 (marginal) outliers: this is therefore a robust preprocessing scheme.</p>
 <p>The transformation is applied on each feature independently.
-The cumulative density function of a feature is used to project the
+The cumulative distribution function of a feature is used to project the
 original values. Features values of new/unseen data that fall below
 or above the fitted range will be mapped to the bounds of the output
 distribution. Note that this transform is non-linear. It may distort linear
@@ -1388,7 +1388,7 @@ variables measured at different scales more directly comparable.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>n_quantiles</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional (default=1000)</span></dt>
 <dd><p class="first last">Number of quantiles to be computed. It corresponds to the number
-of landmarks used to discretize the cumulative density function.</p>
+of landmarks used to discretize the cumulative distribution function.</p>
 </dd>
 <dt><strong>output_distribution</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional (default=’uniform’)</span></dt>
 <dd><p class="first last">Marginal distribution for the transformed data. The choices are

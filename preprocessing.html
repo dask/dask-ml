@@ -119,7 +119,7 @@
             
             
               <div class="version">
-                0.11.1.dev52+ge6f0155
+                0.11.1.dev54+g470835c
               </div>
             
           
@@ -480,7 +480,7 @@ depending on whether the value in the original.</p>
 </div>
 <p>Wherever the original was <code class="docutils literal notranslate"><span class="pre">'a'</span></code>, the transformed now has a <code class="docutils literal notranslate"><span class="pre">1</span></code> in the <code class="docutils literal notranslate"><span class="pre">a</span></code>
 column and a <code class="docutils literal notranslate"><span class="pre">0</span></code> everywhere else.</p>
-<p>Why was the <code class="docutils literal notranslate"><span class="pre">Categorizizer</span></code> step necessary? Why couldn’t we operate directly
+<p>Why was the <code class="docutils literal notranslate"><span class="pre">Categorizer</span></code> step necessary? Why couldn’t we operate directly
 on the <code class="docutils literal notranslate"><span class="pre">object</span></code> (string) dtype column? Doing this would be fragile,
 especially when using <code class="docutils literal notranslate"><span class="pre">dask.dataframe</span></code>, since <em>the shape of the output would
 depend on the values present</em>. For example, suppose that we just saw the first
