@@ -1,5 +1,6 @@
 import random
 
+import dask.array as da
 import numpy as np
 import toolz
 from dask.distributed import Future
@@ -258,11 +259,22 @@ def _test_search_basic(decay_rate, c, s, a, b):
     }
 
     X_, = yield c.compute([X])
+    # Dask Objects are lazy
 
-    proba = search.predict_proba(X_)
-    log_proba = search.predict_log_proba(X_)
+    proba = search.predict_proba(X)
+    log_proba = search.predict_log_proba(X)
     assert proba.shape == (1000, 2)
     assert log_proba.shape == (1000, 2)
+
+    assert isinstance(proba, da.Array)
+    assert isinstance(log_proba, da.Array)
+
+    proba_ = search.predict_proba(X_)
+    log_proba_ = search.predict_log_proba(X_)
+
+    da.utils.assert_eq(proba, proba_)
+    da.utils.assert_eq(log_proba, log_proba_)
+
     decision = search.decision_function(X_)
     assert decision.shape == (1000,)
 
