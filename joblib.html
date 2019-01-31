@@ -119,7 +119,7 @@
             
             
               <div class="version">
-                0.11.1.dev57+g3c10057
+                0.11.1.dev59+gf5d3b1c
               </div>
             
           
@@ -251,7 +251,7 @@ to use Dask to parallelize a grid search across a cluster.</p>
 </iframe><p>To use the Dask backend to Joblib you have to create a Client, and wrap your
 code with <code class="docutils literal notranslate"><span class="pre">joblib.parallel_backend('dask')</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dask.distributed</span> <span class="kn">import</span> <span class="n">Client</span>
-<span class="kn">from</span> <span class="nn">scikit_learn.externals</span> <span class="kn">import</span> <span class="n">joblib</span>
+<span class="kn">from</span> <span class="nn">sklearn.externals</span> <span class="kn">import</span> <span class="n">joblib</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>             <span class="c1"># create local cluster</span>
 <span class="c1"># client = Client(&quot;scheduler-address:8786&quot;)  # or connect to remote cluster</span>
