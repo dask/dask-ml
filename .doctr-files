@@ -8,6 +8,7 @@
 ./_sources/contributing.rst.txt
 ./_sources/cross_validation.rst.txt
 ./_sources/examples.rst.txt
+./_sources/examples/glm.ipynb.txt
 ./_sources/examples/incremental.ipynb.txt
 ./_sources/examples/parallel-prediction.ipynb.txt
 ./_sources/examples/scale-scikit-learn.ipynb.txt
@@ -129,6 +130,7 @@
 ./contributing.html
 ./cross_validation.html
 ./examples.html
+./examples/glm.html
 ./examples/incremental.html
 ./examples/parallel-prediction.html
 ./examples/scale-scikit-learn.html
