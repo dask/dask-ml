@@ -88,6 +88,8 @@ def test_basic_dataframe(sparse, method, dask_data, dtype):
 
     assert isinstance(result, type(dask_data))
     assert len(result.columns) == expected.shape[1]
+    if sparse:
+        dtype = pd.SparseDtype(dtype, dtype(0))
     assert (result.dtypes == dtype).all()
 
     da.utils.assert_eq(result.values, expected)
