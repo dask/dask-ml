@@ -243,7 +243,11 @@ class HyperbandSearchCV(IncrementalSearchCV):
 
     def _get_SHAs(self, N, R, brackets):
         patience = _get_patience(self.patience, self.max_iter, self.aggressiveness)
+
+        # This is the first time self.random_state is used after
+        # HyperbandSearchCV.fit is called.
         seed_start = check_random_state(self.random_state).randint(2**31)
+        self._SHA_seed = seed_start
 
         # These brackets are ordered by adaptivity; bracket=0 is least adaptive
         SHAs = [

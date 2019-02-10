@@ -9,6 +9,7 @@ from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
 from sklearn.linear_model import SGDClassifier, LogisticRegression
 from sklearn.base import clone
 from sklearn.model_selection import ParameterSampler
+import time
 from toolz import partial
 from tornado import gen
 
@@ -19,6 +20,7 @@ from dask_ml.model_selection import (
     IncrementalSearchCV,
     SuccessiveHalvingSearchCV,
 )
+from dask_ml.model_selection._hyperband import _get_hyperband_params
 from dask_ml.model_selection._incremental import fit as incremental_fit
 from dask_ml.utils import ConstantFunction
 from dask_ml.wrappers import Incremental
@@ -304,36 +306,62 @@ def test_params_passed():
 
 
 @gen_cluster(client=True, timeout=5000)
-def test_same_params_w_same_random_state(c, s, a, b):
-    import time
-    seed = int(time.time()) % int(1e6)
+def test_same_random_state_same_params(c, s, a, b):
+    seed = 0
     values = scipy.stats.uniform(0, 1)
-    h1 = HyperbandSearchCV(
+    h = HyperbandSearchCV(
         ConstantFunction(), {"value": values}, random_state=seed, max_iter=9
     )
-    h2 = HyperbandSearchCV(
-        ConstantFunction(), {"value": values}, random_state=seed, max_iter=9
-    )
+
+    # Make a class for passive random sampling
     passive = IncrementalSearchCV(
         ConstantFunction(),
         {"value": values},
         random_state=seed,
         max_iter=2,
-        n_initial_parameters=h1.metadata()["models"],
+        n_initial_parameters=h.metadata()["models"],
     )
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
-    yield h1.fit(X, y)
-    yield h2.fit(X, y)
+    yield h.fit(X, y)
     yield passive.fit(X, y)
 
-    v_h1 = h1.cv_results_["param_value"]
-    v_h2 = h2.cv_results_["param_value"]
-    assert np.allclose(v_h1, v_h2)
+    # Check to make sure the Hyperbands found the same params
+    v_h = h.cv_results_["param_value"]
 
+    # Check to make sure the random passive search had *some* of the same params
     v_passive = passive.cv_results_["param_value"]
     # Sanity checks to make sure all unique floats
     assert len(set(v_passive)) == len(v_passive)
-    assert len(set(v_h1)) == len(v_h1)
-    same = set(v_passive).intersection(set(v_h1))
-    passive_models = h1.metadata()["brackets"]["bracket=0"]["models"]
+    assert len(set(v_h)) == len(v_h)
+
+    # Getting the `value`s that are the same for both searches
+    same = set(v_passive).intersection(set(v_h))
+
+    passive_models = h.metadata()["brackets"]["bracket=0"]["models"]
     assert len(same) == passive_models
+
+
+def test_random_state_no_seed_different_params():
+    values = scipy.stats.uniform(0, 1)
+    max_iter = 9
+    N, R, brackets = _get_hyperband_params(max_iter)
+
+    h1 = HyperbandSearchCV(ConstantFunction(), {"value": values}, max_iter=max_iter)
+    h2 = HyperbandSearchCV(ConstantFunction(), {"value": values}, max_iter=max_iter)
+
+    h1._get_SHAs(N, R, brackets)
+    h2._get_SHAs(N, R, brackets)
+
+    assert h1._SHA_seed != h2._SHA_seed
+
+    h1 = HyperbandSearchCV(
+        ConstantFunction(), {"value": values}, max_iter=9, random_state=0
+    )
+    h2 = HyperbandSearchCV(
+        ConstantFunction(), {"value": values}, max_iter=9, random_state=0
+    )
+
+    h1._get_SHAs(N, R, brackets)
+    h2._get_SHAs(N, R, brackets)
+
+    assert h1._SHA_seed == h2._SHA_seed
