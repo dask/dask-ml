@@ -1,3 +1,5 @@
+./_images/examples_svd_5_0.png
+./_images/examples_svd_9_0.png
 ./_images/examples_xgboost_20_0.png
 ./_images/examples_xgboost_25_0.png
 ./_images/merged_grid_search_graph.svg
@@ -12,6 +14,7 @@
 ./_sources/examples/incremental.ipynb.txt
 ./_sources/examples/parallel-prediction.ipynb.txt
 ./_sources/examples/scale-scikit-learn.ipynb.txt
+./_sources/examples/svd.ipynb.txt
 ./_sources/examples/tpot.ipynb.txt
 ./_sources/examples/training-on-large-datasets.ipynb.txt
 ./_sources/examples/voting-classifier.ipynb.txt
@@ -115,6 +118,7 @@
 ./_static/jquery.js
 ./_static/js/modernizr.min.js
 ./_static/js/theme.js
+./_static/language_data.js
 ./_static/minus.png
 ./_static/plus.png
 ./_static/pygments.css
@@ -134,6 +138,7 @@
 ./examples/incremental.html
 ./examples/parallel-prediction.html
 ./examples/scale-scikit-learn.html
+./examples/svd.html
 ./examples/tpot.html
 ./examples/training-on-large-datasets.html
 ./examples/voting-classifier.html

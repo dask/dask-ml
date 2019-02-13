@@ -119,7 +119,7 @@
             
             
               <div class="version">
-                0.11.1.dev59+gf5d3b1c
+                0.11.1.dev63+gcfa57e5
               </div>
             
           
@@ -258,12 +258,9 @@ This document only describes the extensions made to support Dask arrays.</p>
 
 <span class="gp">In [8]: </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="go">                                                                                  Out[8]: </span>
-<span class="go">array([[ 5.89759371e-02,  2.35351777e-01,  2.26889836e-04,</span>
-<span class="go">         5.36375710e-01],</span>
-<span class="go">       [ 9.28191769e-02, -4.44612393e-01,  9.29460525e-01,</span>
-<span class="go">         4.22866385e-01],</span>
-<span class="go">       [ 8.31543688e-01,  1.78316783e-01, -1.18552488e-01,</span>
-<span class="go">         1.12259471e-01]])</span>
+<span class="go">array([[-0.24547985, -0.63067068, -0.11139771,  1.57407473],</span>
+<span class="go">       [ 0.12590048, -0.69540901, -1.18976616, -1.07897621],</span>
+<span class="go">       [ 0.70530725, -1.30363125, -0.12527161, -0.16084649]])</span>
 </pre></div>
 </div>
 <p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v0.20.2)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
@@ -321,7 +318,8 @@ For very large datasets, creating and transmitting <code class="docutils literal
         <script type="text/javascript" src="_static/jquery.js"></script>
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     
 
