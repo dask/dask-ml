@@ -1,4 +1,5 @@
 import dask.array as da
+import dask.dataframe as dd
 import numpy as np
 import pytest
 import sklearn.datasets
@@ -29,7 +30,8 @@ def test_set_params():
     assert result["scoring"] == "accuracy"
 
 
-def test_incremental_basic(scheduler):
+@pytest.mark.parametrize("dataframes", [False, True])
+def test_incremental_basic(scheduler, dataframes):
     # Create observations that we know linear models can recover
     n, d = 100, 3
     rng = da.random.RandomState(42)
@@ -37,6 +39,9 @@ def test_incremental_basic(scheduler):
     coef_star = rng.uniform(size=d, chunks=d)
     y = da.sign(X.dot(coef_star))
     y = (y + 1) / 2
+    if dataframes:
+        X = dd.from_array(X)
+        y = dd.from_array(y)
 
     with scheduler() as (s, [_, _]):
         est1 = SGDClassifier(random_state=0, tol=1e-3, average=True)
@@ -44,8 +49,16 @@ def test_incremental_basic(scheduler):
 
         clf = Incremental(est1, random_state=0)
         result = clf.fit(X, y, classes=[0, 1])
-        for slice_ in da.core.slices_from_chunks(X.chunks):
-            est2.partial_fit(X[slice_], y[slice_[0]], classes=[0, 1])
+        for slice_ in da.core.slices_from_chunks(X.chunks if not dataframes else X.values.chunks):
+            _X, _y = (X[slice_], y[slice_[0]]) if not dataframes else (X, y)
+            est2.partial_fit(_X, _y, classes=[0, 1])
+            if dataframes:
+                with pytest.raises(ValueError, match="cannot convert float NaN to int"):
+                    X.values[slice_]
+                    y.values[slice_[0]]
+                with pytest.raises(TypeError, match="unhashable type"):
+                    X[slice_]
+                    y[slice_[0]]
 
         assert result is clf
 
@@ -60,9 +73,13 @@ def test_incremental_basic(scheduler):
         result = clf.predict(X)
         expected = est2.predict(X)
         assert isinstance(result, da.Array)
-        rel_error = np.linalg.norm(result - expected)
-        rel_error /= np.linalg.norm(expected)
-        assert rel_error < 0.2
+        if not dataframes:
+            rel_error = np.linalg.norm(result - expected)
+            rel_error /= np.linalg.norm(expected)
+            assert rel_error < 0.2
+        else:
+            with pytest.raises(ValueError, match="operands could not be broadcast together"):
+                np.linalg.norm(result - expected)
 
         # score
         result = clf.score(X, y)
