@@ -52,16 +52,9 @@ from dask_ml.model_selection.utils_test import (
     ScalingTransformer,
 )
 
-try:
-    from distributed import Client
-    from distributed.utils_test import cluster, loop
-    from distributed.diagnostics.plugin import SchedulerPlugin
-    from dask.distributed import LocalCluster, Lock, Variable, wait
-
-    has_distributed = True
-except ImportError:
-    loop = pytest.fixture(lambda: None)
-    has_distributed = False
+from distributed import Client
+from distributed.utils_test import cluster
+from dask.distributed import LocalCluster, Lock, Variable
 
 
 class assert_dask_compute(Callback):
