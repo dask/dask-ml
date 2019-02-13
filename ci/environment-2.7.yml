@@ -5,6 +5,7 @@ channels:
 dependencies:
   - coverage
   - flake8
+  - graphviz
   - heapdict
   - ipython
   - multipledispatch
@@ -40,3 +41,4 @@ dependencies:
     - git+https://github.com/dask/distributed.git
     - git+https://github.com/dask/dask-tensorflow.git
     - git+https://github.com/dask/dask-xgboost.git
+    - graphviz
