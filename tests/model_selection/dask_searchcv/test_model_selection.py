@@ -53,7 +53,7 @@ from dask_ml.model_selection.utils_test import (
 )
 
 from distributed import Client
-from distributed.utils_test import cluster
+from distributed.utils_test import cluster, loop
 from dask.distributed import LocalCluster, Lock, Variable
 
 
@@ -780,7 +780,6 @@ def test_scheduler_param(scheduler, n_jobs):
     gs.fit(X, y)
 
 
-@pytest.mark.skipif("not has_distributed")
 def test_scheduler_param_distributed(loop):
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
     with cluster() as (s, [a, b]):
@@ -794,7 +793,6 @@ def test_scheduler_param_distributed(loop):
             assert client.run_on_scheduler(f)  # some work happened on cluster
 
 
-@pytest.mark.skipif("not has_distributed")
 def test_as_completed_distributed():
     with LocalCluster() as clstr:
         with Client(clstr) as client:
