@@ -214,11 +214,10 @@ class AsCompletedEstimator(BaseEstimator):
         w = get_worker()
         for e in w.executing:
             t = literal_eval(e)
-            self.lock.acquire()
-            c = self.counter.get()
-            killed_workers = self.killed_workers.get()
-            self.counter.set(self.counter.get() + 1)
-            self.lock.release()
+            with self.lock:
+                c = self.counter.get()
+                killed_workers = self.killed_workers.get()
+                self.counter.set(self.counter.get() + 1)
             if c > self.min_complete and t not in killed_workers:
                 killed_workers[t] = True
                 self.killed_workers.set(killed_workers)
