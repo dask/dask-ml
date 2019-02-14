@@ -6,7 +6,6 @@ import warnings
 from abc import ABCMeta
 
 import dask
-import dask.dataframe as dd
 import numpy as np
 import six
 import sklearn.utils
