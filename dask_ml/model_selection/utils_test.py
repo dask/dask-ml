@@ -1,18 +1,11 @@
 from ast import literal_eval
 
 import numpy as np
-import pytest
 
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import _num_samples, check_array
 
-try:
-    from dask.distributed import get_worker
-
-    has_distributed = True
-except ImportError:
-    get_worker = pytest.fixture(lambda: None)
-    has_distributed = False
+from distributed import get_worker, Lock, Variable, Worker
 
 
 # This class doesn't inherit from BaseEstimator to test hyperparameter search
@@ -203,25 +196,33 @@ class CheckingClassifier(BaseEstimator, ClassifierMixin):
 
 
 class AsCompletedEstimator(BaseEstimator):
-    def __init__(self, killed_workers, lock, counter, min_complete, foo_param=None):
+    def __init__(self, killed_workers_name, lock_name, counter_name, min_complete, foo_param=None):
         self.foo_param = foo_param
-        self.killed_workers = killed_workers
-        self.lock = lock
+        self.counter_name = counter_name
+        self.killed_workers_name = killed_workers_name
+        self.lock_name = lock_name
         self.min_complete = min_complete
-        self.counter = counter
+
+
 
     def fit(self, X, y):
-        w = get_worker()
-        for e in w.executing:
+        w: Worker = get_worker()
+        # self.lock = Lock(self.lock_name)
+        # self.counter = Variable(self.counter_name)
+        self.killed_workers = Variable(self.killed_workers_name)
+        #
+        for e in list(w.executing):
             t = literal_eval(e)
-            with self.lock:
-                c = self.counter.get()
-                killed_workers = self.killed_workers.get()
-                self.counter.set(self.counter.get() + 1)
-            if c > self.min_complete and t not in killed_workers:
-                killed_workers[t] = True
-                self.killed_workers.set(killed_workers)
-                exit(1)
+            print(self.killed_workers.get())
+        #
+        #     #c = self.counter.get()
+        #     killed_workers = self.killed_workers_name.get()
+        #     #self.counter.set(self.counter.get() + 1)
+        #     print(killed_workers)
+            # if c > self.min_complete and t not in killed_workers:
+            #     killed_workers[t] = True
+            #     killed_workers.set(killed_workers)
+            #         #exit(1)
         return self
 
     def transform(self, X):

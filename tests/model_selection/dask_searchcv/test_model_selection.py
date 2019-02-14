@@ -52,9 +52,8 @@ from dask_ml.model_selection.utils_test import (
     ScalingTransformer,
 )
 
-from distributed import Client
+from distributed import Client, Nanny, Variable
 from distributed.utils_test import cluster, loop
-from dask.distributed import LocalCluster, Lock, Variable
 
 
 class assert_dask_compute(Callback):
@@ -793,22 +792,26 @@ def test_scheduler_param_distributed(loop):
             assert client.run_on_scheduler(f)  # some work happened on cluster
 
 
-def test_as_completed_distributed():
-    with LocalCluster() as clstr:
-        with Client(clstr) as client:
-            counter = Variable("counter")
+def test_as_completed_distributed(loop):
+    with cluster(active_rpc_timeout=10, nanny=Nanny) as (s, [a, b]):
+        with Client(s['address'], loop=loop) as c:
+            counter_name = 'counter_name'
+            counter = Variable(counter_name)
             counter.set(0)
-            lock = Lock("lock")
-            killed_workers = Variable("killed_workers")
+            lock_name = 'lock'
+
+            killed_workers_name = 'killed_workers'
+            killed_workers = Variable(killed_workers_name)
             killed_workers.set({})
 
             X, y = make_classification(n_samples=100, n_features=10, random_state=0)
             gs = dcv.GridSearchCV(
-                AsCompletedEstimator(killed_workers, lock, counter, min_complete=7),
+                AsCompletedEstimator(killed_workers_name, lock_name, counter_name, min_complete=2),
                 param_grid={"foo_param": [0, 1, 2]},
                 cv=3,
                 refit=False,
                 cache_cv=False,
+                scheduler=c
             )
             gs.fit(X, y)
 
@@ -831,7 +834,7 @@ def test_as_completed_distributed():
                     ):
                         finished.add(key)
 
-            check_reprocess(client.run_on_scheduler(f))
+            check_reprocess(c.run_on_scheduler(f))
 
 
 def test_cv_multiplemetrics():

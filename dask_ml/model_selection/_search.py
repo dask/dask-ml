@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
+import logging
 import numbers
 from collections import defaultdict
 from itertools import repeat
@@ -52,6 +53,8 @@ from .methods import (
     score,
 )
 from .utils import DeprecationDict, is_dask_collection, to_indexable, to_keys, unzip
+
+logger = logging.getLogger(__name__)
 
 try:
     from cytoolz import get, pluck
@@ -1183,12 +1186,16 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             )
             result_map = {}
             while len(result_map) != len(keys):
-                for f in as_completed(futures):
-                    if f.status == "finished":
-                        result_map[f.key] = f.result()
-                    elif f.status == "error":
-                        f.retry()
+                failed_futures = []
+                for future, result in as_completed(futures, with_results=True, raise_errors=False):
+                    if future.status == "finished":
+                        result_map[future.key] = result
+                    elif future.status == "error":
+                        future.retry()
+                        logger.warning('{} has failed... retrying'.format(future.key))
+                        failed_futures.append(future)
 
+                futures = failed_futures
             out = [result_map[k] for k in keys]
         else:
             out = scheduler(dsk, keys, num_workers=n_jobs)
