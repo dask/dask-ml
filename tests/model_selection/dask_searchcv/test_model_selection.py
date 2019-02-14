@@ -791,17 +791,18 @@ def test_scheduler_param_distributed(loop):
 
             assert client.run_on_scheduler(f)  # some work happened on cluster
 
+from dask.distributed import LocalCluster
 
 def test_as_completed_distributed(loop):
     with cluster(active_rpc_timeout=10, nanny=Nanny) as (s, [a, b]):
         with Client(s['address'], loop=loop) as c:
             counter_name = 'counter_name'
-            counter = Variable(counter_name)
+            counter = Variable(counter_name, client=c)
             counter.set(0)
             lock_name = 'lock'
 
             killed_workers_name = 'killed_workers'
-            killed_workers = Variable(killed_workers_name)
+            killed_workers = Variable(killed_workers_name, client=c)
             killed_workers.set({})
 
             X, y = make_classification(n_samples=100, n_features=10, random_state=0)
@@ -833,7 +834,6 @@ def test_as_completed_distributed(loop):
                         and end_state == "forgotten"
                     ):
                         finished.add(key)
-
             check_reprocess(c.run_on_scheduler(f))
 
 

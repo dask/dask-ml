@@ -194,6 +194,9 @@ class CheckingClassifier(BaseEstimator, ClassifierMixin):
             score = 0.0
         return score
 
+from time import sleep
+import os
+import signal
 
 class AsCompletedEstimator(BaseEstimator):
     def __init__(self, killed_workers_name, lock_name, counter_name, min_complete, foo_param=None):
@@ -207,22 +210,24 @@ class AsCompletedEstimator(BaseEstimator):
 
     def fit(self, X, y):
         w: Worker = get_worker()
-        # self.lock = Lock(self.lock_name)
-        # self.counter = Variable(self.counter_name)
-        self.killed_workers = Variable(self.killed_workers_name)
-        #
+        dsk_lock = Lock(self.lock_name, client=w.client)
+        dsk_counter = Variable(self.counter_name, client=w.client)
+        dsk_killed_workers = Variable(self.killed_workers_name, client=w.client)
+
         for e in list(w.executing):
-            t = literal_eval(e)
-            print(self.killed_workers.get())
-        #
-        #     #c = self.counter.get()
-        #     killed_workers = self.killed_workers_name.get()
-        #     #self.counter.set(self.counter.get() + 1)
-        #     print(killed_workers)
-            # if c > self.min_complete and t not in killed_workers:
-            #     killed_workers[t] = True
-            #     killed_workers.set(killed_workers)
-            #         #exit(1)
+            should_die = False
+            with dsk_lock:
+                t = literal_eval(e)
+                c = dsk_counter.get()
+                dsk_counter.set(c + 1)
+                killed_workers = dsk_killed_workers.get()
+                if c > self.min_complete and t not in killed_workers:
+                    killed_workers[t] = True
+                    should_die = True
+                    dsk_killed_workers.set(killed_workers)
+
+            if should_die:
+                os.kill(os.getpid(), 9)
         return self
 
     def transform(self, X):
