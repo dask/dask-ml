@@ -209,7 +209,7 @@ class AsCompletedEstimator(BaseEstimator):
 
 
     def fit(self, X, y):
-        w: Worker = get_worker()
+        w = get_worker()
         dsk_lock = Lock(self.lock_name, client=w.client)
         dsk_counter = Variable(self.counter_name, client=w.client)
         dsk_killed_workers = Variable(self.killed_workers_name, client=w.client)
