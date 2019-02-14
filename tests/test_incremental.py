@@ -56,9 +56,6 @@ def test_incremental_basic(scheduler, dataframes):
                 with pytest.raises(ValueError, match="cannot convert float NaN to int"):
                     X.values[slice_]
                     y.values[slice_[0]]
-                with pytest.raises(TypeError, match="unhashable type"):
-                    X[slice_]
-                    y[slice_[0]]
 
         assert result is clf
 
