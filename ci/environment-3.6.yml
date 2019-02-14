@@ -39,7 +39,7 @@ dependencies:
   - sphinx-gallery
   - tensorflow
   - testpath<0.4
-  - tornado
+  - tornado==6.0.0b1
   - toolz
   - xgboost
   - zict
