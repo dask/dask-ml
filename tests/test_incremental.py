@@ -49,7 +49,9 @@ def test_incremental_basic(scheduler, dataframes):
 
         clf = Incremental(est1, random_state=0)
         result = clf.fit(X, y, classes=[0, 1])
-        for slice_ in da.core.slices_from_chunks(X.chunks if not dataframes else X.values.chunks):
+        for slice_ in da.core.slices_from_chunks(
+            X.chunks if not dataframes else X.values.chunks
+        ):
             _X, _y = (X[slice_], y[slice_[0]]) if not dataframes else (X, y)
             est2.partial_fit(_X, _y, classes=[0, 1])
             if dataframes:
@@ -75,7 +77,9 @@ def test_incremental_basic(scheduler, dataframes):
             rel_error /= np.linalg.norm(expected)
             assert rel_error < 0.2
         else:
-            with pytest.raises(ValueError, match="operands could not be broadcast together"):
+            with pytest.raises(
+                ValueError, match="operands could not be broadcast together"
+            ):
                 np.linalg.norm(result - expected)
 
         # score

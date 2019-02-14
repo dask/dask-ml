@@ -6,11 +6,11 @@ import warnings
 from abc import ABCMeta
 
 import dask
+import dask.dataframe as dd
 import numpy as np
 import six
 import sklearn.utils
 from dask.delayed import Delayed
-import dask.dataframe as dd
 from toolz import partial
 
 from ._utils import copy_learned_attributes
