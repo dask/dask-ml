@@ -169,13 +169,6 @@ def fit(model, x, y, compute=True, shuffle_blocks=True, random_state=None, **kwa
         if not hasattr(y, "chunks") and hasattr(y, "to_dask_array"):
             y = y.to_dask_array()
 
-    # dask 1.0.0 has a dd.DataFrame.to_dask_array, but not earlier versions
-    if isinstance(x, dd.DataFrame):
-        x = x.values
-    if isinstance(y, (dd.DataFrame, dd.Series)):
-        y = y.values
-
-    if y is not None:
         assert y.ndim == 1
         assert x.chunks[0] == y.chunks[0]
 

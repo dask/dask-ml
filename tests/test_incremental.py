@@ -54,10 +54,6 @@ def test_incremental_basic(scheduler, dataframes):
         ):
             _X, _y = (X[slice_], y[slice_[0]]) if not dataframes else (X, y)
             est2.partial_fit(_X, _y, classes=[0, 1])
-            if dataframes:
-                with pytest.raises(ValueError, match="cannot convert float NaN to int"):
-                    X.values[slice_]
-                    y.values[slice_[0]]
 
         assert result is clf
 
