@@ -194,7 +194,7 @@ class CheckingClassifier(BaseEstimator, ClassifierMixin):
         return score
 
 
-class AsCompletedEstimator(MockClassifier):
+class AsCompletedEstimator(BaseEstimator):
     def __init__(
         self,
         killed_workers_name,
@@ -237,3 +237,5 @@ class AsCompletedEstimator(MockClassifier):
     def predict(self, X):
         return X
 
+    def score(self, X, y):
+        return 1
