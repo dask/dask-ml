@@ -14,8 +14,6 @@ from dask.base import tokenize
 from dask.callbacks import Callback
 from dask.delayed import delayed
 from dask.utils import tmpdir
-from distributed import Client, Nanny, Variable
-from distributed.utils_test import cluster
 from sklearn.datasets import load_iris, make_classification
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
@@ -53,6 +51,15 @@ from dask_ml.model_selection.utils_test import (
     MockClassifierWithFitParam,
     ScalingTransformer,
 )
+
+try:
+    from distributed import Client, Nanny, Variable
+    from distributed.utils_test import cluster, loop
+
+    has_distributed = True
+except ImportError:
+    loop = pytest.fixture(lambda: None)
+    has_distributed = False
 
 
 class assert_dask_compute(Callback):
