@@ -785,6 +785,7 @@ def test_scheduler_param(scheduler, n_jobs):
     gs.fit(X, y)
 
 
+@pytest.mark.skipif("not has_distributed")
 def test_scheduler_param_distributed(loop):
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
     with cluster() as (s, [a, b]):
@@ -798,6 +799,7 @@ def test_scheduler_param_distributed(loop):
             assert client.run_on_scheduler(f)  # some work happened on cluster
 
 
+@pytest.mark.skipif("not has_distributed")
 def test_as_completed_distributed(loop):
     with cluster(active_rpc_timeout=10, nanny=Nanny) as (s, [a, b]):
         with Client(s["address"], loop=loop) as c:
