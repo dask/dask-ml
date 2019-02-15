@@ -212,8 +212,8 @@ class AsCompletedEstimator(MockClassifier):
 
         for e in list(w.executing):
             should_die = False
+            t = literal_eval(e)
             with dsk_lock:
-                t = literal_eval(e)
                 c = dsk_counter.get()
                 dsk_counter.set(c + 1)
                 killed_workers = dsk_killed_workers.get()
