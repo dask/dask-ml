@@ -223,7 +223,7 @@ class AsCompletedEstimator(BaseEstimator):
                     dsk_killed_workers.set(killed_workers)
 
             if should_die:
-                os.kill(os.getpid(), 9)
+                exit(1)
         return self
 
     def transform(self, X):
