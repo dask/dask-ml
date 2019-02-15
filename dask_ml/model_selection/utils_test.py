@@ -225,9 +225,3 @@ class AsCompletedEstimator(MockClassifier):
             if should_die:
                 os.kill(os.getpid(), 9)
         return self
-
-    def transform(self, X):
-        return X
-
-    def predict(self, X):
-        return X
