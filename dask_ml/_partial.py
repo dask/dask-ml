@@ -205,7 +205,7 @@ def fit(model, x, y, compute=True, shuffle_blocks=True, random_state=None, **kwa
     except ImportError:
         from dask import sharedict
 
-        new_dsk = sharedict.merge(graphs.values)
+        new_dsk = sharedict.merge(*graphs.values())
 
     value = Delayed((name, nblocks - 1), new_dsk)
 

@@ -28,7 +28,7 @@ code with ``joblib.parallel_backend('dask')``.
 .. code-block:: python
 
    from dask.distributed import Client
-   from scikit_learn.externals import joblib
+   from sklearn.externals import joblib
 
    client = Client(processes=False)             # create local cluster
    # client = Client("scheduler-address:8786")  # or connect to remote cluster
