@@ -14,6 +14,8 @@ from dask.base import tokenize
 from dask.callbacks import Callback
 from dask.delayed import delayed
 from dask.utils import tmpdir
+from distributed import Client, Nanny, Variable
+from distributed.utils_test import cluster, loop
 from sklearn.datasets import load_iris, make_classification
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
@@ -51,9 +53,6 @@ from dask_ml.model_selection.utils_test import (
     MockClassifierWithFitParam,
     ScalingTransformer,
 )
-
-from distributed import Client, Nanny, Variable
-from distributed.utils_test import cluster, loop
 
 
 class assert_dask_compute(Callback):
@@ -794,24 +793,26 @@ def test_scheduler_param_distributed(loop):
 
 def test_as_completed_distributed(loop):
     with cluster(active_rpc_timeout=10, nanny=Nanny) as (s, [a, b]):
-        with Client(s['address'], loop=loop) as c:
-            counter_name = 'counter_name'
+        with Client(s["address"], loop=loop) as c:
+            counter_name = "counter_name"
             counter = Variable(counter_name, client=c)
             counter.set(0)
-            lock_name = 'lock'
+            lock_name = "lock"
 
-            killed_workers_name = 'killed_workers'
+            killed_workers_name = "killed_workers"
             killed_workers = Variable(killed_workers_name, client=c)
             killed_workers.set({})
 
             X, y = make_classification(n_samples=100, n_features=10, random_state=0)
             gs = dcv.GridSearchCV(
-                AsCompletedEstimator(killed_workers_name, lock_name, counter_name, min_complete=7),
+                AsCompletedEstimator(
+                    killed_workers_name, lock_name, counter_name, min_complete=7
+                ),
                 param_grid={"foo_param": [0, 1, 2]},
                 cv=3,
                 refit=False,
                 cache_cv=False,
-                scheduler=c
+                scheduler=c,
             )
             gs.fit(X, y)
 
@@ -833,6 +834,7 @@ def test_as_completed_distributed(loop):
                         and end_state == "forgotten"
                     ):
                         finished.add(key)
+
             check_reprocess(c.run_on_scheduler(f))
 
 

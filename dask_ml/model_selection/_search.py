@@ -1193,7 +1193,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
                         result_map[future.key] = future.result()
                     except Exception as e:
                         future.retry()
-                        logger.warning('{} has failed... retrying'.format(future.key))
+                        logger.warning("{} has failed... retrying".format(future.key))
                         failed_futures.append(future)
                 futures = failed_futures
             out = [result_map[k] for k in keys]

@@ -1,12 +1,10 @@
-from ast import literal_eval
 import os
+from ast import literal_eval
 
 import numpy as np
-
+from distributed import Lock, Variable, get_worker
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import _num_samples, check_array
-
-from distributed import get_worker, Lock, Variable
 
 
 # This class doesn't inherit from BaseEstimator to test hyperparameter search
@@ -197,7 +195,14 @@ class CheckingClassifier(BaseEstimator, ClassifierMixin):
 
 
 class AsCompletedEstimator(MockClassifier):
-    def __init__(self, killed_workers_name='killed_workers', lock_name='lock', counter_name='counter', min_complete=7, foo_param=None):
+    def __init__(
+        self,
+        killed_workers_name="killed_workers",
+        lock_name="lock",
+        counter_name="counter",
+        min_complete=7,
+        foo_param=None,
+    ):
         self.foo_param = foo_param
         self.counter_name = counter_name
         self.killed_workers_name = killed_workers_name
