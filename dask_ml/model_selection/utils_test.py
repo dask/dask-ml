@@ -223,7 +223,6 @@ class AsCompletedEstimator(MockClassifier):
                     dsk_killed_workers.set(killed_workers)
 
             if should_die:
-                #exit(1)
                 os.kill(os.getpid(), 9)
         return self
 
