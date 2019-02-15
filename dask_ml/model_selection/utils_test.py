@@ -1,11 +1,12 @@
 from ast import literal_eval
+import os
 
 import numpy as np
 
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import _num_samples, check_array
 
-from distributed import get_worker, Lock, Variable, Worker
+from distributed import get_worker, Lock, Variable
 
 
 # This class doesn't inherit from BaseEstimator to test hyperparameter search
@@ -194,13 +195,9 @@ class CheckingClassifier(BaseEstimator, ClassifierMixin):
             score = 0.0
         return score
 
-from time import sleep
-import os
-import signal
-from sklearn.base import ClassifierMixin
 
-class AsCompletedEstimator(BaseEstimator, ClassifierMixin):
-    def __init__(self, killed_workers_name, lock_name, counter_name, min_complete, foo_param=None):
+class AsCompletedEstimator(BaseEstimator):
+    def __init__(self, killed_workers_name='killed_workers', lock_name='lock', counter_name='counter', min_complete=7, foo_param=None):
         self.foo_param = foo_param
         self.counter_name = counter_name
         self.killed_workers_name = killed_workers_name

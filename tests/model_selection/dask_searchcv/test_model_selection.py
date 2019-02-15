@@ -791,7 +791,6 @@ def test_scheduler_param_distributed(loop):
 
             assert client.run_on_scheduler(f)  # some work happened on cluster
 
-from dask.distributed import LocalCluster
 
 def test_as_completed_distributed(loop):
     with cluster(active_rpc_timeout=10, nanny=Nanny) as (s, [a, b]):
