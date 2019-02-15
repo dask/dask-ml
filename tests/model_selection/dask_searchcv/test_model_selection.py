@@ -791,16 +791,10 @@ def test_scheduler_param_distributed(loop):
 
             assert client.run_on_scheduler(f)  # some work happened on cluster
 
-from distributed import Client
-from distributed.utils_test import cluster, loop
-from dask.distributed import LocalCluster, Lock, Variable
-
 
 def test_as_completed_distributed(loop):
     with cluster(active_rpc_timeout=10, nanny=Nanny) as (s, [a, b]):
         with Client(s['address'], loop=loop) as c:
-    # with LocalCluster() as clstr:
-    #     with Client(clstr) as c:
             counter_name = 'counter_name'
             counter = Variable(counter_name, client=c)
             counter.set(0)

@@ -1185,23 +1185,16 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
                 dsk, keys, allow_other_workers=True, num_workers=n_jobs, sync=False
             )
 
-            def reschedule_future(f, fs):
-                f.retry()
-                logger.warning('{} has failed... retrying'.format(f.key))
-                fs.append(f)
-                return fs
-
             result_map = {}
             while len(result_map) != len(keys):
                 failed_futures = []
                 for future in as_completed(futures):
                     try:
-                        if future.status == "finished":
-                            result_map[future.key] = future.result()
-                        elif future.status == "error":
-                            failed_futures = reschedule_future(future, failed_futures)
+                        result_map[future.key] = future.result()
                     except Exception as e:
-                        failed_futures = reschedule_future(future, failed_futures)
+                        future.retry()
+                        logger.warning('{} has failed... retrying'.format(future.key))
+                        failed_futures.append(future)
                 futures = failed_futures
             out = [result_map[k] for k in keys]
         else:
