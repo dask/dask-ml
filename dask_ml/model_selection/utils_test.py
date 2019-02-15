@@ -197,16 +197,15 @@ class CheckingClassifier(BaseEstimator, ClassifierMixin):
 from time import sleep
 import os
 import signal
+from sklearn.base import ClassifierMixin
 
-class AsCompletedEstimator(BaseEstimator):
+class AsCompletedEstimator(BaseEstimator, ClassifierMixin):
     def __init__(self, killed_workers_name, lock_name, counter_name, min_complete, foo_param=None):
         self.foo_param = foo_param
         self.counter_name = counter_name
         self.killed_workers_name = killed_workers_name
         self.lock_name = lock_name
         self.min_complete = min_complete
-
-
 
     def fit(self, X, y):
         w = get_worker()
@@ -234,7 +233,7 @@ class AsCompletedEstimator(BaseEstimator):
         return X
 
     def predict(self, X):
-        return 1
+        return X
 
     def score(self, X, y):
         return 1
