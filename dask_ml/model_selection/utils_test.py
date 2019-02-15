@@ -203,7 +203,7 @@ class AsCompletedEstimator(MockClassifier):
         min_complete,
         foo_param=None,
     ):
-        self.foo_param = foo_param
+        super().__init__(foo_param)
         self.counter_name = counter_name
         self.killed_workers_name = killed_workers_name
         self.lock_name = lock_name
