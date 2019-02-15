@@ -196,12 +196,7 @@ class CheckingClassifier(BaseEstimator, ClassifierMixin):
 
 class AsCompletedEstimator(MockClassifier):
     def __init__(
-        self,
-        killed_workers_name,
-        lock_name,
-        counter_name,
-        min_complete,
-        foo_param=None,
+        self, killed_workers_name, lock_name, counter_name, min_complete, foo_param=None
     ):
         super(AsCompletedEstimator, self).__init__(foo_param)
         self.counter_name = counter_name
