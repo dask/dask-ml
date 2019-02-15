@@ -124,6 +124,7 @@ jobs:
           command: |
             source activate ${ENV_NAME}
             conda install -y dask=0.18.2 pandas=0.21.0 scikit-learn=0.20 multipledispatch=0.4.9
+            conda list -n ${ENV_NAME}
       - run:
           command: |
             source activate ${ENV_NAME}
