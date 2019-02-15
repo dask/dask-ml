@@ -197,10 +197,10 @@ class CheckingClassifier(BaseEstimator, ClassifierMixin):
 class AsCompletedEstimator(MockClassifier):
     def __init__(
         self,
-        killed_workers_name="killed_workers",
-        lock_name="lock",
-        counter_name="counter",
-        min_complete=7,
+        killed_workers_name,
+        lock_name,
+        counter_name,
+        min_complete,
         foo_param=None,
     ):
         self.foo_param = foo_param
@@ -209,7 +209,7 @@ class AsCompletedEstimator(MockClassifier):
         self.lock_name = lock_name
         self.min_complete = min_complete
 
-    def fit(self, X=None, y=None):
+    def fit(self, X, y=None):
         w = get_worker()
         dsk_lock = Lock(self.lock_name, client=w.client)
         dsk_counter = Variable(self.counter_name, client=w.client)
@@ -231,11 +231,9 @@ class AsCompletedEstimator(MockClassifier):
                 os.kill(os.getpid(), 9)
         return self
 
-    def transform(self, X=None):
+    def transform(self, X):
         return X
 
-    def predict(self, X=None):
+    def predict(self, X):
         return X
 
-    def score(self, X=None, y=None):
-        return 1
