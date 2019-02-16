@@ -1186,18 +1186,17 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             )
 
             result_map = {}
-            while len(result_map) != len(keys):
-                failed_futures = []
-                for future in as_completed(futures):
-                    try:
-                        result_map[future.key] = future.result()
-                    except Exception as e:
-                        future.retry()
-                        logger.warning(
-                            "{} has failed due to {}... retrying".format(future.key, e)
-                        )
-                        failed_futures.append(future)
-                futures = failed_futures
+            ac = as_completed(futures)
+            for future in ac:
+                try:
+                    result_map[future.key] = future.result()
+                except Exception as e:
+                    logger.warning(
+                        "{} has failed due to {}... retrying".format(future.key, e)
+                    )
+                    future.retry()
+                    ac.add(future)
+
             out = [result_map[k] for k in keys]
         else:
             out = scheduler(dsk, keys, num_workers=n_jobs)
