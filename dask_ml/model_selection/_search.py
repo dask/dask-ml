@@ -1186,16 +1186,17 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             )
 
             result_map = {}
-            ac = as_completed(futures)
-            for future in ac:
-                try:
-                    result_map[future.key] = future.result()
-                except Exception as e:
-                    logger.warning(
-                        "{} has failed due to {}... retrying".format(future.key, e)
-                    )
-                    future.retry()
-                    ac.add(future)
+            ac = as_completed(futures, with_results=True, raise_errors=False)
+            for batch in ac.batches():
+                for future, result in batch:
+                    if future.status == 'finished':
+                        result_map[future.key] = result
+                    else:
+                        logger.warning(
+                            "{} has failed... retrying".format(future.key)
+                        )
+                        future.retry()
+                        ac.add(future)
 
             out = [result_map[k] for k in keys]
         else:
