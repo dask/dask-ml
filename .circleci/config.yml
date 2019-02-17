@@ -105,8 +105,8 @@ jobs:
       - store_artifacts:
           path: test-reports
 
-  # oldest supported dependencies build
-  oldest_supported:
+  # earliest supported dependencies build
+  earliest_supported:
     docker:
       - image: continuumio/miniconda:latest
     environment:
@@ -115,12 +115,12 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: deps-{{ .Branch }}-oldest_supported-{{ checksum "ci/environment-3.6.yml" }}
+          key: deps-{{ .Branch }}-earliest_supported-{{ checksum "ci/environment-3.6.yml" }}
       - run:
           name: configure conda
           command: ./ci/install-circle.sh
       - run:
-          name: install oldest dependencies
+          name: install earliest dependencies
           command: |
             source activate ${ENV_NAME}
             pip uninstall -y dask distributed
@@ -132,7 +132,7 @@ jobs:
             source activate ${ENV_NAME}
             pytest --junitxml=test-reports/junit.xml tests
       - save_cache:
-          key: deps-{{ .Branch }}-oldest_supported-{{ checksum "ci/environment-3.6.yml" }}
+          key: deps-{{ .Branch }}-earliest_supported-{{ checksum "ci/environment-3.6.yml" }}
           paths:
             - "/opt/conda/envs/${ENV_NAME}/"
       - store_test_results:
@@ -147,4 +147,4 @@ workflows:
       - py36
       - py27
       - sklearn_dev
-      - oldest_supported
+      - earliest_supported
