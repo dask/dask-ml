@@ -276,19 +276,86 @@ def fit_transform(
     return (est, fit_time), Xt
 
 
-def _score(est, X, y, scorer):
+def _apply_scorer(estimator, X, y, scorer, sample_weight):
+    """Applies the scorer to the estimator, given the data and sample_weight.
+
+    If ``sample_weight`` is None ``sample_weight`` WILL
+    NOT be passed to ``scorer``; otherwise, it will be passed.
+
+    In the event that ``sample_weight`` is provided and used but ``scorer``
+    doesn't accept a ``sample_weight`` parameter, then a ``TypeError`` should
+    likely be raised.
+
+    Parameters
+    ----------
+    estimator : estimator object implementing 'fit'
+        The object that was used to fit the data.
+
+    X : array-like of shape at least 2D
+        The data to fit.
+
+    y : array-like
+        The target variable to try to predict in the case of
+        supervised learning.  (May be None)
+
+    scorer : A single callable.
+        Should return a single float.
+
+        The callable object / fn should have signature
+        ``scorer(estimator, X, y, sample_weight=None)`` if ``sample_weight``.
+
+    sample_weight : array-like, shape (y)
+        sample weights to use during metric calculation.  May be None.
+
+    Returns
+    -------
+    score : float
+        Score returned by ``scorer`` applied to ``X`` and ``y`` given
+        ``sample_weight``.
+    """
+    if sample_weight is None:
+        if y is None:
+            score = scorer(estimator, X)
+        else:
+            score = scorer(estimator, X, y)
+    else:
+        try:
+            # Explicitly force the sample_weight parameter so that an error
+            # will be raised in the event that the scorer doesn't take a
+            # sample_weight argument.  This is preferable to passing it as
+            # a keyword args dict in the case that it just ignores parameters
+            # that are not accepted by the scorer.
+            if y is None:
+                score = scorer(estimator, X, sample_weight=sample_weight)
+            else:
+                score = scorer(estimator, X, y, sample_weight=sample_weight)
+        except TypeError as e:
+            if 'sample_weight' in str(e):
+                raise TypeError(
+                    (
+                        "Attempted to use 'sample_weight' for training "
+                        "but supplied a scorer that doesn't accept a " 
+                        "'sample_weight' parameter."
+                    ), e)
+            else:
+                raise e
+    return score
+
+
+def _score(est, X, y, scorer, sample_weight):
     if est is FIT_FAILURE:
         return FIT_FAILURE
     if isinstance(scorer, Mapping):
-        return {k: v(est, X) if y is None else v(est, X, y) for k, v in scorer.items()}
-    return scorer(est, X) if y is None else scorer(est, X, y)
+        return {k: _apply_scorer(est, X, y, v, sample_weight) for k, v in scorer.items()}
+    return _apply_scorer(est, X, y, scorer, sample_weight)
 
 
-def score(est_and_time, X_test, y_test, X_train, y_train, scorer, error_score):
+def score(est_and_time, X_test, y_test, X_train, y_train, scorer, error_score,
+          train_sample_weight, test_sample_weight):
     est, fit_time = est_and_time
     start_time = default_timer()
     try:
-        test_score = _score(est, X_test, y_test, scorer)
+        test_score = _score(est, X_test, y_test, scorer, test_sample_weight)
     except Exception:
         if error_score == "raise":
             raise
@@ -298,7 +365,7 @@ def score(est_and_time, X_test, y_test, X_train, y_train, scorer, error_score):
     score_time = default_timer() - start_time
     if X_train is None:
         return fit_time, test_score, score_time
-    train_score = _score(est, X_train, y_train, scorer)
+    train_score = _score(est, X_train, y_train, scorer, train_sample_weight)
     return fit_time, test_score, score_time, train_score
 
 
@@ -314,16 +381,29 @@ def fit_and_score(
     params=None,
     fit_params=None,
     return_train_score=True,
+    sample_weight=None,
 ):
     X_train = cv.extract(X, y, n, True, True)
     y_train = cv.extract(X, y, n, False, True)
     X_test = cv.extract(X, y, n, True, False)
     y_test = cv.extract(X, y, n, False, False)
+
+    # NOTE: train split is unnecessary if X_train is None b/c of the check in
+    #       ``score``.  That's an optimization that can be address later.
+    if sample_weight is None:
+        train_sample_weight = None
+        test_sample_weight = None
+    else:
+        # "0" is the train split, "1" is the test split.
+        train_sample_weight = safe_indexing(sample_weight, cv.splits[n][0])
+        test_sample_weight = safe_indexing(sample_weight, cv.splits[n][1])
+
     est_and_time = fit(est, X_train, y_train, error_score, fields, params, fit_params)
     if not return_train_score:
         X_train = y_train = None
 
-    return score(est_and_time, X_test, y_test, X_train, y_train, scorer, error_score)
+    return score(est_and_time, X_test, y_test, X_train, y_train, scorer,
+                 error_score, train_sample_weight, test_sample_weight)
 
 
 def _store(

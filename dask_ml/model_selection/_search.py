@@ -284,6 +284,17 @@ def do_fit_and_score(
         score_name = "%s-fit-score-%s" % (est_type, main_token)
         dsk[est_name] = est
 
+        if 'sample_weight' in fit_params:
+            # This will likely get all sample weights but we might want to
+            # whittle this down since it'll ultimately be used to get the
+            # test sample weights.
+            #
+            # Each value in the fit_params dict is a 2-tuple where the
+            # data representation is in the second dimension (dim 1).
+            sample_weight = fit_params['sample_weight'][1]
+        else:
+            sample_weight = None
+
         seen = {}
         m = 0
         out = []
@@ -307,6 +318,7 @@ def do_fit_and_score(
                         p,
                         fit_params,
                         return_train_score,
+                        sample_weight,
                     )
                 seen[t] = (score_name, m)
                 out_append((score_name, m))

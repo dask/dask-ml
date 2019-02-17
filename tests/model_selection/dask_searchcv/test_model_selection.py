@@ -5,6 +5,11 @@ import pickle
 from itertools import product
 from multiprocessing import cpu_count
 
+# sklearn.metrics.make_scorer
+# sklearn.metrics.accuracy_score
+# LogisticRegression
+# DaskGridSearchCV
+
 import dask
 import dask.array as da
 import numpy as np
@@ -19,6 +24,8 @@ from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.exceptions import FitFailedWarning, NotFittedError
 from sklearn.feature_selection import SelectKBest
+from sklearn.linear_model import LogisticRegression
+import sklearn.metrics
 from sklearn.metrics.scorer import _passthrough_scorer
 from sklearn.model_selection import (
     GridSearchCV,
@@ -891,3 +898,60 @@ def test_mock_with_fit_param_raises():
 
     with pytest.raises(ValueError):
         clf.fit(X, y)
+
+
+@pytest.mark.parametrize(
+    "cv_ind,exp_acc",
+    [
+        (
+                [('train', 'test')],
+                1 / (1 + 99)
+        ),
+        (
+                [('test', 'train')],
+                100 / (100 + 200)
+        ),
+        (
+                [('train', 'test'), ('test', 'train')],
+                (1 / (1 + 99) + 100 / (100 + 200)) / 2
+        ),
+        (
+                [('test', 'train'), ('train', 'test')],
+                (100 / (100 + 200) + 1 / (1 + 99)) / 2
+        ),
+    ],
+)
+def test_sample_weight_in_metrics(cv_ind, exp_acc):
+    def get_cv(cv_ind, test, train):
+        return [
+            tuple([train if desc == 'train' else test for desc in tup])
+            for tup in cv_ind
+        ]
+
+    X = np.ones([4, 1])         # Constant features to learn intercept.
+    y = np.array([1, 0, 1, 0])  # Some +/- for both test and train.
+    train = np.array([0, 1])    # First two indices are train.
+    test = np.array([2, 3])     # Last two indices are test.
+    sample_weight = np.array([200, 100, 1, 99])
+
+    scoring = sklearn.metrics.make_scorer(sklearn.metrics.accuracy_score)
+
+    # Set solver explicitly.
+    params = {
+        'random_state': [15432],
+        'solver': ['lbfgs']
+    }
+
+    cv = get_cv(cv_ind, test, train)
+
+    gscv = dcv.GridSearchCV(
+        estimator=LogisticRegression(),
+        param_grid=params,
+        scoring=scoring,
+        n_jobs=1,
+        cv=cv,
+    )
+
+    gscv.fit(X, y, sample_weight=sample_weight)
+    acc = gscv.best_score_
+    assert acc == exp_acc
