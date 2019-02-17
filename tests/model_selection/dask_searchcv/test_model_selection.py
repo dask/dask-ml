@@ -945,4 +945,9 @@ def test_sample_weight_in_metrics(cv_ind, exp_acc):
 
     gscv.fit(X, y, sample_weight=sample_weight)
     acc = gscv.best_score_
-    assert acc == exp_acc
+
+    # This should be an approximately equal check, not exactly equal because
+    # of numerical precision errors that may occur during metric averaging
+    # across folds.  For the first few tests where there is no averaging
+    # across folds, it would be sufficient to perform exact checking.
+    np.testing.assert_almost_equal(acc, exp_acc, decimal=7)
