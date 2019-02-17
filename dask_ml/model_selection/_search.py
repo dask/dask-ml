@@ -52,6 +52,7 @@ from .methods import (
     get_best_params,
     pipeline,
     score,
+    _get_fold_sample_weights,
 )
 from .utils import DeprecationDict, is_dask_collection, to_indexable, to_keys, unzip
 
@@ -275,6 +276,17 @@ def do_fit_and_score(
     scorer,
     return_train_score,
 ):
+    if "sample_weight" in fit_params:
+        # This will likely get all sample weights but we might want to
+        # whittle this down since it'll ultimately be used to get the
+        # test sample weights.
+        #
+        # Each value in the fit_params dict is a 2-tuple where the
+        # data representation is in the second dimension (dim 1).
+        sample_weight = fit_params["sample_weight"][1]
+    else:
+        sample_weight = None
+
     if not isinstance(est, Pipeline):
         # Fitting and scoring can all be done as a single task
         n_and_fit_params = _get_fit_params(cv, fit_params, n_splits)
@@ -283,17 +295,6 @@ def do_fit_and_score(
         est_name = "%s-%s" % (est_type, main_token)
         score_name = "%s-fit-score-%s" % (est_type, main_token)
         dsk[est_name] = est
-
-        if "sample_weight" in fit_params:
-            # This will likely get all sample weights but we might want to
-            # whittle this down since it'll ultimately be used to get the
-            # test sample weights.
-            #
-            # Each value in the fit_params dict is a 2-tuple where the
-            # data representation is in the second dimension (dim 1).
-            sample_weight = fit_params["sample_weight"][1]
-        else:
-            sample_weight = None
 
         seen = {}
         m = 0
@@ -353,6 +354,10 @@ def do_fit_and_score(
         scores = []
         scores_append = scores.append
         for n in range(n_splits):
+            train_sample_weight, test_sample_weight = _get_fold_sample_weights(
+                sample_weight, cv, n
+            )
+
             if return_train_score:
                 xtrain = X_train + (n,)
                 ytrain = y_train + (n,)
@@ -372,6 +377,8 @@ def do_fit_and_score(
                     ytrain,
                     scorer,
                     error_score,
+                    test_sample_weight,
+                    train_sample_weight,
                 )
                 scores_append((score_name, m, n))
     return scores

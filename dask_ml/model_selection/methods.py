@@ -276,6 +276,42 @@ def fit_transform(
     return (est, fit_time), Xt
 
 
+def _get_fold_sample_weights(sample_weight, cv, n):
+    """Get the training and test sample weights for the ``n`` th fold using
+    ``cv``.
+
+    Parameters
+    ----------
+    sample_weight : array-like
+        sample weights.  Should contain all sample weights needed for
+        training and testing. May be None.
+
+    cv : Cross Validation object
+        cross validation object that can provide indices for training and
+        test.
+
+    n : int
+        The fold number
+
+    Returns
+    -------
+    train_sample_weight : array-like
+
+    test_sample_weight : array-like
+    """
+
+    # NOTE: train split is unnecessary if X_train is None b/c of the check in
+    #       ``score``.  That's an optimization that can be addressed later.
+    if sample_weight is None:
+        train_sample_weight = None
+        test_sample_weight = None
+    else:
+        # "0" is the train split, "1" is the test split.
+        train_sample_weight = safe_indexing(sample_weight, cv.splits[n][0])
+        test_sample_weight = safe_indexing(sample_weight, cv.splits[n][1])
+    return train_sample_weight, test_sample_weight
+
+
 def _apply_scorer(estimator, X, y, scorer, sample_weight):
     """Applies the scorer to the estimator, given the data and sample_weight.
 
@@ -401,15 +437,9 @@ def fit_and_score(
     X_test = cv.extract(X, y, n, True, False)
     y_test = cv.extract(X, y, n, False, False)
 
-    # NOTE: train split is unnecessary if X_train is None b/c of the check in
-    #       ``score``.  That's an optimization that can be addressed later.
-    if sample_weight is None:
-        train_sample_weight = None
-        test_sample_weight = None
-    else:
-        # "0" is the train split, "1" is the test split.
-        train_sample_weight = safe_indexing(sample_weight, cv.splits[n][0])
-        test_sample_weight = safe_indexing(sample_weight, cv.splits[n][1])
+    train_sample_weight, test_sample_weight = _get_fold_sample_weights(
+        sample_weight, cv, n
+    )
 
     est_and_time = fit(est, X_train, y_train, error_score, fields, params, fit_params)
     if not return_train_score:
