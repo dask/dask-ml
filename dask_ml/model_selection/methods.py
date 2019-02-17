@@ -330,13 +330,15 @@ def _apply_scorer(estimator, X, y, scorer, sample_weight):
             else:
                 score = scorer(estimator, X, y, sample_weight=sample_weight)
         except TypeError as e:
-            if 'sample_weight' in str(e):
+            if "sample_weight" in str(e):
                 raise TypeError(
                     (
                         "Attempted to use 'sample_weight' for training "
-                        "but supplied a scorer that doesn't accept a " 
+                        "but supplied a scorer that doesn't accept a "
                         "'sample_weight' parameter."
-                    ), e)
+                    ),
+                    e,
+                )
             else:
                 raise e
     return score
@@ -346,12 +348,23 @@ def _score(est, X, y, scorer, sample_weight):
     if est is FIT_FAILURE:
         return FIT_FAILURE
     if isinstance(scorer, Mapping):
-        return {k: _apply_scorer(est, X, y, v, sample_weight) for k, v in scorer.items()}
+        return {
+            k: _apply_scorer(est, X, y, v, sample_weight) for k, v in scorer.items()
+        }
     return _apply_scorer(est, X, y, scorer, sample_weight)
 
 
-def score(est_and_time, X_test, y_test, X_train, y_train, scorer, error_score,
-          test_sample_weight=None, train_sample_weight=None):
+def score(
+    est_and_time,
+    X_test,
+    y_test,
+    X_train,
+    y_train,
+    scorer,
+    error_score,
+    test_sample_weight=None,
+    train_sample_weight=None,
+):
     est, fit_time = est_and_time
     start_time = default_timer()
     try:
@@ -402,8 +415,17 @@ def fit_and_score(
     if not return_train_score:
         X_train = y_train = None
 
-    return score(est_and_time, X_test, y_test, X_train, y_train, scorer,
-                 error_score, test_sample_weight, train_sample_weight)
+    return score(
+        est_and_time,
+        X_test,
+        y_test,
+        X_train,
+        y_train,
+        scorer,
+        error_score,
+        test_sample_weight,
+        train_sample_weight,
+    )
 
 
 def _store(

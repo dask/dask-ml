@@ -903,44 +903,35 @@ def test_mock_with_fit_param_raises():
 @pytest.mark.parametrize(
     "cv_ind,exp_acc",
     [
+        ([("train", "test")], 1 / (1 + 99)),
+        ([("test", "train")], 100 / (100 + 200)),
         (
-                [('train', 'test')],
-                1 / (1 + 99)
+            [("train", "test"), ("test", "train")],
+            (1 / (1 + 99) + 100 / (100 + 200)) / 2,
         ),
         (
-                [('test', 'train')],
-                100 / (100 + 200)
-        ),
-        (
-                [('train', 'test'), ('test', 'train')],
-                (1 / (1 + 99) + 100 / (100 + 200)) / 2
-        ),
-        (
-                [('test', 'train'), ('train', 'test')],
-                (100 / (100 + 200) + 1 / (1 + 99)) / 2
+            [("test", "train"), ("train", "test")],
+            (100 / (100 + 200) + 1 / (1 + 99)) / 2,
         ),
     ],
 )
 def test_sample_weight_in_metrics(cv_ind, exp_acc):
     def get_cv(cv_ind, test, train):
         return [
-            tuple([train if desc == 'train' else test for desc in tup])
+            tuple([train if desc == "train" else test for desc in tup])
             for tup in cv_ind
         ]
 
-    X = np.ones([4, 1])         # Constant features to learn intercept.
+    X = np.ones([4, 1])  # Constant features to learn intercept.
     y = np.array([1, 0, 1, 0])  # Some +/- for both test and train.
-    train = np.array([0, 1])    # First two indices are train.
-    test = np.array([2, 3])     # Last two indices are test.
+    train = np.array([0, 1])  # First two indices are train.
+    test = np.array([2, 3])  # Last two indices are test.
     sample_weight = np.array([200, 100, 1, 99])
 
     scoring = sklearn.metrics.make_scorer(sklearn.metrics.accuracy_score)
 
     # Set solver explicitly.
-    params = {
-        'random_state': [15432],
-        'solver': ['lbfgs']
-    }
+    params = {"random_state": [15432], "solver": ["lbfgs"]}
 
     cv = get_cv(cv_ind, test, train)
 
