@@ -351,7 +351,7 @@ def _score(est, X, y, scorer, sample_weight):
 
 
 def score(est_and_time, X_test, y_test, X_train, y_train, scorer, error_score,
-          train_sample_weight, test_sample_weight):
+          test_sample_weight=None, train_sample_weight=None):
     est, fit_time = est_and_time
     start_time = default_timer()
     try:
@@ -389,7 +389,7 @@ def fit_and_score(
     y_test = cv.extract(X, y, n, False, False)
 
     # NOTE: train split is unnecessary if X_train is None b/c of the check in
-    #       ``score``.  That's an optimization that can be address later.
+    #       ``score``.  That's an optimization that can be addressed later.
     if sample_weight is None:
         train_sample_weight = None
         test_sample_weight = None
@@ -403,7 +403,7 @@ def fit_and_score(
         X_train = y_train = None
 
     return score(est_and_time, X_test, y_test, X_train, y_train, scorer,
-                 error_score, train_sample_weight, test_sample_weight)
+                 error_score, test_sample_weight, train_sample_weight)
 
 
 def _store(
