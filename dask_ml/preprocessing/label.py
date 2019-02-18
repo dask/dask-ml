@@ -189,7 +189,6 @@ class LabelEncoder(sklabel.LabelEncoder):
 
 
 def _encode_categorical(values, uniques=None, encode=False):
-    # type: (Union[dd.Series['category'], pd.Series['category']], bool) -> Any
     new_uniques = np.asarray(values.cat.categories)
 
     if uniques is not None:
