@@ -124,7 +124,7 @@ jobs:
           command: |
             source activate ${ENV_NAME}
             pip uninstall -y dask distributed
-            conda uninstall -y --force pandas scikit-learn multipledispatch numpy numpy-base
+            conda uninstall -y --force pandas scikit-learn multipledispatch
             conda install -y dask=1.0.0 pandas=0.23.4 scikit-learn=0.20 multipledispatch=0.4.9
             conda list -n ${ENV_NAME}
       - run:

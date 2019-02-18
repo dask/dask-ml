@@ -1,6 +1,5 @@
 name: dask-ml-test
 channels:
-  - defaults
   - conda-forge
 dependencies:
   - coverage
