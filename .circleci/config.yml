@@ -104,6 +104,44 @@ jobs:
           path: test-reports
       - store_artifacts:
           path: test-reports
+            no_distributed:
+    docker:
+      - image: continuumio/miniconda:latest
+    environment:
+      PYTHON: "3.6"
+      ENV_NAME: "dask-ml-test"
+    steps:
+      - checkout
+      - restore_cache:
+          key: deps-{{ .Branch }}-3.6-{{ checksum "ci/environment-3.6.yml" }}
+      - run:
+          name: configure conda
+          command: ./ci/install-circle.sh
+      - run:
+          command: |
+            source activate ${ENV_NAME}
+            conda uninstall -y --force distributed
+            mkdir test-reports
+            pytest --cov=dask_ml --junitxml=test-reports/junit.xml tests
+      - run:
+          command: |
+            source activate ${ENV_NAME}
+            echo "[codecov]"
+            codecov
+            echo "[flake8]"
+            flake8
+            echo "[black]"
+            black --check .
+            echo "[isort]"
+            isort --recursive --check-only .
+      - save_cache:
+          key: deps-{{ .Branch }}-3.6-no-dist-{{ checksum "ci/environment-3.6.yml" }}
+          paths:
+            - "/opt/conda/envs/${ENV_NAME}/"
+      - store_test_results:
+          path: test-reports
+      - store_artifacts:
+          path: test-reports
 
 workflows:
   version: 2
