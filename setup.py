@@ -34,7 +34,7 @@ test_requires = [
     "pytest-cover",
     "pytest-mock",
 ]
-dev_requires = doc_requires + test_requires
+dev_requires = doc_requires + test_requires + ["distributed"]
 tensorflow_requires = ["dask-tensorflow", "tensorflow"]
 xgboost_requires = ["dask-xgboost", "xgboost"]
 complete_requires = tensorflow_requires + xgboost_requires
