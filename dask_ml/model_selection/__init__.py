@@ -20,7 +20,12 @@ __all__ = [
 
 try:
     from ._incremental import IncrementalSearchCV  # noqa: F401
+except ImportError as e:
+    msg = e.msg
 
-    __all__.extend(["IncrementalSearchCV"])
-except ImportError:
-    pass
+    class IncrementalSearchCV:
+        def __init__(self, *args, **kwargs):
+            raise ImportError(msg)
+
+
+__all__.extend(["IncrementalSearchCV"])
