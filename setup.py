@@ -12,7 +12,7 @@ with open(os.path.join(here, "README.rst"), encoding="utf-8") as f:
 
 install_requires = [
     "dask[array]>=0.18.2",
-    "distributed",
+    "distributed>=1.25.0",
     "numba",
     "numpy",
     "pandas>=0.21.0",  # CategoricalDtype
