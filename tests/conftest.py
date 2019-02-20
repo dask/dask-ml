@@ -4,10 +4,7 @@ import string
 import dask.dataframe as dd
 import numpy as np
 import pytest
-try:
-    from distributed.utils_test import cluster
-except ImportError:
-    pass
+from distributed.utils_test import cluster
 
 from dask_ml.datasets import (
     make_blobs,

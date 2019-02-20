@@ -3,22 +3,17 @@ import random
 import dask.array as da
 import numpy as np
 import toolz
-
 from dask.distributed import Future
 from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
-
-import pytest
 from sklearn.base import BaseEstimator
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from tornado import gen
-import pytest
 
 from dask_ml.datasets import make_classification
 from dask_ml.model_selection import IncrementalSearchCV
 from dask_ml.model_selection._incremental import _partial_fit, _score, fit
-import dask_ml.model_selection
 
 
 @gen_cluster(client=True, timeout=500)
