@@ -123,8 +123,6 @@ class TestMinMaxScaler(object):
         for attr in ["data_min_", "data_max_", "data_range_", "scale_", "min_"]:
             assert_eq_ar(getattr(est1, attr), getattr(est2, attr).values)
 
-        assert_eq_ar(est1.transform(X), est2.transform(X))
-        assert_eq_ar(est1.transform(df).values, est2.transform(X))
         assert_eq_ar(est1.transform(X), est2.transform(df).values)
 
         if hasattr(result_df, "values"):
