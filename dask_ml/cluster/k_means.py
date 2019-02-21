@@ -531,7 +531,7 @@ def _kmeans_single_lloyd(
             labels = labels.astype(np.int32)
             # distances is always float64, but we need it to match X.dtype
             # for centers_dense, but remain float64 for inertia
-            r = da.atop(
+            r = da.blockwise(
                 _centers_dense,
                 "ij",
                 X,
