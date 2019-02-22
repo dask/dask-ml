@@ -652,7 +652,7 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
             # known divisions. Suboptimal, but I think unavoidable.
             unknown = np.isnan(X.chunks[0]).any()
             if unknown:
-                lengths = da.atop(len, "i", X[:, 0], "i", dtype="i8").compute()
+                lengths = da.blockwise(len, "i", X[:, 0], "i", dtype="i8").compute()
                 X = X.copy()
                 chunks = (tuple(lengths), X.chunks[1])
                 X._chunks = chunks
@@ -871,7 +871,7 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
             # known divisions. Suboptimal, but I think unavoidable.
             unknown = np.isnan(X.chunks[0]).any()
             if unknown:
-                lengths = da.atop(len, "i", X[:, 0], "i", dtype="i8").compute()
+                lengths = da.blockwise(len, "i", X[:, 0], "i", dtype="i8").compute()
                 X = X.copy()
                 chunks = (tuple(lengths), X.chunks[1])
                 X._chunks = chunks
