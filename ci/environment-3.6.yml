@@ -1,6 +1,7 @@
 name: dask-ml-test
 channels:
   - conda-forge
+  - defaults
 dependencies:
   - black
   # Cython for building scikit-learn dev. Switch to nightly

@@ -1,6 +1,7 @@
 name: dask-ml-test
 channels:
   - conda-forge
+  - defaults
 dependencies:
   - coverage
   - flake8
@@ -12,7 +13,7 @@ dependencies:
   - nomkl
   - nose
   - numba
-  - numpy=1.15.0
+  - numpy
   - numpydoc
   - pandas
   - psutil
