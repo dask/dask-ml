@@ -6,6 +6,7 @@ import dask.array as da
 import dask.dataframe as dd
 import numba
 import numpy as np
+import packaging.version
 import pandas as pd
 from dask import compute
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -13,6 +14,7 @@ from sklearn.cluster import k_means_ as sk_k_means
 from sklearn.utils.extmath import squared_norm
 from sklearn.utils.validation import check_is_fitted
 
+from .._compat import DASK_VERSION
 from .._utils import draw_seed
 from ..metrics import (
     euclidean_distances,
@@ -22,6 +24,9 @@ from ..metrics import (
 from ..utils import _timed, _timer, check_array, row_norms
 
 logger = logging.getLogger(__name__)
+
+if DASK_VERSION < packaging.version.parse("1.1.0"):
+    da.blockwise = da.atop
 
 
 class KMeans(TransformerMixin, BaseEstimator):

@@ -7,6 +7,7 @@ from distutils.version import LooseVersion
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
+import packaging.version
 import pandas as pd
 from dask import compute
 from pandas.api.types import is_categorical_dtype
@@ -15,11 +16,15 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import data as skdata
 from sklearn.utils.validation import check_is_fitted, check_random_state
 
+from dask_ml._compat import DASK_VERSION
 from dask_ml._utils import copy_learned_attributes
 from dask_ml.utils import check_array, handle_zeros_in_scale
 
 _PANDAS_VERSION = LooseVersion(pd.__version__)
 _HAS_CTD = _PANDAS_VERSION >= "0.21.0"
+
+if DASK_VERSION < packaging.version.parse("1.1.0"):
+    da.blockwise = da.atop
 
 
 class StandardScaler(skdata.StandardScaler):
