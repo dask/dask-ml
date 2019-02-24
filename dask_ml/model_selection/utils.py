@@ -4,6 +4,7 @@ from distutils.version import LooseVersion
 
 import dask
 import dask.array as da
+import dask.dataframe as dd
 import scipy.sparse as sp
 from dask.base import tokenize
 from dask.delayed import Delayed, delayed
@@ -45,7 +46,7 @@ def to_indexable(*args, **kwargs):
     else:
         indexable = _indexable
     for x in args:
-        if x is None or isinstance(x, da.Array):
+        if x is None or isinstance(x, da.Array) or isinstance(x, dd.DataFrame):
             yield x
         elif is_dask_collection(x):
             yield delayed(indexable, pure=True)(x)
