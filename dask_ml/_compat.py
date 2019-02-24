@@ -1,6 +1,7 @@
 import contextlib
 
 import dask
+import dask.array as da
 import packaging.version
 import pandas
 import six
@@ -20,3 +21,8 @@ if six.PY2:
     from collections import Mapping
 else:
     from collections.abc import Mapping  # noqa
+
+if DASK_VERSION < packaging.version.parse("1.1.0"):
+    blockwise = da.atop
+else:
+    blockwise = da.blockwise
