@@ -1,13 +1,13 @@
 """The ``dask_ml.linear_model`` module implements linear models for
 classification and regression.
 """
-from .stochastic_gradient import PartialSGDClassifier, PartialSGDRegressor
-from .perceptron import PartialPerceptron
+from .glm import LinearRegression, LogisticRegression, PoissonRegression
 from .passive_aggressive import (
     PartialPassiveAggressiveClassifier,
     PartialPassiveAggressiveRegressor,
 )
-from .glm import LogisticRegression, LinearRegression, PoissonRegression
+from .perceptron import PartialPerceptron
+from .stochastic_gradient import PartialSGDClassifier, PartialSGDRegressor
 
 __all__ = [
     "PartialPassiveAggressiveClassifier",
