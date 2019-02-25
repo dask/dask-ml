@@ -33,7 +33,6 @@ from sklearn.utils.metaestimators import if_delegate_has_method
 from sklearn.utils.multiclass import type_of_target
 from sklearn.utils.validation import _num_samples, check_is_fitted
 
-from .._compat import SK_VERSION
 from ._normalize import normalize_estimator
 from .methods import (
     MISSING,
@@ -54,6 +53,7 @@ from .methods import (
     score,
 )
 from .utils import DeprecationDict, is_dask_collection, to_indexable, to_keys, unzip
+from .._compat import SK_VERSION
 
 try:
     from cytoolz import get, pluck

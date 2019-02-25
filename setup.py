@@ -11,11 +11,11 @@ with open(os.path.join(here, "README.rst"), encoding="utf-8") as f:
     long_description = f.read()
 
 install_requires = [
-    "dask[array]>=0.18.2",
+    "dask[array]>=1.0.0",
     "distributed>=1.25.0",
     "numba",
     "numpy",
-    "pandas>=0.21.0",  # CategoricalDtype
+    "pandas>=0.23.4",
     "scikit-learn>=0.20",
     "scipy",
     "dask-glm",
