@@ -456,9 +456,8 @@ def init_scalable(
         # Step 7, 8 without weights
         # dask RandomState objects aren't valid for scikit-learn
         rng2 = (
-            random_state
-            .randint(0, np.iinfo('i4').max - 1, chunks=())
-            .compute(scheduler='single-threaded')
+            random_state.randint(0, np.iinfo("i4").max - 1, chunks=())
+            .compute(scheduler="single-threaded")
             .item()
         )
         km = sk_k_means.KMeans(n_clusters, random_state=rng2)
