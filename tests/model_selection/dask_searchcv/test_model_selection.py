@@ -5,11 +5,6 @@ import pickle
 from itertools import product
 from multiprocessing import cpu_count
 
-# sklearn.metrics.make_scorer
-# sklearn.metrics.accuracy_score
-# LogisticRegression
-# DaskGridSearchCV
-
 import dask
 import dask.array as da
 import numpy as np
