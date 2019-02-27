@@ -181,7 +181,7 @@ def build_graph(
     else:
         metrics = None
 
-    if "sample_weight" in fit_params:
+    if "sample_weight" in fit_params and fit_params["sample_weight"][1] is not None:
         sample_weight = fit_params["sample_weight"][1]
         weights = "cv-n-weights-" + main_token
         dsk[weights] = (
