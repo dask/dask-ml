@@ -53,6 +53,7 @@ from .methods import (
     pipeline,
     score,
     _get_fold_sample_weights,
+    get_sample_weights
 )
 from .utils import DeprecationDict, is_dask_collection, to_indexable, to_keys, unzip
 
@@ -155,12 +156,6 @@ def build_graph(
     cv_name = "cv-split-" + main_token
     dsk[cv_name] = (cv_split, cv, X_name, y_name, groups_name, is_pairwise, cache_cv)
 
-    if iid:
-        weights = "cv-n-samples-" + main_token
-        dsk[weights] = (cv_n_samples, cv_name)
-    else:
-        weights = None
-
     scores = do_fit_and_score(
         dsk,
         main_token,
@@ -185,6 +180,18 @@ def build_graph(
         metrics = list(scorer.keys())
     else:
         metrics = None
+
+    if "sample_weight" in fit_params:
+        sample_weight = fit_params["sample_weight"][1]
+        weights = "cv-n-weights-" + main_token
+        dsk[weights] = (
+        get_sample_weights, sample_weight, cv_name, n_splits)
+    elif iid:
+        weights = "cv-n-samples-" + main_token
+        dsk[weights] = (cv_n_samples, cv_name)
+    else:
+        weights = None
+
     dsk[cv_results] = (
         create_cv_results,
         scores,

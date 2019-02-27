@@ -312,6 +312,14 @@ def _get_fold_sample_weights(sample_weight, cv, n):
     return train_sample_weight, test_sample_weight
 
 
+def get_sample_weights(sample_weight, cv, n_splits):
+    w = []
+    for n in range(n_splits):
+        _, test_sample_weight = _get_fold_sample_weights(sample_weight, cv, n)
+        w.append(np.sum(test_sample_weight))
+    return np.array(w)
+
+
 def _apply_scorer(estimator, X, y, scorer, sample_weight):
     """Applies the scorer to the estimator, given the data and sample_weight.
 
@@ -546,6 +554,7 @@ def create_cv_results(
                 n_splits,
                 n_candidates,
                 splits=True,
+                weights=weights
             )
     else:
         for key in multimetric:
@@ -568,6 +577,7 @@ def create_cv_results(
                     n_splits,
                     n_candidates,
                     splits=True,
+                    weights=weights
                 )
 
     # Use one MaskedArray and mask all the places where the param is not
