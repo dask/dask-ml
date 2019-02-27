@@ -20,9 +20,9 @@ from sklearn.utils.metaestimators import if_delegate_has_method
 from sklearn.utils.validation import check_is_fitted
 from tornado import gen
 
+from ._split import train_test_split
 from ..utils import check_array
 from ..wrappers import ParallelPostFit
-from ._split import train_test_split
 
 Results = namedtuple("Results", ["info", "models", "history", "best"])
 

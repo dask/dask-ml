@@ -15,6 +15,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import data as skdata
 from sklearn.utils.validation import check_is_fitted, check_random_state
 
+from dask_ml._compat import blockwise
 from dask_ml._utils import copy_learned_attributes
 from dask_ml.utils import check_array, handle_zeros_in_scale
 
@@ -652,7 +653,7 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
             # known divisions. Suboptimal, but I think unavoidable.
             unknown = np.isnan(X.chunks[0]).any()
             if unknown:
-                lengths = da.atop(len, "i", X[:, 0], "i", dtype="i8").compute()
+                lengths = blockwise(len, "i", X[:, 0], "i", dtype="i8").compute()
                 X = X.copy()
                 chunks = (tuple(lengths), X.chunks[1])
                 X._chunks = chunks
@@ -871,7 +872,7 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
             # known divisions. Suboptimal, but I think unavoidable.
             unknown = np.isnan(X.chunks[0]).any()
             if unknown:
-                lengths = da.atop(len, "i", X[:, 0], "i", dtype="i8").compute()
+                lengths = blockwise(len, "i", X[:, 0], "i", dtype="i8").compute()
                 X = X.copy()
                 chunks = (tuple(lengths), X.chunks[1])
                 X._chunks = chunks

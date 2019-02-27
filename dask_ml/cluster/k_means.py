@@ -13,6 +13,7 @@ from sklearn.cluster import k_means_ as sk_k_means
 from sklearn.utils.extmath import squared_norm
 from sklearn.utils.validation import check_is_fitted
 
+from .._compat import blockwise
 from .._utils import draw_seed
 from ..metrics import (
     euclidean_distances,
@@ -531,7 +532,7 @@ def _kmeans_single_lloyd(
             labels = labels.astype(np.int32)
             # distances is always float64, but we need it to match X.dtype
             # for centers_dense, but remain float64 for inertia
-            r = da.atop(
+            r = blockwise(
                 _centers_dense,
                 "ij",
                 X,

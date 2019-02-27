@@ -8,7 +8,7 @@ import scipy.sparse
 import sklearn.preprocessing
 
 import dask_ml.preprocessing
-from dask_ml._compat import DASK_VERSION
+from dask_ml._compat import DASK_VERSION, PANDAS_VERSION
 from dask_ml.utils import assert_estimator_equal
 
 X = np.array([["a"], ["a"], ["b"], ["c"]])
@@ -88,7 +88,8 @@ def test_basic_dataframe(sparse, method, dask_data, dtype):
 
     assert isinstance(result, type(dask_data))
     assert len(result.columns) == expected.shape[1]
-    if sparse:
+    if sparse and PANDAS_VERSION >= packaging.version.parse("0.24.0"):
+        # pandas sparse ExtensionDtype interface
         dtype = pd.SparseDtype(dtype, dtype(0))
     assert (result.dtypes == dtype).all()
 

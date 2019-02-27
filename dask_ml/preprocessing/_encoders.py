@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 import sklearn.preprocessing
 
-from ..utils import check_array
 from .label import _encode, _encode_dask_array
+from ..utils import check_array
 
 
 class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
