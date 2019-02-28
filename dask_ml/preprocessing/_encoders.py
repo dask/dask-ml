@@ -107,13 +107,22 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
         n_values=None,
         categorical_features=None,
         categories="auto",
+        drop=None,
         sparse=True,
         dtype=np.float64,
         handle_unknown="error",
     ):
         super(OneHotEncoder, self).__init__(
-            n_values, categorical_features, categories, sparse, dtype, handle_unknown
+            n_values,
+            categorical_features,
+            categories,
+            drop,
+            sparse,
+            dtype,
+            handle_unknown,
         )
+        if drop is not None:
+            raise NotImplementedError("drop != None is not implemented yet.")
 
     def fit(self, X, y=None):
         if self.handle_unknown == "ignore":
