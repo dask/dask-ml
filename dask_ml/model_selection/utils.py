@@ -46,7 +46,7 @@ def to_indexable(*args, **kwargs):
     else:
         indexable = _indexable
     for x in args:
-        if x is None or isinstance(x, da.Array) or isinstance(x, dd.DataFrame):
+        if x is None or isinstance(x, (da.Array, dd.DataFrame)):
             yield x
         elif is_dask_collection(x):
             yield delayed(indexable, pure=True)(x)
