@@ -79,9 +79,7 @@ def test_basic_array(sparse, method, categories):
 @pytest.mark.parametrize("dtype", [np.float, np.uint8])
 def test_basic_dataframe(sparse, method, dask_data, dtype):
     a = sklearn.preprocessing.OneHotEncoder(sparse=sparse, dtype=dtype)
-    print(f"\na = {a}")
     b = dask_ml.preprocessing.OneHotEncoder(sparse=sparse, dtype=dtype)
-    print(f"b = {b}")
 
     if method == "fit":
         a.fit(df)
