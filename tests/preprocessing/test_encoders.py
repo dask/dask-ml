@@ -123,7 +123,6 @@ def test_invalid_handle_input():
 
 
 def test_onehotencoder_drop_raises():
-    # drop is not currently supported
     dask_ml.preprocessing.OneHotEncoder()
     with pytest.raises(NotImplementedError):
         dask_ml.preprocessing.OneHotEncoder(drop="first")

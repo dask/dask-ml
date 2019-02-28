@@ -1,10 +1,12 @@
 import dask
 import dask.array as da
 import numpy as np
+import packaging.version
 import pandas as pd
 import sklearn.preprocessing
 
 from .label import _encode, _encode_dask_array
+from .._compat import SK_VERSION
 from ..utils import check_array
 
 
@@ -50,6 +52,9 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
           numeric values.
 
         The used categories can be found in the ``categories_`` attribute.
+
+    drop : None, default=None
+        The option to drop one of the categories per feature is not yet supported.
 
     sparse : boolean, default=True
         Will return sparse matrix if set True else will return an array.
@@ -112,17 +117,20 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
         dtype=np.float64,
         handle_unknown="error",
     ):
-        super(OneHotEncoder, self).__init__(
-            n_values,
-            categorical_features,
-            categories,
-            drop,
-            sparse,
-            dtype,
-            handle_unknown,
-        )
         if drop is not None:
             raise NotImplementedError("drop != None is not implemented yet.")
+        signature = {
+            "n_values": n_values,
+            "categorical_features": categorical_features,
+            "categories": categories,
+            "drop": drop,
+            "sparse": sparse,
+            "dtype": dtype,
+            "handle_unknown": handle_unknown,
+        }
+        if SK_VERSION <= packaging.version.parse("0.20.2"):
+            del signature["drop"]
+        super(OneHotEncoder, self).__init__(**signature)
 
     def fit(self, X, y=None):
         if self.handle_unknown == "ignore":
