@@ -218,7 +218,7 @@ class TestQuantileTransformer(object):
 
         # set the quantiles, so that from here out, we're exact
         a.quantiles_ = b.quantiles_
-        assert_eq_ar(a.transform(X), b.transform(X))
+        assert_eq_ar(a.transform(X), b.transform(X), atol=1e-7)
         assert_eq_ar(X, a.inverse_transform(a.transform(X)))
 
     @pytest.mark.parametrize(
