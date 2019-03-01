@@ -49,13 +49,13 @@ def test_incremental_basic(scheduler, dataframes):
 
         clf = Incremental(est1, random_state=0)
         result = clf.fit(X, y, classes=[0, 1])
-        for slice_ in da.core.slices_from_chunks(
-            X.chunks if not dataframes else X.values.chunks
-        ):
-            _X, _y = (X[slice_], y[slice_[0]]) if not dataframes else (X, y)
-            est2.partial_fit(_X, _y, classes=[0, 1])
-
         assert result is clf
+
+        # est2 is a sklearn optimizer; this is just a benchmark
+        _X = X if not dataframes else X.to_dask_array(lengths=True)
+        _y = y if not dataframes else y.to_dask_array(lengths=True)
+        for slice_ in da.core.slices_from_chunks(_X.chunks):
+            est2.partial_fit(_X[slice_], _y[slice_[0]], classes=[0, 1])
 
         assert isinstance(result.estimator_.coef_, np.ndarray)
         rel_error = np.linalg.norm(clf.coef_ - est2.coef_)
@@ -68,15 +68,12 @@ def test_incremental_basic(scheduler, dataframes):
         result = clf.predict(X)
         expected = est2.predict(X)
         assert isinstance(result, da.Array)
-        if not dataframes:
-            rel_error = np.linalg.norm(result - expected)
-            rel_error /= np.linalg.norm(expected)
-            assert rel_error < 0.2
-        else:
-            with pytest.raises(
-                ValueError, match="operands could not be broadcast together"
-            ):
-                np.linalg.norm(result - expected)
+        if dataframes:
+            # Compute is needed because chunk sizes of this array are unknown
+            result = result.compute()
+        rel_error = np.linalg.norm(result - expected)
+        rel_error /= np.linalg.norm(expected)
+        assert rel_error < 0.2
 
         # score
         result = clf.score(X, y)
