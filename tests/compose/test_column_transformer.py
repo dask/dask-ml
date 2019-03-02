@@ -1,5 +1,6 @@
 import dask.dataframe as dd
 import numpy as np
+import packaging.version
 import pandas as pd
 import pytest
 import sklearn.compose
@@ -9,21 +10,34 @@ from sklearn.base import BaseEstimator, clone
 
 import dask_ml.compose
 import dask_ml.preprocessing
+from dask_ml._compat import SK_VERSION
 
 df = pd.DataFrame({"A": pd.Categorical(["a", "a", "b", "a"]), "B": [1.0, 2, 4, 5]})
 ddf = dd.from_pandas(df, npartitions=2).reset_index(drop=True)  # unknown divisions
 
 
 def test_column_transformer():
-    a = sklearn.compose.make_column_transformer(
-        (sklearn.preprocessing.OneHotEncoder(sparse=False), ["A"]),
-        (sklearn.preprocessing.StandardScaler(), ["B"]),
-    )
-
-    b = dask_ml.compose.make_column_transformer(
-        (dask_ml.preprocessing.OneHotEncoder(sparse=False), ["A"]),
-        (dask_ml.preprocessing.StandardScaler(), ["B"]),
-    )
+    # Ordering of make_column_transformer was changed from
+    # (columns, transformer) to (transformer, columns) in version 0.20.1 of scikit-learn
+    # See https://github.com/scikit-learn/scikit-learn/pull/12626
+    if SK_VERSION < packaging.version.parse("0.20.1"):
+        a = sklearn.compose.make_column_transformer(
+            (["A"], sklearn.preprocessing.OneHotEncoder(sparse=False)),
+            (["B"], sklearn.preprocessing.StandardScaler()),
+        )
+        b = dask_ml.compose.make_column_transformer(
+            (["A"], dask_ml.preprocessing.OneHotEncoder(sparse=False)),
+            (["B"], dask_ml.preprocessing.StandardScaler()),
+        )
+    else:
+        a = sklearn.compose.make_column_transformer(
+            (sklearn.preprocessing.OneHotEncoder(sparse=False), ["A"]),
+            (sklearn.preprocessing.StandardScaler(), ["B"]),
+        )
+        b = dask_ml.compose.make_column_transformer(
+            (dask_ml.preprocessing.OneHotEncoder(sparse=False), ["A"]),
+            (dask_ml.preprocessing.StandardScaler(), ["B"]),
+        )
 
     a.fit(df)
     b.fit(ddf)

@@ -105,6 +105,42 @@ jobs:
       - store_artifacts:
           path: test-reports
 
+  # earliest supported dependencies build
+  earliest_supported:
+    docker:
+      - image: continuumio/miniconda:latest
+    environment:
+      PYTHON: "3.6"
+      ENV_NAME: "dask-ml-test"
+    steps:
+      - checkout
+      - restore_cache:
+          key: deps-{{ .Branch }}-earliest_supported-{{ checksum "ci/environment-3.6.yml" }}
+      - run:
+          name: configure conda
+          command: ./ci/install-circle.sh
+      - run:
+          name: install earliest dependencies
+          command: |
+            source activate ${ENV_NAME}
+            pip uninstall -y dask distributed numpy
+            conda uninstall -y --force pandas scikit-learn multipledispatch
+            # pinning numpy version to avoid FutureWarnings coming from scikit-learn
+            conda install -y dask=1.0.0 pandas=0.23.4 scikit-learn=0.20.0 multipledispatch=0.4.9 numpy=1.15.4
+            conda list -n ${ENV_NAME}
+      - run:
+          command: |
+            source activate ${ENV_NAME}
+            pytest --junitxml=test-reports/junit.xml tests
+      - save_cache:
+          key: deps-{{ .Branch }}-earliest_supported-{{ checksum "ci/environment-3.6.yml" }}
+          paths:
+            - "/opt/conda/envs/${ENV_NAME}/"
+      - store_test_results:
+          path: test-reports
+      - store_artifacts:
+          path: test-reports
+
 workflows:
   version: 2
   build_and_test:
@@ -112,3 +148,4 @@ workflows:
       - py36
       - py27
       - sklearn_dev
+      - earliest_supported

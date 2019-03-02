@@ -83,7 +83,6 @@ def _generate_idx(n, seed, n_train, n_test):
     Notes
     -----
     """
-    # type: (int, int, int) -> Tuple[ndarray, ndarray]
     idx = check_random_state(seed).permutation(n)
 
     ind_test = idx[:n_test]
