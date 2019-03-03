@@ -211,7 +211,7 @@ class TestQuantileTransformer(object):
         a = dpp.QuantileTransformer()
         b = spp.QuantileTransformer()
 
-        X = rs.uniform(size=(100, 3), chunks=50)
+        X = rs.uniform(size=(1000, 3), chunks=50)
         a.fit(X)
         b.fit(X)
         assert_estimator_equal(a, b, atol=0.02)
@@ -225,13 +225,13 @@ class TestQuantileTransformer(object):
         "type_, kwargs",
         [
             (np.array, {}),
-            (da.from_array, {"chunks": 10}),
+            (da.from_array, {"chunks": 100}),
             (pd.DataFrame, {"columns": ["a", "b", "c"]}),
             (dd.from_array, {"columns": ["a", "b", "c"]}),
         ],
     )
     def test_types(self, type_, kwargs):
-        X = np.random.uniform(size=(20, 3))
+        X = np.random.uniform(size=(1000, 3))
         dX = type_(X, **kwargs)
         qt = spp.QuantileTransformer()
         qt.fit(X)
