@@ -206,10 +206,11 @@ class TestRobustScaler(object):
 
 
 class TestQuantileTransformer(object):
-    def test_basic(self):
+    @pytest.mark.parametrize("output_distribution", ["uniform", "normal"])
+    def test_basic(self, output_distribution):
         rs = da.random.RandomState(0)
-        a = dpp.QuantileTransformer()
-        b = spp.QuantileTransformer()
+        a = dpp.QuantileTransformer(output_distribution=output_distribution)
+        b = spp.QuantileTransformer(output_distribution=output_distribution)
 
         X = rs.uniform(size=(1000, 3), chunks=50)
         a.fit(X)
@@ -220,17 +221,6 @@ class TestQuantileTransformer(object):
         a.quantiles_ = b.quantiles_
         assert_eq_ar(a.transform(X), b.transform(X), atol=1e-7)
         assert_eq_ar(X, a.inverse_transform(a.transform(X)))
-
-    @pytest.mark.parametrize("output_distribution", ["uniform", "normal"])
-    def test_output_distribution(self, output_distribution):
-        rs = da.random.RandomState(0)
-        a = dpp.QuantileTransformer(output_distribution=output_distribution)
-        b = spp.QuantileTransformer(output_distribution=output_distribution)
-
-        X = rs.uniform(size=(1000, 3), chunks=50)
-        a.fit(X)
-        b.fit(X)
-        assert_estimator_equal(a, b, atol=0.02)
 
     @pytest.mark.parametrize(
         "type_, kwargs",
