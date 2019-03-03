@@ -128,7 +128,7 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
             "dtype": dtype,
             "handle_unknown": handle_unknown,
         }
-        if SK_VERSION <= packaging.version.parse("0.20.2"):
+        if SK_VERSION < packaging.version.parse("0.21.0"):
             del signature["drop"]
         super(OneHotEncoder, self).__init__(**signature)
 
