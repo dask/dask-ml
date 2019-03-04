@@ -206,32 +206,33 @@ class TestRobustScaler(object):
 
 
 class TestQuantileTransformer(object):
-    def test_basic(self):
+    @pytest.mark.parametrize("output_distribution", ["uniform", "normal"])
+    def test_basic(self, output_distribution):
         rs = da.random.RandomState(0)
-        a = dpp.QuantileTransformer()
-        b = spp.QuantileTransformer()
+        a = dpp.QuantileTransformer(output_distribution=output_distribution)
+        b = spp.QuantileTransformer(output_distribution=output_distribution)
 
-        X = rs.uniform(size=(100, 3), chunks=50)
+        X = rs.uniform(size=(1000, 3), chunks=50)
         a.fit(X)
         b.fit(X)
         assert_estimator_equal(a, b, atol=0.02)
 
         # set the quantiles, so that from here out, we're exact
         a.quantiles_ = b.quantiles_
-        assert_eq_ar(a.transform(X), b.transform(X))
+        assert_eq_ar(a.transform(X), b.transform(X), atol=1e-7)
         assert_eq_ar(X, a.inverse_transform(a.transform(X)))
 
     @pytest.mark.parametrize(
         "type_, kwargs",
         [
             (np.array, {}),
-            (da.from_array, {"chunks": 10}),
+            (da.from_array, {"chunks": 100}),
             (pd.DataFrame, {"columns": ["a", "b", "c"]}),
             (dd.from_array, {"columns": ["a", "b", "c"]}),
         ],
     )
     def test_types(self, type_, kwargs):
-        X = np.random.uniform(size=(20, 3))
+        X = np.random.uniform(size=(1000, 3))
         dX = type_(X, **kwargs)
         qt = spp.QuantileTransformer()
         qt.fit(X)

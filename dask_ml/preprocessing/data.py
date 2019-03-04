@@ -268,11 +268,7 @@ class QuantileTransformer(skdata.QuantileTransformer):
         return da.vstack(transformed).T
 
     def _transform_col(self, X_col, quantiles, inverse):
-        if self.output_distribution == "normal":
-            output_distribution = "norm"
-        else:
-            output_distribution = self.output_distribution
-        output_distribution = getattr(stats, output_distribution)
+        output_distribution = self.output_distribution
 
         if not inverse:
             lower_bound_x = quantiles[0]
@@ -284,10 +280,18 @@ class QuantileTransformer(skdata.QuantileTransformer):
             upper_bound_x = 1
             lower_bound_y = quantiles[0]
             upper_bound_y = quantiles[-1]
-            X_col = X_col.map_blocks(output_distribution.cdf)
+            #  for inverse transform, match a uniform distribution
+            if output_distribution == "normal":
+                X_col = X_col.map_blocks(stats.norm.cdf)
+                # else output distribution is already a uniform distribution
 
-        lower_bounds_idx = X_col - skdata.BOUNDS_THRESHOLD < lower_bound_x
-        upper_bounds_idx = X_col + skdata.BOUNDS_THRESHOLD > upper_bound_x
+        if output_distribution == "normal":
+            lower_bounds_idx = X_col - skdata.BOUNDS_THRESHOLD < lower_bound_x
+            upper_bounds_idx = X_col + skdata.BOUNDS_THRESHOLD > upper_bound_x
+        if output_distribution == "uniform":
+            lower_bounds_idx = X_col == lower_bound_x
+            upper_bounds_idx = X_col == upper_bound_x
+
         if not inverse:
             # See the note in scikit-learn. This trick is to avoid
             # repeated extreme values
@@ -304,12 +308,18 @@ class QuantileTransformer(skdata.QuantileTransformer):
         X_col[lower_bounds_idx] = lower_bound_y
 
         if not inverse:
-            X_col = X_col.map_blocks(output_distribution.ppf)
-            clip_min = output_distribution.ppf(skdata.BOUNDS_THRESHOLD - np.spacing(1))
-            clip_max = output_distribution.ppf(
-                1 - (skdata.BOUNDS_THRESHOLD - np.spacing(1))
-            )
-            X_col = da.clip(X_col, clip_min, clip_max)
+
+            if output_distribution == "normal":
+                X_col = X_col.map_blocks(stats.norm.ppf)
+                # find the value to clip the data to avoid mapping to
+                # infinity. Clip such that the inverse transform will be
+                # consistent
+                clip_min = stats.norm.ppf(skdata.BOUNDS_THRESHOLD - np.spacing(1))
+                clip_max = stats.norm.ppf(1 - (skdata.BOUNDS_THRESHOLD - np.spacing(1)))
+                X_col = da.clip(X_col, clip_min, clip_max)
+
+            # else output distribution is uniform and the ppf is the
+            # identity function so we let X_col unchanged
 
         return X_col
 
