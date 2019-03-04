@@ -12,10 +12,10 @@ from scipy.linalg import pinv, svd
 from sklearn.base import BaseEstimator, ClusterMixin
 from sklearn.utils import check_random_state
 
-from .k_means import KMeans
 from .._utils import draw_seed
 from ..metrics.pairwise import PAIRWISE_KERNEL_FUNCTIONS, pairwise_kernels
 from ..utils import _format_bytes, _log_array, check_array
+from .k_means import KMeans
 
 logger = logging.getLogger(__name__)
 

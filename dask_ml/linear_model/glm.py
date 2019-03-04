@@ -14,8 +14,6 @@ from dask_glm.utils import (
 )
 from sklearn.base import BaseEstimator
 
-# Register multiple dispatch
-from . import utils  # noqa
 from ..utils import check_array
 
 _base_doc = textwrap.dedent(
