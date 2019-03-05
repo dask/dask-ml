@@ -34,7 +34,15 @@ def test_basic_array(sparse, method, categories):
         result = b.fit_transform(dX)
 
     assert_estimator_equal(
-        a, b, exclude={"n_values_", "feature_indices_", "active_features_", "dtypes_"}
+        a,
+        b,
+        exclude={
+            "n_values_",
+            "feature_indices_",
+            "active_features_",
+            "dtypes_",
+            "drop_idx_",
+        },
     )
 
     assert isinstance(result, da.Array)
@@ -83,7 +91,15 @@ def test_basic_dataframe(sparse, method, dask_data, dtype):
         result = b.fit_transform(dask_data)
 
     assert_estimator_equal(
-        a, b, exclude={"n_values_", "feature_indices_", "active_features_", "dtypes_"}
+        a,
+        b,
+        exclude={
+            "n_values_",
+            "feature_indices_",
+            "active_features_",
+            "dtypes_",
+            "drop_idx_",
+        },
     )
 
     assert isinstance(result, type(dask_data))
@@ -104,6 +120,12 @@ def test_invalid_handle_input():
     enc = dask_ml.preprocessing.OneHotEncoder(handle_unknown="invalid")
     with pytest.raises(ValueError):
         enc.fit(dX)
+
+
+def test_onehotencoder_drop_raises():
+    dask_ml.preprocessing.OneHotEncoder()
+    with pytest.raises(NotImplementedError):
+        dask_ml.preprocessing.OneHotEncoder(drop="first")
 
 
 def test_handles_numpy():
