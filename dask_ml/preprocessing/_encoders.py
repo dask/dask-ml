@@ -5,9 +5,9 @@ import packaging.version
 import pandas as pd
 import sklearn.preprocessing
 
-from .label import _encode, _encode_dask_array
 from .._compat import SK_VERSION
 from ..utils import check_array
+from .label import _encode, _encode_dask_array
 
 
 class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
