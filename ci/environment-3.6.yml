@@ -4,10 +4,6 @@ channels:
   - defaults
 dependencies:
   - black
-  # Cython for building scikit-learn dev. Switch to nightly
-  # when this is resolved:
-  # https://github.com/scikit-learn/scikit-learn/issues/9485
-  - Cython
   - coverage
   - codecov
   - flake8
