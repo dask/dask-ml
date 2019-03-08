@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.xgboost.XGBRegressor &mdash; dask-ml 0.12.0 documentation</title>
+  <title>dask_ml.xgboost.XGBRegressor &mdash; dask-ml 0.12.1 documentation</title>
   
 
   
@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.0
+                0.12.1.dev5+gd68c7fa
               </div>
             
           
@@ -262,7 +262,7 @@
 <h1><a class="reference internal" href="../api.html#module-dask_ml.xgboost" title="dask_ml.xgboost"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code></a>.XGBRegressor<a class="headerlink" href="#dask-ml-xgboost-xgbregressor" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="dask_ml.xgboost.XGBRegressor">
-<em class="property">class </em><code class="descclassname">dask_ml.xgboost.</code><code class="descname">XGBRegressor</code><span class="sig-paren">(</span><em>max_depth=3</em>, <em>learning_rate=0.1</em>, <em>n_estimators=100</em>, <em>silent=True</em>, <em>objective='reg:linear'</em>, <em>booster='gbtree'</em>, <em>n_jobs=1</em>, <em>nthread=None</em>, <em>gamma=0</em>, <em>min_child_weight=1</em>, <em>max_delta_step=0</em>, <em>subsample=1</em>, <em>colsample_bytree=1</em>, <em>colsample_bylevel=1</em>, <em>reg_alpha=0</em>, <em>reg_lambda=1</em>, <em>scale_pos_weight=1</em>, <em>base_score=0.5</em>, <em>random_state=0</em>, <em>seed=None</em>, <em>missing=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.xgboost.</code><code class="descname">XGBRegressor</code><span class="sig-paren">(</span><em>max_depth=3</em>, <em>learning_rate=0.1</em>, <em>n_estimators=100</em>, <em>silent=True</em>, <em>objective='reg:linear'</em>, <em>booster='gbtree'</em>, <em>n_jobs=1</em>, <em>nthread=None</em>, <em>gamma=0</em>, <em>min_child_weight=1</em>, <em>max_delta_step=0</em>, <em>subsample=1</em>, <em>colsample_bytree=1</em>, <em>colsample_bylevel=1</em>, <em>reg_alpha=0</em>, <em>reg_lambda=1</em>, <em>scale_pos_weight=1</em>, <em>base_score=0.5</em>, <em>random_state=0</em>, <em>seed=None</em>, <em>missing=None</em>, <em>importance_type='gain'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -326,7 +326,7 @@
 </table>
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBRegressor.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>max_depth=3</em>, <em>learning_rate=0.1</em>, <em>n_estimators=100</em>, <em>silent=True</em>, <em>objective='reg:linear'</em>, <em>booster='gbtree'</em>, <em>n_jobs=1</em>, <em>nthread=None</em>, <em>gamma=0</em>, <em>min_child_weight=1</em>, <em>max_delta_step=0</em>, <em>subsample=1</em>, <em>colsample_bytree=1</em>, <em>colsample_bylevel=1</em>, <em>reg_alpha=0</em>, <em>reg_lambda=1</em>, <em>scale_pos_weight=1</em>, <em>base_score=0.5</em>, <em>random_state=0</em>, <em>seed=None</em>, <em>missing=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>max_depth=3</em>, <em>learning_rate=0.1</em>, <em>n_estimators=100</em>, <em>silent=True</em>, <em>objective='reg:linear'</em>, <em>booster='gbtree'</em>, <em>n_jobs=1</em>, <em>nthread=None</em>, <em>gamma=0</em>, <em>min_child_weight=1</em>, <em>max_delta_step=0</em>, <em>subsample=1</em>, <em>colsample_bytree=1</em>, <em>colsample_bylevel=1</em>, <em>reg_alpha=0</em>, <em>reg_lambda=1</em>, <em>scale_pos_weight=1</em>, <em>base_score=0.5</em>, <em>random_state=0</em>, <em>seed=None</em>, <em>missing=None</em>, <em>importance_type='gain'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -377,7 +377,7 @@ as tree learners (<cite>booster=gbtree</cite>).</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>coef_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array of shape <code class="docutils literal notranslate"><span class="pre">[n_features]</span></code></span></dt>
+<dt><strong>coef_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array of shape <code class="docutils literal notranslate"><span class="pre">[n_features]</span></code> or <code class="docutils literal notranslate"><span class="pre">[n_classes,</span> <span class="pre">n_features]</span></code></span></dt>
 <dd></dd>
 </dl>
 </td>
@@ -510,7 +510,7 @@ as tree learners (<cite>booster=gbtree</cite>).</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>intercept_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array of shape <code class="docutils literal notranslate"><span class="pre">[n_features]</span></code></span></dt>
+<dt><strong>intercept_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array of shape <code class="docutils literal notranslate"><span class="pre">(1,)</span></code> or <code class="docutils literal notranslate"><span class="pre">[n_classes]</span></code></span></dt>
 <dd></dd>
 </dl>
 </td>

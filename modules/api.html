@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>API Reference &mdash; dask-ml 0.12.0 documentation</title>
+  <title>API Reference &mdash; dask-ml 0.12.1 documentation</title>
   
 
   
@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.0
+                0.12.1.dev5+gd68c7fa
               </div>
             
           
@@ -493,7 +493,7 @@ that others, it might dominate the objective function and make the
 estimator unable to learn from other features correctly as expected.</p>
 <p>This scaler can also be applied to sparse CSR or CSC matrices by passing
 <cite>with_mean=False</cite> to avoid breaking the sparsity structure of the data.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.20.2)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.20.3)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -552,15 +552,18 @@ Will be reset on new calls to fit, but increments across
 <dl class="last docutils">
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">scale</span></code></dt>
 <dd>Equivalent function without the estimator API.</dd>
-<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html#sklearn.decomposition.PCA" title="(in scikit-learn v0.20.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.decomposition.PCA</span></code></a></dt>
+<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html#sklearn.decomposition.PCA" title="(in scikit-learn v0.20.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.decomposition.PCA</span></code></a></dt>
 <dd>Further removes the linear correlation across features with ‘whiten=True’.</dd>
 </dl>
 </div>
 <p class="rubric">Notes</p>
 <p>NaNs are treated as missing values: disregarded in fit, and maintained in
 transform.</p>
+<p>We use a biased estimator for the standard deviation, equivalent to
+<cite>numpy.std(x, ddof=0)</cite>. Note that the choice of <cite>ddof</cite> is unlikely to
+affect model performance.</p>
 <p>For a comparison of the different scalers, transformers, and normalizers,
-see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.20.2)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
+see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.20.3)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">StandardScaler</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
@@ -812,9 +815,14 @@ zero and one.</p>
 </pre></div>
 </div>
 <p>where min, max = feature_range.</p>
+<p>The transformation is calculated as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">X_scaled</span> <span class="o">=</span> <span class="n">scale</span> <span class="o">*</span> <span class="n">X</span> <span class="o">+</span> <span class="nb">min</span> <span class="o">-</span> <span class="n">X</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span>
+<span class="n">where</span> <span class="n">scale</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span> <span class="o">-</span> <span class="nb">min</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">X</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+</pre></div>
+</div>
 <p>This transformation is often used as an alternative to zero mean,
 unit variance scaling.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.20.2)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.20.3)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -832,10 +840,12 @@ copy (if the input is already a numpy array).</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>min_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray, shape (n_features,)</span></dt>
-<dd><p class="first last">Per feature adjustment for minimum.</p>
+<dd><p class="first last">Per feature adjustment for minimum. Equivalent to
+<code class="docutils literal notranslate"><span class="pre">min</span> <span class="pre">-</span> <span class="pre">X.min(axis=0)</span> <span class="pre">*</span> <span class="pre">self.scale_</span></code></p>
 </dd>
 <dt><strong>scale_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray, shape (n_features,)</span></dt>
-<dd><p class="first">Per feature relative scaling of the data.</p>
+<dd><p class="first">Per feature relative scaling of the data. Equivalent to
+<code class="docutils literal notranslate"><span class="pre">(max</span> <span class="pre">-</span> <span class="pre">min)</span> <span class="pre">/</span> <span class="pre">(X.max(axis=0)</span> <span class="pre">-</span> <span class="pre">X.min(axis=0))</span></code></p>
 <div class="last versionadded">
 <p><span class="versionmodified">New in version 0.17: </span><em>scale_</em> attribute.</p>
 </div>
@@ -874,7 +884,7 @@ copy (if the input is already a numpy array).</p>
 <p>NaNs are treated as missing values: disregarded in fit, and maintained in
 transform.</p>
 <p>For a comparison of the different scalers, transformers, and normalizers,
-see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.20.2)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
+see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.20.3)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">MinMaxScaler</span>
 </pre></div>
@@ -1110,7 +1120,7 @@ the interquartile range often give better results.</p>
 <div class="versionadded">
 <p><span class="versionmodified">New in version 0.17.</span></p>
 </div>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.20.2)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.20.3)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1162,13 +1172,13 @@ returned.</p>
 <dl class="last docutils">
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">robust_scale</span></code></dt>
 <dd>Equivalent function without the estimator API.</dd>
-<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html#sklearn.decomposition.PCA" title="(in scikit-learn v0.20.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.decomposition.PCA</span></code></a></dt>
+<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html#sklearn.decomposition.PCA" title="(in scikit-learn v0.20.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.decomposition.PCA</span></code></a></dt>
 <dd>Further removes the linear correlation across features with ‘whiten=True’.</dd>
 </dl>
 </div>
 <p class="rubric">Notes</p>
 <p>For a comparison of the different scalers, transformers, and normalizers,
-see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.20.2)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
+see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.20.3)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
 <p><a class="reference external" href="https://en.wikipedia.org/wiki/Median">https://en.wikipedia.org/wiki/Median</a>
 <a class="reference external" href="https://en.wikipedia.org/wiki/Interquartile_range">https://en.wikipedia.org/wiki/Interquartile_range</a></p>
 <p class="rubric">Examples</p>
@@ -1384,7 +1394,7 @@ or above the fitted range will be mapped to the bounds of the output
 distribution. Note that this transform is non-linear. It may distort linear
 correlations between variables measured at the same scale but renders
 variables measured at different scales more directly comparable.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-transformer" title="(in scikit-learn v0.20.2)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-transformer" title="(in scikit-learn v0.20.3)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1451,7 +1461,7 @@ input is already a numpy array).</p>
 <p>NaNs are treated as missing values: disregarded in fit, and maintained in
 transform.</p>
 <p>For a comparison of the different scalers, transformers, and normalizers,
-see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.20.2)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
+see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.20.3)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">QuantileTransformer</span>
@@ -2698,7 +2708,7 @@ component of a nested object.</p>
 
 <dl class="class">
 <dt id="dask_ml.preprocessing.OneHotEncoder">
-<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">OneHotEncoder</code><span class="sig-paren">(</span><em>n_values=None</em>, <em>categorical_features=None</em>, <em>categories='auto'</em>, <em>sparse=True</em>, <em>dtype=&lt;class 'numpy.float64'&gt;</em>, <em>handle_unknown='error'</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OneHotEncoder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">OneHotEncoder</code><span class="sig-paren">(</span><em>n_values=None</em>, <em>categorical_features=None</em>, <em>categories='auto'</em>, <em>drop=None</em>, <em>sparse=True</em>, <em>dtype=&lt;class 'numpy.float64'&gt;</em>, <em>handle_unknown='error'</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OneHotEncoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encode categorical integer features as a one-hot numeric array.</p>
 <div class="versionadded">
 <p><span class="versionmodified">New in version 0.8.0.</span></p>
@@ -2722,7 +2732,7 @@ and returns a sparse matrix or dense array.</p>
 estimators, notably linear models and SVMs with the standard kernels.</p>
 <p>Note: a one-hot encoding of y labels should use a LabelBinarizer
 instead.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-categorical-features" title="(in scikit-learn v0.20.2)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-categorical-features" title="(in scikit-learn v0.20.3)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -2738,6 +2748,9 @@ values within a single feature, and should be sorted in case of
 numeric values.</li>
 </ul>
 <p class="last">The used categories can be found in the <code class="docutils literal notranslate"><span class="pre">categories_</span></code> attribute.</p>
+</dd>
+<dt><strong>drop</strong> <span class="classifier-delimiter">:</span> <span class="classifier">None, default=None</span></dt>
+<dd><p class="first last">The option to drop one of the categories per feature is not yet supported.</p>
 </dd>
 <dt><strong>sparse</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, default=True</span></dt>
 <dd><p class="first last">Will return sparse matrix if set True else will return an array.</p>
@@ -3079,7 +3092,7 @@ of input features.</p>
 <p>Be aware that the number of features in the output array scales
 polynomially in the number of features of the input array, and
 exponentially in the degree. High degrees can cause overfitting.</p>
-<p>See <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/linear_model/plot_polynomial_interpolation.html#sphx-glr-auto-examples-linear-model-plot-polynomial-interpolation-py" title="(in scikit-learn v0.20.2)"><span class="xref std std-ref">examples/linear_model/plot_polynomial_interpolation.py</span></a></p>
+<p>See <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/linear_model/plot_polynomial_interpolation.html#sphx-glr-auto-examples-linear-model-plot-polynomial-interpolation-py" title="(in scikit-learn v0.20.3)"><span class="xref std std-ref">examples/linear_model/plot_polynomial_interpolation.py</span></a></p>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">X</span>
@@ -3341,7 +3354,7 @@ to be transformed separately and the results combined into a single
 feature space.
 This is useful for heterogeneous or columnar data, to combine several
 feature extraction mechanisms or transformations into a single transformer.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/compose.html#column-transformer" title="(in scikit-learn v0.20.2)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/compose.html#column-transformer" title="(in scikit-learn v0.20.3)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <div class="versionadded">
 <p><span class="versionmodified">New in version 0.9.0.</span></p>
 </div>
@@ -3403,7 +3416,7 @@ keyword will be ignored.</p>
 <dt><strong>n_jobs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int or None, optional (default=None)</span></dt>
 <dd><p class="first last">Number of jobs to run in parallel.
 <code class="docutils literal notranslate"><span class="pre">None</span></code> means 1 unless in a <code class="xref py py-obj docutils literal notranslate"><span class="pre">joblib.parallel_backend</span></code> context.
-<code class="docutils literal notranslate"><span class="pre">-1</span></code> means using all processors. See <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-n-jobs" title="(in scikit-learn v0.20.2)"><span class="xref std std-term">Glossary</span></a>
+<code class="docutils literal notranslate"><span class="pre">-1</span></code> means using all processors. See <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-n-jobs" title="(in scikit-learn v0.20.3)"><span class="xref std std-term">Glossary</span></a>
 for more details.</p>
 </dd>
 <dt><strong>transformer_weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict, optional</span></dt>
@@ -3712,7 +3725,7 @@ keyword will be ignored.</p>
 <dt><strong>n_jobs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int or None, optional (default=None)</span></dt>
 <dd><p class="first last">Number of jobs to run in parallel.
 <code class="docutils literal notranslate"><span class="pre">None</span></code> means 1 unless in a <code class="xref py py-obj docutils literal notranslate"><span class="pre">joblib.parallel_backend</span></code> context.
-<code class="docutils literal notranslate"><span class="pre">-1</span></code> means using all processors. See <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-n-jobs" title="(in scikit-learn v0.20.2)"><span class="xref std std-term">Glossary</span></a>
+<code class="docutils literal notranslate"><span class="pre">-1</span></code> means using all processors. See <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-n-jobs" title="(in scikit-learn v0.20.3)"><span class="xref std std-term">Glossary</span></a>
 for more details.</p>
 </dd>
 </dl>
@@ -3729,7 +3742,7 @@ for more details.</p>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <dl class="last docutils">
-<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.compose.ColumnTransformer.html#sklearn.compose.ColumnTransformer" title="(in scikit-learn v0.20.2)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.compose.ColumnTransformer</span></code></a></dt>
+<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.compose.ColumnTransformer.html#sklearn.compose.ColumnTransformer" title="(in scikit-learn v0.20.3)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.compose.ColumnTransformer</span></code></a></dt>
 <dd>Class that allows combining the outputs of multiple transformer objects used on column subsets of the data into a single feature space.</dd>
 </dl>
 </div>

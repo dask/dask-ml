@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.preprocessing.MinMaxScaler &mdash; dask-ml 0.12.0 documentation</title>
+  <title>dask_ml.preprocessing.MinMaxScaler &mdash; dask-ml 0.12.1 documentation</title>
   
 
   
@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.0
+                0.12.1.dev5+gd68c7fa
               </div>
             
           
@@ -279,9 +279,14 @@ zero and one.</p>
 </pre></div>
 </div>
 <p>where min, max = feature_range.</p>
+<p>The transformation is calculated as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">X_scaled</span> <span class="o">=</span> <span class="n">scale</span> <span class="o">*</span> <span class="n">X</span> <span class="o">+</span> <span class="nb">min</span> <span class="o">-</span> <span class="n">X</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span>
+<span class="n">where</span> <span class="n">scale</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span> <span class="o">-</span> <span class="nb">min</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">X</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+</pre></div>
+</div>
 <p>This transformation is often used as an alternative to zero mean,
 unit variance scaling.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.20.2)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.20.3)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -299,10 +304,12 @@ copy (if the input is already a numpy array).</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>min_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray, shape (n_features,)</span></dt>
-<dd><p class="first last">Per feature adjustment for minimum.</p>
+<dd><p class="first last">Per feature adjustment for minimum. Equivalent to
+<code class="docutils literal notranslate"><span class="pre">min</span> <span class="pre">-</span> <span class="pre">X.min(axis=0)</span> <span class="pre">*</span> <span class="pre">self.scale_</span></code></p>
 </dd>
 <dt><strong>scale_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray, shape (n_features,)</span></dt>
-<dd><p class="first">Per feature relative scaling of the data.</p>
+<dd><p class="first">Per feature relative scaling of the data. Equivalent to
+<code class="docutils literal notranslate"><span class="pre">(max</span> <span class="pre">-</span> <span class="pre">min)</span> <span class="pre">/</span> <span class="pre">(X.max(axis=0)</span> <span class="pre">-</span> <span class="pre">X.min(axis=0))</span></code></p>
 <div class="last versionadded">
 <p><span class="versionmodified">New in version 0.17: </span><em>scale_</em> attribute.</p>
 </div>
@@ -341,7 +348,7 @@ copy (if the input is already a numpy array).</p>
 <p>NaNs are treated as missing values: disregarded in fit, and maintained in
 transform.</p>
 <p>For a comparison of the different scalers, transformers, and normalizers,
-see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.20.2)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
+see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.20.3)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">MinMaxScaler</span>
 </pre></div>

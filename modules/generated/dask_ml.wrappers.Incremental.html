@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.wrappers.Incremental &mdash; dask-ml 0.12.0 documentation</title>
+  <title>dask_ml.wrappers.Incremental &mdash; dask-ml 0.12.1 documentation</title>
   
 
   
@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.0
+                0.12.1.dev5+gd68c7fa
               </div>
             
           
@@ -293,14 +293,14 @@ are available on <code class="docutils literal notranslate"><span class="pre">In
 <dd><p class="first last">Any object supporting the scikit-learn <code class="docutils literal notranslate"><span class="pre">parital_fit</span></code> API.</p>
 </dd>
 <dt><strong>scoring</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string or callable, optional</span></dt>
-<dd><p class="first">A single string (see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter" title="(in scikit-learn v0.20.2)"><span>The scoring parameter: defining model evaluation rules</span></a>) or a callable
-(see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring" title="(in scikit-learn v0.20.2)"><span>Defining your scoring strategy from metric functions</span></a>) to evaluate the predictions on the test set.</p>
+<dd><p class="first">A single string (see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter" title="(in scikit-learn v0.20.3)"><span>The scoring parameter: defining model evaluation rules</span></a>) or a callable
+(see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring" title="(in scikit-learn v0.20.3)"><span>Defining your scoring strategy from metric functions</span></a>) to evaluate the predictions on the test set.</p>
 <p>For evaluating multiple metrics, either give a list of (unique)
 strings or a dict with names as keys and callables as values.</p>
 <p>NOTE that when using custom scorers, each scorer should return a
 single value. Metric functions returning a list/array of values
 can be wrapped into multiple scorers that return one value each.</p>
-<p>See <a class="reference external" href="https://scikit-learn.org/stable/modules/grid_search.html#multimetric-grid-search" title="(in scikit-learn v0.20.2)"><span>Specifying multiple metrics for evaluation</span></a> for an example.</p>
+<p>See <a class="reference external" href="https://scikit-learn.org/stable/modules/grid_search.html#multimetric-grid-search" title="(in scikit-learn v0.20.3)"><span>Specifying multiple metrics for evaluation</span></a> for an example.</p>
 <div class="last admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">If None, the estimator’s default scorer (if available) is used.
