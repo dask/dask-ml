@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.1.dev5+gd68c7fa
+                0.12.1.dev6+gce81ad1
               </div>
             
           
@@ -494,6 +494,17 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/travis/miniconda/envs/dask-ml/lib/python3.6/site-packages/dask/config.py:168: YAMLLoadWarning: calling yaml.load() without Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.
+  data = yaml.load(f.read()) or {}
+/home/travis/miniconda/envs/dask-ml/lib/python3.6/site-packages/distributed/config.py:20: YAMLLoadWarning: calling yaml.load() without Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.
+  defaults = yaml.load(f)
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -504,7 +515,7 @@ div.rendered_html tbody tr:hover {
 <td style="vertical-align: top; border: 0px solid white">
 <h3>Client</h3>
 <ul>
-  <li><b>Scheduler: </b>tcp://127.0.0.1:45558
+  <li><b>Scheduler: </b>tcp://127.0.0.1:33869
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
@@ -689,7 +700,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.6214
+<span></span>0.5835
 </pre></div>
 </div>
 </div>
@@ -723,16 +734,16 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Score: 0.609
-Score: 0.6188
-Score: 0.644
-Score: 0.637
-Score: 0.6611
-Score: 0.6512
-Score: 0.6591
-Score: 0.6677
-Score: 0.6588
-Score: 0.6731
+Score: 0.6013
+Score: 0.5975
+Score: 0.5865
+Score: 0.5915
+Score: 0.6198
+Score: 0.6273
+Score: 0.6269
+Score: 0.6218
+Score: 0.6258
+Score: 0.6288
 </pre></div></div>
 </div>
 </div>
@@ -771,11 +782,11 @@ Score: 0.6731
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>array([1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0,
-       0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0,
-       1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0,
-       0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0,
-       0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0])
+<span></span>array([1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0,
+       1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0,
+       0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0,
+       1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0,
+       0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1])
 </pre></div>
 </div>
 </div>
@@ -793,7 +804,7 @@ Score: 0.6731
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.6731
+<span></span>0.6288
 </pre></div>
 </div>
 </div>

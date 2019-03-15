@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.1.dev5+gd68c7fa
+                0.12.1.dev6+gce81ad1
               </div>
             
           
@@ -477,6 +477,17 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/travis/miniconda/envs/dask-ml/lib/python3.6/site-packages/dask/config.py:168: YAMLLoadWarning: calling yaml.load() without Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.
+  data = yaml.load(f.read()) or {}
+/home/travis/miniconda/envs/dask-ml/lib/python3.6/site-packages/distributed/config.py:20: YAMLLoadWarning: calling yaml.load() without Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.
+  defaults = yaml.load(f)
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -487,7 +498,7 @@ div.rendered_html tbody tr:hover {
 <td style="vertical-align: top; border: 0px solid white">
 <h3>Client</h3>
 <ul>
-  <li><b>Scheduler: </b>tcp://127.0.0.1:44692
+  <li><b>Scheduler: </b>tcp://127.0.0.1:38662
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
@@ -579,8 +590,8 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-CPU times: user 2.72 s, sys: 104 ms, total: 2.82 s
-Wall time: 11.6 s
+CPU times: user 2.38 s, sys: 60 ms, total: 2.44 s
+Wall time: 10.8 s
 </pre></div></div>
 </div>
 </div>
@@ -601,7 +612,7 @@ Wall time: 11.6 s
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>&lt;xgboost.core.Booster at 0x2b5115c20630&gt;
+<span></span>&lt;xgboost.core.Booster at 0x2b319fb4e4e0&gt;
 </pre></div>
 </div>
 </div>
