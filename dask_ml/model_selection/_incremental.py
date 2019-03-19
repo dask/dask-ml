@@ -4,7 +4,6 @@ import operator
 from collections import defaultdict, namedtuple
 from copy import deepcopy
 from time import time
-import warnings
 
 import dask
 import dask.array as da

@@ -2,22 +2,14 @@ from __future__ import division
 
 import logging
 import math
-from time import time
 from warnings import warn
 
-import dask.array as da
 import numpy as np
-from dask.distributed import default_client
-from sklearn.base import BaseEstimator, MetaEstimatorMixin
 from sklearn.metrics.scorer import check_scoring
-from sklearn.model_selection import ParameterSampler
-from sklearn.utils.metaestimators import if_delegate_has_method
 from sklearn.utils import check_random_state
 from tornado import gen
 
-from ._incremental import INC_ATTRS, IncrementalSearchCV, fit as _incremental_fit
-from ._search import DaskBaseSearchCV
-from ._split import train_test_split
+from ._incremental import INC_ATTRS, IncrementalSearchCV
 from ._successive_halving import SuccessiveHalvingSearchCV
 
 logger = logging.getLogger(__name__)
@@ -276,7 +268,8 @@ class HyperbandSearchCV(IncrementalSearchCV):
 
     @gen.coroutine
     def _fit(self, X, y, **fit_params):
-        X, y = self._check_array(X, y)
+        X = self._check_array(X)
+        y = self._check_array(y, ensure_2d=False)
         scorer = check_scoring(self.estimator, scoring=self.scoring)
 
         brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)

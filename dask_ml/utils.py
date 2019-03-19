@@ -15,10 +15,10 @@ import numpy as np
 import pandas as pd
 import sklearn.utils.extmath as skm
 import sklearn.utils.validation as sk_validation
-from sklearn.base import BaseEstimator
 from dask import delayed
 from dask.array.utils import assert_eq as assert_eq_ar
 from dask.dataframe.utils import assert_eq as assert_eq_df
+from sklearn.base import BaseEstimator
 
 logger = logging.getLogger()
 
@@ -375,7 +375,6 @@ class ConstantFunction(BaseEstimator):
 
     def fit(self, *args):
         return self
-
 
 
 __all__ = [

@@ -1,29 +1,21 @@
 import math
+from collections import defaultdict
 
 import dask.array as da
-from collections import defaultdict
 import numpy as np
 import pytest
 import scipy.stats
-import sklearn.datasets
-from dask.distributed import Client
 from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
-from sklearn.linear_model import SGDClassifier, LogisticRegression
-from sklearn.base import clone
-from sklearn.model_selection import ParameterSampler
-import time
-from toolz import partial
-from tornado import gen
+from sklearn.datasets import make_classification as sk_make_classification
+from sklearn.linear_model import SGDClassifier
 
 from dask_ml.datasets import make_classification
-from sklearn.datasets import make_classification as sk_make_classification
 from dask_ml.model_selection import (
     HyperbandSearchCV,
     IncrementalSearchCV,
     SuccessiveHalvingSearchCV,
 )
 from dask_ml.model_selection._hyperband import _get_hyperband_params
-from dask_ml.model_selection._incremental import fit as incremental_fit
 from dask_ml.utils import ConstantFunction
 from dask_ml.wrappers import Incremental
 

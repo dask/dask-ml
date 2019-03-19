@@ -19,8 +19,8 @@ __all__ = [
 
 try:
     from ._incremental import IncrementalSearchCV  # noqa: F401
-    from ._hyperband import HyperbandSearchCV
-    from ._successive_halving import SuccessiveHalvingSearchCV
+    from ._hyperband import HyperbandSearchCV  # noqa: F401
+    from ._successive_halving import SuccessiveHalvingSearchCV  # noqa: F401
 
     __all__.extend(
         ["IncrementalSearchCV", "HyperbandSearchCV", "SuccessiveHalvingSearchCV"]

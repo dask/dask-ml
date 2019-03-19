@@ -1,6 +1,4 @@
-import copy
 import math
-from collections import defaultdict
 
 import numpy as np
 import toolz
