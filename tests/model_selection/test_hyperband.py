@@ -127,10 +127,12 @@ def test_hyperband_mirrors_paper(max_iter, aggressiveness):
         )
         yield alg.fit(X, y)
         metadata = alg.metadata()
-        paper_iters = [b.pop("iters") for b in metadata["brackets"].values()]
-        actual_iters = [b.pop("iters") for b in alg.metadata_["brackets"].values()]
+        paper_decisions = [b.pop("decisions") for b in metadata["brackets"].values()]
+        actual_decisions = [
+            b.pop("decisions") for b in alg.metadata_["brackets"].values()
+        ]
         assert metadata == alg.metadata_
-        for paper_iter, actual_iter in zip(paper_iters, actual_iters):
+        for paper_iter, actual_iter in zip(paper_decisions, actual_decisions):
             assert set(paper_iter).issubset(set(actual_iter))
         if aggressiveness == 3:
             assert alg.best_score_ == params["value"].max()
@@ -149,10 +151,10 @@ def test_hyperband_patience(c, s, a, b):
     yield alg.fit(X, y)
 
     alg_patience = max_iter // alg.aggressiveness
-    actual_iters = [b.pop("iters") for b in alg.metadata_["brackets"].values()]
-    paper_iters = [b.pop("iters") for b in alg.metadata()["brackets"].values()]
+    actual_decisions = [b.pop("decisions") for b in alg.metadata_["brackets"].values()]
+    paper_decisions = [b.pop("decisions") for b in alg.metadata()["brackets"].values()]
 
-    for paper_iter, actual_iter in zip(paper_iters, actual_iters):
+    for paper_iter, actual_iter in zip(paper_decisions, actual_decisions):
         trimmed_paper_iter = {k for k in paper_iter if k <= alg_patience}
         assert trimmed_paper_iter.issubset(set(actual_iter))
         assert all(x <= alg_patience + 1 for x in actual_iter)

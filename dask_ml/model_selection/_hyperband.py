@@ -375,8 +375,8 @@ class HyperbandSearchCV(IncrementalSearchCV):
         bracket_info = _hyperband_paper_alg(self.max_iter, eta=self.aggressiveness)
         num_models = sum(b["estimators"] for b in bracket_info)
         for bracket in bracket_info:
-            bracket["iters"].update({1})
-            bracket["iters"] = sorted(list(bracket["iters"]))
+            bracket["decisions"].update({1})
+            bracket["decisions"] = sorted(list(bracket["decisions"]))
         num_partial_fit = sum(b["partial_fit_calls"] for b in bracket_info)
         bracket_info = list(reversed(sorted(bracket_info, key=lambda x: x["bracket"])))
 
@@ -409,9 +409,9 @@ def _get_meta(hists, brackets, SHAs, key=None):
         history_.update(hist)
 
         calls = {k: max(hi["partial_fit_calls"] for hi in h) for k, h in hist.items()}
-        iters = {hi["partial_fit_calls"] for h in hist.values() for hi in h}
+        decisions = {hi["partial_fit_calls"] for h in hist.values() for hi in h}
         meta_["bracket=" + str(bracket)] = {
-            "iters": sorted(list(iters)),
+            "decisions": sorted(list(decisions)),
             "estimators": len(hist),
             "bracket": bracket,
             "partial_fit_calls": sum(calls.values()),
@@ -509,14 +509,14 @@ def _hyperband_paper_alg(R, eta=3):
         hist = {
             "num_estimators": n,
             "estimators": {n: 0 for n in range(n)},
-            "iters": [],
+            "decisions": [],
         }
         for i in range(s + 1):
             n_i = math.floor(n * eta ** -i)
             r_i = np.round(r * eta ** i).astype(int)
             L = {model: r_i for model in T}
             hist["estimators"].update(L)
-            hist["iters"] += [r_i]
+            hist["decisions"] += [r_i]
             to_keep = math.floor(n_i / eta)
             T = {model for i, model in enumerate(T) if i < to_keep}
         hists[s] = hist
@@ -525,7 +525,7 @@ def _hyperband_paper_alg(R, eta=3):
             "bracket": k,
             "estimators": hist["num_estimators"],
             "partial_fit_calls": sum(hist["estimators"].values()),
-            "iters": {int(h) for h in hist["iters"]},
+            "decisions": {int(h) for h in hist["decisions"]},
         }
         for k, hist in hists.items()
     ]
