@@ -1,16 +1,9 @@
 import numpy as np
-import pytest
-import scipy
-from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
+from distributed.utils_test import gen_cluster  # noqa: F401
 from sklearn.datasets import make_classification
 from sklearn.linear_model import SGDClassifier
-import sklearn
 
-from dask_ml.model_selection import (
-    SuccessiveHalvingSearchCV,
-    HyperbandSearchCV,
-    IncrementalSearchCV,
-)
+from dask_ml.model_selection import SuccessiveHalvingSearchCV
 
 
 @gen_cluster(client=True)

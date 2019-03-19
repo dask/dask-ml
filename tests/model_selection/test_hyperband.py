@@ -1,3 +1,5 @@
+import math
+
 import dask.array as da
 from collections import defaultdict
 import numpy as np
@@ -93,8 +95,17 @@ def test_basic(array_type, library, max_iter):
                 search.cv_results_["test_score"]
             )
         model_ids = {h["estimator_id"] for h in search.history_}
-        if max_iter % 3 == 0:
+
+        if math.log(max_iter, 3) % 1.0 == 0:
+            # log(max_iter, 3) % 1.0 == 0 is the good case when max_iter is a
+            # power of search.aggressiveness
+            # In this case, assert that more models are tried then the max_iter
             assert len(model_ids) > max_iter
+        else:
+            # Otherwise, give some padding "almost as many estimators are tried
+            # as max_iter". 3 is a fudge number chosen to be the minimum; when
+            # max_iter=20, len(model_ids) == 17.
+            assert len(model_ids) + 3 >= max_iter
         assert all("bracket" in id_ for id_ in model_ids)
 
     _test_basic()
