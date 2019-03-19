@@ -314,12 +314,11 @@ def test_params_passed():
         bracket["SuccessiveHalvingSearchCV params"] for bracket in brackets.values()
     ]
 
-    equality = {
-        k: all(SHA_params[k] == v for SHA_params in SHAs_params)
-        for k, v in params.items()
-        if k != "random_state"
-    }
-    assert all(equality.values())
+    for SHA_params in SHAs_params:
+        for k, v in params.items():
+            if k == "random_state":
+                continue
+            assert SHA_params[k] == v
     seeds = [SHA_params["random_state"] for SHA_params in SHAs_params]
     assert len(set(seeds)) == len(seeds)
 
