@@ -268,7 +268,13 @@ def test_correct_params():
         for bracket in meta["brackets"].values()
     ]
     SHA_params = base.union(
-        {"n_initial_parameters", "start_iter", "aggressiveness", "limit", "max_iter"}
+        {
+            "n_initial_parameters",
+            "start_iter",
+            "aggressiveness",
+            "adaptive_max_iter",
+            "max_iter",
+        }
     ) - {"estimator__value", "estimator__sleep"}
     assert all(set(SHA) == SHA_params for SHA in SHAs_params)
 

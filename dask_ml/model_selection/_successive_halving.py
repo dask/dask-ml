@@ -62,7 +62,7 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         n_initial_parameters=15,
         start_iter=9,
         aggressiveness=3,
-        limit=None,
+        adaptive_max_iter=None,
         max_iter=100,
         test_size=None,
         patience=False,
@@ -77,7 +77,7 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         self.n_initial_parameters = n_initial_parameters
         self.start_iter = start_iter
         self.aggressiveness = aggressiveness
-        self.limit = limit
+        self.adaptive_max_iter = adaptive_max_iter
 
         self._steps = 0
         self._pf_calls = {}
@@ -124,8 +124,8 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         best = toolz.topk(n_i, info, key=lambda k: info[k][-1]["score"])
         self._steps += 1
 
-        if (self.limit is None and len(best) in {0, 1}) or (
-            self.limit is not None and self._steps > self.limit
+        if (self.adaptive_max_iter is None and len(best) in {0, 1}) or (
+            self.adaptive_max_iter is not None and self._steps > self.adaptive_max_iter
         ):
             return {id_: 0 for id_ in info}
 

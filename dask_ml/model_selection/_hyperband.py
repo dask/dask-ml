@@ -246,7 +246,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
 
         # This is the first time self.random_state is used after
         # HyperbandSearchCV.fit is called.
-        seed_start = check_random_state(self.random_state).randint(2**31)
+        seed_start = check_random_state(self.random_state).randint(2 ** 31)
         self._SHA_seed = seed_start
 
         # These brackets are ordered by adaptivity; bracket=0 is least adaptive
@@ -258,7 +258,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
                     self.param_distribution,
                     n_initial_parameters=n,
                     start_iter=r,
-                    limit=b + 1,
+                    adaptive_max_iter=b + 1,
                     aggressiveness=self.aggressiveness,
                     max_iter=self.max_iter,
                     patience=patience,
@@ -506,7 +506,11 @@ def _hyperband_paper_alg(R, eta=3):
         r = R * eta ** -s
         r = int(r)
         T = set(range(n))
-        hist = {"num_estimators": n, "estimators": {n: 0 for n in range(n)}, "iters": []}
+        hist = {
+            "num_estimators": n,
+            "estimators": {n: 0 for n in range(n)},
+            "iters": [],
+        }
         for i in range(s + 1):
             n_i = math.floor(n * eta ** -i)
             r_i = np.round(r * eta ** i).astype(int)
