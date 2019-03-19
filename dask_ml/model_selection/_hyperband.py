@@ -33,7 +33,7 @@ def _get_hyperband_params(R, eta=3):
     Returns
     -------
     N : list
-        The number of models for each bracket
+        The number of estimators for each bracket
     R : list
         The number of iterations for each bracket
     brackets : list
@@ -61,8 +61,8 @@ DOC = (
 
     Hyperband will find close to the best possible
     parameters with the given computational budget [1]_.* It does this by
-    focusing on spending time training high-performing models. This means that
-    it stops training models that perform poorly.
+    focusing on spending time training high-performing estimators. This means that
+    it stops training estimators that perform poorly.
 
     This algorithm performs well, has theoritical justification [1]_ and only
     requires computational budget as input. It does not require a trade-off
@@ -135,7 +135,7 @@ DOC = (
         that model. The most recent score must be at at most ``tol`` better
         than the all of the previous ``patience`` scores for that model.
         Increasing ``tol`` will tend to reduce training time, at the cost
-        of worse models.
+        of worse estimators.
 
     **kwargs : dict, optional
         Parameters to pass to
@@ -334,7 +334,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
         )
 
         self.metadata_ = {
-            "models": sum(m["models"] for m in meta.values()),
+            "estimators": sum(m["estimators"] for m in meta.values()),
             "partial_fit_calls": sum(m["partial_fit_calls"] for m in meta.values()),
             "brackets": meta,
         }
@@ -363,7 +363,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
             Information about the computation performed by ``fit``. Has keys
 
             * ``partial_fit_calls``, the total number of partial fit calls.
-            * ``models``, the total number of models created.
+            * ``estimators``, the total number of estimators created.
             * ``brackets``, each of which has the same two keys as above.
 
         Notes
@@ -373,7 +373,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
 
         """
         bracket_info = _hyperband_paper_alg(self.max_iter, eta=self.aggressiveness)
-        num_models = sum(b["models"] for b in bracket_info)
+        num_models = sum(b["estimators"] for b in bracket_info)
         for bracket in bracket_info:
             bracket["iters"].update({1})
             bracket["iters"] = sorted(list(bracket["iters"]))
@@ -388,7 +388,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
 
         info = {
             "partial_fit_calls": num_partial_fit,
-            "models": num_models,
+            "estimators": num_models,
             "brackets": {"bracket=" + str(b["bracket"]): b for b in bracket_info},
         }
         return info
@@ -412,7 +412,7 @@ def _get_meta(hists, brackets, SHAs, key=None):
         iters = {hi["partial_fit_calls"] for h in hist.values() for hi in h}
         meta_["bracket=" + str(bracket)] = {
             "iters": sorted(list(iters)),
-            "models": len(hist),
+            "estimators": len(hist),
             "bracket": bracket,
             "partial_fit_calls": sum(calls.values()),
             "SuccessiveHalvingSearchCV params": _get_SHA_params(SHAs[bracket]),
@@ -506,12 +506,12 @@ def _hyperband_paper_alg(R, eta=3):
         r = R * eta ** -s
         r = int(r)
         T = set(range(n))
-        hist = {"num_models": n, "models": {n: 0 for n in range(n)}, "iters": []}
+        hist = {"num_estimators": n, "estimators": {n: 0 for n in range(n)}, "iters": []}
         for i in range(s + 1):
             n_i = math.floor(n * eta ** -i)
             r_i = np.round(r * eta ** i).astype(int)
             L = {model: r_i for model in T}
-            hist["models"].update(L)
+            hist["estimators"].update(L)
             hist["iters"] += [r_i]
             to_keep = math.floor(n_i / eta)
             T = {model for i, model in enumerate(T) if i < to_keep}
@@ -519,8 +519,8 @@ def _hyperband_paper_alg(R, eta=3):
     info = [
         {
             "bracket": k,
-            "models": hist["num_models"],
-            "partial_fit_calls": sum(hist["models"].values()),
+            "estimators": hist["num_estimators"],
+            "partial_fit_calls": sum(hist["estimators"].values()),
             "iters": {int(h) for h in hist["iters"]},
         }
         for k, hist in hists.items()

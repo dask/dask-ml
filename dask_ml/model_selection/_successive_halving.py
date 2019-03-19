@@ -38,9 +38,9 @@ DOC = (
         times increasing by ``aggressivenes``.
 
     aggressizeness : float, default=3
-        How aggressive to be in culling off the models. Higher
+        How aggressive to be in culling off the estimators. Higher
         values correspond to being more aggressive in killing off
-        models. The "infinite horizon" theory suggests ``aggressizeness == np.e``
+        estimators. The "infinite horizon" theory suggests ``aggressizeness == np.e``
         is optimal.
 
     kwargs : dict
@@ -102,7 +102,7 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         self._pf_calls.update({k: v[-1]["partial_fit_calls"] for k, v in info.items()})
 
         self.metadata_ = {
-            "models": len(self._pf_calls),
+            "estimators": len(self._pf_calls),
             "partial_fit_calls": sum(self._pf_calls.values()),
         }
 

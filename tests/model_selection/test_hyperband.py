@@ -239,7 +239,7 @@ def test_successive_halving_params(c, s, a, b):
     metadata = alg.metadata()["brackets"]
     for b, SHA in SHAs.items():
         yield SHA.fit(X, y)
-        assert metadata[b]["models"] == SHA.metadata_["models"]
+        assert metadata[b]["estimators"] == SHA.metadata_["estimators"]
         assert metadata[b]["partial_fit_calls"] == SHA.metadata_["partial_fit_calls"]
 
 
@@ -319,7 +319,7 @@ def test_same_random_state_same_params(c, s, a, b):
         {"value": values},
         random_state=seed,
         max_iter=2,
-        n_initial_parameters=h.metadata()["models"],
+        n_initial_parameters=h.metadata()["estimators"],
     )
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
     yield h.fit(X, y)
@@ -337,7 +337,7 @@ def test_same_random_state_same_params(c, s, a, b):
     # Getting the `value`s that are the same for both searches
     same = set(v_passive).intersection(set(v_h))
 
-    passive_models = h.metadata()["brackets"]["bracket=0"]["models"]
+    passive_models = h.metadata()["brackets"]["bracket=0"]["estimators"]
     assert len(same) == passive_models
 
 
