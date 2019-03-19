@@ -362,13 +362,13 @@ def test_same_random_state_same_params(c, s, a, b):
 def test_random_state_no_seed_different_params():
     values = scipy.stats.uniform(0, 1)
     max_iter = 9
-    N, R, brackets = _get_hyperband_params(max_iter)
+    brackets = _get_hyperband_params(max_iter)
 
     h1 = HyperbandSearchCV(ConstantFunction(), {"value": values}, max_iter=max_iter)
     h2 = HyperbandSearchCV(ConstantFunction(), {"value": values}, max_iter=max_iter)
 
-    h1._get_SHAs(N, R, brackets)
-    h2._get_SHAs(N, R, brackets)
+    h1._get_SHAs(brackets)
+    h2._get_SHAs(brackets)
 
     assert h1._SHA_seed != h2._SHA_seed
 
@@ -379,7 +379,7 @@ def test_random_state_no_seed_different_params():
         ConstantFunction(), {"value": values}, max_iter=9, random_state=0
     )
 
-    h1._get_SHAs(N, R, brackets)
-    h2._get_SHAs(N, R, brackets)
+    h1._get_SHAs(brackets)
+    h2._get_SHAs(brackets)
 
     assert h1._SHA_seed == h2._SHA_seed

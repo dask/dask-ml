@@ -52,7 +52,7 @@ def _get_hyperband_params(R, eta=3):
     brackets = list(reversed(range(int(s_max + 1))))
     N = [math.ceil(B / R * eta ** s / (s + 1)) for s in brackets]
     R = [int(R * eta ** -s) for s in brackets]
-    return list(map(int, N)), R, brackets
+    return {b: (int(n), r) for b, n, r in zip(brackets, N, R)}
 
 
 DOC = (
@@ -241,7 +241,8 @@ class HyperbandSearchCV(IncrementalSearchCV):
             scoring=scoring,
         )
 
-    def _get_SHAs(self, N, R, brackets):
+    def _get_SHAs(self, brackets):
+
         patience = _get_patience(self.patience, self.max_iter, self.aggressiveness)
 
         # This is the first time self.random_state is used after
@@ -269,7 +270,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
                     scoring=self.scoring,
                 ),
             )
-            for n, r, b in zip(N, R, brackets)
+            for b, (n, r) in brackets.items()
         ]
         return SHAs
 
@@ -278,9 +279,9 @@ class HyperbandSearchCV(IncrementalSearchCV):
         X, y = self._check_array(X, y)
         scorer = check_scoring(self.estimator, scoring=self.scoring)
 
-        N, R, brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
+        brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
 
-        SHAs = self._get_SHAs(N, R, brackets)
+        SHAs = self._get_SHAs(brackets)
         # Which bracket to run first? Going to go with most adaptive;
         # hopefully less adaptive can fill in for any blank spots
         SHAs = yield {b: SHA.fit(X, y, **fit_params) for b, SHA in SHAs}
@@ -330,7 +331,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
         best_index = best_index.flat[0]
 
         meta, _ = _get_meta(
-            {b: SHA.history_ for b, SHA in SHAs.items()}, brackets, SHAs, key=key
+            {b: SHA.history_ for b, SHA in SHAs.items()}, brackets.keys(), SHAs, key=key
         )
 
         self.metadata_ = {
@@ -380,8 +381,8 @@ class HyperbandSearchCV(IncrementalSearchCV):
         num_partial_fit = sum(b["partial_fit_calls"] for b in bracket_info)
         bracket_info = list(reversed(sorted(bracket_info, key=lambda x: x["bracket"])))
 
-        N, R, brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
-        SHAs = {bracket: SHA for bracket, SHA in self._get_SHAs(N, R, brackets)}
+        brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
+        SHAs = {bracket: SHA for bracket, SHA in self._get_SHAs(brackets)}
         for bracket in bracket_info:
             b = bracket["bracket"]
             bracket["SuccessiveHalvingSearchCV params"] = _get_SHA_params(SHAs[b])
