@@ -87,6 +87,7 @@ def gradient_descent(X, y, max_iter=100, tol=1e-14, family=Logistic, **kwargs):
     Returns
     -------
     beta : array-like, shape (n_features,)
+    n_iter : number of iterations executed
     """
     loglike, gradient = family.loglike, family.gradient
     n, p = X.shape
@@ -161,6 +162,7 @@ def newton(X, y, max_iter=50, tol=1e-8, family=Logistic, **kwargs):
     Returns
     -------
     beta : array-like, shape (n_features,)
+    n_iter : number of iterations executed
     """
     gradient, hessian = family.gradient, family.hessian
     n, p = X.shape
@@ -184,15 +186,14 @@ def newton(X, y, max_iter=50, tol=1e-8, family=Logistic, **kwargs):
         step, _, _, _ = np.linalg.lstsq(hess, grad)
         beta = (beta_old - step)
 
-        n_iter += 1
-
         # should change this criterion
         coef_change = np.absolute(beta_old - beta)
         converged = (
-            (not np.any(coef_change > tol)) or (n_iter > max_iter))
+            (not np.any(coef_change > tol)) or (n_iter >= max_iter))
 
         if not converged:
             Xbeta = dot(X, beta)  # numpy -> dask converstion of beta
+            n_iter += 1
 
     return beta, n_iter
 
@@ -220,6 +221,7 @@ def admm(X, y, regularizer='l1', lamduh=0.1, rho=1, over_relax=1,
     Returns
     -------
     beta : array-like, shape (n_features,)
+    n_iter : number of iterations executed
     """
     pointwise_loss = family.pointwise_loss
     pointwise_gradient = family.pointwise_gradient
@@ -333,6 +335,7 @@ def lbfgs(X, y, regularizer=None, lamduh=1.0, max_iter=100, tol=1e-4,
     Returns
     -------
     beta : array-like, shape (n_features,)
+    n_iter : number of iterations executed
     """
     pointwise_loss = family.pointwise_loss
     pointwise_gradient = family.pointwise_gradient
@@ -382,6 +385,7 @@ def proximal_grad(X, y, regularizer='l1', lamduh=0.1, family=Logistic,
     Returns
     -------
     beta : array-like, shape (n_features,)
+    n_iter : number of iterations executed
     """
     n, p = X.shape
     firstBacktrackMult = 0.1
