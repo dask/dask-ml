@@ -230,7 +230,9 @@ class LogisticRegression(_GLM):
         C : array, shape = [n_samples,]
             Predicted class labels for each sample
         """
-        return self.predict_proba(X) > 0.5  # TODO: verify, multi_class broken
+        prob = self.predict_proba(X)
+
+        return prob.argmax(axis=1)  # TODO: verify, multi_class broken
 
     def predict_proba(self, X):
         """Probability estimates for samples in X.
