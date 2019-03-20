@@ -181,6 +181,7 @@ class _GLM(BaseEstimator):
         self : objectj
         """
         X = self._check_array(X)
+        self.n_classes = len(np.unique(y))
 
         solver_kwargs = self._get_solver_kwargs()
 
@@ -231,8 +232,9 @@ class LogisticRegression(_GLM):
             Predicted class labels for each sample
         """
         prob = self.predict_proba(X)
-
-        return prob.argmax(axis=1)  # TODO: verify, multi_class broken
+        if self.n_classes==2:
+            return prob.argmax(axis=1)
+        return prob>0.5 # TODO: verify, multi_class broken
 
     def predict_proba(self, X):
         """Probability estimates for samples in X.
@@ -248,7 +250,10 @@ class LogisticRegression(_GLM):
         """
         X_ = self._check_array(X)
         prob = sigmoid(dot(X_,self._coef)) # TODO: verify, multi_class broken
-        return np.vstack([1 - prob, prob]).T
+        if self.n_classes==2:
+            return np.vstack([1 - prob, prob]).T
+        else:
+            return prob
 
     def score(self, X, y):
         """The mean accuracy on the given data and labels
