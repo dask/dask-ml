@@ -63,7 +63,7 @@ class _GLM(BaseEstimator):
 
     def fit(self, X, y=None):
         X_ = self._maybe_add_intercept(X)
-        self._coef = algorithms._solvers[self.solver](X_, y, **self._fit_kwargs)
+        self._coef, self.n_iter_ = algorithms._solvers[self.solver](X_, y, **self._fit_kwargs)
 
         if self.fit_intercept:
             self.coef_ = self._coef[:-1]
