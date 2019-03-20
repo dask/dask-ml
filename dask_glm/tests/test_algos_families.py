@@ -139,7 +139,7 @@ def test_determinism(func, kwargs, scheduler):
 
 try:
     from distributed import Client
-    from distributed.utils_test import cluster, loop  # flake8: noqa
+    from distributed.utils_test import cluster, loop  # noqa
 except ImportError:
     pass
 else:
