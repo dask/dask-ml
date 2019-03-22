@@ -106,6 +106,8 @@ class LogisticRegression(_GLM):
     ----------
     coef_ : array, shape (n_classes, n_features)
         The learned value for the model's coefficients
+    n_iter_ : integer
+        The number of iterations executed
     intercept_ : float of None
         The learned value for the intercept, if one was added
         to the model
@@ -160,6 +162,8 @@ class LinearRegression(_GLM):
     ----------
     coef_ : array, shape (n_classes, n_features)
         The learned value for the model's coefficients
+    n_iter_ : integer
+        The number of iterations executed
     intercept_ : float of None
         The learned value for the intercept, if one was added
         to the model
@@ -210,6 +214,8 @@ class PoissonRegression(_GLM):
     ----------
     coef_ : array, shape (n_classes, n_features)
         The learned value for the model's coefficients
+    n_iter_ : integer
+        The number of iterations executed
     intercept_ : float of None
         The learned value for the intercept, if one was added
         to the model
