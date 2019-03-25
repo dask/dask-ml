@@ -65,10 +65,16 @@ def test_basic(array_type, library, max_iter):
         classes = c.compute(da.unique(y))
         yield search.fit(X, y, classes=classes)
 
-        X, y = sk_make_classification(
-            n_features=d, n_informative=d, n_repeated=0, n_redundant=0
-        )
-        score = search.best_estimator_.score(X, y)
+        if library == "ConstantFunction":
+            score = search.best_estimator_.score(X, y)
+            assert 0 <= score <= 1
+            assert score == search.best_score_
+            assert score == max(hist[-1]["score"] for hist in search.estimator_history_.values())
+        elif array_type == "numpy":
+            score = search.best_estimator_.score(X, y)
+            assert 0 <= score <= 1
+            assert score == search.best_score_
+            assert abs(score - search.best_score_) < 0.1
         assert type(search.best_estimator_) == type(model)
         assert isinstance(search.best_params_, dict)
 
