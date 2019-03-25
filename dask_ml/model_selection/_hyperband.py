@@ -277,7 +277,11 @@ class HyperbandSearchCV(IncrementalSearchCV):
         SHAs = self._get_SHAs(brackets)
         # Which bracket to run first? Going to go with most adaptive;
         # hopefully less adaptive can fill in for any blank spots
-        SHAs = yield {b: SHA.fit(X, y, **fit_params) for b, SHA in SHAs}
+        #
+        # _brackets is ordered from largest to smallest
+        _brackets_ids = [b for b, SHA in SHAs]
+        _SHAs = yield [SHA.fit(X, y, **fit_params) for b, SHA in SHAs]
+        SHAs = {b: SHA for b, SHA in zip(_brackets_ids, _SHAs)}
 
         # This for-loop rename estimator IDs and pulls out wall times
         key = lambda b, old: "bracket={}-{}".format(b, old)
