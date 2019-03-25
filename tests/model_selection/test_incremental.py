@@ -72,7 +72,7 @@ def test_basic(c, s, a, b):
             "partial_fit_time",
             "score_time",
             "score",
-            "estimator_id",
+            "model_id",
             "params",
             "partial_fit_calls",
         }.issubset(set(h.keys()))
@@ -227,7 +227,7 @@ def _test_search_basic(decay_rate, c, s, a, b):
         "std_score_time",
         "test_score",
         "rank_test_score",
-        "estimator_id",
+        "model_id",
         "params",
         "partial_fit_calls",
         "param_alpha",
@@ -246,12 +246,12 @@ def _test_search_basic(decay_rate, c, s, a, b):
         assert all(search.cv_results_["test_score"] >= 0)
         assert all(search.cv_results_["rank_test_score"] >= 1)
     assert all(search.cv_results_["partial_fit_calls"] >= 1)
-    assert len(np.unique(search.cv_results_["estimator_id"])) == len(
-        search.cv_results_["estimator_id"]
+    assert len(np.unique(search.cv_results_["model_id"])) == len(
+        search.cv_results_["model_id"]
     )
     assert sorted(search.model_history_.keys()) == list(range(20))
     assert set(search.model_history_[0][0].keys()) == {
-        "estimator_id",
+        "model_id",
         "params",
         "partial_fit_calls",
         "partial_fit_time",
