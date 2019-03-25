@@ -42,9 +42,9 @@ def _get_hyperband_params(R, eta=3):
     B = (s_max + 1) * R
 
     brackets = list(reversed(range(int(s_max + 1))))
-    N = [math.ceil(B / R * eta ** s / (s + 1)) for s in brackets]
+    N = [int(math.ceil(B / R * eta ** s / (s + 1))) for s in brackets]
     R = [int(R * eta ** -s) for s in brackets]
-    return {b: (int(n), r) for b, n, r in zip(brackets, N, R)}
+    return {b: (n, r) for b, n, r in zip(brackets, N, R)}
 
 
 DOC = (
@@ -167,7 +167,8 @@ DOC = (
 
     * how many "epochs" or "passes through ``X``" to train the model for
       (``epochs`` below)
-    * a rough idea of how many hyper-parameter combinations to sample (``params_to_sample`` below)
+    * a rough idea of how many hyper-parameter combinations to sample
+      (``params_to_sample`` below)
 
     To determine the chunk size and ``max_iter``,
 
