@@ -66,6 +66,7 @@ def test_basic(array_type, library, max_iter):
 
         if library == "ConstantFunction":
             score = search.best_estimator_.score(X, y)
+            assert score == search.score(X, y)
             assert 0 <= score <= 1
             assert score == search.best_score_
             assert score == max(
@@ -73,6 +74,7 @@ def test_basic(array_type, library, max_iter):
             )
         elif library == "sklearn":
             score = search.best_estimator_.score(X, y)
+            assert score == search.score(X, y)
             assert 0 <= score <= 1
             assert abs(score - search.best_score_) < 0.1
         assert type(search.best_estimator_) == type(model)
