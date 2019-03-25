@@ -12,7 +12,7 @@ import scipy.stats
 import toolz
 from dask.distributed import Future, default_client, futures_of, wait
 from distributed.utils import log_errors
-from sklearn.base import BaseEstimator, MetaEstimatorMixin, clone
+from sklearn.base import clone
 from sklearn.metrics.scorer import check_scoring
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
@@ -21,6 +21,7 @@ from sklearn.utils.validation import check_is_fitted
 from tornado import gen
 
 from ..utils import check_array
+from ..wrappers import ParallelPostFit
 from ._split import train_test_split
 
 Results = namedtuple("Results", ["info", "models", "history", "best"])
@@ -406,7 +407,7 @@ def fit(
 # ----------------------------------------------------------------------------
 
 
-class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
+class BaseIncrementalSearchCV(ParallelPostFit):
     """Base class for estimators using the incremental `fit`.
 
     Subclasses must implement the following abstract method
@@ -423,7 +424,12 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
         self.random_state = random_state
         self.scoring = scoring
 
-    def _check_array(self, X, y, **kwargs):
+    @property
+    def _postfit_estimator(self):
+        check_is_fitted(self, "best_estimator_")
+        return self.best_estimator_
+
+    def _check_array(self, X, **kwargs):
         """Validate the data arguments X and y.
 
         By default, NumPy arrays are converted to 1-block dask arrays.
@@ -434,12 +440,8 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
         """
         if isinstance(X, np.ndarray):
             X = da.from_array(X, X.shape)
-        if isinstance(y, np.ndarray):
-            y = da.from_array(y, y.shape)
         X = check_array(X, **kwargs)
-        kwargs["ensure_2d"] = False
-        y = check_array(y, **kwargs)
-        return X, y
+        return X
 
     def _get_train_test_split(self, X, y, **kwargs):
         """CV-Split the arrays X and y
@@ -522,7 +524,8 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
 
     @gen.coroutine
     def _fit(self, X, y, **fit_params):
-        X, y = self._check_array(X, y)
+        X = self._check_array(X)
+        y = self._check_array(y, ensure_2d=False)
 
         X_train, X_test, y_train, y_test = self._get_train_test_split(X, y)
         scorer = check_scoring(self.estimator, scoring=self.scoring)
@@ -573,21 +576,6 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
             Additional partial fit keyword arguments for the estimator.
         """
         return default_client().sync(self._fit, X, y, **fit_params)
-
-    @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
-    def predict(self, X, y=None):
-        self._check_is_fitted("predict")
-        return self.best_estimator_.predict(X)
-
-    @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
-    def predict_proba(self, X):
-        self._check_is_fitted("predict_proba")
-        return self.best_estimator_.predict_proba(X)
-
-    @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
-    def predict_log_proba(self, X):
-        self._check_is_fitted("predict_log_proba")
-        return self.best_estimator_.predict_log_proba(X)
 
     @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
     def decision_function(self, X):

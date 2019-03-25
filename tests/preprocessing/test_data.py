@@ -123,8 +123,6 @@ class TestMinMaxScaler(object):
         for attr in ["data_min_", "data_max_", "data_range_", "scale_", "min_"]:
             assert_eq_ar(getattr(est1, attr), getattr(est2, attr).values)
 
-        assert_eq_ar(est1.transform(X), est2.transform(X))
-        assert_eq_ar(est1.transform(df).values, est2.transform(X))
         assert_eq_ar(est1.transform(X), est2.transform(df).values)
 
         if hasattr(result_df, "values"):
@@ -208,32 +206,33 @@ class TestRobustScaler(object):
 
 
 class TestQuantileTransformer(object):
-    def test_basic(self):
+    @pytest.mark.parametrize("output_distribution", ["uniform", "normal"])
+    def test_basic(self, output_distribution):
         rs = da.random.RandomState(0)
-        a = dpp.QuantileTransformer()
-        b = spp.QuantileTransformer()
+        a = dpp.QuantileTransformer(output_distribution=output_distribution)
+        b = spp.QuantileTransformer(output_distribution=output_distribution)
 
-        X = rs.uniform(size=(100, 3), chunks=50)
+        X = rs.uniform(size=(1000, 3), chunks=50)
         a.fit(X)
         b.fit(X)
         assert_estimator_equal(a, b, atol=0.02)
 
         # set the quantiles, so that from here out, we're exact
         a.quantiles_ = b.quantiles_
-        assert_eq_ar(a.transform(X), b.transform(X))
+        assert_eq_ar(a.transform(X), b.transform(X), atol=1e-7)
         assert_eq_ar(X, a.inverse_transform(a.transform(X)))
 
     @pytest.mark.parametrize(
         "type_, kwargs",
         [
             (np.array, {}),
-            (da.from_array, {"chunks": 10}),
+            (da.from_array, {"chunks": 100}),
             (pd.DataFrame, {"columns": ["a", "b", "c"]}),
             (dd.from_array, {"columns": ["a", "b", "c"]}),
         ],
     )
     def test_types(self, type_, kwargs):
-        X = np.random.uniform(size=(20, 3))
+        X = np.random.uniform(size=(1000, 3))
         dX = type_(X, **kwargs)
         qt = spp.QuantileTransformer()
         qt.fit(X)
@@ -553,3 +552,10 @@ class TestPolynomialFeatures:
             assert_eq_df(res_df.compute().reset_index(drop=True), res_pandas)
         assert_eq_ar(res_df.values, res_c)
         assert_eq_ar(res_df.values, res_arr)
+
+    def test_transformer_params(self):
+        pf = dpp.PolynomialFeatures(degree=3, interaction_only=True, include_bias=False)
+        pf.fit(X)
+        assert pf._transformer.degree == pf.degree
+        assert pf._transformer.interaction_only is pf.interaction_only
+        assert pf._transformer.include_bias is pf.include_bias

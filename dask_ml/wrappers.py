@@ -285,7 +285,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
             return _predict(X, estimator=self._postfit_estimator)
 
     def predict_proba(self, X):
-        """Predict for X.
+        """Probability estimates.
 
         For dask inputs, a dask array or dataframe is returned. For other
         inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
@@ -312,12 +312,33 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
                 _predict_proba,
                 estimator=self._postfit_estimator,
                 dtype="float",
-                chunks=(X.chunks[0], len(self.classes_)),
+                chunks=(X.chunks[0], len(self._postfit_estimator.classes_)),
             )
         elif isinstance(X, dd._Frame):
             return X.map_partitions(_predict_proba, estimator=self._postfit_estimator)
         else:
             return _predict_proba(X, estimator=self._postfit_estimator)
+
+    def predict_log_proba(self, X):
+        """Log of proability estimates.
+
+        For dask inputs, a dask array or dataframe is returned. For other
+        inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
+        regular return value is returned.
+
+        If the underlying estimator does not have a ``predict_proba``
+        method, then an ``AttributeError`` is raised.
+
+        Parameters
+        ----------
+        X : array or dataframe
+
+        Returns
+        -------
+        y : array-like
+        """
+        self._check_method("predict_log_proba")
+        return da.log(self.predict_proba(X))
 
     def _check_method(self, method):
         """Check if self.estimator has 'method'.
@@ -365,7 +386,7 @@ class Incremental(ParallelPostFit):
     used during the call to ``fit``. All attributes learned during training
     are available on ``Incremental`` directly.
 
-    .. _list of incremental learners: http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning  # noqa
+    .. _list of incremental learners: https://scikit-learn.org/stable/modules/computing.html#incremental-learning  # noqa
 
     Parameters
     ----------

@@ -978,7 +978,7 @@ def test_search_cv_results_none_param():
     X, y = [[1], [2], [3], [4], [5]], [0, 0, 0, 0, 1]
     estimators = (DecisionTreeRegressor(), DecisionTreeClassifier())
     est_parameters = {"random_state": [0, None]}
-    cv = KFold(random_state=0, n_splits=3)
+    cv = KFold(random_state=0, n_splits=2)
 
     for est in estimators:
         grid_search = dcv.GridSearchCV(est, est_parameters, cv=cv).fit(X, y)

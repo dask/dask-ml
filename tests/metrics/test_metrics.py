@@ -63,6 +63,10 @@ def test_euclidean_distances_same():
     b = sklearn.metrics.euclidean_distances(X, X)
     assert_eq(a, b, atol=1e-4)
 
+    a = dask_ml.metrics.euclidean_distances(X)
+    b = sklearn.metrics.euclidean_distances(X)
+    assert_eq(a, b, atol=1e-4)
+
     x_norm_squared = (X ** 2).sum(axis=1).compute()[:, np.newaxis]
     assert_eq(X, X, Y_norm_squared=x_norm_squared, atol=1e-4)
 

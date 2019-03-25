@@ -83,7 +83,6 @@ def _generate_idx(n, seed, n_train, n_test):
     Notes
     -----
     """
-    # type: (int, int, int) -> Tuple[ndarray, ndarray]
     idx = check_random_state(seed).permutation(n)
 
     ind_test = idx[:n_test]
@@ -383,7 +382,7 @@ def train_test_split(*arrays, **options):
 
         The default behavior depends on the types in arrays. For Dask Arrays,
         the default is True (data are not shuffled between blocks). For Dask
-        DataFrames, the default and only allowed value is True (data are
+        DataFrames, the default and only allowed value is False (data are
         shuffled between blocks).
 
     Returns

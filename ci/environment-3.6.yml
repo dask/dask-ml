@@ -1,16 +1,13 @@
 name: dask-ml-test
 channels:
-  - defaults
   - conda-forge
+  - defaults
 dependencies:
   - black
-  # Cython for building scikit-learn dev. Switch to nightly
-  # when this is resolved:
-  # https://github.com/scikit-learn/scikit-learn/issues/9485
-  - Cython
   - coverage
   - codecov
   - flake8
+  - graphviz
   - heapdict
   - ipykernel
   - ipython
@@ -49,3 +46,4 @@ dependencies:
     - git+https://github.com/dask/dask-tensorflow.git
     - git+https://github.com/dask/dask-xgboost.git
     - dask_sphinx_theme >=1.1.0
+    - graphviz

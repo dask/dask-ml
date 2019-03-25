@@ -1,10 +1,11 @@
 name: dask-ml-test
 channels:
-  - defaults
   - conda-forge
+  - defaults
 dependencies:
   - coverage
   - flake8
+  - graphviz
   - heapdict
   - ipython
   - multipledispatch
@@ -12,7 +13,7 @@ dependencies:
   - nomkl
   - nose
   - numba
-  - numpy=1.15.0
+  - numpy
   - numpydoc
   - pandas
   - psutil
@@ -40,3 +41,4 @@ dependencies:
     - git+https://github.com/dask/distributed.git
     - git+https://github.com/dask/dask-tensorflow.git
     - git+https://github.com/dask/dask-xgboost.git
+    - graphviz
