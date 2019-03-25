@@ -286,10 +286,10 @@ class HyperbandSearchCV(IncrementalSearchCV):
             SHA.cv_results_["estimator_id"] = np.array(
                 [new_ids[old] for old in SHA.cv_results_["estimator_id"]]
             )
-            SHA.estimator_history_ = {
-                new_ids[old]: v for old, v in SHA.estimator_history_.items()
+            SHA.model_history_ = {
+                new_ids[old]: v for old, v in SHA.model_history_.items()
             }
-            for hist in SHA.estimator_history_.values():
+            for hist in SHA.model_history_.values():
                 for h in hist:
                     h["estimator_id"] = new_ids[h["estimator_id"]]
                     h["bracket"] = b
@@ -309,7 +309,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
         estimator_history = {
             ident: hist
             for SHA in SHAs.values()
-            for ident, hist in SHA.estimator_history_.items()
+            for ident, hist in SHA.model_history_.items()
         }
 
         # Order history by time
@@ -339,7 +339,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
         self.best_params_ = cv_results["params"][best_index]
         self.scorer_ = scorer
 
-        self.estimator_history_ = estimator_history
+        self.model_history_ = estimator_history
         self.history_ = history
         self.cv_results_ = cv_results
 

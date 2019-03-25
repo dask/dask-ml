@@ -559,7 +559,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         self.cv_results_ = cv_results
         self.scorer_ = scorer
         self.history_ = history
-        self.estimator_history_ = estimator_history
+        self.model_history_ = estimator_history
         self.best_estimator_ = best_estimator
         self.best_index_ = best_idx
         self.best_score_ = cv_results["test_score"][best_idx]
@@ -624,7 +624,7 @@ INC_ATTRS = """
         received on the hold out dataset. The key ``estimator_id`` corresponds with
         ``history_``. This dictionary can be imported into Pandas.
 
-    estimator_history_ : dict of lists of dict
+    model_history_ : dict of lists of dict
         A dictionary of each models history. This is a reorganization of
         ``history_``: the same information is present but organized per model.
 
