@@ -188,12 +188,12 @@ def newton(X, y, max_iter=50, tol=1e-8, family=Logistic, **kwargs):
 
         # should change this criterion
         coef_change = np.absolute(beta_old - beta)
+        n_iter += 1
         converged = (
             (not np.any(coef_change > tol)) or (n_iter >= max_iter))
 
         if not converged:
             Xbeta = dot(X, beta)  # numpy -> dask converstion of beta
-            n_iter += 1
 
     return beta, n_iter
 
