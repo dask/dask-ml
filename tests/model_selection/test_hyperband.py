@@ -6,7 +6,6 @@ import numpy as np
 import pytest
 import scipy.stats
 from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
-from sklearn.datasets import make_classification as sk_make_classification
 from sklearn.linear_model import SGDClassifier
 
 from dask_ml.datasets import make_classification
@@ -72,10 +71,9 @@ def test_basic(array_type, library, max_iter):
             assert score == max(
                 hist[-1]["score"] for hist in search.model_history_.values()
             )
-        elif array_type == "numpy":
+        elif library == "sklearn":
             score = search.best_estimator_.score(X, y)
             assert 0 <= score <= 1
-            assert score == search.best_score_
             assert abs(score - search.best_score_) < 0.1
         assert type(search.best_estimator_) == type(model)
         assert isinstance(search.best_params_, dict)
