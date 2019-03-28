@@ -3,45 +3,48 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - black
   - coverage
-  - distributed==1.25.3
-  - dask==1.0.0
+  - codecov
   - flake8
   - graphviz
   - heapdict
+  - ipykernel
   - ipython
-  - multipledispatch ==0.4.9
+  - isort
+  - multipledispatch
   - nbsphinx
   - nomkl
   - nose
   - numba
-  - numpy ==1.15.4
+  - numpy
   - numpydoc
   - pandas
-  - pandas==0.23.4
   - psutil
   - pytest
   - pytest-cov
   - pytest-mock
-  - python=2.7.14
-  - scikit-learn==0.20.0
+  - python=3.7.*
+  - sortedcontainers
   - scikit-learn>=0.20.0
   - scipy
   - six
-  - sortedcontainers
   - sparse
   - sphinx
-  - sphinx-gallery
   - sphinx_rtd_theme
+  - sphinx-gallery
   - tensorflow
   - testpath<0.4
-  - toolz
   - tornado
+  - toolz
   - xgboost
   - zict
   - pip:
     - dask-glm
+    - dask_sphinx_theme >=1.1.0
     - git+https://github.com/dask/dask-tensorflow.git
     - git+https://github.com/dask/dask-xgboost.git
+    - git+https://github.com/dask/dask.git
+    - git+https://github.com/dask/distributed.git
     - graphviz
     - pytest-azurepipelines
