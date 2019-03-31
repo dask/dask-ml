@@ -165,24 +165,32 @@ DOC = (
     To set ``max_iter`` and the chunk size for ``X`` and ``y``, it is required
     to know
 
-    * how many "epochs" or "passes through ``X``" to train the model for
-      (``epochs`` below)
+    * how many "epochs" or "passes through the data ``X``" to train the model
+      for (``epochs`` below)
     * a rough idea of how many hyper-parameter combinations to sample
       (``params_to_sample`` below)
 
     To determine the chunk size and ``max_iter``,
 
-    1. Let ``max_iter = params_to_sample``
-    2. Let the chunks size be ``chunks_size = epochs * len(X) / params_to_sample``
+    1. Let the chunks size be ``chunk_size = epochs * len(X) / params_to_sample``
+    2. Let ``max_iter = params_to_sample``
 
-    Then, the estimator that sees the most examples see
-    ``max_iter * chunks_size = len(X) * epochs`` examples. Hyperband will
-    actually sample some more hyper-parameter combinations, so a rough idea of
-    parameters to sample works.
+    where `len(X)` is the number of examples. Then, the estimator that sees the
+    most examples see ``max_iter * chunk_size = len(X) * epochs`` examples.
+    Hyperband will actually sample some more hyper-parameter combinations,
+    so a rough idea of parameters to sample works.
 
-    If the search space is complex, evaluate more estimators initially. Increase
-    ``params_to_sample`` by a factor of 2, and decrease ``chunk_size`` by a
-    factor of 2.
+    For instance, let's say about 200 or 300 hyper-parameters need to be tested
+    to effectively search the possible hyper-parameters and estimators need a
+    little less than 100 epochs to converge. This will mean the dataset should
+    have chunks that are about 1/3rd of the entire dataset, and ``max_iter`` is
+    between 200 and 300.
+
+    If the search space is larger or more complex, choose to evaluate more
+    hyper-parameters. Increase the parameters to sample by a factor of 2 by:
+
+    * increasing ``params_to_sample`` by a factor of 2
+    * decreasing ``chunk_size`` by a factor of 2.
 
     Limitations
     ^^^^^^^^^^^
