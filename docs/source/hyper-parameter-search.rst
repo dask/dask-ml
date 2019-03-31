@@ -246,10 +246,6 @@ These estimators act identically. The example will use
 
 .. note::
 
-   These estimators require the optional ``distributed`` library.
-
-.. note::
-
    These estimators require that the estimator implement ``partial_fit``
 
 By default, :ref:`~dask_ml.model_selection.SuccessiveHalvingSearchCV` calls
