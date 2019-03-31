@@ -332,7 +332,7 @@ niceties:
   ``n_initial_parameters``).
 
 More detail and performance comparisons with
-:ref:`~dask_ml.model_selection.IncrementalSearchCV` are in the Dask blog: .
+:ref:`~dask_ml.model_selection.IncrementalSearchCV` are in the Dask blog: TODO.
 
 :ref:`~dask_ml.model_selection.IncrementalSearchCV` can adapt to previous
 scores by changing ``decay_rate`` (``decay_rate=1`` is suggested `if` it's
