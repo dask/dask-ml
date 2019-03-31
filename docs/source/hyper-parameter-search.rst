@@ -11,71 +11,60 @@ Scaling a hyper-parameter optimization means that the problem becomes either
 1. compute constrained
 2. memory constrained
 
-These issues are independent and both can happen the same time. Being memory
-constrained has to do with dataset size, and being compute constrained has to
-do with estimator complexity and number of possible hyper-parameter
-combinations.
+These issues are independent and both can happen the same time.  Examples:
 
-Training a deep neural network is a compute-constrained problem. Training on a
-larger-than-memory dataset is a memory-constrained problem. Dask-ML covers all
-4 combinations of these two constraints.
+* Having many hyper-parameters leads to compute constrained problems. e.g., the
+  hyper-parameters in a neural network (learning rate, etc)
+* Having a larger-than-memory dataset leads to memory constrained problems.
+
+Dask-ML has work in all 4 combinations of these two constraints.
 
 Neither compute nor memory constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Scikit-learn handles this case.
+Scikit-learn handles this case:
 
 .. autosummary::
    sklearn.model_selection.GridSearchCV
    sklearn.model_selection.RandomizedSearchCV
 
-Dask-ML has drop-in replacements :ref:`detailed below
-<hyperparameter.dasksearchcv>` that can ease some compute constraints by
-avoiding repeated work.
-
-.. _hyperparameter.dasksearchcv:
-
 Compute constrained, but not memory constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-More detail in :ref:`hyperparameter.drop-in`
+
+Dask-ML has some drop in replacements for the Scikit-learn versions that ease
+the amount of compute required:
 
 .. autosummary::
    dask_ml.model_selection.GridSearchCV
    dask_ml.model_selection.RandomizedSearchCV
 
-They are drop in replacement for the Scikit-learn versions.
+There avoid unnecessary compute by avoiding repeated work. More detail is in
+:ref:`hyperparameter.drop-in`.
 
-:class:`~dask_ml.model_selection.GridSearchCV` and
-:class:`~dask_ml.model_selection.RandomizedSearchCV` work best if each CV split
-fits in a single worker's RAM because ``fit`` is called on each cross
-validation split of the data. If each cross validation split does not fit into
-RAM, look :ref:`below <hyperparameter.memory>`.
-
-.. _hyperparamter.memory:
+These estimators call `fit` on the data provided. The data provided to `fit`
+should fit in the RAM of one worker.
 
 Memory constrained, but not compute constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-More detail in :ref:`hyperparameter.incremental`.
+
+This estimator calls ``partial_fit`` on each chunk of the data.
 
 .. autosummary::
    dask_ml.model_selection.IncrementalSearchCV
 
-:class:`~dask_ml.model_selection.IncrementalSearchCV` calls ``partial_fit`` on
-each chunk of the data.
+By default, this estimator mirrors randomized or grid search but generalizes to
+larger datasets. More detail is in
+:ref:`hyperparameter.incremental`.
 
 Compute and memory constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autosummary::
-   dask_ml.model_selection.IncrementalSearchCV
-
-This requires changing the ``decay_rate`` to be non-zero. The recommended value
-is ``decay_rate=1``.
+   dask_ml.model_selection.HyperbandSearchCV
+   dask_ml.model_selection.SuccessiveHalvingSearchCV
 
 These searches can reduce time to solution by (cleverly) deciding which
-parameters to evaluate.  These searches *adapt* to history to decide which
-parameters to continue evaluating and are called "*adaptive* model selection
-algorithms". These classes require that the estimator implement
-``partial_fit``.
+parameters to evaluate. These searches *adapt* to history to decide which
+parameters to continue evaluating.
 
 .. _hyperparameter.drop-in:
 
@@ -249,20 +238,32 @@ Incremental Hyperparameter Optimization
 
 .. autosummary::
    dask_ml.model_selection.IncrementalSearchCV
+   dask_ml.model_selection.HyperbandSearchCV
+   dask_ml.model_selection.SuccessiveHalvingSearchCV
+
+These estimators act identically. The example will use
+:ref:`~dask_ml.model_selection.HyperbandSearchCV`.
 
 .. note::
 
    These estimators require the optional ``distributed`` library.
 
-These make repeated calls to the ``partial_fit`` method of the estimator.
-Naturally, these classes determine when to stop calling ``partial_fit`` by
-`adapting to previous calls`.
-:class:`~dask_ml.model_selection.IncrementalSearchCV` implements the most basic
-adaptation scheme: training stops when the score stops improving.
+.. note::
 
+   These estimators require that the estimator implement ``partial_fit``
+
+By default, :ref:`~dask_ml.model_selection.SuccessiveHalvingSearchCV` calls
+``partial_fit`` on each chunk of the data. It can stop training any estimators if
+their score stops increasing (via ``patience`` and ``tol``).
+
+First, let's look at basic usage. Some more adaptive use will be detailed in
+:ref:`hyperparameter.adaptive`.
 
 Basic use
 ^^^^^^^^^
+
+This section uses :ref:`~dask_ml.model_selection.HyperbandSearchCV`, but it can
+also be applied to to :ref:`~dask_ml.model_selection.IncrementalSearchCV` too.
 
 .. ipython:: python
 
@@ -272,13 +273,13 @@ Basic use
     from dask_ml.datasets import make_classification
     X, y = make_classification(chunks=20, random_state=0)
 
-Our underlying estimator is an :class:`sklearn.linear_model.SGDClasifier`. We specify a few parameters
-common to each clone of the estimator:
+Our underlying estimator is an :class:`sklearn.linear_model.SGDClasifier`. We
+specify a few parameters common to each clone of the estimator:
 
 .. ipython:: python
 
     from sklearn.linear_model import SGDClassifier
-    model = SGDClassifier(tol=1e-3, penalty='elasticnet', random_state=0)
+    clf = SGDClassifier(tol=1e-3, penalty='elasticnet', random_state=0)
 
 We also define the distribution of parameters from which we will sample:
 
@@ -294,9 +295,9 @@ train-and-score them until we find the best one.
 
 .. ipython:: python
 
-    from dask_ml.model_selection import IncrementalSearchCV
+    from dask_ml.model_selection import HyperbandSearchCV
 
-    search = IncrementalSearchCV(model, params, 9, random_state=0)
+    search = HyperbandSearchCV(clf, params, max_iter=81, random_state=0)
     search.fit(X, y, classes=[0, 1]);
     search.best_score_
     search.best_params_
@@ -313,10 +314,30 @@ to use post-estimation features like scoring or prediction, we recommend using
    params = {'estimator__alpha': np.logspace(-2, 1, num=1000),
              'estimator__l1_ratio': np.linspace(0, 1, num=1000)}
    est = ParallelPostFit(SGDClassifier(tol=1e-3, random_state=0))
-   search = IncrementalSearchCV(est, params, n_initial_parameters=9, random_state=0)
+   search = HyperbandSearchCV(est, params, max_iter=9, random_state=0)
    search.fit(X, y, classes=[0, 1]);
    search.score(X, y)
 
 Note that the parameter names include the ``estimator__`` prefix, as we're
 tuning the hyperparameters of the :class:`sklearn.linear_model.SGDClasifier`
 that's underlying the :class:`dask_ml.wrappers.ParallelPostFit`.
+
+.. _hyperparameter.adaptive:
+
+Adaptive Hyperparameter Optimization
+------------------------------------
+
+:ref:`~dask_ml.model_selection.HyperbandSearchCV` determines when to
+stop calling ``partial_fit`` by `adapting to previous calls`. It has several
+niceties:
+
+* it finds high performing estiamtors
+* it only requires ``max_iter`` (and does not require
+  ``n_initial_parameters``).
+
+More detail and performance comparisons with
+:ref:`~dask_ml.model_selection.IncrementalSearchCV` are in the Dask blog: .
+
+:ref:`~dask_ml.model_selection.IncrementalSearchCV` can adapt to previous
+scores by changing ``decay_rate`` (``decay_rate=1`` is suggested `if` it's
+changed).
