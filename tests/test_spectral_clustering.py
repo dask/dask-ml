@@ -40,6 +40,7 @@ def test_sklearn_kmeans(assign_labels):
 
 
 def test_callable_affinity():
+    X, _ = make_blobs(n_samples=200, chunks=100, random_state=0)
     affinity = partial(
         metrics.pairwise.pairwise_kernels, metric="rbf", filter_params=True
     )
