@@ -52,10 +52,12 @@ def test_incremental_basic(scheduler, dataframes):
         assert result is clf
 
         # est2 is a sklearn optimizer; this is just a benchmark
-        _X = X if not dataframes else X.to_dask_array(lengths=True)
-        _y = y if not dataframes else y.to_dask_array(lengths=True)
-        for slice_ in da.core.slices_from_chunks(_X.chunks):
-            est2.partial_fit(_X[slice_], _y[slice_[0]], classes=[0, 1])
+        if dataframes:
+            X = X.to_dask_array(lengths=True)
+            y = y.to_dask_array(lengths=True)
+
+        for slice_ in da.core.slices_from_chunks(X.chunks):
+            est2.partial_fit(X[slice_], y[slice_[0]], classes=[0, 1])
 
         assert isinstance(result.estimator_.coef_, np.ndarray)
         rel_error = np.linalg.norm(clf.coef_ - est2.coef_)
