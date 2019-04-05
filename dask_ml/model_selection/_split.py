@@ -366,8 +366,8 @@ def train_test_split(*arrays, **options):
     Parameters
     ----------
     *arrays : Sequence of Dask Arrays
-    test_size : float or int, defualt 0.1
-    train_size: float or int, optional
+    test_size : float or int, default 0.1
+    train_size : float or int, optional
     random_state : int, RandomState instance or None, optional (default=None)
         If int, random_state is the seed used by the random number generator;
         If RandomState instance, random_state is the random number generator;
@@ -392,8 +392,8 @@ def train_test_split(*arrays, **options):
 
     Examples
     --------
-    import dask.array as da
-    from dask_ml.datasets import make_regression
+    >>> import dask.array as da
+    >>> from dask_ml.datasets import make_regression
 
     >>> X, y = make_regression(n_samples=125, n_features=4, chunks=50,
     ...                    random_state=0)
