@@ -16,7 +16,6 @@ from dask_ml.utils import check_array, check_matching_blocks
 
 from .._utils import draw_seed
 
-
 logger = logging.getLogger(__name__)
 
 
