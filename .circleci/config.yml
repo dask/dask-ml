@@ -91,7 +91,7 @@ jobs:
           command: |
             source activate ${ENV_NAME}
             conda uninstall -y --force scikit-learn
-            pip install --pre git+https://github.com/scikit-learn/scikit-learn
+            pip install --pre -f https://sklearn-nightly.scdn8.secure.raxcdn.com scikit-learn
       - run:
           command: |
             source activate ${ENV_NAME}
