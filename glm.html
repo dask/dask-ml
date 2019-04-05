@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.1.dev6+gce81ad1
+                0.12.1.dev7+g354bf47
               </div>
             
           
@@ -244,20 +244,20 @@
             
   <div class="section" id="generalized-linear-models">
 <h1>Generalized Linear Models<a class="headerlink" href="#generalized-linear-models" title="Permalink to this headline">¶</a></h1>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-center">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.linear_model.LinearRegression.html#dask_ml.linear_model.LinearRegression" title="dask_ml.linear_model.LinearRegression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LinearRegression</span></code></a>([penalty,&nbsp;dual,&nbsp;tol,&nbsp;C,&nbsp;…])</td>
-<td>Esimator for linear regression.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="modules/generated/dask_ml.linear_model.LinearRegression.html#dask_ml.linear_model.LinearRegression" title="dask_ml.linear_model.LinearRegression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LinearRegression</span></code></a>([penalty, dual, tol, C, …])</p></td>
+<td><p>Esimator for linear regression.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.linear_model.LogisticRegression.html#dask_ml.linear_model.LogisticRegression" title="dask_ml.linear_model.LogisticRegression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LogisticRegression</span></code></a>([penalty,&nbsp;dual,&nbsp;tol,&nbsp;C,&nbsp;…])</td>
-<td>Esimator for logistic regression.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="modules/generated/dask_ml.linear_model.LogisticRegression.html#dask_ml.linear_model.LogisticRegression" title="dask_ml.linear_model.LogisticRegression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LogisticRegression</span></code></a>([penalty, dual, tol, C, …])</p></td>
+<td><p>Esimator for logistic regression.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.linear_model.PoissonRegression.html#dask_ml.linear_model.PoissonRegression" title="dask_ml.linear_model.PoissonRegression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PoissonRegression</span></code></a>([penalty,&nbsp;dual,&nbsp;tol,&nbsp;C,&nbsp;…])</td>
-<td>Esimator for poisson regression.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="modules/generated/dask_ml.linear_model.PoissonRegression.html#dask_ml.linear_model.PoissonRegression" title="dask_ml.linear_model.PoissonRegression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PoissonRegression</span></code></a>([penalty, dual, tol, C, …])</p></td>
+<td><p>Esimator for poisson regression.</p></td>
 </tr>
 </tbody>
 </table>
@@ -291,57 +291,53 @@ and dataframes.</p>
 </div>
 <div class="section" id="algorithms">
 <h2>Algorithms<a class="headerlink" href="#algorithms" title="Permalink to this headline">¶</a></h2>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-center">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference external" href="https://dask-glm.readthedocs.io/en/latest/api.html#dask_glm.algorithms.admm" title="(in dask-glm v0.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">admm</span></code></a>(X,&nbsp;y[,&nbsp;regularizer,&nbsp;lamduh,&nbsp;rho,&nbsp;…])</td>
-<td>Alternating Direction Method of Multipliers</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference external" href="https://dask-glm.readthedocs.io/en/latest/api.html#dask_glm.algorithms.admm" title="(in dask-glm v0.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">admm</span></code></a>(X, y[, regularizer, lamduh, rho, …])</p></td>
+<td><p>Alternating Direction Method of Multipliers</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference external" href="https://dask-glm.readthedocs.io/en/latest/api.html#dask_glm.algorithms.gradient_descent" title="(in dask-glm v0.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gradient_descent</span></code></a>(X,&nbsp;y[,&nbsp;max_iter,&nbsp;tol,&nbsp;family])</td>
-<td>Michael Grant’s implementation of Gradient Descent.</td>
+<tr class="row-even"><td><p><a class="reference external" href="https://dask-glm.readthedocs.io/en/latest/api.html#dask_glm.algorithms.gradient_descent" title="(in dask-glm v0.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gradient_descent</span></code></a>(X, y[, max_iter, tol, family])</p></td>
+<td><p>Michael Grant’s implementation of Gradient Descent.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference external" href="https://dask-glm.readthedocs.io/en/latest/api.html#dask_glm.algorithms.lbfgs" title="(in dask-glm v0.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lbfgs</span></code></a>(X,&nbsp;y[,&nbsp;regularizer,&nbsp;lamduh,&nbsp;max_iter,&nbsp;…])</td>
-<td>L-BFGS solver using scipy.optimize implementation</td>
+<tr class="row-odd"><td><p><a class="reference external" href="https://dask-glm.readthedocs.io/en/latest/api.html#dask_glm.algorithms.lbfgs" title="(in dask-glm v0.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lbfgs</span></code></a>(X, y[, regularizer, lamduh, max_iter, …])</p></td>
+<td><p>L-BFGS solver using scipy.optimize implementation</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference external" href="https://dask-glm.readthedocs.io/en/latest/api.html#dask_glm.algorithms.newton" title="(in dask-glm v0.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">newton</span></code></a>(X,&nbsp;y[,&nbsp;max_iter,&nbsp;tol,&nbsp;family])</td>
-<td>Newtons Method for Logistic Regression.</td>
+<tr class="row-even"><td><p><a class="reference external" href="https://dask-glm.readthedocs.io/en/latest/api.html#dask_glm.algorithms.newton" title="(in dask-glm v0.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">newton</span></code></a>(X, y[, max_iter, tol, family])</p></td>
+<td><p>Newtons Method for Logistic Regression.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference external" href="https://dask-glm.readthedocs.io/en/latest/api.html#dask_glm.algorithms.proximal_grad" title="(in dask-glm v0.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">proximal_grad</span></code></a>(X,&nbsp;y[,&nbsp;regularizer,&nbsp;lamduh,&nbsp;…])</td>
-<td><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
-</td>
+<tr class="row-odd"><td><p><a class="reference external" href="https://dask-glm.readthedocs.io/en/latest/api.html#dask_glm.algorithms.proximal_grad" title="(in dask-glm v0.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">proximal_grad</span></code></a>(X, y[, regularizer, lamduh, …])</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="regularizers">
 <h2>Regularizers<a class="headerlink" href="#regularizers" title="Permalink to this headline">¶</a></h2>
-<table border="1" class="longtable docutils">
+<table class="longtable docutils align-center">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference external" href="https://dask-glm.readthedocs.io/en/latest/api.html#dask_glm.regularizers.ElasticNet" title="(in dask-glm v0.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ElasticNet</span></code></a>([weight])</td>
-<td>Elastic net regularization.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference external" href="https://dask-glm.readthedocs.io/en/latest/api.html#dask_glm.regularizers.ElasticNet" title="(in dask-glm v0.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ElasticNet</span></code></a>([weight])</p></td>
+<td><p>Elastic net regularization.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference external" href="https://dask-glm.readthedocs.io/en/latest/api.html#dask_glm.regularizers.L1" title="(in dask-glm v0.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">L1</span></code></a></td>
-<td>L1 regularization.</td>
+<tr class="row-even"><td><p><a class="reference external" href="https://dask-glm.readthedocs.io/en/latest/api.html#dask_glm.regularizers.L1" title="(in dask-glm v0.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">L1</span></code></a></p></td>
+<td><p>L1 regularization.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference external" href="https://dask-glm.readthedocs.io/en/latest/api.html#dask_glm.regularizers.L2" title="(in dask-glm v0.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">L2</span></code></a></td>
-<td>L2 regularization.</td>
+<tr class="row-odd"><td><p><a class="reference external" href="https://dask-glm.readthedocs.io/en/latest/api.html#dask_glm.regularizers.L2" title="(in dask-glm v0.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">L2</span></code></a></p></td>
+<td><p>L2 regularization.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference external" href="https://dask-glm.readthedocs.io/en/latest/api.html#dask_glm.regularizers.Regularizer" title="(in dask-glm v0.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Regularizer</span></code></a></td>
-<td>Abstract base class for regularization object.</td>
+<tr class="row-even"><td><p><a class="reference external" href="https://dask-glm.readthedocs.io/en/latest/api.html#dask_glm.regularizers.Regularizer" title="(in dask-glm v0.1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Regularizer</span></code></a></p></td>
+<td><p>Abstract base class for regularization object.</p></td>
 </tr>
 </tbody>
 </table>

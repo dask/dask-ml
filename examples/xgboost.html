@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.1.dev6+gce81ad1
+                0.12.1.dev7+g354bf47
               </div>
             
           
@@ -477,17 +477,6 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-/home/travis/miniconda/envs/dask-ml/lib/python3.6/site-packages/dask/config.py:168: YAMLLoadWarning: calling yaml.load() without Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.
-  data = yaml.load(f.read()) or {}
-/home/travis/miniconda/envs/dask-ml/lib/python3.6/site-packages/distributed/config.py:20: YAMLLoadWarning: calling yaml.load() without Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.
-  defaults = yaml.load(f)
-</pre></div></div>
-</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -498,7 +487,7 @@ div.rendered_html tbody tr:hover {
 <td style="vertical-align: top; border: 0px solid white">
 <h3>Client</h3>
 <ul>
-  <li><b>Scheduler: </b>tcp://127.0.0.1:38662
+  <li><b>Scheduler: </b>tcp://127.0.0.1:33499
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
@@ -571,28 +560,18 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>dask-xgboost is a small wrapper around xgboost. Dask sets XGBoost up, gives XGBoost data and lets XGBoost do it’s training in the background using all the workers Dask has available.</p>
 <p>Let’s do some training:</p>
-<div class="nbinput docutils container">
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="o">%%time</span>
-<span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;objective&#39;</span><span class="p">:</span> <span class="s1">&#39;binary:logistic&#39;</span><span class="p">,</span>
+<span></span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;objective&#39;</span><span class="p">:</span> <span class="s1">&#39;binary:logistic&#39;</span><span class="p">,</span>
           <span class="s1">&#39;max_depth&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;eta&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s1">&#39;subsample&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
           <span class="s1">&#39;min_child_weight&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">}</span>
 
 <span class="n">bst</span> <span class="o">=</span> <span class="n">dask_xgboost</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">num_boost_round</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-CPU times: user 2.38 s, sys: 60 ms, total: 2.44 s
-Wall time: 10.8 s
-</pre></div></div>
 </div>
 </div>
 <div class="section" id="Visualize-results">
@@ -612,7 +591,7 @@ Wall time: 10.8 s
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>&lt;xgboost.core.Booster at 0x2b319fb4e4e0&gt;
+<span></span>&lt;xgboost.core.Booster at 0x2b1e038cf208&gt;
 </pre></div>
 </div>
 </div>
@@ -713,11 +692,11 @@ Wall time: 10.8 s
 <div class="section" id="Learn-more">
 <h2>Learn more<a class="headerlink" href="#Learn-more" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Similar example that uses DataFrames for a real world dataset: <a class="reference external" href="http://ml.dask.org/examples/xgboost.html">http://ml.dask.org/examples/xgboost.html</a></li>
-<li>Recorded screencast stepping through the real world example above:</li>
-<li>A blogpost on dask-xgboost <a class="reference external" href="http://matthewrocklin.com/blog/work/2017/03/28/dask-xgboost">http://matthewrocklin.com/blog/work/2017/03/28/dask-xgboost</a></li>
-<li>XGBoost documentation: <a class="reference external" href="https://xgboost.readthedocs.io/en/latest/python/python_intro">https://xgboost.readthedocs.io/en/latest/python/python_intro</a>.html#</li>
-<li>Dask-XGBoost documentation: <a class="reference external" href="http://ml.dask.org/xgboost.html">http://ml.dask.org/xgboost.html</a></li>
+<li><p>Similar example that uses DataFrames for a real world dataset: <a class="reference external" href="http://ml.dask.org/examples/xgboost.html">http://ml.dask.org/examples/xgboost.html</a></p></li>
+<li><p>Recorded screencast stepping through the real world example above:</p></li>
+<li><p>A blogpost on dask-xgboost <a class="reference external" href="http://matthewrocklin.com/blog/work/2017/03/28/dask-xgboost">http://matthewrocklin.com/blog/work/2017/03/28/dask-xgboost</a></p></li>
+<li><p>XGBoost documentation: <a class="reference external" href="https://xgboost.readthedocs.io/en/latest/python/python_intro">https://xgboost.readthedocs.io/en/latest/python/python_intro</a>.html#</p></li>
+<li><p>Dask-XGBoost documentation: <a class="reference external" href="http://ml.dask.org/xgboost.html">http://ml.dask.org/xgboost.html</a></p></li>
 </ul>
 </div>
 </div>

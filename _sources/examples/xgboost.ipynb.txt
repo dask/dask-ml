@@ -136,7 +136,6 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "%%time\n",
     "params = {'objective': 'binary:logistic',\n",
     "          'max_depth': 4, 'eta': 0.01, 'subsample': 0.5, \n",
     "          'min_child_weight': 0.5}\n",
@@ -295,7 +294,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.6.4"
+   "version": "3.6.7"
   }
  },
  "nbformat": 4,

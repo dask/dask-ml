@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.1.dev6+gce81ad1
+                0.12.1.dev7+g354bf47
               </div>
             
           
@@ -475,8 +475,8 @@ div.rendered_html tbody tr:hover {
 <p>This notebook demonstrates the use of Dask-ML’s <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> meta-estimator, which automates the use of Scikit-Learn’s <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> over Dask arrays and dataframes. Scikit-Learn handles all of the computation while Dask handles the data management, loading and moving batches of data as necessary. This allows scaling to large datasets distributed across many machines, or to datasets that do not fit in memory, all with a familiar workflow.</p>
 <p>This example shows …</p>
 <ul class="simple">
-<li>wrapping a Scikit-Learn estimator that implements <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> with the <a class="reference external" href="http://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental">Dask-ML Incremental</a> meta-estimator</li>
-<li>training, predicting, and scoring on this wrapped estimator</li>
+<li><p>wrapping a Scikit-Learn estimator that implements <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> with the <a class="reference external" href="http://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental">Dask-ML Incremental</a> meta-estimator</p></li>
+<li><p>training, predicting, and scoring on this wrapped estimator</p></li>
 </ul>
 <p>Although this example uses Scikit-Learn’s SGDClassifer, the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> meta-estimator will work for any class that implements <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> and the <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html">scikit-learn base estimator API</a>.</p>
 <div class="section" id="Setup-Dask">
@@ -494,17 +494,6 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-/home/travis/miniconda/envs/dask-ml/lib/python3.6/site-packages/dask/config.py:168: YAMLLoadWarning: calling yaml.load() without Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.
-  data = yaml.load(f.read()) or {}
-/home/travis/miniconda/envs/dask-ml/lib/python3.6/site-packages/distributed/config.py:20: YAMLLoadWarning: calling yaml.load() without Loader=... is deprecated, as the default Loader is unsafe. Please read https://msg.pyyaml.org/load for full details.
-  defaults = yaml.load(f)
-</pre></div></div>
-</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -515,7 +504,7 @@ div.rendered_html tbody tr:hover {
 <td style="vertical-align: top; border: 0px solid white">
 <h3>Client</h3>
 <ul>
-  <li><b>Scheduler: </b>tcp://127.0.0.1:33869
+  <li><b>Scheduler: </b>tcp://127.0.0.1:46255
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
@@ -700,7 +689,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.5835
+<span></span>0.5824
 </pre></div>
 </div>
 </div>
@@ -734,16 +723,16 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Score: 0.6013
-Score: 0.5975
-Score: 0.5865
-Score: 0.5915
-Score: 0.6198
-Score: 0.6273
-Score: 0.6269
-Score: 0.6218
-Score: 0.6258
-Score: 0.6288
+Score: 0.5766
+Score: 0.5781
+Score: 0.5768
+Score: 0.5911
+Score: 0.6042
+Score: 0.6065
+Score: 0.6244
+Score: 0.6097
+Score: 0.6235
+Score: 0.6161
 </pre></div></div>
 </div>
 </div>
@@ -782,11 +771,11 @@ Score: 0.6288
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>array([1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0,
-       1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0,
-       0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0,
-       1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0,
-       0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1])
+<span></span>array([0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1,
+       1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1,
+       1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0,
+       0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+       1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0])
 </pre></div>
 </div>
 </div>
@@ -804,7 +793,7 @@ Score: 0.6288
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.6288
+<span></span>0.6161
 </pre></div>
 </div>
 </div>
@@ -813,10 +802,10 @@ Score: 0.6288
 <h2>Learn more<a class="headerlink" href="#Learn-more" title="Permalink to this headline">¶</a></h2>
 <p>In this notebook we went over using Dask-ML’s <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> meta-estimator to automate the process of incremental training with Scikit-Learn estimators that implement the <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> method. If you want to learn more about this process you might want to investigate the following documentation:</p>
 <ol class="arabic simple">
-<li><a class="reference external" href="http://scikit-learn.org/stable/modules/scaling_strategies.html">http://scikit-learn.org/stable/modules/scaling_strategies.html</a></li>
-<li><a class="reference external" href="http://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental">Dask-ML Incremental API documentation</a></li>
-<li><a class="reference external" href="http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning">List of Scikit-Learn estimators compatible with Dask-ML’s Incremental</a></li>
-<li>For more info on the train-test split for model evaluation, see <a class="reference external" href="https://jakevdp.github.io/PythonDataScienceHandbook/05.03-hyperparameters-and-model-validation.html">Hyperparameters and Model Validation</a>.</li>
+<li><p><a class="reference external" href="http://scikit-learn.org/stable/modules/scaling_strategies.html">http://scikit-learn.org/stable/modules/scaling_strategies.html</a></p></li>
+<li><p><a class="reference external" href="http://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental">Dask-ML Incremental API documentation</a></p></li>
+<li><p><a class="reference external" href="http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning">List of Scikit-Learn estimators compatible with Dask-ML’s Incremental</a></p></li>
+<li><p>For more info on the train-test split for model evaluation, see <a class="reference external" href="https://jakevdp.github.io/PythonDataScienceHandbook/05.03-hyperparameters-and-model-validation.html">Hyperparameters and Model Validation</a>.</p></li>
 </ol>
 </div>
 </div>
