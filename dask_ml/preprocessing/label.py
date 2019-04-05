@@ -146,7 +146,7 @@ class LabelEncoder(sklabel.LabelEncoder):
             return _encode_dask_array(y, self.classes_, encode=True)[1]
         elif isinstance(y, (pd.Series, dd.Series)):
             assert y.dtype.categories.equals(self.dtype_.categories)
-            return y.cat.codes.values
+            return y.cat.codes
         else:
             return np.searchsorted(self.classes_, y)
 
