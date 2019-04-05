@@ -9,11 +9,7 @@ import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import sklearn.model_selection as ms
-from sklearn.model_selection._split import (
-    BaseCrossValidator,
-    _validate_shuffle_split,
-    _validate_shuffle_split_init,
-)
+from sklearn.model_selection._split import BaseCrossValidator, _validate_shuffle_split
 from sklearn.utils import check_random_state
 
 from dask_ml.utils import check_array, check_matching_blocks
@@ -142,7 +138,6 @@ class ShuffleSplit(BaseCrossValidator):
         blockwise=True,
         random_state=None,
     ):
-        _validate_shuffle_split_init(test_size, train_size)
         self.n_splits = n_splits
         self.test_size = test_size
         self.train_size = train_size
