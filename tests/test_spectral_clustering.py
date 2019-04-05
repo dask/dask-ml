@@ -41,7 +41,10 @@ def test_sklearn_kmeans(assign_labels):
 
 def test_callable_affinity():
     affinity = partial(
-        metrics.pairwise.pairwise_kernels, metric="rbf", filter_params=True
+        metrics.pairwise.pairwise_kernels,
+        metric="rbf",
+        filter_params=True,
+        gamma=1.0 / len(X),
     )
     sc = SpectralClustering(affinity=affinity, gamma=None)
     sc.fit(X)
