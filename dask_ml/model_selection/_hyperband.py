@@ -129,11 +129,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
         that model. The most recent score must be at at most ``tol`` better
         than the all of the previous ``patience`` scores for that model.
         Increasing ``tol`` will tend to reduce training time, at the cost
-        of worse estimators.
-
-    **kwargs : dict, optional
-        Parameters to pass to
-        :func:`~dask_ml.model_selection.IncrementalSearchCV`
+        of (potentially) worse estimators.
 
     Examples
     --------
@@ -277,7 +273,6 @@ class HyperbandSearchCV(IncrementalSearchCV):
         test_size=None,
         patience=False,
         tol=1e-3,
-        scores_per_fit=1,
         random_state=None,
         scoring=None,
     ):
@@ -293,7 +288,6 @@ class HyperbandSearchCV(IncrementalSearchCV):
             patience=patience,
             tol=tol,
             test_size=test_size,
-            scores_per_fit=scores_per_fit,
             random_state=random_state,
             scoring=scoring,
         )
@@ -322,7 +316,6 @@ class HyperbandSearchCV(IncrementalSearchCV):
                     patience=patience,
                     tol=self.tol,
                     test_size=self.test_size,
-                    scores_per_fit=self.scores_per_fit,
                     random_state=seed_start + b if b != 0 else self.random_state,
                     scoring=self.scoring,
                 ),

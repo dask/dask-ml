@@ -127,7 +127,6 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         test_size=None,
         patience=False,
         tol=1e-3,
-        scores_per_fit=1,
         random_state=None,
         scoring=None,
     ):
@@ -150,7 +149,6 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
             test_size=test_size,
             patience=patience,
             tol=tol,
-            scores_per_fit=scores_per_fit,
             random_state=random_state,
             scoring=scoring,
         )

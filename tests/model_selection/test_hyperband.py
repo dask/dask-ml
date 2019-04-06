@@ -270,7 +270,6 @@ def test_correct_params():
         "test_size",
         "patience",
         "tol",
-        "scores_per_fit",
         "random_state",
         "scoring",
     }
@@ -298,7 +297,6 @@ def test_params_passed():
         "estimator": ConstantFunction(value=0.4),
         "max_iter": 253,
         "random_state": 42,
-        "scores_per_fit": 3,
         "scoring": False,
         "test_size": 0.212,
         "tol": 0,
