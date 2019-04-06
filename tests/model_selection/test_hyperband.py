@@ -41,8 +41,7 @@ def test_basic(array_type, library, max_iter):
         y = da.sign(X.dot(coef_star))
 
         if array_type == "numpy":
-            X = yield c.compute(X)
-            y = yield c.compute(y)
+            X, y = yield c.compute((X, y))
 
         params = {
             "loss": ["hinge", "log", "modified_huber", "squared_hinge", "perceptron"],
@@ -64,19 +63,17 @@ def test_basic(array_type, library, max_iter):
         classes = c.compute(da.unique(y))
         yield search.fit(X, y, classes=classes)
 
+        if library == "dask-ml":
+            X, y = yield c.compute((X, y))
+        score = search.best_estimator_.score(X, y)
+        assert score == search.score(X, y)
+        assert 0 <= score <= 1
+
         if library == "ConstantFunction":
-            score = search.best_estimator_.score(X, y)
-            assert score == search.score(X, y)
-            assert 0 <= score <= 1
             assert score == search.best_score_
-            assert score == max(
-                hist[-1]["score"] for hist in search.model_history_.values()
-            )
-        elif library == "sklearn":
-            score = search.best_estimator_.score(X, y)
-            assert score == search.score(X, y)
-            assert 0 <= score <= 1
+        else:
             assert abs(score - search.best_score_) < 0.1
+
         assert type(search.best_estimator_) == type(model)
         assert isinstance(search.best_params_, dict)
 
