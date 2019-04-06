@@ -331,7 +331,7 @@ def fit(
     ...                            chunks=100000, random_state=0)
 
     >>> from sklearn.linear_model import SGDClassifier
-    >>> est = SGDClassifier(tol=1e-3, penalty='elasticnet', random_state=0)
+    >>> model = SGDClassifier(tol=1e-3, penalty='elasticnet', random_state=0)
 
     >>> from sklearn.model_selection import ParameterSampler
     >>> params = {'alpha': np.logspace(-2, 1, num=1000),
@@ -344,13 +344,13 @@ def fit(
     >>> y_train = y[100000:]
 
     >>> def remove_worst(scores):
-    ...    last_score = {est_id: info[-1]['score']
-    ...                  for est_id, info in scores.items()}
+    ...    last_score = {model_id: info[-1]['score']
+    ...                  for model_id, info in scores.items()}
     ...    worst_score = min(last_score.values())
     ...    out = {}
-    ...    for est_id, score in last_score.items():
+    ...    for model_id, score in last_score.items():
     ...        if score != worst_score:
-    ...            out[est_id] = 1  # do one more training step
+    ...            out[model_id] = 1  # do one more training step
     ...    if len(out) == 1:
     ...        out = {k: 0 for k in out}  # no more work to do, stops execution
     ...    return out
@@ -359,16 +359,16 @@ def fit(
     >>> client = Client(processes=False)
 
     >>> from dask_ml.model_selection._incremental import fit
-    >>> info, ests, history, best = fit(est, params,
-    ...                                 X_train, y_train,
-    ...                                 X_test, y_test,
-    ...                                 additional_calls=remove_worst,
-    ...                                 fit_params={'classes': [0, 1]},
-    ...                                 random_state=0)
+    >>> info, models, history, best = fit(model, params,
+    ...                                   X_train, y_train,
+    ...                                   X_test, y_test,
+    ...                                   additional_calls=remove_worst,
+    ...                                   fit_params={'classes': [0, 1]},
+    ...                                   random_state=0)
 
-    >>> ests
+    >>> models
     {2: <Future: status: finished, type: SGDClassifier, key: ...}
-    >>> ests[2].result()
+    >>> models[2].result()
     SGDClassifier(...)
     >>> info[2][-1]  # doctest: +SKIP
     {'model_id': 2,
