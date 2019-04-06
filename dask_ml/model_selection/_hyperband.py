@@ -51,18 +51,20 @@ class HyperbandSearchCV(IncrementalSearchCV):
     """Find the best parameters for a particular model with an adaptive
     cross-validation algorithm.
 
-    Hyperband will find close to the best possible
-    parameters with the given computational budget [1]_.* It does this by
-    focusing on spending time training high-performing estimators. This means that
-    it stops training estimators that perform poorly.
+    Hyperband will find close to the best possible parameters with
+    the given computational budget [*]_ by spending more time training
+    high-performing estimators [1]_. This means that Hyperband stops training
+    estimators that perform poorly.
 
-    This algorithm performs well, has theoritical justification [1]_ and only
-    requires computational budget as input. It does not require a trade-off
-    between "evaluate many parameters" and "train for a long time" like
-    RandomizedSearchCV.
+    Hyperband only requires computational budget as input, and
+    does not require a trade-off between "evaluate many parameters
+    for a short time" and "train a few parameters for a long time"
+    like RandomizedSearchCV.
 
-    :sup:`* This will happen with high probability, and "close" means "within
-    a log factor of the lower bound on the best possible score"`
+    .. [*] After :math:`N` ``partial_fit`` calls the estimator Hyperband
+       produces will be close to the best possible estimator that :math:`N`
+       ``partial_fit`` calls could ever produce with high probability (where
+       "close" means "within log terms").
 
     Parameters
     ----------
