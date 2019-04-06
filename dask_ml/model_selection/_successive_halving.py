@@ -178,8 +178,8 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         self.aggressiveness = aggressiveness
         self.adaptive_max_iter = adaptive_max_iter
 
-        self._steps = 0
-        self._pf_calls = {}
+        self._steps = 0  # redefined in self.fit
+        self._pf_calls = {}  # redefined in self.fit
 
         super(SuccessiveHalvingSearchCV, self).__init__(
             estimator,
@@ -193,13 +193,23 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
             scoring=scoring,
         )
 
+    def fit(self, X, y, **fit_params):
+        # Used to track the number of times `_adapt` has been called.
+        # Probably not required but simple
+        self._steps = 0
+
+        # Used to record the number of partial_fit calls per model.
+        # Required to ensure Hyperband records/passes parameters accurately
+        self._pf_calls = {}
+        return super(SuccessiveHalvingSearchCV, self).fit(X, y, **fit_params)
+
     def _adapt(self, info):
         n, r, eta = self.n_initial_parameters, self.start_iter, self.aggressiveness
         n_i = int(math.floor(n * eta ** -self._steps))
         r_i = np.round(r * eta ** self._steps).astype(int)
         self._pf_calls.update({k: v[-1]["partial_fit_calls"] for k, v in info.items()})
 
-        self.metadata_ = {
+        self._metadata = {
             "estimators": len(self._pf_calls),
             "partial_fit_calls": sum(self._pf_calls.values()),
         }

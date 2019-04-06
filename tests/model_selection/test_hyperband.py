@@ -252,8 +252,8 @@ def test_successive_halving_params(c, s, a, b):
     metadata = alg.metadata()["brackets"]
     for b, SHA in SHAs.items():
         yield SHA.fit(X, y)
-        assert metadata[b]["estimators"] == SHA.metadata_["estimators"]
-        assert metadata[b]["partial_fit_calls"] == SHA.metadata_["partial_fit_calls"]
+        assert metadata[b]["estimators"] == SHA._metadata["estimators"]
+        assert metadata[b]["partial_fit_calls"] == SHA._metadata["partial_fit_calls"]
 
 
 def test_correct_params():
