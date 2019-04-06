@@ -9,7 +9,7 @@ from sklearn.metrics.scorer import check_scoring
 from sklearn.utils import check_random_state
 from tornado import gen
 
-from ._incremental import INC_ATTRS, IncrementalSearchCV
+from ._incremental import IncrementalSearchCV
 from ._successive_halving import SuccessiveHalvingSearchCV
 
 logger = logging.getLogger(__name__)
@@ -171,6 +171,10 @@ class HyperbandSearchCV(IncrementalSearchCV):
         received on the hold out dataset. The key ``model_id`` corresponds with
         ``history_``. This dictionary can be imported into Pandas.
 
+        In the ``model_id``, the bracket ID prefix corresponds to how strongly
+        that bracket adapts to history. i.e., ``bracket=0`` corresponds to a
+        completely passive bracket that doesn't adapt at all.
+
     model_history_ : dict of lists of dict
         A dictionary of each models history. This is a reorganization of
         ``history_``: the same information is present but organized per model.
@@ -219,12 +223,6 @@ class HyperbandSearchCV(IncrementalSearchCV):
 
     Notes
     -----
-    In ``model_id``, the bracket ID prefix corresponds to how strongly that
-    bracket adapts to history. i.e., ``bracket=0`` corresponds to a completely
-    passive bracket that doesn't adapt at all.
-
-    Setting Hyperband parameters
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     To set ``max_iter`` and the chunk size for ``X`` and ``y``, it is required
     to know
 
@@ -238,8 +236,8 @@ class HyperbandSearchCV(IncrementalSearchCV):
     1. Let the chunks size be ``chunk_size = epochs * len(X) / params_to_sample``
     2. Let ``max_iter = params_to_sample``
 
-    where `len(X)` is the number of examples. Then, the estimator that sees the
-    most examples see ``max_iter * chunk_size = len(X) * epochs`` examples.
+    where ``len(X)`` is the number of examples. Then, every estimator sees no
+    more than ``max_iter * chunk_size = len(X) * epochs`` examples.
     Hyperband will actually sample some more hyper-parameter combinations,
     so a rough idea of parameters to sample works.
 
@@ -255,8 +253,6 @@ class HyperbandSearchCV(IncrementalSearchCV):
     * increasing ``params_to_sample`` by a factor of 2
     * decreasing ``chunk_size`` by a factor of 2.
 
-    Limitations
-    ^^^^^^^^^^^
     There are some limitations to the `current` implementation of Hyperband:
 
     1. The full dataset is requested to be in distributed memory
