@@ -178,9 +178,6 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         self.aggressiveness = aggressiveness
         self.adaptive_max_iter = adaptive_max_iter
 
-        self._steps = 0  # redefined in self.fit
-        self._pf_calls = {}  # redefined in self.fit
-
         super(SuccessiveHalvingSearchCV, self).__init__(
             estimator,
             param_distribution,
