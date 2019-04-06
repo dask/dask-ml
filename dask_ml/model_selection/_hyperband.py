@@ -109,20 +109,11 @@ class HyperbandSearchCV(IncrementalSearchCV):
         A single string (see :ref:`scoring_parameter`) or a callable
         (see :ref:`scoring`) to evaluate the predictions on the test set.
 
-        For evaluating multiple metrics, either give a list of (unique) strings
-        or a dict with names as keys and callables as values.
-
-        NOTE that when using custom scorers, each scorer should return a single
-        value. Metric functions returning a list/array of values can be wrapped
-        into multiple scorers that return one value each.
-
-        See :ref:`multimetric_grid_search` for an example.
-
         If None, the estimator's default scorer (if available) is used.
 
     patience : int, default False
-        Maximum number of non-improving scores before we stop training a
-        model. Off by default.
+        Maximum number of non-improving scores before model training is
+        stopepd. Off by default.
 
     tol : float, default 0.001
         The required level of improvement to consider stopping training on
