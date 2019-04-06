@@ -47,7 +47,7 @@ def _get_hyperband_params(R, eta=3):
     return {b: (n, r) for b, n, r in zip(brackets, N, R)}
 
 
-DOC = (
+class HyperbandSearchCV(IncrementalSearchCV):
     """Find the best parameters for a particular model with an adaptive
     cross-validation algorithm.
 
@@ -151,9 +151,72 @@ DOC = (
     >>> search.best_params_
     {'loss': 'log', 'average': False, 'alpha': 0.0080502}
 
-    """
-    + INC_ATTRS
-    + """
+    Attributes
+    ----------
+    cv_results_ : dict of np.ndarrays
+        This dictionary has keys
+
+        * ``mean_partial_fit_time``
+        * ``mean_score_time``
+        * ``std_partial_fit_time``
+        * ``std_score_time``
+        * ``test_score``
+        * ``rank_test_score``
+        * ``model_id``
+        * ``partial_fit_calls``
+        * ``params``
+        * ``param_{key}``, where ``key`` is every key in ``params``.
+
+        The values in the ``test_score`` key correspond to the last score a model
+        received on the hold out dataset. The key ``model_id`` corresponds with
+        ``history_``. This dictionary can be imported into Pandas.
+
+    model_history_ : dict of lists of dict
+        A dictionary of each models history. This is a reorganization of
+        ``history_``: the same information is present but organized per model.
+
+        This data has the structure  ``{model_id: hist}`` where ``hist`` is a
+        subset of ``history_`` and ``model_id`` are model identifiers.
+
+    history_ : list of dicts
+        Information about each model after each ``partial_fit`` call. Each dict
+        the keys
+
+        * ``partial_fit_time``
+        * ``score_time``
+        * ``score``
+        * ``model_id``
+        * ``params``
+        * ``partial_fit_calls``
+
+        The key ``model_id`` corresponds to the ``model_id`` in ``cv_results_``.
+        This list of dicts can be imported into Pandas.
+
+    best_estimator_ : BaseEstimator
+        The model with the highest validation score among all the models
+        retained by the "inverse decay" algorithm.
+
+    best_score_ : float
+        Score achieved by ``best_estimator_`` on the vaidation set after the
+        final call to ``partial_fit``.
+
+    best_index_ : int
+        Index indicating which estimator in ``cv_results_`` corresponds to
+        the highest score.
+
+    best_params_ : dict
+        Dictionary of best parameters found on the hold-out data.
+
+    scorer_ :
+        The function used to score models, which has a call signature of
+        ``scorer_(estimator, X, y)``.
+
+    n_splits_ : int
+        Number of cross validation splits.
+
+    multimetric_ : bool
+        Whether this cross validation search uses multiple metrics.
+
     Notes
     -----
     In ``model_id``, the bracket ID prefix corresponds to how strongly that
@@ -206,11 +269,6 @@ DOC = (
            Rostamizadeh, and A. Talwalkar.  https://arxiv.org/abs/1603.06560
 
     """
-)
-
-
-class HyperbandSearchCV(IncrementalSearchCV):
-    __doc__ = DOC
 
     def __init__(
         self,
