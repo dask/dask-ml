@@ -31,20 +31,60 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
 
         Alternatively, you can set this to ``"grid"`` to do a full grid search.
 
-    resource : int
-        Number of times to call partial fit initially. Estimators are trained
-        for ``resource`` calls to ``partial_fit`` at first, then additional
-        times increasing by ``aggressivenes``.
+    start_iter : int
+        Number of times to call partial fit initially before scoring.
+        Estimators are trained
+        for ``start_iter`` calls to ``partial_fit`` at first, then additional
+        times increasing by ``aggressivenes``. This is one "adaptive
+        iteration."
+        At each adaptive iteration, ``1 / aggressivenes`` estimators
+        are killed and no longer trained.
+
+    adaptive_max_iter : int, None
+        The number of maximum iterations to continue the adaptive iterations
+        mentioned above.
 
     aggressizeness : float, default=3
         How aggressive to be in culling off the estimators. Higher
         values correspond to being more aggressive in killing off
-        estimators. The "infinite horizon" theory suggests ``aggressizeness == np.e``
-        is optimal.
+        estimators. The "infinite horizon" theory
+        suggests ``aggressizeness == np.e`` is optimal.
 
-    kwargs : dict
-        Parameters to pass to
-        :class:`~dask_ml.model_selection.IncrementalSearchCV`.
+    max_iter : int, default 100
+        Maximum number of partial fit calls per model.
+
+    test_size : float
+        Fraction of the dataset to hold out for computing test scores.
+        Defaults to the size of a single partition of the input training set
+
+        .. note::
+
+           The training dataset should fit in memory on a single machine.
+           Adjust the ``test_size`` parameter as necessary to achieve this.
+
+    patience : int, default False
+        Maximum number of non-improving scores before we stop training a
+        model. Off by default.
+
+    tol : float, default 0.001
+        The required level of improvement to consider stopping training on
+        that model. The most recent score must be at at most ``tol`` better
+        than the all of the previous ``patience`` scores for that model.
+        Increasing ``tol`` will tend to reduce training time, at the cost
+        of worse models.
+
+    scoring : string, callable, None. default: None
+        A single string (see :ref:`scoring_parameter`) or a callable
+        (see :ref:`scoring`) to evaluate the predictions on the test set.
+
+        If None, the estimator's default scorer (if available) is used.
+
+    random_state : int, RandomState instance or None, optional, default: None
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`.
+
 
     Attributes
     ----------
@@ -121,8 +161,8 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         param_distribution,
         n_initial_parameters=15,
         start_iter=9,
-        aggressiveness=3,
         adaptive_max_iter=None,
+        aggressiveness=3,
         max_iter=100,
         test_size=None,
         patience=False,
