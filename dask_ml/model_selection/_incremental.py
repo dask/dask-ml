@@ -495,13 +495,14 @@ class BaseIncrementalSearchCV(ParallelPostFit):
 
         # Every model will have the same params because this class uses either
         # ParameterSampler or ParameterGrid
-        cv_results.update(
-            {
-                "param_" + k: v
-                for params in cv_results["params"]
-                for k, v in params.items()
-            }
-        )
+        params = defaultdict(list)
+        for model_params in cv_results["params"]:
+            for k, v in model_params.items():
+                params[k].append(v)
+
+        for k, v in params.items():
+            cv_results["param_" + k] = v
+
         cv_results = {k: np.array(v) for k, v in cv_results.items()}
         cv_results["rank_test_score"] = scipy.stats.rankdata(
             -cv_results["test_score"], method="min"
