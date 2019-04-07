@@ -545,9 +545,9 @@ class BaseIncrementalSearchCV(ParallelPostFit):
             random_state=self.random_state,
         )
         results = self._process_results(results)
-        estimator_history, models, history, bst = results
+        model_history, models, history, bst = results
 
-        cv_results = self._get_cv_results(history, estimator_history)
+        cv_results = self._get_cv_results(history, model_history)
         best_idx = bst[0]
         best_estimator = yield models[best_idx]
 
@@ -559,7 +559,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         self.cv_results_ = cv_results
         self.scorer_ = scorer
         self.history_ = history
-        self.model_history_ = estimator_history
+        self.model_history_ = model_history
         self.best_estimator_ = best_estimator
         self.best_index_ = best_idx
         self.best_score_ = cv_results["test_score"][best_idx]
