@@ -603,8 +603,6 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         return self.scorer_(self.best_estimator_, X, y)
 
 
-
-
 class IncrementalSearchCV(BaseIncrementalSearchCV):
     """
     Incrementally search for hyper-parameters on models that support partial_fit
