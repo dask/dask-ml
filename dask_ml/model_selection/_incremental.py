@@ -500,7 +500,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         params = defaultdict(list)
         for model_params in cv_results["params"]:
             for k, v in model_params.items():
-                params[k] += [v]
+                params[k].append(v)
 
         for k, v in params.items():
             cv_results["param_" + k] = v
