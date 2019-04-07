@@ -11,7 +11,8 @@ jobs:
         envFile: 'ci/environment-new.yaml'
       windows-32:
         imageName: 'vs2017-win2016'
-        envFile: 'ci/environment-new.yaml'
+        envFile: 'ci/environment-win-32.yaml'
+        CONDA_SUBDIRS: 'win-32,noarch'
       windows-64:
         imageName: 'vs2017-win2016'
         envFile: 'ci/environment-new.yaml'
