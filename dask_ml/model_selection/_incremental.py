@@ -826,7 +826,6 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         self.tol = tol
         self.scores_per_fit = scores_per_fit
         self.max_iter = max_iter
-        self._to_reach = {}
         super(IncrementalSearchCV, self).__init__(
             estimator, param_distribution, test_size, random_state, scoring
         )
@@ -843,10 +842,18 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
     def _additional_calls(self, info):
         calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
-        patience = int(self.patience)
-        patience_calls = max(patience // 3, 1)
+        if all(c == 1 for c in calls.values()):
+            # this condition happens at the beginning
+            #
+            # _to_reach records the number of partial_fit calls that need to be
+            # be made on each model to reach the number _adapt specifies.
+            # It only matters for when patience is set -- otherwise,
+            # the calls specified by _adapt are scheduled.  It's a class
+            # variable because this state needs to be stored somewhere.
+            self._to_reach = {}
 
-        if self._to_reach and patience:
+        patience_calls = max(int(self.patience) // 3, 1)
+        if self._to_reach and self.patience:
             calls_to_make = {k: self._to_reach[k] - v for k, v in calls.items()}
             if sum(calls_to_make.values()) > 0:
                 out = self._stop_on_plateau(calls_to_make, info)
@@ -855,7 +862,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         instructions = self._adapt(info)
         out = self._stop_on_plateau(instructions, info)
 
-        if patience:
+        if self.patience:
             self._to_reach = {k: v + calls[k] for k, v in out.items()}
             return {k: min(v, patience_calls) for k, v in out.items()}
         return out
