@@ -144,7 +144,9 @@ def test_hyperband_patience(c, s, a, b):
     params = {"value": scipy.stats.uniform(0, 1)}
     max_iter = 27
 
-    alg = HyperbandSearchCV(model, params, max_iter=max_iter, patience=True, random_state=0)
+    alg = HyperbandSearchCV(
+        model, params, max_iter=max_iter, patience=True, random_state=0
+    )
     yield alg.fit(X, y)
 
     alg_patience = max_iter // alg.aggressiveness
