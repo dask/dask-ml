@@ -16,7 +16,7 @@ jobs:
       windows-64:
         imageName: 'vs2017-win2016'
         envFile: 'ci/environment-new.yaml'
-      maxParallel: 4
+    maxParallel: 4
   pool:
     vmImage: $(imageName)
 
