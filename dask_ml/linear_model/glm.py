@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 """Generalized Linear Models for large datasets."""
-import textwrap
-import numpy as np
 from dask_glm import algorithms, families
 from dask_glm.utils import (
     accuracy_score,
@@ -12,8 +10,9 @@ from dask_glm.utils import (
     poisson_deviance,
     sigmoid,
 )
+import numpy as np
 from sklearn.base import BaseEstimator
-
+import textwrap
 from ..utils import check_array
 
 _base_doc = textwrap.dedent(
