@@ -167,8 +167,10 @@ def fit(model, x, y, compute=True, shuffle_blocks=True, random_state=None, **kwa
     if y is not None:
         if not hasattr(y, "chunks") and hasattr(y, "to_dask_array"):
             y = y.to_dask_array()
+
         assert y.ndim == 1
         assert x.chunks[0] == y.chunks[0]
+
     assert hasattr(model, "partial_fit")
     if len(x.chunks[1]) > 1:
         x = x.rechunk(chunks=(x.chunks[0], sum(x.chunks[1])))
