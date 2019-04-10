@@ -232,9 +232,9 @@ class LogisticRegression(_GLM):
             Predicted class labels for each sample
         """
         prob = self.predict_proba(X)
-        if self.n_classes==2:
+        if self.n_classes == 2:
             return prob.argmax(axis=1)
-        return prob>0.5 # TODO: verify, multi_class broken
+        return prob > 0.5  # TODO: verify, multi_class broken
 
     def predict_proba(self, X):
         """Probability estimates for samples in X.
@@ -249,8 +249,8 @@ class LogisticRegression(_GLM):
             The probability of the sample for each class in the model.
         """
         X_ = self._check_array(X)
-        prob = sigmoid(dot(X_,self._coef)) # TODO: verify, multi_class broken
-        if self.n_classes==2:
+        prob = sigmoid(dot(X_, self._coef))  # TODO: verify, multi_class broken
+        if self.n_classes == 2:
             return np.vstack([1 - prob, prob]).T
         else:
             return prob
