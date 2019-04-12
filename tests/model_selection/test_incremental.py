@@ -428,3 +428,68 @@ def test_smaller(c, s, a, b):
     yield search.fit(X, y, classes=[0, 1])
     X_, = yield c.compute([X])
     search.predict(X_)
+
+
+@gen_cluster(client=True)
+def test_high_performing_models_are_retained_with_patience(c, s, a, b):
+    class LinearFunction(BaseEstimator):
+        def __init__(self, final_score=1):
+            self.final_score = final_score
+            self._calls = 0
+
+        def fit(self, X, y):
+            return self
+
+        def partial_fit(self, X, y):
+            self._calls += 1
+
+        def score(self, X, y):
+            if self.final_score <= 3:
+                return self.final_score * (1 - 1 / (self._calls + 2))
+            return self.final_score
+
+    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+
+    params = {"final_score": [1, 2, 3, 4, 5]}
+    search = IncrementalSearchCV(
+        LinearFunction(),
+        params,
+        patience=3,
+        tol=1e-3,  # only stop the constant functions
+        decay_rate=0,
+        n_initial_parameters="grid",
+        max_iter=20,
+    )
+
+    def remove_worst_performing_model(info):
+        calls = {v[-1]["partial_fit_calls"] for v in info.values()}
+        ests = {v[-1]["params"]["final_score"] for v in info.values()}
+
+        if max(calls) == 1:
+            assert all(x in ests for x in [1, 2, 3, 4, 5])
+        elif max(calls) == 2:
+            assert all(x in ests for x in [2, 3, 4, 5])
+            assert all(x not in ests for x in [1])
+        elif max(calls) == 3:
+            assert all(x in ests for x in [3, 4, 5])
+            assert all(x not in ests for x in [1, 2])
+        elif max(calls) == 4:
+            assert all(x in ests for x in [4, 5])
+            assert all(x not in ests for x in [1, 2, 3])
+        elif max(calls) == 5:
+            assert all(x in ests for x in [5])
+            assert all(x not in ests for x in [1, 2, 3, 4])
+            return {k: 0 for k in info.keys()}
+
+        recent_scores = {
+            k: v[-1]["score"]
+            for k, v in info.items()
+            if v[-1]["partial_fit_calls"] == max(calls)
+        }
+        return {
+            k: 1 for k, v in recent_scores.items() if v > min(recent_scores.values())
+        }
+
+    search._adapt = remove_worst_performing_model
+    yield search.fit(X, y)
+    assert search.best_params_ == {"final_score": 5}
