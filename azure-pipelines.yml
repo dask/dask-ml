@@ -24,7 +24,7 @@ jobs:
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
     displayName: "Add conda to PATH"
 
-  - bash: conda env create --queit --file=$(envFile) --name=dask-ml-test
+  - bash: conda env create --quiet --file=$(envFile) --name=dask-ml-test
     displayName: "install"
 
   - script: |
