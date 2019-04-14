@@ -837,7 +837,11 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         if self.n_initial_parameters == "grid":
             return ParameterGrid(self.parameters)
         else:
-            return ParameterSampler(self.parameters, self.n_initial_parameters)
+            return ParameterSampler(
+                self.parameters,
+                self.n_initial_parameters,
+                random_state=self.random_state,
+            )
 
     def _additional_calls(self, info):
         # First, have an adaptive algorithm
