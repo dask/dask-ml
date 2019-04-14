@@ -848,8 +848,12 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
             # _to_reach records the number of partial_fit calls that need to be
             # be made on each model to reach the number _adapt specifies.
             # It only matters for when patience is set -- otherwise,
-            # the calls specified by _adapt are scheduled.  It's a class
-            # variable because this state needs to be stored somewhere.
+            # the calls specified by _adapt are scheduled.
+            #
+            # It's a class variable because this variable needs to be stored
+            # somewhere.  Nothing is known about _adapt, so _to_reach needs
+            # to be persisted across calls to _additional_calls. It can no
+            # be calculated every call because _adapt is a black box.
             self._to_reach = {}
 
         patience_calls = max(int(self.patience) // 3, 1)
