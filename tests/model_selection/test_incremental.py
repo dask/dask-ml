@@ -2,6 +2,7 @@ import random
 
 import dask.array as da
 import numpy as np
+import scipy
 import toolz
 from dask.distributed import Future
 from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
@@ -433,7 +434,7 @@ def test_smaller(c, s, a, b):
 def test_same_params_with_random_state(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
-    params = {"alpha": np.logspace(-3, 0, num=1000)}
+    params = {"alpha": scipy.stats.uniform(1e-4, 1)}
 
     search1 = IncrementalSearchCV(
         model, params, n_initial_parameters=10, random_state=0
