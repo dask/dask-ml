@@ -852,8 +852,8 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
             #
             # It's a class variable because this variable needs to be stored
             # somewhere.  Nothing is known about _adapt, so _to_reach needs
-            # to be persisted across calls to _additional_calls. It can no
-            # be calculated every call because _adapt is a black box.
+            # to be persisted across calls to _additional_calls. It can not
+            # be calculated every call because _adapt is a black box
             self._to_reach = {}
 
         patience_calls = max(int(self.patience) // 3, 1)
