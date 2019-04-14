@@ -265,7 +265,7 @@ def test_correct_params():
         "estimator",
         "estimator__value",
         "estimator__sleep",
-        "param_distribution",
+        "parameters",
         "max_iter",
         "test_size",
         "patience",
@@ -282,7 +282,7 @@ def test_correct_params():
     SHA_params = base.union(
         {
             "n_initial_parameters",
-            "start_iter",
+            "n_initial_iter",
             "aggressiveness",
             "adaptive_max_iter",
             "max_iter",
@@ -300,10 +300,11 @@ def test_params_passed():
         "scoring": False,
         "test_size": 0.212,
         "tol": 0,
-        "param_distribution": {"value": [0, 1]},
+        "parameters": {"value": [0, 1]},
     }
     params["patience"] = (params["max_iter"] // params["aggressiveness"]) + 4
     hyperband = HyperbandSearchCV(**params)
+
     for k, v in params.items():
         assert getattr(hyperband, k) == v
 

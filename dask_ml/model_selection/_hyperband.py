@@ -73,7 +73,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
         ``set_params`` and ``score``. This can be an instance of Scikit-Learn's
         BaseEstimator
 
-    params : dict, list
+    parameters : dict, list
         Dictionary with parameters names (string) as keys and distributions
         or lists of parameters to try. Distributions must provide a ``rvs``
         method for sampling (such as those from scipy.stats.distributions).
@@ -258,7 +258,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
     def __init__(
         self,
         estimator,
-        param_distribution,
+        parameters,
         max_iter=81,
         aggressiveness=3,
         test_size=None,
@@ -267,14 +267,12 @@ class HyperbandSearchCV(IncrementalSearchCV):
         random_state=None,
         scoring=None,
     ):
-        self.estimator = estimator
-        self.param_distribution = param_distribution
         self.max_iter = max_iter
         self.aggressiveness = aggressiveness
 
         super(HyperbandSearchCV, self).__init__(
             estimator,
-            param_distribution,
+            parameters,
             max_iter=max_iter,
             patience=patience,
             tol=tol,
@@ -298,9 +296,9 @@ class HyperbandSearchCV(IncrementalSearchCV):
                 b,
                 SuccessiveHalvingSearchCV(
                     self.estimator,
-                    self.param_distribution,
+                    self.parameters,
                     n_initial_parameters=n,
-                    start_iter=r,
+                    n_initial_iter=r,
                     adaptive_max_iter=b + 1,
                     aggressiveness=self.aggressiveness,
                     max_iter=self.max_iter,

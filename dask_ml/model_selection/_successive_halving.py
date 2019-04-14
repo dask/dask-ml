@@ -19,7 +19,7 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         or ``scoring`` must be passed. The estimator must implement
         ``partial_fit``, ``set_params``, and work well with ``clone``.
 
-    param_distributions : dict
+    parameters : dict
         Dictionary with parameters names (string) as keys and distributions
         or lists of parameters to try. Distributions must provide a ``rvs``
         method for sampling (such as those from scipy.stats.distributions).
@@ -31,10 +31,10 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
 
         Alternatively, you can set this to ``"grid"`` to do a full grid search.
 
-    start_iter : int
+    n_initial_iter : int
         Number of times to call partial fit initially before scoring.
         Estimators are trained
-        for ``start_iter`` calls to ``partial_fit`` at first, then additional
+        for ``n_initial_iter`` calls to ``partial_fit`` at first, then additional
         times increasing by ``aggressivenes``. This is one "adaptive
         iteration."
         At each adaptive iteration, ``1 / aggressivenes`` estimators
@@ -158,9 +158,9 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
     def __init__(
         self,
         estimator,
-        param_distribution,
-        n_initial_parameters=15,
-        start_iter=9,
+        parameters,
+        n_initial_parameters=10,
+        n_initial_iter=9,
         adaptive_max_iter=None,
         aggressiveness=3,
         max_iter=100,
@@ -170,17 +170,14 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         random_state=None,
         scoring=None,
     ):
-        self.estimator = estimator
-        self.param_distribution = param_distribution
-
         self.n_initial_parameters = n_initial_parameters
-        self.start_iter = start_iter
-        self.aggressiveness = aggressiveness
+        self.n_initial_iter = n_initial_iter
         self.adaptive_max_iter = adaptive_max_iter
+        self.aggressiveness = aggressiveness
 
         super(SuccessiveHalvingSearchCV, self).__init__(
             estimator,
-            param_distribution,
+            parameters,
             n_initial_parameters=n_initial_parameters,
             max_iter=max_iter,
             test_size=test_size,
@@ -201,7 +198,7 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         return super(SuccessiveHalvingSearchCV, self).fit(X, y, **fit_params)
 
     def _adapt(self, info):
-        n, r, eta = self.n_initial_parameters, self.start_iter, self.aggressiveness
+        n, r, eta = self.n_initial_parameters, self.n_initial_iter, self.aggressiveness
         n_i = int(math.floor(n * eta ** -self._steps))
         r_i = np.round(r * eta ** self._steps).astype(int)
         self._pf_calls.update({k: v[-1]["partial_fit_calls"] for k, v in info.items()})
