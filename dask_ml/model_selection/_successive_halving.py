@@ -10,6 +10,12 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
     """
     Perform the successive halving algorithm [1]_.
 
+    This algorithm trains estimators ``n_initial_iter`` calls to
+    ``partial_fit``, then kills the worst performing half (or
+    ``1 / aggressiveness``). It trains the surving estimators for twice
+    as long (or ``aggressiveness`` times longer). It repeats this until 1
+    estimator survives.
+
     Parameters
     ----------
     estimator : estimator object.
@@ -39,11 +45,6 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         Number of times to call partial fit initially before scoring.
         Estimators are trained
         for ``n_initial_iter`` calls to ``partial_fit`` at first.
-
-    adaptive_max_iter : int, None
-        The maximum number of adaptive iterations perfomed. Each adaptive
-        iteration has (at least) ``n_initial_iter`` calls to ``partial_fit``
-        and removes some fraction of the surviving estimators.
 
     max_iter : int, default 100
         Maximum number of partial fit calls per model.
@@ -162,7 +163,6 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         parameters,
         n_initial_parameters=10,
         n_initial_iter=9,
-        adaptive_max_iter=None,
         aggressiveness=3,
         max_iter=100,
         test_size=None,
@@ -173,7 +173,6 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
     ):
         self.n_initial_parameters = n_initial_parameters
         self.n_initial_iter = n_initial_iter
-        self.adaptive_max_iter = adaptive_max_iter
         self.aggressiveness = aggressiveness
 
         super(SuccessiveHalvingSearchCV, self).__init__(
@@ -227,9 +226,7 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         best = toolz.topk(n_i, info, key=lambda k: info[k][-1]["score"])
         self._steps += 1
 
-        if (self.adaptive_max_iter is None and len(best) in {0, 1}) or (
-            self.adaptive_max_iter is not None and self._steps > self.adaptive_max_iter
-        ):
+        if len(best) < 1 - 1 / self.aggressiveness:
             return {id_: 0 for id_ in info}
 
         pf_calls = {k: info[k][-1]["partial_fit_calls"] for k in best}

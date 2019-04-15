@@ -301,7 +301,6 @@ class HyperbandSearchCV(IncrementalSearchCV):
                     self.parameters,
                     n_initial_parameters=n,
                     n_initial_iter=r,
-                    adaptive_max_iter=b + 1,
                     aggressiveness=self.aggressiveness,
                     max_iter=self.max_iter,
                     patience=patience,

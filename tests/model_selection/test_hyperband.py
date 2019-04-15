@@ -284,7 +284,6 @@ def test_correct_params():
             "n_initial_parameters",
             "n_initial_iter",
             "aggressiveness",
-            "adaptive_max_iter",
             "max_iter",
         }
     ) - {"estimator__value", "estimator__sleep"}
