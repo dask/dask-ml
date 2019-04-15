@@ -1,3 +1,4 @@
+import itertools
 import math
 
 import numpy as np
@@ -187,41 +188,23 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
             scoring=scoring,
         )
 
-    def fit(self, X, y, **fit_params):
-        # Used to track the number of times `_adapt` has been called.
-        # Probably not required but simple
-        self._steps = 0
-
-        # Used to record the number of partial_fit calls per model.
-        # Required to ensure Hyperband records/passes parameters accurately
-        self._pf_calls = {}
-        return super(SuccessiveHalvingSearchCV, self).fit(X, y, **fit_params)
-
     def _adapt(self, info):
+        if all(v[-1]["partial_fit_calls"] == 1 for v in info.values()):
+            # Do all the models have one partial fit call?
+            self._steps = 0
+        if all("_sha_recurse" in v[0] for v in info.values()):
+            # Sometimes, IncrementalSearchCV completes one step for us. We
+            # recurse in this case -- see below for a note on the condition
+            self._steps = 1
         n, r, eta = self.n_initial_parameters, self.n_initial_iter, self.aggressiveness
+
         n_i = int(math.floor(n * eta ** -self._steps))
         r_i = np.round(r * eta ** self._steps).astype(int)
-        self._pf_calls.update({k: v[-1]["partial_fit_calls"] for k, v in info.items()})
-
-        self._metadata = {
-            "estimators": len(self._pf_calls),
-            "partial_fit_calls": sum(self._pf_calls.values()),
-        }
-
-        # Initial case
-        # partial fit has already been called once
         if r_i == 1:
-            # if r_i == 1, a step has already been completed for us
-            assert self._steps == 0
-            self._steps = 1
-            pf_calls = {k: info[k][-1]["partial_fit_calls"] for k in info}
+            # if r_i == 1, a step has already been completed for us (because
+            # IncrementalSearchCV completes 1 partial_fit call automatically)
+            info = {k: [{"_sha_recurse": True, **v[0]}] for k, v in info.items()}
             return self._adapt(info)
-
-        # this ordering is important; typically r_i==1 only when steps==0
-        if self._steps == 0:
-            # we have r_i - 1 more steps to train to
-            self._steps = 1
-            return {k: r_i - 1 for k in info}
 
         best = toolz.topk(n_i, info, key=lambda k: info[k][-1]["score"])
         self._steps += 1
