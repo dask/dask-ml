@@ -69,7 +69,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
         ``set_params`` and ``score``. This can be an instance of Scikit-Learn's
         BaseEstimator
 
-    parameters : dict, list
+    parameters : dict
         Dictionary with parameters names (string) as keys and distributions
         or lists of parameters to try. Distributions must provide a ``rvs``
         method for sampling (such as those from scipy.stats.distributions).
