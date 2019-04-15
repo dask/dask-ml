@@ -8,7 +8,7 @@ from ._incremental import IncrementalSearchCV
 
 class SuccessiveHalvingSearchCV(IncrementalSearchCV):
     """
-    Perform the successive halving algorithm.
+    Perform the successive halving algorithm [1]_.
 
     Parameters
     ----------
@@ -25,30 +25,24 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         method for sampling (such as those from scipy.stats.distributions).
         If a list is given, it is sampled uniformly.
 
+    aggressiveness : float, default=3
+        How aggressive to be in culling off the different estimators. Higher
+        values imply higher confidence in scoring (or that
+        the hyperparameters influence the ``estimator.score`` more
+        than the data).
+
     n_initial_parameters : int, default=10
         Number of parameter settings that are sampled.
         This trades off runtime vs quality of the solution.
 
-        Alternatively, you can set this to ``"grid"`` to do a full grid search.
-
     n_initial_iter : int
         Number of times to call partial fit initially before scoring.
         Estimators are trained
-        for ``n_initial_iter`` calls to ``partial_fit`` at first, then additional
-        times increasing by ``aggressivenes``. This is one "adaptive
-        iteration."
-        At each adaptive iteration, ``1 / aggressivenes`` estimators
-        are killed and no longer trained.
+        for ``n_initial_iter`` calls to ``partial_fit`` at first.
 
     adaptive_max_iter : int, None
         The number of maximum iterations to continue the adaptive iterations
         mentioned above.
-
-    aggressizeness : float, default=3
-        How aggressive to be in culling off the estimators. Higher
-        values correspond to being more aggressive in killing off
-        estimators. The "infinite horizon" theory
-        suggests ``aggressizeness == np.e`` is optimal.
 
     max_iter : int, default 100
         Maximum number of partial fit calls per model.
@@ -152,6 +146,12 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
     multimetric_ : bool
         Whether this cross validation search uses multiple metrics.
 
+
+    References
+    ----------
+    .. [1] "Non-stochastic best arm identification and hyperparameter
+           optimization" by Jamieson, Kevin and Talwalkar, Ameet. 2016.
+           https://arxiv.org/abs/1502.07943
 
     """
 

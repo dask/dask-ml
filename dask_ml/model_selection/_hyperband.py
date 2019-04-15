@@ -85,10 +85,12 @@ class HyperbandSearchCV(IncrementalSearchCV):
         converge. See the notes on how to set this parameter.
 
     aggressiveness : int, default=3
-        How aggressive to be in model tuning. It is not recommended to change
-        this value, and if changed we recommend ``eta=4``.
-        Some theory behind Hyperband suggests ``eta=np.e``. Higher
-        values imply higher confidence in model selection.
+        How aggressive to be in culling off the different estimators. Higher
+        values imply higher confidence in scoring (or that
+        the hyperparameters influence the ``estimator.score`` more
+        than the data). Theory suggests ``aggressiveness=3`` is close to
+        optimal. ``aggressiveness=4`` has higher confidence that is likely
+        suitable for initial exploration.
 
     test_size : float
         Fraction of the dataset to hold out for computing test scores.
