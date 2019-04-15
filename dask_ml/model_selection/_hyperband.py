@@ -24,12 +24,8 @@ def _get_hyperband_params(R, eta=3):
 
     Returns
     -------
-    N : list
-        The number of estimators for each bracket
-    R : list
-        The number of iterations for each bracket
-    brackets : list
-        The bracket identifier.
+    brackets : Dict[int, Tuple[int, int]]
+        A dictionary of the form {bracket_id: (n_models, n_initial_iter)}
 
     Notes
     -----
@@ -68,7 +64,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
 
     Parameters
     ----------
-    model : object
+    estimator : object
         An object that has support for ``partial_fit``, ``get_params``,
         ``set_params`` and ``score``. This can be an instance of Scikit-Learn's
         BaseEstimator
@@ -144,7 +140,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
 
     Attributes
     ----------
-    cv_results_ : dict of np.ndarrays
+    cv_results_ : Dict[str, np.ndarray]
         This dictionary has keys
 
         * ``mean_partial_fit_time``
