@@ -289,25 +289,22 @@ class HyperbandSearchCV(IncrementalSearchCV):
         self._SHA_seed = seed_start
 
         # These brackets are ordered by adaptivity; bracket=0 is least adaptive
-        SHAs = [
-            (
-                b,
-                SuccessiveHalvingSearchCV(
-                    self.estimator,
-                    self.parameters,
-                    n_initial_parameters=n,
-                    n_initial_iter=r,
-                    aggressiveness=self.aggressiveness,
-                    max_iter=self.max_iter,
-                    patience=patience,
-                    tol=self.tol,
-                    test_size=self.test_size,
-                    random_state=seed_start + b if b != 0 else self.random_state,
-                    scoring=self.scoring,
-                ),
+        SHAs = {
+            b: SuccessiveHalvingSearchCV(
+                self.estimator,
+                self.parameters,
+                n_initial_parameters=n,
+                n_initial_iter=r,
+                aggressiveness=self.aggressiveness,
+                max_iter=self.max_iter,
+                patience=patience,
+                tol=self.tol,
+                test_size=self.test_size,
+                random_state=seed_start + b if b != 0 else self.random_state,
+                scoring=self.scoring,
             )
             for b, (n, r) in brackets.items()
-        ]
+        }
         return SHAs
 
     @gen.coroutine
@@ -316,15 +313,17 @@ class HyperbandSearchCV(IncrementalSearchCV):
         y = self._check_array(y, ensure_2d=False)
         scorer = check_scoring(self.estimator, scoring=self.scoring)
 
+        if self.max_iter < 1:
+            raise ValueError("max_iter < 1 is not supported")
         brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
 
         SHAs = self._get_SHAs(brackets)
         # Which bracket to run first? Going to go with most adaptive;
         # hopefully less adaptive can fill in for any blank spots
         #
-        # _brackets is ordered from largest to smallest
-        _brackets_ids = [b for b, SHA in SHAs]
-        _SHAs = yield [SHA.fit(X, y, **fit_params) for b, SHA in SHAs]
+        # _brackets_ids is ordered from largest to smallest
+        _brackets_ids = sorted(list(SHAs.keys()))[::-1]
+        _SHAs = yield [SHAs[b].fit(X, y, **fit_params) for b in _brackets_ids]
         SHAs = {b: SHA for b, SHA in zip(_brackets_ids, _SHAs)}
 
         # This for-loop rename estimator IDs and pulls out wall times
@@ -342,7 +341,8 @@ class HyperbandSearchCV(IncrementalSearchCV):
                     h["model_id"] = new_ids[h["model_id"]]
                     h["bracket"] = b
 
-        keys = list(SHA.cv_results_.keys())
+        # Least adaptive bracket (key of 0) is always included
+        keys = list(SHAs[0].cv_results_.keys())
         cv_results = {
             k: sum([SHA.cv_results_[k].tolist() for SHA in SHAs.values()], [])
             for k in keys
@@ -423,7 +423,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
         bracket_info = list(reversed(sorted(bracket_info, key=lambda x: x["bracket"])))
 
         brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
-        SHAs = {bracket: SHA for bracket, SHA in self._get_SHAs(brackets)}
+        SHAs = self._get_SHAs(brackets)
         for bracket in bracket_info:
             b = bracket["bracket"]
             bracket["SuccessiveHalvingSearchCV params"] = _get_SHA_params(SHAs[b])
