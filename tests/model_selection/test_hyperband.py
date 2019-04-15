@@ -282,12 +282,7 @@ def test_correct_params():
         for bracket in meta["brackets"].values()
     ]
     SHA_params = base.union(
-        {
-            "n_initial_parameters",
-            "n_initial_iter",
-            "aggressiveness",
-            "max_iter",
-        }
+        {"n_initial_parameters", "n_initial_iter", "aggressiveness", "max_iter"}
     ) - {"estimator__value", "estimator__sleep"}
     assert all(set(SHA) == SHA_params for SHA in SHAs_params)
 
@@ -383,3 +378,19 @@ def test_random_state_no_seed_different_params():
     h2._get_SHAs(brackets)
 
     assert h1._SHA_seed == h2._SHA_seed
+
+
+@gen_cluster(client=True, timeout=5000)
+def test_min_max_iter(c, s, a, b):
+    values = scipy.stats.uniform(0, 1)
+    X, y = make_classification(n_samples=10, n_features=4, chunks=10)
+
+    max_iter = 1
+    h = HyperbandSearchCV(ConstantFunction(), {"value": values}, max_iter=max_iter)
+    yield h.fit(X, y)
+    assert h.best_score_ > 0
+
+    max_iter = 0
+    h = HyperbandSearchCV(ConstantFunction(), {"value": values}, max_iter=max_iter)
+    with pytest.raises(ValueError, match="max_iter"):
+        yield h.fit(X, y)
