@@ -41,8 +41,9 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         for ``n_initial_iter`` calls to ``partial_fit`` at first.
 
     adaptive_max_iter : int, None
-        The number of maximum iterations to continue the adaptive iterations
-        mentioned above.
+        The maximum number of adaptive iterations perfomed. Each adaptive
+        iteration has (at least) ``n_initial_iter`` calls to ``partial_fit``
+        and removes some fraction of the surviving estimators.
 
     max_iter : int, default 100
         Maximum number of partial fit calls per model.
