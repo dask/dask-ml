@@ -373,7 +373,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
         best_index = best_index.flat[0]
 
         meta, _ = _get_meta(
-            {b: SHA.history_ for b, SHA in SHAs.items()}, brackets.keys(), SHAs, key=key
+            {b: SHA.history_ for b, SHA in SHAs.items()}, brackets.keys(), SHAs, key
         )
 
         self.metadata_ = {
@@ -437,9 +437,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
         return info
 
 
-def _get_meta(hists, brackets, SHAs, key=None):
-    if key is None:
-        key = lambda bracket, ident: "bracket={}-{}".format(bracket, ident)
+def _get_meta(hists, brackets, SHAs, key):
     meta_ = {}
     history_ = {}
     for bracket in brackets:
