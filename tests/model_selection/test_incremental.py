@@ -2,6 +2,7 @@ import random
 
 import dask.array as da
 import numpy as np
+import scipy
 import toolz
 from dask.distributed import Future
 from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
@@ -493,3 +494,23 @@ def test_high_performing_models_are_retained_with_patience(c, s, a, b):
     search._adapt = remove_worst_performing_model
     yield search.fit(X, y)
     assert search.best_params_ == {"final_score": 5}
+
+
+def test_same_params_with_random_state(c, s, a, b):
+    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+    model = SGDClassifier(tol=1e-3, penalty="elasticnet")
+    params = {"alpha": scipy.stats.uniform(1e-4, 1)}
+
+    search1 = IncrementalSearchCV(
+        model, params, n_initial_parameters=10, random_state=0
+    )
+    yield search1.fit(X, y, classes=[0, 1])
+    params1 = search1.cv_results_["param_alpha"]
+
+    search2 = IncrementalSearchCV(
+        model, params, n_initial_parameters=10, random_state=0
+    )
+    yield search2.fit(X, y, classes=[0, 1])
+    params2 = search2.cv_results_["param_alpha"]
+
+    assert np.allclose(params1, params2)
