@@ -31,10 +31,9 @@ from dask_ml.wrappers import Incremental
 def test_basic(array_type, library, max_iter):
     @gen_cluster(client=True, timeout=5000)
     def _test_basic(c, s, a, b):
-        n, d = (50, 2)
-
         rng = da.random.RandomState(42)
 
+        n, d = (50, 2)
         # create observations we know linear models can fit
         X = rng.normal(size=(n, d), chunks=n // 2)
         coef_star = rng.uniform(size=d, chunks=d)
@@ -72,7 +71,10 @@ def test_basic(array_type, library, max_iter):
         if library == "ConstantFunction":
             assert score == search.best_score_
         else:
-            assert abs(score - search.best_score_) < 0.1
+            # These are not equal because IncrementalSearchCV uses a train/test
+            # split and we're testing on the entire train dataset, not only the
+            # validation/test set.
+            assert abs(score - search.best_score_) < 0.05
 
         assert type(search.best_estimator_) == type(model)
         assert isinstance(search.best_params_, dict)
