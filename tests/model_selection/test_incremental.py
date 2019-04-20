@@ -479,6 +479,4 @@ def test_same_models_with_random_state(c, s, a, b):
 
     assert search1.best_score_ == search2.best_score_
     assert search1.best_params_ == search2.best_params_
-    assert np.allclose(
-        search1.best_estimator_.coef_, search2.best_estimator_.coef_
-    )
+    assert np.allclose(search1.best_estimator_.coef_, search2.best_estimator_.coef_)
