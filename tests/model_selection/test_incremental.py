@@ -496,6 +496,7 @@ def test_high_performing_models_are_retained_with_patience(c, s, a, b):
     assert search.best_params_ == {"final_score": 5}
 
 
+@gen_cluster(client=True)
 def test_same_params_with_random_state(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
