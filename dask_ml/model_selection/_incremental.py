@@ -458,7 +458,9 @@ class BaseIncrementalSearchCV(ParallelPostFit):
             test_size = min(0.2, 1 / X.npartitions)
         else:
             test_size = self.test_size
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size)
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=test_size, random_state=self.random_state
+        )
         return X_train, X_test, y_train, y_test
 
     def _additional_calls(self, info):
