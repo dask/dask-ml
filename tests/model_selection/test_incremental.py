@@ -453,7 +453,7 @@ def test_same_params_with_random_state(c, s, a, b):
 
 
 @gen_cluster(client=True)
-def test_train_test_random_state(c, s, a, b):
+def test_same_models_with_random_state(c, s, a, b):
     X, y = make_classification(
         n_samples=100, n_features=2, chunks=(10, 5), random_state=0
     )
