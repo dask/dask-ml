@@ -74,7 +74,7 @@ def test_basic(array_type, library, max_iter):
             # These are not equal because IncrementalSearchCV uses a train/test
             # split and we're testing on the entire train dataset, not only the
             # validation/test set.
-            assert abs(score - search.best_score_) < 0.05
+            assert abs(score - search.best_score_) < 0.1
 
         assert type(search.best_estimator_) == type(model)
         assert isinstance(search.best_params_, dict)
