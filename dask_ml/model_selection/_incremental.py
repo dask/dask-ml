@@ -266,6 +266,7 @@ def _fit(
 
     info = defaultdict(list)
     for h in history:
+        h.pop("_calls_to_make", None)
         info[h["model_id"]].append(h)
     info = dict(info)
 
@@ -842,32 +843,32 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
     def _additional_calls(self, info):
         calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
-        if all(c == 1 for c in calls.values()):
-            # this condition happens at the beginning
-            #
-            # _to_reach records the number of partial_fit calls that need to be
-            # be made on each model to reach the number _adapt specifies.
-            # It only matters for when patience is set -- otherwise,
-            # the calls specified by _adapt are scheduled.
-            #
-            # It's a class variable because this variable needs to be stored
-            # somewhere.  Nothing is known about _adapt, so _to_reach needs
-            # to be persisted across calls to _additional_calls. It can not
-            # be calculated every call because _adapt is a black box
-            self._to_reach = {}
 
         patience_calls = max(int(self.patience) // 3, 1)
-        if self._to_reach and self.patience:
-            calls_to_make = {k: self._to_reach[k] - v for k, v in calls.items()}
+        if self.patience and max(calls.values()) > 1:
+            calls_so_far = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
+            adapt_calls = {
+                k: [
+                    vi["partial_fit_calls"] + vi["_calls_to_make"]
+                    for vi in v
+                    if "_calls_to_make" in vi
+                ][-1]
+                for k, v in info.items()
+            }
+
+            calls_to_make = {k: adapt_calls[k] - calls_so_far[k] for k in calls}
             if sum(calls_to_make.values()) > 0:
                 out = self._stop_on_plateau(calls_to_make, info)
                 return {k: min(v, patience_calls) for k, v in out.items()}
 
         instructions = self._adapt(info)
+        if self.patience:
+            for ident, calls in instructions.items():
+                info[ident][-1]["_calls_to_make"] = calls
+
         out = self._stop_on_plateau(instructions, info)
 
         if self.patience:
-            self._to_reach = {k: v + calls[k] for k, v in out.items()}
             return {k: min(v, patience_calls) for k, v in out.items()}
         return out
 
