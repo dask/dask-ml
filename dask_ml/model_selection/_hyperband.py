@@ -323,7 +323,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
         # hopefully less adaptive can fill in for any blank spots
         #
         # _brackets_ids is ordered from largest to smallest
-        _brackets_ids = sorted(list(SHAs.keys()))[::-1]
+        _brackets_ids = list(reversed(sorted(SHAs)))
         _SHAs = yield [SHAs[b]._fit(X, y, **fit_params) for b in _brackets_ids]
         SHAs = {b: SHA for b, SHA in zip(_brackets_ids, _SHAs)}
 
