@@ -266,7 +266,7 @@ def _fit(
 
     info = defaultdict(list)
     for h in history:
-        h.pop("_calls_to_make", None)
+        h.pop("_adapt", None)
         info[h["model_id"]].append(h)
     info = dict(info)
 
@@ -851,9 +851,9 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
             calls_so_far = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
             adapt_calls = {
                 k: [
-                    vi["partial_fit_calls"] + vi["_calls_to_make"]
+                    vi["partial_fit_calls"] + vi["_adapt"]
                     for vi in v
-                    if "_calls_to_make" in vi
+                    if "_adapt" in vi
                 ][-1]
                 for k, v in info.items()
             }
@@ -866,7 +866,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         instructions = self._adapt(info)
         if self.patience:
             for ident, calls in instructions.items():
-                info[ident][-1]["_calls_to_make"] = calls
+                info[ident][-1]["_adapt"] = calls
 
         out = self._stop_on_plateau(instructions, info)
 
