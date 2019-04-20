@@ -473,7 +473,12 @@ def test_same_models_with_random_state(c, s, a, b):
     search2 = IncrementalSearchCV(
         model, params, n_initial_parameters=10, random_state=0
     )
+
     yield search1.fit(X, y, classes=[0, 1])
     yield search2.fit(X, y, classes=[0, 1])
+
     assert search1.best_score_ == search2.best_score_
     assert search1.best_params_ == search2.best_params_
+    assert np.allclose(
+        search1.best_estimator_.coef_, search2.best_estimator_.coef_
+    )
