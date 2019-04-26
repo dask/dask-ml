@@ -14,7 +14,7 @@ dependencies:
   - isort
   - multipledispatch
   - nbsphinx
-  - nomkl
+  # - nomkl
   - nose
   - numba
   - numpy
