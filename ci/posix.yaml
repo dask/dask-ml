@@ -10,7 +10,7 @@ jobs:
     matrix:
       linux:
         envFile: ci/environment-3.7.yaml
-      earliest-supported:
+      earliest:
         envFile: 'ci/environment-3.6.yaml'
 
   steps:
