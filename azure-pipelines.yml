@@ -24,6 +24,8 @@ jobs:
     vmImage: $(imageName)
 
   steps:
+  # TODO: move to a template and just have one of these per file.
+  # That's more complex, but makes the dashboard look nicer, fewer steps.
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
     displayName: "Add conda to PATH (posix)"
 
