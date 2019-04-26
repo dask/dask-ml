@@ -321,9 +321,9 @@ class TestDummyEncoder:
         expected = pd.DataFrame(
             {
                 "D": np.array([1, 2, 3, 4]),
-                "A_a": np.array([1, 0, 0, 1], dtype="uint8"),
-                "A_b": np.array([0, 1, 0, 0], dtype="uint8"),
-                "A_c": np.array([0, 0, 1, 0], dtype="uint8"),
+                "A_a": np.array([1, 0, 0, 1], dtype="uint"),
+                "A_b": np.array([0, 1, 0, 0], dtype="uint"),
+                "A_c": np.array([0, 0, 1, 0], dtype="uint"),
             },
             columns=["D", "A_a", "A_b", "A_c"],
         )
@@ -353,9 +353,9 @@ class TestDummyEncoder:
         expected = pd.DataFrame(
             {
                 "A": pd.Categorical(["a", "b", "c", "a"], ordered=True),
-                "B_a": np.array([1, 0, 0, 1], dtype="uint8"),
-                "B_b": np.array([0, 1, 0, 0], dtype="uint8"),
-                "B_c": np.array([0, 0, 1, 0], dtype="uint8"),
+                "B_a": np.array([1, 0, 0, 1], dtype="uint"),
+                "B_b": np.array([0, 1, 0, 0], dtype="uint"),
+                "B_c": np.array([0, 0, 1, 0], dtype="uint"),
             },
             columns=["A", "B_a", "B_b", "B_c"],
         )
@@ -423,7 +423,7 @@ class TestOrdinalEncoder:
         trn = de.transform(df)
 
         expected = pd.DataFrame(
-            {"A": np.array([0, 1, 2, 0], dtype="int8"), "D": np.array([1, 2, 3, 4])},
+            {"A": np.array([0, 1, 2, 0], dtype="int"), "D": np.array([1, 2, 3, 4])},
             columns=["A", "D"],
         )
 
