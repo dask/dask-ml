@@ -83,6 +83,15 @@ def test_array_median_raises():
         imp.fit(dX)
 
 
+def test_simple_imputer_add_indicator_raises():
+    # https://github.com/dask/dask-ml/issues/494
+    pytest.importorskip("sklearn", minversion="0.21.dev0")
+    imputer = dask_ml.impute.SimpleImputer(add_indicator=True)
+
+    with pytest.raises(NotImplementedError):
+        imputer.fit(dX)
+
+
 @pytest.mark.parametrize("daskify", [True, False])
 @pytest.mark.parametrize("strategy", ["median", "most_frequent", "constant"])
 def test_frame_strategies(daskify, strategy):
