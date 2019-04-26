@@ -36,16 +36,16 @@ jobs:
     displayName: "install"
 
   - script: |
-      conda activate dask-ml-test
+      source activate dask-ml-test
       conda list
 
   - script: |
-      conda activate dask-ml-test
+      source activate dask-ml-test
       pytest tests
     displayName: 'pytest'
 
   - script: |
-      conda activate dask-ml-test
+      source activate dask-ml-test
       echo "[flake8]"
       flake8
 
