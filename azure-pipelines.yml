@@ -2,69 +2,15 @@ trigger:
 - master
 
 jobs:
-
-- job: 'Test'
-  strategy:
-    matrix:
-      linux:
-        imageName: 'ubuntu-16.04'
-        envFile: 'ci/environment-3.7.yaml'
-        activate: "source activate"
-      earliest-supported:
-        imageName: 'ubuntu-16.04'
-        envFile: 'ci/environment-3.6.yaml'
-        activate: "source activate"
-      win-64:
-        imageName: 'vs2017-win2016'
-        envFile: 'ci/environment-3.7.yaml'
-        activate: "activate"
-      # windows-32:
-      #   imageName: 'vs2017-win2016'
-      #   envFile: 'ci/environment-win-32.yaml'
-      #   CONDA_SUBDIRS: 'win-32,noarch'
-    maxParallel: 4
-  pool:
-    vmImage: $(imageName)
-
-  steps:
-  # TODO: move to a template and just have one of these per file.
-  # That's more complex, but makes the dashboard look nicer, fewer steps.
-  - bash: echo "##vso[task.prependpath]$CONDA/bin"
-    displayName: "Add conda to PATH (posix)"
-
-  - powershell: Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
-    displayName: "Add conda to PATH (windows)"
-
-  - bash: conda env create --quiet --file=$(envFile) --name=dask-ml-test && conda list -n dask-ml-test
-    displayName: "install"
-
-  - script: |
-      $(activate) dask-ml-test
-      pytest tests
-    displayName: 'Run Tests'
-
-  - script: |
-      $(activate) dask-ml-test
-      echo "[flake8]"
-      flake8
-
-      echo "[black]"
-      black --check .
-
-      echo "[isort]"
-      isort --recursive --check-only .
-    displayName: "Lint"
-
-- job: 'Publish'
-  dependsOn: 'Test'
-  pool:
-    vmImage: 'Ubuntu-16.04'
-
-  steps:
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: '3.x'
-      architecture: 'x64'
-
-  - script: python setup.py sdist
-    displayName: 'Build sdist'
+- template: ci/posix.yml
+  parameters:
+    name: 'linux'
+    vmImage: 'ubuntu-16.04'
+- template: ci/posix.yml
+  parameters:
+    name: 'earliest-supported'
+    vmImage: 'ubuntu-16.04'
+- template: ci/windows.yml
+  parameters:
+    name: 'win-64'
+    vmImage: 'vs2017-win2016'
