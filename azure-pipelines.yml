@@ -8,5 +8,5 @@ jobs:
     vmImage: 'ubuntu-16.04'
 - template: ci/windows.yaml
   parameters:
-    name: 'win-64'
+    name: 'win64'
     vmImage: 'vs2017-win2016'
