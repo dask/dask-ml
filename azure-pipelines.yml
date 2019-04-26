@@ -2,15 +2,15 @@ trigger:
 - master
 
 jobs:
-- template: ci/posix.yml
+- template: ci/posix.yaml
   parameters:
     name: 'linux'
     vmImage: 'ubuntu-16.04'
-- template: ci/posix.yml
+- template: ci/posix.yaml
   parameters:
     name: 'earliest-supported'
     vmImage: 'ubuntu-16.04'
-- template: ci/windows.yml
+- template: ci/windows.yaml
   parameters:
     name: 'win-64'
     vmImage: 'vs2017-win2016'
