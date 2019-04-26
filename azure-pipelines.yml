@@ -9,6 +9,9 @@ jobs:
       linux:
         imageName: 'ubuntu-16.04'
         envFile: 'ci/environment-3.7.yaml'
+      earliest-supported:
+        imageName: 'ubuntu-16.04'
+        envFile: 'ci/environment-3.6.yaml'
       win-64:
         imageName: 'vs2017-win2016'
         envFile: 'ci/environment-3.7.yaml'

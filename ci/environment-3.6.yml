@@ -12,21 +12,21 @@ dependencies:
   - ipykernel
   - ipython
   - isort
-  - multipledispatch
+  - multipledispatch ==0.4.9
   - nbsphinx
   - nomkl
   - nose
   - numba
-  - numpy
+  - numpy ==1.15.4
   - numpydoc
-  - pandas
+  - pandas =0.23.4
   - psutil
   - pytest
   - pytest-cov
   - pytest-mock
-  - python=3.6.6
+  - python=3.6.*
   - sortedcontainers
-  - scikit-learn>=0.20.0
+  - scikit-learn ==0.20.0
   - scipy
   - six
   - sparse
@@ -37,13 +37,11 @@ dependencies:
   - testpath<0.4
   - tornado
   - toolz
-  - xgboost
   - zict
+  - dask =1.0.0
+  - dask-glm
   - pip:
-    - dask-glm
-    - git+https://github.com/dask/dask.git
-    - git+https://github.com/dask/distributed.git
-    - git+https://github.com/dask/dask-tensorflow.git
-    - git+https://github.com/dask/dask-xgboost.git
     - dask_sphinx_theme >=1.1.0
+    - git+https://github.com/dask/distributed.git
     - graphviz
+    - pytest-azurepipelines
