@@ -9,12 +9,15 @@ jobs:
       linux:
         imageName: 'ubuntu-16.04'
         envFile: 'ci/environment-3.7.yaml'
+        activate: "source activate"
       earliest-supported:
         imageName: 'ubuntu-16.04'
         envFile: 'ci/environment-3.6.yaml'
+        activate: "source activate"
       win-64:
         imageName: 'vs2017-win2016'
         envFile: 'ci/environment-3.7.yaml'
+        activate: "activate"
       # windows-32:
       #   imageName: 'vs2017-win2016'
       #   envFile: 'ci/environment-win-32.yaml'
@@ -26,26 +29,27 @@ jobs:
   steps:
   # TODO: move to a template and just have one of these per file.
   # That's more complex, but makes the dashboard look nicer, fewer steps.
-  - bash: echo "##vso[task.prependpath]$CONDA/bin" && conda init
+  - bash: echo "##vso[task.prependpath]$CONDA/bin"
     displayName: "Add conda to PATH (posix)"
 
-  - powershell: Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"; conda init
+  - powershell: Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
     displayName: "Add conda to PATH (windows)"
 
-  - bash: conda env create --quiet --file=$(envFile) --name=dask-ml-test
+
+  - bash: conda env create --quiet --file=$(envFile) --name=dask-ml-test && conda list -n dask-ml-test
     displayName: "install"
 
   - script: |
-      conda activate dask-ml-test
+      $(activate) dask-ml-test
       conda list
 
   - script: |
-      conda activate dask-ml-test
+      $(activate) dask-ml-test
       pytest tests
     displayName: 'pytest'
 
   - script: |
-      conda activate dask-ml-test
+      $(activate) dask-ml-test
       echo "[flake8]"
       flake8
 
