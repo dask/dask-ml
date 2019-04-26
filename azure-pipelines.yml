@@ -25,7 +25,10 @@ jobs:
 
   steps:
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
-    displayName: "Add conda to PATH"
+    displayName: "Add conda to PATH (posix)"
+
+  - powershell: Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
+    displayName: "Add conda to PATH (windows)"
 
   - bash: conda env create --quiet --file=$(envFile) --name=dask-ml-test
     displayName: "install"
