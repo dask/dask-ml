@@ -13,7 +13,7 @@ dependencies:
   - isort
   - multipledispatch >=0.4.9
   - numba
-  - numpy
+  - numpy >=1.16.3
   - numpydoc
   - packaging
   - pandas
