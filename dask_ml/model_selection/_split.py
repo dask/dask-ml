@@ -172,7 +172,7 @@ class ShuffleSplit(BaseCrossValidator):
         offsets = np.hstack([0, np.cumsum(chunks)])
         train_idx = da.concatenate(
             [
-                da.from_delayed(x + offset, (train_size,), np.dtype("i8"))
+                da.from_delayed(x + offset, (train_size,), np.dtype("int"))
                 for x, chunksize, (train_size, _), offset in zip(
                     train_objs, chunks, sizes, offsets
                 )
@@ -180,7 +180,7 @@ class ShuffleSplit(BaseCrossValidator):
         )
         test_idx = da.concatenate(
             [
-                da.from_delayed(x + offset, (test_size,), np.dtype("i8"))
+                da.from_delayed(x + offset, (test_size,), np.dtype("int"))
                 for x, chunksize, (_, test_size), offset in zip(
                     test_objs, chunks, sizes, offsets
                 )
@@ -296,14 +296,14 @@ class KFold(BaseCrossValidator):
 
         train_idx = da.concatenate(
             [
-                da.from_delayed(obj, (train_size,), np.dtype("i8"))
+                da.from_delayed(obj, (train_size,), np.dtype("int"))
                 for obj, train_size in zip(train_objs, train_sizes)
             ]
         )
 
         test_idx = da.concatenate(
             [
-                da.from_delayed(obj, (test_size,), np.dtype("i8"))
+                da.from_delayed(obj, (test_size,), np.dtype("int"))
                 for obj, test_size in zip(test_objs, test_sizes)
             ]
         )
