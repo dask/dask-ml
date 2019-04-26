@@ -19,7 +19,7 @@ jobs:
     displayName: "install"
 
   - script: |
-      activate dask-ml-test
+      call activate dask-ml-test
       pytest tests
     displayName: 'Run Tests'
 
