@@ -8,10 +8,10 @@ jobs:
     matrix:
       linux:
         imageName: 'ubuntu-16.04'
-        envFile: 'ci/linux.yaml'
+        envFile: 'ci/environment-3.7.yaml'
       win-64:
         imageName: 'vs2017-win2016'
-        envFile: 'ci/win-64.yaml'
+        envFile: 'ci/environment-3.7.yaml'
       # windows-32:
       #   imageName: 'vs2017-win2016'
       #   envFile: 'ci/environment-win-32.yaml'
