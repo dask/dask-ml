@@ -8,14 +8,14 @@ jobs:
     matrix:
       linux:
         imageName: 'ubuntu-16.04'
-        envFile: 'ci/environment-new.yaml'
-      windows-32:
+        envFile: 'ci/linux.yaml'
+      win-64:
         imageName: 'vs2017-win2016'
-        envFile: 'ci/environment-win-32.yaml'
-        CONDA_SUBDIRS: 'win-32,noarch'
-      windows-64:
-        imageName: 'vs2017-win2016'
-        envFile: 'ci/environment-new.yaml'
+        envFile: 'ci/win-64.yaml'
+      # windows-32:
+      #   imageName: 'vs2017-win2016'
+      #   envFile: 'ci/environment-win-32.yaml'
+      #   CONDA_SUBDIRS: 'win-32,noarch'
     maxParallel: 4
   pool:
     vmImage: $(imageName)
@@ -61,3 +61,5 @@ jobs:
 
   - script: python setup.py sdist
     displayName: 'Build sdist'
+"bracket={}-{}":
+  format(:
