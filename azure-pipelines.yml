@@ -61,5 +61,3 @@ jobs:
 
   - script: python setup.py sdist
     displayName: 'Build sdist'
-"bracket={}-{}":
-  format(:
