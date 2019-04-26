@@ -248,7 +248,7 @@ class TestCategorizer(object):
         assert is_categorical_dtype(trn["A"])
         assert is_categorical_dtype(trn["B"])
         assert is_categorical_dtype(trn["C"])
-        assert trn["D"].dtype == int
+        assert trn["D"].dtype == np.dtype("int64")
         tm.assert_index_equal(ce.columns_, pd.Index(["A", "B", "C"]))
         tm.assert_frame_equal(raw, original)
 
@@ -268,7 +268,7 @@ class TestCategorizer(object):
         assert is_categorical_dtype(trn["A"])
         assert is_categorical_dtype(trn["B"])
         assert is_categorical_dtype(trn["C"])
-        assert trn["D"].dtype == int
+        assert trn["D"].dtype == np.dtype("int64")
         tm.assert_index_equal(ce.columns_, pd.Index(["A", "B", "C"]))
 
     def test_columns(self):
@@ -320,7 +320,7 @@ class TestDummyEncoder:
 
         expected = pd.DataFrame(
             {
-                "D": np.array([1, 2, 3, 4]),
+                "D": np.array([1, 2, 3, 4], dtype="int64"),
                 "A_a": np.array([1, 0, 0, 1], dtype="uint8"),
                 "A_b": np.array([0, 1, 0, 0], dtype="uint8"),
                 "A_c": np.array([0, 0, 1, 0], dtype="uint8"),
@@ -423,7 +423,10 @@ class TestOrdinalEncoder:
         trn = de.transform(df)
 
         expected = pd.DataFrame(
-            {"A": np.array([0, 1, 2, 0], dtype="int8"), "D": np.array([1, 2, 3, 4])},
+            {
+                "A": np.array([0, 1, 2, 0], dtype="int8"),
+                "D": np.array([1, 2, 3, 4], dtype="int64"),
+            },
             columns=["A", "D"],
         )
 
