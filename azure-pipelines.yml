@@ -26,26 +26,26 @@ jobs:
   steps:
   # TODO: move to a template and just have one of these per file.
   # That's more complex, but makes the dashboard look nicer, fewer steps.
-  - bash: echo "##vso[task.prependpath]$CONDA/bin"
+  - bash: echo "##vso[task.prependpath]$CONDA/bin" && conda init
     displayName: "Add conda to PATH (posix)"
 
-  - powershell: Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
+  - powershell: Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"; conda init
     displayName: "Add conda to PATH (windows)"
 
   - bash: conda env create --quiet --file=$(envFile) --name=dask-ml-test
     displayName: "install"
 
   - script: |
-      source activate dask-ml-test
+      conda activate dask-ml-test
       conda list
 
   - script: |
-      source activate dask-ml-test
+      conda activate dask-ml-test
       pytest tests
     displayName: 'pytest'
 
   - script: |
-      source activate dask-ml-test
+      conda activate dask-ml-test
       echo "[flake8]"
       flake8
 
