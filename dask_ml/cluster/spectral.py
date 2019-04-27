@@ -191,7 +191,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
             if self.assign_labels == "kmeans":
                 km = KMeans(
                     n_clusters=n_clusters,
-                    random_state=draw_seed(rng, 2 ** 32 - 1, dtype="uint"),
+                    random_state=draw_seed(rng, np.iinfo("i4").max, dtype="uint"),
                 )
             elif self.assign_labels == "sklearn-kmeans":
                 km = sklearn.cluster.KMeans(n_clusters=n_clusters, random_state=rng)
