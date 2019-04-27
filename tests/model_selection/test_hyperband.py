@@ -3,6 +3,7 @@ from collections import defaultdict
 
 import dask.array as da
 import numpy as np
+import pandas as pd
 import pytest
 import scipy.stats
 from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
@@ -169,6 +170,22 @@ def test_hyperband_patience(c, s, a, b):
 
 
 @gen_cluster(client=True, timeout=5000)
+def test_cv_results_order_preserved(c, s, a, b):
+    X, y = make_classification(n_samples=10, n_features=4, chunks=10)
+    model = ConstantFunction()
+    params = {"value": scipy.stats.uniform(0, 1)}
+    alg = HyperbandSearchCV(model, params, max_iter=9, random_state=42)
+    yield alg.fit(X, y)
+
+    info = {k: v[-1] for k, v in alg.model_history_.items()}
+    for _, row in pd.DataFrame(alg.cv_results_).iterrows():
+        model_info = info[row["model_id"]]
+        assert row["bracket"] == model_info["bracket"]
+        assert row["params"] == model_info["params"]
+        assert np.allclose(row["test_score"], model_info["score"])
+
+
+@gen_cluster(client=True, timeout=5000)
 def test_integration(c, s, a, b):
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
     model = ConstantFunction()
@@ -181,7 +198,6 @@ def test_integration(c, s, a, b):
     for column, dtype, condition in [
         ("params", dict, lambda d: set(d.keys()) == {"value"}),
         ("test_score", float, gt_zero),
-        ("test_score", float, gt_zero),
         ("rank_test_score", int, gt_one),
         ("mean_partial_fit_time", float, gt_zero),
         ("std_partial_fit_time", float, gt_zero),
@@ -190,6 +206,7 @@ def test_integration(c, s, a, b):
         ("model_id", None, lambda x: isinstance(x, str)),
         ("partial_fit_calls", int, gt_zero),
         ("param_value", float, gt_zero),
+        ("bracket", int, None),
     ]:
         if dtype:
             assert alg.cv_results_[column].dtype == dtype

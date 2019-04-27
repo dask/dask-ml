@@ -339,10 +339,15 @@ class HyperbandSearchCV(IncrementalSearchCV):
                     h["model_id"] = new_ids[h["model_id"]]
                     h["bracket"] = b
 
-        keys = {k for SHA in SHAs.values() for k in SHA.cv_results_.keys()}
+        for b, SHA in SHAs.items():
+            n = len(SHA.cv_results_["model_id"])
+            SHA.cv_results_["bracket"] = np.ones(n, dtype=int) * b
+
+        cv_keys = {k for SHA in SHAs.values() for k in SHA.cv_results_.keys()}
+
         cv_results = {
-            k: sum([SHA.cv_results_[k].tolist() for SHA in SHAs.values()], [])
-            for k in keys
+            k: [v for b in _brackets_ids for v in SHAs[b].cv_results_[k]]
+            for k in cv_keys
         }
         cv_results = {k: np.array(v) for k, v in cv_results.items()}
 
