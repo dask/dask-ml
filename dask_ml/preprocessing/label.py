@@ -215,8 +215,6 @@ def _check_and_search_block(arr, uniques, onehot_dtype=None, block_info=None):
         raise ValueError(msg)
 
     label_encoded = np.searchsorted(uniques, arr)
-    # Is this astype needed to match scikit-learn on 32-bit platforms?
-    label_encoded = label_encoded.astype(np.dtype("int"))
     if onehot_dtype:
         return _construct(label_encoded, uniques)
     else:
