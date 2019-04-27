@@ -27,5 +27,6 @@ dependencies:
   - six
   - sparse
   - toolz
+  - pip
   - pip:
     - pytest-azurepipelines
