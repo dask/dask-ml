@@ -68,10 +68,9 @@ def test_blockwise_shufflesplit_rng():
 
     # Test that splitting is reproducible
     n_splits = 2
-
     split1 = dask_ml.model_selection.ShuffleSplit(n_splits=n_splits, random_state=0)
-
     split2 = dask_ml.model_selection.ShuffleSplit(n_splits=n_splits, random_state=0)
+
     for (train_1, test_1), (train_2, test_2) in zip(split1.split(dX), split2.split(dX)):
         da.utils.assert_eq(train_1, train_2)
         da.utils.assert_eq(test_1, test_2)
