@@ -28,7 +28,7 @@ jobs:
   - script: |
       source activate dask-ml-test
       conda uninstall -y --force scikit-learn
-      pip install --no-deps --pre -f https://sklearn-nightly.scdn8.secure.raxcdn.com scikit-learn
+      pip install --pre -f https://sklearn-nightly.scdn8.secure.raxcdn.com scikit-learn
     displayName: "Install scikit-learn dev."
     condition: eq(variables.SKLEARN_DEV, 'yes')
 
