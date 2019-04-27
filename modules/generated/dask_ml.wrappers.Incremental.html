@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.1.dev26+g008e837
+                0.12.1.dev74+gf725ade
               </div>
             
           
@@ -322,7 +322,10 @@ not control shuffle between blocks or shuffling each block.</p>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><a class="reference internal" href="dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit" title="dask_ml.wrappers.ParallelPostFit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ParallelPostFit</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearch</span></code></p>
+<dl class="simple">
+<dt><a class="reference internal" href="dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit" title="dask_ml.wrappers.ParallelPostFit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ParallelPostFit</span></code></a></dt><dd></dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearch</span></code></dt><dd></dd>
+</dl>
 </div>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dask_ml.wrappers</span> <span class="k">import</span> <span class="n">Incremental</span>
@@ -349,44 +352,44 @@ parameter names with <code class="docutils literal notranslate"><span class="pre
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.wrappers.Incremental.fit" title="dask_ml.wrappers.Incremental.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X[, y])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.wrappers.Incremental.fit" title="dask_ml.wrappers.Incremental.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self, X[, y])</p></td>
 <td><p>Fit the underlying estimator.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.wrappers.Incremental.get_params" title="dask_ml.wrappers.Incremental.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.wrappers.Incremental.get_params" title="dask_ml.wrappers.Incremental.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[, deep])</p></td>
 <td><p>Get parameters for this estimator.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.wrappers.Incremental.partial_fit" title="dask_ml.wrappers.Incremental.partial_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_fit</span></code></a>(X[, y])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.wrappers.Incremental.partial_fit" title="dask_ml.wrappers.Incremental.partial_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_fit</span></code></a>(self, X[, y])</p></td>
 <td><p>Fit the underlying estimator.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.wrappers.Incremental.predict" title="dask_ml.wrappers.Incremental.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(X)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.wrappers.Incremental.predict" title="dask_ml.wrappers.Incremental.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(self, X)</p></td>
 <td><p>Predict for X.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.wrappers.Incremental.predict_log_proba" title="dask_ml.wrappers.Incremental.predict_log_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_log_proba</span></code></a>(X)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.wrappers.Incremental.predict_log_proba" title="dask_ml.wrappers.Incremental.predict_log_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_log_proba</span></code></a>(self, X)</p></td>
 <td><p>Log of proability estimates.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.wrappers.Incremental.predict_proba" title="dask_ml.wrappers.Incremental.predict_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_proba</span></code></a>(X)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.wrappers.Incremental.predict_proba" title="dask_ml.wrappers.Incremental.predict_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_proba</span></code></a>(self, X)</p></td>
 <td><p>Probability estimates.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.wrappers.Incremental.score" title="dask_ml.wrappers.Incremental.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(X, y[, compute])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.wrappers.Incremental.score" title="dask_ml.wrappers.Incremental.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(self, X, y[, compute])</p></td>
 <td><p>Returns the score on the given data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.wrappers.Incremental.set_params" title="dask_ml.wrappers.Incremental.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.wrappers.Incremental.set_params" title="dask_ml.wrappers.Incremental.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self, \*\*params)</p></td>
 <td><p>Set the parameters of this estimator.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.wrappers.Incremental.transform" title="dask_ml.wrappers.Incremental.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(X)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.wrappers.Incremental.transform" title="dask_ml.wrappers.Incremental.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self, X)</p></td>
 <td><p>Transform block or partition-wise for dask inputs.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="dask_ml.wrappers.Incremental.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>estimator=None</em>, <em>scoring=None</em>, <em>shuffle_blocks=True</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>estimator=None</em>, <em>scoring=None</em>, <em>shuffle_blocks=True</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dask_ml.wrappers.Incremental.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em>, <em>**fit_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>**fit_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the underlying estimator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -406,7 +409,7 @@ parameter names with <code class="docutils literal notranslate"><span class="pre
 
 <dl class="method">
 <dt id="dask_ml.wrappers.Incremental.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.get_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get parameters for this estimator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -427,7 +430,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.wrappers.Incremental.partial_fit">
-<code class="descname">partial_fit</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em>, <em>**fit_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.partial_fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">partial_fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>**fit_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.partial_fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the underlying estimator.</p>
 <p>If this estimator has not been previously fit, this is identical to
 <a class="reference internal" href="#dask_ml.wrappers.Incremental.fit" title="dask_ml.wrappers.Incremental.fit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Incremental.fit()</span></code></a>. If it has been previously fit,
@@ -450,7 +453,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.wrappers.Incremental.predict">
-<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.predict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predict</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict for X.</p>
 <p>For dask inputs, a dask array or dataframe is returned. For other
 inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
@@ -471,7 +474,7 @@ regular return value is returned.</p>
 
 <dl class="method">
 <dt id="dask_ml.wrappers.Incremental.predict_log_proba">
-<code class="descname">predict_log_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.predict_log_proba" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predict_log_proba</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.predict_log_proba" title="Permalink to this definition">¶</a></dt>
 <dd><p>Log of proability estimates.</p>
 <p>For dask inputs, a dask array or dataframe is returned. For other
 inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
@@ -494,7 +497,7 @@ method, then an <code class="docutils literal notranslate"><span class="pre">Att
 
 <dl class="method">
 <dt id="dask_ml.wrappers.Incremental.predict_proba">
-<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.predict_proba" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.predict_proba" title="Permalink to this definition">¶</a></dt>
 <dd><p>Probability estimates.</p>
 <p>For dask inputs, a dask array or dataframe is returned. For other
 inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
@@ -517,7 +520,7 @@ method, then an <code class="docutils literal notranslate"><span class="pre">Att
 
 <dl class="method">
 <dt id="dask_ml.wrappers.Incremental.score">
-<code class="descname">score</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>compute=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.score" title="Permalink to this definition">¶</a></dt>
+<code class="descname">score</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y</em>, <em>compute=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.score" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the score on the given data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -541,7 +544,7 @@ None for unsupervised learning.</p>
 
 <dl class="method">
 <dt id="dask_ml.wrappers.Incremental.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.set_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
 (such as pipelines). The latter have parameters of the form
@@ -550,7 +553,7 @@ component of a nested object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>self</strong></dt><dd></dd>
+<dt>self</dt><dd></dd>
 </dl>
 </dd>
 </dl>
@@ -558,7 +561,7 @@ component of a nested object.</p>
 
 <dl class="method">
 <dt id="dask_ml.wrappers.Incremental.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform block or partition-wise for dask inputs.</p>
 <p>For dask inputs, a dask array or dataframe is returned. For other
 inputs (NumPy array, pandas dataframe, scipy sparse matrix), the

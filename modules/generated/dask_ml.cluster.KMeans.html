@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.1.dev26+g008e837
+                0.12.1.dev74+gf725ade
               </div>
             
           
@@ -313,7 +313,11 @@ sample belongs to.</p>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PartialMiniBatchKMeans</span></code>, <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.cluster.MiniBatchKMeans.html#sklearn.cluster.MiniBatchKMeans" title="(in scikit-learn v0.20.3)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.cluster.MiniBatchKMeans</span></code></a>, <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html#sklearn.cluster.KMeans" title="(in scikit-learn v0.20.3)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.cluster.KMeans</span></code></a></p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">PartialMiniBatchKMeans</span></code></dt><dd></dd>
+<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.cluster.MiniBatchKMeans.html#sklearn.cluster.MiniBatchKMeans" title="(in scikit-learn v0.20.3)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.cluster.MiniBatchKMeans</span></code></a></dt><dd></dd>
+<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html#sklearn.cluster.KMeans" title="(in scikit-learn v0.20.3)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.cluster.KMeans</span></code></a></dt><dd></dd>
+</dl>
 </div>
 <p class="rubric">Notes</p>
 <p>This class implements a parallel and distributed version of k-Means.</p>
@@ -348,16 +352,16 @@ Sergei Vassilvitskii
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.cluster.KMeans.fit_transform" title="dask_ml.cluster.KMeans.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(X[, y])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.cluster.KMeans.fit_transform" title="dask_ml.cluster.KMeans.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self, X[, y])</p></td>
 <td><p>Fit to data, then transform it.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.cluster.KMeans.get_params" title="dask_ml.cluster.KMeans.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.cluster.KMeans.get_params" title="dask_ml.cluster.KMeans.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[, deep])</p></td>
 <td><p>Get parameters for this estimator.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.cluster.KMeans.predict" title="dask_ml.cluster.KMeans.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(X)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.cluster.KMeans.predict" title="dask_ml.cluster.KMeans.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(self, X)</p></td>
 <td><p>Predict the closest cluster each sample in X belongs to.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.cluster.KMeans.set_params" title="dask_ml.cluster.KMeans.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.cluster.KMeans.set_params" title="dask_ml.cluster.KMeans.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self, \*\*params)</p></td>
 <td><p>Set the parameters of this estimator.</p></td>
 </tr>
 </tbody>
@@ -378,13 +382,13 @@ Sergei Vassilvitskii
 </table>
 <dl class="method">
 <dt id="dask_ml.cluster.KMeans.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>n_clusters=8</em>, <em>init='k-means||'</em>, <em>oversampling_factor=2</em>, <em>max_iter=300</em>, <em>tol=0.0001</em>, <em>precompute_distances='auto'</em>, <em>random_state=None</em>, <em>copy_x=True</em>, <em>n_jobs=1</em>, <em>algorithm='full'</em>, <em>init_max_iter=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.cluster.KMeans.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>n_clusters=8</em>, <em>init='k-means||'</em>, <em>oversampling_factor=2</em>, <em>max_iter=300</em>, <em>tol=0.0001</em>, <em>precompute_distances='auto'</em>, <em>random_state=None</em>, <em>copy_x=True</em>, <em>n_jobs=1</em>, <em>algorithm='full'</em>, <em>init_max_iter=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.cluster.KMeans.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dask_ml.cluster.KMeans.fit_transform">
-<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em>, <em>**fit_params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.cluster.KMeans.fit_transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>**fit_params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.cluster.KMeans.fit_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit to data, then transform it.</p>
 <p>Fits transformer to X and y with optional parameters fit_params
 and returns a transformed version of X.</p>
@@ -408,7 +412,7 @@ and returns a transformed version of X.</p>
 
 <dl class="method">
 <dt id="dask_ml.cluster.KMeans.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.cluster.KMeans.get_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.cluster.KMeans.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get parameters for this estimator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -429,7 +433,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.cluster.KMeans.predict">
-<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.cluster.KMeans.predict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predict</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.cluster.KMeans.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict the closest cluster each sample in X belongs to.
 In the vector quantization literature, <cite>cluster_centers_</cite> is called
 the code book and each value returned by <cite>predict</cite> is the index of
@@ -452,7 +456,7 @@ the closest code in the code book.</p>
 
 <dl class="method">
 <dt id="dask_ml.cluster.KMeans.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.cluster.KMeans.set_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.cluster.KMeans.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
 (such as pipelines). The latter have parameters of the form
@@ -461,7 +465,7 @@ component of a nested object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>self</strong></dt><dd></dd>
+<dt>self</dt><dd></dd>
 </dl>
 </dd>
 </dl>

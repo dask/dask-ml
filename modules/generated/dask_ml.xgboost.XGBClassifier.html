@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.1.dev26+g008e837
+                0.12.1.dev74+gf725ade
               </div>
             
           
@@ -282,53 +282,53 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.apply" title="dask_ml.xgboost.XGBClassifier.apply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply</span></code></a>(X[, ntree_limit])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.apply" title="dask_ml.xgboost.XGBClassifier.apply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply</span></code></a>(self, X[, ntree_limit])</p></td>
 <td><p>Return the predicted leaf every tree for each sample.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.evals_result" title="dask_ml.xgboost.XGBClassifier.evals_result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evals_result</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.evals_result" title="dask_ml.xgboost.XGBClassifier.evals_result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evals_result</span></code></a>(self)</p></td>
 <td><p>Return the evaluation results.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.fit" title="dask_ml.xgboost.XGBClassifier.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X[, y, classes])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.fit" title="dask_ml.xgboost.XGBClassifier.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self, X[, y, classes])</p></td>
 <td><p>Fit a gradient boosting classifier</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.get_booster" title="dask_ml.xgboost.XGBClassifier.get_booster"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_booster</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.get_booster" title="dask_ml.xgboost.XGBClassifier.get_booster"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_booster</span></code></a>(self)</p></td>
 <td><p>Get the underlying xgboost Booster of this model.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.get_params" title="dask_ml.xgboost.XGBClassifier.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.get_params" title="dask_ml.xgboost.XGBClassifier.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[, deep])</p></td>
 <td><p>Get parameters.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.get_xgb_params" title="dask_ml.xgboost.XGBClassifier.get_xgb_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_xgb_params</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.get_xgb_params" title="dask_ml.xgboost.XGBClassifier.get_xgb_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_xgb_params</span></code></a>(self)</p></td>
 <td><p>Get xgboost type parameters.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.load_model" title="dask_ml.xgboost.XGBClassifier.load_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_model</span></code></a>(fname)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.load_model" title="dask_ml.xgboost.XGBClassifier.load_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_model</span></code></a>(self, fname)</p></td>
 <td><p>Load the model from a file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.predict" title="dask_ml.xgboost.XGBClassifier.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(X)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.predict" title="dask_ml.xgboost.XGBClassifier.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(self, X)</p></td>
 <td><p>Predict with <cite>data</cite>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.predict_proba" title="dask_ml.xgboost.XGBClassifier.predict_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_proba</span></code></a>(data[, ntree_limit])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.predict_proba" title="dask_ml.xgboost.XGBClassifier.predict_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_proba</span></code></a>(self, data[, ntree_limit])</p></td>
 <td><p>Predict the probability of each <cite>data</cite> example being of a given class.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.save_model" title="dask_ml.xgboost.XGBClassifier.save_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_model</span></code></a>(fname)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.save_model" title="dask_ml.xgboost.XGBClassifier.save_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_model</span></code></a>(self, fname)</p></td>
 <td><p>Save the model to a file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.score" title="dask_ml.xgboost.XGBClassifier.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(X, y[, sample_weight])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.score" title="dask_ml.xgboost.XGBClassifier.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(self, X, y[, sample_weight])</p></td>
 <td><p>Returns the mean accuracy on the given test data and labels.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.set_params" title="dask_ml.xgboost.XGBClassifier.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.set_params" title="dask_ml.xgboost.XGBClassifier.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self, \*\*params)</p></td>
 <td><p>Set the parameters of this estimator.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>max_depth=3</em>, <em>learning_rate=0.1</em>, <em>n_estimators=100</em>, <em>silent=True</em>, <em>objective='binary:logistic'</em>, <em>booster='gbtree'</em>, <em>n_jobs=1</em>, <em>nthread=None</em>, <em>gamma=0</em>, <em>min_child_weight=1</em>, <em>max_delta_step=0</em>, <em>subsample=1</em>, <em>colsample_bytree=1</em>, <em>colsample_bylevel=1</em>, <em>reg_alpha=0</em>, <em>reg_lambda=1</em>, <em>scale_pos_weight=1</em>, <em>base_score=0.5</em>, <em>random_state=0</em>, <em>seed=None</em>, <em>missing=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>max_depth=3</em>, <em>learning_rate=0.1</em>, <em>n_estimators=100</em>, <em>silent=True</em>, <em>objective='binary:logistic'</em>, <em>booster='gbtree'</em>, <em>n_jobs=1</em>, <em>nthread=None</em>, <em>gamma=0</em>, <em>min_child_weight=1</em>, <em>max_delta_step=0</em>, <em>subsample=1</em>, <em>colsample_bytree=1</em>, <em>colsample_bylevel=1</em>, <em>reg_alpha=0</em>, <em>reg_lambda=1</em>, <em>scale_pos_weight=1</em>, <em>base_score=0.5</em>, <em>random_state=0</em>, <em>seed=None</em>, <em>missing=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.apply">
-<code class="descname">apply</code><span class="sig-paren">(</span><em>X</em>, <em>ntree_limit=0</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.apply" title="Permalink to this definition">¶</a></dt>
+<code class="descname">apply</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>ntree_limit=0</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.apply" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the predicted leaf every tree for each sample.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -372,7 +372,7 @@ as tree learners (<cite>booster=gbtree</cite>).</p>
 
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.evals_result">
-<code class="descname">evals_result</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.evals_result" title="Permalink to this definition">¶</a></dt>
+<code class="descname">evals_result</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.evals_result" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the evaluation results.</p>
 <p>If <strong>eval_set</strong> is passed to the <cite>fit</cite> function, you can call
 <code class="docutils literal notranslate"><span class="pre">evals_result()</span></code> to get evaluation results for all passed <strong>eval_sets</strong>.
@@ -409,7 +409,7 @@ as linear learners (<cite>booster=gblinear</cite>).</p>
 
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em>, <em>classes=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>classes=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit a gradient boosting classifier</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -446,7 +446,7 @@ supported.</p>
 
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.get_booster">
-<code class="descname">get_booster</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.get_booster" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_booster</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.get_booster" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the underlying xgboost Booster of this model.</p>
 <p>This will raise an exception when fit was not called</p>
 <dl class="field-list simple">
@@ -460,13 +460,13 @@ supported.</p>
 
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.get_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get parameters.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.get_xgb_params">
-<code class="descname">get_xgb_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.get_xgb_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_xgb_params</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.get_xgb_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get xgboost type parameters.</p>
 </dd></dl>
 
@@ -492,7 +492,7 @@ as tree learners (<cite>booster=gbtree</cite>).</p>
 
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.load_model">
-<code class="descname">load_model</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.load_model" title="Permalink to this definition">¶</a></dt>
+<code class="descname">load_model</code><span class="sig-paren">(</span><em>self</em>, <em>fname</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.load_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load the model from a file.</p>
 <p>The model is loaded from an XGBoost internal binary format which is
 universal among the various XGBoost interfaces. Auxiliary attributes of
@@ -512,7 +512,7 @@ model object for best results.</strong></p>
 
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.predict">
-<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.predict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predict</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict with <cite>data</cite>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -555,7 +555,7 @@ Otherwise, it is assumed that the feature_names are the same.</p>
 
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.predict_proba">
-<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>data</em>, <em>ntree_limit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.predict_proba" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>self</em>, <em>data</em>, <em>ntree_limit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.predict_proba" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict the probability of each <cite>data</cite> example being of a given class.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -588,7 +588,7 @@ Otherwise, it is assumed that the feature_names are the same.</p>
 
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.save_model">
-<code class="descname">save_model</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.save_model" title="Permalink to this definition">¶</a></dt>
+<code class="descname">save_model</code><span class="sig-paren">(</span><em>self</em>, <em>fname</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.save_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the model to a file.</p>
 <p>The model is saved in an XGBoost internal binary format which is
 universal among the various XGBoost interfaces. Auxiliary attributes of
@@ -608,7 +608,7 @@ model object for best results.</strong></p>
 
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.score">
-<code class="descname">score</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.score" title="Permalink to this definition">¶</a></dt>
+<code class="descname">score</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.score" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the mean accuracy on the given test data and labels.</p>
 <p>In multi-label classification, this is the subset accuracy
 which is a harsh metric since you require for each sample that
@@ -635,7 +635,7 @@ each label set be correctly predicted.</p>
 
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.set_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.
 Modification of the sklearn method to allow unknown kwargs. This allows using
 the full range of xgboost parameters that are not defined as member variables

@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.1.dev26+g008e837
+                0.12.1.dev74+gf725ade
               </div>
             
           
@@ -268,12 +268,11 @@ repository.</p>
 <div class="section" id="creating-an-environment">
 <h2>Creating an environment<a class="headerlink" href="#creating-an-environment" title="Permalink to this headline">¶</a></h2>
 <p>We have conda environment YAML files with all the necessary dependencies
-in the <code class="docutils literal notranslate"><span class="pre">ci</span></code> directory. If you’re using conda you can</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>conda env create -f ci/environment-3.6.yml --name=dask-ml-dev
+in the <code class="docutils literal notranslate"><span class="pre">ci</span></code> directory.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>conda env create -f ci/environment-3.7.yml --name=dask-ml-dev
 </pre></div>
 </div>
-<p>to create a conda environment and install all the dependencies. Note there is
-also a <code class="docutils literal notranslate"><span class="pre">ci/environment-2.7.yml</span></code> file if you need to use Python 2.7.</p>
+<p>to create a conda environment and install all the dependencies.</p>
 <p>If you’re using pip, you can view the list of all the required and optional
 dependencies within <code class="docutils literal notranslate"><span class="pre">setup.py</span></code> (see the <code class="docutils literal notranslate"><span class="pre">install_requires</span></code> field for
 required dependencies and <code class="docutils literal notranslate"><span class="pre">extras_require</span></code> for optional dependencies).</p>

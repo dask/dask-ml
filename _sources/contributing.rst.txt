@@ -25,14 +25,13 @@ Creating an environment
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 We have conda environment YAML files with all the necessary dependencies
-in the ``ci`` directory. If you're using conda you can
+in the ``ci`` directory.
 
 .. code-block:: none
 
-   conda env create -f ci/environment-3.6.yml --name=dask-ml-dev
+   conda env create -f ci/environment-3.7.yml --name=dask-ml-dev
 
-to create a conda environment and install all the dependencies. Note there is
-also a ``ci/environment-2.7.yml`` file if you need to use Python 2.7.
+to create a conda environment and install all the dependencies.
 
 If you're using pip, you can view the list of all the required and optional
 dependencies within ``setup.py`` (see the ``install_requires`` field for

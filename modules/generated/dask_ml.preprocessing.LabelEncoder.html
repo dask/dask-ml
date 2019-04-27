@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.1.dev26+g008e837
+                0.12.1.dev74+gf725ade
               </div>
             
           
@@ -346,35 +346,35 @@ enables a faster <cite>transform</cite> algorithm.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.preprocessing.LabelEncoder.fit" title="dask_ml.preprocessing.LabelEncoder.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(y)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.preprocessing.LabelEncoder.fit" title="dask_ml.preprocessing.LabelEncoder.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self, y)</p></td>
 <td><p>Fit label encoder</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.preprocessing.LabelEncoder.fit_transform" title="dask_ml.preprocessing.LabelEncoder.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(y)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.preprocessing.LabelEncoder.fit_transform" title="dask_ml.preprocessing.LabelEncoder.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self, y)</p></td>
 <td><p>Fit label encoder and return encoded labels</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.preprocessing.LabelEncoder.get_params" title="dask_ml.preprocessing.LabelEncoder.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.preprocessing.LabelEncoder.get_params" title="dask_ml.preprocessing.LabelEncoder.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[, deep])</p></td>
 <td><p>Get parameters for this estimator.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.preprocessing.LabelEncoder.inverse_transform" title="dask_ml.preprocessing.LabelEncoder.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(y)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.preprocessing.LabelEncoder.inverse_transform" title="dask_ml.preprocessing.LabelEncoder.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(self, y)</p></td>
 <td><p>Transform labels back to original encoding.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.preprocessing.LabelEncoder.set_params" title="dask_ml.preprocessing.LabelEncoder.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.preprocessing.LabelEncoder.set_params" title="dask_ml.preprocessing.LabelEncoder.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self, \*\*params)</p></td>
 <td><p>Set the parameters of this estimator.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.preprocessing.LabelEncoder.transform" title="dask_ml.preprocessing.LabelEncoder.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(y)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.preprocessing.LabelEncoder.transform" title="dask_ml.preprocessing.LabelEncoder.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self, y)</p></td>
 <td><p>Transform labels to normalized encoding.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="dask_ml.preprocessing.LabelEncoder.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>use_categorical=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>use_categorical=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.LabelEncoder.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit label encoder</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -393,7 +393,7 @@ enables a faster <cite>transform</cite> algorithm.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.LabelEncoder.fit_transform">
-<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder.fit_transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>self</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder.fit_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit label encoder and return encoded labels</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -412,7 +412,7 @@ enables a faster <cite>transform</cite> algorithm.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.LabelEncoder.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder.get_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get parameters for this estimator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -433,7 +433,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.LabelEncoder.inverse_transform">
-<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder.inverse_transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>self</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder.inverse_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform labels back to original encoding.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -452,7 +452,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.LabelEncoder.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder.set_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
 (such as pipelines). The latter have parameters of the form
@@ -461,7 +461,7 @@ component of a nested object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>self</strong></dt><dd></dd>
+<dt>self</dt><dd></dd>
 </dl>
 </dd>
 </dl>
@@ -469,7 +469,7 @@ component of a nested object.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.LabelEncoder.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder.transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transform</code><span class="sig-paren">(</span><em>self</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform labels to normalized encoding.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

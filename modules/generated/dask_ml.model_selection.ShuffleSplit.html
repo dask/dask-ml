@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.1.dev26+g008e837
+                0.12.1.dev74+gf725ade
               </div>
             
           
@@ -310,29 +310,29 @@ by <cite>np.random</cite>.</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.model_selection.ShuffleSplit.get_n_splits" title="dask_ml.model_selection.ShuffleSplit.get_n_splits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_n_splits</span></code></a>([X, y, groups])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.model_selection.ShuffleSplit.get_n_splits" title="dask_ml.model_selection.ShuffleSplit.get_n_splits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_n_splits</span></code></a>(self[, X, y, groups])</p></td>
 <td><p>Returns the number of splitting iterations in the cross-validator</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.model_selection.ShuffleSplit.split" title="dask_ml.model_selection.ShuffleSplit.split"><code class="xref py py-obj docutils literal notranslate"><span class="pre">split</span></code></a>(X[, y, groups])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.model_selection.ShuffleSplit.split" title="dask_ml.model_selection.ShuffleSplit.split"><code class="xref py py-obj docutils literal notranslate"><span class="pre">split</span></code></a>(self, X[, y, groups])</p></td>
 <td><p>Generate indices to split data into training and test set.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="dask_ml.model_selection.ShuffleSplit.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>n_splits=10</em>, <em>test_size=0.1</em>, <em>train_size=None</em>, <em>blockwise=True</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.ShuffleSplit.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>n_splits=10</em>, <em>test_size=0.1</em>, <em>train_size=None</em>, <em>blockwise=True</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.ShuffleSplit.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dask_ml.model_selection.ShuffleSplit.get_n_splits">
-<code class="descname">get_n_splits</code><span class="sig-paren">(</span><em>X=None</em>, <em>y=None</em>, <em>groups=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.ShuffleSplit.get_n_splits" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_n_splits</code><span class="sig-paren">(</span><em>self</em>, <em>X=None</em>, <em>y=None</em>, <em>groups=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.ShuffleSplit.get_n_splits" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the number of splitting iterations in the cross-validator</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dask_ml.model_selection.ShuffleSplit.split">
-<code class="descname">split</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em>, <em>groups=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.ShuffleSplit.split" title="Permalink to this definition">¶</a></dt>
+<code class="descname">split</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>groups=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.ShuffleSplit.split" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate indices to split data into training and test set.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

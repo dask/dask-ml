@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.1.dev26+g008e837
+                0.12.1.dev74+gf725ade
               </div>
             
           
@@ -333,26 +333,26 @@ to the model</p>
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.linear_model.LinearRegression.fit" title="dask_ml.linear_model.LinearRegression.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X[, y])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.linear_model.LinearRegression.fit" title="dask_ml.linear_model.LinearRegression.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self, X[, y])</p></td>
 <td><p>Fit the model on the training data</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.linear_model.LinearRegression.get_params" title="dask_ml.linear_model.LinearRegression.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.linear_model.LinearRegression.get_params" title="dask_ml.linear_model.LinearRegression.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[, deep])</p></td>
 <td><p>Get parameters for this estimator.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.linear_model.LinearRegression.predict" title="dask_ml.linear_model.LinearRegression.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(X)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.linear_model.LinearRegression.predict" title="dask_ml.linear_model.LinearRegression.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(self, X)</p></td>
 <td><p>Predict values for samples in X.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.linear_model.LinearRegression.score" title="dask_ml.linear_model.LinearRegression.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(X, y)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.linear_model.LinearRegression.score" title="dask_ml.linear_model.LinearRegression.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(self, X, y)</p></td>
 <td><p>Returns the coefficient of determination R^2 of the prediction.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.linear_model.LinearRegression.set_params" title="dask_ml.linear_model.LinearRegression.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.linear_model.LinearRegression.set_params" title="dask_ml.linear_model.LinearRegression.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self, \*\*params)</p></td>
 <td><p>Set the parameters of this estimator.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="dask_ml.linear_model.LinearRegression.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>penalty='l2'</em>, <em>dual=False</em>, <em>tol=0.0001</em>, <em>C=1.0</em>, <em>fit_intercept=True</em>, <em>intercept_scaling=1.0</em>, <em>class_weight=None</em>, <em>random_state=None</em>, <em>solver='admm'</em>, <em>max_iter=100</em>, <em>multi_class='ovr'</em>, <em>verbose=0</em>, <em>warm_start=False</em>, <em>n_jobs=1</em>, <em>solver_kwargs=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.linear_model.LinearRegression.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>penalty='l2'</em>, <em>dual=False</em>, <em>tol=0.0001</em>, <em>C=1.0</em>, <em>fit_intercept=True</em>, <em>intercept_scaling=1.0</em>, <em>class_weight=None</em>, <em>random_state=None</em>, <em>solver='admm'</em>, <em>max_iter=100</em>, <em>multi_class='ovr'</em>, <em>verbose=0</em>, <em>warm_start=False</em>, <em>n_jobs=1</em>, <em>solver_kwargs=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.linear_model.LinearRegression.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -364,7 +364,7 @@ to the model</p>
 
 <dl class="method">
 <dt id="dask_ml.linear_model.LinearRegression.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.linear_model.LinearRegression.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.linear_model.LinearRegression.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the model on the training data</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -383,7 +383,7 @@ to the model</p>
 
 <dl class="method">
 <dt id="dask_ml.linear_model.LinearRegression.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.linear_model.LinearRegression.get_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.linear_model.LinearRegression.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get parameters for this estimator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -404,7 +404,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.linear_model.LinearRegression.predict">
-<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.linear_model.LinearRegression.predict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predict</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.linear_model.LinearRegression.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict values for samples in X.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -423,7 +423,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.linear_model.LinearRegression.score">
-<code class="descname">score</code><span class="sig-paren">(</span><em>X</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.linear_model.LinearRegression.score" title="Permalink to this definition">¶</a></dt>
+<code class="descname">score</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.linear_model.LinearRegression.score" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the coefficient of determination R^2 of the prediction.</p>
 <p>The coefficient R^2 is defined as (1 - u/v), where u is the residual
 sum of squares ((y_true - y_pred) ** 2).sum() and v is the total
@@ -452,7 +452,7 @@ would get a R^2 score of 0.0.</p>
 
 <dl class="method">
 <dt id="dask_ml.linear_model.LinearRegression.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.linear_model.LinearRegression.set_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.linear_model.LinearRegression.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
 (such as pipelines). The latter have parameters of the form
@@ -461,7 +461,7 @@ component of a nested object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>self</strong></dt><dd></dd>
+<dt>self</dt><dd></dd>
 </dl>
 </dd>
 </dl>
