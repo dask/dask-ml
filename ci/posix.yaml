@@ -1,0 +1,50 @@
+parameters:
+  name: ''
+  vmImage: ''
+
+jobs:
+- job: ${{ parameters.name }}
+  pool:
+    vmImage: ${{ parameters.vmImage }}
+  strategy:
+    matrix:
+      linux:
+        envFile: 'ci/environment-3.7.yaml'
+        SKLARN_DEV: "no"
+      earliest:
+        envFile: 'ci/environment-3.6.yaml'
+        SKLARN_DEV: "no"
+      sklearnDev:
+        envFile: 'ci/environment-3.7.yaml'
+        SKLEARN_DEV: "yes"
+
+  steps:
+  - bash: echo "##vso[task.prependpath]$CONDA/bin"
+    displayName: "Add conda to PATH (posix)"
+
+  - bash: conda env create --quiet --file=$(envFile) --name=dask-ml-test && conda list -n dask-ml-test
+    displayName: "install"
+
+  - script: |
+      source activate dask-ml-test
+      conda uninstall -y --force scikit-learn
+      pip install --pre -f https://sklearn-nightly.scdn8.secure.raxcdn.com scikit-learn
+    displayName: "Install scikit-learn dev."
+    condition: eq(variables.SKLEARN_DEV, 'yes')
+
+  - script: |
+      source activate dask-ml-test
+      pytest tests
+    displayName: 'Run Tests'
+
+  - script: |
+      source activate dask-ml-test
+      echo "[flake8]"
+      flake8
+
+      echo "[black]"
+      black --check .
+
+      echo "[isort]"
+      isort --recursive --check-only .
+    displayName: "Lint"

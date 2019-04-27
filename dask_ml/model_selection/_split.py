@@ -17,6 +17,7 @@ from dask_ml.utils import check_array, check_matching_blocks
 from .._utils import draw_seed
 
 logger = logging.getLogger(__name__)
+_I4MAX = np.iinfo("i4").max
 
 
 def _check_blockwise(blockwise):
@@ -148,7 +149,7 @@ class ShuffleSplit(BaseCrossValidator):
         X = check_array(X)
         rng = check_random_state(self.random_state)
         for i in range(self.n_splits):
-            seeds = draw_seed(rng, 0, 2 ** 32 - 1, size=len(X.chunks[0]), dtype="uint")
+            seeds = draw_seed(rng, 0, _I4MAX, size=len(X.chunks[0]), dtype="uint")
             if self.blockwise:
                 yield self._split_blockwise(X, seeds)
             else:
@@ -171,7 +172,7 @@ class ShuffleSplit(BaseCrossValidator):
         offsets = np.hstack([0, np.cumsum(chunks)])
         train_idx = da.concatenate(
             [
-                da.from_delayed(x + offset, (train_size,), "i8")
+                da.from_delayed(x + offset, (train_size,), np.dtype("int"))
                 for x, chunksize, (train_size, _), offset in zip(
                     train_objs, chunks, sizes, offsets
                 )
@@ -179,7 +180,7 @@ class ShuffleSplit(BaseCrossValidator):
         )
         test_idx = da.concatenate(
             [
-                da.from_delayed(x + offset, (test_size,), "i8")
+                da.from_delayed(x + offset, (test_size,), np.dtype("int"))
                 for x, chunksize, (_, test_size), offset in zip(
                     test_objs, chunks, sizes, offsets
                 )
@@ -245,7 +246,7 @@ class KFold(BaseCrossValidator):
         seeds = [None] * len(chunks)
         if self.shuffle:
             rng = check_random_state(self.random_state)
-            seeds = draw_seed(rng, 0, 2 ** 32 - 1, size=len(chunks), dtype="uint")
+            seeds = draw_seed(rng, 0, _I4MAX, size=len(chunks), dtype="uint")
 
         test_current = 0
         for fold_size in fold_sizes:
@@ -295,14 +296,14 @@ class KFold(BaseCrossValidator):
 
         train_idx = da.concatenate(
             [
-                da.from_delayed(obj, (train_size,), "i8")
+                da.from_delayed(obj, (train_size,), np.dtype("int"))
                 for obj, train_size in zip(train_objs, train_sizes)
             ]
         )
 
         test_idx = da.concatenate(
             [
-                da.from_delayed(obj, (test_size,), "i8")
+                da.from_delayed(obj, (test_size,), np.dtype("int"))
                 for obj, test_size in zip(test_objs, test_sizes)
             ]
         )
@@ -422,7 +423,7 @@ def train_test_split(*arrays, **options):
             blockwise = False
 
         rng = check_random_state(random_state)
-        rng = draw_seed(rng, 0, 2 ** 32 - 1, dtype="uint")
+        rng = draw_seed(rng, 0, _I4MAX, dtype="uint")
         return list(
             itertools.chain.from_iterable(
                 arr.random_split([train_size, test_size], random_state=rng)

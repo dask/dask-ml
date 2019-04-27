@@ -282,7 +282,7 @@ def _encode_dask_array(values, uniques=None, encode=False, onehot_dtype=None):
             new_axis = 1
             chunks = values.chunks + (len(uniques),)
         else:
-            dtype = np.intp
+            dtype = np.dtype("int")
             new_axis = None
             chunks = values.chunks
 

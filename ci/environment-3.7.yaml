@@ -1,0 +1,31 @@
+name: dask-ml-test
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - black
+  - codecov
+  - coverage
+  - dask
+  - dask-glm
+  - distributed
+  - flake8
+  - isort
+  - multipledispatch >=0.4.9
+  - numba
+  - numpy >=1.16.3
+  - numpydoc
+  - packaging
+  - pandas
+  - psutil
+  - pytest
+  - pytest-cov
+  - pytest-mock
+  - python=3.7.*
+  - scikit-learn>=0.20.0
+  - scipy
+  - six
+  - sparse
+  - toolz
+  - pip:
+    - pytest-azurepipelines
