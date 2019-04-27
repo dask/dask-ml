@@ -434,7 +434,28 @@ def test_smaller(c, s, a, b):
 
 @gen_cluster(client=True)
 def test_high_performing_models_are_retained_with_patience(c, s, a, b):
-    class LinearFunction(BaseEstimator):
+    """
+    This tests covers a case when high performing models plateau before they
+    are search.finished.
+
+    This covers the use case when one poor-performing model takes a long time
+    to converge, but all other high-performing models have finished (and
+    plateaued).
+
+    Details
+    -------
+    This test defines
+
+    * low performing models that continue to improve
+    * high performing models that are constant
+
+    It uses a small tolerance to stop the constant (and high-performing) models.
+
+    This test is only concerned with making sure the high-performing model is
+    retained. It is not concerned with making sure models are killed off at
+    correct times.
+    """
+    class MaybeLinearFunction(BaseEstimator):
         def __init__(self, final_score=1):
             self.final_score = final_score
             self._calls = 0
@@ -454,7 +475,7 @@ def test_high_performing_models_are_retained_with_patience(c, s, a, b):
 
     params = {"final_score": [1, 2, 3, 4, 5]}
     search = IncrementalSearchCV(
-        LinearFunction(),
+        MaybeLinearFunction(),
         params,
         patience=3,
         tol=1e-3,  # only stop the constant functions
