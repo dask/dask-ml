@@ -37,7 +37,8 @@ jobs:
       echo "[isort]"
       isort --recursive --check-only .
 
-  - script: bash <(curl https://codecov.io/bash) -t $env:CODECOV_TOKEN
-    displayName: 'codecov'
+      echo "[codecov]"
+      codecov --token=$env:CODECOV_TOKEN --file=test-cov.xml
     env:
       CODECOV_TOKEN: $(codecovToken)
+    displayName: "Lint"

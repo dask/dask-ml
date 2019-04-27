@@ -50,9 +50,9 @@ jobs:
 
       echo "[isort]"
       isort --recursive --check-only .
-    displayName: "Lint"
 
-  - script: bash <(curl https://codecov.io/bash) -t $env:CODECOV_TOKEN
-    displayName: 'codecov'
+      echo "[codecov]"
+      codecov --token=$env:CODECOV_TOKEN
     env:
       CODECOV_TOKEN: $(codecovToken)
+    displayName: "Lint"
