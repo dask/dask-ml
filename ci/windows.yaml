@@ -15,7 +15,7 @@ jobs:
   - powershell: Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
     displayName: "Add conda to PATH (windows)"
 
-  - bash: conda update -y conda
+  - bash: conda update --quiet -y conda
     displayName: "Update conda"
 
   - bash: conda env create --quiet --file=$(envFile) --name=dask-ml-test && conda list -n dask-ml-test
