@@ -309,21 +309,18 @@ class HyperbandSearchCV(IncrementalSearchCV):
 
     @gen.coroutine
     def _fit(self, X, y, **fit_params):
-        X = self._check_array(X)
-        y = self._check_array(y, ensure_2d=False)
-        scorer = check_scoring(self.estimator, scoring=self.scoring)
-
-        if self.max_iter < 1:
-            raise ValueError("max_iter < 1 is not supported")
+        X, y, scorer = self._validate_parameters(X, y)
 
         brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
-
         SHAs = self._get_SHAs(brackets)
+
         # Which bracket to run first? Going to go with most adaptive;
         # hopefully less adaptive can fill in for any blank spots
         #
         # _brackets_ids is ordered from largest to smallest
         _brackets_ids = list(reversed(sorted(SHAs)))
+
+        # _fit is run because it's also a tornado coroutine
         _SHAs = yield [SHAs[b]._fit(X, y, **fit_params) for b in _brackets_ids]
         SHAs = {b: SHA for b, SHA in zip(_brackets_ids, _SHAs)}
 

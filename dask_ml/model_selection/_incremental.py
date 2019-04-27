@@ -843,6 +843,19 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
                 random_state=self.random_state,
             )
 
+    def _validate_parameters(self, X, y):
+        if self.max_iter < 1:
+            raise ValueError(
+                "Received max_iter={}. max_iter < 1 is not supported".format(
+                    self.max_iter
+                )
+            )
+
+        X = self._check_array(X)
+        y = self._check_array(y, ensure_2d=False)
+        scorer = check_scoring(self.estimator, scoring=self.scoring)
+        return X, y, scorer
+
     def _additional_calls(self, info):
         calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
 
@@ -851,9 +864,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
             calls_so_far = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
             adapt_calls = {
                 k: [
-                    vi["partial_fit_calls"] + vi["_adapt"]
-                    for vi in v
-                    if "_adapt" in vi
+                    vi["partial_fit_calls"] + vi["_adapt"] for vi in v if "_adapt" in vi
                 ][-1]
                 for k, v in info.items()
             }
