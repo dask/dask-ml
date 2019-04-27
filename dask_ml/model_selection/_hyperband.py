@@ -328,7 +328,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
         SHAs = {b: SHA for b, SHA in zip(_brackets_ids, _SHAs)}
 
         # This for-loop rename estimator IDs and pulls out wall times
-        key = lambda b, old: "bracket={}-{}".format(b, old)
+        key = "bracket={}-{}".format
         for b, SHA in SHAs.items():
             new_ids = {old: key(b, old) for old in SHA.cv_results_["model_id"]}
             SHA.cv_results_["model_id"] = np.array(
@@ -342,8 +342,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
                     h["model_id"] = new_ids[h["model_id"]]
                     h["bracket"] = b
 
-        # Least adaptive bracket (key of 0) is always included
-        keys = list(SHAs[0].cv_results_.keys())
+        keys = {k for SHA in SHAs.values() for k in SHA.cv_results_.keys()}
         cv_results = {
             k: sum([SHA.cv_results_[k].tolist() for SHA in SHAs.values()], [])
             for k in keys
