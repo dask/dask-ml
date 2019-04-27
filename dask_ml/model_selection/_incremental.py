@@ -529,11 +529,8 @@ class BaseIncrementalSearchCV(ParallelPostFit):
 
     @gen.coroutine
     def _fit(self, X, y, **fit_params):
-        X = self._check_array(X)
-        y = self._check_array(y, ensure_2d=False)
-
+        X, y, scorer = self._validate_parameters(X, y)
         X_train, X_test, y_train, y_test = self._get_train_test_split(X, y)
-        scorer = check_scoring(self.estimator, scoring=self.scoring)
 
         results = yield fit(
             self.estimator,

@@ -2,6 +2,7 @@ import random
 
 import dask.array as da
 import numpy as np
+import pytest
 import scipy
 import toolz
 from dask.distributed import Future
@@ -515,3 +516,13 @@ def test_same_params_with_random_state(c, s, a, b):
     params2 = search2.cv_results_["param_alpha"]
 
     assert np.allclose(params1, params2)
+
+
+@gen_cluster(client=True)
+def test_min_max_iter(c, s, a, b):
+    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+    est = SGDClassifier()
+    params = {"alpha": np.logspace(-3, 0)}
+    search = IncrementalSearchCV(est, params, max_iter=0)
+    with pytest.raises(ValueError, match="max_iter < 1 is not supported"):
+        yield search.fit(X, y, classes=[0, 1])

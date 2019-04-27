@@ -417,8 +417,3 @@ def test_min_max_iter(c, s, a, b):
     h = HyperbandSearchCV(ConstantFunction(), {"value": values}, max_iter=max_iter)
     yield h.fit(X, y)
     assert h.best_score_ > 0
-
-    max_iter = 0
-    h = HyperbandSearchCV(ConstantFunction(), {"value": values}, max_iter=max_iter)
-    with pytest.raises(ValueError, match="max_iter"):
-        yield h.fit(X, y)
