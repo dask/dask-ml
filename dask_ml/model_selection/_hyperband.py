@@ -64,10 +64,12 @@ class HyperbandSearchCV(IncrementalSearchCV):
 
     Parameters
     ----------
-    estimator : object
-        An object that has support for ``partial_fit``, ``get_params``,
-        ``set_params`` and ``score``. This can be an instance of Scikit-Learn's
-        BaseEstimator
+    estimator : estimator object.
+        A object of that type is instantiated for each initial hyperparameter
+        combination. This is assumed to implement the scikit-learn estimator
+        interface. Either estimator needs to provide a `score`` function,
+        or ``scoring`` must be passed. The estimator must implement
+        ``partial_fit``, ``set_params``, and work well with ``clone``.
 
     parameters : dict
         Dictionary with parameters names (string) as keys and distributions
