@@ -22,6 +22,9 @@ jobs:
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
     displayName: "Add conda to PATH (posix)"
 
+  - bash: conda update -y conda
+    displayName: "Update conda"
+
   - bash: conda env create --quiet --file=$(envFile) --name=dask-ml-test && conda list -n dask-ml-test
     displayName: "install"
 
@@ -47,4 +50,9 @@ jobs:
 
       echo "[isort]"
       isort --recursive --check-only .
+
+      echo "[codecov]"
+      codecov --token=$env:CODECOV_TOKEN
+    env:
+      CODECOV_TOKEN: $(codecovToken)
     displayName: "Lint"
