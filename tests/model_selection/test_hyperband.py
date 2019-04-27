@@ -266,7 +266,7 @@ def test_successive_halving_params(c, s, a, b):
         k: v["SuccessiveHalvingSearchCV params"]
         for k, v in alg.metadata()["brackets"].items()
     }
-    SHAs = {k: SuccessiveHalvingSearchCV(**v) for k, v in kwargs.items()}
+    SHAs = {k: SuccessiveHalvingSearchCV(model, params, **v) for k, v in kwargs.items()}
 
     metadata = alg.metadata()["brackets"]
     for b, SHA in SHAs.items():
@@ -277,10 +277,12 @@ def test_successive_halving_params(c, s, a, b):
         assert metadata[b]["partial_fit_calls"] == sum(pf_calls)
 
 
-def test_correct_params():
+@gen_cluster(client=True, timeout=5000)
+def test_correct_params(c, s, a, b):
     est = ConstantFunction()
-    params = {"value": [0, 1]}
-    search = HyperbandSearchCV(est, params)
+    X, y = make_classification(n_samples=10, n_features=4, chunks=10)
+    params = {"value": np.linspace(0, 1)}
+    search = HyperbandSearchCV(est, params, max_iter=9)
 
     base = {
         "estimator",
@@ -302,23 +304,30 @@ def test_correct_params():
     ]
     SHA_params = base.union(
         {"n_initial_parameters", "n_initial_iter", "aggressiveness", "max_iter"}
-    ) - {"estimator__value", "estimator__sleep"}
+    ) - {"estimator__value", "estimator__sleep", "estimator", "parameters"}
+
     assert all(set(SHA) == SHA_params for SHA in SHAs_params)
+
+    # this is testing to make sure that each SHA has the correct estimator
+    yield search.fit(X, y)
+    SHAs = search._SuccessiveHalvings_
+    assert all(search.estimator == SHA.estimator for SHA in SHAs.values())
+    assert all(search.parameters == SHA.parameters for SHA in SHAs.values())
 
 
 def test_params_passed():
+    est = ConstantFunction(value=0.4)
+    params = {"value": np.linspace(0, 1)}
     params = {
         "aggressiveness": 3.5,
-        "estimator": ConstantFunction(value=0.4),
         "max_iter": 253,
         "random_state": 42,
         "scoring": False,
         "test_size": 0.212,
         "tol": 0,
-        "parameters": {"value": [0, 1]},
     }
     params["patience"] = (params["max_iter"] // params["aggressiveness"]) + 4
-    hyperband = HyperbandSearchCV(**params)
+    hyperband = HyperbandSearchCV(est, params, **params)
 
     for k, v in params.items():
         assert getattr(hyperband, k) == v

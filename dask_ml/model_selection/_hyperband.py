@@ -394,6 +394,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
         self.cv_results_ = cv_results
 
         self.multimetric_ = SHAs[best_bracket].multimetric_
+        self._SuccessiveHalvings_ = SHAs
         raise gen.Return(self)
 
     def metadata(self):
@@ -452,7 +453,7 @@ def _get_meta(hists, brackets, SHAs, key):
 
         calls = {k: max(hi["partial_fit_calls"] for hi in h) for k, h in hist.items()}
         decisions = {hi["partial_fit_calls"] for h in hist.values() for hi in h}
-        meta_["bracket=" + str(bracket)] = {
+        meta_["bracket={}".format(bracket)] = {
             "decisions": sorted(list(decisions)),
             "estimators": len(hist),
             "bracket": bracket,
@@ -463,10 +464,40 @@ def _get_meta(hists, brackets, SHAs, key):
 
 
 def _get_SHA_params(SHA):
+    """
+    Parameters
+    ----------
+    SHA : SuccessiveHalvingSearchCV
+
+    Returns
+    -------
+    params : dict
+        Dictionary to re-create a SuccessiveHalvingSearchCV without the
+        estimator or parameters
+
+    Example
+    -------
+    >>> from sklearn.linear_model import SGDClassifier
+    >>> model = SGDClassifier()
+    >>> params = {"alpha": np.logspace(-1, 1)
+    >>> SHA = SuccessiveHalvingSearchCV(model, params, tol=0.1,
+    ...                                 patience=True, random_state=42)
+    >>> _get_SHA_params(SHA)
+    {'aggressiveness': 3,
+     'max_iter': 100,
+     'n_initial_iter': 9,
+     'n_initial_parameters': 10,
+     'patience': True,
+     'random_state': 42,
+     'scoring': None,
+     'test_size': None,
+     'tol': 0.1}
+
+    """
     return {
         k: v
         for k, v in SHA.get_params().items()
-        if "estimator_" not in k  # and k != "param_distribution"
+        if "estimator_" not in k and k != "parameters" and k != "estimator"
     }
 
 
