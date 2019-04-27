@@ -37,7 +37,7 @@ jobs:
 
   - script: |
       source activate dask-ml-test
-      pytest tests
+      pytest --cov=dask_ml --cov-report=html --cov-report=xml tests
     displayName: 'Run Tests'
 
   - script: |
