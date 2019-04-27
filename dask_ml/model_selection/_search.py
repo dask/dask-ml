@@ -90,7 +90,7 @@ else:
         return results
 
 
-class TokenIterator(object):
+class TokenIterator:
     def __init__(self, base_token):
         self.token = base_token
         self.counts = defaultdict(int)
@@ -966,7 +966,7 @@ def _normalize_n_jobs(n_jobs):
     return n_jobs
 
 
-class StaticDaskSearchMixin(object):
+class StaticDaskSearchMixin:
     """Mixin for CV classes that work off a static task graph.
 
     This is not appropriate for adaptive / incremental training.

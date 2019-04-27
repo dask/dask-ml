@@ -7,7 +7,7 @@ from dask_ml.utils import assert_estimator_equal
 
 
 @pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")
-class TestStochasticGradientClassifier(object):
+class TestStochasticGradientClassifier:
     def test_basic(self, single_chunk_classification):
         X, y = single_chunk_classification
 
@@ -36,7 +36,7 @@ class TestStochasticGradientClassifier(object):
 
 
 @pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")
-class TestStochasticGradientRegressor(object):
+class TestStochasticGradientRegressor:
     def test_basic(self, single_chunk_regression):
         X, y = single_chunk_regression
         a = lm.PartialSGDRegressor(random_state=0, max_iter=1000, tol=1e-3)
