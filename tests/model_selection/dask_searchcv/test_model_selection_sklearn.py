@@ -10,7 +10,6 @@ import numpy as np
 import packaging.version
 import pytest
 import scipy.sparse as sp
-import six
 import sklearn.metrics
 from numpy.testing import (
     assert_almost_equal,
@@ -1164,10 +1163,7 @@ def test_grid_search_failing_classifier():
         error_score=float("nan"),
     )
 
-    if not six.PY2:
-        with pytest.warns(FitFailedWarning):
-            gs.fit(X, y)
-    else:
+    with pytest.warns(FitFailedWarning):
         gs.fit(X, y)
 
     n_candidates = len(gs.cv_results_["params"])

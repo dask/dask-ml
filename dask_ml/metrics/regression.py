@@ -1,6 +1,5 @@
 import dask.array as da
 import numpy as np
-import six
 import sklearn.metrics
 from dask.array.random import doc_wraps
 
@@ -30,7 +29,7 @@ def mean_squared_error(
     _check_sample_weight(sample_weight)
     output_errors = ((y_pred - y_true) ** 2).mean(axis=0)
 
-    if isinstance(multioutput, six.string_types):
+    if isinstance(multioutput, str):
         if multioutput == "raw_values":
             return output_errors
         elif multioutput == "uniform_average":
@@ -51,7 +50,7 @@ def mean_absolute_error(
     _check_sample_weight(sample_weight)
     output_errors = abs(y_pred - y_true).mean(axis=0)
 
-    if isinstance(multioutput, six.string_types):
+    if isinstance(multioutput, str):
         if multioutput == "raw_values":
             return output_errors
         elif multioutput == "uniform_average":
