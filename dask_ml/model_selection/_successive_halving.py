@@ -187,11 +187,11 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
             scoring=scoring,
         )
 
-    def _adapt(self, info, _first_step_taken=False):
+    def _adapt(self, info, first_step_completed=False):
         if all(v[-1]["partial_fit_calls"] == 1 for v in info.values()):
             # Do all the models have one partial fit call?
             self._steps = 0
-        if _first_step_taken:
+        if first_step_completed:
             # Sometimes, IncrementalSearchCV completes one step for us. We
             # recurse in this case -- see below for a note on the condition
             self._steps = 1
@@ -202,7 +202,7 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         if r_i == 1:
             # if r_i == 1, a step has already been completed for us (because
             # IncrementalSearchCV completes 1 partial_fit call automatically)
-            return self._adapt(info, _first_step_taken=True)
+            return self._adapt(info, first_step_completed=True)
 
         best = toolz.topk(n_i, info, key=lambda k: info[k][-1]["score"])
         self._steps += 1
