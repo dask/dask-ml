@@ -856,7 +856,6 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
     def _additional_calls(self, info):
         calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
 
-        patience_calls = max(int(self.patience) // 3, 1)
         if self.patience and max(calls.values()) > 1:
             calls_so_far = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
             adapt_calls = {
@@ -869,7 +868,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
             calls_to_make = {k: adapt_calls[k] - calls_so_far[k] for k in calls}
             if sum(calls_to_make.values()) > 0:
                 out = self._stop_on_plateau(calls_to_make, info)
-                return {k: min(v, patience_calls) for k, v in out.items()}
+                return {k: min(v, int(self.patience)) for k, v in out.items()}
 
         instructions = self._adapt(info)
         if self.patience:
@@ -879,7 +878,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         out = self._stop_on_plateau(instructions, info)
 
         if self.patience:
-            return {k: min(v, patience_calls) for k, v in out.items()}
+            return {k: min(v, int(self.patience)) for k, v in out.items()}
         return out
 
     def _adapt(self, info):
