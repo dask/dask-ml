@@ -21,6 +21,8 @@ def _get_hyperband_params(R, eta=3):
     ----------
     R : int
         The maximum number of iterations desired.
+    eta : int
+        How aggressive to be in the search
 
     Returns
     -------
@@ -32,6 +34,14 @@ def _get_hyperband_params(R, eta=3):
     The bracket index is a measure of how strong that n,r combination
     adapts to prior input. i.e., a bracket ID of 0 means "doesn't adapt
     at all" and bracket index of 5 means "adapts pretty strongly"
+
+    ``R`` and ``eta`` are the terminology that the Hyperband paper uses [1]_.
+
+    References
+    ----------
+    .. [1] "Hyperband: A novel bandit-based approach to hyperparameter
+           optimization", 2016 by L. Li, K. Jamieson, G. DeSalvo, A.
+           Rostamizadeh, and A. Talwalkar. https://arxiv.org/abs/1603.06560
 
     """
     s_max = math.floor(math.log(R, eta))
