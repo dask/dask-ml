@@ -22,12 +22,12 @@ Dask-ML's :ref:`*incremental* hyperparameter optimizers <hyperparameter.incremen
 Drop-In Replacements for Scikit-Learn
 -------------------------------------
 
-Dask-ML implements drop-in replacements for
-:class:`~sklearn.model_selection.GridSearchCV` and
-:class:`~sklearn.model_selection.RandomizedSearchCV`.
+Dask-ML implements GridSearchCV and RandomizedSearchCV.
 
 .. autosummary::
+   sklearn.model_selection.GridSearchCV
    dask_ml.model_selection.GridSearchCV
+   sklearn.model_selection.RandomizedSearchCV
    dask_ml.model_selection.RandomizedSearchCV
 
 The varians in Dask-ML implement many (but not all) of the same parameters,
@@ -185,22 +185,23 @@ expensive early steps, this can be a big win when performing a grid search.
 Incremental Hyperparameter Optimization
 ---------------------------------------
 
+The second category of hyperparameter optimization uses *incremental*
+hyperparameter optimization. These should be used when your full dataset doesn't
+fit in memory on a single machine.
+
 .. autosummary::
    dask_ml.model_selection.IncrementalSearchCV
+
+Broadly speaking, incremental optimization starts with a batch of models (underlying
+estimators and hyperparameter combinations) and repeatedly calls the underlying estimator's
+``partial_fit`` method with batches of data.
 
 .. note::
 
    These estimators require the optional ``distributed`` library.
 
-These are make repeated calls to the ``partial_fit`` method of the estimator.
-Naturally, these classes determine when to stop calling ``partial_fit`` by
-`adapting to previous calls`. The most basic level of this is to stop training
-if the score doens't improve, which ``IncrementalSearchCV`` does. For more
-advanced methods, see :ref:`hyperparameter.hyperband`.
-
-
-Basic use
-^^^^^^^^^
+Here's an example training on a "large" dataset (a Dask array) with the
+``IncrementalSearchCV``.
 
 .. ipython:: python
 
@@ -208,9 +209,10 @@ Basic use
     client = Client()
     import numpy as np
     from dask_ml.datasets import make_classification
-    X, y = make_classification(chunks=20, random_state=0)
+    X, y = make_classification(n_samples=5000000, n_features=20,
+                               chunks=100000, random_state=0)
 
-Our underlying estimator is an ``SGDClassifier``. We specify a few parameters
+Our underlying estimator is an SGDClassifier. We specify a few parameters
 common to each clone of the estimator:
 
 .. ipython:: python
@@ -232,12 +234,10 @@ train-and-score them until we find the best one.
 
 .. ipython:: python
 
-    from dask_ml.model_selection import HyperbandSearchCV
+    from dask_ml.model_selection import IncrementalSearchCV
 
-    search = HyperbandSearchCV(model, params, 9, random_state=0)
-    _ = search.fit(X, y, classes=[0, 1])
-    search.best_score_
-    search.best_params_
+    search = IncrementalSearchCV(model, params, random_state=0)
+    search.fit(X, y, classes=[0, 1])
 
 Note that when you do post-fit tasks like ``search.score``, the underlying
 estimator's score method is used. If that is unable to handle a
@@ -248,62 +248,18 @@ to use post-estimation features like scoring or prediction, we recommend using
 .. ipython:: python
 
    from dask_ml.wrappers import ParallelPostFit
-   params = {'estimator__alpha': np.logspace(-2, 1, num=1000)}
-   model = ParallelPostFit(SGDClassifier(tol=1e-3, random_state=0))
-   search = HyperbandSearchCV(model, params, 9, random_state=0)
-   _ = search.fit(X, y, classes=[0, 1])
+
+   params = {'estimator__alpha': np.logspace(-2, 1, num=1000),
+             'estimator__l1_ratio': np.linspace(0, 1, num=1000),
+             'estimator__average': [True, False]}
+
+   model = ParallelPostFit(SGDClassifier(tol=1e-3,
+                                         penalty="elasticnet",
+                                         random_state=0))
+   search = IncrementalSearchCV(model, params, random_state=0)
+   search.fit(X, y, classes=[0, 1])
    search.score(X, y)
 
 Note that the parameter names include the ``estimator__`` prefix,
 as we're tuning the hyperparameters of the ``SGDClassifier`` that's
 underlying the ``ParallelPostFit``.
-
-.. _hyperparameter.hyperband:
-
-Adaptive hyperparameter search
-------------------------------
-
-.. autosummary::
-   dask_ml.model_selection.HyperbandSearchCV
-   dask_ml.model_selection.IncrementalSearchCV
-   dask_ml.model_selection.SuccessiveHalvingSearchCV
-
-We most recommend use of :class:`~dask_ml.model_selection.HyperbandSearchCV`.
-The two other implementations,
-:class:`~dask_ml.model_selection.IncrementalSearchCV` and
-:class:`~dask_ml.model_selection.SuccessiveHalvingSearchCV` are inspired and
-used by :class:`~dask_ml.model_selection.HyperbandSearchCV` respectively. We
-recommend it for reasons detailed in :ref:`hyperparameter.hyperband`.
-
-HyperbandSearchCV offers two benefits:
-
-1. It finds better models quicker
-2. It requires only two inputs
-
-High performing models
-^^^^^^^^^^^^^^^^^^^^^^
-
-Hyperband requires minimal computation because it has guarantees on
-finding the best set of parameters possible with a given number of
-``partial_fit`` calls [HY16]. [#qual]_ This is possible because Hyperband
-balances two extremes:
-
-* when only training time is important
-    * i.e., when the hyper-parameters don't influence the output at all)
-* when training time doesn't matter at all
-    * i.e., when the hyper-parameters exactly determine the output
-
-Parameters
-^^^^^^^^^^
-
-:class:`~dask_ml.model_selection.HyperbandSearchCV` requires knowing two items:
-
-* how many examples to pass to the estimator
-* how many parameters to initially evaluate
-
-Hyperband's required parameters fall out pretty naturally and simply from these
-two items, which is detailed in
-:class:`~dask_ml.model_selection.HyperbandSearchCV`'s documentation.
-
-.. [#qual] More accurately, Hyperband will find "close" to the best model in expected value with high probability, where "close" is "within log factors of the lower bound".
-.. [HY16] "Hyperband: A Novel Bandit-Based Approach to Hyperparameter Optimization" by Lisha Li, Kevin Jamieson, Giulia DeSalvo, Afshin Rostamizadeh and Ameet Talwalkar. https://arxiv.org/abs/1603.06560
