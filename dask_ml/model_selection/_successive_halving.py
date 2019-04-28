@@ -59,8 +59,8 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
            Adjust the ``test_size`` parameter as necessary to achieve this.
 
     patience : int, default False
-        Maximum number of non-improving scores before we stop training a
-        model. Off by default.
+        If specified, training stops when the score does not increase by
+        ``tol`` after ``patience`` calls to ``partial_fit``. Off by default.
 
     tol : float, default 0.001
         The required level of improvement to consider stopping training on

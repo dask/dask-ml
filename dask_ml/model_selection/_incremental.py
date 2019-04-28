@@ -646,8 +646,8 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         of worse models.
 
     patience : int, default False
-        Maximum number of non-improving scores before we stop training a
-        model. Off by default.
+        If specified, training stops when the score does not increase by
+        ``tol`` after ``patience`` calls to ``partial_fit``. Off by default.
 
     scores_per_fit : int, default 1
         If ``patience`` is used the maximum number of ``partial_fit`` calls

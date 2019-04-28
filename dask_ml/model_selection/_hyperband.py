@@ -112,8 +112,8 @@ class HyperbandSearchCV(IncrementalSearchCV):
         If None, the estimator's default scorer (if available) is used.
 
     patience : int, default False
-        Maximum number of non-improving scores before model training is
-        stopepd. Off by default.
+        If specified, training stops when the score does not increase by
+        ``tol`` after ``patience`` calls to ``partial_fit``. Off by default.
 
     tol : float, default 0.001
         The required level of improvement to consider stopping training on
