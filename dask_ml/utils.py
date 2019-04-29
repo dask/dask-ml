@@ -2,7 +2,6 @@ import contextlib
 import datetime
 import functools
 import logging
-import time
 from collections import Sequence
 from multiprocessing import cpu_count
 from numbers import Integral
@@ -18,7 +17,8 @@ import sklearn.utils.validation as sk_validation
 from dask import delayed
 from dask.array.utils import assert_eq as assert_eq_ar
 from dask.dataframe.utils import assert_eq as assert_eq_df
-from sklearn.base import BaseEstimator
+
+from ._utils import ConstantFunction
 
 logger = logging.getLogger()
 
@@ -347,34 +347,6 @@ def _num_samples(X):
         # dask dataframe
         result = result.compute()
     return result
-
-
-class ConstantFunction(BaseEstimator):
-    def __init__(self, value=0, sleep=0, **kwargs):
-        self.value = value
-        self._partial_fit_called = False
-        self.sleep = sleep
-        super(BaseEstimator, self).__init__(**kwargs)
-
-    def _fn(self):
-        return self.value
-
-    def partial_fit(self, X, y=None, **kwargs):
-        time.sleep(self.sleep)
-        self._partial_fit_called = True
-
-        # Mirroring sklearn's SGDClassifier epoch counting
-        if not hasattr(self, "t_"):
-            self.t_ = 1
-        self.t_ += X.shape[0]
-        self.coef_ = X[0]
-        return self
-
-    def score(self, *args, **kwargs):
-        return self._fn()
-
-    def fit(self, *args):
-        return self
 
 
 __all__ = [
