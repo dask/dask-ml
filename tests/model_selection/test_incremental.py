@@ -6,7 +6,7 @@ import scipy
 import toolz
 from dask.distributed import Future
 from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
-from sklearn.base import BaseEstimator
+from sklearn.base import BaseEstimator, clone
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import ParameterGrid, ParameterSampler
@@ -468,10 +468,10 @@ def test_same_models_with_random_state(c, s, a, b):
     }
     params = {"estimator__" + k: v for k, v in params.items()}
     search1 = IncrementalSearchCV(
-        model, params, n_initial_parameters=10, random_state=0
+        clone(model), params, n_initial_parameters=10, random_state=0
     )
     search2 = IncrementalSearchCV(
-        model, params, n_initial_parameters=10, random_state=0
+        clone(model), params, n_initial_parameters=10, random_state=0
     )
 
     yield search1.fit(X, y, classes=[0, 1])
