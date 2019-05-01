@@ -356,7 +356,8 @@ def _blockwise_slice(arr, idx):
     return sliced
 
 
-def train_test_split(*arrays, **options):
+def train_test_split(*arrays, test_size=None, train_size=None,
+        random_state=None, shuffle=True, blockwise=None, **options):
     """Split arrays into random train and test matricies.
 
     Parameters
@@ -401,15 +402,14 @@ def train_test_split(*arrays, **options):
     array([[ 0.12372191,  0.58222459,  0.92950511, -2.09460307],
            [ 0.99439439, -0.70972797, -0.27567053,  1.73887268]])
     """
-    test_size = options.pop("test_size", None)
-    train_size = options.pop("train_size", None)
-    random_state = options.pop("random_state", None)
-    shuffle = options.pop("shuffle", True)
-    blockwise = options.pop("blockwise", None)
-
     if train_size is None and test_size is None:
         # all other validation dones elsewhere.
         test_size = 0.1
+
+    if train_size is None and test_size is not None:
+        train_size = 1 - test_size
+    if test_size is None and train_size is not None:
+        test_size = 1 - train_size
 
     if options:
         raise TypeError("Unexpected options {}".format(options))
