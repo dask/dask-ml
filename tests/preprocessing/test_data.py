@@ -123,8 +123,6 @@ class TestMinMaxScaler(object):
         for attr in ["data_min_", "data_max_", "data_range_", "scale_", "min_"]:
             assert_eq_ar(getattr(est1, attr), getattr(est2, attr).values)
 
-        assert_eq_ar(est1.transform(X), est2.transform(X))
-        assert_eq_ar(est1.transform(df).values, est2.transform(X))
         assert_eq_ar(est1.transform(X), est2.transform(df).values)
 
         if hasattr(result_df, "values"):
@@ -208,32 +206,33 @@ class TestRobustScaler(object):
 
 
 class TestQuantileTransformer(object):
-    def test_basic(self):
+    @pytest.mark.parametrize("output_distribution", ["uniform", "normal"])
+    def test_basic(self, output_distribution):
         rs = da.random.RandomState(0)
-        a = dpp.QuantileTransformer()
-        b = spp.QuantileTransformer()
+        a = dpp.QuantileTransformer(output_distribution=output_distribution)
+        b = spp.QuantileTransformer(output_distribution=output_distribution)
 
-        X = rs.uniform(size=(100, 3), chunks=50)
+        X = rs.uniform(size=(1000, 3), chunks=50)
         a.fit(X)
         b.fit(X)
         assert_estimator_equal(a, b, atol=0.02)
 
         # set the quantiles, so that from here out, we're exact
         a.quantiles_ = b.quantiles_
-        assert_eq_ar(a.transform(X), b.transform(X))
+        assert_eq_ar(a.transform(X), b.transform(X), atol=1e-7)
         assert_eq_ar(X, a.inverse_transform(a.transform(X)))
 
     @pytest.mark.parametrize(
         "type_, kwargs",
         [
             (np.array, {}),
-            (da.from_array, {"chunks": 10}),
+            (da.from_array, {"chunks": 100}),
             (pd.DataFrame, {"columns": ["a", "b", "c"]}),
             (dd.from_array, {"columns": ["a", "b", "c"]}),
         ],
     )
     def test_types(self, type_, kwargs):
-        X = np.random.uniform(size=(20, 3))
+        X = np.random.uniform(size=(1000, 3))
         dX = type_(X, **kwargs)
         qt = spp.QuantileTransformer()
         qt.fit(X)
@@ -249,7 +248,7 @@ class TestCategorizer(object):
         assert is_categorical_dtype(trn["A"])
         assert is_categorical_dtype(trn["B"])
         assert is_categorical_dtype(trn["C"])
-        assert trn["D"].dtype == int
+        assert trn["D"].dtype == np.dtype("int64")
         tm.assert_index_equal(ce.columns_, pd.Index(["A", "B", "C"]))
         tm.assert_frame_equal(raw, original)
 
@@ -269,7 +268,7 @@ class TestCategorizer(object):
         assert is_categorical_dtype(trn["A"])
         assert is_categorical_dtype(trn["B"])
         assert is_categorical_dtype(trn["C"])
-        assert trn["D"].dtype == int
+        assert trn["D"].dtype == np.dtype("int64")
         tm.assert_index_equal(ce.columns_, pd.Index(["A", "B", "C"]))
 
     def test_columns(self):
@@ -321,7 +320,7 @@ class TestDummyEncoder:
 
         expected = pd.DataFrame(
             {
-                "D": np.array([1, 2, 3, 4]),
+                "D": np.array([1, 2, 3, 4], dtype="int64"),
                 "A_a": np.array([1, 0, 0, 1], dtype="uint8"),
                 "A_b": np.array([0, 1, 0, 0], dtype="uint8"),
                 "A_c": np.array([0, 0, 1, 0], dtype="uint8"),
@@ -424,7 +423,10 @@ class TestOrdinalEncoder:
         trn = de.transform(df)
 
         expected = pd.DataFrame(
-            {"A": np.array([0, 1, 2, 0], dtype="int8"), "D": np.array([1, 2, 3, 4])},
+            {
+                "A": np.array([0, 1, 2, 0], dtype="int8"),
+                "D": np.array([1, 2, 3, 4], dtype="int64"),
+            },
             columns=["A", "D"],
         )
 

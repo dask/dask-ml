@@ -2,10 +2,11 @@ import random
 
 import dask.array as da
 import numpy as np
+import scipy
 import toolz
 from dask.distributed import Future
 from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
-from sklearn.base import BaseEstimator
+from sklearn.base import BaseEstimator, clone
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import ParameterGrid, ParameterSampler
@@ -14,6 +15,7 @@ from tornado import gen
 from dask_ml.datasets import make_classification
 from dask_ml.model_selection import IncrementalSearchCV
 from dask_ml.model_selection._incremental import _partial_fit, _score, fit
+from dask_ml.wrappers import Incremental
 
 
 @gen_cluster(client=True, timeout=500)
@@ -233,6 +235,7 @@ def _test_search_basic(decay_rate, c, s, a, b):
         "param_alpha",
         "param_l1_ratio",
     }.issubset(set(search.cv_results_.keys()))
+    assert len(search.cv_results_["param_alpha"]) == 20
 
     assert all(isinstance(v, np.ndarray) for v in search.cv_results_.values())
     if decay_rate == 0:
@@ -426,3 +429,54 @@ def test_smaller(c, s, a, b):
     yield search.fit(X, y, classes=[0, 1])
     X_, = yield c.compute([X])
     search.predict(X_)
+
+
+@gen_cluster(client=True)
+def test_same_params_with_random_state(c, s, a, b):
+    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+    model = SGDClassifier(tol=1e-3, penalty="elasticnet")
+    params = {"alpha": scipy.stats.uniform(1e-4, 1)}
+
+    search1 = IncrementalSearchCV(
+        model, params, n_initial_parameters=10, random_state=0
+    )
+    yield search1.fit(X, y, classes=[0, 1])
+    params1 = search1.cv_results_["param_alpha"]
+
+    search2 = IncrementalSearchCV(
+        model, params, n_initial_parameters=10, random_state=0
+    )
+    yield search2.fit(X, y, classes=[0, 1])
+    params2 = search2.cv_results_["param_alpha"]
+
+    assert np.allclose(params1, params2)
+
+
+@gen_cluster(client=True)
+def test_same_models_with_random_state(c, s, a, b):
+    X, y = make_classification(
+        n_samples=100, n_features=2, chunks=(10, 5), random_state=0
+    )
+    model = Incremental(
+        SGDClassifier(tol=-np.inf, penalty="elasticnet", random_state=42, eta0=0.1)
+    )
+    params = {
+        "loss": ["hinge", "log", "modified_huber", "squared_hinge", "perceptron"],
+        "average": [True, False],
+        "learning_rate": ["constant", "invscaling", "optimal"],
+        "eta0": np.logspace(-2, 0, num=1000),
+    }
+    params = {"estimator__" + k: v for k, v in params.items()}
+    search1 = IncrementalSearchCV(
+        clone(model), params, n_initial_parameters=10, random_state=0
+    )
+    search2 = IncrementalSearchCV(
+        clone(model), params, n_initial_parameters=10, random_state=0
+    )
+
+    yield search1.fit(X, y, classes=[0, 1])
+    yield search2.fit(X, y, classes=[0, 1])
+
+    assert search1.best_score_ == search2.best_score_
+    assert search1.best_params_ == search2.best_params_
+    assert np.allclose(search1.best_estimator_.coef_, search2.best_estimator_.coef_)

@@ -458,7 +458,9 @@ class BaseIncrementalSearchCV(ParallelPostFit):
             test_size = min(0.2, 1 / X.npartitions)
         else:
             test_size = self.test_size
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size)
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=test_size, random_state=self.random_state
+        )
         return X_train, X_test, y_train, y_test
 
     def _additional_calls(self, info):
@@ -495,13 +497,14 @@ class BaseIncrementalSearchCV(ParallelPostFit):
 
         # Every model will have the same params because this class uses either
         # ParameterSampler or ParameterGrid
-        cv_results.update(
-            {
-                "param_" + k: v
-                for params in cv_results["params"]
-                for k, v in params.items()
-            }
-        )
+        params = defaultdict(list)
+        for model_params in cv_results["params"]:
+            for k, v in model_params.items():
+                params[k].append(v)
+
+        for k, v in params.items():
+            cv_results["param_" + k] = v
+
         cv_results = {k: np.array(v) for k, v in cv_results.items()}
         cv_results["rank_test_score"] = scipy.stats.rankdata(
             -cv_results["test_score"], method="min"
@@ -836,7 +839,11 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         if self.n_initial_parameters == "grid":
             return ParameterGrid(self.parameters)
         else:
-            return ParameterSampler(self.parameters, self.n_initial_parameters)
+            return ParameterSampler(
+                self.parameters,
+                self.n_initial_parameters,
+                random_state=self.random_state,
+            )
 
     def _additional_calls(self, info):
         # First, have an adaptive algorithm

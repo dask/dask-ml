@@ -11,6 +11,7 @@ import packaging.version
 import pytest
 import scipy.sparse as sp
 import six
+import sklearn.metrics
 from numpy.testing import (
     assert_almost_equal,
     assert_array_almost_equal,
@@ -1060,9 +1061,12 @@ def test_grid_search_with_multioutput_data():
         DecisionTreeClassifier(random_state=0),
     ]
 
+    scoring = sklearn.metrics.make_scorer(
+        sklearn.metrics.roc_auc_score, average="weighted"
+    )
     # Test with grid search cv
     for est in estimators:
-        grid_search = dcv.GridSearchCV(est, est_parameters, cv=cv)
+        grid_search = dcv.GridSearchCV(est, est_parameters, cv=cv, scoring=scoring)
         grid_search.fit(X, y)
         res_params = grid_search.cv_results_["params"]
         for cand_i in range(len(res_params)):
@@ -1070,7 +1074,7 @@ def test_grid_search_with_multioutput_data():
 
             for i, (train, test) in enumerate(cv.split(X, y)):
                 est.fit(X[train], y[train])
-                correct_score = est.score(X[test], y[test])
+                correct_score = scoring(est, X[test], y[test])
                 assert_almost_equal(
                     correct_score,
                     grid_search.cv_results_["split%d_test_score" % i][cand_i],
@@ -1078,7 +1082,9 @@ def test_grid_search_with_multioutput_data():
 
     # Test with a randomized search
     for est in estimators:
-        random_search = dcv.RandomizedSearchCV(est, est_parameters, cv=cv, n_iter=3)
+        random_search = dcv.RandomizedSearchCV(
+            est, est_parameters, cv=cv, n_iter=3, scoring=scoring
+        )
         random_search.fit(X, y)
         res_params = random_search.cv_results_["params"]
         for cand_i in range(len(res_params)):
@@ -1086,7 +1092,7 @@ def test_grid_search_with_multioutput_data():
 
             for i, (train, test) in enumerate(cv.split(X, y)):
                 est.fit(X[train], y[train])
-                correct_score = est.score(X[test], y[test])
+                correct_score = scoring(est, X[test], y[test])
                 assert_almost_equal(
                     correct_score,
                     random_search.cv_results_["split%d_test_score" % i][cand_i],
@@ -1201,6 +1207,12 @@ def test_search_train_scores_set_to_false():
     for key in gs.cv_results_:
         assert not key.endswith("train_score")
 
+    if SK_VERSION >= packaging.version.parse("0.22.dev0"):
+        gs = dcv.GridSearchCV(clf, param_grid={"C": [0.1, 0.2]})
+        gs.fit(X, y)
+        for key in gs.cv_results_:
+            assert not key.endswith("train_score")
+
 
 def test_multiple_metrics():
     scoring = {"AUC": "roc_auc", "Accuracy": make_scorer(accuracy_score)}
@@ -1216,6 +1228,7 @@ def test_multiple_metrics():
         scoring=scoring,
         cv=5,
         refit="AUC",
+        return_train_score=True,
     )
     gs.fit(da_X, da_y)
     # some basic checks

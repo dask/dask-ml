@@ -189,7 +189,6 @@ class LabelEncoder(sklabel.LabelEncoder):
 
 
 def _encode_categorical(values, uniques=None, encode=False):
-    # type: (Union[dd.Series['category'], pd.Series['category']], bool) -> Any
     new_uniques = np.asarray(values.cat.categories)
 
     if uniques is not None:
@@ -283,7 +282,7 @@ def _encode_dask_array(values, uniques=None, encode=False, onehot_dtype=None):
             new_axis = 1
             chunks = values.chunks + (len(uniques),)
         else:
-            dtype = np.intp
+            dtype = np.dtype("int")
             new_axis = None
             chunks = values.chunks
 
