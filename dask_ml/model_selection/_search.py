@@ -12,6 +12,7 @@ import numpy as np
 import packaging.version
 from dask.base import tokenize
 from dask.delayed import delayed
+from dask.distributed import as_completed
 from dask.utils import derived_from
 from sklearn import model_selection
 from sklearn.base import BaseEstimator, MetaEstimatorMixin, clone, is_classifier
@@ -61,10 +62,6 @@ try:
 except ImportError:  # pragma: no cover
     from toolz import get, pluck
 
-try:
-    from dask.distributed import as_completed
-except ImportError:
-    pass
 
 __all__ = ["GridSearchCV", "RandomizedSearchCV"]
 
