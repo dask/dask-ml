@@ -38,5 +38,5 @@ jobs:
       isort --recursive --check-only .
 
       echo "[codecov]"
-      codecov
+      codecov -t $(CODECOV_TOKEN)
     displayName: "Lint"
