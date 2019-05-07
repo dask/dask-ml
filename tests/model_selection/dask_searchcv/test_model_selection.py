@@ -14,6 +14,8 @@ from dask.base import tokenize
 from dask.callbacks import Callback
 from dask.delayed import delayed
 from dask.utils import tmpdir
+from distributed import Client, Nanny, Variable
+from distributed.utils_test import cluster, loop
 from sklearn.datasets import load_iris, make_classification
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
@@ -51,15 +53,6 @@ from dask_ml.model_selection.utils_test import (
     MockClassifierWithFitParam,
     ScalingTransformer,
 )
-
-try:
-    from distributed import Client, Nanny, Variable
-    from distributed.utils_test import cluster, loop
-
-    has_distributed = True
-except ImportError:
-    loop = pytest.fixture(lambda: None)
-    has_distributed = False
 
 
 class assert_dask_compute(Callback):
@@ -785,7 +778,6 @@ def test_scheduler_param(scheduler, n_jobs):
     gs.fit(X, y)
 
 
-@pytest.mark.skipif("not has_distributed")
 def test_scheduler_param_distributed(loop):
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
     with cluster() as (s, [a, b]):
@@ -799,7 +791,6 @@ def test_scheduler_param_distributed(loop):
             assert client.run_on_scheduler(f)  # some work happened on cluster
 
 
-@pytest.mark.skipif("not has_distributed")
 def test_as_completed_distributed(loop):
     with cluster(active_rpc_timeout=10, nanny=Nanny) as (s, [a, b]):
         with Client(s["address"], loop=loop) as c:
