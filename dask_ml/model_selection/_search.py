@@ -1254,7 +1254,7 @@ cv : int, cross-validation generator or an iterable, optional
         - None, to use the default 3-fold cross validation,
         - integer, to specify the number of folds in a ``(Stratified)KFold``,
         - An object to be used as a cross-validation generator.
-        - An iterable yielding train, test splits.
+        - An iterable yielding (train, test) splits as arrays of indices.
 
     For integer/None inputs, if the estimator is a classifier and ``y`` is
     either binary or multiclass, ``StratifiedKFold`` is used. In all
