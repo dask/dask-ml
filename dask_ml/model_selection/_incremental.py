@@ -859,9 +859,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         if self.patience and max(calls.values()) > 1:
             calls_so_far = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
             adapt_calls = {
-                k: [
-                    vi["partial_fit_calls"] + vi["_adapt"] for vi in v if "_adapt" in vi
-                ][-1]
+                k: [vi["partial_fit_calls"] + vi.get("_adapt", 0) for vi in v][-1]
                 for k, v in info.items()
             }
 

@@ -77,7 +77,7 @@ class HyperbandSearchCV(IncrementalSearchCV):
     estimator : estimator object.
         A object of that type is instantiated for each initial hyperparameter
         combination. This is assumed to implement the scikit-learn estimator
-        interface. Either estimator needs to provide a `score`` function,
+        interface. Either estimator needs to provide a ``score`` function,
         or ``scoring`` must be passed. The estimator must implement
         ``partial_fit``, ``set_params``, and work well with ``clone``.
 
@@ -491,7 +491,7 @@ def _get_SHA_params(SHA):
     -------
     >>> from sklearn.linear_model import SGDClassifier
     >>> model = SGDClassifier()
-    >>> params = {"alpha": np.logspace(-1, 1)
+    >>> params = {"alpha": np.logspace(-1, 1)}
     >>> SHA = SuccessiveHalvingSearchCV(model, params, tol=0.1,
     ...                                 patience=True, random_state=42)
     >>> _get_SHA_params(SHA)

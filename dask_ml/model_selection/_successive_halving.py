@@ -12,8 +12,8 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
 
     This algorithm trains estimators ``n_initial_iter`` calls to
     ``partial_fit``, then kills the worst performing half (or
-    ``1 / aggressiveness``). It trains the surving estimators for twice
-    as long (or ``aggressiveness`` times longer). It repeats this until 1
+    ``1 / aggressiveness``). It trains the surviving estimators for twice
+    as long (or ``aggressiveness`` times longer). It repeats this until one
     estimator survives.
 
     Parameters
@@ -21,7 +21,7 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
     estimator : estimator object.
         A object of that type is instantiated for each initial hyperparameter
         combination. This is assumed to implement the scikit-learn estimator
-        interface. Either estimator needs to provide a `score`` function,
+        interface. Either estimator needs to provide a ``score`` function,
         or ``scoring`` must be passed. The estimator must implement
         ``partial_fit``, ``set_params``, and work well with ``clone``.
 
@@ -211,5 +211,5 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
             return {id_: 0 for id_ in info}
 
         pf_calls = {k: info[k][-1]["partial_fit_calls"] for k in best}
-        addtl_calls = {k: r_i - pf_calls[k] for k in best}
-        return addtl_calls
+        additional_calls = {k: r_i - pf_calls[k] for k in best}
+        return additional_calls
