@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.1.dev86+gc704d0d
+                0.12.1.dev90+g3b6ea18
               </div>
             
           
@@ -266,7 +266,7 @@
 data to project it to a lower dimensional space.</p>
 <p>It uses the “tsqr” algorithm from Benson et. al. (2013). See the References
 for more.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/decomposition.html#pca" title="(in scikit-learn v0.20.3)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/decomposition.html#pca" title="(in scikit-learn v0.21.1)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl>
@@ -490,7 +490,7 @@ and n_features is the number of features.</p>
 <code class="descname">get_covariance</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.decomposition.PCA.get_covariance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute data covariance with the generative model.</p>
 <p><code class="docutils literal notranslate"><span class="pre">cov</span> <span class="pre">=</span> <span class="pre">components_.T</span> <span class="pre">*</span> <span class="pre">S**2</span> <span class="pre">*</span> <span class="pre">components_</span> <span class="pre">+</span> <span class="pre">sigma2</span> <span class="pre">*</span> <span class="pre">eye(n_features)</span></code>
-where  S**2 contains the explained variances, and sigma2 contains the
+where S**2 contains the explained variances, and sigma2 contains the
 noise variances.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>

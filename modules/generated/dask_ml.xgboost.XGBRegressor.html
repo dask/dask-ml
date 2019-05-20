@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.1.dev86+gc704d0d
+                0.12.1.dev90+g3b6ea18
               </div>
             
           
@@ -588,6 +588,15 @@ samples used in the fitting for the estimator.</p>
 </dl>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>The R2 score used when calling <code class="docutils literal notranslate"><span class="pre">score</span></code> on a regressor will use
+<code class="docutils literal notranslate"><span class="pre">multioutput='uniform_average'</span></code> from version 0.23 to keep consistent
+with <cite>metrics.r2_score</cite>. This will influence the <code class="docutils literal notranslate"><span class="pre">score</span></code> method of
+all the multioutput regressors (except for
+<cite>multioutput.MultiOutputRegressor</cite>). To specify the default value
+manually and avoid the warning, please either call <cite>metrics.r2_score</cite>
+directly or make a custom scorer with <cite>metrics.make_scorer</cite> (the
+built-in scorer <code class="docutils literal notranslate"><span class="pre">'r2'</span></code> uses <code class="docutils literal notranslate"><span class="pre">multioutput='uniform_average'</span></code>).</p>
 </dd></dl>
 
 <dl class="method">

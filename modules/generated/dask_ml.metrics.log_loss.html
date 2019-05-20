@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.1.dev86+gc704d0d
+                0.12.1.dev90+g3b6ea18
               </div>
             
           
@@ -275,7 +275,7 @@ estimated probability yp that yt = 1, the log loss is</p>
 <blockquote>
 <div><p>-log P(yt|yp) = -(yt log(yp) + (1 - yt) log(1 - yp))</p>
 </div></blockquote>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#log-loss" title="(in scikit-learn v0.20.3)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#log-loss" title="(in scikit-learn v0.21.1)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
@@ -315,7 +315,8 @@ assumed to be binary and are inferred from <code class="docutils literal notrans
 <p>C.M. Bishop (2006). Pattern Recognition and Machine Learning. Springer,
 p. 209.</p>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">log_loss</span><span class="p">([</span><span class="s2">&quot;spam&quot;</span><span class="p">,</span> <span class="s2">&quot;ham&quot;</span><span class="p">,</span> <span class="s2">&quot;ham&quot;</span><span class="p">,</span> <span class="s2">&quot;spam&quot;</span><span class="p">],</span>  <span class="c1"># doctest: +ELLIPSIS</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="k">import</span> <span class="n">log_loss</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">log_loss</span><span class="p">([</span><span class="s2">&quot;spam&quot;</span><span class="p">,</span> <span class="s2">&quot;ham&quot;</span><span class="p">,</span> <span class="s2">&quot;ham&quot;</span><span class="p">,</span> <span class="s2">&quot;spam&quot;</span><span class="p">],</span>  <span class="c1"># doctest: +ELLIPSIS</span>
 <span class="gp">... </span>         <span class="p">[[</span><span class="o">.</span><span class="mi">1</span><span class="p">,</span> <span class="o">.</span><span class="mi">9</span><span class="p">],</span> <span class="p">[</span><span class="o">.</span><span class="mi">9</span><span class="p">,</span> <span class="o">.</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">.</span><span class="mi">8</span><span class="p">,</span> <span class="o">.</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="o">.</span><span class="mi">35</span><span class="p">,</span> <span class="o">.</span><span class="mi">65</span><span class="p">]])</span>
 <span class="go">0.21616...</span>
 </pre></div>

@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.1.dev86+gc704d0d
+                0.12.1.dev90+g3b6ea18
               </div>
             
           
@@ -271,7 +271,7 @@
 model can be arbitrarily worse). A constant model that always
 predicts the expected value of y, disregarding the input features,
 would get a R^2 score of 0.0.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#r2-score" title="(in scikit-learn v0.20.3)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#r2-score" title="(in scikit-learn v0.21.1)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl>
@@ -311,6 +311,8 @@ of each individual output.</p>
 <p>This is not a symmetric function.</p>
 <p>Unlike most other scores, R^2 score may be negative (it need not actually
 be the square of a quantity R).</p>
+<p>This metric is not well-defined for single samples and will return a NaN
+value if n_samples is less than two.</p>
 <p class="rubric">References</p>
 <dl class="citation">
 <dt class="label" id="rb8bb9f92cdbb-1"><span class="brackets">1</span></dt>

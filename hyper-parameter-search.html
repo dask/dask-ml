@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.1.dev86+gc704d0d
+                0.12.1.dev90+g3b6ea18
               </div>
             
           
@@ -269,13 +269,13 @@ Dask-ML’s <a class="reference internal" href="#hyperparameter-incremental"><sp
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v0.20.3)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>(…[, …])</p></td>
+<tr class="row-odd"><td><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v0.21.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>(…[, …])</p></td>
 <td><p>Exhaustive search over specified parameter values for an estimator.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV" title="dask_ml.model_selection.GridSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.GridSearchCV</span></code></a>(…[, …])</p></td>
 <td><p>Exhaustive search over specified parameter values for an estimator.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v0.20.3)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.RandomizedSearchCV</span></code></a>(…)</p></td>
+<tr class="row-odd"><td><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v0.21.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.RandomizedSearchCV</span></code></a>(…)</p></td>
 <td><p>Randomized search on hyper parameters.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV" title="dask_ml.model_selection.RandomizedSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.RandomizedSearchCV</span></code></a>(…)</p></td>
@@ -460,15 +460,21 @@ train-and-score them until we find the best one.</p>
 <span class="gp">In [11]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 <span class="gh">Out[11]: </span><span class="go"></span>
 <span class="go">IncrementalSearchCV(decay_rate=1.0,</span>
-<span class="go">          estimator=SGDClassifier(alpha=0.0001, average=False, class_weight=None,</span>
-<span class="go">       early_stopping=False, epsilon=0.1, eta0=0.0, fit_intercept=True,</span>
-<span class="go">       l1_ratio=0.15, learning_rate=&#39;optimal&#39;, loss=&#39;hinge&#39;, max_iter=None,</span>
-<span class="go">       n_iter=None, n_iter_no_change=5, n_jobs=None, penalty=&#39;elasticnet&#39;,</span>
-<span class="go">       power_t=0.5, random_state=0, shuffle=True, tol=0.001,</span>
-<span class="go">       validation_fraction=0.1, verbose=0, warm_start=False),</span>
-<span class="go">          max_iter=100, n_initial_parameters=10, param_distribution=None,</span>
-<span class="go">          patience=False, random_state=0, scores_per_fit=1, scoring=None,</span>
-<span class="go">          test_size=None, tol=0.001)</span>
+<span class="go">                    estimator=SGDClassifier(alpha=0.0001, average=False,</span>
+<span class="go">                                            class_weight=None,</span>
+<span class="go">                                            early_stopping=False, epsilon=0.1,</span>
+<span class="go">                                            eta0=0.0, fit_intercept=True,</span>
+<span class="go">                                            l1_ratio=0.15,</span>
+<span class="go">                                            learning_rate=&#39;optimal&#39;,</span>
+<span class="go">                                            loss=&#39;hinge&#39;, max_iter=1000,</span>
+<span class="go">                                            n_iter_no_change=5, n_jobs=None,</span>
+<span class="go">                                            penalty=&#39;elasticnet&#39;, power_t=0.5,</span>
+<span class="go">                                            random_state=0, shuffle=True,</span>
+<span class="go">                                            tol=0.001, validation_fraction=0.1,</span>
+<span class="go">                                            verbose=0, warm_start=False),</span>
+<span class="go">                    max_iter=100, n_initial_parameters=10,</span>
+<span class="go">                    param_distribution=None, patience=False, random_state=0,</span>
+<span class="go">                    scores_per_fit=1, scoring=None, test_size=None, tol=0.001)</span>
 </pre></div>
 </div>
 <p>Note that when you do post-fit tasks like <code class="docutils literal notranslate"><span class="pre">search.score</span></code>, the underlying
@@ -493,19 +499,34 @@ to use post-estimation features like scoring or prediction, we recommend using
 <span class="gp">In [16]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 <span class="gh">Out[16]: </span><span class="go"></span>
 <span class="go">IncrementalSearchCV(decay_rate=1.0,</span>
-<span class="go">          estimator=ParallelPostFit(estimator=SGDClassifier(alpha=0.0001, average=False, class_weight=None,</span>
-<span class="go">       early_stopping=False, epsilon=0.1, eta0=0.0, fit_intercept=True,</span>
-<span class="go">       l1_ratio=0.15, learning_rate=&#39;optimal&#39;, loss=&#39;hinge&#39;, max_iter=None,</span>
-<span class="go">       n_iter=None, n_iter_no_change=5, n_jobs=None, penalty=&#39;elasticnet&#39;,</span>
-<span class="go">       power_t=0.5, random_state=0, shuffle=True, tol=0.001,</span>
-<span class="go">       validation_fraction=0.1, verbose=0, warm_start=False),</span>
-<span class="go">        scoring=None),</span>
-<span class="go">          max_iter=100, n_initial_parameters=10, param_distribution=None,</span>
-<span class="go">          patience=False, random_state=0, scores_per_fit=1, scoring=None,</span>
-<span class="go">          test_size=None, tol=0.001)</span>
+<span class="go">                    estimator=ParallelPostFit(estimator=SGDClassifier(alpha=0.0001,</span>
+<span class="go">                                                                      average=False,</span>
+<span class="go">                                                                      class_weight=None,</span>
+<span class="go">                                                                      early_stopping=False,</span>
+<span class="go">                                                                      epsilon=0.1,</span>
+<span class="go">                                                                      eta0=0.0,</span>
+<span class="go">                                                                      fit_intercept=True,</span>
+<span class="go">                                                                      l1_ratio=0.15,</span>
+<span class="go">                                                                      learning_rate=&#39;optimal&#39;,</span>
+<span class="go">                                                                      loss=&#39;hinge&#39;,</span>
+<span class="go">                                                                      max_iter=1000,</span>
+<span class="go">                                                                      n_iter_no_change=5,</span>
+<span class="go">                                                                      n_jobs=None,</span>
+<span class="go">                                                                      penalty=&#39;elasticnet&#39;,</span>
+<span class="go">                                                                      power_t=0.5,</span>
+<span class="go">                                                                      random_state=0,</span>
+<span class="go">                                                                      shuffle=True,</span>
+<span class="go">                                                                      tol=0.001,</span>
+<span class="go">                                                                      validation_fraction=0.1,</span>
+<span class="go">                                                                      verbose=0,</span>
+<span class="go">                                                                      warm_start=False),</span>
+<span class="go">                                              scoring=None),</span>
+<span class="go">                    max_iter=100, n_initial_parameters=10,</span>
+<span class="go">                    param_distribution=None, patience=False, random_state=0,</span>
+<span class="go">                    scores_per_fit=1, scoring=None, test_size=None, tol=0.001)</span>
 
 <span class="gp">In [17]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="go">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    Out[17]: 0.5869702</span>
+<span class="go">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          Out[17]: 0.5864312</span>
 </pre></div>
 </div>
 <p>Note that the parameter names include the <code class="docutils literal notranslate"><span class="pre">estimator__</span></code> prefix,

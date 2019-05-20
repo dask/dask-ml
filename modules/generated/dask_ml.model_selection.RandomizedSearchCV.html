@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.1.dev86+gc704d0d
+                0.12.1.dev90+g3b6ea18
               </div>
             
           
@@ -264,7 +264,7 @@
 <h1><a class="reference internal" href="../api.html#module-dask_ml.model_selection" title="dask_ml.model_selection"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code></a>.RandomizedSearchCV<a class="headerlink" href="#dask-ml-model-selection-randomizedsearchcv" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="dask_ml.model_selection.RandomizedSearchCV">
-<em class="property">class </em><code class="descclassname">dask_ml.model_selection.</code><code class="descname">RandomizedSearchCV</code><span class="sig-paren">(</span><em>estimator</em>, <em>param_distributions</em>, <em>n_iter=10</em>, <em>random_state=None</em>, <em>scoring=None</em>, <em>iid=True</em>, <em>refit=True</em>, <em>cv=None</em>, <em>error_score='raise'</em>, <em>return_train_score='warn'</em>, <em>scheduler=None</em>, <em>n_jobs=-1</em>, <em>cache_cv=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.RandomizedSearchCV" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.model_selection.</code><code class="descname">RandomizedSearchCV</code><span class="sig-paren">(</span><em>estimator</em>, <em>param_distributions</em>, <em>n_iter=10</em>, <em>random_state=None</em>, <em>scoring=None</em>, <em>iid=True</em>, <em>refit=True</em>, <em>cv=None</em>, <em>error_score='raise'</em>, <em>return_train_score=False</em>, <em>scheduler=None</em>, <em>n_jobs=-1</em>, <em>cache_cv=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.RandomizedSearchCV" title="Permalink to this definition">¶</a></dt>
 <dd><p>Randomized search on hyper parameters.</p>
 <p>RandomizedSearchCV implements a “fit” and a “score” method.
 It also implements “predict”, “predict_proba”, “decision_function”,
@@ -556,7 +556,7 @@ data, unless an explicit score is passed in which case it is used instead.</p>
 </table>
 <dl class="method">
 <dt id="dask_ml.model_selection.RandomizedSearchCV.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>estimator</em>, <em>param_distributions</em>, <em>n_iter=10</em>, <em>random_state=None</em>, <em>scoring=None</em>, <em>iid=True</em>, <em>refit=True</em>, <em>cv=None</em>, <em>error_score='raise'</em>, <em>return_train_score='warn'</em>, <em>scheduler=None</em>, <em>n_jobs=-1</em>, <em>cache_cv=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.RandomizedSearchCV.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>estimator</em>, <em>param_distributions</em>, <em>n_iter=10</em>, <em>random_state=None</em>, <em>scoring=None</em>, <em>iid=True</em>, <em>refit=True</em>, <em>cv=None</em>, <em>error_score='raise'</em>, <em>return_train_score=False</em>, <em>scheduler=None</em>, <em>n_jobs=-1</em>, <em>cache_cv=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.RandomizedSearchCV.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -564,8 +564,8 @@ data, unless an explicit score is passed in which case it is used instead.</p>
 <dt id="dask_ml.model_selection.RandomizedSearchCV.decision_function">
 <code class="descname">decision_function</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.RandomizedSearchCV.decision_function" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call decision_function on the estimator with the best found parameters.</p>
-<p>This docstring was copied from sklearn.model_selection._search.BaseSearchCV.decision_function
-Some inconsistencies with the Dask version may exist.</p>
+<p>This docstring was copied from sklearn.model_selection._search.BaseSearchCV.decision_function.</p>
+<p>Some inconsistencies with the Dask version may exist.</p>
 <p>Only available if <code class="docutils literal notranslate"><span class="pre">refit=True</span></code> and the underlying estimator supports
 <code class="docutils literal notranslate"><span class="pre">decision_function</span></code>.</p>
 <dl class="field-list simple">
@@ -627,8 +627,8 @@ contained subobjects that are estimators.</p>
 <dt id="dask_ml.model_selection.RandomizedSearchCV.inverse_transform">
 <code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>self</em>, <em>Xt</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.RandomizedSearchCV.inverse_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call inverse_transform on the estimator with the best found params.</p>
-<p>This docstring was copied from sklearn.model_selection._search.BaseSearchCV.inverse_transform
-Some inconsistencies with the Dask version may exist.</p>
+<p>This docstring was copied from sklearn.model_selection._search.BaseSearchCV.inverse_transform.</p>
+<p>Some inconsistencies with the Dask version may exist.</p>
 <p>Only available if the underlying estimator implements
 <code class="docutils literal notranslate"><span class="pre">inverse_transform</span></code> and <code class="docutils literal notranslate"><span class="pre">refit=True</span></code>.</p>
 <dl class="field-list simple">
@@ -646,8 +646,8 @@ underlying estimator.</p>
 <dt id="dask_ml.model_selection.RandomizedSearchCV.predict">
 <code class="descname">predict</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.RandomizedSearchCV.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call predict on the estimator with the best found parameters.</p>
-<p>This docstring was copied from sklearn.model_selection._search.BaseSearchCV.predict
-Some inconsistencies with the Dask version may exist.</p>
+<p>This docstring was copied from sklearn.model_selection._search.BaseSearchCV.predict.</p>
+<p>Some inconsistencies with the Dask version may exist.</p>
 <p>Only available if <code class="docutils literal notranslate"><span class="pre">refit=True</span></code> and the underlying estimator supports
 <code class="docutils literal notranslate"><span class="pre">predict</span></code>.</p>
 <dl class="field-list simple">
@@ -665,8 +665,8 @@ underlying estimator.</p>
 <dt id="dask_ml.model_selection.RandomizedSearchCV.predict_log_proba">
 <code class="descname">predict_log_proba</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.RandomizedSearchCV.predict_log_proba" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call predict_log_proba on the estimator with the best found parameters.</p>
-<p>This docstring was copied from sklearn.model_selection._search.BaseSearchCV.predict_log_proba
-Some inconsistencies with the Dask version may exist.</p>
+<p>This docstring was copied from sklearn.model_selection._search.BaseSearchCV.predict_log_proba.</p>
+<p>Some inconsistencies with the Dask version may exist.</p>
 <p>Only available if <code class="docutils literal notranslate"><span class="pre">refit=True</span></code> and the underlying estimator supports
 <code class="docutils literal notranslate"><span class="pre">predict_log_proba</span></code>.</p>
 <dl class="field-list simple">
@@ -684,8 +684,8 @@ underlying estimator.</p>
 <dt id="dask_ml.model_selection.RandomizedSearchCV.predict_proba">
 <code class="descname">predict_proba</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.RandomizedSearchCV.predict_proba" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call predict_proba on the estimator with the best found parameters.</p>
-<p>This docstring was copied from sklearn.model_selection._search.BaseSearchCV.predict_proba
-Some inconsistencies with the Dask version may exist.</p>
+<p>This docstring was copied from sklearn.model_selection._search.BaseSearchCV.predict_proba.</p>
+<p>Some inconsistencies with the Dask version may exist.</p>
 <p>Only available if <code class="docutils literal notranslate"><span class="pre">refit=True</span></code> and the underlying estimator supports
 <code class="docutils literal notranslate"><span class="pre">predict_proba</span></code>.</p>
 <dl class="field-list simple">
@@ -703,8 +703,8 @@ underlying estimator.</p>
 <dt id="dask_ml.model_selection.RandomizedSearchCV.score">
 <code class="descname">score</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.RandomizedSearchCV.score" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the score on the given data, if the estimator has been refit.</p>
-<p>This docstring was copied from sklearn.model_selection._search.BaseSearchCV.score
-Some inconsistencies with the Dask version may exist.</p>
+<p>This docstring was copied from sklearn.model_selection._search.BaseSearchCV.score.</p>
+<p>Some inconsistencies with the Dask version may exist.</p>
 <p>This uses the score defined by <code class="docutils literal notranslate"><span class="pre">scoring</span></code> where provided, and the
 <code class="docutils literal notranslate"><span class="pre">best_estimator_.score</span></code> method otherwise.</p>
 <dl class="field-list simple">
@@ -747,8 +747,8 @@ component of a nested object.</p>
 <dt id="dask_ml.model_selection.RandomizedSearchCV.transform">
 <code class="descname">transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.RandomizedSearchCV.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call transform on the estimator with the best found parameters.</p>
-<p>This docstring was copied from sklearn.model_selection._search.BaseSearchCV.transform
-Some inconsistencies with the Dask version may exist.</p>
+<p>This docstring was copied from sklearn.model_selection._search.BaseSearchCV.transform.</p>
+<p>Some inconsistencies with the Dask version may exist.</p>
 <p>Only available if the underlying estimator supports <code class="docutils literal notranslate"><span class="pre">transform</span></code> and
 <code class="docutils literal notranslate"><span class="pre">refit=True</span></code>.</p>
 <dl class="field-list simple">
