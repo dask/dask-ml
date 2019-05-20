@@ -1218,7 +1218,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             )
 
         candidate_params = list(self._get_param_iterator())
-        dsk, keys, n_splits = build_cv_graph(
+        dsk, keys, n_splits, _ = build_cv_graph(
             estimator,
             self.cv,
             self.scorer_,
