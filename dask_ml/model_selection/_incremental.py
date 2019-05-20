@@ -419,13 +419,36 @@ class BaseIncrementalSearchCV(ParallelPostFit):
     """
 
     def __init__(
-        self, estimator, parameters, test_size=None, random_state=None, scoring=None
+        self,
+        estimator,
+        parameters,
+        test_size=None,
+        random_state=None,
+        scoring=None,
+        max_iter=100,
+        patience=False,
+        tol=1e-3,
     ):
-        self.estimator = estimator
         self.parameters = parameters
         self.test_size = test_size
         self.random_state = random_state
-        self.scoring = scoring
+        self.max_iter = max_iter
+        self.patience = patience
+        self.tol = tol
+        super(BaseIncrementalSearchCV, self).__init__(estimator, scoring=scoring)
+
+    def _validate_parameters(self, X, y):
+        if self.max_iter < 1:
+            raise ValueError(
+                "Received max_iter={}. max_iter < 1 is not supported".format(
+                    self.max_iter
+                )
+            )
+
+        X = self._check_array(X)
+        y = self._check_array(y, ensure_2d=False)
+        scorer = check_scoring(self.estimator, scoring=self.scoring)
+        return X, y, scorer
 
     @property
     def _postfit_estimator(self):
@@ -568,7 +591,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         self.multimetric_ = False  # TODO: is this always true?
         raise gen.Return(self)
 
-    def fit(self, X, y, **fit_params):
+    def fit(self, X, y=None, **fit_params):
         """Find the best parameters for a particular model.
 
         Parameters
@@ -827,7 +850,14 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         self.scores_per_fit = scores_per_fit
         self.max_iter = max_iter
         super(IncrementalSearchCV, self).__init__(
-            estimator, param_distribution, test_size, random_state, scoring
+            estimator,
+            param_distribution,
+            test_size=test_size,
+            random_state=random_state,
+            scoring=scoring,
+            max_iter=max_iter,
+            patience=patience,
+            tol=tol,
         )
 
     def _get_params(self):
@@ -839,19 +869,6 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
                 self.n_initial_parameters,
                 random_state=self.random_state,
             )
-
-    def _validate_parameters(self, X, y):
-        if self.max_iter < 1:
-            raise ValueError(
-                "Received max_iter={}. max_iter < 1 is not supported".format(
-                    self.max_iter
-                )
-            )
-
-        X = self._check_array(X)
-        y = self._check_array(y, ensure_2d=False)
-        scorer = check_scoring(self.estimator, scoring=self.scoring)
-        return X, y, scorer
 
     def _additional_calls(self, info):
         calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}

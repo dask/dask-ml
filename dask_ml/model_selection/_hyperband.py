@@ -9,7 +9,7 @@ from sklearn.metrics.scorer import check_scoring
 from sklearn.utils import check_random_state
 from tornado import gen
 
-from ._incremental import IncrementalSearchCV
+from ._incremental import BaseIncrementalSearchCV
 from ._successive_halving import SuccessiveHalvingSearchCV
 
 logger = logging.getLogger(__name__)
@@ -53,7 +53,7 @@ def _get_hyperband_params(R, eta=3):
     return {b: (n, r) for b, n, r in zip(brackets, N, R)}
 
 
-class HyperbandSearchCV(IncrementalSearchCV):
+class HyperbandSearchCV(BaseIncrementalSearchCV):
     """Find the best parameters for a particular model with an adaptive
     cross-validation algorithm.
 
@@ -277,7 +277,6 @@ class HyperbandSearchCV(IncrementalSearchCV):
         random_state=None,
         scoring=None,
     ):
-        self.max_iter = max_iter
         self.aggressiveness = aggressiveness
 
         super(HyperbandSearchCV, self).__init__(
@@ -292,7 +291,6 @@ class HyperbandSearchCV(IncrementalSearchCV):
         )
 
     def _get_SHAs(self, brackets):
-
         patience = _get_patience(self.patience, self.max_iter, self.aggressiveness)
 
         # This is the first time self.random_state is used after
