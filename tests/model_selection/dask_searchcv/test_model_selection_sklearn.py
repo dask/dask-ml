@@ -1207,6 +1207,12 @@ def test_search_train_scores_set_to_false():
     for key in gs.cv_results_:
         assert not key.endswith("train_score")
 
+    if SK_VERSION >= packaging.version.parse("0.22.dev0"):
+        gs = dcv.GridSearchCV(clf, param_grid={"C": [0.1, 0.2]})
+        gs.fit(X, y)
+        for key in gs.cv_results_:
+            assert not key.endswith("train_score")
+
 
 def test_multiple_metrics():
     scoring = {"AUC": "roc_auc", "Accuracy": make_scorer(accuracy_score)}
@@ -1222,6 +1228,7 @@ def test_multiple_metrics():
         scoring=scoring,
         cv=5,
         refit="AUC",
+        return_train_score=True,
     )
     gs.fit(da_X, da_y)
     # some basic checks
