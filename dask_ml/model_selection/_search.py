@@ -116,6 +116,70 @@ def map_fit_params(dsk, fit_params):
     return fit_params
 
 
+def build_graph(
+    estimator,
+    cv,
+    scorer,
+    candidate_params,
+    X,
+    y=None,
+    groups=None,
+    fit_params=None,
+    iid=True,
+    refit=True,
+    error_score="raise",
+    return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
+    cache_cv=True,
+    multimetric=False,
+):
+    # This is provided for compatibility with TPOT. Remove
+    # once TPOT is updated and requires a dask-ml>=0.13.0
+    def decompress_params(fields, params):
+        return [{k: v for k, v in zip(fields, p) if v is not MISSING} for p in params]
+
+    fields, tokens, params = normalize_params(candidate_params)
+    dsk, keys, n_splits, main_token = build_cv_graph(
+        estimator,
+        cv,
+        scorer,
+        candidate_params,
+        X,
+        y=y,
+        groups=groups,
+        fit_params=fit_params,
+        iid=iid,
+        error_score=error_score,
+        return_train_score=return_train_score,
+        cache_cv=cache_cv,
+    )
+    cv_name = "cv-split-" + main_token
+    if iid:
+        weights = "cv-n-samples-" + main_token
+        dsk[weights] = (cv_n_samples, cv_name)
+        scores = keys[1:]
+    else:
+        scores = keys
+
+    cv_results = "cv-results-" + main_token
+    candidate_params_name = "cv-parameters-" + main_token
+    dsk[candidate_params_name] = (decompress_params, fields, params)
+    if multimetric:
+        metrics = list(scorer.keys())
+    else:
+        metrics = None
+    dsk[cv_results] = (
+        create_cv_results,
+        scores,
+        candidate_params_name,
+        n_splits,
+        error_score,
+        weights,
+        metrics,
+    )
+    keys = [cv_results]
+    return dsk, keys, n_splits
+
+
 def build_cv_graph(
     estimator,
     cv,
@@ -181,7 +245,7 @@ def build_cv_graph(
         return_train_score,
     )
     keys = [weights] + scores if weights else scores
-    return dsk, keys, n_splits
+    return dsk, keys, n_splits, main_token
 
 
 def build_refit_graph(estimator, X, y, best_params, fit_params):
