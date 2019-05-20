@@ -14,6 +14,8 @@ from dask.base import tokenize
 from dask.callbacks import Callback
 from dask.delayed import delayed
 from dask.utils import tmpdir
+from distributed import Client
+from distributed.utils_test import cluster, loop
 from sklearn.datasets import load_iris, make_classification
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
@@ -40,6 +42,7 @@ from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.svm import SVC
 
 import dask_ml.model_selection as dcv
+from dask_ml._compat import SK_022
 from dask_ml.model_selection import check_cv, compute_n_splits
 from dask_ml.model_selection._search import _normalize_n_jobs
 from dask_ml.model_selection.methods import CVCache
@@ -51,14 +54,11 @@ from dask_ml.model_selection.utils_test import (
     ScalingTransformer,
 )
 
-try:
-    from distributed import Client
-    from distributed.utils_test import cluster, loop
-
-    has_distributed = True
-except ImportError:
-    loop = pytest.fixture(lambda: None)
-    has_distributed = False
+if SK_022:
+    # deprecated in 0.22
+    iid = {}
+else:
+    iid = {"iid": True}
 
 
 class assert_dask_compute(Callback):
@@ -363,7 +363,7 @@ def test_pipeline_feature_union():
         svc__C=[0.1, 1, 10],
     )
 
-    gs = GridSearchCV(pipe, param_grid=param_grid, cv=3, iid=True)
+    gs = GridSearchCV(pipe, param_grid=param_grid, cv=3, **iid)
     gs.fit(X, y)
     dgs = dcv.GridSearchCV(pipe, param_grid=param_grid, scheduler="sync", cv=3)
     dgs.fit(X, y)
@@ -421,9 +421,7 @@ def test_pipeline_sub_estimators():
         },
     ]
 
-    gs = GridSearchCV(
-        pipe, param_grid=param_grid, return_train_score=True, cv=3, iid=True
-    )
+    gs = GridSearchCV(pipe, param_grid=param_grid, return_train_score=True, cv=3, **iid)
     gs.fit(X, y)
     dgs = dcv.GridSearchCV(
         pipe, param_grid=param_grid, scheduler="sync", return_train_score=True, cv=3
@@ -444,7 +442,9 @@ def test_pipeline_sub_estimators():
     skip = ["mean_fit_time", "std_fit_time", "mean_score_time", "std_score_time"]
     res = res.drop(skip, axis=1)
     sol = sol.drop(skip, axis=1)
-    assert res.equals(sol)
+    pd.util.testing.assert_frame_equal(
+        res, sol, check_exact=False, check_less_precise=1
+    )
 
     # Check SVC coefs match
     np.testing.assert_allclose(
@@ -592,7 +592,7 @@ def test_failing_classifier_fails():
 
     X, y = make_classification()
 
-    with pytest.raises(ValueError, message="Failing during score"):
+    with pytest.raises(ValueError, match="Failing"):
         clf.fit(X, y)
 
     clf = clf.set_params(error_score=-1)
@@ -784,7 +784,6 @@ def test_scheduler_param(scheduler, n_jobs):
     gs.fit(X, y)
 
 
-@pytest.mark.skipif("not has_distributed")
 def test_scheduler_param_distributed(loop):
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
     with cluster() as (s, [a, b]):
@@ -808,7 +807,7 @@ def test_cv_multiplemetrics():
         refit="score1",
         scoring={"score1": "accuracy", "score2": "accuracy"},
         cv=3,
-        iid=True,
+        **iid,
     )
     b = GridSearchCV(
         RandomForestClassifier(n_estimators=10),
@@ -816,7 +815,7 @@ def test_cv_multiplemetrics():
         refit="score1",
         scoring={"score1": "accuracy", "score2": "accuracy"},
         cv=3,
-        iid=True,
+        **iid,
     )
     a.fit(X, y)
     b.fit(X, y)
@@ -872,13 +871,11 @@ def test_gridsearch_with_arraylike_fit_param(cache_cv):
         MockClassifierWithFitParam(),
         param_grid,
         cv=3,
-        iid=False,
+        **iid,
         refit=False,
         cache_cv=cache_cv,
     )
-    b = GridSearchCV(
-        MockClassifierWithFitParam(), param_grid, cv=3, iid=False, refit=False
-    )
+    b = GridSearchCV(MockClassifierWithFitParam(), param_grid, cv=3, **iid, refit=False)
 
     b.fit(X, y, mock_fit_param=[0, 1])
     a.fit(X, y, mock_fit_param=[0, 1])
