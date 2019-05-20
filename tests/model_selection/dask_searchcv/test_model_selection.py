@@ -14,7 +14,7 @@ from dask.base import tokenize
 from dask.callbacks import Callback
 from dask.delayed import delayed
 from dask.utils import tmpdir
-from distributed import Client
+from distributed import Client, Nanny, Variable
 from distributed.utils_test import cluster, loop
 from sklearn.datasets import load_iris, make_classification
 from sklearn.decomposition import PCA
@@ -47,6 +47,7 @@ from dask_ml.model_selection import check_cv, compute_n_splits
 from dask_ml.model_selection._search import _normalize_n_jobs
 from dask_ml.model_selection.methods import CVCache
 from dask_ml.model_selection.utils_test import (
+    AsCompletedEstimator,
     CheckXClassifier,
     FailingClassifier,
     MockClassifier,
@@ -795,6 +796,51 @@ def test_scheduler_param_distributed(loop):
                 return len(dask_scheduler.transition_log)
 
             assert client.run_on_scheduler(f)  # some work happened on cluster
+
+
+def test_as_completed_distributed(loop):
+    with cluster(active_rpc_timeout=10, nanny=Nanny) as (s, [a, b]):
+        with Client(s["address"], loop=loop) as c:
+            counter_name = "counter_name"
+            counter = Variable(counter_name, client=c)
+            counter.set(0)
+            lock_name = "lock"
+
+            killed_workers_name = "killed_workers"
+            killed_workers = Variable(killed_workers_name, client=c)
+            killed_workers.set({})
+
+            X, y = make_classification(n_samples=100, n_features=10, random_state=0)
+            gs = dcv.GridSearchCV(
+                AsCompletedEstimator(killed_workers_name, lock_name, counter_name, 7),
+                param_grid={"foo_param": [0, 1, 2]},
+                cv=3,
+                refit=False,
+                cache_cv=False,
+                scheduler=c,
+            )
+            gs.fit(X, y)
+
+            def f(dask_scheduler):
+                return dask_scheduler.transition_log
+
+            def check_reprocess(transition_log):
+                finished = set()
+                for transition in transition_log:
+                    key, start_state, end_state = (
+                        transition[0],
+                        transition[1],
+                        transition[2],
+                    )
+                    assert key not in finished
+                    if (
+                        "score" in key
+                        and start_state == "memory"
+                        and end_state == "forgotten"
+                    ):
+                        finished.add(key)
+
+            check_reprocess(c.run_on_scheduler(f))
 
 
 def test_cv_multiplemetrics():
