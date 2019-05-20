@@ -592,7 +592,7 @@ def test_failing_classifier_fails():
 
     X, y = make_classification()
 
-    with pytest.raises(ValueError, match="Failing during score"):
+    with pytest.raises(ValueError, match="Failing"):
         clf.fit(X, y)
 
     clf = clf.set_params(error_score=-1)
