@@ -44,7 +44,7 @@ def mean_squared_error(
     return result
 
 
-@doc_wraps(sklearn.metrics.mean_squared_error)
+@doc_wraps(sklearn.metrics.mean_absolute_error)
 def mean_absolute_error(
     y_true, y_pred, sample_weight=None, multioutput="uniform_average", compute=True
 ):
