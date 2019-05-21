@@ -152,6 +152,28 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
 
     Attributes
     ----------
+    metadata and metadata_ : dict[str, Union(int, dict)]
+
+        These dictionaries describe the computation performed, either
+        before computation happens with ``metadata`` or after computation
+        happens with ``metadata_``. These dictionaries both have keys
+
+        * ``bracket``, an int representing how strongly the
+          SuccessiveHalvingSearchCV class adapts to history.
+          ``bracket == 0`` stops estimators the least frequently.
+        * ``estimators``, an int representing how many models will be/is created.
+        * ``partial_fit_calls``, an int representing how many times
+           ``partial_fit`` will be/is called.
+        * ``SuccessiveHalvingSearchCV params``, a dictionary representing the
+          parameters used to create the different brackets.
+        * ``decisions``, the number of times ``partial_fit`` will be/is called on
+          each model
+
+        These dictionaries are the same if ``patience`` is not specified. If
+        it is specified, ``partial_fit_calls`` in ``metadata_`` will likely
+        be lower and correspondingly,
+        ``decisions`` in ``metadata_`` will be longer.
+
     cv_results_ : Dict[str, np.ndarray]
         This dictionary has keys
 
@@ -407,26 +429,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         self._SuccessiveHalvings_ = SHAs
         raise gen.Return(self)
 
+    @property
     def metadata(self):
-        """Get information about how much computation is required for
-        :func:`~dask_ml.model_selection.HyperbandSearchCV.fit`. This can be called
-        before or after  :func:`~dask_ml.model_selection.HyperbandSearchCV.fit`.
-
-        Returns
-        -------
-        metadata : dict
-            Information about the computation performed by ``fit``. Has keys
-
-            * ``partial_fit_calls``, the total number of partial fit calls.
-            * ``estimators``, the total number of estimators created.
-            * ``brackets``, each of which has the same two keys as above.
-
-        Notes
-        ------
-        This algorithm runs several loops in an "embarassingly parallel"
-        manner. The ``brackets`` key represents each of these loops.
-
-        """
         bracket_info = _hyperband_paper_alg(self.max_iter, eta=self.aggressiveness)
         num_models = sum(b["estimators"] for b in bracket_info)
         for bracket in bracket_info:
