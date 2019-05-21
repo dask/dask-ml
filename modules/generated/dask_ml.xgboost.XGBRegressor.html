@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.1.dev90+g954d41f
+                0.12.1.dev90+g9404c32
               </div>
             
           
@@ -262,7 +262,7 @@
 <h1><a class="reference internal" href="../api.html#module-dask_ml.xgboost" title="dask_ml.xgboost"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code></a>.XGBRegressor<a class="headerlink" href="#dask-ml-xgboost-xgbregressor" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="dask_ml.xgboost.XGBRegressor">
-<em class="property">class </em><code class="descclassname">dask_ml.xgboost.</code><code class="descname">XGBRegressor</code><span class="sig-paren">(</span><em>max_depth=3</em>, <em>learning_rate=0.1</em>, <em>n_estimators=100</em>, <em>silent=True</em>, <em>objective='reg:linear'</em>, <em>booster='gbtree'</em>, <em>n_jobs=1</em>, <em>nthread=None</em>, <em>gamma=0</em>, <em>min_child_weight=1</em>, <em>max_delta_step=0</em>, <em>subsample=1</em>, <em>colsample_bytree=1</em>, <em>colsample_bylevel=1</em>, <em>reg_alpha=0</em>, <em>reg_lambda=1</em>, <em>scale_pos_weight=1</em>, <em>base_score=0.5</em>, <em>random_state=0</em>, <em>seed=None</em>, <em>missing=None</em>, <em>importance_type='gain'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.xgboost.</code><code class="descname">XGBRegressor</code><span class="sig-paren">(</span><em>max_depth=3</em>, <em>learning_rate=0.1</em>, <em>n_estimators=100</em>, <em>verbosity=1</em>, <em>silent=None</em>, <em>objective='reg:linear'</em>, <em>booster='gbtree'</em>, <em>n_jobs=1</em>, <em>nthread=None</em>, <em>gamma=0</em>, <em>min_child_weight=1</em>, <em>max_delta_step=0</em>, <em>subsample=1</em>, <em>colsample_bytree=1</em>, <em>colsample_bylevel=1</em>, <em>colsample_bynode=1</em>, <em>reg_alpha=0</em>, <em>reg_lambda=1</em>, <em>scale_pos_weight=1</em>, <em>base_score=0.5</em>, <em>random_state=0</em>, <em>seed=None</em>, <em>missing=None</em>, <em>importance_type='gain'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Attributes</dt>
 <dd class="field-odd"><dl class="simple">
@@ -294,32 +294,35 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.get_booster" title="dask_ml.xgboost.XGBRegressor.get_booster"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_booster</span></code></a>(self)</p></td>
 <td><p>Get the underlying xgboost Booster of this model.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.get_params" title="dask_ml.xgboost.XGBRegressor.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[, deep])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.get_num_boosting_rounds" title="dask_ml.xgboost.XGBRegressor.get_num_boosting_rounds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_num_boosting_rounds</span></code></a>(self)</p></td>
+<td><p>Gets the number of xgboost boosting rounds.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.get_params" title="dask_ml.xgboost.XGBRegressor.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[, deep])</p></td>
 <td><p>Get parameters.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.get_xgb_params" title="dask_ml.xgboost.XGBRegressor.get_xgb_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_xgb_params</span></code></a>(self)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.get_xgb_params" title="dask_ml.xgboost.XGBRegressor.get_xgb_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_xgb_params</span></code></a>(self)</p></td>
 <td><p>Get xgboost type parameters.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.load_model" title="dask_ml.xgboost.XGBRegressor.load_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_model</span></code></a>(self, fname)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.load_model" title="dask_ml.xgboost.XGBRegressor.load_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_model</span></code></a>(self, fname)</p></td>
 <td><p>Load the model from a file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.predict" title="dask_ml.xgboost.XGBRegressor.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(self, X)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.predict" title="dask_ml.xgboost.XGBRegressor.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(self, X)</p></td>
 <td><p>Predict with <cite>data</cite>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.save_model" title="dask_ml.xgboost.XGBRegressor.save_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_model</span></code></a>(self, fname)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.save_model" title="dask_ml.xgboost.XGBRegressor.save_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_model</span></code></a>(self, fname)</p></td>
 <td><p>Save the model to a file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.score" title="dask_ml.xgboost.XGBRegressor.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(self, X, y[, sample_weight])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.score" title="dask_ml.xgboost.XGBRegressor.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(self, X, y[, sample_weight])</p></td>
 <td><p>Returns the coefficient of determination R^2 of the prediction.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.set_params" title="dask_ml.xgboost.XGBRegressor.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self, \*\*params)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.set_params" title="dask_ml.xgboost.XGBRegressor.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self, \*\*params)</p></td>
 <td><p>Set the parameters of this estimator.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBRegressor.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>max_depth=3</em>, <em>learning_rate=0.1</em>, <em>n_estimators=100</em>, <em>silent=True</em>, <em>objective='reg:linear'</em>, <em>booster='gbtree'</em>, <em>n_jobs=1</em>, <em>nthread=None</em>, <em>gamma=0</em>, <em>min_child_weight=1</em>, <em>max_delta_step=0</em>, <em>subsample=1</em>, <em>colsample_bytree=1</em>, <em>colsample_bylevel=1</em>, <em>reg_alpha=0</em>, <em>reg_lambda=1</em>, <em>scale_pos_weight=1</em>, <em>base_score=0.5</em>, <em>random_state=0</em>, <em>seed=None</em>, <em>missing=None</em>, <em>importance_type='gain'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>max_depth=3</em>, <em>learning_rate=0.1</em>, <em>n_estimators=100</em>, <em>verbosity=1</em>, <em>silent=None</em>, <em>objective='reg:linear'</em>, <em>booster='gbtree'</em>, <em>n_jobs=1</em>, <em>nthread=None</em>, <em>gamma=0</em>, <em>min_child_weight=1</em>, <em>max_delta_step=0</em>, <em>subsample=1</em>, <em>colsample_bytree=1</em>, <em>colsample_bylevel=1</em>, <em>colsample_bynode=1</em>, <em>reg_alpha=0</em>, <em>reg_lambda=1</em>, <em>scale_pos_weight=1</em>, <em>base_score=0.5</em>, <em>random_state=0</em>, <em>seed=None</em>, <em>missing=None</em>, <em>importance_type='gain'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -439,6 +442,12 @@ kwargs.</p>
 </dl>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.xgboost.XGBRegressor.get_num_boosting_rounds">
+<code class="descname">get_num_boosting_rounds</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.get_num_boosting_rounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the number of xgboost boosting rounds.</p>
 </dd></dl>
 
 <dl class="method">

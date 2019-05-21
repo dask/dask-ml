@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.1.dev90+g954d41f
+                0.12.1.dev90+g9404c32
               </div>
             
           
@@ -170,6 +170,7 @@
 <p class="caption"><span class="caption-text">Develop</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-13-0">Version 0.13.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-0-12-0">Version 0.12.0</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#api-breaking-changes">API Breaking Changes</a></li>
 </ul>
@@ -307,6 +308,20 @@
             
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="version-0-13-0">
+<h2>Version 0.13.0<a class="headerlink" href="#version-0-13-0" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Compatibility with scikit-learn 0.21.1</p></li>
+<li><p>Cross-validation results in <code class="docutils literal notranslate"><span class="pre">GridSearchCV</span></code> and <code class="docutils literal notranslate"><span class="pre">RandomizedSearchCV</span></code> are now gathered as completed, in case a worker is lost (<a class="reference external" href="https://github.com/dask/dask-ml/issues/433">GH#433</a>)</p></li>
+<li><p>Fixed bug in <a class="reference internal" href="modules/generated/dask_ml.model_selection.train_test_split.html#dask_ml.model_selection.train_test_split" title="dask_ml.model_selection.train_test_split"><code class="xref py py-func docutils literal notranslate"><span class="pre">dask_ml.model_selection.train_test_split()</span></code></a> when only one of train / test size is provided (<a class="reference external" href="https://github.com/dask/dask-ml/issues/502">GH#502</a>)</p></li>
+<li><p>Consistent random state for <a class="reference internal" href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV" title="dask_ml.model_selection.IncrementalSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearchCV</span></code></a></p></li>
+<li><p>Fixed various issues with 32-bit Windows builds (<a class="reference external" href="https://github.com/dask/dask-ml/issues/487">GH#487</a>)</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>dask-ml 0.13.0 will be the last release to support Python 2.</p>
+</div>
+</div>
 <div class="section" id="version-0-12-0">
 <h2>Version 0.12.0<a class="headerlink" href="#version-0-12-0" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="api-breaking-changes">
