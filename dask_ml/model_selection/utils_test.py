@@ -1,4 +1,8 @@
+import os
+from ast import literal_eval
+
 import numpy as np
+from distributed import Lock, Variable, get_worker
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import _num_samples, check_array
 
@@ -188,3 +192,36 @@ class CheckingClassifier(BaseEstimator, ClassifierMixin):
         else:
             score = 0.0
         return score
+
+
+class AsCompletedEstimator(MockClassifier):
+    def __init__(
+        self, killed_workers_name, lock_name, counter_name, min_complete, foo_param=None
+    ):
+        super(AsCompletedEstimator, self).__init__(foo_param)
+        self.counter_name = counter_name
+        self.killed_workers_name = killed_workers_name
+        self.lock_name = lock_name
+        self.min_complete = min_complete
+
+    def fit(self, X, y=None):
+        w = get_worker()
+        dsk_lock = Lock(self.lock_name, client=w.client)
+        dsk_counter = Variable(self.counter_name, client=w.client)
+        dsk_killed_workers = Variable(self.killed_workers_name, client=w.client)
+
+        for e in list(w.executing):
+            should_die = False
+            t = literal_eval(e)
+            with dsk_lock:
+                c = dsk_counter.get()
+                dsk_counter.set(c + 1)
+                killed_workers = dsk_killed_workers.get()
+                if c > self.min_complete and t not in killed_workers:
+                    killed_workers[t] = True
+                    should_die = True
+                    dsk_killed_workers.set(killed_workers)
+
+            if should_die:
+                os.kill(os.getpid(), 9)
+        return self

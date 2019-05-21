@@ -118,7 +118,7 @@ def test_kfold(shuffle):
 
 def test_train_test_split():
     X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(
-        dX, dy, random_state=10
+        dX, dy,
     )
 
     assert len(X_train) == 99
@@ -164,14 +164,23 @@ def test_complement():
     assert test_size == 0.2
 
 
-def test_train_test_split_dask_dataframe(xy_classification_pandas):
+@pytest.mark.parametrize('train_size, test_size', [
+    (None, None),
+    (0.9, None),
+    (None, 0.1),
+    (0.9, 0.1)
+])
+def test_train_test_split_dask_dataframe(xy_classification_pandas, train_size,
+        test_size):
     X, y = xy_classification_pandas
 
     X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(
-        X, y, train_size=0.25, test_size=0.75
+        X, y, train_size=train_size, test_size=test_size
     )
     assert isinstance(X_train, dd.DataFrame)
     assert isinstance(y_train, dd.Series)
+
+    assert (y_train.size + y_test.size).compute() == len(y)
 
 
 def test_train_test_split_dask_dataframe_rng(xy_classification_pandas):
