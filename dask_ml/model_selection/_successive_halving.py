@@ -10,11 +10,16 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
     """
     Perform the successive halving algorithm [1]_.
 
-    This algorithm trains estimators ``n_initial_iter`` calls to
-    ``partial_fit``, then kills the worst performing half (or
-    ``1 / aggressiveness``). It trains the surviving estimators for twice
-    as long (or ``aggressiveness`` times longer). It repeats this until one
-    estimator survives.
+    This algorithm trains estimators for a certain number ``partial_fit``
+    calls to ``partial_fit``, then kills the worst performing half.
+    It trains the surviving estimators for twice as long, and repeats this
+    until one estimator survives.
+
+    The value of :math:`1/2` above is used for a clear explanation. This class
+    defaults to killing the worst performing ``1 - 1 // aggressiveness``
+    fraction of models, and trains estimators for ``aggressiveness`` times
+    longer, and waits until the number of models left is less than
+    ``aggressiveness``.
 
     Parameters
     ----------
@@ -207,7 +212,7 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         best = toolz.topk(n_i, info, key=lambda k: info[k][-1]["score"])
         self._steps += 1
 
-        if len(best) < 1 - 1 / self.aggressiveness:
+        if len(best) == 0:
             return {id_: 0 for id_ in info}
 
         pf_calls = {k: info[k][-1]["partial_fit_calls"] for k in best}
