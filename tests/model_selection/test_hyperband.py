@@ -112,7 +112,7 @@ def test_basic(array_type, library, max_iter):
 
 
 @pytest.mark.parametrize("max_iter,aggressiveness", [(27, 3), (30, 4)])
-def test_hyperband_mirrors_paper(max_iter, aggressiveness):
+def test_hyperband_mirrors_paper_and_metadata(max_iter, aggressiveness):
     @gen_cluster(client=True, timeout=5000)
     def _test_mirrors_paper(c, s, a, b):
         X, y = make_classification(n_samples=10, n_features=4, chunks=10)
@@ -127,11 +127,25 @@ def test_hyperband_mirrors_paper(max_iter, aggressiveness):
         )
         yield alg.fit(X, y)
         metadata = alg.metadata()
-        paper_decisions = [b.pop("decisions") for b in metadata["brackets"].values()]
+        assert isinstance(metadata["brackets"], list)
+        assert isinstance(alg.metadata_["brackets"], list)
+        paper_decisions = [b.pop("decisions") for b in metadata["brackets"]]
         actual_decisions = [
-            b.pop("decisions") for b in alg.metadata_["brackets"].values()
+            b.pop("decisions") for b in alg.metadata_["brackets"]
         ]
         assert metadata == alg.metadata_
+        assert set(metadata.keys()) == {"estimators", "partial_fit_calls", "brackets"}
+        assert all(
+            set(v.keys())
+            == {
+                "bracket",
+                "estimators",
+                "partial_fit_calls",
+                "SuccessiveHalvingSearchCV params",
+            }
+            for v in alg.metadata_["brackets"]
+        )
+
         for paper_iter, actual_iter in zip(paper_decisions, actual_decisions):
             assert set(paper_iter).issubset(set(actual_iter))
         if aggressiveness == 3:
@@ -153,8 +167,8 @@ def test_hyperband_patience(c, s, a, b):
     yield alg.fit(X, y)
 
     alg_patience = max_iter // alg.aggressiveness
-    actual_decisions = [b.pop("decisions") for b in alg.metadata_["brackets"].values()]
-    paper_decisions = [b.pop("decisions") for b in alg.metadata()["brackets"].values()]
+    actual_decisions = [b.pop("decisions") for b in alg.metadata_["brackets"]]
+    paper_decisions = [b.pop("decisions") for b in alg.metadata()["brackets"]]
 
     for paper_iter, actual_iter in zip(paper_decisions, actual_decisions):
         trimmed_paper_iter = {k for k in paper_iter if k <= alg_patience}
@@ -262,19 +276,19 @@ def test_successive_halving_params(c, s, a, b):
     params = {"value": scipy.stats.uniform(0, 1)}
     alg = HyperbandSearchCV(model, params, max_iter=9, random_state=42)
 
-    kwargs = {
-        k: v["SuccessiveHalvingSearchCV params"]
-        for k, v in alg.metadata()["brackets"].items()
-    }
-    SHAs = {k: SuccessiveHalvingSearchCV(model, params, **v) for k, v in kwargs.items()}
+    kwargs = [
+        v["SuccessiveHalvingSearchCV params"]
+        for v in alg.metadata()["brackets"]
+    ]
+    SHAs = [SuccessiveHalvingSearchCV(model, params, **v) for v in kwargs]
 
     metadata = alg.metadata()["brackets"]
-    for b, SHA in SHAs.items():
+    for true_meta, SHA in zip(metadata, SHAs):
         yield SHA.fit(X, y)
         estimators = len(SHA.model_history_)
         pf_calls = [v[-1]["partial_fit_calls"] for v in SHA.model_history_.values()]
-        assert metadata[b]["estimators"] == estimators
-        assert metadata[b]["partial_fit_calls"] == sum(pf_calls)
+        assert true_meta["estimators"] == estimators
+        assert true_meta["partial_fit_calls"] == sum(pf_calls)
 
 
 @gen_cluster(client=True, timeout=5000)
@@ -300,7 +314,7 @@ def test_correct_params(c, s, a, b):
     meta = search.metadata()
     SHAs_params = [
         bracket["SuccessiveHalvingSearchCV params"]
-        for bracket in meta["brackets"].values()
+        for bracket in meta["brackets"]
     ]
     SHA_params = base.union(
         {"n_initial_parameters", "n_initial_iter", "aggressiveness", "max_iter"}
@@ -334,7 +348,7 @@ def test_params_passed():
 
     brackets = hyperband.metadata()["brackets"]
     SHAs_params = [
-        bracket["SuccessiveHalvingSearchCV params"] for bracket in brackets.values()
+        bracket["SuccessiveHalvingSearchCV params"] for bracket in brackets
     ]
 
     for SHA_params in SHAs_params:
@@ -378,7 +392,7 @@ def test_same_random_state_same_params(c, s, a, b):
     # Getting the `value`s that are the same for both searches
     same = set(v_passive).intersection(set(v_h))
 
-    passive_models = h.metadata()["brackets"]["bracket=0"]["estimators"]
+    passive_models = h.metadata()["brackets"][0]["estimators"]
     assert len(same) == passive_models
 
 

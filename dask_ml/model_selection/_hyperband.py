@@ -388,8 +388,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         )
 
         self.metadata_ = {
-            "estimators": sum(m["estimators"] for m in meta.values()),
-            "partial_fit_calls": sum(m["partial_fit_calls"] for m in meta.values()),
+            "estimators": sum(m["estimators"] for m in meta),
+            "partial_fit_calls": sum(m["partial_fit_calls"] for m in meta),
             "brackets": meta,
         }
 
@@ -441,16 +441,17 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
             b = bracket["bracket"]
             bracket["SuccessiveHalvingSearchCV params"] = _get_SHA_params(SHAs[b])
 
+        bracket_info = sorted(bracket_info, key=lambda x: x["bracket"])
         info = {
             "partial_fit_calls": num_partial_fit,
             "estimators": num_models,
-            "brackets": {"bracket=" + str(b["bracket"]): b for b in bracket_info},
+            "brackets": bracket_info,
         }
         return info
 
 
 def _get_meta(hists, brackets, SHAs, key):
-    meta_ = {}
+    meta_ = []
     history_ = {}
     for bracket in brackets:
         hist = hists[bracket]
@@ -463,13 +464,14 @@ def _get_meta(hists, brackets, SHAs, key):
 
         calls = {k: max(hi["partial_fit_calls"] for hi in h) for k, h in hist.items()}
         decisions = {hi["partial_fit_calls"] for h in hist.values() for hi in h}
-        meta_["bracket={}".format(bracket)] = {
+        meta_.append({
             "decisions": sorted(list(decisions)),
             "estimators": len(hist),
             "bracket": bracket,
             "partial_fit_calls": sum(calls.values()),
             "SuccessiveHalvingSearchCV params": _get_SHA_params(SHAs[bracket]),
-        }
+        })
+    meta_ = sorted(meta_, key=lambda x: x["bracket"])
     return meta_, history_
 
 
