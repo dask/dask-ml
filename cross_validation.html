@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Cross Validation &mdash; dask-ml 0.12.1 documentation</title>
+  <title>Cross Validation &mdash; dask-ml 0.13.0 documentation</title>
   
 
   
@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.12.1.dev90+g9404c32
+                0.13.0
               </div>
             
           
@@ -262,9 +262,12 @@ This document only describes the extensions made to support Dask arrays.</p>
 
 <span class="gp">In [8]: </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="go">                                                                                  Out[8]: </span>
-<span class="go">array([[ 0.347507  ,  0.21822583, -0.7777512 ,  1.28130955],</span>
-<span class="go">       [ 0.99177505, -0.9955949 ,  0.96753301,  1.39729242],</span>
-<span class="go">       [ 0.5042455 , -1.07535059,  0.21960535, -0.13748034]])</span>
+<span class="go">array([[ 1.25900484e-01, -6.95409007e-01, -1.18976616e+00,</span>
+<span class="go">        -1.07897621e+00],</span>
+<span class="go">       [-9.11671242e-01, -1.49118942e+00, -4.35316684e-02,</span>
+<span class="go">        -5.98675981e-01],</span>
+<span class="go">       [ 5.89759371e-02,  2.35351777e-01,  2.26889836e-04,</span>
+<span class="go">         5.36375710e-01]])</span>
 </pre></div>
 </div>
 <p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v0.21.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
