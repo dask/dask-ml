@@ -28,7 +28,6 @@ dependencies:
   - sortedcontainers
   - scikit-learn>=0.20.0
   - scipy
-  - six
   - sparse
   - sphinx
   - sphinx_rtd_theme

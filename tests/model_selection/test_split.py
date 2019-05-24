@@ -3,7 +3,6 @@ import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import pytest
-import six
 from sklearn.datasets import fetch_20newsgroups, make_regression
 
 import dask_ml.model_selection
@@ -20,7 +19,7 @@ def test_20_newsgroups():
     X_train, X_test, y_train, y_test = r
     for X in [X_train, X_test]:
         assert isinstance(X, list)
-        assert isinstance(X[0], six.string_types)
+        assert isinstance(X[0], str)
     for y in [y_train, y_test]:
         assert isinstance(y, np.ndarray)
         assert y.dtype == int

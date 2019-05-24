@@ -6,7 +6,7 @@ from dask_ml.utils import assert_estimator_equal
 
 
 @pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")
-class TestPassiveAggressiveClassifier(object):
+class TestPassiveAggressiveClassifier:
     def test_basic(self, single_chunk_classification):
         X, y = single_chunk_classification
         a = lm.PartialPassiveAggressiveClassifier(
@@ -19,7 +19,7 @@ class TestPassiveAggressiveClassifier(object):
 
 
 @pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")
-class TestPassiveAggressiveRegressor(object):
+class TestPassiveAggressiveRegressor:
     def test_basic(self, single_chunk_regression):
         X, y = single_chunk_regression
         a = lm.PartialPassiveAggressiveRegressor(random_state=0, max_iter=100, tol=1e-3)

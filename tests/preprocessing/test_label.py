@@ -27,7 +27,7 @@ def dask_array(pandas_series):
     return da.from_array(pandas_series, chunks=5)
 
 
-class TestLabelEncoder(object):
+class TestLabelEncoder:
     def test_basic(self):
         a = dpp.LabelEncoder()
         b = spp.LabelEncoder()

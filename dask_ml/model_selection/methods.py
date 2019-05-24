@@ -82,7 +82,7 @@ def warn_fit_failure(error_score, e):
 # ----------------------- #
 
 
-class CVCache(object):
+class CVCache:
     def __init__(self, splits, pairwise=False, cache=True, num_train_samples=None):
         self.splits = splits
         self.pairwise = pairwise

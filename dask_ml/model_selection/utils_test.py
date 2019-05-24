@@ -9,7 +9,7 @@ from sklearn.utils.validation import _num_samples, check_array
 
 # This class doesn't inherit from BaseEstimator to test hyperparameter search
 # on user-defined classifiers.
-class MockClassifier(object):
+class MockClassifier:
     """Dummy classifier to test the parameter search algorithms"""
 
     def __init__(self, foo_param=0):
@@ -118,7 +118,7 @@ class FailingClassifier(BaseEstimator):
 # here: https://github.com/scikit-learn/scikit-learn/issues/7319
 
 
-class ArraySlicingWrapper(object):
+class ArraySlicingWrapper:
     def __init__(self, array):
         self.array = array
 
@@ -126,7 +126,7 @@ class ArraySlicingWrapper(object):
         return MockDataFrame(self.array[aslice])
 
 
-class MockDataFrame(object):
+class MockDataFrame:
     # have shape and length but don't support indexing.
     def __init__(self, array):
         self.array = array

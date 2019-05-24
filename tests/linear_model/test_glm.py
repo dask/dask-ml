@@ -25,7 +25,7 @@ def regularizer(request):
     return request.param
 
 
-class DoNothingTransformer(object):
+class DoNothingTransformer:
     def fit(self, X, y=None):
         return self
 
