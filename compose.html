@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Pipelines and Composite Estimators &mdash; dask-ml 0.13.0 documentation</title>
+  <title>Pipelines and Composite Estimators &mdash; dask-ml 0.13.1 documentation</title>
   
 
   
@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.13.0
+                0.13.1.dev1+g92aca8c
               </div>
             
           
@@ -243,7 +243,7 @@
   <div class="section" id="pipelines-and-composite-estimators">
 <span id="compose"></span><h1>Pipelines and Composite Estimators<a class="headerlink" href="#pipelines-and-composite-estimators" title="Permalink to this headline">¶</a></h1>
 <p>Dask-ML estimators follow the scikit-learn API. This means Dask-ML estimators like
-<a class="reference internal" href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA" title="dask_ml.decomposition.PCA"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.decomposition.PCA</span></code></a> can be placed inside a regular <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.21.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a>.</p>
+<a class="reference internal" href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA" title="dask_ml.decomposition.PCA"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.decomposition.PCA</span></code></a> can be placed inside a regular <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.21.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a>.</p>
 <p>See <a class="reference external" href="http://scikit-learn.org/dev/modules/compose.html">http://scikit-learn.org/dev/modules/compose.html</a> for more on using pipelines in general.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>  <span class="c1"># regular scikit-learn pipeline</span>
 
