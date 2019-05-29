@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.13.1.dev2+gbbb0490
+                0.13.1.dev3+g5f826d2
               </div>
             
           
@@ -327,23 +327,10 @@ use</p>
 </div>
 <div class="section" id="pre-commit-hooks">
 <h2>Pre-Commit Hooks<a class="headerlink" href="#pre-commit-hooks" title="Permalink to this headline">¶</a></h2>
-<p>Here’s an example pre-commit configuration, which goes at <code class="docutils literal notranslate"><span class="pre">.pre-commit-config.yaml</span></code>
-in the root of your git repository.</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">repos</span><span class="p">:</span>
-<span class="p p-Indicator">-</span>   <span class="nt">repo</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://github.com/ambv/black</span>
-    <span class="nt">rev</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">stable</span>
-    <span class="nt">hooks</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">black</span>
-      <span class="nt">language_version</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">python3.6</span>
-
-<span class="p p-Indicator">-</span>   <span class="nt">repo</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://github.com/pre-commit/mirrors-isort</span>
-    <span class="nt">rev</span><span class="p">:</span> <span class="s">&quot;f35773e46d096de5c45365f1a47eeeef36fc83ed&quot;</span>
-    <span class="nt">hooks</span><span class="p">:</span>
-    <span class="p p-Indicator">-</span> <span class="nt">id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">isort</span>
-</pre></div>
-</div>
-<p>Then install <a class="reference external" href="https://github.com/pre-commit/pre-commit">pre commit</a> and
-install with <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">install</span></code>.</p>
+<p>Install the <a class="reference external" href="https://github.com/pre-commit/pre-commit">pre commit</a> tool. Then, from the
+root of the <code class="docutils literal notranslate"><span class="pre">dask-ml</span></code> repository, run <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">install</span></code> to install a few plugins
+like black, isort, and flake8. These tools will automatically be run on each commit. You
+can skip the checks with <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">--no-verify</span></code>.</p>
 </div>
 <div class="section" id="conventions">
 <h2>Conventions<a class="headerlink" href="#conventions" title="Permalink to this headline">¶</a></h2>

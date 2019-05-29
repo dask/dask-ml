@@ -101,25 +101,10 @@ You can still use all the usual pytest command-line options in addition to those
 Pre-Commit Hooks
 ~~~~~~~~~~~~~~~~
 
-Here's an example pre-commit configuration, which goes at ``.pre-commit-config.yaml``
-in the root of your git repository.
-
-.. code-block:: yaml
-
-   repos:
-   -   repo: https://github.com/ambv/black
-       rev: stable
-       hooks:
-       - id: black
-         language_version: python3.6
-   
-   -   repo: https://github.com/pre-commit/mirrors-isort
-       rev: "f35773e46d096de5c45365f1a47eeeef36fc83ed"
-       hooks:
-       - id: isort
-
-Then install `pre commit <https://github.com/pre-commit/pre-commit>`_ and
-install with ``pre-commit install``.
+Install the `pre commit <https://github.com/pre-commit/pre-commit>`_ tool. Then, from the
+root of the ``dask-ml`` repository, run ``pre-commit install`` to install a few plugins
+like black, isort, and flake8. These tools will automatically be run on each commit. You
+can skip the checks with ``git commit --no-verify``.
 
 Conventions
 ~~~~~~~~~~~
