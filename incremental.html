@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.13.1.dev1+g92aca8c
+                0.13.1.dev2+gbbb0490
               </div>
             
           
@@ -257,8 +257,8 @@ Scikit-Learn estimators supporting the <code class="docutils literal notranslate
 underlying estimator in <code class="docutils literal notranslate"><span class="pre">Incremental</span></code>. Dask-ML will sequentially pass each
 block of a Dask Array to the underlying estimator’s <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> method.</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.wrappers.Incremetnal</span></code> currently does not work well with
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.wrappers.Incremetnal</span></code> currently does not work well with
 hyper-parameter optimization like <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v0.21.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>.
 If you need to do hyper-parameter optimization on larger-than-memory datasets,
 we recommend <code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearch</span></code>. See
@@ -266,14 +266,14 @@ we recommend <code class="xref py py-class docutils literal notranslate"><span c
 </div>
 <div class="section" id="incremental-meta-estimator">
 <span id="incremental-blockwise-metaestimator"></span><h2>Incremental Meta-estimator<a class="headerlink" href="#incremental-meta-estimator" title="Permalink to this headline">¶</a></h2>
-<table class="longtable docutils align-center">
+<table border="1" class="longtable docutils">
 <colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
+<col width="10%" />
+<col width="90%" />
 </colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental" title="dask_ml.wrappers.Incremental"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wrappers.Incremental</span></code></a>([estimator, scoring, …])</p></td>
-<td><p>Metaestimator for feeding Dask Arrays to an estimator blockwise.</p></td>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental" title="dask_ml.wrappers.Incremental"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wrappers.Incremental</span></code></a>([estimator,&nbsp;scoring,&nbsp;…])</td>
+<td>Metaestimator for feeding Dask Arrays to an estimator blockwise.</td>
 </tr>
 </tbody>
 </table>
@@ -330,29 +330,29 @@ pass the <code class="docutils literal notranslate"><span class="pre">classes</s
 required for the underlying estimators <code class="docutils literal notranslate"><span class="pre">parital_fit</span></code> becomes required for
 the wrapped <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
+<p class="first admonition-title">Note</p>
 <p>Take care with the behavior of <code class="xref py py-meth docutils literal notranslate"><span class="pre">Incremental.score()</span></code>. Most estimators
 inherit the default scoring methods of R2 score for regressors and accuracy
 score for classifiers. For these estimators, we automatically use Dask-ML’s
 scoring methods, which are able to operate on Dask arrays.</p>
-<p>If your underlying estimator uses a different scoring method, you’ll need
+<p class="last">If your underlying estimator uses a different scoring method, you’ll need
 to ensure that the scoring method is able to operate on Dask arrays. You
 can also explicitly pass <code class="docutils literal notranslate"><span class="pre">scoring=</span></code> to pass a dask-aware scorer.</p>
 </div>
 <p>We can get the accuracy score on our dataset.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gh">Out[9]: </span><span class="go">0.67</span>
+<span class="gh">Out[9]: </span><span class="go">0.72</span>
 </pre></div>
 </div>
 <p>All of the attributes learned durning training, like <code class="docutils literal notranslate"><span class="pre">coef_</span></code>, are available
 on the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> instance.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[ -6.67508124, -11.06498806, -18.68464285,  35.99038912,</span>
-<span class="go">          8.89466699,  31.95146192,   3.62278839,  -0.92831108,</span>
-<span class="go">         22.92957188,  29.06522859, -10.9287589 ,  -6.88810152,</span>
-<span class="go">        -26.49012076,  17.65542403,   0.67924536, -15.97120309,</span>
-<span class="go">        -83.87737815,  45.19842697,  17.37595783, -24.40137958]])</span>
+<span class="go">array([[-27.08645105,   6.58383577,  29.13471705, -84.84002601,</span>
+<span class="go">        -33.26476202, -23.01025236,  26.38950695, -17.5117346 ,</span>
+<span class="go">        -39.91629664, -12.96134287,  -7.42945524, -22.41809275,</span>
+<span class="go">         -8.90523829, -11.38218272,  13.4072683 , -15.2953511 ,</span>
+<span class="go">          8.60746306,  27.95935269,  -8.7037579 , -41.78238616]])</span>
 </pre></div>
 </div>
 <p>If necessary, the actual estimator trained is available as <code class="docutils literal notranslate"><span class="pre">Incremental.estimator_</span></code></p>

@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.13.1.dev1+g92aca8c
+                0.13.1.dev2+gbbb0490
               </div>
             
           
@@ -492,7 +492,8 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">tpot</span> <span class="kn">import</span> <span class="n">TPOTClassifier</span>
+<span></span><span class="kn">import</span> <span class="nn">tpot</span>
+<span class="kn">from</span> <span class="nn">tpot</span> <span class="kn">import</span> <span class="n">TPOTClassifier</span>
 <span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">load_digits</span>
 <span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
 </pre></div>
@@ -551,7 +552,8 @@ div.rendered_html tbody tr:hover {
     <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
     <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
     <span class="n">verbosity</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-    <span class="n">use_dask</span><span class="o">=</span><span class="bp">True</span>
+    <span class="n">config_dict</span><span class="o">=</span><span class="n">tpot</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">classifier_config_dict_light</span><span class="p">,</span>
+    <span class="n">use_dask</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>

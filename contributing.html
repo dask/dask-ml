@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.13.1.dev1+g92aca8c
+                0.13.1.dev2+gbbb0490
               </div>
             
           
@@ -351,23 +351,22 @@ install with <code class="docutils literal notranslate"><span class="pre">pre-co
 a new estimator, it will ideally pass scikit-learn’s <a class="reference external" href="http://scikit-learn.org/stable/developers/contributing.html#rolling-your-own-estimator">estimator check</a>.</p>
 <p>We have some additional decisions to make in the dask context. Ideally</p>
 <ol class="arabic simple">
-<li><p>All attributes learned during <code class="docutils literal notranslate"><span class="pre">.fit</span></code> should be <em>concrete</em>, i.e. they should
-not be dask collections.</p></li>
-<li><p>To the extent possible, transformers should support</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dask.Array</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dask.DataFrame</span></code></p></li>
+<li>All attributes learned during <code class="docutils literal notranslate"><span class="pre">.fit</span></code> should be <em>concrete</em>, i.e. they should
+not be dask collections.</li>
+<li>To the extent possible, transformers should support<ul>
+<li><code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">dask.Array</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">dask.DataFrame</span></code></li>
 </ul>
 </li>
-<li><p>If possible, transformers should accept a <code class="docutils literal notranslate"><span class="pre">columns</span></code> keyword to limit the
+<li>If possible, transformers should accept a <code class="docutils literal notranslate"><span class="pre">columns</span></code> keyword to limit the
 transformation to just those columns, while passing through other columns
 untouched. <code class="docutils literal notranslate"><span class="pre">inverse_transform</span></code> should behave similarly (ignoring other
-columns) so that <code class="docutils literal notranslate"><span class="pre">inverse_transform(transform(X))</span></code> equals <code class="docutils literal notranslate"><span class="pre">X</span></code>.</p></li>
-<li><p>Methods returning arrays (like <code class="docutils literal notranslate"><span class="pre">.transform</span></code>, <code class="docutils literal notranslate"><span class="pre">.predict</span></code>), should return
+columns) so that <code class="docutils literal notranslate"><span class="pre">inverse_transform(transform(X))</span></code> equals <code class="docutils literal notranslate"><span class="pre">X</span></code>.</li>
+<li>Methods returning arrays (like <code class="docutils literal notranslate"><span class="pre">.transform</span></code>, <code class="docutils literal notranslate"><span class="pre">.predict</span></code>), should return
 the same type as the input. So if a <code class="docutils literal notranslate"><span class="pre">dask.array</span></code> is passed in, a
-<code class="docutils literal notranslate"><span class="pre">dask.array</span></code> with the same chunks should be returned.</p></li>
+<code class="docutils literal notranslate"><span class="pre">dask.array</span></code> with the same chunks should be returned.</li>
 </ol>
 </div>
 <div class="section" id="documentation">

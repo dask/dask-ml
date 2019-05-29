@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.13.1.dev1+g92aca8c
+                0.13.1.dev2+gbbb0490
               </div>
             
           
@@ -257,40 +257,40 @@ dataframes. They’ll fit and transform in parallel.</p>
 <h2>Scikit-Learn Clones<a class="headerlink" href="#scikit-learn-clones" title="Permalink to this headline">¶</a></h2>
 <p>Some of the transformers are (mostly) drop-in replacements for their
 scikit-learn counterparts.</p>
-<table class="longtable docutils align-center">
+<table border="1" class="longtable docutils">
 <colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
+<col width="10%" />
+<col width="90%" />
 </colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="modules/generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler" title="dask_ml.preprocessing.MinMaxScaler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MinMaxScaler</span></code></a>([feature_range, copy])</p></td>
-<td><p>Transforms features by scaling each feature to a given range.</p></td>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler" title="dask_ml.preprocessing.MinMaxScaler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MinMaxScaler</span></code></a>([feature_range,&nbsp;copy])</td>
+<td>Transforms features by scaling each feature to a given range.</td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="modules/generated/dask_ml.preprocessing.QuantileTransformer.html#dask_ml.preprocessing.QuantileTransformer" title="dask_ml.preprocessing.QuantileTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuantileTransformer</span></code></a>([n_quantiles, …])</p></td>
-<td><p>Transforms features using quantile information.</p></td>
+<tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.preprocessing.QuantileTransformer.html#dask_ml.preprocessing.QuantileTransformer" title="dask_ml.preprocessing.QuantileTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuantileTransformer</span></code></a>([n_quantiles,&nbsp;…])</td>
+<td>Transforms features using quantile information.</td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="modules/generated/dask_ml.preprocessing.RobustScaler.html#dask_ml.preprocessing.RobustScaler" title="dask_ml.preprocessing.RobustScaler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RobustScaler</span></code></a>([with_centering, with_scaling, …])</p></td>
-<td><p>Scale features using statistics that are robust to outliers.</p></td>
+<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.preprocessing.RobustScaler.html#dask_ml.preprocessing.RobustScaler" title="dask_ml.preprocessing.RobustScaler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RobustScaler</span></code></a>([with_centering,&nbsp;with_scaling,&nbsp;…])</td>
+<td>Scale features using statistics that are robust to outliers.</td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="modules/generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler" title="dask_ml.preprocessing.StandardScaler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StandardScaler</span></code></a>([copy, with_mean, with_std])</p></td>
-<td><p>Standardize features by removing the mean and scaling to unit variance</p></td>
+<tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler" title="dask_ml.preprocessing.StandardScaler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StandardScaler</span></code></a>([copy,&nbsp;with_mean,&nbsp;with_std])</td>
+<td>Standardize features by removing the mean and scaling to unit variance</td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="modules/generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder" title="dask_ml.preprocessing.LabelEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LabelEncoder</span></code></a>([use_categorical])</p></td>
-<td><p>Encode labels with value between 0 and n_classes-1.</p></td>
+<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder" title="dask_ml.preprocessing.LabelEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LabelEncoder</span></code></a>([use_categorical])</td>
+<td>Encode labels with value between 0 and n_classes-1.</td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="modules/api.html#dask_ml.preprocessing.OneHotEncoder" title="dask_ml.preprocessing.OneHotEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OneHotEncoder</span></code></a>([n_values, …])</p></td>
-<td><p>Encode categorical integer features as a one-hot numeric array.</p></td>
+<tr class="row-even"><td><a class="reference internal" href="modules/api.html#dask_ml.preprocessing.OneHotEncoder" title="dask_ml.preprocessing.OneHotEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OneHotEncoder</span></code></a>([n_values,&nbsp;…])</td>
+<td>Encode categorical integer features as a one-hot numeric array.</td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="modules/generated/dask_ml.preprocessing.PolynomialFeatures.html#dask_ml.preprocessing.PolynomialFeatures" title="dask_ml.preprocessing.PolynomialFeatures"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PolynomialFeatures</span></code></a>([degree, …])</p></td>
-<td><p>Generate polynomial and interaction features.</p></td>
+<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.preprocessing.PolynomialFeatures.html#dask_ml.preprocessing.PolynomialFeatures" title="dask_ml.preprocessing.PolynomialFeatures"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PolynomialFeatures</span></code></a>([degree,&nbsp;…])</td>
+<td>Generate polynomial and interaction features.</td>
 </tr>
 </tbody>
 </table>
 <p>These can be used just like the scikit-learn versions, except that:</p>
 <ol class="arabic simple">
-<li><p>They operate on dask collections in parallel</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">.transform</span></code> will return a <code class="docutils literal notranslate"><span class="pre">dask.array</span></code> or <code class="docutils literal notranslate"><span class="pre">dask.dataframe</span></code>
-when the input is a dask collection</p></li>
+<li>They operate on dask collections in parallel</li>
+<li><code class="docutils literal notranslate"><span class="pre">.transform</span></code> will return a <code class="docutils literal notranslate"><span class="pre">dask.array</span></code> or <code class="docutils literal notranslate"><span class="pre">dask.dataframe</span></code>
+when the input is a dask collection</li>
 </ol>
 <p>See <a class="reference external" href="https://scikit-learn.org/stable/modules/classes.html#module-sklearn.preprocessing" title="(in scikit-learn v0.21.2)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sklearn.preprocessing</span></code></a> for more information about any particular
 transformer. Scikit-learn does have some transforms that are alternatives to
@@ -317,8 +317,8 @@ stateful, which allows easy use with Dask with <code class="docutils literal not
 </pre></div>
 </div>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p><a class="reference internal" href="modules/generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder" title="dask_ml.preprocessing.LabelEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.preprocessing.LabelEncoder</span></code></a> and
+<p class="first admonition-title">Note</p>
+<p class="last"><a class="reference internal" href="modules/generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder" title="dask_ml.preprocessing.LabelEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.preprocessing.LabelEncoder</span></code></a> and
 <a class="reference internal" href="modules/api.html#dask_ml.preprocessing.OneHotEncoder" title="dask_ml.preprocessing.OneHotEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.preprocessing.OneHotEncoder</span></code></a>
 will use the categorical dtype information for a dask or pandas Series with
 a <code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.api.types.CategoricalDtype</span></code>.
@@ -341,11 +341,11 @@ For large datasets, using categorical dtypes is crucial for achieving performanc
 <p>This will have a couple effects on the learned attributes and transformed
 values.</p>
 <ol class="arabic simple">
-<li><p>The learned <code class="docutils literal notranslate"><span class="pre">categories_</span></code> may differ. Scikit-Learn requires the categories
-to be sorted. With a <code class="docutils literal notranslate"><span class="pre">CategoricalDtype</span></code> the categories do not need to be sorted.</p></li>
-<li><p>The output of <a class="reference internal" href="modules/api.html#dask_ml.preprocessing.OneHotEncoder.transform" title="dask_ml.preprocessing.OneHotEncoder.transform"><code class="xref py py-meth docutils literal notranslate"><span class="pre">OneHotEncoder.transform()</span></code></a> will be the same type as the
+<li>The learned <code class="docutils literal notranslate"><span class="pre">categories_</span></code> may differ. Scikit-Learn requires the categories
+to be sorted. With a <code class="docutils literal notranslate"><span class="pre">CategoricalDtype</span></code> the categories do not need to be sorted.</li>
+<li>The output of <a class="reference internal" href="modules/api.html#dask_ml.preprocessing.OneHotEncoder.transform" title="dask_ml.preprocessing.OneHotEncoder.transform"><code class="xref py py-meth docutils literal notranslate"><span class="pre">OneHotEncoder.transform()</span></code></a> will be the same type as the
 input. Passing a pandas DataFrame returns a pandas Dataframe, instead of a
-NumPy array. Likewise, a Dask DataFrame returns a Dask DataFrame.</p></li>
+NumPy array. Likewise, a Dask DataFrame returns a Dask DataFrame.</li>
 </ol>
 </div>
 <div class="section" id="dask-ml-s-sparse-support">
@@ -397,20 +397,20 @@ have any issues.</p>
 <div class="section" id="additional-tranformers">
 <h2>Additional Tranformers<a class="headerlink" href="#additional-tranformers" title="Permalink to this headline">¶</a></h2>
 <p>Other transformers are specific to dask-ml.</p>
-<table class="longtable docutils align-center">
+<table border="1" class="longtable docutils">
 <colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
+<col width="10%" />
+<col width="90%" />
 </colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="modules/generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer" title="dask_ml.preprocessing.Categorizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Categorizer</span></code></a>([categories, columns])</p></td>
-<td><p>Transform columns of a DataFrame to categorical dtype.</p></td>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer" title="dask_ml.preprocessing.Categorizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Categorizer</span></code></a>([categories,&nbsp;columns])</td>
+<td>Transform columns of a DataFrame to categorical dtype.</td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="modules/generated/dask_ml.preprocessing.DummyEncoder.html#dask_ml.preprocessing.DummyEncoder" title="dask_ml.preprocessing.DummyEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DummyEncoder</span></code></a>([columns, drop_first])</p></td>
-<td><p>Dummy (one-hot) encode categorical columns.</p></td>
+<tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.preprocessing.DummyEncoder.html#dask_ml.preprocessing.DummyEncoder" title="dask_ml.preprocessing.DummyEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DummyEncoder</span></code></a>([columns,&nbsp;drop_first])</td>
+<td>Dummy (one-hot) encode categorical columns.</td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="modules/generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder" title="dask_ml.preprocessing.OrdinalEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OrdinalEncoder</span></code></a>([columns])</p></td>
-<td><p>Ordinal (integer) encode categorical columns.</p></td>
+<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder" title="dask_ml.preprocessing.OrdinalEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OrdinalEncoder</span></code></a>([columns])</td>
+<td>Ordinal (integer) encode categorical columns.</td>
 </tr>
 </tbody>
 </table>
@@ -422,9 +422,9 @@ the estimator requires all numeric data.</p>
 <p>In this toy example, we use a dataset with two columns. <code class="docutils literal notranslate"><span class="pre">'A'</span></code> is numeric and
 <code class="docutils literal notranslate"><span class="pre">'B'</span></code> contains text data. We make a small pipeline to</p>
 <ol class="arabic simple">
-<li><p>Categorize the text data</p></li>
-<li><p>Dummy encode the categorical data</p></li>
-<li><p>Fit a linear regression</p></li>
+<li>Categorize the text data</li>
+<li>Dummy encode the categorical data</li>
+<li>Fit a linear regression</li>
 </ol>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [18]: </span><span class="kn">from</span> <span class="nn">dask_ml.preprocessing</span> <span class="kn">import</span> <span class="n">Categorizer</span><span class="p">,</span> <span class="n">DummyEncoder</span>
 

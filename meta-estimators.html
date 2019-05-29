@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.13.1.dev1+g92aca8c
+                0.13.1.dev2+gbbb0490
               </div>
             
           
@@ -255,8 +255,8 @@ post-fit tasks like prediction and transformation. It can wrap any
 scikit-learn estimator to provide parallel <code class="docutils literal notranslate"><span class="pre">predict</span></code>, <code class="docutils literal notranslate"><span class="pre">predict_proba</span></code>, and
 <code class="docutils literal notranslate"><span class="pre">transform</span></code> methods.</p>
 <div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p><code class="docutils literal notranslate"><span class="pre">ParallelPostFit</span></code> does <em>not</em> parallelize the training step. The underlying
+<p class="first admonition-title">Warning</p>
+<p class="last"><code class="docutils literal notranslate"><span class="pre">ParallelPostFit</span></code> does <em>not</em> parallelize the training step. The underlying
 estimator’s <code class="docutils literal notranslate"><span class="pre">.fit</span></code> method is called normally.</p>
 </div>
 <p>Since just the <code class="docutils literal notranslate"><span class="pre">predict</span></code>, <code class="docutils literal notranslate"><span class="pre">predict_proba</span></code>, and <code class="docutils literal notranslate"><span class="pre">transform</span></code> methods are
@@ -329,12 +329,12 @@ cluster of machines.</p>
 <span class="go">       [0.00464304, 0.99535696],</span>
 <span class="go">       [0.00902734, 0.99097266],</span>
 <span class="go">       [0.01299259, 0.98700741],</span>
-<span class="go">       [0.96201056, 0.03798944],</span>
+<span class="go">       [0.95296878, 0.04703122],</span>
 <span class="go">       [0.755881  , 0.244119  ],</span>
 <span class="go">       [0.94124115, 0.05875885],</span>
 <span class="go">       [0.0203811 , 0.9796189 ],</span>
 <span class="go">       [0.021179  , 0.978821  ],</span>
-<span class="go">       [0.96971299, 0.03028701]])</span>
+<span class="go">       [0.96400094, 0.03599906]])</span>
 </pre></div>
 </div>
 <p>See <a class="reference external" href="http://dask-ml-benchmarks.readthedocs.io/en/latest/auto_examples/plot_parallel_post_fit_scaling.html">parallelizing prediction</a> for an example of how this

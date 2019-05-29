@@ -123,7 +123,7 @@
             
             
               <div class="version">
-                0.13.1.dev1+g92aca8c
+                0.13.1.dev2+gbbb0490
               </div>
             
           
@@ -263,23 +263,23 @@ Dask-ML’s <a class="reference internal" href="#hyperparameter-incremental"><sp
 <div class="section" id="drop-in-replacements-for-scikit-learn">
 <span id="hyperparameter-drop-in"></span><h2>Drop-In Replacements for Scikit-Learn<a class="headerlink" href="#drop-in-replacements-for-scikit-learn" title="Permalink to this headline">¶</a></h2>
 <p>Dask-ML implements GridSearchCV and RandomizedSearchCV.</p>
-<table class="longtable docutils align-center">
+<table border="1" class="longtable docutils">
 <colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
+<col width="10%" />
+<col width="90%" />
 </colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v0.21.2)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>(…[, …])</p></td>
-<td><p>Exhaustive search over specified parameter values for an estimator.</p></td>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v0.21.2)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>(…[,&nbsp;…])</td>
+<td>Exhaustive search over specified parameter values for an estimator.</td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV" title="dask_ml.model_selection.GridSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.GridSearchCV</span></code></a>(…[, …])</p></td>
-<td><p>Exhaustive search over specified parameter values for an estimator.</p></td>
+<tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV" title="dask_ml.model_selection.GridSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.GridSearchCV</span></code></a>(…[,&nbsp;…])</td>
+<td>Exhaustive search over specified parameter values for an estimator.</td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v0.21.2)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.RandomizedSearchCV</span></code></a>(…)</p></td>
-<td><p>Randomized search on hyper parameters.</p></td>
+<tr class="row-odd"><td><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v0.21.2)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.RandomizedSearchCV</span></code></a>(…)</td>
+<td>Randomized search on hyper parameters.</td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV" title="dask_ml.model_selection.RandomizedSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.RandomizedSearchCV</span></code></a>(…)</p></td>
-<td><p>Randomized search on hyper parameters.</p></td>
+<tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV" title="dask_ml.model_selection.RandomizedSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.RandomizedSearchCV</span></code></a>(…)</td>
+<td>Randomized search on hyper parameters.</td>
 </tr>
 </tbody>
 </table>
@@ -287,15 +287,15 @@ Dask-ML’s <a class="reference internal" href="#hyperparameter-incremental"><sp
 and should be a drop-in replacement for the subset that they do implement.
 In that case, why use Dask-ML’s versions?</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#flexible-backends"><span class="std std-ref">Flexible Backends</span></a>: Hyperparameter
+<li><a class="reference internal" href="#flexible-backends"><span class="std std-ref">Flexible Backends</span></a>: Hyperparameter
 optimization can be done in parallel using threads, processes, or distributed
-across a cluster.</p></li>
-<li><p><a class="reference internal" href="#works-with-dask-collections"><span class="std std-ref">Works well with Dask collections</span></a>. Dask
-arrays, dataframes, and delayed can be passed to <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</p></li>
-<li><p><a class="reference internal" href="#avoid-repeated-work"><span class="std std-ref">Avoid repeated work</span></a>. Candidate estimators with
+across a cluster.</li>
+<li><a class="reference internal" href="#works-with-dask-collections"><span class="std std-ref">Works well with Dask collections</span></a>. Dask
+arrays, dataframes, and delayed can be passed to <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</li>
+<li><a class="reference internal" href="#avoid-repeated-work"><span class="std std-ref">Avoid repeated work</span></a>. Candidate estimators with
 identical parameters and inputs will only be fit once. For
 composite-estimators such as <code class="docutils literal notranslate"><span class="pre">Pipeline</span></code> this can be significantly more
-efficient as it can avoid expensive repeated computations.</p></li>
+efficient as it can avoid expensive repeated computations.</li>
 </ul>
 <p>Both scikit-learn’s and Dask-ML’s model selection meta-estimators can be used
 with Dask’s <a class="reference internal" href="joblib.html#joblib"><span class="std std-ref">joblib backend</span></a>.</p>
@@ -404,14 +404,14 @@ expensive early steps, this can be a big win when performing a grid search.</p>
 <p>The second category of hyperparameter optimization uses <em>incremental</em>
 hyperparameter optimization. These should be used when your full dataset doesn’t
 fit in memory on a single machine.</p>
-<table class="longtable docutils align-center">
+<table border="1" class="longtable docutils">
 <colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
+<col width="10%" />
+<col width="90%" />
 </colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV" title="dask_ml.model_selection.IncrementalSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearchCV</span></code></a>(…)</p></td>
-<td><p>Incrementally search for hyper-parameters on models that support partial_fit</p></td>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV" title="dask_ml.model_selection.IncrementalSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearchCV</span></code></a>(…)</td>
+<td>Incrementally search for hyper-parameters on models that support partial_fit</td>
 </tr>
 </tbody>
 </table>
@@ -419,8 +419,8 @@ fit in memory on a single machine.</p>
 estimators and hyperparameter combinations) and repeatedly calls the underlying estimator’s
 <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> method with batches of data.</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>These estimators require the optional <code class="docutils literal notranslate"><span class="pre">distributed</span></code> library.</p>
+<p class="first admonition-title">Note</p>
+<p class="last">These estimators require the optional <code class="docutils literal notranslate"><span class="pre">distributed</span></code> library.</p>
 </div>
 <p>Here’s an example training on a “large” dataset (a Dask array) with the
 <code class="docutils literal notranslate"><span class="pre">IncrementalSearchCV</span></code>.</p>
