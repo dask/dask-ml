@@ -202,30 +202,28 @@ def test_integration(c, s, a, b):
     params = {"value": scipy.stats.uniform(0, 1)}
     alg = HyperbandSearchCV(model, params, max_iter=9, random_state=42)
     yield alg.fit(X, y)
-    cv_res_keys = set(alg.cv_results_.keys())
     gt_zero = lambda x: x >= 0
     gt_one = lambda x: x >= 1
-    for column, dtype, condition in [
-        ("params", dict, lambda d: set(d.keys()) == {"value"}),
+
+    key_types_and_checks = [
+        ("mean_partial_fit_time", float, gt_zero),
+        ("mean_score_time", float, gt_zero),
+        ("std_partial_fit_time", float, gt_zero),
+        ("std_score_time", float, gt_zero),
         ("test_score", float, gt_zero),
         ("rank_test_score", int, gt_one),
-        ("mean_partial_fit_time", float, gt_zero),
-        ("std_partial_fit_time", float, gt_zero),
-        ("mean_score_time", float, gt_zero),
-        ("std_score_time", float, gt_zero),
         ("model_id", None, lambda x: isinstance(x, str)),
         ("partial_fit_calls", int, gt_zero),
+        ("params", dict, lambda d: set(d.keys()) == {"value"}),
         ("param_value", float, gt_zero),
         ("bracket", int, None),
-    ]:
+    ]
+    assert set(alg.cv_results_) == {v[0] for v in key_types_and_checks}
+    for column, dtype, condition in key_types_and_checks:
         if dtype:
             assert alg.cv_results_[column].dtype == dtype
         if condition:
             assert all(condition(x) for x in alg.cv_results_[column])
-        cv_res_keys -= {column}
-
-    # the keys listed in the for-loop are all the keys in cv_results_
-    assert cv_res_keys == set()
 
     alg.best_estimator_.fit(X, y)
     alg.best_estimator_.score(X, y)

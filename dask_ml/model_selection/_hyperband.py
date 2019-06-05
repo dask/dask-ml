@@ -200,14 +200,15 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         * ``partial_fit_calls``
         * ``params``
         * ``param_{key}``, where ``key`` is every key in ``params``.
+        * ``bracket``
 
         The values in the ``test_score`` key correspond to the last score a model
         received on the hold out dataset. The key ``model_id`` corresponds with
         ``history_``. This dictionary can be imported into Pandas.
 
-        In the ``model_id``, the bracket ID prefix corresponds to how strongly
-        that bracket adapts to history. i.e., ``bracket=0`` corresponds to a
-        completely passive bracket that doesn't adapt at all.
+        In the ``model_id``, the bracket ID prefix corresponds to the bracket
+        in ``metadata``. Bracket 0 doesn't adapt to previous training at all;
+        higher values correspond to more adaptation.
 
     history_ : list of dicts
         Information about each model after each ``partial_fit`` call. Each dict
