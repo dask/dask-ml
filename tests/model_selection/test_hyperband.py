@@ -129,7 +129,7 @@ def test_hyperband_mirrors_paper_and_metadata(max_iter, aggressiveness):
         assert isinstance(alg.metadata["brackets"], list)
         assert isinstance(alg.metadata_["brackets"], list)
         assert set(alg.metadata.keys()) == {
-            "estimators",
+            "n_models",
             "partial_fit_calls",
             "brackets",
         }
@@ -137,7 +137,7 @@ def test_hyperband_mirrors_paper_and_metadata(max_iter, aggressiveness):
             set(v.keys())
             == {
                 "bracket",
-                "estimators",
+                "n_models",
                 "partial_fit_calls",
                 "SuccessiveHalvingSearchCV params",
                 "decisions",
@@ -286,9 +286,9 @@ def test_successive_halving_params(c, s, a, b):
     metadata = alg.metadata["brackets"]
     for true_meta, SHA in zip(metadata, SHAs):
         yield SHA.fit(X, y)
-        estimators = len(SHA.model_history_)
+        n_models = len(SHA.model_history_)
         pf_calls = [v[-1]["partial_fit_calls"] for v in SHA.model_history_.values()]
-        assert true_meta["estimators"] == estimators
+        assert true_meta["n_models"] == n_models
         assert true_meta["partial_fit_calls"] == sum(pf_calls)
 
 
@@ -372,7 +372,7 @@ def test_same_random_state_same_params(c, s, a, b):
         {"value": values},
         random_state=seed,
         max_iter=2,
-        n_initial_parameters=h.metadata["estimators"],
+        n_initial_parameters=h.metadata["n_models"],
     )
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
     yield h.fit(X, y)
@@ -390,7 +390,7 @@ def test_same_random_state_same_params(c, s, a, b):
     # Getting the `value`s that are the same for both searches
     same = set(v_passive).intersection(set(v_h))
 
-    passive_models = h.metadata["brackets"][0]["estimators"]
+    passive_models = h.metadata["brackets"][0]["n_models"]
     assert len(same) == passive_models
 
 

@@ -168,7 +168,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         * ``bracket``, an int representing how strongly the
           SuccessiveHalvingSearchCV class adapts to history.
           ``bracket == 0`` stops estimators the least frequently.
-        * ``estimators``, an int representing how many models will be/is created.
+        * ``n_models``, an int representing how many models will be/is created.
         * ``partial_fit_calls``, an int representing how many times
            ``partial_fit`` will be/is called.
         * ``SuccessiveHalvingSearchCV params``, a dictionary representing the
@@ -419,7 +419,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         )
 
         self.metadata_ = {
-            "estimators": sum(m["estimators"] for m in meta),
+            "n_models": sum(m["n_models"] for m in meta),
             "partial_fit_calls": sum(m["partial_fit_calls"] for m in meta),
             "brackets": meta,
         }
@@ -441,7 +441,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
     @property
     def metadata(self):
         bracket_info = _hyperband_paper_alg(self.max_iter, eta=self.aggressiveness)
-        num_models = sum(b["estimators"] for b in bracket_info)
+        num_models = sum(b["n_models"] for b in bracket_info)
         for bracket in bracket_info:
             bracket["decisions"].update({1})
             bracket["decisions"] = sorted(list(bracket["decisions"]))
@@ -457,7 +457,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         bracket_info = sorted(bracket_info, key=lambda x: x["bracket"])
         info = {
             "partial_fit_calls": num_partial_fit,
-            "estimators": num_models,
+            "n_models": num_models,
             "brackets": bracket_info,
         }
         return info
@@ -479,7 +479,7 @@ def _get_meta(hists, brackets, SHAs, key):
         decisions = {hi["partial_fit_calls"] for h in hist.values() for hi in h}
         meta_.append({
             "decisions": sorted(list(decisions)),
-            "estimators": len(hist),
+            "n_models": len(hist),
             "bracket": bracket,
             "partial_fit_calls": sum(calls.values()),
             "SuccessiveHalvingSearchCV params": _get_SHA_params(SHAs[bracket]),
@@ -562,7 +562,7 @@ def _hyperband_paper_alg(R, eta=3):
     info = [
         {
             "bracket": k,
-            "estimators": hist["num_estimators"],
+            "n_models": hist["num_estimators"],
             "partial_fit_calls": sum(hist["estimators"].values()),
             "decisions": {int(h) for h in hist["decisions"]},
         }
