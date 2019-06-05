@@ -60,17 +60,23 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
     Hyperband will find close to the best possible parameters with
     the given computational budget [*]_ by spending more time training
     high-performing estimators [1]_. This means that Hyperband stops training
-    estimators that perform poorly.
+    estimators that perform poorly -- at it's core, Hyperband is an early
+    stopping scheme for RandomizedSearchCV.
 
-    Hyperband only requires computational budget as input, and
-    does not require a trade-off between "evaluate many parameters
+    Hyperband does not require a trade-off between "evaluate many parameters
     for a short time" and "train a few parameters for a long time"
     like RandomizedSearchCV.
+
+    Hyperband requires one input which requires knowing how long
+    to train the best performing estimator via ``max_iter``.
+    The other implicit input (the Dask array chuck size) requires
+    a rough estimate of how many parameters to sample. Specification details
+    are in :ref:`Notes`.
 
     .. [*] After :math:`N` ``partial_fit`` calls the estimator Hyperband
        produces will be close to the best possible estimator that :math:`N`
        ``partial_fit`` calls could ever produce with high probability (where
-       "close" means "within log terms").
+       "close" means "within log terms of the expected best possible score").
 
     Parameters
     ----------
