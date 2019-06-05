@@ -126,32 +126,24 @@ def test_hyperband_mirrors_paper_and_metadata(max_iter, aggressiveness):
             aggressiveness=aggressiveness,
         )
         yield alg.fit(X, y)
+
+        assert alg.metadata == alg.metadata_
+
         assert isinstance(alg.metadata["brackets"], list)
-        assert isinstance(alg.metadata_["brackets"], list)
         assert set(alg.metadata.keys()) == {
             "n_models",
             "partial_fit_calls",
             "brackets",
         }
-        assert all(
-            set(v.keys())
-            == {
-                "bracket",
+        for bracket in alg.metadata["brackets"]:
+            assert set(bracket.keys()) == {
                 "n_models",
                 "partial_fit_calls",
+                "bracket",
                 "SuccessiveHalvingSearchCV params",
                 "decisions",
             }
-            for bracket_info in [alg.metadata_["brackets"], alg.metadata["brackets"]]
-            for v in bracket_info
-        )
-        metadata = alg.metadata  # so not recomputed
-        paper_decisions = [b.pop("decisions") for b in metadata["brackets"]]
-        actual_decisions = [b.pop("decisions") for b in alg.metadata_["brackets"]]
-        assert metadata == alg.metadata_
 
-        for paper_iter, actual_iter in zip(paper_decisions, actual_decisions):
-            assert set(paper_iter).issubset(set(actual_iter))
         if aggressiveness == 3:
             assert alg.best_score_ == params["value"].max()
 

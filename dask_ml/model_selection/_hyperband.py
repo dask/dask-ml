@@ -165,16 +165,20 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         before computation happens with ``metadata`` or after computation
         happens with ``metadata_``. These dictionaries both have keys
 
-        * ``bracket``, an int representing how strongly the
-          SuccessiveHalvingSearchCV class adapts to history.
-          ``bracket == 0`` stops estimators the least frequently.
         * ``n_models``, an int representing how many models will be/is created.
         * ``partial_fit_calls``, an int representing how many times
            ``partial_fit`` will be/is called.
-        * ``SuccessiveHalvingSearchCV params``, a dictionary representing the
-          parameters used to create the different brackets.
-        * ``decisions``, the number of times ``partial_fit`` will be/is called on
-          each model
+        * ``brackets``, a list of the brackets that Hyperband runs. Each
+          bracket has different values for training time importance and
+          hyperparameter importance. In addition to ``n_models`` and
+          ``partial_fit_calls``, each element in this list has keys
+            * ``bracket``, an int representing how strongly the
+              SuccessiveHalvingSearchCV class adapts to history.
+              ``bracket == 0`` stops estimators the least frequently.
+            * ``SuccessiveHalvingSearchCV params``, a dictionary representing the
+              parameters used to create the different brackets.
+            * ``decisions``, the number of times ``partial_fit`` will be/is called on
+              each model
 
         These dictionaries are the same if ``patience`` is not specified. If
         ``patience`` is specified, it's possible that less training is
@@ -443,7 +447,6 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         bracket_info = _hyperband_paper_alg(self.max_iter, eta=self.aggressiveness)
         num_models = sum(b["n_models"] for b in bracket_info)
         for bracket in bracket_info:
-            bracket["decisions"].update({1})
             bracket["decisions"] = sorted(list(bracket["decisions"]))
         num_partial_fit = sum(b["partial_fit_calls"] for b in bracket_info)
         bracket_info = list(reversed(sorted(bracket_info, key=lambda x: x["bracket"])))
@@ -477,6 +480,8 @@ def _get_meta(hists, brackets, SHAs, key):
 
         calls = {k: max(hi["partial_fit_calls"] for hi in h) for k, h in hist.items()}
         decisions = {hi["partial_fit_calls"] for h in hist.values() for hi in h}
+        if bracket != max(brackets):
+            decisions.discard(1)
         meta_.append({
             "decisions": sorted(list(decisions)),
             "n_models": len(hist),
