@@ -257,6 +257,8 @@ def test_integration(c, s, a, b):
     assert all(set(h.keys()) == keys for h in alg.history_)
     times = [v["elapsed_wall_time"] for v in alg.history_]
     assert (np.diff(times) >= 0).all()
+
+    # Test to make sure history_ ordered with wall time
     history = defaultdict(list)
     for h in alg.history_:
         history[h["model_id"]] += [h]

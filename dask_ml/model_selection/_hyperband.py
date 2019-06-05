@@ -209,13 +209,6 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         that bracket adapts to history. i.e., ``bracket=0`` corresponds to a
         completely passive bracket that doesn't adapt at all.
 
-    model_history_ : dict of lists of dict
-        A dictionary of each models history. This is a reorganization of
-        ``history_``: the same information is present but organized per model.
-
-        This data has the structure  ``{model_id: hist}`` where ``hist`` is a
-        subset of ``history_`` and ``model_id`` are model identifiers.
-
     history_ : list of dicts
         Information about each model after each ``partial_fit`` call. Each dict
         the keys
@@ -229,6 +222,14 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
 
         The key ``model_id`` corresponds to the ``model_id`` in ``cv_results_``.
         This list of dicts can be imported into Pandas.
+
+    model_history_ : dict of lists of dict
+        A dictionary of each models history. This is a reorganization of
+        ``history_``: the same information is present but organized per model.
+
+        This data has the structure  ``{model_id: hist}`` where ``hist`` is an
+        element of ``history_`` and ``model_id`` is the model ID as in
+        ``cv_results_``.
 
     best_estimator_ : BaseEstimator
         The model with the highest validation score among all the models
