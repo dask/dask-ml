@@ -81,7 +81,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
     Parameters
     ----------
     estimator : estimator object.
-        A object of that type is instantiated for each initial hyperparameter
+        A object of that type is instantiated for each hyperparameter
         combination. This is assumed to implement the scikit-learn estimator
         interface. Either estimator needs to provide a ``score`` function,
         or ``scoring`` must be passed. The estimator must implement
@@ -96,7 +96,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
     max_iter : int
         The maximum number of partial_fit calls to any one model. This should
         be the number of ``partial_fit`` calls required for the model to
-        converge. See the notes on how to set this parameter.
+        converge. See :ref:`Notes` for details on setting this parameter.
 
     aggressiveness : int, default=3
         How aggressive to be in culling off the different estimators. Higher
@@ -105,6 +105,18 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         than the data). Theory suggests ``aggressiveness=3`` is close to
         optimal. ``aggressiveness=4`` has higher confidence that is likely
         suitable for initial exploration.
+
+    patience : int, default False
+        If specified, training stops when the score does not increase by
+        ``tol`` after ``patience`` calls to ``partial_fit``. Off by default.
+        A ``patience`` value is automatically selected if ``patience=True`` to
+        work well with the Hyperband model selection algorithm.
+
+    tol : float, default 0.001
+        The required level of improvement to consider stopping training on
+        that model when ``patience`` is specified.  Increasing ``tol`` will
+        tend to reduce training time at the cost of (potentially) worse
+        estimators.
 
     test_size : float
         Fraction of the dataset to hold out for computing test scores.
@@ -126,17 +138,6 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         (see :ref:`scoring`) to evaluate the predictions on the test set.
 
         If None, the estimator's default scorer (if available) is used.
-
-    patience : int, default False
-        If specified, training stops when the score does not increase by
-        ``tol`` after ``patience`` calls to ``partial_fit``. Off by default.
-
-    tol : float, default 0.001
-        The required level of improvement to consider stopping training on
-        that model. The most recent score must be at at most ``tol`` better
-        than the all of the previous ``patience`` scores for that model.
-        Increasing ``tol`` will tend to reduce training time, at the cost
-        of (potentially) worse estimators.
 
     Examples
     --------
@@ -176,12 +177,14 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
           each model
 
         These dictionaries are the same if ``patience`` is not specified. If
-        it is specified, ``partial_fit_calls`` in ``metadata_`` will likely
-        be lower and correspondingly,
-        ``decisions`` in ``metadata_`` will be longer.
+        ``patience`` is specified, it's possible that less training is
+        performed, and ``metadata_`` will reflect that (though ``metadata``
+        won't).
 
     cv_results_ : Dict[str, np.ndarray]
-        This dictionary has keys
+        A dictionary that describes how well each model has performed.
+        It contains information about every model regardless if it reached
+        ``max_iter``.  It has keys
 
         * ``mean_partial_fit_time``
         * ``mean_score_time``
@@ -299,9 +302,9 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         parameters,
         max_iter=81,
         aggressiveness=3,
-        test_size=None,
         patience=False,
         tol=1e-3,
+        test_size=None,
         random_state=None,
         scoring=None,
     ):
