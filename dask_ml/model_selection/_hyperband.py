@@ -119,8 +119,9 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         estimators.
 
     test_size : float
-        Fraction of the dataset to hold out for computing test scores.
-        Defaults to the size of a single partition of the input training set
+        Fraction of the dataset to hold out for computing test/validation
+        scores. Defaults to the size of a single partition of
+        the input training set.
 
         .. note::
 
@@ -233,8 +234,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         ``cv_results_``.
 
     best_estimator_ : BaseEstimator
-        The model with the highest validation score among all the models
-        retained by the "inverse decay" algorithm.
+        The model with the highest validation score as selected by
+        the Hyperband model selection algorithm.
 
     best_score_ : float
         Score achieved by ``best_estimator_`` on the vaidation set after the
