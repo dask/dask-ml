@@ -252,48 +252,34 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         The function used to score models, which has a call signature of
         ``scorer_(estimator, X, y)``.
 
-    n_splits_ : int
-        Number of cross validation splits.
-
-    multimetric_ : bool
-        Whether this cross validation search uses multiple metrics.
-
     Notes
     -----
     To set ``max_iter`` and the chunk size for ``X`` and ``y``, it is required
-    to know
+    to estimate
 
-    * how many "epochs" or "passes through the data ``X``" to train the model
-      for (``epochs`` below)
-    * a rough idea of how many hyper-parameter combinations to sample
-      (``params_to_sample`` below)
+    * the number of examples at least one model will see
+      (``n_examples``). If 10 passes through the data are needed for
+      the longest trained model, ``n_examples = 10 * len(X)``.
+    * how many hyper-parameter combinations to sample (``n_params``)
 
-    To determine the chunk size and ``max_iter``,
+    These can be rough guesses. To determine the chunk size and ``max_iter``,
 
-    1. Let the chunks size be ``chunk_size = epochs * len(X) / params_to_sample``
-    2. Let ``max_iter = params_to_sample``
+    1. Let the chunks size be ``chunk_size = n_examples / n_params``
+    2. Let ``max_iter = n_params``
 
-    where ``len(X)`` is the number of examples. Then, every estimator sees no
-    more than ``max_iter * chunk_size = len(X) * epochs`` examples.
-    Hyperband will actually sample some more hyper-parameter combinations,
-    so a rough idea of parameters to sample works.
+    Then, every estimator sees no
+    more than ``max_iter * chunk_size = n_examples`` examples.
+    Hyperband will actually sample some more hyper-parameter combinations than
+    ``n_examples`` (which is why rough guesses are adequate). For example,
+    let's say
 
-    For instance, let's say about 200 or 300 hyper-parameters need to be tested
-    to effectively search the possible hyper-parameters and estimators need a
-    little less than 100 epochs to converge. This will mean the dataset should
-    have chunks that are about 1/3rd of the entire dataset, and ``max_iter`` is
-    between 200 and 300.
+    * about 200 or 300 hyper-parameters need to be tested to effectively
+      search the possible hyper-parameters
+    * models need more than ``50 * len(X)`` examples but less than
+      ``100 * len(X)`` examples.
 
-    If the search space is larger or more complex, choose to evaluate more
-    hyper-parameters. Increase the parameters to sample by a factor of 2 by:
-
-    * increasing ``params_to_sample`` by a factor of 2
-    * decreasing ``chunk_size`` by a factor of 2.
-
-    There are some limitations to the `current` implementation of Hyperband:
-
-    1. The full dataset is requested to be in distributed memory
-    2. The testing dataset should fit in the memory of a single worker
+    Let's decide to provide ``81 * len(X)`` examples and to sample 243
+    parameters. Then each chunk will be 1/3rd the dataset and ``max_iter=243``.
 
     References
     ----------
@@ -368,7 +354,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         # _brackets_ids is ordered from largest to smallest
         _brackets_ids = list(reversed(sorted(SHAs)))
 
-        # _fit is run because it's also a tornado coroutine
+        # _fit is run in parallel because it's also a tornado coroutine
         _SHAs = yield [SHAs[b]._fit(X, y, **fit_params) for b in _brackets_ids]
         SHAs = {b: SHA for b, SHA in zip(_brackets_ids, _SHAs)}
 
