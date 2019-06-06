@@ -10,7 +10,7 @@ from sklearn.utils import check_random_state
 from tornado import gen
 
 from ._incremental import BaseIncrementalSearchCV
-from ._successive_halving import SuccessiveHalvingSearchCV
+from ._successive_halving import SuccessiveHalvingSearchCV, _get_max_iter
 
 logger = logging.getLogger(__name__)
 
@@ -328,9 +328,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
                 self.estimator,
                 self.parameters,
                 n_initial_parameters=n,
-                n_initial_iter=r,
                 aggressiveness=self.aggressiveness,
-                max_iter=self.max_iter,
+                max_iter=_get_max_iter(n, r, self.aggressiveness),
                 patience=patience,
                 tol=self.tol,
                 test_size=self.test_size,
@@ -339,6 +338,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
             )
             for b, (n, r) in brackets.items()
         }
+        for b, (_, r) in brackets.items():
+            SHAs[b]._n_initial_calls = r
         return SHAs
 
     @gen.coroutine

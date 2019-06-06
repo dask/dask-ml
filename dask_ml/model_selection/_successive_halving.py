@@ -1,3 +1,4 @@
+import itertools
 import math
 
 import numpy as np
@@ -45,11 +46,6 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
     n_initial_parameters : int, default=10
         Number of parameter settings that are sampled.
         This trades off runtime vs quality of the solution.
-
-    n_initial_iter : int
-        Number of times to call partial fit initially before scoring.
-        Estimators are trained
-        for ``n_initial_iter`` calls to ``partial_fit`` at first.
 
     max_iter : int, default 100
         Maximum number of partial fit calls per model.
@@ -167,9 +163,8 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         estimator,
         parameters,
         n_initial_parameters=10,
-        n_initial_iter=9,
-        aggressiveness=3,
         max_iter=100,
+        aggressiveness=3,
         test_size=None,
         patience=False,
         tol=1e-3,
@@ -177,7 +172,6 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         scoring=None,
     ):
         self.n_initial_parameters = n_initial_parameters
-        self.n_initial_iter = n_initial_iter
         self.aggressiveness = aggressiveness
 
         super(SuccessiveHalvingSearchCV, self).__init__(
@@ -200,7 +194,10 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
             # Sometimes, IncrementalSearchCV completes one step for us. We
             # recurse in this case -- see below for a note on the condition
             self._steps = 1
-        n, r, eta = self.n_initial_parameters, self.n_initial_iter, self.aggressiveness
+        n, eta = self.n_initial_parameters, self.aggressiveness
+        if not hasattr(self, "_n_initial_calls"):
+            self._n_initial_calls = _get_n_initial_calls(n, self.max_iter, eta)
+        r = self._n_initial_calls
 
         n_i = int(math.floor(n * eta ** -self._steps))
         r_i = np.round(r * eta ** self._steps).astype(int)
@@ -218,3 +215,34 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         pf_calls = {k: info[k][-1]["partial_fit_calls"] for k in best}
         additional_calls = {k: r_i - pf_calls[k] for k in best}
         return additional_calls
+
+
+def _get_max_iter(n, r, eta):
+    """
+    Parameters
+    ----------
+    n : int
+        Number of intial models
+    r : int
+        Number of initial calls
+    eta : int
+        aggressiveness of the search
+
+    Notes
+    -----
+    n, r and eta come from Hyperband
+    """
+    for k in itertools.count():
+        n_i = int(math.floor(n * eta ** -k))
+        r_i = np.round(r * eta ** k).astype(int)
+        if n_i <= 1:
+            break
+    return r_i
+
+
+def _get_n_initial_calls(n_initial_parameters, max_iter, eta):
+    for n_initial_calls in range(n_initial_parameters, 0, -1):
+        calls = _get_max_iter(n_initial_parameters, n_initial_calls, eta)
+        if calls <= max_iter:
+            break
+    return n_initial_calls
