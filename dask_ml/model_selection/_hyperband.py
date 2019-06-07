@@ -5,12 +5,11 @@ import math
 from warnings import warn
 
 import numpy as np
-from sklearn.metrics.scorer import check_scoring
 from sklearn.utils import check_random_state
 from tornado import gen
 
 from ._incremental import BaseIncrementalSearchCV
-from ._successive_halving import SuccessiveHalvingSearchCV, _get_max_iter
+from ._successive_halving import SuccessiveHalvingSearchCV
 
 logger = logging.getLogger(__name__)
 
@@ -471,13 +470,15 @@ def _get_meta(hists, brackets, SHAs, key):
         decisions = {hi["partial_fit_calls"] for h in hist.values() for hi in h}
         if bracket != max(brackets):
             decisions.discard(1)
-        meta_.append({
-            "decisions": sorted(list(decisions)),
-            "n_models": len(hist),
-            "bracket": bracket,
-            "partial_fit_calls": sum(calls.values()),
-            "SuccessiveHalvingSearchCV params": _get_SHA_params(SHAs[bracket]),
-        })
+        meta_.append(
+            {
+                "decisions": sorted(list(decisions)),
+                "n_models": len(hist),
+                "bracket": bracket,
+                "partial_fit_calls": sum(calls.values()),
+                "SuccessiveHalvingSearchCV params": _get_SHA_params(SHAs[bracket]),
+            }
+        )
     meta_ = sorted(meta_, key=lambda x: x["bracket"])
     return meta_, history_
 

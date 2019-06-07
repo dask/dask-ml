@@ -130,11 +130,7 @@ def test_hyperband_mirrors_paper_and_metadata(max_iter, aggressiveness):
         assert alg.metadata == alg.metadata_
 
         assert isinstance(alg.metadata["brackets"], list)
-        assert set(alg.metadata.keys()) == {
-            "n_models",
-            "partial_fit_calls",
-            "brackets",
-        }
+        assert set(alg.metadata.keys()) == {"n_models", "partial_fit_calls", "brackets"}
         for bracket in alg.metadata["brackets"]:
             assert set(bracket.keys()) == {
                 "n_models",

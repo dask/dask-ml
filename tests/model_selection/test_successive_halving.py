@@ -1,13 +1,13 @@
 import numpy as np
+import pytest
 from distributed.utils_test import gen_cluster  # noqa: F401
 from sklearn.datasets import make_classification
 from sklearn.linear_model import SGDClassifier
-import pytest
 
 from dask_ml.model_selection import SuccessiveHalvingSearchCV
 from dask_ml.model_selection._successive_halving import (
-    _get_n_initial_calls,
     _get_max_iter,
+    _get_n_initial_calls,
 )
 
 
@@ -40,6 +40,7 @@ def test_sha_max_iter(n, r):
     (so only one model is obtained at the end, as per the last assert)
 
     """
+
     @gen_cluster(client=True)
     def _test_sha_max_iter(c, s, a, b):
         model = SGDClassifier(tol=1e-3)
