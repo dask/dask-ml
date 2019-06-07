@@ -47,6 +47,13 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         Number of parameter settings that are sampled.
         This trades off runtime vs quality of the solution.
 
+    n_initial_iter : int, default=None
+        Number of times to call partial fit initially before scoring.
+        Estimators are trained for ``n_initial_iter`` calls to ``partial_fit``
+        initially. If not specified, ``n_initial_iter`` is chosen to make
+        sure one model survives at the end of decay while respecting
+        ``max_iter``.
+
     max_iter : int, default 100
         Maximum number of partial fit calls per model.
 
@@ -163,6 +170,7 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         estimator,
         parameters,
         n_initial_parameters=10,
+        n_initial_iter=None,
         max_iter=100,
         aggressiveness=3,
         test_size=None,
@@ -172,6 +180,7 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         scoring=None,
     ):
         self.n_initial_parameters = n_initial_parameters
+        self.n_initial_iter = n_initial_iter
         self.aggressiveness = aggressiveness
 
         super(SuccessiveHalvingSearchCV, self).__init__(
@@ -195,9 +204,10 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
             # recurse in this case -- see below for a note on the condition
             self._steps = 1
         n, eta = self.n_initial_parameters, self.aggressiveness
-        if not hasattr(self, "_n_initial_calls"):
-            self._n_initial_calls = _get_n_initial_calls(n, self.max_iter, eta)
-        r = self._n_initial_calls
+        _n_initial_iter = self.n_initial_iter
+        if self.n_initial_iter is None:
+            _n_initial_iter = _get_n_initial_calls(n, self.max_iter, eta)
+        r = _n_initial_iter
 
         n_i = int(math.floor(n * eta ** -self._steps))
         r_i = np.round(r * eta ** self._steps).astype(int)
@@ -235,7 +245,7 @@ def _get_max_iter(n, r, eta):
     for k in itertools.count():
         n_i = int(math.floor(n * eta ** -k))
         r_i = np.round(r * eta ** k).astype(int)
-        if n_i <= 1:
+        if n_i == 1:
             break
     return r_i
 

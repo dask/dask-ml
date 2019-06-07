@@ -329,7 +329,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
                 self.parameters,
                 n_initial_parameters=n,
                 aggressiveness=self.aggressiveness,
-                max_iter=_get_max_iter(n, r, self.aggressiveness),
+                max_iter=self.max_iter,
+                n_initial_iter=r,
                 patience=patience,
                 tol=self.tol,
                 test_size=self.test_size,
@@ -338,8 +339,6 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
             )
             for b, (n, r) in brackets.items()
         }
-        for b, (_, r) in brackets.items():
-            SHAs[b]._n_initial_calls = r
         return SHAs
 
     @gen.coroutine

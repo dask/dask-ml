@@ -270,13 +270,13 @@ def test_successive_halving_params(c, s, a, b):
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
     model = ConstantFunction()
     params = {"value": scipy.stats.uniform(0, 1)}
-    alg = HyperbandSearchCV(model, params, max_iter=9, random_state=42)
+    alg = HyperbandSearchCV(model, params, max_iter=27, random_state=42)
 
     kwargs = [v["SuccessiveHalvingSearchCV params"] for v in alg.metadata["brackets"]]
     SHAs = [SuccessiveHalvingSearchCV(model, params, **v) for v in kwargs]
 
     metadata = alg.metadata["brackets"]
-    for true_meta, SHA in zip(metadata, SHAs):
+    for k, (true_meta, SHA) in enumerate(zip(metadata, SHAs)):
         yield SHA.fit(X, y)
         n_models = len(SHA.model_history_)
         pf_calls = [v[-1]["partial_fit_calls"] for v in SHA.model_history_.values()]
@@ -309,7 +309,7 @@ def test_correct_params(c, s, a, b):
         bracket["SuccessiveHalvingSearchCV params"] for bracket in meta["brackets"]
     ]
     SHA_params = base.union(
-        {"n_initial_parameters", "aggressiveness", "max_iter"}
+        {"n_initial_parameters", "n_initial_iter", "aggressiveness", "max_iter"}
     ) - {"estimator__sleep", "estimator__value", "estimator", "parameters"}
 
     assert all(set(SHA) == SHA_params for SHA in SHAs_params)
