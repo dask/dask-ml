@@ -438,7 +438,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         super(BaseIncrementalSearchCV, self).__init__(estimator, scoring=scoring)
 
     def _validate_parameters(self, X, y):
-        if self.max_iter < 1:
+        if (self.max_iter is not None) and self.max_iter < 1:
             raise ValueError(
                 "Received max_iter={}. max_iter < 1 is not supported".format(
                     self.max_iter

@@ -55,8 +55,11 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         longer before making a decision. Metadata on the number of calls
         to ``partial_fit`` is in ``metadata`` (and ``metadata_``).
 
-    max_iter : int, default 100
-        Maximum number of partial fit calls per model.
+    max_iter : int, default None
+        Maximum number of partial fit calls per model. If None, will allow
+        SuccessiveHalvingSearchCV to run until (about) one model survives.
+        If specified, models will stop being trained when ``max_iter``
+        calls to ``partial_fit`` are reached.
 
     test_size : float
         Fraction of the dataset to hold out for computing test scores.
@@ -186,7 +189,7 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         parameters,
         n_initial_parameters=10,
         n_initial_iter=None,
-        max_iter=100,
+        max_iter=None,
         aggressiveness=3,
         test_size=None,
         patience=False,
