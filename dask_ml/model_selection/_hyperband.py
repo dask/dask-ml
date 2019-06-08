@@ -220,6 +220,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         * ``model_id``
         * ``params``
         * ``partial_fit_calls``
+        * ``elapsed_wall_time``
 
         The key ``model_id`` corresponds to the ``model_id`` in ``cv_results_``.
         This list of dicts can be imported into Pandas.
@@ -569,14 +570,17 @@ def _hyperband_paper_alg(R, eta=3):
 def _get_patience(patience, max_iter, aggressiveness):
     if not isinstance(patience, bool) and patience < max(max_iter // aggressiveness, 1):
         msg = (
-            "Careful. patience={}, but values of patience=True (or "
-            "patience>={}) are recommended.\n\n"
             "The goal of `patience` is to stop training estimators that have "
-            "already converged *when few estimators remain*."
-            "Setting patience=True accomplishes this goal.\n\n Please "
-            "continue with caution or good reason"
+            "already converged *when few estimators remain*. "
+            "Hyperband is already an (almost optimal) adaptive scheme, "
+            "and patience should be large to be a minimal layer on top "
+            "of Hyperband. \n\n"
+            "To clear this warning, set \n\n"
+            "    * patience=True\n"
+            "    * patience >= {}\n\n"
+            "instead of patience={} "
         )
-        warn(msg.format(patience, max_iter // aggressiveness))
+        warn(msg.format(max_iter // aggressiveness, patience))
     elif isinstance(patience, bool) and patience:
         return max(max_iter // aggressiveness, 1)
     elif isinstance(patience, bool) and not patience:

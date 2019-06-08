@@ -191,78 +191,15 @@ def test_cv_results_order_preserved(c, s, a, b):
         assert np.allclose(row["test_score"], model_info["score"])
 
 
-@gen_cluster(client=True, timeout=5000)
-def test_integration(c, s, a, b):
-    X, y = make_classification(n_samples=10, n_features=4, chunks=10)
-    model = ConstantFunction()
-    params = {"value": scipy.stats.uniform(0, 1)}
-    alg = HyperbandSearchCV(model, params, max_iter=9, random_state=42)
-    yield alg.fit(X, y)
-    gt_zero = lambda x: x >= 0
-    gt_one = lambda x: x >= 1
-
-    key_types_and_checks = [
-        ("mean_partial_fit_time", float, gt_zero),
-        ("mean_score_time", float, gt_zero),
-        ("std_partial_fit_time", float, gt_zero),
-        ("std_score_time", float, gt_zero),
-        ("test_score", float, gt_zero),
-        ("rank_test_score", int, gt_one),
-        ("model_id", None, lambda x: isinstance(x, str)),
-        ("partial_fit_calls", int, gt_zero),
-        ("params", dict, lambda d: set(d.keys()) == {"value"}),
-        ("param_value", float, gt_zero),
-        ("bracket", int, None),
-    ]
-    assert set(alg.cv_results_) == {v[0] for v in key_types_and_checks}
-    for column, dtype, condition in key_types_and_checks:
-        if dtype:
-            assert alg.cv_results_[column].dtype == dtype
-        if condition:
-            assert all(condition(x) for x in alg.cv_results_[column])
-
-    alg.best_estimator_.fit(X, y)
-    alg.best_estimator_.score(X, y)
-    alg.score(X, y)
-
-    # Test types/format of all parameters we set after fitting
-    assert isinstance(alg.best_index_, int)
-    assert isinstance(alg.best_estimator_, ConstantFunction)
-    assert isinstance(alg.best_score_, float)
-    assert isinstance(alg.best_params_, dict)
-    assert isinstance(alg.history_, list)
-    assert all(isinstance(h, dict) for h in alg.history_)
-    assert isinstance(alg.model_history_, dict)
-    assert all(vi in alg.history_ for v in alg.model_history_.values() for vi in v)
-    assert all(isinstance(v, np.ndarray) for v in alg.cv_results_.values())
-    assert isinstance(alg.multimetric_, bool)
-    assert all("bracket=" in h["model_id"] for h in alg.history_)
-
-    keys = {
-        "score",
-        "score_time",
-        "partial_fit_calls",
-        "partial_fit_time",
-        "model_id",
-        "bracket",
-        "elapsed_wall_time",
-        "params",
-    }
-    assert all(set(h.keys()) == keys for h in alg.history_)
-    times = [v["elapsed_wall_time"] for v in alg.history_]
-    assert (np.diff(times) >= 0).all()
-
-    # Test to make sure history_ ordered with wall time
-    history = defaultdict(list)
-    for h in alg.history_:
-        history[h["model_id"]] += [h]
-    for model_hist in history.values():
-        calls = [h["partial_fit_calls"] for h in model_hist]
-        assert (np.diff(calls) >= 1).all() or len(calls) == 1
 
 
 @gen_cluster(client=True, timeout=5000)
 def test_successive_halving_params(c, s, a, b):
+    # Makes sure when SHAs are fit with values from the "SuccessiveHalvingSearchCV
+    # params" key, the number of models/calls stay the same as Hyperband.
+
+    # This sanity check again makes sure parameters passed correctly
+    # (similar to `test_params_passed`)
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
     model = ConstantFunction()
     params = {"value": scipy.stats.uniform(0, 1)}
@@ -282,6 +219,11 @@ def test_successive_halving_params(c, s, a, b):
 
 @gen_cluster(client=True, timeout=5000)
 def test_correct_params(c, s, a, b):
+    # Makes sure that Hyperband has the correct parameters.
+
+    # Implemented because Hyperband wraps SHA. Again, makes sure that parameters
+    # are correctly passed to SHA (had a case where max_iter= flag not passed to
+    # SuccessiveHalvingSearchCV but it should have been)
     est = ConstantFunction()
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
     params = {"value": np.linspace(0, 1)}
@@ -313,11 +255,13 @@ def test_correct_params(c, s, a, b):
     # this is testing to make sure that each SHA has the correct estimator
     yield search.fit(X, y)
     SHAs = search._SuccessiveHalvings_
-    assert all(search.estimator == SHA.estimator for SHA in SHAs.values())
-    assert all(search.parameters == SHA.parameters for SHA in SHAs.values())
+    assert all(search.estimator is SHA.estimator for SHA in SHAs.values())
+    assert all(search.parameters is SHA.parameters for SHA in SHAs.values())
 
 
 def test_params_passed():
+    # This makes sure that the "SuccessiveHalvingSearchCV params" key in
+    # Hyperband.metadata["brackets"] is correct and they can be instatiated.
     est = ConstantFunction(value=0.4)
     params = {"value": np.linspace(0, 1)}
     params = {
@@ -348,6 +292,11 @@ def test_params_passed():
 
 @gen_cluster(client=True, timeout=5000)
 def test_same_random_state_same_params(c, s, a, b):
+    # This makes sure parameters are sampled correctly when random state is
+    # specified.
+
+    # This test makes sure random state is *correctly* passed to successive
+    # halvings from Hyperband
     seed = 0
     values = scipy.stats.uniform(0, 1)
     h = HyperbandSearchCV(
@@ -383,33 +332,33 @@ def test_same_random_state_same_params(c, s, a, b):
 
 
 def test_random_state_no_seed_different_params():
+    # Guarantees that specifying a random state relies in the successive
+    # halving's having the same random state (and likewise for no random state)
+
+    # This test is required because Hyperband wraps SHAs and the random state
+    # needs to be passed correctly.
     values = scipy.stats.uniform(0, 1)
     max_iter = 9
     brackets = _get_hyperband_params(max_iter)
+    kwargs = {"value": values}
 
-    h1 = HyperbandSearchCV(ConstantFunction(), {"value": values}, max_iter=max_iter)
-    h2 = HyperbandSearchCV(ConstantFunction(), {"value": values}, max_iter=max_iter)
-
+    h1 = HyperbandSearchCV(ConstantFunction(), kwargs, max_iter=max_iter)
+    h2 = HyperbandSearchCV(ConstantFunction(), kwargs, max_iter=max_iter)
     h1._get_SHAs(brackets)
     h2._get_SHAs(brackets)
-
     assert h1._SHA_seed != h2._SHA_seed
 
-    h1 = HyperbandSearchCV(
-        ConstantFunction(), {"value": values}, max_iter=9, random_state=0
-    )
-    h2 = HyperbandSearchCV(
-        ConstantFunction(), {"value": values}, max_iter=9, random_state=0
-    )
-
+    h1 = HyperbandSearchCV(ConstantFunction(), kwargs, max_iter=9, random_state=0)
+    h2 = HyperbandSearchCV(ConstantFunction(), kwargs, max_iter=9, random_state=0)
     h1._get_SHAs(brackets)
     h2._get_SHAs(brackets)
-
     assert h1._SHA_seed == h2._SHA_seed
 
 
 @gen_cluster(client=True, timeout=5000)
 def test_min_max_iter(c, s, a, b):
+    # This test makes sure Hyperband works with max_iter=1.
+    # Tests for max_iter < 1 are in test_incremental.py.
     values = scipy.stats.uniform(0, 1)
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
 
@@ -417,3 +366,29 @@ def test_min_max_iter(c, s, a, b):
     h = HyperbandSearchCV(ConstantFunction(), {"value": values}, max_iter=max_iter)
     yield h.fit(X, y)
     assert h.best_score_ > 0
+
+@gen_cluster(client=True, timeout=5000)
+def test_history(c, s, a, b):
+    # This test is required to make sure Hyperband wraps SHA successfully
+    # Mostly, it's a test to make sure ordered by time
+    #
+    # There's also a test in test_incremental to make sure the history has
+    # correct values/etc
+    X, y = make_classification(n_samples=10, n_features=4, chunks=10)
+    model = ConstantFunction()
+    params = {"value": scipy.stats.uniform(0, 1)}
+    alg = HyperbandSearchCV(model, params, max_iter=9, random_state=42)
+    yield alg.fit(X, y)
+
+    assert alg.cv_results_["model_id"].dtype == "<U11"
+    assert all(isinstance(v, str) for v in alg.cv_results_["model_id"])
+    assert all("bracket=" in h["model_id"] for h in alg.history_)
+    assert all("bracket" in h for h in alg.history_)
+
+    # Hyperband does a custom ordering of times
+    times = [v["elapsed_wall_time"] for v in alg.history_]
+    assert (np.diff(times) >= 0).all()
+    # Make sure results are ordered by partial fit calls for each model
+    for model_hist in alg.model_history_.values():
+        calls = [h["partial_fit_calls"] for h in model_hist]
+        assert (np.diff(calls) >= 1).all() or len(calls) == 1

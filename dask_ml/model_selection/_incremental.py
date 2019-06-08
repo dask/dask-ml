@@ -588,7 +588,12 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         self.best_score_ = cv_results["test_score"][best_idx]
         self.best_params_ = cv_results["params"][best_idx]
         self.n_splits_ = 1
-        self.multimetric_ = False  # TODO: is this always true?
+
+        # this is always true because adaptive searches need one number to
+        # judge model quality. I suppose different models run different metrics
+        # at each scoring, but one score is needed to choose the better of two
+        # models
+        self.multimetric_ = False
         raise gen.Return(self)
 
     def fit(self, X, y=None, **fit_params):
@@ -753,6 +758,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         * ``model_id``
         * ``params``
         * ``partial_fit_calls``
+        * ``elapsed_wall_time``
 
         The key ``model_id`` corresponds to the ``model_id`` in ``cv_results_``.
         This list of dicts can be imported into Pandas.

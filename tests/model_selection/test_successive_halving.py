@@ -5,14 +5,13 @@ from sklearn.datasets import make_classification
 from sklearn.linear_model import SGDClassifier
 
 from dask_ml.model_selection import SuccessiveHalvingSearchCV
-from dask_ml.model_selection._successive_halving import (
-    _get_max_iter,
-    _get_n_initial_calls,
-)
+from dask_ml.model_selection._successive_halving import _get_max_iter
 
 
 @gen_cluster(client=True)
 def test_basic_successive_halving(c, s, a, b):
+    # Most of the basics are tested through Hyperband (which relies on
+    # successive halving)
     model = SGDClassifier(tol=1e-3)
     params = {"alpha": np.logspace(-3, 0, num=1000)}
     n, r = 10, 5
@@ -27,19 +26,16 @@ def test_basic_successive_halving(c, s, a, b):
 @pytest.mark.parametrize("r", [2, 3])
 @pytest.mark.parametrize("n", [9, 15])
 def test_sha_max_iter(n, r):
-    """
-    This test makes sure the number of partial fit calls is perserved
-    when
+    # This test makes sure the number of partial fit calls is perserved
+    # when
 
-    * n_initial_parameters and max_iter are specified
-    * n_initial_parameters is specified (but max_iter isn't)
-    * max_iter is specified (but n_initial_parameters isn't)
+    # * n_initial_parameters and max_iter are specified
+    # * n_initial_parameters is specified (but max_iter isn't)
+    # * max_iter is specified (but n_initial_parameters isn't)
 
-    n_initial_parameters and max_iter are chosen to make sure the
-    successivehalving works as expected
-    (so only one model is obtained at the end, as per the last assert)
-
-    """
+    # n_initial_parameters and max_iter are chosen to make sure the
+    # successivehalving works as expected
+    # (so only one model is obtained at the end, as per the last assert)
 
     @gen_cluster(client=True)
     def _test_sha_max_iter(c, s, a, b):

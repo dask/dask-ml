@@ -17,6 +17,7 @@ from dask_ml.datasets import make_classification
 from dask_ml.model_selection import IncrementalSearchCV
 from dask_ml.model_selection._incremental import _partial_fit, _score, fit
 from dask_ml.wrappers import Incremental
+from dask_ml.utils import ConstantFunction
 
 
 @gen_cluster(client=True, timeout=500)
@@ -579,3 +580,68 @@ def test_min_max_iter(c, s, a, b):
     search = IncrementalSearchCV(est, params, max_iter=0)
     with pytest.raises(ValueError, match="max_iter < 1 is not supported"):
         yield search.fit(X, y, classes=[0, 1])
+
+
+@gen_cluster(client=True)
+def test_history(c, s, a, b):
+    X, y = make_classification(n_samples=10, n_features=4, chunks=10)
+    model = ConstantFunction()
+    params = {"value": scipy.stats.uniform(0, 1)}
+    alg = IncrementalSearchCV(model, params, max_iter=9, random_state=42)
+    yield alg.fit(X, y)
+    gt_zero = lambda x: x >= 0
+    gt_one = lambda x: x >= 1
+
+    key_types_and_checks = [
+        ("mean_partial_fit_time", float, gt_zero),
+        ("mean_score_time", float, gt_zero),
+        ("std_partial_fit_time", float, gt_zero),
+        ("std_score_time", float, gt_zero),
+        ("test_score", float, gt_zero),
+        ("rank_test_score", int, gt_one),
+        ("model_id", int, None),
+        ("partial_fit_calls", int, gt_zero),
+        ("params", dict, lambda d: set(d.keys()) == {"value"}),
+        ("param_value", float, gt_zero),
+    ]
+    assert set(alg.cv_results_) == {v[0] for v in key_types_and_checks}
+    for column, dtype, condition in key_types_and_checks:
+        if dtype:
+            assert alg.cv_results_[column].dtype == dtype
+        if condition:
+            assert all(condition(x) for x in alg.cv_results_[column])
+
+    alg.best_estimator_.fit(X, y)
+    alg.best_estimator_.score(X, y)
+    alg.score(X, y)
+
+    # Test types/format of all parameters we set after fitting
+    assert isinstance(alg.best_index_, int)
+    assert isinstance(alg.best_estimator_, ConstantFunction)
+    assert isinstance(alg.best_score_, float)
+    assert isinstance(alg.best_params_, dict)
+    assert isinstance(alg.history_, list)
+    assert all(isinstance(h, dict) for h in alg.history_)
+    assert isinstance(alg.model_history_, dict)
+    assert all(vi in alg.history_ for v in alg.model_history_.values() for vi in v)
+    assert all(isinstance(v, np.ndarray) for v in alg.cv_results_.values())
+    assert isinstance(alg.multimetric_, bool)
+
+    keys = {
+        "score",
+        "score_time",
+        "partial_fit_calls",
+        "partial_fit_time",
+        "model_id",
+        "elapsed_wall_time",
+        "params",
+    }
+    assert all(set(h.keys()) == keys for h in alg.history_)
+    times = [v["elapsed_wall_time"] for v in alg.history_]
+    assert (np.diff(times) >= 0).all()
+
+    # Test to make sure history_ ordered with wall time
+    assert (np.diff([v["elapsed_wall_time"] for v in alg.history_]) >= 0).all()
+    for model_hist in alg.model_history_.values():
+        calls = [h["partial_fit_calls"] for h in model_hist]
+        assert (np.diff(calls) >= 1).all() or len(calls) == 1
