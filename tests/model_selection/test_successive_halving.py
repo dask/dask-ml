@@ -58,7 +58,9 @@ def test_sha_max_iter_and_metadata(n, r):
 
         assert search.metadata == search.metadata_
         assert set(search.metadata.keys()) == {
+            "partial_fit_calls",
+            "n_models",
+            "max_iter",
         }
 
-    if (n != 81 and r < n) or (n == 81 and r == 3):
-        _test_sha_max_iter()
+    _test_sha_max_iter()
