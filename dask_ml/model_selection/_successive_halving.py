@@ -3,6 +3,7 @@ import math
 
 import numpy as np
 import toolz
+from sklearn.utils.validation import check_is_fitted
 
 from ._incremental import IncrementalSearchCV
 
@@ -47,12 +48,12 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         Number of parameter settings that are sampled.
         This trades off runtime vs quality of the solution.
 
-    n_initial_iter : int, default=None
+    n_initial_iter : int
         Number of times to call partial fit initially before scoring.
         Estimators are trained for ``n_initial_iter`` calls to ``partial_fit``
-        initially. If not specified, ``n_initial_iter`` is chosen to make
-        sure one model survives at the end of decay while respecting
-        ``max_iter``.
+        initially. Higher values of ``n_initial_iter`` train the estimators
+        longer before making a decision. Metadata on the number of calls
+        to ``partial_fit`` is in ``metadata`` (and ``metadata_``).
 
     max_iter : int, default 100
         Maximum number of partial fit calls per model.
@@ -109,6 +110,20 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         The values in the ``test_score`` key correspond to the last score a model
         received on the hold out dataset. The key ``model_id`` corresponds with
         ``history_``. This dictionary can be imported into Pandas.
+
+    metadata and metadata_ : dict[key, int]
+        Dictionary describing the computation. ``metadata`` describes the
+        computation that will be performed, and ``metadata_`` describes the
+        computation that has been performed. Both dictionaries have keys
+
+        * ``n_models``: the number of models for this run of successive halving
+        * ``max_iter``: the maximum number of times ``partial_fit`` is called.
+          At least one model will have this many ``partial_fit`` calls.
+        * ``partial_fit_calls``: the total number of ``partial_fit`` calls.
+          All models together will receive this many ``partial_fit`` calls.
+
+        When ``patience`` is specified, the reduced computation will be
+        reflected in ``metadata_`` but not ``metadata``.
 
     model_history_ : dict of lists of dict
         A dictionary of each models history. This is a reorganization of
@@ -204,10 +219,7 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
             # recurse in this case -- see below for a note on the condition
             self._steps = 1
         n, eta = self.n_initial_parameters, self.aggressiveness
-        _n_initial_iter = self.n_initial_iter
-        if self.n_initial_iter is None:
-            _n_initial_iter = _get_n_initial_calls(n, self.max_iter, eta)
-        r = _n_initial_iter
+        r = self.n_initial_iter
 
         n_i = int(math.floor(n * eta ** -self._steps))
         r_i = np.round(r * eta ** self._steps).astype(int)
@@ -226,8 +238,28 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         additional_calls = {k: r_i - pf_calls[k] for k in best}
         return additional_calls
 
+    @property
+    def metadata(self):
+        n, r = self.n_initial_parameters, self.n_initial_iter
+        meta = _simulate_sha(n, r, self.aggressiveness, max_iter=self.max_iter)
+        return {
+            "partial_fit_calls": meta["total_calls"],
+            "n_models": self.n_initial_parameters,
+            "max_iter": meta["max_iter"],
+        }
 
-def _get_max_iter(n, r, eta):
+    @property
+    def metadata_(self):
+        check_is_fitted(self, "model_history_")
+        calls = [v[-1]["partial_fit_calls"] for v in self.model_history_.values()]
+        return {
+            "partial_fit_calls": sum(calls),
+            "n_models": self.n_initial_parameters,
+            "max_iter": max(calls),
+        }
+
+
+def _simulate_sha(n, r, eta, max_iter=None):
     """
     Parameters
     ----------
@@ -238,21 +270,20 @@ def _get_max_iter(n, r, eta):
     eta : int
         aggressiveness of the search
 
+    Returns
+    -------
+    meta : {"total_calls": int, "max_iter": int}
+
     Notes
     -----
     n, r and eta come from Hyperband
     """
+    calls = {k: 0 for k in range(n)}
     for k in itertools.count():
         n_i = int(math.floor(n * eta ** -k))
         r_i = np.round(r * eta ** k).astype(int)
-        if n_i == 1:
+        for k in range(n_i):
+            calls[k] = r_i
+        if n_i <= 1 or (max_iter and r_i >= max_iter):
             break
-    return r_i
-
-
-def _get_n_initial_calls(n_initial_parameters, max_iter, eta):
-    for n_initial_calls in range(n_initial_parameters, 0, -1):
-        calls = _get_max_iter(n_initial_parameters, n_initial_calls, eta)
-        if calls <= max_iter:
-            break
-    return n_initial_calls
+    return {"total_calls": sum(calls.values()), "max_iter": max(calls.values())}

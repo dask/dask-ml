@@ -177,7 +177,7 @@ def test_hyperband_patience(c, s, a, b):
         assert trimmed_paper_iter.issubset(set(actual_iter))
 
         # This makes sure models aren't trained for too long
-        assert all(x <= alg_patience for x in actual_iter)
+        assert all(x <= alg_patience + 1 for x in actual_iter)
 
     assert alg.metadata_["partial_fit_calls"] <= alg.metadata["partial_fit_calls"]
     assert alg.best_score_ >= 0.9
