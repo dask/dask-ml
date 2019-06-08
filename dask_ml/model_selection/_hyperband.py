@@ -172,13 +172,15 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
           bracket has different values for training time importance and
           hyperparameter importance. In addition to ``n_models`` and
           ``partial_fit_calls``, each element in this list has keys
-            * ``bracket``, an int representing how strongly the
-              SuccessiveHalvingSearchCV class adapts to history.
-              ``bracket == 0`` stops estimators the least frequently.
-            * ``SuccessiveHalvingSearchCV params``, a dictionary representing the
-              parameters used to create the different brackets.
-            * ``decisions``, the number of times ``partial_fit`` will be/is called on
-              each model
+            * ``bracket``, an int the bracket ID. Each bracket corresponds to
+              a different levels of training time importance.
+              For bracket 0, training time is important. For the highest
+              bracket, training time is not important and models are killed
+              aggressively.
+            * ``SuccessiveHalvingSearchCV params``, a dictionary used to create
+              the different brackets. It does not include the ``estimator`` or ``parameters`` parameters.
+            * ``decisions``, the number of ``partial_fit`` calls Hyperband makes
+              before making decisions.
 
         These dictionaries are the same if ``patience`` is not specified. If
         ``patience`` is specified, it's possible that less training is
@@ -199,12 +201,12 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         * ``model_id``
         * ``partial_fit_calls``
         * ``params``
-        * ``param_{key}``, where ``key`` is every key in ``params``.
+        * ``param_{key}``, where ``{key}`` is every key in ``params``.
         * ``bracket``
 
         The values in the ``test_score`` key correspond to the last score a model
         received on the hold out dataset. The key ``model_id`` corresponds with
-        ``history_``. This dictionary can be imported into Pandas.
+        ``history_``. This dictionary can be imported into a Pandas DataFrame.
 
         In the ``model_id``, the bracket ID prefix corresponds to the bracket
         in ``metadata``. Bracket 0 doesn't adapt to previous training at all;
@@ -229,9 +231,9 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         A dictionary of each models history. This is a reorganization of
         ``history_``: the same information is present but organized per model.
 
-        This data has the structure  ``{model_id: hist}`` where ``hist`` is an
-        element of ``history_`` and ``model_id`` is the model ID as in
-        ``cv_results_``.
+        This data has the structure  ``{model_id: [h1, h2, h3, ...]}`` where
+        ``h1``, ``h2`` and ``h3`` are elements of ``history_``
+        and ``model_id`` is the model ID as in ``cv_results_``.
 
     best_estimator_ : BaseEstimator
         The model with the highest validation score as selected by
