@@ -106,6 +106,7 @@ def test_basic(array_type, library, max_iter):
             # as max_iter". 3 is a fudge number chosen to be the minimum; when
             # max_iter=20, len(model_ids) == 17.
             assert len(model_ids) + 3 >= max_iter
+
         assert all("bracket" in id_ for id_ in model_ids)
 
     _test_basic()
@@ -131,6 +132,9 @@ def test_hyperband_mirrors_paper_and_metadata(max_iter, aggressiveness):
 
         assert isinstance(alg.metadata["brackets"], list)
         assert set(alg.metadata.keys()) == {"n_models", "partial_fit_calls", "brackets"}
+
+        # Looping over alg.metadata["bracketes"] is okay because alg.metadata
+        # == alg.metadata_
         for bracket in alg.metadata["brackets"]:
             assert set(bracket.keys()) == {
                 "n_models",
@@ -148,6 +152,8 @@ def test_hyperband_mirrors_paper_and_metadata(max_iter, aggressiveness):
 
 @gen_cluster(client=True, timeout=5000)
 def test_hyperband_patience(c, s, a, b):
+    # Test to make sure that specifying patience=True results in less
+    # computation
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
     model = ConstantFunction()
     params = {"value": scipy.stats.uniform(0, 1)}
@@ -164,8 +170,14 @@ def test_hyperband_patience(c, s, a, b):
 
     for paper_iter, actual_iter in zip(paper_decisions, actual_decisions):
         trimmed_paper_iter = {k for k in paper_iter if k <= alg_patience}
+
+        # This makes sure that the algorithm is executed faithfully when
+        # patience=True (and the proper decision points are preserved even if
+        # other stop-on-plateau points are added)
         assert trimmed_paper_iter.issubset(set(actual_iter))
-        assert all(x <= alg_patience + 1 for x in actual_iter)
+
+        # This makes sure models aren't trained for too long
+        assert all(x <= alg_patience for x in actual_iter)
 
     assert alg.metadata_["partial_fit_calls"] <= alg.metadata["partial_fit_calls"]
     assert alg.best_score_ >= 0.9
