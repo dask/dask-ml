@@ -16,8 +16,8 @@ from tornado import gen
 from dask_ml.datasets import make_classification
 from dask_ml.model_selection import IncrementalSearchCV
 from dask_ml.model_selection._incremental import _partial_fit, _score, fit
-from dask_ml.wrappers import Incremental
 from dask_ml.utils import ConstantFunction
+from dask_ml.wrappers import Incremental
 
 
 @gen_cluster(client=True, timeout=500)

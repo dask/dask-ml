@@ -5,7 +5,6 @@ from sklearn.datasets import make_classification
 from sklearn.linear_model import SGDClassifier
 
 from dask_ml.model_selection import SuccessiveHalvingSearchCV
-from dask_ml.model_selection._successive_halving import _simulate_sha
 
 
 @gen_cluster(client=True)

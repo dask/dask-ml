@@ -203,8 +203,6 @@ def test_cv_results_order_preserved(c, s, a, b):
         assert np.allclose(row["test_score"], model_info["score"])
 
 
-
-
 @gen_cluster(client=True, timeout=5000)
 def test_successive_halving_params(c, s, a, b):
     # Makes sure when SHAs are fit with values from the "SuccessiveHalvingSearchCV
@@ -378,6 +376,7 @@ def test_min_max_iter(c, s, a, b):
     h = HyperbandSearchCV(ConstantFunction(), {"value": values}, max_iter=max_iter)
     yield h.fit(X, y)
     assert h.best_score_ > 0
+
 
 @gen_cluster(client=True, timeout=5000)
 def test_history(c, s, a, b):
