@@ -232,7 +232,7 @@ class QuantileTransformer(skdata.QuantileTransformer):
 
     __doc__ = __doc__ + "\n".join(skdata.QuantileTransformer.__doc__.split("\n")[1:])
 
-    def _check_inputs(self, X, accept_sparse_negative=False):
+    def _check_inputs(self, X, accept_sparse_negative=False, copy=False):
         if isinstance(X, (pd.DataFrame, dd.DataFrame)):
             X = X.values
         if isinstance(X, np.ndarray):
@@ -245,7 +245,7 @@ class QuantileTransformer(skdata.QuantileTransformer):
         # TODO: mix of sparse, dense?
         sample = rng.uniform(size=(5, X.shape[1])).astype(X.dtype)
         super(QuantileTransformer, self)._check_inputs(
-            sample, accept_sparse_negative=accept_sparse_negative
+            sample, accept_sparse_negative=accept_sparse_negative, copy=copy
         )
         return X
 
