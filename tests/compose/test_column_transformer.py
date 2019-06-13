@@ -123,11 +123,11 @@ def test_sklearn_col_trans_disallows_hstack_then_block():
     )
 
     exp_msg = (
-        "The output of the 'a_b' transformer should be 2D "
-        "(scipy matrix, array, or pandas DataFrame)."
+        "The output of the .a_b. transformer should be 2D "
+        ".scipy matrix, array, or pandas DataFrame.."
     )
 
-    with pytest.raises(ValueError, message=exp_msg) as ex:
+    with pytest.raises(ValueError, match=exp_msg) as ex:
         features.fit_transform(x)
 
     cause = ex.traceback[-1]
