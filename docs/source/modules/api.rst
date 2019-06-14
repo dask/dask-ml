@@ -45,13 +45,15 @@ These are appropriate for datasets where the CV splits fit in memory.
    model_selection.RandomizedSearchCV
 
 For hyperparameter optimization on larger-than-memory datasets, Dask-ML
-provides the follwoing:
+provides the following:
 
 .. autosummary::
    :toctree: generated/
    :template: class.rst
 
    model_selection.IncrementalSearchCV
+   model_selection.HyperbandSearchCV
+   model_selection.SuccessiveHalvingSearchCV
 
 
 :mod:`dask_ml.linear_model`: Generalized Linear Models

@@ -18,6 +18,8 @@ from dask import delayed
 from dask.array.utils import assert_eq as assert_eq_ar
 from dask.dataframe.utils import assert_eq as assert_eq_df
 
+from ._utils import ConstantFunction
+
 logger = logging.getLogger()
 
 
@@ -352,4 +354,5 @@ __all__ = [
     "check_array",
     "check_random_state",
     "check_chunks",
+    "ConstantFunction",
 ]

@@ -200,6 +200,7 @@ def _fit(
 
     new_scores = list(_scores.values())
     history = []
+    start_time = time()
 
     # async for future, result in seq:
     while True:
@@ -207,6 +208,7 @@ def _fit(
 
         for meta in metas:
             ident = meta["model_id"]
+            meta["elapsed_wall_time"] = time() - start_time
 
             info[ident].append(meta)
             history.append(meta)
@@ -264,6 +266,7 @@ def _fit(
 
     info = defaultdict(list)
     for h in history:
+        h.pop("_adapt", None)
         info[h["model_id"]].append(h)
     info = dict(info)
 
@@ -416,13 +419,36 @@ class BaseIncrementalSearchCV(ParallelPostFit):
     """
 
     def __init__(
-        self, estimator, parameters, test_size=None, random_state=None, scoring=None
+        self,
+        estimator,
+        parameters,
+        test_size=None,
+        random_state=None,
+        scoring=None,
+        max_iter=100,
+        patience=False,
+        tol=1e-3,
     ):
-        self.estimator = estimator
         self.parameters = parameters
         self.test_size = test_size
         self.random_state = random_state
-        self.scoring = scoring
+        self.max_iter = max_iter
+        self.patience = patience
+        self.tol = tol
+        super(BaseIncrementalSearchCV, self).__init__(estimator, scoring=scoring)
+
+    def _validate_parameters(self, X, y):
+        if (self.max_iter is not None) and self.max_iter < 1:
+            raise ValueError(
+                "Received max_iter={}. max_iter < 1 is not supported".format(
+                    self.max_iter
+                )
+            )
+
+        X = self._check_array(X)
+        y = self._check_array(y, ensure_2d=False)
+        scorer = check_scoring(self.estimator, scoring=self.scoring)
+        return X, y, scorer
 
     @property
     def _postfit_estimator(self):
@@ -526,11 +552,8 @@ class BaseIncrementalSearchCV(ParallelPostFit):
 
     @gen.coroutine
     def _fit(self, X, y, **fit_params):
-        X = self._check_array(X)
-        y = self._check_array(y, ensure_2d=False)
-
+        X, y, scorer = self._validate_parameters(X, y)
         X_train, X_test, y_train, y_test = self._get_train_test_split(X, y)
-        scorer = check_scoring(self.estimator, scoring=self.scoring)
 
         results = yield fit(
             self.estimator,
@@ -565,10 +588,15 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         self.best_score_ = cv_results["test_score"][best_idx]
         self.best_params_ = cv_results["params"][best_idx]
         self.n_splits_ = 1
-        self.multimetric_ = False  # TODO: is this always true?
+
+        # this is always true because adaptive searches need one number to
+        # judge model quality. I suppose different models run different metrics
+        # at each scoring, but one score is needed to choose the better of two
+        # models
+        self.multimetric_ = False
         raise gen.Return(self)
 
-    def fit(self, X, y, **fit_params):
+    def fit(self, X, y=None, **fit_params):
         """Find the best parameters for a particular model.
 
         Parameters
@@ -606,10 +634,6 @@ class BaseIncrementalSearchCV(ParallelPostFit):
 class IncrementalSearchCV(BaseIncrementalSearchCV):
     """
     Incrementally search for hyper-parameters on models that support partial_fit
-
-    .. note::
-
-       This class depends on the optional ``distributed`` library.
 
     This incremental hyper-parameter optimization class starts training the
     model on many hyper-parameters on a small amount of data, and then only
@@ -650,8 +674,8 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         of worse models.
 
     patience : int, default False
-        Maximum number of non-improving scores before we stop training a
-        model. Off by default.
+        If specified, training stops when the score does not increase by
+        ``tol`` after ``patience`` calls to ``partial_fit``. Off by default.
 
     scores_per_fit : int, default 1
         If ``patience`` is used the maximum number of ``partial_fit`` calls
@@ -734,6 +758,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         * ``model_id``
         * ``params``
         * ``partial_fit_calls``
+        * ``elapsed_wall_time``
 
         The key ``model_id`` corresponds to the ``model_id`` in ``cv_results_``.
         This list of dicts can be imported into Pandas.
@@ -762,7 +787,6 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
     multimetric_ : bool
         Whether this cross validation search uses multiple metrics.
-
 
     Examples
     --------
@@ -832,7 +856,14 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         self.scores_per_fit = scores_per_fit
         self.max_iter = max_iter
         super(IncrementalSearchCV, self).__init__(
-            estimator, param_distribution, test_size, random_state, scoring
+            estimator,
+            param_distribution,
+            test_size=test_size,
+            random_state=random_state,
+            scoring=scoring,
+            max_iter=max_iter,
+            patience=patience,
+            tol=tol,
         )
 
     def _get_params(self):
@@ -846,6 +877,32 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
             )
 
     def _additional_calls(self, info):
+        calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
+
+        if self.patience and max(calls.values()) > 1:
+            calls_so_far = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
+            adapt_calls = {
+                k: [vi["partial_fit_calls"] + vi.get("_adapt", 0) for vi in v][-1]
+                for k, v in info.items()
+            }
+
+            calls_to_make = {k: adapt_calls[k] - calls_so_far[k] for k in calls}
+            if sum(calls_to_make.values()) > 0:
+                out = self._stop_on_plateau(calls_to_make, info)
+                return {k: min(v, int(self.patience)) for k, v in out.items()}
+
+        instructions = self._adapt(info)
+        if self.patience:
+            for ident, calls in instructions.items():
+                info[ident][-1]["_adapt"] = calls
+
+        out = self._stop_on_plateau(instructions, info)
+
+        if self.patience:
+            return {k: min(v, int(self.patience)) for k, v in out.items()}
+        return out
+
+    def _adapt(self, info):
         # First, have an adaptive algorithm
         if self.n_initial_parameters == "grid":
             start = len(ParameterGrid(self.parameters))
@@ -881,7 +938,9 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
             return {best: 0}
         steps = next_time_step - current_time_step
         instructions = {b: steps for b in best}
+        return instructions
 
+    def _stop_on_plateau(self, instructions, info):
         # Second, stop on plateau if any models have already converged
         out = {}
         for k, steps in instructions.items():
