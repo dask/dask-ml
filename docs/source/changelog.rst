@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Version 1.0.0
+~~~~~~~~~~~~~
+
+- Added new hyperparameter search meta-estimators for hyperparameter search on distributed datasets: :class:`model_selection.HyperbandSearchCV` and :class:`model_selection.SuccessiveHalvingSearchCV`
+- Dropped Python 2 support (:pr:`:issue:`499``)
+
 Version 0.13.0
 ~~~~~~~~~~~~~~
 
