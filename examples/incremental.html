@@ -27,6 +27,7 @@
         <script type="text/javascript" src="../_static/language_data.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+        <script type="text/javascript" src="../_static/js/custom.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -123,7 +124,7 @@
             
             
               <div class="version">
-                0.13.1.dev3+g5f826d2
+                0.13.1.dev6+g79a3487
               </div>
             
           
@@ -504,7 +505,7 @@ div.rendered_html tbody tr:hover {
 <td style="vertical-align: top; border: 0px solid white">
 <h3>Client</h3>
 <ul>
-  <li><b>Scheduler: </b>tcp://127.0.0.1:35042
+  <li><b>Scheduler: </b>tcp://127.0.0.1:38566
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
@@ -555,9 +556,8 @@ div.rendered_html tbody tr:hover {
     <tr><th> Bytes </th><td> 80.00 MB </td> <td> 8.00 MB </td></tr>
     <tr><th> Shape </th><td> (100000, 100) </td> <td> (10000, 100) </td></tr>
     <tr><th> Count </th><td> 10 Tasks </td><td> 10 Chunks </td></tr>
-    <tr><th> DType </th><td> float64 </td><td></td></tr>
-  </tbody>
-</table>
+    <tr><th> Type </th><td> float64 </td><td> numpy.ndarray </td></tr>
+  </tbody></table>
 </td>
 <td>
 <svg width="75" height="170" style="stroke:rgb(0,0,0);stroke-width:1" >
@@ -620,9 +620,8 @@ div.rendered_html tbody tr:hover {
     <tr><th> Bytes </th><td> 72.00 MB </td> <td> 7.20 MB </td></tr>
     <tr><th> Shape </th><td> (90000, 100) </td> <td> (9000, 100) </td></tr>
     <tr><th> Count </th><td> 70 Tasks </td><td> 10 Chunks </td></tr>
-    <tr><th> DType </th><td> float64 </td><td></td></tr>
-  </tbody>
-</table>
+    <tr><th> Type </th><td> float64 </td><td> numpy.ndarray </td></tr>
+  </tbody></table>
 </td>
 <td>
 <svg width="75" height="170" style="stroke:rgb(0,0,0);stroke-width:1" >
@@ -773,7 +772,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.5833
+<span></span>0.5866
 </pre></div>
 </div>
 </div>
@@ -807,16 +806,16 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Score: 0.5606
-Score: 0.5953
-Score: 0.5944
-Score: 0.608
-Score: 0.5989
-Score: 0.585
-Score: 0.608
+Score: 0.5693
+Score: 0.5833
+Score: 0.6063
+Score: 0.5925
+Score: 0.6086
+Score: 0.6121
+Score: 0.6212
+Score: 0.617
+Score: 0.6137
 Score: 0.6151
-Score: 0.6237
-Score: 0.6185
 </pre></div></div>
 </div>
 </div>
@@ -846,9 +845,8 @@ Score: 0.6185
     <tr><th> Bytes </th><td> 80.00 kB </td> <td> 8.00 kB </td></tr>
     <tr><th> Shape </th><td> (10000,) </td> <td> (1000,) </td></tr>
     <tr><th> Count </th><td> 20 Tasks </td><td> 10 Chunks </td></tr>
-    <tr><th> DType </th><td> int64 </td><td></td></tr>
-  </tbody>
-</table>
+    <tr><th> Type </th><td> int64 </td><td> numpy.ndarray </td></tr>
+  </tbody></table>
 </td>
 <td>
 <svg width="170" height="75" style="stroke:rgb(0,0,0);stroke-width:1" >
@@ -895,11 +893,11 @@ Score: 0.6185
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>array([1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1,
-       0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0,
-       0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0,
-       0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
-       1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0])
+<span></span>array([0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1,
+       0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1,
+       1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1,
+       0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0,
+       1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1])
 </pre></div>
 </div>
 </div>
@@ -917,7 +915,7 @@ Score: 0.6185
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.6185
+<span></span>0.6151
 </pre></div>
 </div>
 </div>

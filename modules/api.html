@@ -27,6 +27,7 @@
         <script type="text/javascript" src="../_static/language_data.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+        <script type="text/javascript" src="../_static/js/custom.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -123,7 +124,7 @@
             
             
               <div class="version">
-                0.13.1.dev3+g5f826d2
+                0.13.1.dev6+g79a3487
               </div>
             
           
@@ -173,6 +174,8 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.model_selection.GridSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.GridSearchCV</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.model_selection.RandomizedSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.RandomizedSearchCV</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.model_selection.IncrementalSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.IncrementalSearchCV</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.model_selection.HyperbandSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.HyperbandSearchCV</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.SuccessiveHalvingSearchCV</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#module-dask_ml.linear_model"><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>: Generalized Linear Models</a><ul>
@@ -371,7 +374,7 @@ These are appropriate for datasets where the CV splits fit in memory.</p>
 </tbody>
 </table>
 <p>For hyperparameter optimization on larger-than-memory datasets, Dask-ML
-provides the follwoing:</p>
+provides the following:</p>
 <table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
@@ -380,6 +383,12 @@ provides the follwoing:</p>
 <tbody valign="top">
 <tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV" title="dask_ml.model_selection.IncrementalSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_selection.IncrementalSearchCV</span></code></a>(…[,&nbsp;…])</td>
 <td>Incrementally search for hyper-parameters on models that support partial_fit</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_selection.HyperbandSearchCV</span></code></a>(estimator,&nbsp;…)</td>
+<td>Find the best parameters for a particular model with an adaptive cross-validation algorithm.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV" title="dask_ml.model_selection.SuccessiveHalvingSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_selection.SuccessiveHalvingSearchCV</span></code></a>(…)</td>
+<td>Perform the successive halving algorithm <a class="reference internal" href="generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#r424ea1a907b1-1" id="id1">[R424ea1a907b1-1]</a>.</td>
 </tr>
 </tbody>
 </table>

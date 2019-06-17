@@ -28,6 +28,7 @@
         <script type="text/javascript" src="_static/language_data.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+        <script type="text/javascript" src="_static/js/custom.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -122,7 +123,7 @@
             
             
               <div class="version">
-                0.13.1.dev3+g5f826d2
+                0.13.1.dev6+g79a3487
               </div>
             
           
@@ -245,6 +246,7 @@
  | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
@@ -284,6 +286,8 @@
 </li>
         <li><a href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV.__init__">(dask_ml.model_selection.GridSearchCV method)</a>
 </li>
+        <li><a href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV.__init__">(dask_ml.model_selection.HyperbandSearchCV method)</a>
+</li>
         <li><a href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV.__init__">(dask_ml.model_selection.IncrementalSearchCV method)</a>
 </li>
         <li><a href="modules/generated/dask_ml.model_selection.KFold.html#dask_ml.model_selection.KFold.__init__">(dask_ml.model_selection.KFold method)</a>
@@ -291,6 +295,8 @@
         <li><a href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV.__init__">(dask_ml.model_selection.RandomizedSearchCV method)</a>
 </li>
         <li><a href="modules/generated/dask_ml.model_selection.ShuffleSplit.html#dask_ml.model_selection.ShuffleSplit.__init__">(dask_ml.model_selection.ShuffleSplit method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV.__init__">(dask_ml.model_selection.SuccessiveHalvingSearchCV method)</a>
 </li>
         <li><a href="modules/generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer.__init__">(dask_ml.preprocessing.Categorizer method)</a>
 </li>
@@ -436,9 +442,13 @@
 </li>
         <li><a href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV.fit">(dask_ml.model_selection.GridSearchCV method)</a>
 </li>
+        <li><a href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV.fit">(dask_ml.model_selection.HyperbandSearchCV method)</a>
+</li>
         <li><a href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV.fit">(dask_ml.model_selection.IncrementalSearchCV method)</a>
 </li>
         <li><a href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV.fit">(dask_ml.model_selection.RandomizedSearchCV method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV.fit">(dask_ml.model_selection.SuccessiveHalvingSearchCV method)</a>
 </li>
         <li><a href="modules/api.html#dask_ml.preprocessing.Categorizer.fit">(dask_ml.preprocessing.Categorizer method)</a>, <a href="modules/generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer.fit">[1]</a>
 </li>
@@ -560,9 +570,13 @@
 </li>
         <li><a href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV.get_params">(dask_ml.model_selection.GridSearchCV method)</a>
 </li>
+        <li><a href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV.get_params">(dask_ml.model_selection.HyperbandSearchCV method)</a>
+</li>
         <li><a href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV.get_params">(dask_ml.model_selection.IncrementalSearchCV method)</a>
 </li>
         <li><a href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV.get_params">(dask_ml.model_selection.RandomizedSearchCV method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV.get_params">(dask_ml.model_selection.SuccessiveHalvingSearchCV method)</a>
 </li>
         <li><a href="modules/api.html#dask_ml.preprocessing.Categorizer.get_params">(dask_ml.preprocessing.Categorizer method)</a>, <a href="modules/generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer.get_params">[1]</a>
 </li>
@@ -604,6 +618,14 @@
 </li>
       </ul></li>
       <li><a href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV">GridSearchCV (class in dask_ml.model_selection)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV">HyperbandSearchCV (class in dask_ml.model_selection)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -750,9 +772,13 @@
 </li>
         <li><a href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV.predict">(dask_ml.model_selection.GridSearchCV method)</a>
 </li>
+        <li><a href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV.predict">(dask_ml.model_selection.HyperbandSearchCV method)</a>
+</li>
         <li><a href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV.predict">(dask_ml.model_selection.IncrementalSearchCV method)</a>
 </li>
         <li><a href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV.predict">(dask_ml.model_selection.RandomizedSearchCV method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV.predict">(dask_ml.model_selection.SuccessiveHalvingSearchCV method)</a>
 </li>
         <li><a href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental.predict">(dask_ml.wrappers.Incremental method)</a>
 </li>
@@ -770,9 +796,13 @@
       <li><a href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV.predict_log_proba">predict_log_proba() (dask_ml.model_selection.GridSearchCV method)</a>
 
       <ul>
+        <li><a href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV.predict_log_proba">(dask_ml.model_selection.HyperbandSearchCV method)</a>
+</li>
         <li><a href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV.predict_log_proba">(dask_ml.model_selection.IncrementalSearchCV method)</a>
 </li>
         <li><a href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV.predict_log_proba">(dask_ml.model_selection.RandomizedSearchCV method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV.predict_log_proba">(dask_ml.model_selection.SuccessiveHalvingSearchCV method)</a>
 </li>
         <li><a href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental.predict_log_proba">(dask_ml.wrappers.Incremental method)</a>
 </li>
@@ -784,9 +814,13 @@
       <ul>
         <li><a href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV.predict_proba">(dask_ml.model_selection.GridSearchCV method)</a>
 </li>
+        <li><a href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV.predict_proba">(dask_ml.model_selection.HyperbandSearchCV method)</a>
+</li>
         <li><a href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV.predict_proba">(dask_ml.model_selection.IncrementalSearchCV method)</a>
 </li>
         <li><a href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV.predict_proba">(dask_ml.model_selection.RandomizedSearchCV method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV.predict_proba">(dask_ml.model_selection.SuccessiveHalvingSearchCV method)</a>
 </li>
         <li><a href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental.predict_proba">(dask_ml.wrappers.Incremental method)</a>
 </li>
@@ -838,9 +872,13 @@
 </li>
         <li><a href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV.score">(dask_ml.model_selection.GridSearchCV method)</a>
 </li>
+        <li><a href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV.score">(dask_ml.model_selection.HyperbandSearchCV method)</a>
+</li>
         <li><a href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV.score">(dask_ml.model_selection.IncrementalSearchCV method)</a>
 </li>
         <li><a href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV.score">(dask_ml.model_selection.RandomizedSearchCV method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV.score">(dask_ml.model_selection.SuccessiveHalvingSearchCV method)</a>
 </li>
         <li><a href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental.score">(dask_ml.wrappers.Incremental method)</a>
 </li>
@@ -874,9 +912,13 @@
 </li>
         <li><a href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV.set_params">(dask_ml.model_selection.GridSearchCV method)</a>
 </li>
+        <li><a href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV.set_params">(dask_ml.model_selection.HyperbandSearchCV method)</a>
+</li>
         <li><a href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV.set_params">(dask_ml.model_selection.IncrementalSearchCV method)</a>
 </li>
         <li><a href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV.set_params">(dask_ml.model_selection.RandomizedSearchCV method)</a>
+</li>
+        <li><a href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV.set_params">(dask_ml.model_selection.SuccessiveHalvingSearchCV method)</a>
 </li>
         <li><a href="modules/api.html#dask_ml.preprocessing.Categorizer.set_params">(dask_ml.preprocessing.Categorizer method)</a>, <a href="modules/generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer.set_params">[1]</a>
 </li>
@@ -924,6 +966,8 @@
       <li><a href="modules/api.html#dask_ml.preprocessing.StandardScaler">StandardScaler (class in dask_ml.preprocessing)</a>, <a href="modules/generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler">[1]</a>
 </li>
       <li><a href="modules/generated/dask_ml.tensorflow.start_tensorflow.html#dask_ml.tensorflow.start_tensorflow">start_tensorflow() (in module dask_ml.tensorflow)</a>
+</li>
+      <li><a href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV">SuccessiveHalvingSearchCV (class in dask_ml.model_selection)</a>
 </li>
   </ul></td>
 </tr></table>

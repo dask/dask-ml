@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.model_selection.IncrementalSearchCV &mdash; dask-ml 0.13.1 documentation</title>
+  <title>dask_ml.model_selection.HyperbandSearchCV &mdash; dask-ml 0.13.1 documentation</title>
   
 
   
@@ -40,8 +40,8 @@
   <link rel="stylesheet" href="../../_static/css/nbsphinx.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="dask_ml.model_selection.HyperbandSearchCV" href="dask_ml.model_selection.HyperbandSearchCV.html" />
-    <link rel="prev" title="dask_ml.model_selection.RandomizedSearchCV" href="dask_ml.model_selection.RandomizedSearchCV.html" /> 
+    <link rel="next" title="dask_ml.model_selection.SuccessiveHalvingSearchCV" href="dask_ml.model_selection.SuccessiveHalvingSearchCV.html" />
+    <link rel="prev" title="dask_ml.model_selection.IncrementalSearchCV" href="dask_ml.model_selection.IncrementalSearchCV.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -173,8 +173,8 @@
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.KFold.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.KFold</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.GridSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.GridSearchCV</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.RandomizedSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.RandomizedSearchCV</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.IncrementalSearchCV</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.HyperbandSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.HyperbandSearchCV</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.IncrementalSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.IncrementalSearchCV</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.HyperbandSearchCV</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.SuccessiveHalvingSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.SuccessiveHalvingSearchCV</a></li>
 </ul>
 </li>
@@ -244,13 +244,13 @@
         
           <li><a href="../api.html">API Reference</a> &raquo;</li>
         
-      <li><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.IncrementalSearchCV</li>
+      <li><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.HyperbandSearchCV</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../../_sources/modules/generated/dask_ml.model_selection.IncrementalSearchCV.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/modules/generated/dask_ml.model_selection.HyperbandSearchCV.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -263,73 +263,85 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="dask-ml-model-selection-incrementalsearchcv">
-<h1><a class="reference internal" href="../api.html#module-dask_ml.model_selection" title="dask_ml.model_selection"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code></a>.IncrementalSearchCV<a class="headerlink" href="#dask-ml-model-selection-incrementalsearchcv" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="dask-ml-model-selection-hyperbandsearchcv">
+<h1><a class="reference internal" href="../api.html#module-dask_ml.model_selection" title="dask_ml.model_selection"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code></a>.HyperbandSearchCV<a class="headerlink" href="#dask-ml-model-selection-hyperbandsearchcv" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="dask_ml.model_selection.IncrementalSearchCV">
-<em class="property">class </em><code class="descclassname">dask_ml.model_selection.</code><code class="descname">IncrementalSearchCV</code><span class="sig-paren">(</span><em>estimator</em>, <em>param_distribution</em>, <em>n_initial_parameters=10</em>, <em>decay_rate=1.0</em>, <em>test_size=None</em>, <em>patience=False</em>, <em>tol=0.001</em>, <em>scores_per_fit=1</em>, <em>max_iter=100</em>, <em>random_state=None</em>, <em>scoring=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV" title="Permalink to this definition">¶</a></dt>
-<dd><p>Incrementally search for hyper-parameters on models that support partial_fit</p>
-<p>This incremental hyper-parameter optimization class starts training the
-model on many hyper-parameters on a small amount of data, and then only
-continues training those models that seem to be performing well.</p>
-<p>The number of actively trained hyper-parameter combinations decays
-with an inverse decay given by the initial number of parameters and the
-decay rate:</p>
-<blockquote>
-<div>n_models = n_initial_parameters * (n_batches ** -decay_rate)</div></blockquote>
-<p>See the <a class="reference internal" href="../../hyper-parameter-search.html#hyperparameter-incremental"><span class="std std-ref">User Guide</span></a> for more.</p>
+<dt id="dask_ml.model_selection.HyperbandSearchCV">
+<em class="property">class </em><code class="descclassname">dask_ml.model_selection.</code><code class="descname">HyperbandSearchCV</code><span class="sig-paren">(</span><em>estimator</em>, <em>parameters</em>, <em>max_iter=81</em>, <em>aggressiveness=3</em>, <em>patience=False</em>, <em>tol=0.001</em>, <em>test_size=None</em>, <em>random_state=None</em>, <em>scoring=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.HyperbandSearchCV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the best parameters for a particular model with an adaptive
+cross-validation algorithm.</p>
+<p>Hyperband will find close to the best possible parameters with
+the given computational budget <a class="footnote-reference" href="#id3" id="id1">[*]</a> by spending more time training
+high-performing estimators <a class="reference internal" href="#r6ef2b88ca647-1" id="id2">[R6ef2b88ca647-1]</a>. This means that Hyperband stops training
+estimators that perform poorly – at it’s core, Hyperband is an early
+stopping scheme for RandomizedSearchCV.</p>
+<p>Hyperband does not require a trade-off between “evaluate many parameters
+for a short time” and “train a few parameters for a long time”
+like RandomizedSearchCV.</p>
+<p>Hyperband requires one input which requires knowing how long
+to train the best performing estimator via <code class="docutils literal notranslate"><span class="pre">max_iter</span></code>.
+The other implicit input (the Dask array chuck size) requires
+a rough estimate of how many parameters to sample. Specification details
+are in <span class="xref std std-ref">Notes</span>.</p>
+<table class="docutils footnote" frame="void" id="id3" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[*]</a></td><td>After <span class="math notranslate nohighlight">\(N\)</span> <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> calls the estimator Hyperband
+produces will be close to the best possible estimator that <span class="math notranslate nohighlight">\(N\)</span>
+<code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> calls could ever produce with high probability (where
+“close” means “within log terms of the expected best possible score”).</td></tr>
+</tbody>
+</table>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>estimator</strong> <span class="classifier-delimiter">:</span> <span class="classifier">estimator object.</span></dt>
-<dd><p class="first last">A object of that type is instantiated for each initial hyperparameter
+<dd><p class="first last">A object of that type is instantiated for each hyperparameter
 combination. This is assumed to implement the scikit-learn estimator
-interface. Either estimator needs to provide a <cite>score`</cite> function,
+interface. Either estimator needs to provide a <code class="docutils literal notranslate"><span class="pre">score</span></code> function,
 or <code class="docutils literal notranslate"><span class="pre">scoring</span></code> must be passed. The estimator must implement
 <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>, <code class="docutils literal notranslate"><span class="pre">set_params</span></code>, and work well with <code class="docutils literal notranslate"><span class="pre">clone</span></code>.</p>
 </dd>
-<dt><strong>param_distributions</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dt><strong>parameters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
 <dd><p class="first last">Dictionary with parameters names (string) as keys and distributions
 or lists of parameters to try. Distributions must provide a <code class="docutils literal notranslate"><span class="pre">rvs</span></code>
 method for sampling (such as those from scipy.stats.distributions).
 If a list is given, it is sampled uniformly.</p>
 </dd>
-<dt><strong>n_initial_parameters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default=10</span></dt>
-<dd><p class="first">Number of parameter settings that are sampled.
-This trades off runtime vs quality of the solution.</p>
-<p class="last">Alternatively, you can set this to <code class="docutils literal notranslate"><span class="pre">&quot;grid&quot;</span></code> to do a full grid search.</p>
+<dt><strong>max_iter</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The maximum number of partial_fit calls to any one model. This should
+be the number of <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> calls required for the model to
+converge. See <span class="xref std std-ref">Notes</span> for details on setting this parameter.</p>
 </dd>
-<dt><strong>decay_rate</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, default 1.0</span></dt>
-<dd><p class="first last">How quickly to decrease the number partial future fit calls.
-Higher <cite>decay_rate</cite> will result in lower training times, at the cost
-of worse models.</p>
+<dt><strong>aggressiveness</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default=3</span></dt>
+<dd><p class="first last">How aggressive to be in culling off the different estimators. Higher
+values imply higher confidence in scoring (or that
+the hyperparameters influence the <code class="docutils literal notranslate"><span class="pre">estimator.score</span></code> more
+than the data). Theory suggests <code class="docutils literal notranslate"><span class="pre">aggressiveness=3</span></code> is close to
+optimal. <code class="docutils literal notranslate"><span class="pre">aggressiveness=4</span></code> has higher confidence that is likely
+suitable for initial exploration.</p>
 </dd>
 <dt><strong>patience</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default False</span></dt>
 <dd><p class="first last">If specified, training stops when the score does not increase by
-<code class="docutils literal notranslate"><span class="pre">tol</span></code> after <code class="docutils literal notranslate"><span class="pre">patience</span></code> calls to <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>. Off by default.</p>
-</dd>
-<dt><strong>scores_per_fit</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default 1</span></dt>
-<dd><p class="first last">If <code class="docutils literal notranslate"><span class="pre">patience</span></code> is used the maximum number of <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> calls
-between <code class="docutils literal notranslate"><span class="pre">score</span></code> calls.</p>
+<code class="docutils literal notranslate"><span class="pre">tol</span></code> after <code class="docutils literal notranslate"><span class="pre">patience</span></code> calls to <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>. Off by default.
+A <code class="docutils literal notranslate"><span class="pre">patience</span></code> value is automatically selected if <code class="docutils literal notranslate"><span class="pre">patience=True</span></code> to
+work well with the Hyperband model selection algorithm.</p>
 </dd>
 <dt><strong>tol</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, default 0.001</span></dt>
 <dd><p class="first last">The required level of improvement to consider stopping training on
-that model. The most recent score must be at at most <code class="docutils literal notranslate"><span class="pre">tol</span></code> better
-than the all of the previous <code class="docutils literal notranslate"><span class="pre">patience</span></code> scores for that model.
-Increasing <code class="docutils literal notranslate"><span class="pre">tol</span></code> will tend to reduce training time, at the cost
-of worse models.</p>
-</dd>
-<dt><strong>max_iter</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default 100</span></dt>
-<dd><p class="first last">Maximum number of partial fit calls per model.</p>
+that model when <code class="docutils literal notranslate"><span class="pre">patience</span></code> is specified.  Increasing <code class="docutils literal notranslate"><span class="pre">tol</span></code> will
+tend to reduce training time at the cost of (potentially) worse
+estimators.</p>
 </dd>
 <dt><strong>test_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first">Fraction of the dataset to hold out for computing test scores.
-Defaults to the size of a single partition of the input training set</p>
+<dd><p class="first">Fraction of the dataset to hold out for computing test/validation
+scores. Defaults to the size of a single partition of
+the input training set.</p>
 <div class="last admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The training dataset should fit in memory on a single machine.
+<p class="last">The testing dataset should fit in memory on a single machine.
 Adjust the <code class="docutils literal notranslate"><span class="pre">test_size</span></code> parameter as necessary to achieve this.</p>
 </div>
 </dd>
@@ -342,20 +354,53 @@ by <cite>np.random</cite>.</p>
 <dt><strong>scoring</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, callable, list/tuple, dict or None, default: None</span></dt>
 <dd><p class="first">A single string (see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter" title="(in scikit-learn v0.21.2)"><span>The scoring parameter: defining model evaluation rules</span></a>) or a callable
 (see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring" title="(in scikit-learn v0.21.2)"><span>Defining your scoring strategy from metric functions</span></a>) to evaluate the predictions on the test set.</p>
-<p>For evaluating multiple metrics, either give a list of (unique) strings
-or a dict with names as keys and callables as values.</p>
-<p>NOTE that when using custom scorers, each scorer should return a single
-value. Metric functions returning a list/array of values can be wrapped
-into multiple scorers that return one value each.</p>
-<p>See <a class="reference external" href="https://scikit-learn.org/stable/modules/grid_search.html#multimetric-grid-search" title="(in scikit-learn v0.21.2)"><span>Specifying multiple metrics for evaluation</span></a> for an example.</p>
 <p class="last">If None, the estimator’s default scorer (if available) is used.</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>cv_results_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict of np.ndarrays</span></dt>
-<dd><p class="first">This dictionary has keys</p>
+<dt><strong>metadata and metadata_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict[str, Union(int, dict)]</span></dt>
+<dd><p class="first">These dictionaries describe the computation performed, either
+before computation happens with <code class="docutils literal notranslate"><span class="pre">metadata</span></code> or after computation
+happens with <code class="docutils literal notranslate"><span class="pre">metadata_</span></code>. These dictionaries both have keys</p>
+<ul>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">n_models</span></code>, an int representing how many models will be/is created.</p>
+</li>
+<li><dl class="first docutils">
+<dt><code class="docutils literal notranslate"><span class="pre">partial_fit_calls</span></code>, an int representing how many times</dt>
+<dd><p class="first last"><code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> will be/is called.</p>
+</dd>
+</dl>
+</li>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">brackets</span></code>, a list of the brackets that Hyperband runs. Each
+bracket has different values for training time importance and
+hyperparameter importance. In addition to <code class="docutils literal notranslate"><span class="pre">n_models</span></code> and
+<code class="docutils literal notranslate"><span class="pre">partial_fit_calls</span></code>, each element in this list has keys</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">bracket</span></code>, an int the bracket ID. Each bracket corresponds to
+a different levels of training time importance.
+For bracket 0, training time is important. For the highest
+bracket, training time is not important and models are killed
+aggressively.</li>
+<li><code class="docutils literal notranslate"><span class="pre">SuccessiveHalvingSearchCV</span> <span class="pre">params</span></code>, a dictionary used to create
+the different brackets. It does not include the <code class="docutils literal notranslate"><span class="pre">estimator</span></code> or <code class="docutils literal notranslate"><span class="pre">parameters</span></code> parameters.</li>
+<li><code class="docutils literal notranslate"><span class="pre">decisions</span></code>, the number of <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> calls Hyperband makes
+before making decisions.</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p class="last">These dictionaries are the same if <code class="docutils literal notranslate"><span class="pre">patience</span></code> is not specified. If
+<code class="docutils literal notranslate"><span class="pre">patience</span></code> is specified, it’s possible that less training is
+performed, and <code class="docutils literal notranslate"><span class="pre">metadata_</span></code> will reflect that (though <code class="docutils literal notranslate"><span class="pre">metadata</span></code>
+won’t).</p>
+</dd>
+<dt><strong>cv_results_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Dict[str, np.ndarray]</span></dt>
+<dd><p class="first">A dictionary that describes how well each model has performed.
+It contains information about every model regardless if it reached
+<code class="docutils literal notranslate"><span class="pre">max_iter</span></code>.  It has keys</p>
 <ul class="simple">
 <li><code class="docutils literal notranslate"><span class="pre">mean_partial_fit_time</span></code></li>
 <li><code class="docutils literal notranslate"><span class="pre">mean_score_time</span></code></li>
@@ -366,17 +411,15 @@ into multiple scorers that return one value each.</p>
 <li><code class="docutils literal notranslate"><span class="pre">model_id</span></code></li>
 <li><code class="docutils literal notranslate"><span class="pre">partial_fit_calls</span></code></li>
 <li><code class="docutils literal notranslate"><span class="pre">params</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">param_{key}</span></code>, where <code class="docutils literal notranslate"><span class="pre">key</span></code> is every key in <code class="docutils literal notranslate"><span class="pre">params</span></code>.</li>
+<li><code class="docutils literal notranslate"><span class="pre">param_{key}</span></code>, where <code class="docutils literal notranslate"><span class="pre">{key}</span></code> is every key in <code class="docutils literal notranslate"><span class="pre">params</span></code>.</li>
+<li><code class="docutils literal notranslate"><span class="pre">bracket</span></code></li>
 </ul>
-<p class="last">The values in the <code class="docutils literal notranslate"><span class="pre">test_score</span></code> key correspond to the last score a model
+<p>The values in the <code class="docutils literal notranslate"><span class="pre">test_score</span></code> key correspond to the last score a model
 received on the hold out dataset. The key <code class="docutils literal notranslate"><span class="pre">model_id</span></code> corresponds with
-<code class="docutils literal notranslate"><span class="pre">history_</span></code>. This dictionary can be imported into Pandas.</p>
-</dd>
-<dt><strong>model_history_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict of lists of dict</span></dt>
-<dd><p class="first">A dictionary of each models history. This is a reorganization of
-<code class="docutils literal notranslate"><span class="pre">history_</span></code>: the same information is present but organized per model.</p>
-<p class="last">This data has the structure  <code class="docutils literal notranslate"><span class="pre">{model_id:</span> <span class="pre">hist}</span></code> where <code class="docutils literal notranslate"><span class="pre">hist</span></code> is a
-subset of <code class="docutils literal notranslate"><span class="pre">history_</span></code> and <code class="docutils literal notranslate"><span class="pre">model_id</span></code> are model identifiers.</p>
+<code class="docutils literal notranslate"><span class="pre">history_</span></code>. This dictionary can be imported into a Pandas DataFrame.</p>
+<p class="last">In the <code class="docutils literal notranslate"><span class="pre">model_id</span></code>, the bracket ID prefix corresponds to the bracket
+in <code class="docutils literal notranslate"><span class="pre">metadata</span></code>. Bracket 0 doesn’t adapt to previous training at all;
+higher values correspond to more adaptation.</p>
 </dd>
 <dt><strong>history_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of dicts</span></dt>
 <dd><p class="first">Information about each model after each <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> call. Each dict
@@ -393,9 +436,16 @@ the keys</p>
 <p class="last">The key <code class="docutils literal notranslate"><span class="pre">model_id</span></code> corresponds to the <code class="docutils literal notranslate"><span class="pre">model_id</span></code> in <code class="docutils literal notranslate"><span class="pre">cv_results_</span></code>.
 This list of dicts can be imported into Pandas.</p>
 </dd>
+<dt><strong>model_history_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict of lists of dict</span></dt>
+<dd><p class="first">A dictionary of each models history. This is a reorganization of
+<code class="docutils literal notranslate"><span class="pre">history_</span></code>: the same information is present but organized per model.</p>
+<p class="last">This data has the structure  <code class="docutils literal notranslate"><span class="pre">{model_id:</span> <span class="pre">[h1,</span> <span class="pre">h2,</span> <span class="pre">h3,</span> <span class="pre">...]}</span></code> where
+<code class="docutils literal notranslate"><span class="pre">h1</span></code>, <code class="docutils literal notranslate"><span class="pre">h2</span></code> and <code class="docutils literal notranslate"><span class="pre">h3</span></code> are elements of <code class="docutils literal notranslate"><span class="pre">history_</span></code>
+and <code class="docutils literal notranslate"><span class="pre">model_id</span></code> is the model ID as in <code class="docutils literal notranslate"><span class="pre">cv_results_</span></code>.</p>
+</dd>
 <dt><strong>best_estimator_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">BaseEstimator</span></dt>
-<dd><p class="first last">The model with the highest validation score among all the models
-retained by the “inverse decay” algorithm.</p>
+<dd><p class="first last">The model with the highest validation score as selected by
+the Hyperband model selection algorithm.</p>
 </dd>
 <dt><strong>best_score_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
 <dd><p class="first last">Score achieved by <code class="docutils literal notranslate"><span class="pre">best_estimator_</span></code> on the vaidation set after the
@@ -412,61 +462,65 @@ the highest score.</p>
 <dd><p class="first last">The function used to score models, which has a call signature of
 <code class="docutils literal notranslate"><span class="pre">scorer_(estimator,</span> <span class="pre">X,</span> <span class="pre">y)</span></code>.</p>
 </dd>
-<dt><strong>n_splits_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">Number of cross validation splits.</p>
-</dd>
-<dt><strong>multimetric_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">Whether this cross validation search uses multiple metrics.</p>
-</dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Notes</p>
+<p>To set <code class="docutils literal notranslate"><span class="pre">max_iter</span></code> and the chunk size for <code class="docutils literal notranslate"><span class="pre">X</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code>, it is required
+to estimate</p>
+<ul class="simple">
+<li>the number of examples at least one model will see
+(<code class="docutils literal notranslate"><span class="pre">n_examples</span></code>). If 10 passes through the data are needed for
+the longest trained model, <code class="docutils literal notranslate"><span class="pre">n_examples</span> <span class="pre">=</span> <span class="pre">10</span> <span class="pre">*</span> <span class="pre">len(X)</span></code>.</li>
+<li>how many hyper-parameter combinations to sample (<code class="docutils literal notranslate"><span class="pre">n_params</span></code>)</li>
+</ul>
+<p>These can be rough guesses. To determine the chunk size and <code class="docutils literal notranslate"><span class="pre">max_iter</span></code>,</p>
+<ol class="arabic simple">
+<li>Let the chunks size be <code class="docutils literal notranslate"><span class="pre">chunk_size</span> <span class="pre">=</span> <span class="pre">n_examples</span> <span class="pre">/</span> <span class="pre">n_params</span></code></li>
+<li>Let <code class="docutils literal notranslate"><span class="pre">max_iter</span> <span class="pre">=</span> <span class="pre">n_params</span></code></li>
+</ol>
+<p>Then, every estimator sees no
+more than <code class="docutils literal notranslate"><span class="pre">max_iter</span> <span class="pre">*</span> <span class="pre">chunk_size</span> <span class="pre">=</span> <span class="pre">n_examples</span></code> examples.
+Hyperband will actually sample some more hyper-parameter combinations than
+<code class="docutils literal notranslate"><span class="pre">n_examples</span></code> (which is why rough guesses are adequate). For example,
+let’s say</p>
+<ul class="simple">
+<li>about 200 or 300 hyper-parameters need to be tested to effectively
+search the possible hyper-parameters</li>
+<li>models need more than <code class="docutils literal notranslate"><span class="pre">50</span> <span class="pre">*</span> <span class="pre">len(X)</span></code> examples but less than
+<code class="docutils literal notranslate"><span class="pre">100</span> <span class="pre">*</span> <span class="pre">len(X)</span></code> examples.</li>
+</ul>
+<p>Let’s decide to provide <code class="docutils literal notranslate"><span class="pre">81</span> <span class="pre">*</span> <span class="pre">len(X)</span></code> examples and to sample 243
+parameters. Then each chunk will be 1/3rd the dataset and <code class="docutils literal notranslate"><span class="pre">max_iter=243</span></code>.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="r6ef2b88ca647-1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[R6ef2b88ca647-1]</a></td><td>“Hyperband: A novel bandit-based approach to hyperparameter
+optimization”, 2016 by L. Li, K. Jamieson, G. DeSalvo, A.
+Rostamizadeh, and A. Talwalkar.  <a class="reference external" href="https://arxiv.org/abs/1603.06560">https://arxiv.org/abs/1603.06560</a></td></tr>
+</tbody>
+</table>
 <p class="rubric">Examples</p>
-<p>Connect to the client and create the data</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dask.distributed</span> <span class="k">import</span> <span class="n">Client</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dask_ml.model_selection</span> <span class="k">import</span> <span class="n">HyperbandSearchCV</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dask_ml.datasets</span> <span class="k">import</span> <span class="n">make_classification</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_classification</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">5000000</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-<span class="gp">... </span>                           <span class="n">chunks</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="k">import</span> <span class="n">SGDClassifier</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_classification</span><span class="p">(</span><span class="n">chunks</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">est</span> <span class="o">=</span> <span class="n">SGDClassifier</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">param_dist</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>              <span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;hinge&#39;</span><span class="p">,</span> <span class="s1">&#39;log&#39;</span><span class="p">,</span> <span class="s1">&#39;modified_huber&#39;</span><span class="p">,</span> <span class="s1">&#39;squared_hinge&#39;</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>              <span class="s1">&#39;average&#39;</span><span class="p">:</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]}</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">search</span> <span class="o">=</span> <span class="n">HyperbandSearchCV</span><span class="p">(</span><span class="n">est</span><span class="p">,</span> <span class="n">param_dist</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span>
+<span class="go">{&#39;loss&#39;: &#39;log&#39;, &#39;average&#39;: False, &#39;alpha&#39;: 0.0080502}</span>
 </pre></div>
 </div>
-<p>Our underlying estimator is an SGDClassifier. We specify a few parameters
-common to each clone of the estimator.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="k">import</span> <span class="n">SGDClassifier</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">SGDClassifier</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">penalty</span><span class="o">=</span><span class="s1">&#39;elasticnet&#39;</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>The distribution of parameters we’ll sample from.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
-<span class="gp">... </span>          <span class="s1">&#39;l1_ratio&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
-<span class="gp">... </span>          <span class="s1">&#39;average&#39;</span><span class="p">:</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]}</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">search</span> <span class="o">=</span> <span class="n">IncrementalSearchCV</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-<span class="go">IncrementalSearchCV(...)</span>
-</pre></div>
-</div>
-<p>Alternatively you can provide keywords to start with more hyper-parameters,
-but stop those that don’t seem to improve with more data.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">search</span> <span class="o">=</span> <span class="n">IncrementalSearchCV</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-<span class="gp">... </span>                             <span class="n">n_initial_parameters</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
-<span class="gp">... </span>                             <span class="n">patience</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Often, additional training leads to little or no gain in scores at the
-end of training. In these cases, stopping training is beneficial because
-there’s no gain from more training and less computation is required. Two
-parameters control detecting “little or no gain”: <code class="docutils literal notranslate"><span class="pre">patience</span></code> and <code class="docutils literal notranslate"><span class="pre">tol</span></code>.
-Training continues if at least one score is more than <code class="docutils literal notranslate"><span class="pre">tol</span></code> above
-the other scores in the most recent <code class="docutils literal notranslate"><span class="pre">patience</span></code> calls to
-<code class="docutils literal notranslate"><span class="pre">model.partial_fit</span></code>.</p>
-<p>For example, setting <code class="docutils literal notranslate"><span class="pre">tol=0</span></code> and <code class="docutils literal notranslate"><span class="pre">patience=2</span></code> means training will stop
-after two consecutive calls to <code class="docutils literal notranslate"><span class="pre">model.partial_fit</span></code> without improvement,
-or when <code class="docutils literal notranslate"><span class="pre">max_iter</span></code> total calls to <code class="docutils literal notranslate"><span class="pre">model.parital_fit</span></code> are reached.</p>
 <p class="rubric">Methods</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -477,28 +531,28 @@ or when <code class="docutils literal notranslate"><span class="pre">max_iter</s
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">decision_function</span></code>(self,&nbsp;X)</td>
 <td></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.model_selection.IncrementalSearchCV.fit" title="dask_ml.model_selection.IncrementalSearchCV.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.model_selection.HyperbandSearchCV.fit" title="dask_ml.model_selection.HyperbandSearchCV.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
 <td>Find the best parameters for a particular model.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.IncrementalSearchCV.get_params" title="dask_ml.model_selection.IncrementalSearchCV.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.HyperbandSearchCV.get_params" title="dask_ml.model_selection.HyperbandSearchCV.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
 <tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code>(self,&nbsp;Xt)</td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.IncrementalSearchCV.predict" title="dask_ml.model_selection.IncrementalSearchCV.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(self,&nbsp;X)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.HyperbandSearchCV.predict" title="dask_ml.model_selection.HyperbandSearchCV.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(self,&nbsp;X)</td>
 <td>Predict for X.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.model_selection.IncrementalSearchCV.predict_log_proba" title="dask_ml.model_selection.IncrementalSearchCV.predict_log_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_log_proba</span></code></a>(self,&nbsp;X)</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.model_selection.HyperbandSearchCV.predict_log_proba" title="dask_ml.model_selection.HyperbandSearchCV.predict_log_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_log_proba</span></code></a>(self,&nbsp;X)</td>
 <td>Log of proability estimates.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.IncrementalSearchCV.predict_proba" title="dask_ml.model_selection.IncrementalSearchCV.predict_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_proba</span></code></a>(self,&nbsp;X)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.HyperbandSearchCV.predict_proba" title="dask_ml.model_selection.HyperbandSearchCV.predict_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_proba</span></code></a>(self,&nbsp;X)</td>
 <td>Probability estimates.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.model_selection.IncrementalSearchCV.score" title="dask_ml.model_selection.IncrementalSearchCV.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.model_selection.HyperbandSearchCV.score" title="dask_ml.model_selection.HyperbandSearchCV.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
 <td>Returns the score on the given data.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.IncrementalSearchCV.set_params" title="dask_ml.model_selection.IncrementalSearchCV.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.HyperbandSearchCV.set_params" title="dask_ml.model_selection.HyperbandSearchCV.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
 <tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(self,&nbsp;X)</td>
@@ -518,14 +572,14 @@ or when <code class="docutils literal notranslate"><span class="pre">max_iter</s
 </tbody>
 </table>
 <dl class="method">
-<dt id="dask_ml.model_selection.IncrementalSearchCV.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>estimator</em>, <em>param_distribution</em>, <em>n_initial_parameters=10</em>, <em>decay_rate=1.0</em>, <em>test_size=None</em>, <em>patience=False</em>, <em>tol=0.001</em>, <em>scores_per_fit=1</em>, <em>max_iter=100</em>, <em>random_state=None</em>, <em>scoring=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.model_selection.HyperbandSearchCV.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>estimator</em>, <em>parameters</em>, <em>max_iter=81</em>, <em>aggressiveness=3</em>, <em>patience=False</em>, <em>tol=0.001</em>, <em>test_size=None</em>, <em>random_state=None</em>, <em>scoring=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.HyperbandSearchCV.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.model_selection.IncrementalSearchCV.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>**fit_params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV.fit" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.model_selection.HyperbandSearchCV.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>**fit_params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.HyperbandSearchCV.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the best parameters for a particular model.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -545,8 +599,8 @@ or when <code class="docutils literal notranslate"><span class="pre">max_iter</s
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.model_selection.IncrementalSearchCV.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV.get_params" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.model_selection.HyperbandSearchCV.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.HyperbandSearchCV.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get parameters for this estimator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -572,8 +626,8 @@ contained subobjects that are estimators.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.model_selection.IncrementalSearchCV.predict">
-<code class="descname">predict</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV.predict" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.model_selection.HyperbandSearchCV.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.HyperbandSearchCV.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict for X.</p>
 <p>For dask inputs, a dask array or dataframe is returned. For other
 inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
@@ -599,8 +653,8 @@ regular return value is returned.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.model_selection.IncrementalSearchCV.predict_log_proba">
-<code class="descname">predict_log_proba</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV.predict_log_proba" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.model_selection.HyperbandSearchCV.predict_log_proba">
+<code class="descname">predict_log_proba</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.HyperbandSearchCV.predict_log_proba" title="Permalink to this definition">¶</a></dt>
 <dd><p>Log of proability estimates.</p>
 <p>For dask inputs, a dask array or dataframe is returned. For other
 inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
@@ -628,8 +682,8 @@ method, then an <code class="docutils literal notranslate"><span class="pre">Att
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.model_selection.IncrementalSearchCV.predict_proba">
-<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV.predict_proba" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.model_selection.HyperbandSearchCV.predict_proba">
+<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.HyperbandSearchCV.predict_proba" title="Permalink to this definition">¶</a></dt>
 <dd><p>Probability estimates.</p>
 <p>For dask inputs, a dask array or dataframe is returned. For other
 inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
@@ -657,8 +711,8 @@ method, then an <code class="docutils literal notranslate"><span class="pre">Att
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.model_selection.IncrementalSearchCV.score">
-<code class="descname">score</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV.score" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.model_selection.HyperbandSearchCV.score">
+<code class="descname">score</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.HyperbandSearchCV.score" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the score on the given data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -688,8 +742,8 @@ None for unsupervised learning.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.model_selection.IncrementalSearchCV.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV.set_params" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.model_selection.HyperbandSearchCV.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.HyperbandSearchCV.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
 (such as pipelines). The latter have parameters of the form
@@ -721,10 +775,10 @@ component of a nested object.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="dask_ml.model_selection.HyperbandSearchCV.html" class="btn btn-neutral float-right" title="dask_ml.model_selection.HyperbandSearchCV" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="dask_ml.model_selection.SuccessiveHalvingSearchCV.html" class="btn btn-neutral float-right" title="dask_ml.model_selection.SuccessiveHalvingSearchCV" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="dask_ml.model_selection.RandomizedSearchCV.html" class="btn btn-neutral float-left" title="dask_ml.model_selection.RandomizedSearchCV" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="dask_ml.model_selection.IncrementalSearchCV.html" class="btn btn-neutral float-left" title="dask_ml.model_selection.IncrementalSearchCV" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

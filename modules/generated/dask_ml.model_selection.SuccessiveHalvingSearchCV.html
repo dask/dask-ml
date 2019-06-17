@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.model_selection.IncrementalSearchCV &mdash; dask-ml 0.13.1 documentation</title>
+  <title>dask_ml.model_selection.SuccessiveHalvingSearchCV &mdash; dask-ml 0.13.1 documentation</title>
   
 
   
@@ -40,8 +40,8 @@
   <link rel="stylesheet" href="../../_static/css/nbsphinx.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="dask_ml.model_selection.HyperbandSearchCV" href="dask_ml.model_selection.HyperbandSearchCV.html" />
-    <link rel="prev" title="dask_ml.model_selection.RandomizedSearchCV" href="dask_ml.model_selection.RandomizedSearchCV.html" /> 
+    <link rel="next" title="dask_ml.linear_model.LinearRegression" href="dask_ml.linear_model.LinearRegression.html" />
+    <link rel="prev" title="dask_ml.model_selection.HyperbandSearchCV" href="dask_ml.model_selection.HyperbandSearchCV.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -173,9 +173,9 @@
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.KFold.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.KFold</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.GridSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.GridSearchCV</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.RandomizedSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.RandomizedSearchCV</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.IncrementalSearchCV</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.IncrementalSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.IncrementalSearchCV</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.HyperbandSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.HyperbandSearchCV</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.SuccessiveHalvingSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.SuccessiveHalvingSearchCV</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.SuccessiveHalvingSearchCV</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.linear_model"><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>: Generalized Linear Models</a></li>
@@ -244,13 +244,13 @@
         
           <li><a href="../api.html">API Reference</a> &raquo;</li>
         
-      <li><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.IncrementalSearchCV</li>
+      <li><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.SuccessiveHalvingSearchCV</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../../_sources/modules/generated/dask_ml.model_selection.IncrementalSearchCV.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -263,21 +263,21 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="dask-ml-model-selection-incrementalsearchcv">
-<h1><a class="reference internal" href="../api.html#module-dask_ml.model_selection" title="dask_ml.model_selection"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code></a>.IncrementalSearchCV<a class="headerlink" href="#dask-ml-model-selection-incrementalsearchcv" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="dask-ml-model-selection-successivehalvingsearchcv">
+<h1><a class="reference internal" href="../api.html#module-dask_ml.model_selection" title="dask_ml.model_selection"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code></a>.SuccessiveHalvingSearchCV<a class="headerlink" href="#dask-ml-model-selection-successivehalvingsearchcv" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="dask_ml.model_selection.IncrementalSearchCV">
-<em class="property">class </em><code class="descclassname">dask_ml.model_selection.</code><code class="descname">IncrementalSearchCV</code><span class="sig-paren">(</span><em>estimator</em>, <em>param_distribution</em>, <em>n_initial_parameters=10</em>, <em>decay_rate=1.0</em>, <em>test_size=None</em>, <em>patience=False</em>, <em>tol=0.001</em>, <em>scores_per_fit=1</em>, <em>max_iter=100</em>, <em>random_state=None</em>, <em>scoring=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV" title="Permalink to this definition">¶</a></dt>
-<dd><p>Incrementally search for hyper-parameters on models that support partial_fit</p>
-<p>This incremental hyper-parameter optimization class starts training the
-model on many hyper-parameters on a small amount of data, and then only
-continues training those models that seem to be performing well.</p>
-<p>The number of actively trained hyper-parameter combinations decays
-with an inverse decay given by the initial number of parameters and the
-decay rate:</p>
-<blockquote>
-<div>n_models = n_initial_parameters * (n_batches ** -decay_rate)</div></blockquote>
-<p>See the <a class="reference internal" href="../../hyper-parameter-search.html#hyperparameter-incremental"><span class="std std-ref">User Guide</span></a> for more.</p>
+<dt id="dask_ml.model_selection.SuccessiveHalvingSearchCV">
+<em class="property">class </em><code class="descclassname">dask_ml.model_selection.</code><code class="descname">SuccessiveHalvingSearchCV</code><span class="sig-paren">(</span><em>estimator</em>, <em>parameters</em>, <em>n_initial_parameters=10</em>, <em>n_initial_iter=None</em>, <em>max_iter=None</em>, <em>aggressiveness=3</em>, <em>test_size=None</em>, <em>patience=False</em>, <em>tol=0.001</em>, <em>random_state=None</em>, <em>scoring=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.SuccessiveHalvingSearchCV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the successive halving algorithm <a class="reference internal" href="#r424ea1a907b1-1" id="id1">[R424ea1a907b1-1]</a>.</p>
+<p>This algorithm trains estimators for a certain number <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>
+calls to <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>, then kills the worst performing half.
+It trains the surviving estimators for twice as long, and repeats this
+until one estimator survives.</p>
+<p>The value of <span class="math notranslate nohighlight">\(1/2\)</span> above is used for a clear explanation. This class
+defaults to killing the worst performing <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">-</span> <span class="pre">1</span> <span class="pre">//</span> <span class="pre">aggressiveness</span></code>
+fraction of models, and trains estimators for <code class="docutils literal notranslate"><span class="pre">aggressiveness</span></code> times
+longer, and waits until the number of models left is less than
+<code class="docutils literal notranslate"><span class="pre">aggressiveness</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -286,43 +286,38 @@ decay rate:</p>
 <dt><strong>estimator</strong> <span class="classifier-delimiter">:</span> <span class="classifier">estimator object.</span></dt>
 <dd><p class="first last">A object of that type is instantiated for each initial hyperparameter
 combination. This is assumed to implement the scikit-learn estimator
-interface. Either estimator needs to provide a <cite>score`</cite> function,
+interface. Either estimator needs to provide a <code class="docutils literal notranslate"><span class="pre">score</span></code> function,
 or <code class="docutils literal notranslate"><span class="pre">scoring</span></code> must be passed. The estimator must implement
 <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>, <code class="docutils literal notranslate"><span class="pre">set_params</span></code>, and work well with <code class="docutils literal notranslate"><span class="pre">clone</span></code>.</p>
 </dd>
-<dt><strong>param_distributions</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dt><strong>parameters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
 <dd><p class="first last">Dictionary with parameters names (string) as keys and distributions
 or lists of parameters to try. Distributions must provide a <code class="docutils literal notranslate"><span class="pre">rvs</span></code>
 method for sampling (such as those from scipy.stats.distributions).
 If a list is given, it is sampled uniformly.</p>
 </dd>
+<dt><strong>aggressiveness</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, default=3</span></dt>
+<dd><p class="first last">How aggressive to be in culling off the different estimators. Higher
+values imply higher confidence in scoring (or that
+the hyperparameters influence the <code class="docutils literal notranslate"><span class="pre">estimator.score</span></code> more
+than the data).</p>
+</dd>
 <dt><strong>n_initial_parameters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default=10</span></dt>
-<dd><p class="first">Number of parameter settings that are sampled.
+<dd><p class="first last">Number of parameter settings that are sampled.
 This trades off runtime vs quality of the solution.</p>
-<p class="last">Alternatively, you can set this to <code class="docutils literal notranslate"><span class="pre">&quot;grid&quot;</span></code> to do a full grid search.</p>
 </dd>
-<dt><strong>decay_rate</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, default 1.0</span></dt>
-<dd><p class="first last">How quickly to decrease the number partial future fit calls.
-Higher <cite>decay_rate</cite> will result in lower training times, at the cost
-of worse models.</p>
+<dt><strong>n_initial_iter</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">Number of times to call partial fit initially before scoring.
+Estimators are trained for <code class="docutils literal notranslate"><span class="pre">n_initial_iter</span></code> calls to <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>
+initially. Higher values of <code class="docutils literal notranslate"><span class="pre">n_initial_iter</span></code> train the estimators
+longer before making a decision. Metadata on the number of calls
+to <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> is in <code class="docutils literal notranslate"><span class="pre">metadata</span></code> (and <code class="docutils literal notranslate"><span class="pre">metadata_</span></code>).</p>
 </dd>
-<dt><strong>patience</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default False</span></dt>
-<dd><p class="first last">If specified, training stops when the score does not increase by
-<code class="docutils literal notranslate"><span class="pre">tol</span></code> after <code class="docutils literal notranslate"><span class="pre">patience</span></code> calls to <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>. Off by default.</p>
-</dd>
-<dt><strong>scores_per_fit</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default 1</span></dt>
-<dd><p class="first last">If <code class="docutils literal notranslate"><span class="pre">patience</span></code> is used the maximum number of <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> calls
-between <code class="docutils literal notranslate"><span class="pre">score</span></code> calls.</p>
-</dd>
-<dt><strong>tol</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, default 0.001</span></dt>
-<dd><p class="first last">The required level of improvement to consider stopping training on
-that model. The most recent score must be at at most <code class="docutils literal notranslate"><span class="pre">tol</span></code> better
-than the all of the previous <code class="docutils literal notranslate"><span class="pre">patience</span></code> scores for that model.
-Increasing <code class="docutils literal notranslate"><span class="pre">tol</span></code> will tend to reduce training time, at the cost
-of worse models.</p>
-</dd>
-<dt><strong>max_iter</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default 100</span></dt>
-<dd><p class="first last">Maximum number of partial fit calls per model.</p>
+<dt><strong>max_iter</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default None</span></dt>
+<dd><p class="first last">Maximum number of partial fit calls per model. If None, will allow
+SuccessiveHalvingSearchCV to run until (about) one model survives.
+If specified, models will stop being trained when <code class="docutils literal notranslate"><span class="pre">max_iter</span></code>
+calls to <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> are reached.</p>
 </dd>
 <dt><strong>test_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
 <dd><p class="first">Fraction of the dataset to hold out for computing test scores.
@@ -333,22 +328,27 @@ Defaults to the size of a single partition of the input training set</p>
 Adjust the <code class="docutils literal notranslate"><span class="pre">test_size</span></code> parameter as necessary to achieve this.</p>
 </div>
 </dd>
+<dt><strong>patience</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default False</span></dt>
+<dd><p class="first last">If specified, training stops when the score does not increase by
+<code class="docutils literal notranslate"><span class="pre">tol</span></code> after <code class="docutils literal notranslate"><span class="pre">patience</span></code> calls to <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>. Off by default.</p>
+</dd>
+<dt><strong>tol</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, default 0.001</span></dt>
+<dd><p class="first last">The required level of improvement to consider stopping training on
+that model. The most recent score must be at at most <code class="docutils literal notranslate"><span class="pre">tol</span></code> better
+than the all of the previous <code class="docutils literal notranslate"><span class="pre">patience</span></code> scores for that model.
+Increasing <code class="docutils literal notranslate"><span class="pre">tol</span></code> will tend to reduce training time, at the cost
+of worse models.</p>
+</dd>
+<dt><strong>scoring</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, callable, None. default: None</span></dt>
+<dd><p class="first">A single string (see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter" title="(in scikit-learn v0.21.2)"><span>The scoring parameter: defining model evaluation rules</span></a>) or a callable
+(see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring" title="(in scikit-learn v0.21.2)"><span>Defining your scoring strategy from metric functions</span></a>) to evaluate the predictions on the test set.</p>
+<p class="last">If None, the estimator’s default scorer (if available) is used.</p>
+</dd>
 <dt><strong>random_state</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, RandomState instance or None, optional, default: None</span></dt>
 <dd><p class="first last">If int, random_state is the seed used by the random number generator;
 If RandomState instance, random_state is the random number generator;
 If None, the random number generator is the RandomState instance used
 by <cite>np.random</cite>.</p>
-</dd>
-<dt><strong>scoring</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, callable, list/tuple, dict or None, default: None</span></dt>
-<dd><p class="first">A single string (see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter" title="(in scikit-learn v0.21.2)"><span>The scoring parameter: defining model evaluation rules</span></a>) or a callable
-(see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring" title="(in scikit-learn v0.21.2)"><span>Defining your scoring strategy from metric functions</span></a>) to evaluate the predictions on the test set.</p>
-<p>For evaluating multiple metrics, either give a list of (unique) strings
-or a dict with names as keys and callables as values.</p>
-<p>NOTE that when using custom scorers, each scorer should return a single
-value. Metric functions returning a list/array of values can be wrapped
-into multiple scorers that return one value each.</p>
-<p>See <a class="reference external" href="https://scikit-learn.org/stable/modules/grid_search.html#multimetric-grid-search" title="(in scikit-learn v0.21.2)"><span>Specifying multiple metrics for evaluation</span></a> for an example.</p>
-<p class="last">If None, the estimator’s default scorer (if available) is used.</p>
 </dd>
 </dl>
 </td>
@@ -372,6 +372,20 @@ into multiple scorers that return one value each.</p>
 received on the hold out dataset. The key <code class="docutils literal notranslate"><span class="pre">model_id</span></code> corresponds with
 <code class="docutils literal notranslate"><span class="pre">history_</span></code>. This dictionary can be imported into Pandas.</p>
 </dd>
+<dt><strong>metadata and metadata_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict[key, int]</span></dt>
+<dd><p class="first">Dictionary describing the computation. <code class="docutils literal notranslate"><span class="pre">metadata</span></code> describes the
+computation that will be performed, and <code class="docutils literal notranslate"><span class="pre">metadata_</span></code> describes the
+computation that has been performed. Both dictionaries have keys</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">n_models</span></code>: the number of models for this run of successive halving</li>
+<li><code class="docutils literal notranslate"><span class="pre">max_iter</span></code>: the maximum number of times <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> is called.
+At least one model will have this many <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> calls.</li>
+<li><code class="docutils literal notranslate"><span class="pre">partial_fit_calls</span></code>: the total number of <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> calls.
+All models together will receive this many <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> calls.</li>
+</ul>
+<p class="last">When <code class="docutils literal notranslate"><span class="pre">patience</span></code> is specified, the reduced computation will be
+reflected in <code class="docutils literal notranslate"><span class="pre">metadata_</span></code> but not <code class="docutils literal notranslate"><span class="pre">metadata</span></code>.</p>
+</dd>
 <dt><strong>model_history_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict of lists of dict</span></dt>
 <dd><p class="first">A dictionary of each models history. This is a reorganization of
 <code class="docutils literal notranslate"><span class="pre">history_</span></code>: the same information is present but organized per model.</p>
@@ -388,7 +402,6 @@ the keys</p>
 <li><code class="docutils literal notranslate"><span class="pre">model_id</span></code></li>
 <li><code class="docutils literal notranslate"><span class="pre">params</span></code></li>
 <li><code class="docutils literal notranslate"><span class="pre">partial_fit_calls</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">elapsed_wall_time</span></code></li>
 </ul>
 <p class="last">The key <code class="docutils literal notranslate"><span class="pre">model_id</span></code> corresponds to the <code class="docutils literal notranslate"><span class="pre">model_id</span></code> in <code class="docutils literal notranslate"><span class="pre">cv_results_</span></code>.
 This list of dicts can be imported into Pandas.</p>
@@ -423,50 +436,15 @@ the highest score.</p>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Examples</p>
-<p>Connect to the client and create the data</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dask.distributed</span> <span class="k">import</span> <span class="n">Client</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dask_ml.datasets</span> <span class="k">import</span> <span class="n">make_classification</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_classification</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">5000000</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-<span class="gp">... </span>                           <span class="n">chunks</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Our underlying estimator is an SGDClassifier. We specify a few parameters
-common to each clone of the estimator.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="k">import</span> <span class="n">SGDClassifier</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">SGDClassifier</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">penalty</span><span class="o">=</span><span class="s1">&#39;elasticnet&#39;</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>The distribution of parameters we’ll sample from.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
-<span class="gp">... </span>          <span class="s1">&#39;l1_ratio&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
-<span class="gp">... </span>          <span class="s1">&#39;average&#39;</span><span class="p">:</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]}</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">search</span> <span class="o">=</span> <span class="n">IncrementalSearchCV</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-<span class="go">IncrementalSearchCV(...)</span>
-</pre></div>
-</div>
-<p>Alternatively you can provide keywords to start with more hyper-parameters,
-but stop those that don’t seem to improve with more data.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">search</span> <span class="o">=</span> <span class="n">IncrementalSearchCV</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-<span class="gp">... </span>                             <span class="n">n_initial_parameters</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
-<span class="gp">... </span>                             <span class="n">patience</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Often, additional training leads to little or no gain in scores at the
-end of training. In these cases, stopping training is beneficial because
-there’s no gain from more training and less computation is required. Two
-parameters control detecting “little or no gain”: <code class="docutils literal notranslate"><span class="pre">patience</span></code> and <code class="docutils literal notranslate"><span class="pre">tol</span></code>.
-Training continues if at least one score is more than <code class="docutils literal notranslate"><span class="pre">tol</span></code> above
-the other scores in the most recent <code class="docutils literal notranslate"><span class="pre">patience</span></code> calls to
-<code class="docutils literal notranslate"><span class="pre">model.partial_fit</span></code>.</p>
-<p>For example, setting <code class="docutils literal notranslate"><span class="pre">tol=0</span></code> and <code class="docutils literal notranslate"><span class="pre">patience=2</span></code> means training will stop
-after two consecutive calls to <code class="docutils literal notranslate"><span class="pre">model.partial_fit</span></code> without improvement,
-or when <code class="docutils literal notranslate"><span class="pre">max_iter</span></code> total calls to <code class="docutils literal notranslate"><span class="pre">model.parital_fit</span></code> are reached.</p>
+<p class="rubric">References</p>
+<table class="docutils citation" frame="void" id="r424ea1a907b1-1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[R424ea1a907b1-1]</a></td><td>“Non-stochastic best arm identification and hyperparameter
+optimization” by Jamieson, Kevin and Talwalkar, Ameet. 2016.
+<a class="reference external" href="https://arxiv.org/abs/1502.07943">https://arxiv.org/abs/1502.07943</a></td></tr>
+</tbody>
+</table>
 <p class="rubric">Methods</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -477,28 +455,28 @@ or when <code class="docutils literal notranslate"><span class="pre">max_iter</s
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">decision_function</span></code>(self,&nbsp;X)</td>
 <td></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.model_selection.IncrementalSearchCV.fit" title="dask_ml.model_selection.IncrementalSearchCV.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.model_selection.SuccessiveHalvingSearchCV.fit" title="dask_ml.model_selection.SuccessiveHalvingSearchCV.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
 <td>Find the best parameters for a particular model.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.IncrementalSearchCV.get_params" title="dask_ml.model_selection.IncrementalSearchCV.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.SuccessiveHalvingSearchCV.get_params" title="dask_ml.model_selection.SuccessiveHalvingSearchCV.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
 <tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code>(self,&nbsp;Xt)</td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.IncrementalSearchCV.predict" title="dask_ml.model_selection.IncrementalSearchCV.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(self,&nbsp;X)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.SuccessiveHalvingSearchCV.predict" title="dask_ml.model_selection.SuccessiveHalvingSearchCV.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(self,&nbsp;X)</td>
 <td>Predict for X.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.model_selection.IncrementalSearchCV.predict_log_proba" title="dask_ml.model_selection.IncrementalSearchCV.predict_log_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_log_proba</span></code></a>(self,&nbsp;X)</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.model_selection.SuccessiveHalvingSearchCV.predict_log_proba" title="dask_ml.model_selection.SuccessiveHalvingSearchCV.predict_log_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_log_proba</span></code></a>(self,&nbsp;X)</td>
 <td>Log of proability estimates.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.IncrementalSearchCV.predict_proba" title="dask_ml.model_selection.IncrementalSearchCV.predict_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_proba</span></code></a>(self,&nbsp;X)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.SuccessiveHalvingSearchCV.predict_proba" title="dask_ml.model_selection.SuccessiveHalvingSearchCV.predict_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_proba</span></code></a>(self,&nbsp;X)</td>
 <td>Probability estimates.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.model_selection.IncrementalSearchCV.score" title="dask_ml.model_selection.IncrementalSearchCV.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.model_selection.SuccessiveHalvingSearchCV.score" title="dask_ml.model_selection.SuccessiveHalvingSearchCV.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
 <td>Returns the score on the given data.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.IncrementalSearchCV.set_params" title="dask_ml.model_selection.IncrementalSearchCV.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.SuccessiveHalvingSearchCV.set_params" title="dask_ml.model_selection.SuccessiveHalvingSearchCV.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
 <tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(self,&nbsp;X)</td>
@@ -518,14 +496,14 @@ or when <code class="docutils literal notranslate"><span class="pre">max_iter</s
 </tbody>
 </table>
 <dl class="method">
-<dt id="dask_ml.model_selection.IncrementalSearchCV.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>estimator</em>, <em>param_distribution</em>, <em>n_initial_parameters=10</em>, <em>decay_rate=1.0</em>, <em>test_size=None</em>, <em>patience=False</em>, <em>tol=0.001</em>, <em>scores_per_fit=1</em>, <em>max_iter=100</em>, <em>random_state=None</em>, <em>scoring=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.model_selection.SuccessiveHalvingSearchCV.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>estimator</em>, <em>parameters</em>, <em>n_initial_parameters=10</em>, <em>n_initial_iter=None</em>, <em>max_iter=None</em>, <em>aggressiveness=3</em>, <em>test_size=None</em>, <em>patience=False</em>, <em>tol=0.001</em>, <em>random_state=None</em>, <em>scoring=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.SuccessiveHalvingSearchCV.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.model_selection.IncrementalSearchCV.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>**fit_params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV.fit" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.model_selection.SuccessiveHalvingSearchCV.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>**fit_params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.SuccessiveHalvingSearchCV.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the best parameters for a particular model.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -545,8 +523,8 @@ or when <code class="docutils literal notranslate"><span class="pre">max_iter</s
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.model_selection.IncrementalSearchCV.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV.get_params" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.model_selection.SuccessiveHalvingSearchCV.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.SuccessiveHalvingSearchCV.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get parameters for this estimator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -572,8 +550,8 @@ contained subobjects that are estimators.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.model_selection.IncrementalSearchCV.predict">
-<code class="descname">predict</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV.predict" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.model_selection.SuccessiveHalvingSearchCV.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.SuccessiveHalvingSearchCV.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict for X.</p>
 <p>For dask inputs, a dask array or dataframe is returned. For other
 inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
@@ -599,8 +577,8 @@ regular return value is returned.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.model_selection.IncrementalSearchCV.predict_log_proba">
-<code class="descname">predict_log_proba</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV.predict_log_proba" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.model_selection.SuccessiveHalvingSearchCV.predict_log_proba">
+<code class="descname">predict_log_proba</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.SuccessiveHalvingSearchCV.predict_log_proba" title="Permalink to this definition">¶</a></dt>
 <dd><p>Log of proability estimates.</p>
 <p>For dask inputs, a dask array or dataframe is returned. For other
 inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
@@ -628,8 +606,8 @@ method, then an <code class="docutils literal notranslate"><span class="pre">Att
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.model_selection.IncrementalSearchCV.predict_proba">
-<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV.predict_proba" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.model_selection.SuccessiveHalvingSearchCV.predict_proba">
+<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.SuccessiveHalvingSearchCV.predict_proba" title="Permalink to this definition">¶</a></dt>
 <dd><p>Probability estimates.</p>
 <p>For dask inputs, a dask array or dataframe is returned. For other
 inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
@@ -657,8 +635,8 @@ method, then an <code class="docutils literal notranslate"><span class="pre">Att
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.model_selection.IncrementalSearchCV.score">
-<code class="descname">score</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV.score" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.model_selection.SuccessiveHalvingSearchCV.score">
+<code class="descname">score</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.SuccessiveHalvingSearchCV.score" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the score on the given data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -688,8 +666,8 @@ None for unsupervised learning.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.model_selection.IncrementalSearchCV.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV.set_params" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.model_selection.SuccessiveHalvingSearchCV.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.SuccessiveHalvingSearchCV.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
 (such as pipelines). The latter have parameters of the form
@@ -721,10 +699,10 @@ component of a nested object.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="dask_ml.model_selection.HyperbandSearchCV.html" class="btn btn-neutral float-right" title="dask_ml.model_selection.HyperbandSearchCV" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="dask_ml.linear_model.LinearRegression.html" class="btn btn-neutral float-right" title="dask_ml.linear_model.LinearRegression" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="dask_ml.model_selection.RandomizedSearchCV.html" class="btn btn-neutral float-left" title="dask_ml.model_selection.RandomizedSearchCV" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="dask_ml.model_selection.HyperbandSearchCV.html" class="btn btn-neutral float-left" title="dask_ml.model_selection.HyperbandSearchCV" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
