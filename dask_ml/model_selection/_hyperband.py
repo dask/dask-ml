@@ -351,9 +351,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         SHAs = self._get_SHAs(brackets)
 
         # Which bracket to run first? Going to go with most adaptive;
-        # hopefully less adaptive can fill in for any blank spots
-        #
-        # _brackets_ids is ordered from largest to smallest
+        # that works best on one machine.
+        # (though it doesn't matter a ton; _fit prioritizes high scores
         _brackets_ids = list(reversed(sorted(SHAs)))
 
         # _fit is run in parallel because it's also a tornado coroutine

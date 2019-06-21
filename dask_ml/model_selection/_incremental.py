@@ -179,8 +179,12 @@ def _fit(
     _scores = {}
     _specs = {}
 
-    d_partial_fit = dask.delayed(_partial_fit)
-    d_score = dask.delayed(_score)
+    def d_partial_fit(*args, **kwargs):
+        return client.submit(_partial_fit, *args, **kwargs)
+
+    def d_score(*args, **kwargs):
+        return client.submit(_score, *args, **kwargs)
+
     for ident, model in models.items():
         model = d_partial_fit(model, X_future, y_future, fit_params)
         score = d_score(model, X_test, y_test, scorer)
@@ -189,11 +193,8 @@ def _fit(
         _scores[ident] = score
         _specs[ident] = spec
     _models, _scores, _specs = dask.persist(
-        _models, _scores, _specs, priority={tuple(_specs.values()): -1}
+        _models, _scores, _specs, priority={tuple(_specs.values()): -np.inf}
     )
-    _models = {k: list(v.dask.values())[0] for k, v in _models.items()}
-    _scores = {k: list(v.dask.values())[0] for k, v in _scores.items()}
-    _specs = {k: list(v.dask.values())[0] for k, v in _specs.items()}
     models.update(_models)
     scores.update(_scores)
     speculative = _specs
@@ -233,26 +234,27 @@ def _fit(
             if k:
                 k -= 1
                 model = speculative.pop(ident)
+                priority = {"priority": info[ident][-1]["score"]}
                 for i in range(k):
                     X_future, y_future = get_futures(start + i)
-                    model = d_partial_fit(model, X_future, y_future, fit_params)
-                score = d_score(model, X_test, y_test, scorer)
+                    model = d_partial_fit(
+                        model, X_future, y_future, fit_params, **priority
+                    )
+                score = d_score(model, X_test, y_test, scorer, **priority)
                 X_future, y_future = get_futures(start + k)
-                spec = d_partial_fit(model, X_future, y_future, fit_params)
+                spec = d_partial_fit(model, X_future, y_future, fit_params, **priority)
                 _models[ident] = model
                 _scores[ident] = score
                 _specs[ident] = spec
 
         _models2, _scores2, _specs2 = dask.persist(
-            _models, _scores, _specs, priority={tuple(_specs.values()): -1}
+            _models, _scores, _specs, priority={tuple(_specs.values()): -np.inf}
         )
         _models2 = {
             k: v if isinstance(v, Future) else list(v.dask.values())[0]
             for k, v in _models2.items()
         }
 
-        _scores2 = {k: list(v.dask.values())[0] for k, v in _scores2.items()}
-        _specs2 = {k: list(v.dask.values())[0] for k, v in _specs2.items()}
         models.update(_models2)
         scores.update(_scores2)
         speculative = _specs2
