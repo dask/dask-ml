@@ -5,6 +5,7 @@ from sklearn.datasets import make_classification
 from sklearn.linear_model import SGDClassifier
 
 from dask_ml.model_selection import SuccessiveHalvingSearchCV
+from dask_ml.utils import ConstantFunction
 
 
 @gen_cluster(client=True)
@@ -63,3 +64,25 @@ def test_sha_max_iter_and_metadata(n, r):
         }
 
     _test_sha_max_iter()
+
+
+@gen_cluster(client=True)
+def test_search_patience_infeasible_tol(c, s, a, b):
+    X, y = make_classification(n_samples=100, n_features=5)
+
+    params = {"value": np.random.RandomState(42).rand(1000)}
+    model = ConstantFunction()
+
+    search = SuccessiveHalvingSearchCV(
+        model,
+        params,
+        patience=2,
+        tol=np.nan,
+        n_initial_parameters=20,
+        n_initial_iter=4,
+        max_iter=1000,
+    )
+    yield search.fit(X, y, classes=[0, 1])
+
+    assert search.metadata_["partial_fit_calls"] == search.metadata["partial_fit_calls"]
+    assert search.metadata_ == search.metadata

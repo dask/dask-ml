@@ -2,6 +2,7 @@ import random
 
 import dask.array as da
 import numpy as np
+import pandas as pd
 import pytest
 import scipy
 import toolz
@@ -11,6 +12,7 @@ from sklearn.base import BaseEstimator, clone
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import ParameterGrid, ParameterSampler
+from sklearn.utils import check_random_state
 from tornado import gen
 
 from dask_ml.datasets import make_classification
@@ -645,3 +647,22 @@ def test_history(c, s, a, b):
     for model_hist in alg.model_history_.values():
         calls = [h["partial_fit_calls"] for h in model_hist]
         assert (np.diff(calls) >= 1).all() or len(calls) == 1
+
+
+@gen_cluster(client=True)
+def test_search_patience_infeasible_tol(c, s, a, b):
+    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+
+    rng = check_random_state(42)
+    params = {"value": rng.rand(1000)}
+    model = ConstantFunction()
+
+    max_iter = 10
+    score_increase = -10
+    search = IncrementalSearchCV(
+        model, params, max_iter=max_iter, patience=2, tol=score_increase, decay_rate=0
+    )
+    yield search.fit(X, y, classes=[0, 1])
+
+    hist = pd.DataFrame(search.history_)
+    assert hist.partial_fit_calls.max() == max_iter
