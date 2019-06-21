@@ -879,6 +879,11 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
     def _additional_calls(self, info):
         calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
 
+        if self.patience < 0 or self.patience == 1:
+            raise ValueError(
+                "patience={}<=1 will always detect a plateau. "
+                "this, set\n\n    patience >= 2"
+            )
         if self.patience and max(calls.values()) > 1:
             calls_so_far = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
             adapt_calls = {

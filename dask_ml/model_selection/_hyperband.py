@@ -178,7 +178,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
               bracket, training time is not important and models are killed
               aggressively.
             * ``SuccessiveHalvingSearchCV params``, a dictionary used to create
-              the different brackets. It does not include the ``estimator`` or ``parameters`` parameters.
+              the different brackets. It does not include the
+              ``estimator`` or ``parameters`` parameters.
             * ``decisions``, the number of ``partial_fit`` calls Hyperband makes
               before making decisions.
 
