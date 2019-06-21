@@ -1,4 +1,5 @@
 import math
+import warnings
 
 import dask.array as da
 import numpy as np
@@ -187,7 +188,8 @@ def test_hyperband_patience(c, s, a, b):
 
     alg = HyperbandSearchCV(model, params, max_iter=max_iter, patience=1)
     with pytest.raises(ValueError, match="always detect a plateau"):
-        with pytest.warns(UserWarning, match="The goal of `patience`"):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
             yield alg.fit(X, y)
 
 
