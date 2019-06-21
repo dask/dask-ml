@@ -968,7 +968,9 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
                     for h in records
                     if current_calls - h["partial_fit_calls"] <= self.patience
                 ]
-                if all(score <= plateau[0] + self.tol for score in plateau[1:]):
+                if (self.tol is not None) and all(
+                    score <= plateau[0] + self.tol for score in plateau[1:]
+                ):
                     out[k] = 0
                 else:
                     out[k] = steps
