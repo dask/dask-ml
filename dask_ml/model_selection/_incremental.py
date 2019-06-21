@@ -877,13 +877,20 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
             )
 
     def _additional_calls(self, info):
-        calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
-
-        if self.patience < 0 or self.patience == 1:
+        if not isinstance(self.patience, int):
+            msg = (
+                "patience must be an integer (or a subclass like boolean), "
+                "not patience={} of type {}"
+            )
+            raise ValueError(msg.format(self.patience, type(self.patience)))
+        if not isinstance(self.patience, bool) and self.patience <= 1:
             raise ValueError(
                 "patience={}<=1 will always detect a plateau. "
                 "this, set\n\n    patience >= 2"
             )
+
+        calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
+
         if self.patience and max(calls.values()) > 1:
             calls_so_far = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
             adapt_calls = {

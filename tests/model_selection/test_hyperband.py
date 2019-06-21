@@ -187,7 +187,8 @@ def test_hyperband_patience(c, s, a, b):
 
     alg = HyperbandSearchCV(model, params, max_iter=max_iter, patience=1)
     with pytest.raises(ValueError, match="always detect a plateau"):
-        yield alg.fit(X, y)
+        with pytest.warns(UserWarning, match="The goal of `patience`"):
+            yield alg.fit(X, y)
 
 
 @gen_cluster(client=True, timeout=5000)

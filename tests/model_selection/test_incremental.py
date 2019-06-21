@@ -675,7 +675,7 @@ def test_search_patience_infeasible_tol(c, s, a, b):
 
 
 @gen_cluster(client=True)
-def test_search_small_patience_raises(c, s, a, b):
+def test_search_invalid_patience(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=10)
 
     params = {"value": np.random.RandomState(42).rand(1000)}
@@ -684,3 +684,12 @@ def test_search_small_patience_raises(c, s, a, b):
     search = IncrementalSearchCV(model, params, patience=1, max_iter=10)
     with pytest.raises(ValueError, match="patience >= 2"):
         yield search.fit(X, y, classes=[0, 1])
+
+    search = IncrementalSearchCV(model, params, patience=2.0, max_iter=10)
+    with pytest.raises(ValueError, match="patience must be an integer"):
+        yield search.fit(X, y, classes=[0, 1])
+
+    # Make sure this passes
+    search = IncrementalSearchCV(model, params, patience=False, max_iter=10)
+    yield search.fit(X, y, classes=[0, 1])
+    assert search.history_
