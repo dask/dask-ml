@@ -217,70 +217,73 @@ def _fit(
 
     # async for future, result in seq:
     while True:
-        metas = yield client.gather(new_scores)
-        msg = (
-            "[CV] received scores for {} models with maximum validation "
-            "score {} after {} partial_fit calls"
-        )
-        idx = np.argmax([m["score"] for m in metas])
-        best = metas[idx]
-        _show_msg(
-            msg.format(len(metas), best["score"], best["partial_fit_calls"]),
-            verbose=verbose,
-        )
+        try:
+            metas = yield client.gather(new_scores)
+            msg = (
+                "[CV] received scores for {} models with maximum validation "
+                "score {} after {} partial_fit calls"
+            )
+            idx = np.argmax([m["score"] for m in metas])
+            best = metas[idx]
+            _show_msg(
+                msg.format(len(metas), best["score"], best["partial_fit_calls"]),
+                verbose=verbose,
+            )
 
-        for meta in metas:
-            ident = meta["model_id"]
-            meta["elapsed_wall_time"] = time() - start_time
+            for meta in metas:
+                ident = meta["model_id"]
+                meta["elapsed_wall_time"] = time() - start_time
 
-            info[ident].append(meta)
-            history.append(meta)
+                info[ident].append(meta)
+                history.append(meta)
 
-        instructions = additional_calls(info)
-        bad = set(models) - set(instructions)
+            instructions = additional_calls(info)
+            bad = set(models) - set(instructions)
 
-        # Delete the futures of bad models.  This cancels speculative tasks
-        for ident in bad:
-            del models[ident]
-            del scores[ident]
-            del info[ident]
+            # Delete the futures of bad models.  This cancels speculative tasks
+            for ident in bad:
+                del models[ident]
+                del scores[ident]
+                del info[ident]
 
-        if not any(instructions.values()):
+            if not any(instructions.values()):
+                break
+
+            _models = {}
+            _scores = {}
+            _specs = {}
+            for ident, k in instructions.items():
+                start = info[ident][-1]["partial_fit_calls"] + 1
+                if k:
+                    k -= 1
+                    model = speculative.pop(ident)
+                    for i in range(k):
+                        X_future, y_future = get_futures(start + i)
+                        model = d_partial_fit(model, X_future, y_future, fit_params)
+                    score = d_score(model, X_test, y_test, scorer)
+                    X_future, y_future = get_futures(start + k)
+                    spec = d_partial_fit(model, X_future, y_future, fit_params)
+                    _models[ident] = model
+                    _scores[ident] = score
+                    _specs[ident] = spec
+
+            _models2, _scores2, _specs2 = dask.persist(
+                _models, _scores, _specs, priority={tuple(_specs.values()): -1}
+            )
+            _models2 = {
+                k: v if isinstance(v, Future) else list(v.dask.values())[0]
+                for k, v in _models2.items()
+            }
+
+            _scores2 = {k: list(v.dask.values())[0] for k, v in _scores2.items()}
+            _specs2 = {k: list(v.dask.values())[0] for k, v in _specs2.items()}
+            models.update(_models2)
+            scores.update(_scores2)
+            speculative = _specs2
+
+            new_scores = list(_scores2.values())
+        except KeyboardInterrupt:
             break
-
-        _models = {}
-        _scores = {}
-        _specs = {}
-        for ident, k in instructions.items():
-            start = info[ident][-1]["partial_fit_calls"] + 1
-            if k:
-                k -= 1
-                model = speculative.pop(ident)
-                for i in range(k):
-                    X_future, y_future = get_futures(start + i)
-                    model = d_partial_fit(model, X_future, y_future, fit_params)
-                score = d_score(model, X_test, y_test, scorer)
-                X_future, y_future = get_futures(start + k)
-                spec = d_partial_fit(model, X_future, y_future, fit_params)
-                _models[ident] = model
-                _scores[ident] = score
-                _specs[ident] = spec
-
-        _models2, _scores2, _specs2 = dask.persist(
-            _models, _scores, _specs, priority={tuple(_specs.values()): -1}
-        )
-        _models2 = {
-            k: v if isinstance(v, Future) else list(v.dask.values())[0]
-            for k, v in _models2.items()
-        }
-
-        _scores2 = {k: list(v.dask.values())[0] for k, v in _scores2.items()}
-        _specs2 = {k: list(v.dask.values())[0] for k, v in _specs2.items()}
-        models.update(_models2)
-        scores.update(_scores2)
-        speculative = _specs2
-
-        new_scores = list(_scores2.values())
 
     models = {k: client.submit(operator.getitem, v, 0) for k, v in models.items()}
     yield wait(models)
