@@ -3,7 +3,9 @@ from __future__ import division
 import operator
 from collections import defaultdict, namedtuple
 from copy import deepcopy
+import logging
 from time import time
+from warning import warn
 
 import dask
 import dask.array as da
@@ -25,6 +27,7 @@ from ..wrappers import ParallelPostFit
 from ._split import train_test_split
 
 Results = namedtuple("Results", ["info", "models", "history", "best"])
+logger = logging.getLogger(__name__)
 
 
 def _partial_fit(model_and_meta, X, y, fit_params):
@@ -106,6 +109,12 @@ def _create_model(model, ident, **params):
         return model, {"model_id": ident, "params": params, "partial_fit_calls": 0}
 
 
+def _show_msg(msg, verbose):
+    if verbose:
+        print(msg)
+    logger.info(msg)
+
+
 @gen.coroutine
 def _fit(
     model,
@@ -118,6 +127,7 @@ def _fit(
     fit_params=None,
     scorer=None,
     random_state=None,
+    verbose=False,
 ):
     original_model = model
     fit_params = fit_params or {}
@@ -128,6 +138,7 @@ def _fit(
     models = {}
     scores = {}
 
+    _show_msg("[CV] creating {} models".format(len(params)), verbose)
     for ident, param in enumerate(params):
         model = client.submit(_create_model, original_model, ident, **param)
         info[ident] = []
@@ -152,6 +163,8 @@ def _fit(
     X_train = sorted(futures_of(X_train), key=lambda f: f.key)
     y_train = sorted(futures_of(y_train), key=lambda f: f.key)
     assert len(X_train) == len(y_train)
+    _show_msg("[CV] train examples = {}".format(len(y_train)))
+    _show_msg("[CV] test examples = {}".format(len(y_test)))
 
     # Order by which we process training data futures
     order = []
@@ -205,6 +218,16 @@ def _fit(
     # async for future, result in seq:
     while True:
         metas = yield client.gather(new_scores)
+        msg = (
+            "[CV] received scores for {} models with maximum validation "
+            "score {} after {} partial_fit calls"
+        )
+        idx = np.argmax([m["score"] for m in metas])
+        best = metas[idx]
+        _show_msg(
+            msg.format(len(metas), best["score"], best["partial_fit_calls"]),
+            verbose=verbose,
+        )
 
         for meta in metas:
             ident = meta["model_id"]
@@ -428,6 +451,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         max_iter=100,
         patience=False,
         tol=1e-3,
+        verbose=False,
     ):
         self.parameters = parameters
         self.test_size = test_size
@@ -435,6 +459,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         self.max_iter = max_iter
         self.patience = patience
         self.tol = tol
+        self.verbose = verbose
         super(BaseIncrementalSearchCV, self).__init__(estimator, scoring=scoring)
 
     def _validate_parameters(self, X, y):
@@ -566,6 +591,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
             fit_params=fit_params,
             scorer=scorer,
             random_state=self.random_state,
+            verbose=self.verbose,
         )
         results = self._process_results(results)
         model_history, models, history, bst = results
@@ -848,6 +874,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         max_iter=100,
         random_state=None,
         scoring=None,
+        verbose=False,
     ):
         self.n_initial_parameters = n_initial_parameters
         self.decay_rate = decay_rate
@@ -855,6 +882,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         self.tol = tol
         self.scores_per_fit = scores_per_fit
         self.max_iter = max_iter
+
         super(IncrementalSearchCV, self).__init__(
             estimator,
             param_distribution,
@@ -864,6 +892,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
             max_iter=max_iter,
             patience=patience,
             tol=tol,
+            verbose=verbose,
         )
 
     def _get_params(self):
