@@ -109,12 +109,6 @@ def _create_model(model, ident, **params):
         return model, {"model_id": ident, "params": params, "partial_fit_calls": 0}
 
 
-def _show_msg(msg, verbose):
-    if verbose:
-        print(msg)
-    logger.info(msg)
-
-
 @gen.coroutine
 def _fit(
     model,
@@ -129,8 +123,8 @@ def _fit(
     random_state=None,
     verbose=False,
 ):
-    _show_msg("[CV] train examples = {}".format(len(y_train)), verbose)
-    _show_msg("[CV] test examples = {}".format(len(y_test)), verbose)
+    logger.info("[CV] train examples = %d", len(y_train))
+    logger.info("[CV] test examples = %d", len(y_test))
     original_model = model
     fit_params = fit_params or {}
     client = default_client()
@@ -140,7 +134,7 @@ def _fit(
     models = {}
     scores = {}
 
-    _show_msg("[CV] creating {} models".format(len(params)), verbose)
+    logger.info("[CV] creating %d models", len(params))
     for ident, param in enumerate(params):
         model = client.submit(_create_model, original_model, ident, **param)
         info[ident] = []
@@ -223,12 +217,10 @@ def _fit(
                 idx = np.argmax([m["score"] for m in metas])
                 best = metas[idx]
                 msg = (
-                    "[CV] test/validation score of {:0.6f} received after"
-                    "{} partial_fit calls".format(
-                        best["score"], best["partial_fit_calls"]
-                    )
+                    "[CV] test/validation score of %0.6f received after %d "
+                    "partial_fit calls"
                 )
-                _show_msg(msg, verbose=verbose)
+                logger.info(msg, best["score"], best["partial_fit_calls"])
 
             for meta in metas:
                 ident = meta["model_id"]
@@ -754,7 +746,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
     verbose : bool, int, optional
         If ``True``, print the best validation score received to stdout.
-        If an integer, only print ``1 / verbose`` percent of the time.
+        If an integer, only print info ``1 / verbose`` percent of the time.
 
     Attributes
     ----------
