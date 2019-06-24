@@ -1,10 +1,10 @@
 from __future__ import division
 
+import itertools
+import logging
 import operator
 from collections import defaultdict, namedtuple
 from copy import deepcopy
-import logging
-import itertools
 from time import time
 
 import dask

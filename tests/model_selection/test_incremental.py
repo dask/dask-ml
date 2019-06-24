@@ -646,6 +646,7 @@ def test_history(c, s, a, b):
         calls = [h["partial_fit_calls"] for h in model_hist]
         assert (np.diff(calls) >= 1).all() or len(calls) == 1
 
+
 def test_verbosity(capsys):
     @gen_cluster(client=True)
     def _test_verbosity(c, s, a, b):
@@ -662,4 +663,5 @@ def test_verbosity(capsys):
         assert any("train examples" in m for m in messages)
         assert any("test examples" in m for m in messages)
         assert any("creating" in m and "models" in m for m in messages)
+
     _test_verbosity()
