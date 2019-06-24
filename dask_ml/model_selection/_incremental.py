@@ -4,8 +4,8 @@ import operator
 from collections import defaultdict, namedtuple
 from copy import deepcopy
 import logging
+import itertools
 from time import time
-from warning import warn
 
 import dask
 import dask.array as da
@@ -129,6 +129,8 @@ def _fit(
     random_state=None,
     verbose=False,
 ):
+    _show_msg("[CV] train examples = {}".format(len(y_train)), verbose)
+    _show_msg("[CV] test examples = {}".format(len(y_test)), verbose)
     original_model = model
     fit_params = fit_params or {}
     client = default_client()
@@ -163,8 +165,6 @@ def _fit(
     X_train = sorted(futures_of(X_train), key=lambda f: f.key)
     y_train = sorted(futures_of(y_train), key=lambda f: f.key)
     assert len(X_train) == len(y_train)
-    _show_msg("[CV] train examples = {}".format(len(y_train)))
-    _show_msg("[CV] test examples = {}".format(len(y_test)))
 
     # Order by which we process training data futures
     order = []
@@ -216,19 +216,19 @@ def _fit(
     start_time = time()
 
     # async for future, result in seq:
-    while True:
+    for _i in itertools.count():
         try:
             metas = yield client.gather(new_scores)
-            msg = (
-                "[CV] received scores for {} models with maximum validation "
-                "score {} after {} partial_fit calls"
-            )
-            idx = np.argmax([m["score"] for m in metas])
-            best = metas[idx]
-            _show_msg(
-                msg.format(len(metas), best["score"], best["partial_fit_calls"]),
-                verbose=verbose,
-            )
+            if verbose or (not isinstance(verbose, bool) and _i % int(verbose) == 0):
+                idx = np.argmax([m["score"] for m in metas])
+                best = metas[idx]
+                msg = (
+                    "[CV] test/validation score of {:0.6f} received after"
+                    "{} partial_fit calls".format(
+                        best["score"], best["partial_fit_calls"]
+                    )
+                )
+                _show_msg(msg, verbose=verbose)
 
             for meta in metas:
                 ident = meta["model_id"]
@@ -310,6 +310,7 @@ def fit(
     fit_params=None,
     scorer=None,
     random_state=None,
+    verbose=False,
 ):
     """ Find a good model and search among a space of hyper-parameters
 
@@ -428,6 +429,7 @@ def fit(
         fit_params=fit_params,
         scorer=scorer,
         random_state=random_state,
+        verbose=verbose,
     )
 
 
@@ -749,6 +751,10 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         See :ref:`multimetric_grid_search` for an example.
 
         If None, the estimator's default scorer (if available) is used.
+
+    verbose : bool, int, optional
+        If ``True``, print the best validation score received to stdout.
+        If an integer, only print ``1 / verbose`` percent of the time.
 
     Attributes
     ----------

@@ -645,3 +645,21 @@ def test_history(c, s, a, b):
     for model_hist in alg.model_history_.values():
         calls = [h["partial_fit_calls"] for h in model_hist]
         assert (np.diff(calls) >= 1).all() or len(calls) == 1
+
+def test_verbosity(capsys):
+    @gen_cluster(client=True)
+    def _test_verbosity(c, s, a, b):
+        X, y = make_classification(n_samples=10, n_features=4, chunks=10)
+        model = ConstantFunction()
+        params = {"value": scipy.stats.uniform(0, 1)}
+        alg = IncrementalSearchCV(model, params, max_iter=9, verbose=True)
+        yield alg.fit(X, y)
+
+        captured = capsys.readouterr()
+        messages = [m for m in captured.out.split("\n") if m]
+        assert all("[CV]" in m for m in messages)
+        assert any("score" in m for m in messages)
+        assert any("train examples" in m for m in messages)
+        assert any("test examples" in m for m in messages)
+        assert any("creating" in m and "models" in m for m in messages)
+    _test_verbosity()
