@@ -700,8 +700,8 @@ def test_search_basic_patience(c, s, a, b):
 
     # Test the case where tol to small (all models finish)
     max_iter = 15
-    increase_after_patience = 3
-    patience = 3
+    patience = 5
+    increase_after_patience = patience
     search = IncrementalSearchCV(
         model,
         params,
@@ -709,15 +709,17 @@ def test_search_basic_patience(c, s, a, b):
         tol=increase_after_patience,
         patience=patience,
         decay_rate=0,
+        scores_per_fit=3,
     )
     yield search.fit(X, y, classes=[0, 1])
 
     hist = pd.DataFrame(search.history_)
-    assert hist.partial_fit_calls.max() == max_iter
+    # +1 (and +2 below) because scores_per_fit isn't exact
+    assert hist.partial_fit_calls.max() == max_iter + 1
 
     # Test the case where tol to large (no models finish)
-    increase_after_patience = 3
-    patience = 3
+    patience = 5
+    increase_after_patience = patience
     params = {"slope": 0 + 0.9 * rng.rand(1000)}
     search = IncrementalSearchCV(
         model,
@@ -726,11 +728,12 @@ def test_search_basic_patience(c, s, a, b):
         tol=increase_after_patience,
         patience=patience,
         decay_rate=0,
+        scores_per_fit=3,
     )
     yield search.fit(X, y, classes=[0, 1])
 
     hist = pd.DataFrame(search.history_)
-    assert hist.partial_fit_calls.max() == patience
+    assert hist.partial_fit_calls.max() == patience + 2
 
 
 @gen_cluster(client=True)
