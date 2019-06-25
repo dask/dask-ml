@@ -241,7 +241,7 @@ def _fit(
                 for i in range(k):
                     # Mix this model at this iteration with 10% above, 10% below
                     priority = info[ident][-1]["score"]
-                    priority += (rng.rand() - 0.5) * score_range / 10
+                    priority += (rng.rand() - 0.5) * score_range / 5
                     X_future, y_future = get_futures(start + i)
                     model = d_partial_fit(
                         model, X_future, y_future, fit_params, priority=priority
