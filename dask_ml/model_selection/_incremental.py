@@ -229,6 +229,8 @@ def _fit(
         _models = {}
         _scores = {}
         _specs = {}
+
+        scores = [info[ident][-1]["score"] for ident in instructions]
         for ident, k in instructions.items():
             start = info[ident][-1]["partial_fit_calls"] + 1
             if k:
@@ -236,9 +238,13 @@ def _fit(
                 model = speculative.pop(ident)
                 priority = {"priority": info[ident][-1]["score"]}
                 for i in range(k):
+                    # 0 <= priority
+                    priority = info[ident][-1]["score"]
+                    # Mix up models in the surronding 20% of scores
+                    priority += rng.rand() * (max(scores) - min(scores)) / 10
                     X_future, y_future = get_futures(start + i)
                     model = d_partial_fit(
-                        model, X_future, y_future, fit_params, **priority
+                        model, X_future, y_future, fit_params, priority=priority
                     )
                 score = d_score(model, X_test, y_test, scorer, **priority)
                 X_future, y_future = get_futures(start + k)
