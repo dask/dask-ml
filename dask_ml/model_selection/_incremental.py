@@ -237,10 +237,10 @@ def _fit(
             if k:
                 k -= 1
                 model = speculative.pop(ident)
-                priority = {"priority": info[ident][-1]["score"]}
+                priority = info[ident][-1]["score"]
                 for i in range(k):
-                    priority = info[ident][-1]["score"]
                     # Mix this model at this iteration with 10% above, 10% below
+                    priority = info[ident][-1]["score"]
                     priority += (rng.rand() - 0.5) * score_range / 10
                     X_future, y_future = get_futures(start + i)
                     model = d_partial_fit(
