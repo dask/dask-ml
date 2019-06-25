@@ -314,8 +314,7 @@ def test_search_plateau_patience(c, s, a, b):
     yield search.fit(X, y, classes=[0, 1])
 
     assert search.history_
-    for h in search.history_:
-        assert h["partial_fit_calls"] <= 5
+    assert pd.DataFrame(search.history_).partial_fit_calls.max() <= 5
     assert isinstance(search.best_estimator_, SGDClassifier)
     assert search.best_score_ == params["value"].max() == search.best_estimator_.value
     assert "visualize" not in search.__dict__
@@ -666,12 +665,72 @@ def test_search_patience_infeasible_tol(c, s, a, b):
     max_iter = 10
     score_increase = -10
     search = IncrementalSearchCV(
-        model, params, max_iter=max_iter, patience=2, tol=score_increase, decay_rate=0
+        model, params, max_iter=max_iter, patience=3, tol=score_increase, decay_rate=0
     )
     yield search.fit(X, y, classes=[0, 1])
 
     hist = pd.DataFrame(search.history_)
     assert hist.partial_fit_calls.max() == max_iter
+
+
+@gen_cluster(client=True)
+def test_search_basic_patience(c, s, a, b):
+    class LinearFunction(BaseEstimator):
+        def __init__(self, intercept=0, slope=1, foo=0):
+            self._num_calls = 0
+            self.intercept = intercept
+            self.slope = slope
+            super(LinearFunction, self).__init__()
+
+        def fit(self, *args):
+            return self
+
+        def partial_fit(self, *args, **kwargs):
+            self._num_calls += 1
+            return self
+
+        def score(self, *args, **kwargs):
+            return self.intercept + self.slope * self._num_calls
+
+    X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
+
+    rng = check_random_state(42)
+    params = {"slope": 2 + rng.rand(1000)}
+    model = LinearFunction()
+
+    # Test the case where tol to small (all models finish)
+    max_iter = 15
+    increase_after_patience = 3
+    patience = 3
+    search = IncrementalSearchCV(
+        model,
+        params,
+        max_iter=max_iter,
+        tol=increase_after_patience,
+        patience=patience,
+        decay_rate=0,
+    )
+    yield search.fit(X, y, classes=[0, 1])
+
+    hist = pd.DataFrame(search.history_)
+    assert hist.partial_fit_calls.max() == max_iter
+
+    # Test the case where tol to large (no models finish)
+    increase_after_patience = 3
+    patience = 3
+    params = {"slope": 0 + 0.9 * rng.rand(1000)}
+    search = IncrementalSearchCV(
+        model,
+        params,
+        max_iter=max_iter,
+        tol=increase_after_patience,
+        patience=patience,
+        decay_rate=0,
+    )
+    yield search.fit(X, y, classes=[0, 1])
+
+    hist = pd.DataFrame(search.history_)
+    assert hist.partial_fit_calls.max() == patience
 
 
 @gen_cluster(client=True)
