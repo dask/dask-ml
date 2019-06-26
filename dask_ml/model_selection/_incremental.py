@@ -220,9 +220,13 @@ def _fit(
         """
         models = [k for k in model_scores]
         scores = np.array([model_scores[k] for k in models])
-        idx = -1 if len(scores) <= num_workers + 1 else num_workers
-        threshold = scores[np.argsort(scores)][idx]
-        return {m: s if s >= threshold else threshold for m, s in zip(models, scores)}
+        idx = -1 if len(scores) <= num_workers else num_workers - 1
+        threshold = np.round(scores[np.argsort(scores)][idx], 2)
+        low_scores = [s for s in scores if s <= threshold]
+        return {
+            m: s if s > threshold else np.median(low_scores)
+            for m, s in zip(models, scores)
+        }
 
     # async for future, result in seq:
     while True:
