@@ -356,8 +356,15 @@ def _blockwise_slice(arr, idx):
     return sliced
 
 
-def train_test_split(*arrays, test_size=None, train_size=None,
-        random_state=None, shuffle=True, blockwise=None, **options):
+def train_test_split(
+    *arrays,
+    test_size=None,
+    train_size=None,
+    random_state=None,
+    shuffle=True,
+    blockwise=None,
+    **options
+):
     """Split arrays into random train and test matricies.
 
     Parameters

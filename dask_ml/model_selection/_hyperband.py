@@ -178,7 +178,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
               bracket, training time is not important and models are killed
               aggressively.
             * ``SuccessiveHalvingSearchCV params``, a dictionary used to create
-              the different brackets. It does not include the ``estimator`` or ``parameters`` parameters.
+              the different brackets. It does not include the
+              ``estimator`` or ``parameters`` parameters.
             * ``decisions``, the number of ``partial_fit`` calls Hyperband makes
               before making decisions.
 
@@ -317,7 +318,9 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         )
 
     def _get_SHAs(self, brackets):
-        patience = _get_patience(self.patience, self.max_iter, self.aggressiveness)
+        patience = _get_patience(
+            self.patience, self.max_iter, self.aggressiveness, self.tol
+        )
 
         # This is the first time self.random_state is used after
         # HyperbandSearchCV.fit is called.
@@ -351,9 +354,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         SHAs = self._get_SHAs(brackets)
 
         # Which bracket to run first? Going to go with most adaptive;
-        # hopefully less adaptive can fill in for any blank spots
-        #
-        # _brackets_ids is ordered from largest to smallest
+        # that works best on one machine.
+        # (though it doesn't matter a ton; _fit prioritizes high scores
         _brackets_ids = list(reversed(sorted(SHAs)))
 
         # _fit is run in parallel because it's also a tornado coroutine
@@ -569,7 +571,7 @@ def _hyperband_paper_alg(R, eta=3):
     return info
 
 
-def _get_patience(patience, max_iter, aggressiveness):
+def _get_patience(patience, max_iter, aggressiveness, tol):
     if not isinstance(patience, bool) and patience < max(max_iter // aggressiveness, 1):
         msg = (
             "The goal of `patience` is to stop training estimators that have "
@@ -579,10 +581,12 @@ def _get_patience(patience, max_iter, aggressiveness):
             "of Hyperband. \n\n"
             "To clear this warning, set \n\n"
             "    * patience=True\n"
-            "    * patience >= {}\n\n"
+            "    * patience >= {}\n"
+            "    * tol=None or tol=np.nan\n\n"
             "instead of patience={} "
         )
-        warn(msg.format(max_iter // aggressiveness, patience))
+        if (tol is not None) and not np.isnan(tol):
+            warn(msg.format(max_iter // aggressiveness, patience))
     elif isinstance(patience, bool) and patience:
         return max(max_iter // aggressiveness, 1)
     elif isinstance(patience, bool) and not patience:
