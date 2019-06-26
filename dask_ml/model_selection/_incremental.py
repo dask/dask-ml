@@ -203,6 +203,27 @@ def _fit(
     history = []
     start_time = time()
 
+    def _get_priorities(model_scores, num_workers=1):
+        """
+        Parameters
+        ----------
+        model_scores : Dict[Any, float]
+            Dictionary of model identities and scores
+        num_workers : int
+
+        Returns
+        -------
+        priorities
+            The ranks of the scores. This is set the models score except
+            for the bottom `num_workers` priorities (which are set to the
+            same priority).
+        """
+        models = [k for k in model_scores]
+        scores = np.array([model_scores[k] for k in models])
+        idx = -1 if len(scores) <= num_workers + 1 else num_workers
+        threshold = scores[np.argsort(scores)][idx]
+        return {m: s if s >= threshold else threshold for m, s in zip(models, scores)}
+
     # async for future, result in seq:
     while True:
         metas = yield client.gather(new_scores)
@@ -230,18 +251,19 @@ def _fit(
         _scores = {}
         _specs = {}
 
-        model_scores = [info[ident][-1]["score"] for ident in instructions]
-        score_range = max(model_scores) - min(model_scores)
+        model_scores = {ident: info[ident][-1]["score"] for ident in instructions}
+        priorities = _get_priorities(
+            model_scores, num_workers=len(client.scheduler_info()["workers"])
+        )
+
         for ident, k in instructions.items():
             start = info[ident][-1]["partial_fit_calls"] + 1
+            priority = priorities[ident]
+
             if k:
                 k -= 1
                 model = speculative.pop(ident)
-                priority = info[ident][-1]["score"]
                 for i in range(k):
-                    # Mix this model at this iteration with 10% above, 10% below
-                    priority = info[ident][-1]["score"]
-                    priority += (rng.rand() - 0.5) * score_range / 5
                     X_future, y_future = get_futures(start + i)
                     model = d_partial_fit(
                         model, X_future, y_future, fit_params, priority=priority
