@@ -168,6 +168,9 @@ def test_unknown_category_transform():
     assert e.match("Different CategoricalDtype for fit and transform")
 
 
+@pytest.mark.xfail(
+    condition=DASK_200, reason="https://github.com/dask/dask/issues/5008"
+)
 def test_unknown_category_transform_array():
     x2 = da.from_array(np.array([["a"], ["b"], ["c"], ["d"]]), chunks=2)
     enc = dask_ml.preprocessing.OneHotEncoder()
