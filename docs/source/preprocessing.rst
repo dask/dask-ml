@@ -101,7 +101,7 @@ support the same API as the NumPy ndarray, so most methods won't work on the
 result. Even basic things like ``compute`` will fail. To work around this,
 we currently recommend converting the sparse matricies to dense.
 
-.. ipython:: python
+.. code-block:: python
 
    from dask_ml.preprocessing import OneHotEncoder
    import dask.array as da
@@ -115,7 +115,7 @@ we currently recommend converting the sparse matricies to dense.
 
 Each block of ``result`` is a scipy sparse matrix
 
-.. ipython:: python
+.. code-block:: python
 
    result.blocks[0].compute()
    # This would fail!

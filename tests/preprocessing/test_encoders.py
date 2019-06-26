@@ -8,7 +8,7 @@ import scipy.sparse
 import sklearn.preprocessing
 
 import dask_ml.preprocessing
-from dask_ml._compat import DASK_VERSION, PANDAS_VERSION
+from dask_ml._compat import DASK_200, DASK_VERSION, PANDAS_VERSION
 from dask_ml.utils import assert_estimator_equal
 
 X = np.array([["a"], ["a"], ["b"], ["c"]])
@@ -20,6 +20,9 @@ ddf = dd.from_pandas(df, npartitions=2)
 @pytest.mark.parametrize("sparse", [True, False])
 @pytest.mark.parametrize("method", ["fit", "fit_transform"])
 @pytest.mark.parametrize("categories", ["auto", [["a", "b", "c"]]])
+@pytest.mark.xfail(
+    condition=DASK_200, reason="https://github.com/dask/dask/issues/5008"
+)
 def test_basic_array(sparse, method, categories):
     a = sklearn.preprocessing.OneHotEncoder(categories=categories, sparse=sparse)
     b = dask_ml.preprocessing.OneHotEncoder(categories=categories, sparse=sparse)
@@ -165,6 +168,9 @@ def test_unknown_category_transform():
     assert e.match("Different CategoricalDtype for fit and transform")
 
 
+@pytest.mark.xfail(
+    condition=DASK_200, reason="https://github.com/dask/dask/issues/5008"
+)
 def test_unknown_category_transform_array():
     x2 = da.from_array(np.array([["a"], ["b"], ["c"], ["d"]]), chunks=2)
     enc = dask_ml.preprocessing.OneHotEncoder()
