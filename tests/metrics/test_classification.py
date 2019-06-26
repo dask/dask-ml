@@ -37,8 +37,8 @@ def test_ok(size, metric_pairs, normalize, compute):
         hi = 3
     else:
         hi = 1
-    a = da.random.random_integers(0, hi, size=size, chunks=25)
-    b = da.random.random_integers(0, hi, size=size, chunks=25)
+    a = da.random.randint(0, hi + 1, size=size, chunks=25)
+    b = da.random.randint(0, hi + 1, size=size, chunks=25)
 
     result = m1(a, b, normalize=normalize, compute=compute)
     if compute:
@@ -57,8 +57,8 @@ def test_sample_weight(metric_pairs, normalize):
     m1, m2 = metric_pairs
 
     size = (100,)
-    a = da.random.random_integers(0, 3, size=size, chunks=25)
-    b = da.random.random_integers(0, 3, size=size, chunks=25)
+    a = da.random.randint(0, 4, size=size, chunks=25)
+    b = da.random.randint(0, 4, size=size, chunks=25)
 
     sample_weight_np = np.random.random_sample(size[0])
     sample_weight_da = da.from_array(sample_weight_np, chunks=25)
@@ -76,8 +76,8 @@ def test_sample_weight_raises(metric_pairs, normalize):
     m1, m2 = metric_pairs
 
     size = (100,)
-    a = da.random.random_integers(0, 3, size=size, chunks=25)
-    b = da.random.random_integers(0, 3, size=size, chunks=25)
+    a = da.random.randint(0, 4, size=size, chunks=25)
+    b = da.random.randint(0, 4, size=size, chunks=25)
 
     sample_weight_np = np.random.random_sample(size[0])
     sample_weight_da = da.from_array(sample_weight_np, chunks=25)
