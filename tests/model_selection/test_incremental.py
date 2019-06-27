@@ -653,8 +653,8 @@ def test_verbosity(capsys):
         X, y = make_classification(n_samples=10, n_features=4, chunks=10)
         model = ConstantFunction()
         params = {"value": scipy.stats.uniform(0, 1)}
-        alg = IncrementalSearchCV(model, params, max_iter=9, verbose=True)
-        yield alg.fit(X, y)
+        search = IncrementalSearchCV(model, params, max_iter=9, verbose=True)
+        yield search.fit(X, y)
 
         captured = capsys.readouterr()
         messages = [m for m in captured.out.split("\n") if m]
@@ -664,4 +664,9 @@ def test_verbosity(capsys):
         assert any("test examples" in m for m in messages)
         assert any("creating" in m and "models" in m for m in messages)
 
+        search.verbose = False
+        search.fit(X, y)
+        captured = capsys.readouterr()
+        messages = [m for m in captured.out.split("\n") if m]
+        assert len(messages) == 0
     _test_verbosity()
