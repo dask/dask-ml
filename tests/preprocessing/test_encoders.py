@@ -177,9 +177,6 @@ def test_unknown_category_transform_array():
     enc.fit(dX)
 
     result = enc.transform(x2)
-    with pytest.raises(ValueError) as e:
+    match = r"Block contains previously unseen values \['d'\].*\n+.*Block info"
+    with pytest.raises(ValueError, match=match):
         result.compute()
-
-    assert e.match("Block contains previously")
-    assert "d" in str(e)
-    assert "Block info" in str(e.value)
