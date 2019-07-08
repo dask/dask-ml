@@ -11,9 +11,6 @@ from sklearn.decomposition.pca import _assess_dimension_, _infer_dimension_
 from sklearn.utils.testing import (
     assert_almost_equal,
     assert_array_almost_equal,
-    assert_equal,
-    assert_greater,
-    assert_less,
     assert_raises,
     assert_raises_regex,
 )
@@ -95,13 +92,13 @@ def test_pca_randomized_solver():
         pca.fit(dX)
 
     # Check internal state
-    assert_equal(
-        pca.n_components,
-        dd.PCA(n_components=0, svd_solver="randomized", random_state=0).n_components,
+    assert (
+        pca.n_components
+        == dd.PCA(n_components=0, svd_solver="randomized", random_state=0).n_components
     )
-    assert_equal(
-        pca.svd_solver,
-        dd.PCA(n_components=0, svd_solver="randomized", random_state=0).svd_solver,
+    assert (
+        pca.svd_solver
+        == dd.PCA(n_components=0, svd_solver="randomized", random_state=0).svd_solver
     )
 
 
@@ -136,10 +133,10 @@ def test_whitening():
     # mean component-wise variance of the remaining 30 features
     X[:, :50] *= 3
 
-    assert_equal(X.shape, (n_samples, n_features))
+    assert X.shape == (n_samples, n_features)
 
     # the component-wise variance is thus highly varying:
-    assert_greater(X.std(axis=0).std(), 43.8)
+    assert X.std(axis=0).std() > 43.8
     dX = da.from_array(X, chunks=(50, n_features))
 
     for solver, copy in product(solver_list, (True, False)):
@@ -155,7 +152,7 @@ def test_whitening():
         )
         # test fit_transform
         X_whitened = pca.fit_transform(X_.copy())
-        assert_equal(X_whitened.shape, (n_samples, n_components))
+        assert X_whitened.shape == (n_samples, n_components)
         # X_whitened2 = pca.transform(X_)
         # XXX: These differ for randomized.
         # assert_eq(X_whitened.compute(), X_whitened2.compute(),
@@ -175,7 +172,7 @@ def test_whitening():
             random_state=0,
         ).fit(X_)
         X_unwhitened = pca.transform(X_)
-        assert_equal(X_unwhitened.shape, (n_samples, n_components))
+        assert X_unwhitened.shape == (n_samples, n_components)
 
         # in that case the output components still have varying variances
         assert_almost_equal(X_unwhitened.std(axis=0).std(), 74.1, 1)
@@ -409,9 +406,9 @@ def test_n_components_none():
             pca = dd.PCA(svd_solver=solver)
             pca.fit(data)
             if solver == "arpack":
-                assert_equal(pca.n_components_, min(data.shape) - 1)
+                assert pca.n_components_ == min(data.shape) - 1
             else:
-                assert_equal(pca.n_components_, min(data.shape))
+                assert pca.n_components_ == min(data.shape)
 
 
 def test_randomized_pca_check_projection():
@@ -443,7 +440,7 @@ def test_randomized_pca_check_list():
         .fit(X)
         .transform(X)
     )
-    assert_equal(X_transformed.shape, (2, 1))
+    assert X_transformed.shape == (2, 1)
     assert_almost_equal(X_transformed.mean(), 0.00, 2)
     assert_almost_equal(X_transformed.std(), 0.71, 2)
 
@@ -471,7 +468,7 @@ def test_randomized_pca_inverse():
     Y = pca.transform(X)
     Y_inverse = pca.inverse_transform(Y)
     relative_max_delta = (np.abs(X - Y_inverse) / np.abs(X).mean()).max()
-    assert_less(relative_max_delta, 1e-5)
+    assert relative_max_delta < 1e-5
 
 
 @pytest.mark.xfail(reason="MLE")
@@ -482,8 +479,8 @@ def test_pca_dim():
     X = rng.randn(n, p) * 0.1
     X[:10] += np.array([3, 4, 5, 1, 2])
     pca = dd.PCA(n_components="mle", svd_solver="full").fit(X)
-    assert_equal(pca.n_components, "mle")
-    assert_equal(pca.n_components_, 1)
+    assert pca.n_components == "mle"
+    assert pca.n_components_ == 1
 
 
 def test_infer_dim_1():
@@ -504,7 +501,7 @@ def test_infer_dim_1():
     for k in range(p):
         ll.append(_assess_dimension_(spect, k, n, p))
     ll = np.array(ll)
-    assert_greater(ll[1], ll.max() - 0.01 * n)
+    assert ll[1] > ll.max() - 0.01 * n
 
 
 def test_infer_dim_2():
@@ -519,7 +516,7 @@ def test_infer_dim_2():
     pca = dd.PCA(n_components=p, svd_solver="full")
     pca.fit(dX)
     spect = pca.explained_variance_
-    assert_greater(_infer_dimension_(spect, n, p), 1)
+    assert _infer_dimension_(spect, n, p) > 1
 
 
 def test_infer_dim_3():
@@ -533,7 +530,7 @@ def test_infer_dim_3():
     pca = dd.PCA(n_components=p, svd_solver="full")
     pca.fit(X)
     spect = pca.explained_variance_
-    assert_greater(_infer_dimension_(spect, n, p), 2)
+    assert _infer_dimension_(spect, n, p) > 2
 
 
 @pytest.mark.xfail(reason="Fractional n_components")
@@ -541,21 +538,21 @@ def test_infer_dim_by_explained_variance():
     X = da.from_array(iris.data, chunks=iris.data.shape)
     pca = dd.PCA(n_components=0.95, svd_solver="full")
     pca.fit(X)
-    assert_equal(pca.n_components, 0.95)
-    assert_equal(pca.n_components_, 2)
+    assert pca.n_components == 0.95
+    assert pca.n_components_ == 2
 
     pca = dd.PCA(n_components=0.01, svd_solver="full")
     pca.fit(X)
-    assert_equal(pca.n_components, 0.01)
-    assert_equal(pca.n_components_, 1)
+    assert pca.n_components == 0.01
+    assert pca.n_components_ == 1
 
     # Can't do this
     rng = np.random.RandomState(0)
     # more features than samples
     X = rng.rand(5, 20)
     pca = dd.PCA(n_components=0.5, svd_solver="full").fit(X)
-    assert_equal(pca.n_components, 0.5)
-    assert_equal(pca.n_components_, 2)
+    assert pca.n_components == 0.5
+    assert pca.n_components_ == 2
 
 
 def test_pca_score():
@@ -583,7 +580,7 @@ def test_pca_score2():
         pca.fit(dX)
         ll1 = pca.score(dX)
         ll2 = pca.score(rng.randn(n, p) * 0.2 + np.array([3, 4, 5]))
-        assert_greater(ll1, ll2)
+        assert ll1 > ll2
 
         # Test that it gives different scores if whiten=True
         pca = dd.PCA(n_components=2, whiten=True, svd_solver=solver)
