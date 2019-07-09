@@ -16,7 +16,7 @@ from sklearn.utils import check_random_state
 from tornado import gen
 
 from dask_ml.datasets import make_classification
-from dask_ml.model_selection import IncrementalSearchCV, HyperbandSearchCV
+from dask_ml.model_selection import HyperbandSearchCV, IncrementalSearchCV
 from dask_ml.model_selection._incremental import _partial_fit, _score, fit
 from dask_ml.utils import ConstantFunction
 from dask_ml.wrappers import Incremental

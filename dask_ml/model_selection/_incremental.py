@@ -3,10 +3,10 @@ from __future__ import division
 import itertools
 import logging
 import operator
+import sys
 from collections import defaultdict, namedtuple
 from copy import deepcopy
 from time import time
-import sys
 
 import dask
 import dask.array as da
