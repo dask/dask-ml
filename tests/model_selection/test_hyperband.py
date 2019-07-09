@@ -1,5 +1,5 @@
 import math
-from collections import defaultdict
+import warnings
 
 import dask.array as da
 import numpy as np
@@ -182,9 +182,25 @@ def test_hyperband_patience(c, s, a, b):
     assert alg.metadata_["partial_fit_calls"] <= alg.metadata["partial_fit_calls"]
     assert alg.best_score_ >= 0.9
 
-    alg = HyperbandSearchCV(model, params, max_iter=max_iter, patience=1)
+    max_iter = 6
+    kwargs = dict(max_iter=max_iter, aggressiveness=2)
+    alg = HyperbandSearchCV(model, params, patience=2, **kwargs)
     with pytest.warns(UserWarning, match="The goal of `patience`"):
         yield alg.fit(X, y)
+
+    alg = HyperbandSearchCV(model, params, patience=2, tol=np.nan, **kwargs)
+    yield alg.fit(X, y)
+    assert pd.DataFrame(alg.history_).partial_fit_calls.max() == max_iter
+
+    alg = HyperbandSearchCV(model, params, patience=2, tol=None, **kwargs)
+    yield alg.fit(X, y)
+    assert pd.DataFrame(alg.history_).partial_fit_calls.max() == max_iter
+
+    alg = HyperbandSearchCV(model, params, patience=1, **kwargs)
+    with pytest.raises(ValueError, match="always detect a plateau"):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            yield alg.fit(X, y)
 
 
 @gen_cluster(client=True, timeout=5000)
