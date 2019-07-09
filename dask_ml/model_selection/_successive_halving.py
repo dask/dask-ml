@@ -196,6 +196,7 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         tol=1e-3,
         random_state=None,
         scoring=None,
+        verbose=False,
     ):
         self.n_initial_parameters = n_initial_parameters
         self.n_initial_iter = n_initial_iter
@@ -211,6 +212,7 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
             tol=tol,
             random_state=random_state,
             scoring=scoring,
+            verbose=verbose,
         )
 
     def _adapt(self, info, first_step_completed=False):

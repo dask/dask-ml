@@ -303,6 +303,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         test_size=None,
         random_state=None,
         scoring=None,
+        verbose=False,
     ):
         self.aggressiveness = aggressiveness
 
@@ -315,6 +316,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
             test_size=test_size,
             random_state=random_state,
             scoring=scoring,
+            verbose=verbose,
         )
 
     def _get_SHAs(self, brackets):
@@ -341,6 +343,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
                 test_size=self.test_size,
                 random_state=seed_start + b if b != 0 else self.random_state,
                 scoring=self.scoring,
+                verbose=self.verbose,
             )
             for b, (n, r) in brackets.items()
         }

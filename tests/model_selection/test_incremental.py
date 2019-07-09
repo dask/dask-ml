@@ -16,7 +16,7 @@ from sklearn.utils import check_random_state
 from tornado import gen
 
 from dask_ml.datasets import make_classification
-from dask_ml.model_selection import IncrementalSearchCV
+from dask_ml.model_selection import IncrementalSearchCV, HyperbandSearchCV
 from dask_ml.model_selection._incremental import _partial_fit, _score, fit
 from dask_ml.utils import ConstantFunction
 from dask_ml.wrappers import Incremental
@@ -654,13 +654,14 @@ def test_history(c, s, a, b):
         assert (np.diff(calls) >= 1).all() or len(calls) == 1
 
 
-def test_verbosity(capsys):
+@pytest.mark.parametrize("Search", [IncrementalSearchCV, HyperbandSearchCV])
+def test_verbosity(capsys, Search):
     @gen_cluster(client=True)
     def _test_verbosity(c, s, a, b):
         X, y = make_classification(n_samples=10, n_features=4, chunks=10)
         model = ConstantFunction()
         params = {"value": scipy.stats.uniform(0, 1)}
-        search = IncrementalSearchCV(model, params, max_iter=9, verbose=True)
+        search = Search(model, params, max_iter=9, verbose=True)
         yield search.fit(X, y)
 
         captured = capsys.readouterr()
