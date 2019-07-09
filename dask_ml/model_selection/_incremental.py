@@ -218,7 +218,7 @@ def _fit(
             idx = np.argmax([m["score"] for m in metas])
             best = metas[idx]
             msg = (
-                "[CV] test/validation score of %0.6f received after %d "
+                "[CV] test/validation score of %0.5f received after %d "
                 "partial_fit calls"
             )
             logger.info(msg, best["score"], best["partial_fit_calls"])
