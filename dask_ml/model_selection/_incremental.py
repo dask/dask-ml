@@ -124,8 +124,7 @@ def _fit(
     random_state=None,
     verbose=False,
 ):
-    logger.info("[CV] train examples = %d", len(y_train))
-    logger.info("[CV] test examples = %d", len(y_test))
+    logger.info("[CV] train, test examples = %d, %d", len(y_train), len(y_test))
     original_model = model
     fit_params = fit_params or {}
     client = default_client()
@@ -214,7 +213,8 @@ def _fit(
     # async for future, result in seq:
     for _i in itertools.count():
         metas = yield client.gather(new_scores)
-        if verbose or (not isinstance(verbose, bool) and _i % int(verbose) == 0):
+
+        if verbose and _i % int(verbose) == 0:
             idx = np.argmax([m["score"] for m in metas])
             best = metas[idx]
             msg = (
@@ -253,14 +253,10 @@ def _fit(
                 model = speculative.pop(ident)
                 for i in range(k):
                     X_future, y_future = get_futures(start + i)
-                    model = d_partial_fit(
-                        model, X_future, y_future, fit_params
-                    )
+                    model = d_partial_fit(model, X_future, y_future, fit_params)
                 score = d_score(model, X_test, y_test, scorer)
                 X_future, y_future = get_futures(start + k)
-                spec = d_partial_fit(
-                    model, X_future, y_future, fit_params
-                )
+                spec = d_partial_fit(model, X_future, y_future, fit_params)
                 _models[ident] = model
                 _scores[ident] = score
                 _specs[ident] = spec
@@ -497,8 +493,10 @@ class BaseIncrementalSearchCV(ParallelPostFit):
 
     def _handle_verbosity(self, verbose):
         if verbose:
-            handler = logging.StreamHandler(stream=sys.stdout)
             logger.setLevel(logging.INFO)
+            if any("stdout" in str(h) for h in logger.handlers):
+                return
+            handler = logging.StreamHandler(stream=sys.stdout)
             logger.addHandler(handler)
         else:
             logger.setLevel(logging.NOTSET)

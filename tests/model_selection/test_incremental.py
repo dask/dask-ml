@@ -668,9 +668,10 @@ def test_verbosity(capsys, Search):
         messages = [m for m in captured.out.split("\n") if m]
         assert all("[CV]" in m for m in messages)
         assert any("score" in m for m in messages)
-        assert any("train examples" in m for m in messages)
-        assert any("test examples" in m for m in messages)
-        assert any("creating" in m and "models" in m for m in messages)
+
+        brackets = 6 if "Hyperband" in str(Search) else 1
+        assert sum("train, test examples" in m for m in messages) == brackets
+        assert sum("creating" in m and "models" in m for m in messages) == brackets
 
         search.verbose = False
         search.fit(X, y)
