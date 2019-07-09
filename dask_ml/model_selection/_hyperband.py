@@ -343,7 +343,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
                 test_size=self.test_size,
                 random_state=seed_start + b if b != 0 else self.random_state,
                 scoring=self.scoring,
-                verbose=self.verbose,
+                verbose=(self.verbose, ", bracket=" + str(b)),
             )
             for b, (n, r) in brackets.items()
         }

@@ -124,7 +124,12 @@ def _fit(
     random_state=None,
     verbose=False,
 ):
-    logger.info("[CV] train, test examples = %d, %d", len(y_train), len(y_test))
+    prefix = ""
+    if isinstance(verbose, tuple):
+        prefix = verbose[1]
+        verbose = verbose[0]
+    if verbose:
+        logger.info("[CV%s] train, test examples = %d, %d", prefix, len(y_train), len(y_test))
     original_model = model
     fit_params = fit_params or {}
     client = default_client()
@@ -134,7 +139,8 @@ def _fit(
     models = {}
     scores = {}
 
-    logger.info("[CV] creating %d models", len(params))
+    if verbose:
+        logger.info("[CV%s] creating %d models", prefix, len(params))
     for ident, param in enumerate(params):
         model = client.submit(_create_model, original_model, ident, **param)
         info[ident] = []
@@ -218,10 +224,10 @@ def _fit(
             idx = np.argmax([m["score"] for m in metas])
             best = metas[idx]
             msg = (
-                "[CV] test/validation score of %0.5f received after %d "
+                "[CV%s] test/validation score of %0.5f received after %d "
                 "partial_fit calls"
             )
-            logger.info(msg, best["score"], best["partial_fit_calls"])
+            logger.info(msg, prefix, best["score"], best["partial_fit_calls"])
 
         for meta in metas:
             ident = meta["model_id"]

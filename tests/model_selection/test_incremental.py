@@ -666,7 +666,10 @@ def test_verbosity(capsys, Search):
 
         captured = capsys.readouterr()
         messages = [m for m in captured.out.split("\n") if m]
-        assert all("[CV]" in m for m in messages)
+        if "Hyperband" in str(Search):
+            assert all("[CV, bracket=" in m for m in messages)
+        else:
+            assert all("[CV]" in m for m in messages)
         assert any("score" in m for m in messages)
 
         brackets = 6 if "Hyperband" in str(Search) else 1
