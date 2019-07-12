@@ -317,7 +317,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
             scoring=scoring,
         )
 
-    def _get_SHAs(self, brackets):
+    def _get_SHAs(self, brackets, all_shas=False):
         patience = _get_patience(
             self.patience, self.max_iter, self.aggressiveness, self.tol
         )
@@ -328,8 +328,12 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         self._SHA_seed = seed_start
 
         # These brackets are ordered by adaptivity; bracket=0 is least adaptive
-        SHAs = {
-            b: SuccessiveHalvingSearchCV(
+        SHAs = {}
+        for b, (n, r) in brackets.items():
+            if not all_shas and b == 0 and patience:
+                continue
+
+            SHA = SuccessiveHalvingSearchCV(
                 self.estimator,
                 self.parameters,
                 n_initial_parameters=n,
@@ -342,8 +346,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
                 random_state=seed_start + b if b != 0 else self.random_state,
                 scoring=self.scoring,
             )
-            for b, (n, r) in brackets.items()
-        }
+            SHAs[b] = SHA
         return SHAs
 
     @gen.coroutine
@@ -412,7 +415,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         best_index = best_index.flat[0]
 
         meta, _ = _get_meta(
-            {b: SHA.history_ for b, SHA in SHAs.items()}, brackets.keys(), SHAs, key
+            {b: SHA.history_ for b, SHA in SHAs.items()}, SHAs.keys(), SHAs, key
         )
 
         self.metadata_ = {
@@ -445,7 +448,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         bracket_info = list(reversed(sorted(bracket_info, key=lambda x: x["bracket"])))
 
         brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
-        SHAs = self._get_SHAs(brackets)
+        SHAs = self._get_SHAs(brackets, all_shas=True)
         for bracket in bracket_info:
             b = bracket["bracket"]
             bracket["SuccessiveHalvingSearchCV params"] = _get_SHA_params(SHAs[b])
