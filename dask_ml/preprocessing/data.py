@@ -15,7 +15,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import data as skdata
 from sklearn.utils.validation import check_is_fitted, check_random_state
 
-from dask_ml._compat import SK_022, blockwise
+from dask_ml._compat import DASK_110, SK_022, blockwise
 from dask_ml._utils import copy_learned_attributes
 from dask_ml.utils import check_array, handle_zeros_in_scale
 
@@ -269,7 +269,11 @@ class QuantileTransformer(skdata.QuantileTransformer):
             )
             for feature_idx in range(X.shape[1])
         ]
-        return da.vstack(transformed, allow_unknown_chunksizes=True).T
+        if DASK_110:
+            kwargs = {"allow_unknown_chunksizes": True}
+        else:
+            kwargs = {}
+        return da.vstack(transformed, **kwargs).T
 
     def _transform_col(self, X_col, quantiles, inverse):
         output_distribution = self.output_distribution
