@@ -239,6 +239,17 @@ class TestQuantileTransformer:
         dqt = dpp.QuantileTransformer()
         dqt.fit(dX)
 
+    def test_fit_transform_frame(self):
+        df = pd.DataFrame(np.random.randn(1000, 3))
+        ddf = dd.from_pandas(df, 2)
+
+        a = spp.QuantileTransformer()
+        b = dpp.QuantileTransformer()
+
+        expected = a.fit_transform(df)
+        result = b.fit_transform(ddf)
+        assert_eq_ar(result, expected, rtol=1e-3, atol=1e-3)
+
 
 class TestCategorizer:
     def test_ce(self):
