@@ -82,7 +82,7 @@ def warn_fit_failure(error_score, e):
 # ----------------------- #
 
 
-class CVCache:
+class CVCache(object):
     def __init__(self, splits, pairwise=False, cache=True, num_train_samples=None):
         self.splits = splits
         self.pairwise = pairwise
@@ -169,6 +169,10 @@ def cv_extract(cvs, X, y, is_X, is_train, n):
 
 def cv_extract_params(cvs, keys, vals, n):
     return {k: cvs.extract_param(tok, v, n) for (k, tok), v in zip(keys, vals)}
+
+
+def decompress_params(fields, params):
+    return [{k: v for k, v in zip(fields, p) if v is not MISSING} for p in params]
 
 
 def _maybe_timed(x):
@@ -588,6 +592,11 @@ def create_cv_results(
 
     results.update(param_results)
     return results
+
+
+def get_best_params(candidate_params, cv_results, scorer):
+    best_index = np.flatnonzero(cv_results["rank_test_{}".format(scorer)] == 1)[0]
+    return candidate_params[best_index]
 
 
 def fit_best(estimator, params, X, y, fit_params):
