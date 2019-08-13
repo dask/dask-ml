@@ -1,9 +1,11 @@
 import dask
 import dask.array as da
 import numpy as np
+import packaging.version
 import pandas as pd
 import sklearn.preprocessing
 
+from .._compat import SK_022, SK_VERSION
 from ..utils import check_array
 from .label import _encode, _encode_dask_array
 
@@ -50,6 +52,9 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
           numeric values.
 
         The used categories can be found in the ``categories_`` attribute.
+
+    drop : None, default=None
+        The option to drop one of the categories per feature is not yet supported.
 
     sparse : boolean, default=True
         Will return sparse matrix if set True else will return an array.
@@ -107,13 +112,29 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
         n_values=None,
         categorical_features=None,
         categories="auto",
+        drop=None,
         sparse=True,
         dtype=np.float64,
         handle_unknown="error",
     ):
-        super(OneHotEncoder, self).__init__(
-            n_values, categorical_features, categories, sparse, dtype, handle_unknown
-        )
+        if drop is not None:
+            raise NotImplementedError("drop != None is not implemented yet.")
+        signature = {
+            "n_values": n_values,
+            "categorical_features": categorical_features,
+            "categories": categories,
+            "drop": drop,
+            "sparse": sparse,
+            "dtype": dtype,
+            "handle_unknown": handle_unknown,
+        }
+        if SK_VERSION < packaging.version.parse("0.21.0"):
+            del signature["drop"]
+        if SK_022:
+            del signature["n_values"]
+            del signature["categorical_features"]
+
+        super(OneHotEncoder, self).__init__(**signature)
 
     def fit(self, X, y=None):
         if self.handle_unknown == "ignore":
@@ -184,7 +205,13 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
 
         self.categories_ = dask.compute(self.categories_)[0]
 
+    def transform(self, X):
+        return self._transform(X)
+
     def _transform_new(self, X):
+        return self._transform(X)
+
+    def _transform(self, X, handle_unknown="error"):
         X = check_array(
             X, accept_dask_dataframe=True, dtype=None, preserve_pandas_dataframe=True
         )

@@ -1,0 +1,36 @@
+parameters:
+  name: ''
+  vmImage: ''
+
+jobs:
+- job: ${{ parameters.name }}
+  pool:
+    vmImage: ${{ parameters.vmImage }}
+  strategy:
+    matrix:
+      win-64:
+        envFile: ci/environment-3.7.yaml
+
+  steps:
+  - powershell: Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
+    displayName: "Add conda to PATH (windows)"
+
+  - bash: conda env create --quiet --file=$(envFile) --name=dask-ml-test && conda list -n dask-ml-test
+    displayName: "install"
+
+  - script: |
+      call activate dask-ml-test
+      pytest tests
+    displayName: 'Run Tests'
+
+  - script: |
+      call activate dask-ml-test
+      echo "[flake8]"
+      flake8
+
+      echo "[black]"
+      black --check .
+
+      echo "[isort]"
+      isort --recursive --check-only .
+    displayName: "Lint"

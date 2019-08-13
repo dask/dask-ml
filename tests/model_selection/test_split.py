@@ -3,7 +3,6 @@ import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import pytest
-import six
 from sklearn.datasets import fetch_20newsgroups, make_regression
 
 import dask_ml.model_selection
@@ -20,7 +19,7 @@ def test_20_newsgroups():
     X_train, X_test, y_train, y_test = r
     for X in [X_train, X_test]:
         assert isinstance(X, list)
-        assert isinstance(X[0], six.string_types)
+        assert isinstance(X[0], str)
     for y in [y_train, y_test]:
         assert isinstance(y, np.ndarray)
         assert y.dtype == int
@@ -68,10 +67,9 @@ def test_blockwise_shufflesplit_rng():
 
     # Test that splitting is reproducible
     n_splits = 2
-
     split1 = dask_ml.model_selection.ShuffleSplit(n_splits=n_splits, random_state=0)
-
     split2 = dask_ml.model_selection.ShuffleSplit(n_splits=n_splits, random_state=0)
+
     for (train_1, test_1), (train_2, test_2) in zip(split1.split(dX), split2.split(dX)):
         da.utils.assert_eq(train_1, train_2)
         da.utils.assert_eq(test_1, test_2)
@@ -119,9 +117,7 @@ def test_kfold(shuffle):
 
 
 def test_train_test_split():
-    X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(
-        dX, dy, random_state=10
-    )
+    X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(dX, dy)
 
     assert len(X_train) == 99
     assert len(X_test) == 11
@@ -166,14 +162,21 @@ def test_complement():
     assert test_size == 0.2
 
 
-def test_train_test_split_dask_dataframe(xy_classification_pandas):
+@pytest.mark.parametrize(
+    "train_size, test_size", [(None, None), (0.9, None), (None, 0.1), (0.9, 0.1)]
+)
+def test_train_test_split_dask_dataframe(
+    xy_classification_pandas, train_size, test_size
+):
     X, y = xy_classification_pandas
 
     X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(
-        X, y, train_size=0.25, test_size=0.75
+        X, y, train_size=train_size, test_size=test_size
     )
     assert isinstance(X_train, dd.DataFrame)
     assert isinstance(y_train, dd.Series)
+
+    assert (y_train.size + y_test.size).compute() == len(y)
 
 
 def test_train_test_split_dask_dataframe_rng(xy_classification_pandas):

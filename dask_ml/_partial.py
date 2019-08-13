@@ -3,11 +3,9 @@ from __future__ import absolute_import, division, print_function
 import logging
 import os
 import warnings
-from abc import ABCMeta
 
 import dask
 import numpy as np
-import six
 import sklearn.utils
 from dask.delayed import Delayed
 from toolz import partial
@@ -17,18 +15,6 @@ from ._utils import copy_learned_attributes
 logger = logging.getLogger(__name__)
 
 
-class _WritableDoc(ABCMeta):
-    """In py27, classes inheriting from `object` do not have
-    a multable __doc__.
-
-    We inherit from ABCMeta instead of type to avoid metaclass
-    conflicts, since some sklearn estimators (eventually) subclass
-    ABCMeta
-    """
-
-    # TODO: Py2: remove all this
-
-
 _partial_deprecation = (
     "'{cls.__name__}' is deprecated. Use "
     "'dask_ml.wrappers.Incremental({base.__name__}(), **kwargs)' "
@@ -36,8 +22,7 @@ _partial_deprecation = (
 )
 
 
-@six.add_metaclass(_WritableDoc)
-class _BigPartialFitMixin(object):
+class _BigPartialFitMixin:
     """ Wraps a partial_fit enabled estimator for use with Dask arrays """
 
     _init_kwargs = []
@@ -167,8 +152,10 @@ def fit(model, x, y, compute=True, shuffle_blocks=True, random_state=None, **kwa
     if y is not None:
         if not hasattr(y, "chunks") and hasattr(y, "to_dask_array"):
             y = y.to_dask_array()
+
         assert y.ndim == 1
         assert x.chunks[0] == y.chunks[0]
+
     assert hasattr(model, "partial_fit")
     if len(x.chunks[1]) > 1:
         x = x.rechunk(chunks=(x.chunks[0], sum(x.chunks[1])))

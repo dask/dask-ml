@@ -196,7 +196,8 @@ def make_blobs(
     X_big = da.vstack(Xarrs)
 
     yarrs = [
-        da.from_delayed(arr, shape=(n,), dtype="i8") for arr, n in zip(yobjs, chunks[0])
+        da.from_delayed(arr, shape=(n,), dtype=np.dtype("int"))
+        for arr, n in zip(yobjs, chunks[0])
     ]
     y_big = da.hstack(yarrs)
     return X_big, y_big

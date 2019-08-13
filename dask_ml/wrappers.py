@@ -386,7 +386,7 @@ class Incremental(ParallelPostFit):
     used during the call to ``fit``. All attributes learned during training
     are available on ``Incremental`` directly.
 
-    .. _list of incremental learners: http://scikit-learn.org/stable/modules/scaling_strategies.html#incremental-learning  # noqa
+    .. _list of incremental learners: https://scikit-learn.org/stable/modules/computing.html#incremental-learning  # noqa
 
     Parameters
     ----------

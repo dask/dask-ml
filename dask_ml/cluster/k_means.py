@@ -13,6 +13,7 @@ from sklearn.cluster import k_means_ as sk_k_means
 from sklearn.utils.extmath import squared_norm
 from sklearn.utils.validation import check_is_fitted
 
+from .._compat import blockwise
 from .._utils import draw_seed
 from ..metrics import (
     euclidean_distances,
@@ -456,8 +457,8 @@ def init_scalable(
         # Step 7, 8 without weights
         # dask RandomState objects aren't valid for scikit-learn
         rng2 = (
-            draw_seed(random_state, 0, 2 ** 32 - 1, dtype="uint", chunks=())
-            .compute()
+            random_state.randint(0, np.iinfo("i4").max - 1, chunks=())
+            .compute(scheduler="single-threaded")
             .item()
         )
         km = sk_k_means.KMeans(n_clusters, random_state=rng2)
@@ -531,7 +532,7 @@ def _kmeans_single_lloyd(
             labels = labels.astype(np.int32)
             # distances is always float64, but we need it to match X.dtype
             # for centers_dense, but remain float64 for inertia
-            r = da.atop(
+            r = blockwise(
                 _centers_dense,
                 "ij",
                 X,

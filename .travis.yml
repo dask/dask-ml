@@ -21,10 +21,11 @@ install:
   - conda info -a
 
   # Replace dep1 dep2 ... with your dependencies
-  - conda env create --file=ci/environment-3.6.yml --name=dask-ml
+  - conda env create -q --file=ci/environment-docs.yaml --name=dask-ml
   - source activate dask-ml
   - pip install pip --upgrade
   - python -m pip install -e .
+  - conda list
 
 script:
   - set -e

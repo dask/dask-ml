@@ -5,7 +5,6 @@ import logging
 
 import dask.array as da
 import numpy as np
-import six
 import sklearn.cluster
 from dask import delayed
 from scipy.linalg import pinv, svd
@@ -187,11 +186,11 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         n_clusters = self.n_clusters
 
         # kmeans for final clustering
-        if isinstance(self.assign_labels, six.string_types):
+        if isinstance(self.assign_labels, str):
             if self.assign_labels == "kmeans":
                 km = KMeans(
                     n_clusters=n_clusters,
-                    random_state=draw_seed(rng, 2 ** 32 - 1, dtype="uint"),
+                    random_state=draw_seed(rng, np.iinfo("i4").max, dtype="uint"),
                 )
             elif self.assign_labels == "sklearn-kmeans":
                 km = sklearn.cluster.KMeans(n_clusters=n_clusters, random_state=rng)
@@ -311,7 +310,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
 
 
 def embed(X_keep, X_rest, n_components, metric, kernel_params):
-    if isinstance(metric, six.string_types):
+    if isinstance(metric, str):
         if metric not in PAIRWISE_KERNEL_FUNCTIONS:
             msg = "Unknown affinity metric name '{}'. Expected one " "of '{}'".format(
                 metric, PAIRWISE_KERNEL_FUNCTIONS.keys()
