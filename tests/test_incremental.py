@@ -1,3 +1,4 @@
+import dask
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
@@ -82,7 +83,7 @@ def test_incremental_basic(scheduler, dataframes):
 
         # score
         result = clf.score(X, y)
-        expected = est2.score(X, y)
+        expected = est2.score(*dask.compute(X, y))
         assert abs(result - expected) < 0.1
 
         clf = Incremental(SGDClassifier(random_state=0, tol=1e-3, average=True))

@@ -11,6 +11,7 @@ from sklearn.utils.validation import check_is_fitted
 
 from dask_ml.utils import _timer
 
+from ._compat import SK_022
 from ._partial import fit
 from ._utils import copy_learned_attributes
 from .metrics import check_scoring, get_scorer
@@ -459,7 +460,11 @@ class Incremental(ParallelPostFit):
 
     @property
     def _postfit_estimator(self):
-        check_is_fitted(self, "estimator_")
+        if SK_022:
+            args = ()
+        else:
+            args = ("estimator",)
+        check_is_fitted(self, *args)
         return self.estimator_
 
     def _fit_for_estimator(self, estimator, X, y, **fit_kwargs):
