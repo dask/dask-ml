@@ -6,6 +6,7 @@ import dask.array as da
 import packaging.version
 import pandas
 import sklearn
+import sklearn.utils.validation
 
 SK_VERSION = packaging.version.parse(sklearn.__version__)
 DASK_VERSION = packaging.version.parse(dask.__version__)
@@ -25,3 +26,12 @@ if DASK_VERSION < packaging.version.parse("1.1.0"):
     blockwise = da.atop
 else:
     blockwise = da.blockwise
+
+
+def check_is_fitted(est, attributes=None):
+    if SK_022:
+        args = ()
+    else:
+        args = (attributes,)
+
+    return sklearn.utils.validation.check_is_fitted(est, *args)
