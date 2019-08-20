@@ -61,8 +61,8 @@ def test_predict(kind):
     base = LogisticRegression(random_state=0, n_jobs=1, solver="lbfgs")
     wrap = ParallelPostFit(LogisticRegression(random_state=0, n_jobs=1, solver="lbfgs"))
 
-    base.fit(X, y)
-    wrap.fit(X, y)
+    base.fit(*dask.compute(X, y))
+    wrap.fit(*dask.compute(X, y))
 
     assert_estimator_equal(wrap.estimator, base)
 
@@ -111,7 +111,7 @@ def test_multiclass():
         LogisticRegression(random_state=0, n_jobs=1, solver="lbfgs", multi_class="auto")
     )
 
-    clf.fit(X, y)
+    clf.fit(*dask.compute(X, y))
     result = clf.predict(X)
     expected = clf.estimator.predict(X)
 
