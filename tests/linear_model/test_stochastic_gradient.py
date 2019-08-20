@@ -1,3 +1,4 @@
+import dask
 import pytest
 from dask.delayed import Delayed
 from sklearn import linear_model as lm_
@@ -17,7 +18,7 @@ class TestStochasticGradientClassifier:
         b = lm_.SGDClassifier(random_state=0, max_iter=1000, tol=1e-3)
 
         a.fit(X, y)
-        b.partial_fit(X, y, classes=[0, 1])
+        b.partial_fit(*dask.compute(X, y), classes=[0, 1])
         assert_estimator_equal(a, b, exclude="loss_function_")
 
     def test_numpy_arrays(self, single_chunk_classification):
@@ -43,7 +44,7 @@ class TestStochasticGradientRegressor:
         b = lm_.SGDRegressor(random_state=0, max_iter=1000, tol=1e-3)
 
         a.fit(X, y)
-        b.partial_fit(X, y)
+        b.partial_fit(*dask.compute(X, y))
         assert_estimator_equal(a, b)
 
     def test_numpy_arrays(self, single_chunk_regression):
