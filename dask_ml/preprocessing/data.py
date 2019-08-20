@@ -210,7 +210,7 @@ class RobustScaler(skdata.RobustScaler):
         See License information here:
         https://github.com/scikit-learn/scikit-learn/blob/master/README.rst
         """
-        check_is_fitted(self, "center_", "scale_")
+        check_is_fitted(self, ["center_", "scale_"])
 
         # if sparse.issparse(X):
         #     if self.with_scaling:
