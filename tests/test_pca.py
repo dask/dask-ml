@@ -1,9 +1,9 @@
 from itertools import product
 
 import dask.array as da
+import dask.dataframe
 import numpy as np
 import pandas as pd
-import dask.dataframe
 import pytest
 import scipy as sp
 import sklearn.decomposition as sd

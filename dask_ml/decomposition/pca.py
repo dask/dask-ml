@@ -3,11 +3,11 @@ from warnings import warn
 import dask
 import dask.array as da
 import dask.dataframe as dd
-from dask.delayed import Delayed
-from distributed.client import Future
 import numpy as np
 import scipy.sparse as sp
 from dask import compute
+from dask.delayed import Delayed
+from distributed.client import Future
 from sklearn.decomposition.base import _BasePCA
 from sklearn.utils.extmath import fast_logdet
 from sklearn.utils.validation import check_is_fitted, check_random_state
@@ -197,11 +197,10 @@ class PCA(_BasePCA):
             return self.__fit(X)
         except:
             if _unknown_shape(X.shape):
-                msg = (
+                warn(
                     "Try passing in a Dask Array with known shape:\n\n"
                     "    PCA.fit(X.to_dask_array(lengths=True))  # for Dask Dataframe \n"
                 )
-                warn(msg)
             raise
 
     def __fit(self, X):
@@ -470,6 +469,7 @@ class PCA(_BasePCA):
             Average log-likelihood of the samples under the current model
         """
         return da.mean(self.score_samples(X))
+
 
 def _unknown_shape(shape):
     if any(isinstance(s, Delayed) for s in shape):
