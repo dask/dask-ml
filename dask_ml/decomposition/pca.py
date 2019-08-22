@@ -1,4 +1,10 @@
+from warnings import warn
+
+import dask
 import dask.array as da
+import dask.dataframe as dd
+from dask.delayed import Delayed
+from distributed.client import Future
 import numpy as np
 import scipy.sparse as sp
 from dask import compute
@@ -183,10 +189,22 @@ class PCA(_BasePCA):
         self.random_state = random_state
 
     def fit(self, X, y=None):
-        self._fit(X)
+        self._fit(X, y=y)
         return self
 
-    def _fit(self, X):
+    def _fit(self, X, y=None):
+        try:
+            return self.__fit(X)
+        except:
+            if _unknown_shape(X.shape):
+                msg = (
+                    "Try passing in a Dask Array with known shape:\n\n"
+                    "    PCA.fit(X.to_dask_array(lengths=True))  # for Dask Dataframe \n"
+                )
+                warn(msg)
+            raise
+
+    def __fit(self, X):
         solvers = {"full", "auto", "tsqr", "randomized"}
         solver = self.svd_solver
 
@@ -452,3 +470,12 @@ class PCA(_BasePCA):
             Average log-likelihood of the samples under the current model
         """
         return da.mean(self.score_samples(X))
+
+def _unknown_shape(shape):
+    if any(isinstance(s, Delayed) for s in shape):
+        return True
+    if any(isinstance(s, Future) for s in shape):
+        return True
+    if np.isnan(shape).any():
+        return True
+    return False

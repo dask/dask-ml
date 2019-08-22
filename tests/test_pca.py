@@ -2,6 +2,8 @@ from itertools import product
 
 import dask.array as da
 import numpy as np
+import pandas as pd
+import dask.dataframe
 import pytest
 import scipy as sp
 import sklearn.decomposition as sd
@@ -739,3 +741,18 @@ def test_fractional_n_components():
         pca.fit(X)
 
     assert w.match("Fractional 'n_components'")
+
+
+@pytest.mark.parametrize("fn", ["fit", "fit_transform"])
+def test_dataframe_warnings(fn):
+    df = pd.DataFrame({"0": [0, 0, 1, 1], "1": [0, 0, 1, 1], "2": [2, 4, 5, 2]})
+    ddf = dask.dataframe.from_pandas(df, npartitions=2)
+
+    pca = dd.PCA(n_components=2)
+    fn = getattr(pca, fn)
+    with pytest.raises(TypeError):
+        with pytest.warns(UserWarning, match="Dask Array with known shape"):
+            fn(ddf)
+    X = ddf.to_dask_array(lengths=True)
+    Y = fn(X)
+    assert pca.n_components_
