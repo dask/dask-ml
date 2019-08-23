@@ -136,6 +136,13 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
 
         super(OneHotEncoder, self).__init__(**signature)
 
+    @classmethod
+    def _get_param_names(cls):
+        return ["categories", "drop", "dtype", "sparse", "dtype", "handle_unknown"]
+
+    def get_params(self, deep=True):
+        return super().get_params(deep)
+
     def fit(self, X, y=None):
         if self.handle_unknown == "ignore":
             raise NotImplementedError("handle_unkown='ignore' is not implemented yet.")

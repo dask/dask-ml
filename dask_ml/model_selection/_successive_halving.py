@@ -3,8 +3,8 @@ import math
 
 import numpy as np
 import toolz
-from sklearn.utils.validation import check_is_fitted
 
+from .._compat import check_is_fitted
 from ._incremental import IncrementalSearchCV
 
 

@@ -1,3 +1,4 @@
+import dask
 import pytest
 from sklearn.linear_model import Perceptron
 
@@ -12,5 +13,5 @@ class TestPerceptron:
         a = PartialPerceptron(classes=[0, 1], max_iter=1000, tol=1e-3)
         b = Perceptron(max_iter=1000, tol=1e-3)
         a.fit(X, y)
-        b.partial_fit(X, y, classes=[0, 1])
+        b.partial_fit(*dask.compute(X, y), classes=[0, 1])
         assert_estimator_equal(a.coef_, b.coef_)

@@ -17,9 +17,9 @@ from sklearn.metrics.scorer import check_scoring
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
 from sklearn.utils.metaestimators import if_delegate_has_method
-from sklearn.utils.validation import check_is_fitted
 from tornado import gen
 
+from .._compat import check_is_fitted
 from ..utils import check_array
 from ..wrappers import ParallelPostFit
 from ._split import train_test_split
@@ -237,14 +237,10 @@ def _fit(
                 model = speculative.pop(ident)
                 for i in range(k):
                     X_future, y_future = get_futures(start + i)
-                    model = d_partial_fit(
-                        model, X_future, y_future, fit_params
-                    )
+                    model = d_partial_fit(model, X_future, y_future, fit_params)
                 score = d_score(model, X_test, y_test, scorer)
                 X_future, y_future = get_futures(start + k)
-                spec = d_partial_fit(
-                    model, X_future, y_future, fit_params
-                )
+                spec = d_partial_fit(model, X_future, y_future, fit_params)
                 _models[ident] = model
                 _scores[ident] = score
                 _specs[ident] = spec

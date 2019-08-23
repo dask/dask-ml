@@ -1,3 +1,4 @@
+import dask
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
@@ -58,7 +59,9 @@ def test_incremental_basic(scheduler, dataframes):
             y = y.to_dask_array(lengths=True)
 
         for slice_ in da.core.slices_from_chunks(X.chunks):
-            est2.partial_fit(X[slice_], y[slice_[0]], classes=[0, 1])
+            est2.partial_fit(
+                X[slice_].compute(), y[slice_[0]].compute(), classes=[0, 1]
+            )
 
         assert isinstance(result.estimator_.coef_, np.ndarray)
         rel_error = np.linalg.norm(clf.coef_ - est2.coef_)
@@ -80,7 +83,7 @@ def test_incremental_basic(scheduler, dataframes):
 
         # score
         result = clf.score(X, y)
-        expected = est2.score(X, y)
+        expected = est2.score(*dask.compute(X, y))
         assert abs(result - expected) < 0.1
 
         clf = Incremental(SGDClassifier(random_state=0, tol=1e-3, average=True))
@@ -164,7 +167,7 @@ def test_score(xy_classification):
     with client:
         inc.fit(X, y, classes=[0, 1])
         result = inc.score(X, y)
-        expected = inc.estimator_.score(X, y)
+        expected = inc.estimator_.score(*dask.compute(X, y))
 
     assert result == expected
 
