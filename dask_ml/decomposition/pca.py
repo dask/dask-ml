@@ -79,10 +79,6 @@ class PCA(_BasePCA):
         If None, the random number generator is the RandomState instance used
         by `da.random`. Used when ``svd_solver`` == 'randomized'.
 
-    errors : {'ignore', 'warn', 'raise'}, default 'raise'
-        This parameter controls certain error messages within this class.
-        This will control shape warnings.
-
     Attributes
     ----------
     components_ : array, shape (n_components, n_features)
@@ -183,7 +179,6 @@ class PCA(_BasePCA):
         tol=0.0,
         iterated_power=0,
         random_state=None,
-        errors="raise",
     ):
         self.n_components = n_components
         self.copy = copy
@@ -192,7 +187,6 @@ class PCA(_BasePCA):
         self.tol = tol
         self.iterated_power = iterated_power
         self.random_state = random_state
-        self.errors = errors
 
     def fit(self, X, y=None):
         self._fit(X)
@@ -207,18 +201,8 @@ class PCA(_BasePCA):
                 "Invalid solver '{}'. Must be one of {}".format(solver, solvers)
             )
 
-        if _unknown_shape(X.shape) and solver == "auto":
-            msg = (
-                "Automatic choice of PCA method requires knowing the array shape. "
-                "To silence this message *and* choose PCA method automatically, pass\n\n"
-                "    X.to_dask_array(lengths=True)  # for Dask DataFrame \n\n"
-                "To fit PCA with array of unknown shapes, set `svd_solver != 'auto'` "
-                "and `errors != 'raise' and `n_components >= 1`"
-            )
-            if self.errors == "raise":
-                raise ValueError(msg)
-            if self.errors == "warn":
-                warn(msg)
+        if isinstance(X, dd.DataFrame):
+            X = X.values
 
         # Handle n_components==None
         if self.n_components is None:
@@ -257,10 +241,7 @@ class PCA(_BasePCA):
                     n_components, lower_limit, min(n_samples, n_features), solver
                 )
             )
-            if self.errors == "raise":
-                raise ValueError(msg)
-            if self.errors == "warn":
-                warn(msg)
+            raise ValueError(msg)
 
         if sp.issparse(X):
             raise TypeError("Cannot fit PCA on sparse 'X'")

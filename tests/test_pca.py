@@ -743,39 +743,24 @@ def test_fractional_n_components():
     assert w.match("Fractional 'n_components'")
 
 
-@pytest.mark.parametrize("errors", ["raise", "warn"])
 @pytest.mark.parametrize("solver", ["auto", "tsqr", "randomized", "full"])
 @pytest.mark.parametrize("fn", ["fit", "fit_transform"])
-@pytest.mark.parametrize("input", ["array"])#, "dataframe"])
-def test_dataframe_warnings(fn, solver, errors, input):
+@pytest.mark.parametrize("input", ["array", "dataframe"])
+def test_unknown_shapes(fn, solver, input):
     df = pd.DataFrame({"0": [0, 0, 1, 1], "1": [0, 0, 1, 1], "2": [2, 4, 5, 2]})
     ddf = dask.dataframe.from_pandas(df, npartitions=2)
 
-    pca = dd.PCA(n_components=2, svd_solver=solver, errors=errors)
+    pca = dd.PCA(n_components=2, svd_solver=solver)
+    fit_fn = getattr(pca, fn)
+    X = ddf if input == "dataframe" else ddf.values
 
-    if input == "array":
-        X = ddf.values
-    elif input == "dataframe":
-        X = ddf
-    else:
-        raise Exception
-    if solver == "auto":
-        if errors == "raise":
-            match = "Automatic choice of PCA method requires knowing the array shape"
-            with pytest.raises(ValueError, match=match):
-                pca.fit(X)
-        elif errors == "warn":
-            with pytest.warns(UserWarning, match="knowing the array shape"):
-                pca.fit(X)
-    elif solver in ["full", "tsqr", "randomized"]:
-        pca.fit(X)
-    else:
-        raise Exception
+    ret = fit_fn(X)
 
-    if errors in {"warn", "ignore"}:
-        assert hasattr(pca, "components_")
-        assert pca.n_components_ == 2
-        assert pca.n_features_ == 3
-        assert np.isnan(pca.n_samples_)
-    elif errors == "auto":
-        assert not hasattr(pca, "components_")
+    assert hasattr(pca, "components_")
+    assert pca.n_components_ == 2
+    assert pca.n_features_ == 3
+    assert np.isnan(pca.n_samples_)
+    if fn == "fit_transform":
+        X_hat = ret
+        assert np.isnan(X_hat.shape[0])
+        assert X_hat.shape[1] == 2
