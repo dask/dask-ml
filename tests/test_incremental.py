@@ -167,7 +167,7 @@ def test_score(xy_classification):
     with client:
         inc.fit(X, y, classes=[0, 1])
         result = inc.score(X, y)
-        expected = inc.estimator_.score(X, y)
+        expected = inc.estimator_.score(*dask.compute(X, y))
 
     assert result == expected
 
