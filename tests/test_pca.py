@@ -746,21 +746,30 @@ def test_fractional_n_components():
 @pytest.mark.parametrize("solver", ["auto", "tsqr", "randomized", "full"])
 @pytest.mark.parametrize("fn", ["fit", "fit_transform"])
 @pytest.mark.parametrize("input", ["array", "dataframe"])
-def test_unknown_shapes(fn, solver, input):
+@pytest.mark.parametrize("errors", ["raise", "warn"])
+def test_unknown_shapes(fn, solver, input, errors):
     df = pd.DataFrame({"0": [0, 0, 1, 1], "1": [0, 0, 1, 1], "2": [2, 4, 5, 2]})
     ddf = dask.dataframe.from_pandas(df, npartitions=2)
 
-    pca = dd.PCA(n_components=2, svd_solver=solver)
+    pca = dd.PCA(n_components=2, svd_solver=solver, errors=errors)
     fit_fn = getattr(pca, fn)
     X = ddf if input == "dataframe" else ddf.values
 
-    ret = fit_fn(X)
+    match = "No check can be performed to make sure n_components is small enough"
+    if errors == "raise":
+        with pytest.raises(ValueError, match=match):
+            fit_fn(X)
+    elif errors == "warn":
+        with pytest.warns(UserWarning, match=match):
+            ret = fit_fn(X)
 
-    assert hasattr(pca, "components_")
-    assert pca.n_components_ == 2
-    assert pca.n_features_ == 3
-    assert np.isnan(pca.n_samples_)
-    if fn == "fit_transform":
-        X_hat = ret
-        assert np.isnan(X_hat.shape[0])
-        assert X_hat.shape[1] == 2
+        assert hasattr(pca, "components_")
+        assert pca.n_components_ == 2
+        assert pca.n_features_ == 3
+        assert np.isnan(pca.n_samples_)
+        if fn == "fit_transform":
+            X_hat = ret
+            assert np.isnan(X_hat.shape[0])
+            assert X_hat.shape[1] == 2
+    else:
+        raise Exception()

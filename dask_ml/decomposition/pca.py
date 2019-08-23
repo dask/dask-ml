@@ -79,6 +79,10 @@ class PCA(_BasePCA):
         If None, the random number generator is the RandomState instance used
         by `da.random`. Used when ``svd_solver`` == 'randomized'.
 
+    errors : {"raise", "warn"}, default "raise"
+        How should certain errors be handled? These errors are raised within
+        this class and tend to be related to the size/shape of the passed array.
+
     Attributes
     ----------
     components_ : array, shape (n_components, n_features)
@@ -179,6 +183,7 @@ class PCA(_BasePCA):
         tol=0.0,
         iterated_power=0,
         random_state=None,
+        errors="raise",
     ):
         self.n_components = n_components
         self.copy = copy
@@ -187,6 +192,7 @@ class PCA(_BasePCA):
         self.tol = tol
         self.iterated_power = iterated_power
         self.random_state = random_state
+        self.errors = errors
 
     def fit(self, X, y=None):
         self._fit(X)
@@ -232,6 +238,22 @@ class PCA(_BasePCA):
             lower_limit = 1
         else:
             lower_limit = 0
+
+        isnan = np.isnan([n_samples, n_features])
+        if isnan.any():
+            msg = (
+                "At least one of [n_samples, n_features]={} is nan. "
+                "No check can be performed to make "
+                "sure n_components is small enough. To continue, either\n\n"
+                "    * pass X.to_dask_array(lengths=True)  # for Dask DataFrame\n"
+                "    * pass errors='warn' or error='ignore' and ensure "
+                "min(X.shape) <= n_components\n"
+            )
+            msg = msg.format([n_samples, n_features])
+            if self.errors == "raise":
+                raise ValueError(msg)
+            if self.errors == "warn":
+                warn(msg)
 
         if not (np.nanmin([n_samples, n_features]) >= n_components >= lower_limit):
             msg = (
