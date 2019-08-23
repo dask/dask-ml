@@ -237,14 +237,10 @@ def _fit(
                 model = speculative.pop(ident)
                 for i in range(k):
                     X_future, y_future = get_futures(start + i)
-                    model = d_partial_fit(
-                        model, X_future, y_future, fit_params
-                    )
+                    model = d_partial_fit(model, X_future, y_future, fit_params)
                 score = d_score(model, X_test, y_test, scorer)
                 X_future, y_future = get_futures(start + k)
-                spec = d_partial_fit(
-                    model, X_future, y_future, fit_params
-                )
+                spec = d_partial_fit(model, X_future, y_future, fit_params)
                 _models[ident] = model
                 _scores[ident] = score
                 _specs[ident] = spec

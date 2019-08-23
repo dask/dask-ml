@@ -8,6 +8,7 @@ import pytest
 import scipy as sp
 import sklearn.decomposition as sd
 from dask.array.utils import assert_eq
+from dask.delayed import Delayed
 from sklearn import datasets
 from sklearn.decomposition.pca import _assess_dimension_, _infer_dimension_
 from sklearn.utils.testing import (
@@ -754,6 +755,10 @@ def test_unknown_shapes(fn, solver, input, errors):
     pca = dd.PCA(n_components=2, svd_solver=solver, errors=errors)
     fit_fn = getattr(pca, fn)
     X = ddf if input == "dataframe" else ddf.values
+    if input == "array":
+        assert np.isnan(X.shape[0])
+    elif input == "dataframe":
+        assert isinstance(X.shape[0], Delayed)
 
     match = "No check can be performed to make sure n_components is small enough"
     if errors == "raise":
