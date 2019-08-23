@@ -79,6 +79,10 @@ class PCA(_BasePCA):
         If None, the random number generator is the RandomState instance used
         by `da.random`. Used when ``svd_solver`` == 'randomized'.
 
+    errors : {'ignore', 'warn', 'raise'}, default 'raise'
+        This parameter controls certain error messages within this class.
+        This will control shape warnings.
+
     Attributes
     ----------
     components_ : array, shape (n_components, n_features)
@@ -179,6 +183,7 @@ class PCA(_BasePCA):
         tol=0.0,
         iterated_power=0,
         random_state=None,
+        errors="raise",
     ):
         self.n_components = n_components
         self.copy = copy
@@ -187,23 +192,13 @@ class PCA(_BasePCA):
         self.tol = tol
         self.iterated_power = iterated_power
         self.random_state = random_state
+        self.errors = errors
 
     def fit(self, X, y=None):
-        self._fit(X, y=y)
+        self._fit(X)
         return self
 
-    def _fit(self, X, y=None):
-        try:
-            return self.__fit(X)
-        except:
-            if _unknown_shape(X.shape):
-                warn(
-                    "Try passing in a Dask Array with known shape:\n\n"
-                    "    PCA.fit(X.to_dask_array(lengths=True))  # for Dask Dataframe \n"
-                )
-            raise
-
-    def __fit(self, X):
+    def _fit(self, X):
         solvers = {"full", "auto", "tsqr", "randomized"}
         solver = self.svd_solver
 
@@ -211,6 +206,19 @@ class PCA(_BasePCA):
             raise ValueError(
                 "Invalid solver '{}'. Must be one of {}".format(solver, solvers)
             )
+
+        if _unknown_shape(X.shape) and solver == "auto":
+            msg = (
+                "Automatic choice of PCA method requires knowing the array shape. "
+                "To silence this message *and* choose PCA method automatically, pass\n\n"
+                "    X.to_dask_array(lengths=True)  # for Dask DataFrame \n\n"
+                "To fit PCA with array of unknown shapes, set `svd_solver != 'auto'` "
+                "and `errors != 'raise' and `n_components >= 1`"
+            )
+            if self.errors == "raise":
+                raise ValueError(msg)
+            if self.errors == "warn":
+                warn(msg)
 
         # Handle n_components==None
         if self.n_components is None:
@@ -227,9 +235,10 @@ class PCA(_BasePCA):
 
         if solver == "auto":
             # Small problem, just call full PCA
-            if max(X.shape) <= 500:
+            n_samples, n_features = dask.compute(X.shape)[0]
+            if max(n_samples, n_features) <= 500:
                 solver = "full"
-            elif n_components >= 1 and n_components < 0.8 * min(X.shape):
+            elif n_components >= 1 and n_components < 0.8 * min(n_samples, n_features):
                 solver = "randomized"
             # This is also the case of n_components in (0,1)
             else:
@@ -240,15 +249,18 @@ class PCA(_BasePCA):
         else:
             lower_limit = 0
 
-        if not (min(n_samples, n_features) >= n_components >= lower_limit):
+        if not (np.nanmin([n_samples, n_features]) >= n_components >= lower_limit):
             msg = (
                 "n_components={} must be between {} and "
                 "min(n_samples, n_features)={} with "
-                "svd_solver='{}'".format(
+                "svd_solver='{}'.".format(
                     n_components, lower_limit, min(n_samples, n_features), solver
                 )
             )
-            raise ValueError(msg)
+            if self.errors == "raise":
+                raise ValueError(msg)
+            if self.errors == "warn":
+                warn(msg)
 
         if sp.issparse(X):
             raise TypeError("Cannot fit PCA on sparse 'X'")
