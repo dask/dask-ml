@@ -792,8 +792,8 @@ def test_dataframe_pca_fat_shape(solver):
             X_hat = pca.fit_transform(X).compute()
             assert X_hat.shape == (2, 2) != (2, 3)
         else:
-            with pytest.raises(ValueError):
-                # In all other cases, it'll complain loudly
+            # In all other cases, it'll complain loudly
+            with pytest.raises(ValueError, match="operands could not be broadcast"):
                 pca.fit(X)
 
 
