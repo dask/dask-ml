@@ -248,6 +248,9 @@ class PCA(_BasePCA):
         else:
             lower_limit = 0
 
+        if self.errors not in {"raise", "warn", "ignore"}:
+            err_msg = "errors={} not in ['raise', 'warn', ignore']"
+            raise ValueError(err_msg.format(self.errors))
         isnan = np.isnan([n_samples, n_features])
         if isnan.any():
             msg = (

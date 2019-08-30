@@ -756,7 +756,7 @@ def test_unknown_shapes(fn, solver, errors):
     X = ddf.values
     assert np.isnan(X.shape[0])
 
-    match = "No check can be performed to make sure n_components is small enough"
+    match = "No check can be performed to make sure n_components is small enough."
     if solver == "auto":
         with pytest.raises(ValueError, match="automatically choose PCA solver"):
             fit_fn(X)
@@ -766,7 +766,6 @@ def test_unknown_shapes(fn, solver, errors):
     elif errors == "warn":
         with pytest.warns(UserWarning, match=match):
             ret = fit_fn(X)
-
         assert hasattr(pca, "components_")
         assert pca.n_components_ == 2
         assert pca.n_features_ == 3
@@ -775,5 +774,31 @@ def test_unknown_shapes(fn, solver, errors):
             X_hat = ret
             assert np.isnan(X_hat.shape[0])
             assert X_hat.shape[1] == 2
-    else:
-        raise Exception()
+
+
+@pytest.mark.parametrize("solver", ["randomized", "tsqr", "full"])
+def test_dataframe_pca_fat_shape(solver):
+    X = np.random.randn(2, 10)
+    df = pd.DataFrame(X)
+    ddf = dask.dataframe.from_pandas(df, npartitions=2)
+    X = ddf.values
+    assert np.isnan(X.shape[0])
+
+    pca = dd.PCA(n_components=3, svd_solver=solver, errors="warn")
+    with pytest.warns(UserWarning, match="No check can be performed"):
+        if solver == "randomized":
+            # This test encodes the fact that PCA will fail silently with the
+            # shapes!
+            X_hat = pca.fit_transform(X).compute()
+            assert X_hat.shape == (2, 2) != (2, 3)
+        else:
+            with pytest.raises(ValueError):
+                # In all other cases, it'll complain loudly
+                pca.fit(X)
+
+
+def test_pca_errors():
+    pca = dd.PCA(n_components=3, svd_solver="randomized", errors="foo")
+    X = np.random.randn(4, 2)
+    with pytest.raises(ValueError, match="errors=foo not in"):
+        pca.fit(X)
