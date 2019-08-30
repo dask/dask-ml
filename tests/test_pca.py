@@ -746,22 +746,21 @@ def test_fractional_n_components():
 
 @pytest.mark.parametrize("solver", ["auto", "tsqr", "randomized", "full"])
 @pytest.mark.parametrize("fn", ["fit", "fit_transform"])
-@pytest.mark.parametrize("input", ["array", "dataframe"])
 @pytest.mark.parametrize("errors", ["raise", "warn"])
-def test_unknown_shapes(fn, solver, input, errors):
+def test_unknown_shapes(fn, solver, errors):
     df = pd.DataFrame({"0": [0, 0, 1, 1], "1": [0, 0, 1, 1], "2": [2, 4, 5, 2]})
     ddf = dask.dataframe.from_pandas(df, npartitions=2)
 
     pca = dd.PCA(n_components=2, svd_solver=solver, errors=errors)
     fit_fn = getattr(pca, fn)
-    X = ddf if input == "dataframe" else ddf.values
-    if input == "array":
-        assert np.isnan(X.shape[0])
-    elif input == "dataframe":
-        assert isinstance(X.shape[0], Delayed)
+    X = ddf.values
+    assert np.isnan(X.shape[0])
 
     match = "No check can be performed to make sure n_components is small enough"
-    if errors == "raise":
+    if solver == "auto":
+        with pytest.raises(ValueError, match="automatically choose PCA solver"):
+            fit_fn(X)
+    elif errors == "raise":
         with pytest.raises(ValueError, match=match):
             fit_fn(X)
     elif errors == "warn":

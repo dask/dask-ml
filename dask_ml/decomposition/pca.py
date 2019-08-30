@@ -1,3 +1,4 @@
+import numbers
 from warnings import warn
 
 import dask
@@ -225,7 +226,15 @@ class PCA(_BasePCA):
 
         if solver == "auto":
             # Small problem, just call full PCA
-            n_samples, n_features = dask.compute(X.shape)[0]
+            if not _known_shape(X.shape):
+                raise ValueError(
+                    "Cannot automatically choose PCA solver with unknown "
+                    "shapes. To clear this error,\n\n"
+                    "    * pass X.to_dask_array(lengths=True)  # for Dask "
+                    "DataFrame"
+                    "    * set `svd_solver != 'auto` (e.g., "
+                    "`svd_solver in ['randomized', 'full', 'tqsr']`"
+                )
             if max(n_samples, n_features) <= 500:
                 solver = "full"
             elif n_components >= 1 and n_components < 0.8 * min(n_samples, n_features):
@@ -246,8 +255,8 @@ class PCA(_BasePCA):
                 "No check can be performed to make "
                 "sure n_components is small enough. To continue, either\n\n"
                 "    * pass X.to_dask_array(lengths=True)  # for Dask DataFrame\n"
-                "    * pass errors='warn' or error='ignore' and ensure "
-                "min(X.shape) <= n_components\n"
+                "    * pass errors='warn' and ensure "
+                "n_components <= min(X.shape)\n"
             )
             msg = msg.format([n_samples, n_features])
             if self.errors == "raise":
@@ -486,11 +495,5 @@ class PCA(_BasePCA):
         return da.mean(self.score_samples(X))
 
 
-def _unknown_shape(shape):
-    if any(isinstance(s, Delayed) for s in shape):
-        return True
-    if any(isinstance(s, Future) for s in shape):
-        return True
-    if np.isnan(shape).any():
-        return True
-    return False
+def _known_shape(shape):
+    return all(isinstance(x, numbers.Integral) for x in shape)
