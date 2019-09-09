@@ -3,11 +3,11 @@ from __future__ import division, print_function
 from time import time
 
 import distributed.joblib
+from joblib import Parallel, parallel_backend
 import numpy as np
 import sklearn.ensemble.forest
 from sklearn.datasets import fetch_covtype
 from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier
-from sklearn.externals.joblib import Parallel, parallel_backend
 from sklearn.metrics import zero_one_loss
 from sklearn.utils import check_array
 
