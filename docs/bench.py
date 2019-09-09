@@ -2,7 +2,6 @@ from __future__ import division, print_function
 
 from time import time
 
-import distributed.joblib
 from joblib import Parallel, parallel_backend
 import numpy as np
 import sklearn.ensemble.forest
