@@ -194,3 +194,11 @@ def package_of(obj):
         return
     base, _sep, _stem = mod.__name__.partition('.')
     return sys.modules[base]
+
+
+def scatter_array(arr, dask_client):
+    """Scatter a large numpy array into workers
+    Return the equivalent dask array
+    """
+    future_arr = dask_client.scatter(arr)
+    return da.from_delayed(future_arr, shape=arr.shape, dtype=arr.dtype)

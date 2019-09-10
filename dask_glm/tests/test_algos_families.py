@@ -151,3 +151,14 @@ else:
                 b = func(X, y, **kwargs)
 
                 assert (a == b).all()
+
+    def broadcast_lbfgs_weight():
+        with cluster() as (s, [a, b]):
+            with Client(s['address'], loop=loop) as c:
+                X, y = make_intercept_data(1000, 10)
+                coefs = lbfgs(X, y, dask_distributed_client=c)
+                p = sigmoid(X.dot(coefs).compute())
+
+                y_sum = y.compute().sum()
+                p_sum = p.sum()
+                assert np.isclose(y_sum, p_sum, atol=1e-1)
