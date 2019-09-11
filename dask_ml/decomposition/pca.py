@@ -232,8 +232,8 @@ class PCA(_BasePCA):
                     "shapes. To clear this error,\n\n"
                     "    * pass X.to_dask_array(lengths=True)  # for Dask "
                     "DataFrame"
-                    "    * set `svd_solver != 'auto` (e.g., "
-                    "`svd_solver in ['randomized', 'full', 'tqsr']`"
+                    "    * Use a specific SVD solver (e.g., set "
+                    "`svd_solver != 'auto'`)"
                 )
             if max(n_samples, n_features) <= 500:
                 solver = "full"
@@ -257,7 +257,8 @@ class PCA(_BasePCA):
                 "At least one of [n_samples, n_features]={} is nan. "
                 "No check can be performed to make "
                 "sure n_components is small enough. To continue, either\n\n"
-                "    * pass X.to_dask_array(lengths=True)  # for Dask DataFrame\n"
+                "    * pass X.to_dask_array(lengths=True)  # for Dask DataFrame (dask >= 0.19)\n"
+                "    * pass X.compute_chunk_sizes()  # for Dask Array X (dask >= 2.4)\n"
                 "    * pass errors='warn' and ensure "
                 "n_components <= min(X.shape)\n"
             )
