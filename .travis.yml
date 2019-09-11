@@ -3,7 +3,6 @@ sudo: false
 
 env:
   matrix:
-    - PYTHON=2.7 IPYTHON_KERNEL=python2
     - PYTHON=3.5 IPYTHON_KERNEL=python3
 
 install:
