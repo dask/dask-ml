@@ -8,7 +8,6 @@ import pytest
 import scipy as sp
 import sklearn.decomposition as sd
 from dask.array.utils import assert_eq
-from dask.delayed import Delayed
 from sklearn import datasets
 from sklearn.decomposition.pca import _assess_dimension_, _infer_dimension_
 from sklearn.utils.testing import (

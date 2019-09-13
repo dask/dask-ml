@@ -1,14 +1,11 @@
 import numbers
 from warnings import warn
 
-import dask
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import scipy.sparse as sp
 from dask import compute
-from dask.delayed import Delayed
-from distributed.client import Future
 from sklearn.decomposition.base import _BasePCA
 from sklearn.utils.extmath import fast_logdet
 from sklearn.utils.validation import check_is_fitted, check_random_state
