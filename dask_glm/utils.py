@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 import inspect
 import sys
 
+import dask.distributed as dd
 import dask.array as da
 import numpy as np
 from functools import wraps
@@ -202,3 +203,10 @@ def scatter_array(arr, dask_client):
     """
     future_arr = dask_client.scatter(arr)
     return da.from_delayed(future_arr, shape=arr.shape, dtype=arr.dtype)
+
+
+def get_distributed_client():
+    try:
+        return dd.get_client()
+    except ValueError:
+        return None

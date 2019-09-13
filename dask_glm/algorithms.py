@@ -11,7 +11,7 @@ import dask.array as da
 from scipy.optimize import fmin_l_bfgs_b
 
 
-from dask_glm.utils import dot, normalize, scatter_array
+from dask_glm.utils import dot, normalize, scatter_array, get_distributed_client
 from dask_glm.families import Logistic
 from dask_glm.regularizers import Regularizer
 
@@ -304,8 +304,7 @@ def local_update(X, y, beta, z, u, rho, f, fprime, solver=fmin_l_bfgs_b):
 
 @normalize
 def lbfgs(X, y, regularizer=None, lamduh=1.0, max_iter=100, tol=1e-4,
-          family=Logistic, verbose=False, dask_distributed_client=None,
-          **kwargs):
+          family=Logistic, verbose=False, **kwargs):
     """L-BFGS solver using scipy.optimize implementation
 
     Parameters
@@ -323,13 +322,12 @@ def lbfgs(X, y, regularizer=None, lamduh=1.0, max_iter=100, tol=1e-4,
     family : Family
     verbose : bool, default False
         whether to print diagnostic information during convergence
-    dask_distributed_client: dask client, default None
-        If given, use it to broadcast model weights to workers.
 
     Returns
     -------
     beta : array-like, shape (n_features,)
     """
+    dask_distributed_client = get_distributed_client()
     pointwise_loss = family.pointwise_loss
     pointwise_gradient = family.pointwise_gradient
     if regularizer is not None:
