@@ -15,7 +15,7 @@ from dask.callbacks import Callback
 from dask.delayed import delayed
 from dask.utils import tmpdir
 from distributed import Client, Nanny, Variable
-from distributed.utils_test import cluster, loop
+from distributed.utils_test import cluster, loop  # noqa
 from sklearn.datasets import load_iris, make_classification
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
@@ -712,6 +712,7 @@ class CountTakes(np.ndarray):
         return super(CountTakes, self).take(*args, **kwargs)
 
 
+@pytest.mark.xfail(SK_022, reason="upstream changes to ndarray subclass")
 def test_cache_cv():
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
     X2 = X.view(CountTakes)
@@ -785,7 +786,7 @@ def test_scheduler_param(scheduler, n_jobs):
     gs.fit(X, y)
 
 
-def test_scheduler_param_distributed(loop):
+def test_scheduler_param_distributed(loop):  # noqa
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
     with cluster() as (s, [a, b]):
         with Client(s["address"], loop=loop) as client:
@@ -798,7 +799,7 @@ def test_scheduler_param_distributed(loop):
             assert client.run_on_scheduler(f)  # some work happened on cluster
 
 
-def test_as_completed_distributed(loop):
+def test_as_completed_distributed(loop):  # noqa
     with cluster(active_rpc_timeout=10, nanny=Nanny) as (s, [a, b]):
         with Client(s["address"], loop=loop) as c:
             counter_name = "counter_name"
