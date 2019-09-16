@@ -26,5 +26,6 @@ dependencies:
   - scipy
   - sparse
   - toolz
+  - pip
   - pip:
     - pytest-azurepipelines
