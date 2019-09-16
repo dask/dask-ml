@@ -341,8 +341,8 @@ def lbfgs(X, y, regularizer=None, lamduh=1.0, max_iter=100, tol=1e-4,
     def compute_loss_grad(beta, X, y):
         scatter_beta = scatter_array(
             beta, dask_distributed_client) if dask_distributed_client else beta
-        loss_fn = pointwise_loss(beta, X, y)
-        gradient_fn = pointwise_gradient(beta, X, y)
+        loss_fn = pointwise_loss(scatter_beta, X, y)
+        gradient_fn = pointwise_gradient(scatter_beta, X, y)
         loss, gradient = compute(loss_fn, gradient_fn)
         return loss, gradient.copy()
 
