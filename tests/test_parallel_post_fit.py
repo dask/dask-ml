@@ -17,13 +17,14 @@ def test_it_works():
     clf = ParallelPostFit(GradientBoostingClassifier())
 
     X, y = make_classification(n_samples=1000, chunks=100)
-    clf.fit(X, y)
+    X_, y_ = dask.compute(X, y)
+    clf.fit(X_, y_)
 
     assert isinstance(clf.predict(X), da.Array)
     assert isinstance(clf.predict_proba(X), da.Array)
 
     result = clf.score(X, y)
-    expected = clf.estimator.score(X, y)
+    expected = clf.estimator.score(X_, y_)
     assert result == expected
 
 
