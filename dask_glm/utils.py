@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 import inspect
 import sys
 
-import dask.distributed as dd
+from dask.distributed import get_client
 import dask.array as da
 import numpy as np
 from functools import wraps
@@ -207,6 +207,6 @@ def scatter_array(arr, dask_client):
 
 def get_distributed_client():
     try:
-        return dd.get_client()
+        return get_client()
     except ValueError:
         return None
