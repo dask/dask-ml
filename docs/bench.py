@@ -2,13 +2,14 @@ from __future__ import division, print_function
 
 from time import time
 
-from joblib import Parallel, parallel_backend
 import numpy as np
 import sklearn.ensemble.forest
 from sklearn.datasets import fetch_covtype
 from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier
 from sklearn.metrics import zero_one_loss
 from sklearn.utils import check_array
+
+from joblib import Parallel, parallel_backend
 
 
 def Parallel2(*args, **kwargs):
