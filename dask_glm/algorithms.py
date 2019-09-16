@@ -11,7 +11,7 @@ import dask.array as da
 from scipy.optimize import fmin_l_bfgs_b
 
 
-from dask_glm.utils import dot, normalize
+from dask_glm.utils import dot, normalize, scatter_array, get_distributed_client
 from dask_glm.families import Logistic
 from dask_glm.regularizers import Regularizer
 
@@ -327,6 +327,7 @@ def lbfgs(X, y, regularizer=None, lamduh=1.0, max_iter=100, tol=1e-4,
     -------
     beta : array-like, shape (n_features,)
     """
+    dask_distributed_client = get_distributed_client()
     pointwise_loss = family.pointwise_loss
     pointwise_gradient = family.pointwise_gradient
     if regularizer is not None:
@@ -338,8 +339,10 @@ def lbfgs(X, y, regularizer=None, lamduh=1.0, max_iter=100, tol=1e-4,
     beta0 = np.zeros(p)
 
     def compute_loss_grad(beta, X, y):
-        loss_fn = pointwise_loss(beta, X, y)
-        gradient_fn = pointwise_gradient(beta, X, y)
+        scatter_beta = scatter_array(
+            beta, dask_distributed_client) if dask_distributed_client else beta
+        loss_fn = pointwise_loss(scatter_beta, X, y)
+        gradient_fn = pointwise_gradient(scatter_beta, X, y)
         loss, gradient = compute(loss_fn, gradient_fn)
         return loss, gradient.copy()
 

@@ -3,3 +3,4 @@ dask[array]
 multipledispatch>=0.4.9
 scipy>=0.18.1
 scikit-learn>=0.18
+distributed
