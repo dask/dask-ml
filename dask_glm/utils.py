@@ -8,6 +8,7 @@ import dask.array as da
 import numpy as np
 from functools import wraps
 from multipledispatch import dispatch
+import sparse
 
 
 def normalize(algo):
@@ -151,6 +152,22 @@ def add_intercept(X):
     o = da.ones((X.shape[0], 1), chunks=(j, 1))
     # TODO: Needed this `.rechunk` for the solver to work
     # Is this OK / correct?
+    X_i = da.concatenate([X, o], axis=1).rechunk((j, (k[0] + 1,)))
+    return X_i
+
+
+@dispatch(object)
+def add_sparse_intercept(X):
+    return sparse.concatenate([X, sparse.COO(np.ones((X.shape[0], 1)))], axis=1)
+
+
+@dispatch(da.Array)
+def add_sparse_intercept(X):
+    if np.isnan(np.sum(X.shape)):
+        raise NotImplementedError("Can not add intercept to array with "
+                                  "unknown chunk shape")
+    j, k = X.chunks
+    o = da.ones((X.shape[0], 1), chunks=(j, 1)).map_blocks(sparse.COO)
     X_i = da.concatenate([X, o], axis=1).rechunk((j, (k[0] + 1,)))
     return X_i
 

@@ -42,7 +42,7 @@ def make_intercept_data(N, p, seed=20009):
                          [lbfgs,
                           newton,
                           gradient_descent])
-@pytest.mark.parametrize('N, p, seed',
+@pytest.mark.parametrize('N, p, seed,',
                          [(100, 2, 20009),
                           (250, 12, 90210),
                           (95, 6, 70605)])
