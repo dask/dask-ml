@@ -93,6 +93,11 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         If None, the random number generator is the RandomState instance used
         by `np.random`.
 
+    verbose : bool, int, optional, default: False
+        If ``True``, print the best validation score received to stdout every
+        time possible.  If an integer, print ``1 / verbose``
+        percent of the time.
+
 
     Attributes
     ----------

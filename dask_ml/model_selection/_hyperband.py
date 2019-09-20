@@ -139,6 +139,11 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
 
         If None, the estimator's default scorer (if available) is used.
 
+    verbose : bool, int, optional, default: False
+        If ``True``, print the best validation score received to stdout every
+        time possible.  If an integer, print ``1 / verbose``
+        percent of the time.
+
     Examples
     --------
     >>> import numpy as np

@@ -348,6 +348,10 @@ def fit(
         If RandomState instance, random_state is the random number generator;
         If None, the random number generator is the RandomState instance used
         by `np.random`.
+    verbose : bool, int, optional, default: False
+        If ``True``, print the best validation score received to stdout every
+        time possible.  If an integer, print ``1 / verbose``
+        percent of the time.
 
     Examples
     --------
@@ -761,9 +765,10 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
         If None, the estimator's default scorer (if available) is used.
 
-    verbose : bool, int, optional
-        If ``True``, print the best validation score received to stdout.
-        If an integer, only print info ``1 / verbose`` percent of the time.
+    verbose : bool, int, optional, default: False
+        If ``True``, print the best validation score received to stdout every
+        time possible.  If an integer, print ``1 / verbose``
+        percent of the time.
 
     Attributes
     ----------
