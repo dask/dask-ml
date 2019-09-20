@@ -72,8 +72,9 @@ def test_add_intercept_dask():
 
 
 def test_add_intercept_sparse():
+    from sparse.utils import assert_eq
     X = sparse.COO(np.zeros((4, 4)))
-    result = utils.add_sparse_intercept(X)
+    result = utils.add_intercept(X)
     expected = sparse.COO(np.array([
         [0, 0, 0, 0, 1],
         [0, 0, 0, 0, 1],
@@ -85,7 +86,7 @@ def test_add_intercept_sparse():
 
 def test_add_intercept_sparse_dask():
     X = da.from_array(sparse.COO(np.zeros((4, 4))), chunks=(2, 4))
-    result = utils.add_sparse_intercept(X)
+    result = utils.add_intercept(X)
     expected = da.from_array(sparse.COO(np.array([
         [0, 0, 0, 0, 1],
         [0, 0, 0, 0, 1],
@@ -96,7 +97,6 @@ def test_add_intercept_sparse_dask():
 
 
 def test_sparse():
-    sparse = pytest.importorskip('sparse')
     from sparse.utils import assert_eq
     x = sparse.COO({(0, 0): 1, (1, 2): 2, (2, 1): 3})
     y = x.todense()

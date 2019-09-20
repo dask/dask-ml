@@ -138,9 +138,21 @@ def sum(A):
     return A.sum()
 
 
+def is_dask_array_sparse(X):
+    """
+    Check using _meta if a dask array contains sparse arrays
+    """
+    return isinstance(X._meta, sparse.COO) or isinstance(X._meta, sparse.DOK)
+
+
 @dispatch(np.ndarray)
 def add_intercept(X):
     return np.concatenate([X, np.ones((X.shape[0], 1))], axis=1)
+
+
+@dispatch((sparse.COO, sparse.DOK))
+def add_intercept(X):
+    return sparse.concatenate([X, sparse.COO(np.ones((X.shape[0], 1)))], axis=1)
 
 
 @dispatch(da.Array)
@@ -150,24 +162,10 @@ def add_intercept(X):
                                   "unknown chunk shape")
     j, k = X.chunks
     o = da.ones((X.shape[0], 1), chunks=(j, 1))
+    if is_dask_array_sparse(X):
+        o = o.map_blocks(sparse.COO)
     # TODO: Needed this `.rechunk` for the solver to work
     # Is this OK / correct?
-    X_i = da.concatenate([X, o], axis=1).rechunk((j, (k[0] + 1,)))
-    return X_i
-
-
-@dispatch(object)
-def add_sparse_intercept(X):
-    return sparse.concatenate([X, sparse.COO(np.ones((X.shape[0], 1)))], axis=1)
-
-
-@dispatch(da.Array)
-def add_sparse_intercept(X):
-    if np.isnan(np.sum(X.shape)):
-        raise NotImplementedError("Can not add intercept to array with "
-                                  "unknown chunk shape")
-    j, k = X.chunks
-    o = da.ones((X.shape[0], 1), chunks=(j, 1)).map_blocks(sparse.COO)
     X_i = da.concatenate([X, o], axis=1).rechunk((j, (k[0] + 1,)))
     return X_i
 

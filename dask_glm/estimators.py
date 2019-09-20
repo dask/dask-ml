@@ -6,8 +6,8 @@ from sklearn.base import BaseEstimator
 from . import algorithms
 from . import families
 from .utils import (
-    sigmoid, dot, add_intercept, add_sparse_intercept, mean_squared_error,
-    accuracy_score, exp, poisson_deviance
+    sigmoid, dot, add_intercept, mean_squared_error,
+    accuracy_score, exp, poisson_deviance, is_dask_array_sparse
 )
 
 
@@ -32,7 +32,7 @@ class _GLM(BaseEstimator):
 
     def __init__(self, fit_intercept=True, solver='admm', regularizer='l2',
                  max_iter=100, tol=1e-4, lamduh=1.0, rho=1,
-                 over_relax=1, abstol=1e-4, reltol=1e-2, use_sparse_matrix=False):
+                 over_relax=1, abstol=1e-4, reltol=1e-2):
         self.fit_intercept = fit_intercept
         self.solver = solver
         self.regularizer = regularizer
@@ -43,7 +43,6 @@ class _GLM(BaseEstimator):
         self.over_relax = over_relax
         self.abstol = abstol
         self.reltol = reltol
-        self.use_sparse_matrix = use_sparse_matrix
 
         self.coef_ = None
         self.intercept_ = None
@@ -61,13 +60,14 @@ class _GLM(BaseEstimator):
             fit_kwargs.update({'regularizer', 'lamduh'})
 
         self._fit_kwargs = {k: getattr(self, k) for k in fit_kwargs}
-        if use_sparse_matrix:
-            # Normalize a sparse matrix will densify it. Disable the feature
-            self._fit_kwargs['normalize'] = False
 
     def fit(self, X, y=None):
         X_ = self._maybe_add_intercept(X)
-        self._coef = algorithms._solvers[self.solver](X_, y, **self._fit_kwargs)
+        fit_kwargs = dict(self._fit_kwargs)
+        if is_dask_array_sparse(X):
+            fit_kwargs['normalize'] = False
+
+        self._coef = algorithms._solvers[self.solver](X_, y, **fit_kwargs)
 
         if self.fit_intercept:
             self.coef_ = self._coef[:-1]
@@ -78,10 +78,7 @@ class _GLM(BaseEstimator):
 
     def _maybe_add_intercept(self, X):
         if self.fit_intercept:
-            if self.use_sparse_matrix:
-                return add_sparse_intercept(X)
-            else:
-                return add_intercept(X)
+            return add_intercept(X)
         else:
             return X
 
