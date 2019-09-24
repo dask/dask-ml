@@ -17,6 +17,7 @@ install:
   - conda create -n test-environment -c conda-forge python=$PYTHON numpy flake8 pytest scipy multipledispatch cloudpickle numba dask mock scikit-learn jupyter sparse>=0.7.0
   - source activate test-environment
   - pip install git+https://github.com/dask/dask
+  - conda list
 
   # Install dask-glm
   - pip install --no-deps -e .
