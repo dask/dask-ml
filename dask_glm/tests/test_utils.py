@@ -72,7 +72,7 @@ def test_add_intercept_dask():
 
 
 def test_add_intercept_sparse():
-    from sparse.utils import assert_eq
+    from sparse._utils import assert_eq
     X = sparse.COO(np.zeros((4, 4)))
     result = utils.add_intercept(X)
     expected = sparse.COO(np.array([
@@ -97,7 +97,7 @@ def test_add_intercept_sparse_dask():
 
 
 def test_sparse():
-    from sparse.utils import assert_eq
+    from sparse._utils import assert_eq
     x = sparse.COO({(0, 0): 1, (1, 2): 2, (2, 1): 3})
     y = x.todense()
     assert utils.sum(x) == utils.sum(x.todense())
