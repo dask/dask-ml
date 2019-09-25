@@ -7,7 +7,7 @@ dependencies:
   - codecov
   - coverage
   - dask
-  - dask-glm
+  - dask-glm >=0.2.0
   - distributed
   - flake8
   - isort

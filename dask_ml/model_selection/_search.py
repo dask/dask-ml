@@ -33,9 +33,9 @@ from sklearn.model_selection._split import (
 from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.utils.metaestimators import if_delegate_has_method
 from sklearn.utils.multiclass import type_of_target
-from sklearn.utils.validation import _num_samples, check_is_fitted
+from sklearn.utils.validation import _num_samples
 
-from .._compat import SK_VERSION
+from .._compat import SK_VERSION, check_is_fitted
 from ._normalize import normalize_estimator
 from .methods import (
     MISSING,

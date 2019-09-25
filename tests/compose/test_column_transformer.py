@@ -80,14 +80,9 @@ def test_column_transformer_unk_chunksize():
             )
         ]
     )
-
-    # Checks:
-    #   ValueError: Tried to concatenate arrays with unknown shape (nan, 1).
-    #               To force concatenation pass allow_unknown_chunksizes=True.
     out = features.fit_transform(x)
 
     exp = np.array([[1, 3], [7, 9], [13, 15], [19, 21]])
-    assert isinstance(out, np.ndarray)
     np.testing.assert_array_equal(out, exp)
 
 

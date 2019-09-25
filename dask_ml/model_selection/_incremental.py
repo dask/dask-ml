@@ -17,9 +17,9 @@ from sklearn.metrics.scorer import check_scoring
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
 from sklearn.utils.metaestimators import if_delegate_has_method
-from sklearn.utils.validation import check_is_fitted
 from tornado import gen
 
+from .._compat import check_is_fitted
 from ..utils import check_array
 from ..wrappers import ParallelPostFit
 from ._split import train_test_split
@@ -913,12 +913,26 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
             )
 
     def _additional_calls(self, info):
+        if not isinstance(self.patience, int):
+            msg = (
+                "patience must be an integer (or a subclass like boolean), "
+                "not patience={} of type {}"
+            )
+            raise ValueError(msg.format(self.patience, type(self.patience)))
+        if not isinstance(self.patience, bool) and self.patience <= 1:
+            raise ValueError(
+                "patience={}<=1 will always detect a plateau. "
+                "this, set\n\n    patience >= 2"
+            )
+
         calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
 
         if self.patience and max(calls.values()) > 1:
             calls_so_far = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
             adapt_calls = {
-                k: [vi["partial_fit_calls"] + vi.get("_adapt", 0) for vi in v][-1]
+                k: [
+                    vi["partial_fit_calls"] + vi["_adapt"] for vi in v if "_adapt" in vi
+                ][-1]
                 for k, v in info.items()
             }
 
@@ -990,7 +1004,8 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
                     for h in records
                     if current_calls - h["partial_fit_calls"] <= self.patience
                 ]
-                if all(score <= plateau[0] + self.tol for score in plateau[1:]):
+                diffs = np.array(plateau[1:]) - plateau[0]
+                if (self.tol is not None) and diffs.max() <= self.tol:
                     out[k] = 0
                 else:
                     out[k] = steps
