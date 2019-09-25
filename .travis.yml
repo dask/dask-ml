@@ -3,7 +3,7 @@ sudo: false
 
 env:
   matrix:
-    - PYTHON=3.5 IPYTHON_KERNEL=python3
+    - PYTHON=3.7 IPYTHON_KERNEL=python3
 
 install:
   # Install conda
@@ -14,7 +14,7 @@ install:
   - conda update conda
 
   # Install dependencies
-  - conda create -n test-environment -c conda-forge python=$PYTHON numpy>=1.17.0 flake8 pytest scipy multipledispatch cloudpickle numba dask mock scikit-learn jupyter sparse>=0.7.0
+  - conda create -n test-environment -c conda-forge python=$PYTHON numpy flake8 pytest scipy multipledispatch cloudpickle numba dask mock scikit-learn jupyter sparse
   - source activate test-environment
   - pip install git+https://github.com/dask/dask
   - conda list
