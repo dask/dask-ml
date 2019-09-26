@@ -142,7 +142,7 @@ def is_dask_array_sparse(X):
     """
     Check using _meta if a dask array contains sparse arrays
     """
-    return isinstance(X._meta, sparse.COO) or isinstance(X._meta, sparse.DOK)
+    return isinstance(X._meta, sparse.SparseArray)
 
 
 @dispatch(np.ndarray)

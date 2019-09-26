@@ -72,7 +72,6 @@ def test_add_intercept_dask():
 
 
 def test_add_intercept_sparse():
-    from sparse._utils import assert_eq
     X = sparse.COO(np.zeros((4, 4)))
     result = utils.add_intercept(X)
     expected = sparse.COO(np.array([
@@ -81,7 +80,7 @@ def test_add_intercept_sparse():
         [0, 0, 0, 0, 1],
         [0, 0, 0, 0, 1],
     ], dtype=X.dtype))
-    assert_eq(result, expected)
+    assert (result == expected).all()
 
 
 def test_add_intercept_sparse_dask():
@@ -97,9 +96,15 @@ def test_add_intercept_sparse_dask():
 
 
 def test_sparse():
-    from sparse._utils import assert_eq
     x = sparse.COO({(0, 0): 1, (1, 2): 2, (2, 1): 3})
     y = x.todense()
     assert utils.sum(x) == utils.sum(x.todense())
     for func in [utils.sigmoid, utils.sum, utils.exp]:
-        assert_eq(func(x), func(y))
+        assert (func(x) == func(y)).all()
+
+
+def test_dask_array_is_sparse():
+    assert utils.is_dask_array_sparse(da.from_array(
+        sparse.COO([], [], shape=(10, 10))))
+    assert utils.is_dask_array_sparse(da.from_array(sparse.eye(10)))
+    assert not utils.is_dask_array_sparse(da.from_array(np.eye(10)))
