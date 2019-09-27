@@ -110,6 +110,7 @@ def test_dask_array_is_sparse():
     assert not utils.is_dask_array_sparse(da.from_array(np.eye(10)))
 
 
-@pytest.mark.xfail(reason="dask does not forward DOK in _meta (https://github.com/pydata/sparse/issues/292)")
+@pytest.mark.xfail(reason="dask does not forward DOK in _meta "
+                          "(https://github.com/pydata/sparse/issues/292)")
 def test_dok_dask_array_is_sparse():
     assert utils.is_dask_array_sparse(da.from_array(sparse.DOK((10, 10))))
