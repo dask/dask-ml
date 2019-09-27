@@ -150,7 +150,7 @@ def add_intercept(X):
     return np.concatenate([X, np.ones((X.shape[0], 1))], axis=1)
 
 
-@dispatch((sparse.COO, sparse.DOK))
+@dispatch(sparse.SparseArray)
 def add_intercept(X):
     return sparse.concatenate([X, sparse.COO(np.ones((X.shape[0], 1)))], axis=1)
 
