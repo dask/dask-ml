@@ -6,8 +6,8 @@ from sklearn.base import BaseEstimator
 from . import algorithms
 from . import families
 from .utils import (
-    sigmoid, dot, add_intercept, mean_squared_error, accuracy_score, exp,
-    poisson_deviance
+    sigmoid, dot, add_intercept, mean_squared_error,
+    accuracy_score, exp, poisson_deviance, is_dask_array_sparse
 )
 
 
@@ -63,7 +63,11 @@ class _GLM(BaseEstimator):
 
     def fit(self, X, y=None):
         X_ = self._maybe_add_intercept(X)
-        self._coef = algorithms._solvers[self.solver](X_, y, **self._fit_kwargs)
+        fit_kwargs = dict(self._fit_kwargs)
+        if is_dask_array_sparse(X):
+            fit_kwargs['normalize'] = False
+
+        self._coef = algorithms._solvers[self.solver](X_, y, **fit_kwargs)
 
         if self.fit_intercept:
             self.coef_ = self._coef[:-1]

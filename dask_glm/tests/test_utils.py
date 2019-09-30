@@ -1,6 +1,7 @@
 import pytest
 import numpy as np
 import dask.array as da
+import sparse
 
 from dask_glm import utils
 from dask.array.utils import assert_eq
@@ -70,11 +71,46 @@ def test_add_intercept_dask():
     assert_eq(result, expected)
 
 
+def test_add_intercept_sparse():
+    X = sparse.COO(np.zeros((4, 4)))
+    result = utils.add_intercept(X)
+    expected = sparse.COO(np.array([
+        [0, 0, 0, 0, 1],
+        [0, 0, 0, 0, 1],
+        [0, 0, 0, 0, 1],
+        [0, 0, 0, 0, 1],
+    ], dtype=X.dtype))
+    assert (result == expected).all()
+
+
+def test_add_intercept_sparse_dask():
+    X = da.from_array(sparse.COO(np.zeros((4, 4))), chunks=(2, 4))
+    result = utils.add_intercept(X)
+    expected = da.from_array(sparse.COO(np.array([
+        [0, 0, 0, 0, 1],
+        [0, 0, 0, 0, 1],
+        [0, 0, 0, 0, 1],
+        [0, 0, 0, 0, 1],
+    ], dtype=X.dtype)), chunks=2)
+    assert_eq(result, expected)
+
+
 def test_sparse():
-    sparse = pytest.importorskip('sparse')
-    from sparse.utils import assert_eq
     x = sparse.COO({(0, 0): 1, (1, 2): 2, (2, 1): 3})
     y = x.todense()
     assert utils.sum(x) == utils.sum(x.todense())
     for func in [utils.sigmoid, utils.sum, utils.exp]:
-        assert_eq(func(x), func(y))
+        assert (func(x) == func(y)).all()
+
+
+def test_dask_array_is_sparse():
+    assert utils.is_dask_array_sparse(da.from_array(
+        sparse.COO([], [], shape=(10, 10))))
+    assert utils.is_dask_array_sparse(da.from_array(sparse.eye(10)))
+    assert not utils.is_dask_array_sparse(da.from_array(np.eye(10)))
+
+
+@pytest.mark.xfail(reason="dask does not forward DOK in _meta "
+                          "(https://github.com/pydata/sparse/issues/292)")
+def test_dok_dask_array_is_sparse():
+    assert utils.is_dask_array_sparse(da.from_array(sparse.DOK((10, 10))))

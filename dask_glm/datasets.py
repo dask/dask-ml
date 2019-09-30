@@ -1,10 +1,11 @@
 import numpy as np
+import sparse
 import dask.array as da
 from dask_glm.utils import exp
 
 
 def make_classification(n_samples=1000, n_features=100, n_informative=2, scale=1.0,
-                        chunksize=100):
+                        chunksize=100, is_sparse=False):
     """
     Generate a dummy dataset for classification tasks.
 
@@ -20,6 +21,8 @@ def make_classification(n_samples=1000, n_features=100, n_informative=2, scale=1
         Scale the true coefficient array by this
     chunksize : int
         Number of rows per dask array block.
+    is_sparse: bool
+        Return a sparse matrix
 
     Returns
     -------
@@ -37,6 +40,8 @@ def make_classification(n_samples=1000, n_features=100, n_informative=2, scale=1
     """
     X = da.random.normal(0, 1, size=(n_samples, n_features),
                          chunks=(chunksize, n_features))
+    if is_sparse:
+        X = X.map_blocks(sparse.COO)
     informative_idx = np.random.choice(n_features, n_informative)
     beta = (np.random.random(n_features) - 1) * scale
     z0 = X[:, informative_idx].dot(beta[informative_idx])
@@ -45,7 +50,7 @@ def make_classification(n_samples=1000, n_features=100, n_informative=2, scale=1
 
 
 def make_regression(n_samples=1000, n_features=100, n_informative=2, scale=1.0,
-                    chunksize=100):
+                    chunksize=100, is_sparse=False):
     """
     Generate a dummy dataset for regression tasks.
 
@@ -61,6 +66,8 @@ def make_regression(n_samples=1000, n_features=100, n_informative=2, scale=1.0,
         Scale the true coefficient array by this
     chunksize : int
         Number of rows per dask array block.
+    is_sparse: bool
+        Return a sparse matrix
 
     Returns
     -------
@@ -78,6 +85,8 @@ def make_regression(n_samples=1000, n_features=100, n_informative=2, scale=1.0,
     """
     X = da.random.normal(0, 1, size=(n_samples, n_features),
                          chunks=(chunksize, n_features))
+    if is_sparse:
+        X = X.map_blocks(sparse.COO)
     informative_idx = np.random.choice(n_features, n_informative)
     beta = (np.random.random(n_features) - 1) * scale
     z0 = X[:, informative_idx].dot(beta[informative_idx])
@@ -86,7 +95,7 @@ def make_regression(n_samples=1000, n_features=100, n_informative=2, scale=1.0,
 
 
 def make_poisson(n_samples=1000, n_features=100, n_informative=2, scale=1.0,
-                 chunksize=100):
+                 chunksize=100, is_sparse=False):
     """
     Generate a dummy dataset for modeling count data.
 
@@ -102,6 +111,8 @@ def make_poisson(n_samples=1000, n_features=100, n_informative=2, scale=1.0,
         Scale the true coefficient array by this
     chunksize : int
         Number of rows per dask array block.
+    is_sparse: bool
+        Return a sparse matrix
 
     Returns
     -------
@@ -119,6 +130,8 @@ def make_poisson(n_samples=1000, n_features=100, n_informative=2, scale=1.0,
     """
     X = da.random.normal(0, 1, size=(n_samples, n_features),
                          chunks=(chunksize, n_features))
+    if is_sparse:
+        X = X.map_blocks(sparse.COO)
     informative_idx = np.random.choice(n_features, n_informative)
     beta = (np.random.random(n_features) - 1) * scale
     z0 = X[:, informative_idx].dot(beta[informative_idx])

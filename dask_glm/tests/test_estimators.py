@@ -44,8 +44,9 @@ def test_pr_init(solver):
 
 
 @pytest.mark.parametrize('fit_intercept', [True, False])
-def test_fit(fit_intercept):
-    X, y = make_classification(n_samples=100, n_features=5, chunksize=10)
+@pytest.mark.parametrize('is_sparse', [True, False])
+def test_fit(fit_intercept, is_sparse):
+    X, y = make_classification(n_samples=100, n_features=5, chunksize=10, is_sparse=is_sparse)
     lr = LogisticRegression(fit_intercept=fit_intercept)
     lr.fit(X, y)
     lr.predict(X)
@@ -53,8 +54,9 @@ def test_fit(fit_intercept):
 
 
 @pytest.mark.parametrize('fit_intercept', [True, False])
-def test_lm(fit_intercept):
-    X, y = make_regression(n_samples=100, n_features=5, chunksize=10)
+@pytest.mark.parametrize('is_sparse', [True, False])
+def test_lm(fit_intercept, is_sparse):
+    X, y = make_regression(n_samples=100, n_features=5, chunksize=10, is_sparse=is_sparse)
     lr = LinearRegression(fit_intercept=fit_intercept)
     lr.fit(X, y)
     lr.predict(X)
@@ -63,9 +65,10 @@ def test_lm(fit_intercept):
 
 
 @pytest.mark.parametrize('fit_intercept', [True, False])
-def test_big(fit_intercept):
+@pytest.mark.parametrize('is_sparse', [True, False])
+def test_big(fit_intercept, is_sparse):
     with dask.config.set(scheduler='synchronous'):
-        X, y = make_classification()
+        X, y = make_classification(is_sparse=is_sparse)
         lr = LogisticRegression(fit_intercept=fit_intercept)
         lr.fit(X, y)
         lr.predict(X)
@@ -75,9 +78,10 @@ def test_big(fit_intercept):
 
 
 @pytest.mark.parametrize('fit_intercept', [True, False])
-def test_poisson_fit(fit_intercept):
+@pytest.mark.parametrize('is_sparse', [True, False])
+def test_poisson_fit(fit_intercept, is_sparse):
     with dask.config.set(scheduler='synchronous'):
-        X, y = make_poisson()
+        X, y = make_poisson(is_sparse=is_sparse)
         pr = PoissonRegression(fit_intercept=fit_intercept)
         pr.fit(X, y)
         pr.predict(X)
