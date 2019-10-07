@@ -369,7 +369,9 @@ def train_test_split(
 
     Parameters
     ----------
-    *arrays : Sequence of Dask Arrays
+    *arrays : Sequence of Dask Arrays, DataFrames, or Series
+        Non-dask objects will be passed through to
+        :func:`sklearn.model_selection.train_test_split`.
     test_size : float or int, default 0.1
     train_size : float or int, optional
     random_state : int, RandomState instance or None, optional (default=None)
@@ -458,7 +460,6 @@ def train_test_split(
 
         return list(itertools.chain.from_iterable(train_test_pairs))
     else:
-        logger.warning("Mixture of types in 'arrays'. Falling back to scikit-learn.")
         return ms.train_test_split(
             *arrays,
             test_size=test_size,
