@@ -331,8 +331,14 @@ def test_pipeline_feature_union():
 
     pca = PCA(random_state=0)
     kbest = SelectKBest()
-    empty_union = FeatureUnion([("first", None), ("second", None)])
-    empty_pipeline = Pipeline([("first", None), ("second", None)])
+
+    if SK_022:
+        drop = "drop"
+    else:
+        drop = None
+
+    empty_union = FeatureUnion([("first", drop), ("second", drop)])
+    empty_pipeline = Pipeline([("first", drop), ("second", None)])
     scaling = Pipeline([("transform", ScalingTransformer())])
     svc = SVC(kernel="linear", random_state=0)
 
@@ -340,13 +346,13 @@ def test_pipeline_feature_union():
         [
             ("empty_pipeline", empty_pipeline),
             ("scaling", scaling),
-            ("missing", None),
+            ("missing", drop),
             (
                 "union",
                 FeatureUnion(
                     [
                         ("pca", pca),
-                        ("missing", None),
+                        ("missing", drop),
                         ("kbest", kbest),
                         ("empty_union", empty_union),
                     ],
@@ -394,11 +400,12 @@ def test_pipeline_sub_estimators():
     X, y = iris.data, iris.target
 
     scaling = Pipeline([("transform", ScalingTransformer())])
+    drop = "drop" if SK_022 else None
 
     pipe = Pipeline(
         [
-            ("setup", None),
-            ("missing", None),
+            ("setup", drop),
+            ("missing", drop),
             ("scaling", scaling),
             ("svc", SVC(kernel="linear", random_state=0)),
         ]
