@@ -709,10 +709,13 @@ class CountTakes(np.ndarray):
 
     def take(self, *args, **kwargs):
         self.count += 1
-        return super(CountTakes, self).take(*args, **kwargs)
+        return super().take(*args, **kwargs)
+
+    def __getitem__(self, *args, **kwargs):
+        self.count += 1
+        return super().__getitem__(*args, **kwargs)
 
 
-@pytest.mark.xfail(SK_022, reason="upstream changes to ndarray subclass")
 def test_cache_cv():
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
     X2 = X.view(CountTakes)
