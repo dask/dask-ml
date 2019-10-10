@@ -363,6 +363,7 @@ def train_test_split(
     random_state=None,
     shuffle=True,
     blockwise=None,
+    convert_mixed_types=False,
     **options
 ):
     """Split arrays into random train and test matricies.
@@ -390,6 +391,11 @@ def train_test_split(
         the default is True (data are not shuffled between blocks). For Dask
         DataFrames, the default and only allowed value is False (data are
         shuffled between blocks).
+
+    convert_mixed_types : bool, defualt False
+        Whether to convert dask DataFrames and Series to dask Arrays when
+        arrays contains a mixiture of types. This results in some computation
+        to determine the length of each block.
 
     Returns
     -------
@@ -425,6 +431,22 @@ def train_test_split(
 
     if not shuffle:
         raise NotImplementedError("'shuffle=False' is not currently supported.")
+
+    types = set(type(arr) for arr in arrays)
+
+    if da.Array in types and types & {dd.Series, dd.DataFrame}:
+        if convert_mixed_types:
+            arrays = tuple(
+                x.to_dask_array(lengths=True)
+                if isinstance(x, (dd.Series, dd.DataFrame))
+                else x
+                for x in arrays
+            )
+        else:
+            raise TypeError(
+                "Got mixture of dask DataFrames and Arrays. Specify "
+                "'convert_mixed_types=True'"
+            )
 
     if all(isinstance(arr, (dd.Series, dd.DataFrame)) for arr in arrays):
         check_matching_blocks(*arrays)
