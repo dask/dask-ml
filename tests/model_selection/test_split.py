@@ -6,6 +6,7 @@ import pytest
 from sklearn.datasets import fetch_20newsgroups, make_regression
 
 import dask_ml.model_selection
+from dask_ml._compat import DASK_200
 
 X, y = make_regression(n_samples=110, n_features=5)
 dX = da.from_array(X, 50)
@@ -193,6 +194,7 @@ def test_train_test_split_dask_dataframe_rng(xy_classification_pandas):
         dd.utils.assert_eq(a, b)
 
 
+@pytest.mark.skipif(not DASK_200, reason="assert_eq")
 def test_split_mixed():
     y_series = dd.from_dask_array(dy)
 

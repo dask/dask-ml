@@ -10,7 +10,6 @@ import numpy as np
 import scipy.sparse as sp
 from dask.base import tokenize
 from dask.delayed import Delayed, delayed
-from sklearn.utils import safe_indexing
 from sklearn.utils.fixes import np_version
 from sklearn.utils.validation import _is_arraylike, indexable
 
@@ -70,7 +69,7 @@ def _index_param_value(num_samples, v, indices):
         return v
     if sp.issparse(v):
         v = v.tocsr()
-    return safe_indexing(v, indices)
+    return _safe_indexing(v, indices)
 
 
 def to_keys(dsk, *args):
