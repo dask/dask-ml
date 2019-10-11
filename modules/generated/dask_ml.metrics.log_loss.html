@@ -25,6 +25,7 @@
         <script type="text/javascript" src="../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../_static/doctools.js"></script>
         <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
         <script type="text/javascript" src="../../_static/js/custom.js"></script>
@@ -40,8 +41,9 @@
   <link rel="stylesheet" href="../../_static/css/nbsphinx.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="dask_ml.tensorflow.start_tensorflow" href="dask_ml.tensorflow.start_tensorflow.html" />
-    <link rel="prev" title="dask_ml.metrics.accuracy_score" href="dask_ml.metrics.accuracy_score.html" /> 
+    <link rel="prev" title="dask_ml.metrics.accuracy_score" href="dask_ml.metrics.accuracy_score.html" />
+  <link rel="shortcut icon" href="../../_static/images/favicon.ico"/>
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -64,6 +66,7 @@
         <li><a href="https://stories.dask.org/en/latest"> Use Cases </a></li>
         <li><a href="https://www.youtube.com/watch?v=RA_2qdipVng&list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri"> Talks </a></li>
         <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab"> Try Online </a></li>
+        <li><a href="https://dask.org/slides"> Slides </a></li>
       </ul>
     </li>
 
@@ -81,13 +84,13 @@
     </li>
 
     <li>
-      <a href="https://docs.dask.org/en/latest/setup.html">Deploy</a>
+      <a href="https://docs.dask.org/en/latest/setup.html">Setup</a>
       <ul>
-        <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
-        <li><a href="https://docs.dask.org/en/latest/setup/kubernetes-helm.html"> Helm </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/cloud.html"> Cloud </a></li>
         <li><a href="https://docs.dask.org/en/latest/setup/hpc.html"> HPC </a></li>
         <li><a href="https://kubernetes.dask.org/en/latest/"> Kubernetes </a></li>
-        <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
+        <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
       </ul>
     </li>
 
@@ -124,7 +127,7 @@
             
             
               <div class="version">
-                1.0.1.dev5+g7239ecc
+                1.0.1.dev11+g9ca3067
               </div>
             
           
@@ -184,7 +187,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.tensorflow"><code class="docutils literal notranslate"><span class="pre">dask_ml.tensorflow</span></code>: Tensorflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-tensorflow-tensorflow"><code class="docutils literal notranslate"><span class="pre">dask_ml.tensorflow</span></code>: Tensorflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.xgboost"><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code>: XGBoost</a></li>
 </ul>
 </li>
@@ -275,7 +278,7 @@ For a single sample with true label yt in {0,1} and
 estimated probability yp that yt = 1, the log loss is</p>
 <blockquote>
 <div>-log P(yt|yp) = -(yt log(yp) + (1 - yt) log(1 - yp))</div></blockquote>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#log-loss" title="(in scikit-learn v0.21.2)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#log-loss" title="(in scikit-learn v0.21.3)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -343,8 +346,6 @@ p. 209.</p>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="dask_ml.tensorflow.start_tensorflow.html" class="btn btn-neutral float-right" title="dask_ml.tensorflow.start_tensorflow" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="dask_ml.metrics.accuracy_score.html" class="btn btn-neutral float-left" title="dask_ml.metrics.accuracy_score" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

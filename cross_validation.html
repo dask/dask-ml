@@ -25,6 +25,7 @@
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
         <script type="text/javascript" src="_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
         <script type="text/javascript" src="_static/js/custom.js"></script>
@@ -41,7 +42,9 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Hyper Parameter Search" href="hyper-parameter-search.html" />
-    <link rel="prev" title="Preprocessing" href="preprocessing.html" /> 
+    <link rel="prev" title="Preprocessing" href="preprocessing.html" />
+  <link rel="shortcut icon" href="_static/images/favicon.ico"/>
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -64,6 +67,7 @@
         <li><a href="https://stories.dask.org/en/latest"> Use Cases </a></li>
         <li><a href="https://www.youtube.com/watch?v=RA_2qdipVng&list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri"> Talks </a></li>
         <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab"> Try Online </a></li>
+        <li><a href="https://dask.org/slides"> Slides </a></li>
       </ul>
     </li>
 
@@ -81,13 +85,13 @@
     </li>
 
     <li>
-      <a href="https://docs.dask.org/en/latest/setup.html">Deploy</a>
+      <a href="https://docs.dask.org/en/latest/setup.html">Setup</a>
       <ul>
-        <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
-        <li><a href="https://docs.dask.org/en/latest/setup/kubernetes-helm.html"> Helm </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/cloud.html"> Cloud </a></li>
         <li><a href="https://docs.dask.org/en/latest/setup/hpc.html"> HPC </a></li>
         <li><a href="https://kubernetes.dask.org/en/latest/"> Kubernetes </a></li>
-        <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
+        <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
       </ul>
     </li>
 
@@ -124,7 +128,7 @@
             
             
               <div class="version">
-                1.0.1.dev5+g7239ecc
+                1.0.1.dev11+g9ca3067
               </div>
             
           
@@ -252,23 +256,23 @@ This document only describes the extensions made to support Dask arrays.</p>
 <span class="gp">In [4]: </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_regression</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">125</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
 
 <span class="gp">In [5]: </span><span class="n">X</span>
-<span class="gh">Out[5]: </span><span class="go">dask.array&lt;normal, shape=(125, 4), dtype=float64, chunksize=(50, 4)&gt;</span>
+<span class="gh">Out[5]: </span><span class="go">dask.array&lt;normal, shape=(125, 4), dtype=float64, chunksize=(50, 4), chunktype=numpy.ndarray&gt;</span>
 </pre></div>
 </div>
 <p>The interface for splitting Dask arrays is the same as scikit-learn’s version.</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [6]: </span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<pre class="literal-block">
+In [6]: X_train, X_test, y_train, y_test = train_test_split(X, y)
 
-<span class="gp">In [7]: </span><span class="n">X_train</span>  <span class="c1"># A dask Array</span>
-<span class="gh">Out[7]: </span><span class="go">dask.array&lt;concatenate, shape=(112, 4), dtype=float64, chunksize=(45, 4)&gt;</span>
+In [7]: X_train  # A dask Array
+Out[7]: dask.array&lt;concatenate, shape=(112, 4), dtype=float64, chunksize=(45, 4), chunktype=numpy.ndarray&gt;
 
-<span class="gp">In [8]: </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span>
-<span class="go">                                                                                  Out[8]: </span>
-<span class="go">array([[-0.21865417, -0.50456115,  2.27597266,  0.39090406],</span>
-<span class="go">       [ 1.07432565, -1.17306786,  0.37381119, -1.55511111],</span>
-<span class="go">       [ 0.83154369,  0.17831678, -0.11855249,  0.11225947]])</span>
-</pre></div>
-</div>
-<p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v0.21.2)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
+In [8]: X_train.compute()[:3]
+Out[8]: 
+array([[-1.05879148, -0.89722898,  0.96089406, -0.97585992],
+       [ 0.00550963,  0.02080571, -0.4763186 , -1.56842247],
+       [-0.24547985, -0.63067068, -0.11139771,  1.57407473]])
+</pre>
+<p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v0.21.3)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
 using the Dask version for performance reasons. There are two major difference that let make the Dask version
 faster.</p>
 <p>First, <strong>the Dask version shuffles blockwise</strong>.

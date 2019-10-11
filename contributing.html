@@ -25,6 +25,7 @@
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
         <script type="text/javascript" src="_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
         <script type="text/javascript" src="_static/js/custom.js"></script>
@@ -41,7 +42,9 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Dask-ML Roadmap" href="roadmap.html" />
-    <link rel="prev" title="Changelog" href="changelog.html" /> 
+    <link rel="prev" title="Changelog" href="changelog.html" />
+  <link rel="shortcut icon" href="_static/images/favicon.ico"/>
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -64,6 +67,7 @@
         <li><a href="https://stories.dask.org/en/latest"> Use Cases </a></li>
         <li><a href="https://www.youtube.com/watch?v=RA_2qdipVng&list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri"> Talks </a></li>
         <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab"> Try Online </a></li>
+        <li><a href="https://dask.org/slides"> Slides </a></li>
       </ul>
     </li>
 
@@ -81,13 +85,13 @@
     </li>
 
     <li>
-      <a href="https://docs.dask.org/en/latest/setup.html">Deploy</a>
+      <a href="https://docs.dask.org/en/latest/setup.html">Setup</a>
       <ul>
-        <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
-        <li><a href="https://docs.dask.org/en/latest/setup/kubernetes-helm.html"> Helm </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/cloud.html"> Cloud </a></li>
         <li><a href="https://docs.dask.org/en/latest/setup/hpc.html"> HPC </a></li>
         <li><a href="https://kubernetes.dask.org/en/latest/"> Kubernetes </a></li>
-        <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
+        <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
       </ul>
     </li>
 
@@ -124,7 +128,7 @@
             
             
               <div class="version">
-                1.0.1.dev5+g7239ecc
+                1.0.1.dev11+g9ca3067
               </div>
             
           
@@ -270,7 +274,7 @@ repository.</p>
 <h2>Creating an environment<a class="headerlink" href="#creating-an-environment" title="Permalink to this headline">¶</a></h2>
 <p>We have conda environment YAML files with all the necessary dependencies
 in the <code class="docutils literal notranslate"><span class="pre">ci</span></code> directory.</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>conda env create -f ci/environment-3.7.yml --name=dask-ml-dev
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>conda env create -f ci/environment-3.7.yaml --name=dask-ml-dev
 </pre></div>
 </div>
 <p>to create a conda environment and install all the dependencies.</p>

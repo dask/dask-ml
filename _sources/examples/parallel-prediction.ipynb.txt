@@ -108,7 +108,14 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "clf = ParallelPostFit(LogisticRegressionCV(cv=3))"
+    "clf = ParallelPostFit(LogisticRegressionCV(cv=3), scoring=\"r2\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "See the note in the `dask-ml`'s documentation about when and why a `scoring` parameter is needed: https://ml.dask.org/modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit."
    ]
   },
   {
@@ -179,7 +186,7 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.6.4"
+   "version": "3.7.3"
   }
  },
  "nbformat": 4,

@@ -25,6 +25,7 @@
         <script type="text/javascript" src="../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../_static/doctools.js"></script>
         <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
         <script type="text/javascript" src="../../_static/js/custom.js"></script>
@@ -41,7 +42,9 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="dask_ml.model_selection.ShuffleSplit" href="dask_ml.model_selection.ShuffleSplit.html" />
-    <link rel="prev" title="API Reference" href="../api.html" /> 
+    <link rel="prev" title="API Reference" href="../api.html" />
+  <link rel="shortcut icon" href="../../_static/images/favicon.ico"/>
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -64,6 +67,7 @@
         <li><a href="https://stories.dask.org/en/latest"> Use Cases </a></li>
         <li><a href="https://www.youtube.com/watch?v=RA_2qdipVng&list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri"> Talks </a></li>
         <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab"> Try Online </a></li>
+        <li><a href="https://dask.org/slides"> Slides </a></li>
       </ul>
     </li>
 
@@ -81,13 +85,13 @@
     </li>
 
     <li>
-      <a href="https://docs.dask.org/en/latest/setup.html">Deploy</a>
+      <a href="https://docs.dask.org/en/latest/setup.html">Setup</a>
       <ul>
-        <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
-        <li><a href="https://docs.dask.org/en/latest/setup/kubernetes-helm.html"> Helm </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/cloud.html"> Cloud </a></li>
         <li><a href="https://docs.dask.org/en/latest/setup/hpc.html"> HPC </a></li>
         <li><a href="https://kubernetes.dask.org/en/latest/"> Kubernetes </a></li>
-        <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
+        <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
       </ul>
     </li>
 
@@ -124,7 +128,7 @@
             
             
               <div class="version">
-                1.0.1.dev5+g7239ecc
+                1.0.1.dev11+g9ca3067
               </div>
             
           
@@ -186,7 +190,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-compose-composite-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.compose</span></code>: Composite Estimators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.impute"><code class="docutils literal notranslate"><span class="pre">dask_ml.impute</span></code>: Imputing Missing Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-metrics-metrics"><code class="docutils literal notranslate"><span class="pre">dask_ml.metrics</span></code>: Metrics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.tensorflow"><code class="docutils literal notranslate"><span class="pre">dask_ml.tensorflow</span></code>: Tensorflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-tensorflow-tensorflow"><code class="docutils literal notranslate"><span class="pre">dask_ml.tensorflow</span></code>: Tensorflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.xgboost"><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code>: XGBoost</a></li>
 </ul>
 </li>
@@ -267,15 +271,17 @@
 <h1>dask_ml.model_selection.train_test_split<a class="headerlink" href="#dask-ml-model-selection-train-test-split" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="dask_ml.model_selection.train_test_split">
-<code class="descclassname">dask_ml.model_selection.</code><code class="descname">train_test_split</code><span class="sig-paren">(</span><em>*arrays</em>, <em>test_size=None</em>, <em>train_size=None</em>, <em>random_state=None</em>, <em>shuffle=True</em>, <em>blockwise=None</em>, <em>**options</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.train_test_split" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">dask_ml.model_selection.</code><code class="descname">train_test_split</code><span class="sig-paren">(</span><em>*arrays</em>, <em>test_size=None</em>, <em>train_size=None</em>, <em>random_state=None</em>, <em>shuffle=True</em>, <em>blockwise=None</em>, <em>convert_mixed_types=False</em>, <em>**options</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.train_test_split" title="Permalink to this definition">¶</a></dt>
 <dd><p>Split arrays into random train and test matricies.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>*arrays</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Sequence of Dask Arrays</span></dt>
-<dd></dd>
+<dt><strong>*arrays</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Sequence of Dask Arrays, DataFrames, or Series</span></dt>
+<dd><p class="first last">Non-dask objects will be passed through to
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v0.21.3)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>.</p>
+</dd>
 <dt><strong>test_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or int, default 0.1</span></dt>
 <dd></dd>
 <dt><strong>train_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or int, optional</span></dt>
@@ -297,6 +303,11 @@ be much more expensive, especially in distributed environments.</p>
 the default is True (data are not shuffled between blocks). For Dask
 DataFrames, the default and only allowed value is False (data are
 shuffled between blocks).</p>
+</dd>
+<dt><strong>convert_mixed_types</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, defualt False</span></dt>
+<dd><p class="first last">Whether to convert dask DataFrames and Series to dask Arrays when
+arrays contains a mixiture of types. This results in some computation
+to determine the length of each block.</p>
 </dd>
 </dl>
 </td>

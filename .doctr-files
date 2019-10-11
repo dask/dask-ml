@@ -1,3 +1,4 @@
+./_images/examples_hyperparam-opt_8_0.png
 ./_images/examples_svd_5_0.png
 ./_images/examples_svd_9_0.png
 ./_images/examples_xgboost_20_0.png
@@ -11,6 +12,7 @@
 ./_sources/cross_validation.rst.txt
 ./_sources/examples.rst.txt
 ./_sources/examples/glm.ipynb.txt
+./_sources/examples/hyperparam-opt.ipynb.txt
 ./_sources/examples/incremental.ipynb.txt
 ./_sources/examples/parallel-prediction.ipynb.txt
 ./_sources/examples/scale-scikit-learn.ipynb.txt
@@ -58,7 +60,6 @@
 ./_sources/modules/generated/dask_ml.preprocessing.QuantileTransformer.rst.txt
 ./_sources/modules/generated/dask_ml.preprocessing.RobustScaler.rst.txt
 ./_sources/modules/generated/dask_ml.preprocessing.StandardScaler.rst.txt
-./_sources/modules/generated/dask_ml.tensorflow.start_tensorflow.rst.txt
 ./_sources/modules/generated/dask_ml.wrappers.Incremental.rst.txt
 ./_sources/modules/generated/dask_ml.wrappers.ParallelPostFit.rst.txt
 ./_sources/modules/generated/dask_ml.xgboost.XGBClassifier.rst.txt
@@ -116,6 +117,7 @@
 ./_static/fonts/fontawesome-webfont.woff
 ./_static/fonts/fontawesome-webfont.woff2
 ./_static/images/dask-horizontal-white.svg
+./_static/images/favicon.ico
 ./_static/jquery-3.2.1.js
 ./_static/jquery.js
 ./_static/js/custom.js
@@ -138,6 +140,7 @@
 ./cross_validation.html
 ./examples.html
 ./examples/glm.html
+./examples/hyperparam-opt.html
 ./examples/incremental.html
 ./examples/parallel-prediction.html
 ./examples/scale-scikit-learn.html
@@ -186,7 +189,6 @@
 ./modules/generated/dask_ml.preprocessing.QuantileTransformer.html
 ./modules/generated/dask_ml.preprocessing.RobustScaler.html
 ./modules/generated/dask_ml.preprocessing.StandardScaler.html
-./modules/generated/dask_ml.tensorflow.start_tensorflow.html
 ./modules/generated/dask_ml.wrappers.Incremental.html
 ./modules/generated/dask_ml.wrappers.ParallelPostFit.html
 ./modules/generated/dask_ml.xgboost.XGBClassifier.html

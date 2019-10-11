@@ -25,6 +25,7 @@
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
         <script type="text/javascript" src="_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
         <script type="text/javascript" src="_static/js/custom.js"></script>
@@ -41,7 +42,9 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Incremental Learning" href="incremental.html" />
-    <link rel="prev" title="Joblib" href="joblib.html" /> 
+    <link rel="prev" title="Joblib" href="joblib.html" />
+  <link rel="shortcut icon" href="_static/images/favicon.ico"/>
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -64,6 +67,7 @@
         <li><a href="https://stories.dask.org/en/latest"> Use Cases </a></li>
         <li><a href="https://www.youtube.com/watch?v=RA_2qdipVng&list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri"> Talks </a></li>
         <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab"> Try Online </a></li>
+        <li><a href="https://dask.org/slides"> Slides </a></li>
       </ul>
     </li>
 
@@ -81,13 +85,13 @@
     </li>
 
     <li>
-      <a href="https://docs.dask.org/en/latest/setup.html">Deploy</a>
+      <a href="https://docs.dask.org/en/latest/setup.html">Setup</a>
       <ul>
-        <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
-        <li><a href="https://docs.dask.org/en/latest/setup/kubernetes-helm.html"> Helm </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/cloud.html"> Cloud </a></li>
         <li><a href="https://docs.dask.org/en/latest/setup/hpc.html"> HPC </a></li>
         <li><a href="https://kubernetes.dask.org/en/latest/"> Kubernetes </a></li>
-        <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
+        <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
       </ul>
     </li>
 
@@ -124,7 +128,7 @@
             
             
               <div class="version">
-                1.0.1.dev5+g7239ecc
+                1.0.1.dev11+g9ca3067
               </div>
             
           
@@ -317,7 +321,7 @@ We’ll make a larger dask array <code class="docutils literal notranslate"><spa
 <span class="gp">   ...: </span>
 
 <span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_big</span><span class="p">)</span>
-<span class="gh">Out[9]: </span><span class="go">dask.array&lt;_predict, shape=(100000,), dtype=int64, chunksize=(10000,)&gt;</span>
+<span class="gh">Out[9]: </span><span class="go">dask.array&lt;_predict, shape=(100000,), dtype=int64, chunksize=(10000,), chunktype=numpy.ndarray&gt;</span>
 </pre></div>
 </div>
 <p>This returned a <code class="docutils literal notranslate"><span class="pre">dask.array</span></code>. Like any dask array, the actual <code class="docutils literal notranslate"><span class="pre">compute</span></code> will
@@ -326,16 +330,16 @@ cause the scheduler to compute tasks in parallel. If you’ve connected to a
 cluster of machines.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_big</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">10</span><span class="p">]</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[0.18936832, 0.81063168],</span>
+<span class="go">array([[0.24519991, 0.75480009],</span>
 <span class="go">       [0.00464304, 0.99535696],</span>
 <span class="go">       [0.00902734, 0.99097266],</span>
 <span class="go">       [0.01299259, 0.98700741],</span>
-<span class="go">       [0.90376485, 0.09623515],</span>
-<span class="go">       [0.81152793, 0.18847207],</span>
-<span class="go">       [0.91575256, 0.08424744],</span>
+<span class="go">       [0.92958233, 0.07041767],</span>
+<span class="go">       [0.755881  , 0.244119  ],</span>
+<span class="go">       [0.94124115, 0.05875885],</span>
 <span class="go">       [0.0203811 , 0.9796189 ],</span>
 <span class="go">       [0.021179  , 0.978821  ],</span>
-<span class="go">       [0.92843328, 0.07156672]])</span>
+<span class="go">       [0.9457882 , 0.0542118 ]])</span>
 </pre></div>
 </div>
 <p>See <a class="reference external" href="http://dask-ml-benchmarks.readthedocs.io/en/latest/auto_examples/plot_parallel_post_fit_scaling.html">parallelizing prediction</a> for an example of how this

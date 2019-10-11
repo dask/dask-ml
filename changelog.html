@@ -25,6 +25,7 @@
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
         <script type="text/javascript" src="_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
         <script type="text/javascript" src="_static/js/custom.js"></script>
@@ -41,7 +42,9 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Contributing" href="contributing.html" />
-    <link rel="prev" title="dask_ml.xgboost.predict" href="modules/generated/dask_ml.xgboost.predict.html" /> 
+    <link rel="prev" title="dask_ml.xgboost.predict" href="modules/generated/dask_ml.xgboost.predict.html" />
+  <link rel="shortcut icon" href="_static/images/favicon.ico"/>
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -64,6 +67,7 @@
         <li><a href="https://stories.dask.org/en/latest"> Use Cases </a></li>
         <li><a href="https://www.youtube.com/watch?v=RA_2qdipVng&list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri"> Talks </a></li>
         <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab"> Try Online </a></li>
+        <li><a href="https://dask.org/slides"> Slides </a></li>
       </ul>
     </li>
 
@@ -81,13 +85,13 @@
     </li>
 
     <li>
-      <a href="https://docs.dask.org/en/latest/setup.html">Deploy</a>
+      <a href="https://docs.dask.org/en/latest/setup.html">Setup</a>
       <ul>
-        <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
-        <li><a href="https://docs.dask.org/en/latest/setup/kubernetes-helm.html"> Helm </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/cloud.html"> Cloud </a></li>
         <li><a href="https://docs.dask.org/en/latest/setup/hpc.html"> HPC </a></li>
         <li><a href="https://kubernetes.dask.org/en/latest/"> Kubernetes </a></li>
-        <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
+        <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
       </ul>
     </li>
 
@@ -124,7 +128,7 @@
             
             
               <div class="version">
-                1.0.1.dev5+g7239ecc
+                1.0.1.dev11+g9ca3067
               </div>
             
           
@@ -368,7 +372,7 @@ have more than one block along the features (<a class="reference external" href=
 <div class="section" id="id1">
 <h3>Enhancements<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>Added support for <a class="reference external" href="https://docs.dask.org/en/latest/dataframe-api.html#dask.dataframe.DataFrame" title="(in Dask v2.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask.dataframe.DataFrame</span></code></a> to <a class="reference internal" href="modules/generated/dask_ml.model_selection.train_test_split.html#dask_ml.model_selection.train_test_split" title="dask_ml.model_selection.train_test_split"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dask_ml.model_selection.train_test_split()</span></code></a> (<a class="reference external" href="https://github.com/dask/dask-ml/issues/351">GH#351</a>)</li>
+<li>Added support for <a class="reference external" href="https://docs.dask.org/en/latest/dataframe-api.html#dask.dataframe.DataFrame" title="(in Dask v2.5.2+12.g0ab172af)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask.dataframe.DataFrame</span></code></a> to <a class="reference internal" href="modules/generated/dask_ml.model_selection.train_test_split.html#dask_ml.model_selection.train_test_split" title="dask_ml.model_selection.train_test_split"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dask_ml.model_selection.train_test_split()</span></code></a> (<a class="reference external" href="https://github.com/dask/dask-ml/issues/351">GH#351</a>)</li>
 </ul>
 </div>
 </div>

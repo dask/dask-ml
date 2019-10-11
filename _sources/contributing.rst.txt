@@ -29,7 +29,7 @@ in the ``ci`` directory.
 
 .. code-block:: none
 
-   conda env create -f ci/environment-3.7.yml --name=dask-ml-dev
+   conda env create -f ci/environment-3.7.yaml --name=dask-ml-dev
 
 to create a conda environment and install all the dependencies.
 

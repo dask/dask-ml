@@ -25,6 +25,7 @@
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
         <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
         <script type="text/javascript" src="../_static/js/custom.js"></script>
@@ -39,7 +40,9 @@
   <link rel="stylesheet" href="../_static/css/explore.css" type="text/css" />
   <link rel="stylesheet" href="../_static/css/nbsphinx.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+  <link rel="shortcut icon" href="../_static/images/favicon.ico"/>
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -62,6 +65,7 @@
         <li><a href="https://stories.dask.org/en/latest"> Use Cases </a></li>
         <li><a href="https://www.youtube.com/watch?v=RA_2qdipVng&list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri"> Talks </a></li>
         <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab"> Try Online </a></li>
+        <li><a href="https://dask.org/slides"> Slides </a></li>
       </ul>
     </li>
 
@@ -79,13 +83,13 @@
     </li>
 
     <li>
-      <a href="https://docs.dask.org/en/latest/setup.html">Deploy</a>
+      <a href="https://docs.dask.org/en/latest/setup.html">Setup</a>
       <ul>
-        <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
-        <li><a href="https://docs.dask.org/en/latest/setup/kubernetes-helm.html"> Helm </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/cloud.html"> Cloud </a></li>
         <li><a href="https://docs.dask.org/en/latest/setup/hpc.html"> HPC </a></li>
         <li><a href="https://kubernetes.dask.org/en/latest/"> Kubernetes </a></li>
-        <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
+        <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
       </ul>
     </li>
 
@@ -122,7 +126,7 @@
             
             
               <div class="version">
-                1.0.1.dev5+g7239ecc
+                1.0.1.dev11+g9ca3067
               </div>
             
           
@@ -464,14 +468,14 @@ div.rendered_html tbody tr:hover {
 <table style="border: 2px solid white;">
 <tr>
 <td style="vertical-align: top; border: 0px solid white">
-<h3>Client</h3>
-<ul>
-  <li><b>Scheduler: </b>inproc://10.20.3.36/8556/1
+<h3 style="text-align: left;">Client</h3>
+<ul style="text-align: left; list-style: none; margin: 0; padding: 0;">
+  <li><b>Scheduler: </b>inproc://10.20.1.97/9013/1</li>
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
-<h3>Cluster</h3>
-<ul>
+<h3 style="text-align: left;">Cluster</h3>
+<ul style="text-align: left; list-style:none; margin: 0; padding: 0;">
   <li><b>Workers: </b>1</li>
   <li><b>Cores: </b>4</li>
   <li><b>Memory: </b>2.00 GB</li>
@@ -529,19 +533,19 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>array([[ 0.10010234,  0.09990301,  0.0998907 , ...,  0.09993278,
-         0.0998593 ,  0.10017583],
-       [ 0.06487868,  0.05147295,  0.08598234, ..., -0.05036973,
-         0.05764295, -0.05256222],
-       [-0.04088714,  0.23440544, -0.00328557, ..., -0.15988359,
-        -0.1115607 ,  0.03719709],
+<span></span>array([[ 0.09990113,  0.1000742 ,  0.09989995, ...,  0.09994005,
+         0.10016085,  0.09990949],
+       [ 0.05559066,  0.07194341,  0.22556585, ..., -0.15378163,
+        -0.04783042, -0.23262757],
+       [-0.00402318, -0.09823888,  0.00949889, ..., -0.04105842,
+        -0.0998948 ,  0.21806805],
        ...,
-       [-0.0294237 , -0.04498999, -0.01717778, ..., -0.02655461,
-        -0.12473056, -0.00291391],
-       [ 0.08803869, -0.10413627,  0.05971781, ...,  0.01432717,
-        -0.08830088, -0.09205296],
-       [-0.01704224, -0.15492377, -0.08494456, ...,  0.06129813,
-         0.09383321, -0.08354545]])
+       [-0.06494911, -0.1148314 , -0.14048041, ...,  0.01024767,
+        -0.02669967,  0.11211742],
+       [ 0.03005743, -0.01497585,  0.11049394, ..., -0.13042912,
+         0.04752182, -0.02865825],
+       [-0.04999007, -0.10325138,  0.18461605, ..., -0.17127784,
+         0.09665908, -0.02744458]])
 </pre></div>
 </div>
 </div>
@@ -594,16 +598,16 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>array([[ 1.00062373e-02,  1.00079439e-02,  9.94784714e-03, ...,
-         1.00342459e-02,  9.97500639e-03,  1.01398219e-02],
-       [-1.06394297e-03, -5.22062799e-03,  4.63965766e-03, ...,
-        -6.91473507e-03, -5.16781905e-03, -1.77786582e-03],
-       [-7.06159006e-05,  1.91113417e-02, -3.74240231e-03, ...,
-         1.60964248e-02, -4.32306748e-03,  3.82224244e-03],
-       [-1.25058568e-03,  1.60924413e-02, -1.44714408e-02, ...,
-        -7.15974966e-03,  3.37051072e-03, -4.00083610e-03],
-       [ 2.21094275e-03,  1.36250088e-04, -3.13668214e-03, ...,
-         8.27708444e-03, -3.28803107e-03,  1.06412592e-02]])
+<span></span>array([[ 0.01010039,  0.00993307,  0.00999271, ...,  0.01010579,
+         0.00995827,  0.01001996],
+       [-0.00384635,  0.00266258,  0.00836317, ...,  0.00034829,
+         0.00011014, -0.00766292],
+       [-0.01309367,  0.01225022,  0.01798358, ...,  0.00520886,
+        -0.01561184,  0.0038454 ],
+       [-0.00187975,  0.00398746, -0.01552209, ...,  0.00972879,
+         0.00442207,  0.00701971],
+       [-0.00762416, -0.00144715,  0.02136258, ..., -0.0006008 ,
+        -0.01263865, -0.01091664]])
 </pre></div>
 </div>
 </div>

@@ -25,6 +25,7 @@
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
         <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
         <script type="text/javascript" src="../_static/js/custom.js"></script>
@@ -41,7 +42,9 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Scale XGBoost" href="xgboost.html" />
-    <link rel="prev" title="Train Models on Large Datasets" href="training-on-large-datasets.html" /> 
+    <link rel="prev" title="Train Models on Large Datasets" href="training-on-large-datasets.html" />
+  <link rel="shortcut icon" href="../_static/images/favicon.ico"/>
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -64,6 +67,7 @@
         <li><a href="https://stories.dask.org/en/latest"> Use Cases </a></li>
         <li><a href="https://www.youtube.com/watch?v=RA_2qdipVng&list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri"> Talks </a></li>
         <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab"> Try Online </a></li>
+        <li><a href="https://dask.org/slides"> Slides </a></li>
       </ul>
     </li>
 
@@ -81,13 +85,13 @@
     </li>
 
     <li>
-      <a href="https://docs.dask.org/en/latest/setup.html">Deploy</a>
+      <a href="https://docs.dask.org/en/latest/setup.html">Setup</a>
       <ul>
-        <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
-        <li><a href="https://docs.dask.org/en/latest/setup/kubernetes-helm.html"> Helm </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/cloud.html"> Cloud </a></li>
         <li><a href="https://docs.dask.org/en/latest/setup/hpc.html"> HPC </a></li>
         <li><a href="https://kubernetes.dask.org/en/latest/"> Kubernetes </a></li>
-        <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
+        <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
       </ul>
     </li>
 
@@ -124,7 +128,7 @@
             
             
               <div class="version">
-                1.0.1.dev5+g7239ecc
+                1.0.1.dev11+g9ca3067
               </div>
             
           
@@ -503,14 +507,14 @@ div.rendered_html tbody tr:hover {
 <table style="border: 2px solid white;">
 <tr>
 <td style="vertical-align: top; border: 0px solid white">
-<h3>Client</h3>
-<ul>
-  <li><b>Scheduler: </b>tcp://127.0.0.1:33219
+<h3 style="text-align: left;">Client</h3>
+<ul style="text-align: left; list-style: none; margin: 0; padding: 0;">
+  <li><b>Scheduler: </b>tcp://127.0.0.1:34315</li>
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
-<h3>Cluster</h3>
-<ul>
+<h3 style="text-align: left;">Cluster</h3>
+<ul style="text-align: left; list-style:none; margin: 0; padding: 0;">
   <li><b>Workers: </b>4</li>
   <li><b>Cores: </b>4</li>
   <li><b>Memory: </b>7.84 GB</li>
@@ -550,14 +554,17 @@ div.rendered_html tbody tr:hover {
 <table>
 <tr>
 <td>
-<table>  <thead>    <tr><td> </td><th> Array </th><th> Chunk </th></tr>
+<table>
+  <thead>
+    <tr><td> </td><th> Array </th><th> Chunk </th></tr>
   </thead>
   <tbody>
     <tr><th> Bytes </th><td> 80.00 MB </td> <td> 8.00 MB </td></tr>
     <tr><th> Shape </th><td> (100000, 100) </td> <td> (10000, 100) </td></tr>
     <tr><th> Count </th><td> 10 Tasks </td><td> 10 Chunks </td></tr>
     <tr><th> Type </th><td> float64 </td><td> numpy.ndarray </td></tr>
-  </tbody></table>
+  </tbody>
+</table>
 </td>
 <td>
 <svg width="75" height="170" style="stroke:rgb(0,0,0);stroke-width:1" >
@@ -614,14 +621,17 @@ div.rendered_html tbody tr:hover {
 <table>
 <tr>
 <td>
-<table>  <thead>    <tr><td> </td><th> Array </th><th> Chunk </th></tr>
+<table>
+  <thead>
+    <tr><td> </td><th> Array </th><th> Chunk </th></tr>
   </thead>
   <tbody>
     <tr><th> Bytes </th><td> 72.00 MB </td> <td> 7.20 MB </td></tr>
     <tr><th> Shape </th><td> (90000, 100) </td> <td> (9000, 100) </td></tr>
     <tr><th> Count </th><td> 70 Tasks </td><td> 10 Chunks </td></tr>
     <tr><th> Type </th><td> float64 </td><td> numpy.ndarray </td></tr>
-  </tbody></table>
+  </tbody>
+</table>
 </td>
 <td>
 <svg width="75" height="170" style="stroke:rgb(0,0,0);stroke-width:1" >
@@ -772,7 +782,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.5194
+<span></span>0.502
 </pre></div>
 </div>
 </div>
@@ -806,16 +816,16 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Score: 0.5236
-Score: 0.5246
-Score: 0.5195
-Score: 0.5308
-Score: 0.5363
-Score: 0.5316
-Score: 0.5408
-Score: 0.5508
-Score: 0.5321
-Score: 0.5468
+Score: 0.5083
+Score: 0.5065
+Score: 0.509
+Score: 0.5086
+Score: 0.5101
+Score: 0.5118
+Score: 0.5171
+Score: 0.5125
+Score: 0.5045
+Score: 0.5215
 </pre></div></div>
 </div>
 </div>
@@ -839,14 +849,17 @@ Score: 0.5468
 <table>
 <tr>
 <td>
-<table>  <thead>    <tr><td> </td><th> Array </th><th> Chunk </th></tr>
+<table>
+  <thead>
+    <tr><td> </td><th> Array </th><th> Chunk </th></tr>
   </thead>
   <tbody>
     <tr><th> Bytes </th><td> 80.00 kB </td> <td> 8.00 kB </td></tr>
     <tr><th> Shape </th><td> (10000,) </td> <td> (1000,) </td></tr>
     <tr><th> Count </th><td> 20 Tasks </td><td> 10 Chunks </td></tr>
     <tr><th> Type </th><td> int64 </td><td> numpy.ndarray </td></tr>
-  </tbody></table>
+  </tbody>
+</table>
 </td>
 <td>
 <svg width="170" height="75" style="stroke:rgb(0,0,0);stroke-width:1" >
@@ -893,11 +906,11 @@ Score: 0.5468
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>array([1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0,
-       1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1,
-       1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0,
-       1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1,
-       0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0])
+<span></span>array([0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0,
+       0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1,
+       0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1,
+       1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1,
+       0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0])
 </pre></div>
 </div>
 </div>
@@ -915,7 +928,7 @@ Score: 0.5468
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.5468
+<span></span>0.5215
 </pre></div>
 </div>
 </div>

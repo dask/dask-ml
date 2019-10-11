@@ -1,6 +1,0 @@
-dask\_ml.tensorflow.start\_tensorflow
-=====================================
-
-.. currentmodule:: dask_ml.tensorflow
-
-.. autofunction:: start_tensorflow

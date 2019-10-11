@@ -25,6 +25,7 @@
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
         <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
         <script type="text/javascript" src="../_static/js/custom.js"></script>
@@ -41,7 +42,9 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Use Voting Classifiers" href="voting-classifier.html" />
-    <link rel="prev" title="Scale Scikit-Learn for Small Data Problems" href="scale-scikit-learn.html" /> 
+    <link rel="prev" title="Scale Scikit-Learn for Small Data Problems" href="scale-scikit-learn.html" />
+  <link rel="shortcut icon" href="../_static/images/favicon.ico"/>
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -64,6 +67,7 @@
         <li><a href="https://stories.dask.org/en/latest"> Use Cases </a></li>
         <li><a href="https://www.youtube.com/watch?v=RA_2qdipVng&list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri"> Talks </a></li>
         <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab"> Try Online </a></li>
+        <li><a href="https://dask.org/slides"> Slides </a></li>
       </ul>
     </li>
 
@@ -81,13 +85,13 @@
     </li>
 
     <li>
-      <a href="https://docs.dask.org/en/latest/setup.html">Deploy</a>
+      <a href="https://docs.dask.org/en/latest/setup.html">Setup</a>
       <ul>
-        <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
-        <li><a href="https://docs.dask.org/en/latest/setup/kubernetes-helm.html"> Helm </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/cloud.html"> Cloud </a></li>
         <li><a href="https://docs.dask.org/en/latest/setup/hpc.html"> HPC </a></li>
         <li><a href="https://kubernetes.dask.org/en/latest/"> Kubernetes </a></li>
-        <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
+        <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
       </ul>
     </li>
 
@@ -124,7 +128,7 @@
             
             
               <div class="version">
-                1.0.1.dev5+g7239ecc
+                1.0.1.dev11+g9ca3067
               </div>
             
           
@@ -478,14 +482,14 @@ div.rendered_html tbody tr:hover {
 <table style="border: 2px solid white;">
 <tr>
 <td style="vertical-align: top; border: 0px solid white">
-<h3>Client</h3>
-<ul>
-  <li><b>Scheduler: </b>inproc://10.20.3.36/8309/1
+<h3 style="text-align: left;">Client</h3>
+<ul style="text-align: left; list-style: none; margin: 0; padding: 0;">
+  <li><b>Scheduler: </b>inproc://10.20.1.97/8759/1</li>
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
-<h3>Cluster</h3>
-<ul>
+<h3 style="text-align: left;">Cluster</h3>
+<ul style="text-align: left; list-style:none; margin: 0; padding: 0;">
   <li><b>Workers: </b>1</li>
   <li><b>Cores: </b>4</li>
   <li><b>Memory: </b>2.00 GB</li>
@@ -555,14 +559,17 @@ div.rendered_html tbody tr:hover {
 <table>
 <tr>
 <td>
-<table>  <thead>    <tr><td> </td><th> Array </th><th> Chunk </th></tr>
+<table>
+  <thead>
+    <tr><td> </td><th> Array </th><th> Chunk </th></tr>
   </thead>
   <tbody>
     <tr><th> Bytes </th><td> 1.60 MB </td> <td> 16.00 kB </td></tr>
     <tr><th> Shape </th><td> (100000, 2) </td> <td> (1000, 2) </td></tr>
     <tr><th> Count </th><td> 101 Tasks </td><td> 100 Chunks </td></tr>
     <tr><th> Type </th><td> float64 </td><td> numpy.ndarray </td></tr>
-  </tbody></table>
+  </tbody>
+</table>
 </td>
 <td>
 <svg width="75" height="170" style="stroke:rgb(0,0,0);stroke-width:1" >
@@ -701,10 +708,11 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">clf</span> <span class="o">=</span> <span class="n">ParallelPostFit</span><span class="p">(</span><span class="n">LogisticRegressionCV</span><span class="p">(</span><span class="n">cv</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+<span></span><span class="n">clf</span> <span class="o">=</span> <span class="n">ParallelPostFit</span><span class="p">(</span><span class="n">LogisticRegressionCV</span><span class="p">(</span><span class="n">cv</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span> <span class="n">scoring</span><span class="o">=</span><span class="s2">&quot;r2&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
+<p>See the note in the <code class="docutils literal notranslate"><span class="pre">dask-ml</span></code>’s documentation about when and why a <code class="docutils literal notranslate"><span class="pre">scoring</span></code> parameter is needed: <a class="reference external" href="https://ml.dask.org/modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit">https://ml.dask.org/modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit</a>.</p>
 <p>Now we’ll call <code class="docutils literal notranslate"><span class="pre">clf.fit</span></code>. Dask-ML does nothing here, so this step can only use datasets that fit in memory.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
@@ -729,7 +737,7 @@ div.rendered_html tbody tr:hover {
                                                refit=True, scoring=None,
                                                solver=&#39;lbfgs&#39;, tol=0.0001,
                                                verbose=0),
-                scoring=None)
+                scoring=&#39;r2&#39;)
 </pre></div>
 </div>
 </div>
@@ -752,14 +760,17 @@ div.rendered_html tbody tr:hover {
 <table>
 <tr>
 <td>
-<table>  <thead>    <tr><td> </td><th> Array </th><th> Chunk </th></tr>
+<table>
+  <thead>
+    <tr><td> </td><th> Array </th><th> Chunk </th></tr>
   </thead>
   <tbody>
     <tr><th> Bytes </th><td> 800.00 kB </td> <td> 8.00 kB </td></tr>
     <tr><th> Shape </th><td> (100000,) </td> <td> (1000,) </td></tr>
     <tr><th> Count </th><td> 201 Tasks </td><td> 100 Chunks </td></tr>
     <tr><th> Type </th><td> int64 </td><td> numpy.ndarray </td></tr>
-  </tbody></table>
+  </tbody>
+</table>
 </td>
 <td>
 <svg width="170" height="75" style="stroke:rgb(0,0,0);stroke-width:1" >
@@ -898,7 +909,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.899
+<span></span>0.596
 </pre></div>
 </div>
 </div>

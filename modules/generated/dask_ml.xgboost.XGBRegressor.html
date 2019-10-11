@@ -25,6 +25,7 @@
         <script type="text/javascript" src="../../_static/underscore.js"></script>
         <script type="text/javascript" src="../../_static/doctools.js"></script>
         <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
         <script type="text/javascript" src="../../_static/js/custom.js"></script>
@@ -41,7 +42,9 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="dask_ml.xgboost.train" href="dask_ml.xgboost.train.html" />
-    <link rel="prev" title="dask_ml.xgboost.XGBClassifier" href="dask_ml.xgboost.XGBClassifier.html" /> 
+    <link rel="prev" title="dask_ml.xgboost.XGBClassifier" href="dask_ml.xgboost.XGBClassifier.html" />
+  <link rel="shortcut icon" href="../../_static/images/favicon.ico"/>
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -64,6 +67,7 @@
         <li><a href="https://stories.dask.org/en/latest"> Use Cases </a></li>
         <li><a href="https://www.youtube.com/watch?v=RA_2qdipVng&list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri"> Talks </a></li>
         <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab"> Try Online </a></li>
+        <li><a href="https://dask.org/slides"> Slides </a></li>
       </ul>
     </li>
 
@@ -81,13 +85,13 @@
     </li>
 
     <li>
-      <a href="https://docs.dask.org/en/latest/setup.html">Deploy</a>
+      <a href="https://docs.dask.org/en/latest/setup.html">Setup</a>
       <ul>
-        <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
-        <li><a href="https://docs.dask.org/en/latest/setup/kubernetes-helm.html"> Helm </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/cloud.html"> Cloud </a></li>
         <li><a href="https://docs.dask.org/en/latest/setup/hpc.html"> HPC </a></li>
         <li><a href="https://kubernetes.dask.org/en/latest/"> Kubernetes </a></li>
-        <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
+        <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
       </ul>
     </li>
 
@@ -124,7 +128,7 @@
             
             
               <div class="version">
-                1.0.1.dev5+g7239ecc
+                1.0.1.dev11+g9ca3067
               </div>
             
           
@@ -176,7 +180,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-compose-composite-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.compose</span></code>: Composite Estimators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.impute"><code class="docutils literal notranslate"><span class="pre">dask_ml.impute</span></code>: Imputing Missing Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-metrics-metrics"><code class="docutils literal notranslate"><span class="pre">dask_ml.metrics</span></code>: Metrics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.tensorflow"><code class="docutils literal notranslate"><span class="pre">dask_ml.tensorflow</span></code>: Tensorflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-tensorflow-tensorflow"><code class="docutils literal notranslate"><span class="pre">dask_ml.tensorflow</span></code>: Tensorflow</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../api.html#module-dask_ml.xgboost"><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code>: XGBoost</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.xgboost.XGBClassifier.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code>.XGBClassifier</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code>.XGBRegressor</a></li>
@@ -296,7 +300,7 @@
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.evals_result" title="dask_ml.xgboost.XGBRegressor.evals_result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evals_result</span></code></a>(self)</td>
 <td>Return the evaluation results.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.fit" title="dask_ml.xgboost.XGBRegressor.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.fit" title="dask_ml.xgboost.XGBRegressor.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y,&nbsp;eval_set,&nbsp;…])</td>
 <td>Fit the gradient boosting model</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.get_booster" title="dask_ml.xgboost.XGBRegressor.get_booster"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_booster</span></code></a>(self)</td>
@@ -439,7 +443,7 @@ as linear learners (<cite>booster=gblinear</cite>).</p>
 
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBRegressor.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>eval_set=None</em>, <em>sample_weight_eval_set=None</em>, <em>eval_metric=None</em>, <em>early_stopping_rounds=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the gradient boosting model</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -464,7 +468,44 @@ as linear learners (<cite>booster=gblinear</cite>).</p>
 <p class="rubric">Notes</p>
 <p>This differs from the XGBoost version not supporting the <code class="docutils literal notranslate"><span class="pre">eval_set</span></code>,
 <code class="docutils literal notranslate"><span class="pre">eval_metric</span></code>, <code class="docutils literal notranslate"><span class="pre">early_stopping_rounds</span></code> and <code class="docutils literal notranslate"><span class="pre">verbose</span></code> fit
-kwargs.</p>
+kwargs.
+eval_set : list, optional</p>
+<blockquote>
+<div>A list of (X, y) tuple pairs to use as validation sets, for which
+metrics will be computed.
+Validation metrics will help us track the performance of the model.</div></blockquote>
+<dl class="docutils">
+<dt>sample_weight_eval_set <span class="classifier-delimiter">:</span> <span class="classifier">list, optional</span></dt>
+<dd>A list of the form [L_1, L_2, …, L_n], where each L_i is a list
+of instance weights on the i-th validation set.</dd>
+<dt>eval_metric <span class="classifier-delimiter">:</span> <span class="classifier">str, list of str, or callable, optional</span></dt>
+<dd>If a str, should be a built-in evaluation metric to use. See
+<a class="reference external" href="https://github.com/dmlc/xgboost/blob/master/doc/parameter.rst">doc/parameter.rst</a>.  # noqa: E501
+If a list of str, should be the list of multiple built-in
+evaluation metrics to use.
+If callable, a custom evaluation metric. The call
+signature is <code class="docutils literal notranslate"><span class="pre">func(y_predicted,</span> <span class="pre">y_true)</span></code> where <code class="docutils literal notranslate"><span class="pre">y_true</span></code> will
+be a DMatrix object such that you may need to call the
+<code class="docutils literal notranslate"><span class="pre">get_label</span></code> method. It must return a str, value pair where
+the str is a name for the evaluation and value is the value of
+the evaluation function. The callable custom objective is always
+minimized.</dd>
+<dt>early_stopping_rounds <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Activates early stopping. Validation metric needs to improve at
+least once in every <strong>early_stopping_rounds</strong> round(s) to continue
+training.
+Requires at least one item in <strong>eval_set</strong>.
+The method returns the model from the last iteration (not the best
+one).
+If there’s more than one item in <strong>eval_set</strong>, the last entry will
+be used for early stopping.
+If there’s more than one metric in <strong>eval_metric</strong>, the last
+metric will be used for early stopping.
+If early stopping occurs, the model will have three additional
+fields:
+<code class="docutils literal notranslate"><span class="pre">clf.best_score</span></code>, <code class="docutils literal notranslate"><span class="pre">clf.best_iteration</span></code> and
+<code class="docutils literal notranslate"><span class="pre">clf.best_ntree_limit</span></code>.</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
