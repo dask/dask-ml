@@ -325,18 +325,6 @@ def test_grid_search_dask_inputs():
         np.testing.assert_allclose(sol, gs.best_estimator_.support_vectors_)
 
 
-def test_feature_union_basic():
-    from sklearn.linear_model import SGDClassifier
-
-    iris = load_iris()
-    X, y = iris.data, iris.target
-
-    pipe = Pipeline([("union", "passthrough"), ("lr", SGDClassifier())])
-    param_grid = {"lr__alpha": [0.001, 0.1]}
-    gs = dcv.GridSearchCV(pipe, param_grid=param_grid, cv=3, **iid)
-    gs.fit(X, y)
-
-
 def test_pipeline_feature_union():
     iris = load_iris()
     X, y = iris.data, iris.target
