@@ -314,3 +314,11 @@ def _list_indexing(X, key, key_dtype):
         return list(compress(X, key))
     # key is a integer array-like of key
     return [X[idx] for idx in key]
+
+
+def none_or_passthrough(x):
+    return x is None or isinstance(x, str) and x == "passthrough"
+
+
+def none_or_drop(x):
+    return x is None or isinstance(x, str) and x == "drop"

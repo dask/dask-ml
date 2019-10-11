@@ -325,6 +325,18 @@ def test_grid_search_dask_inputs():
         np.testing.assert_allclose(sol, gs.best_estimator_.support_vectors_)
 
 
+def test_feature_union_basic():
+    from sklearn.linear_model import SGDClassifier
+
+    iris = load_iris()
+    X, y = iris.data, iris.target
+
+    pipe = Pipeline([("union", "passthrough"), ("lr", SGDClassifier())])
+    param_grid = {"lr__alpha": [0.001, 0.1]}
+    gs = dcv.GridSearchCV(pipe, param_grid=param_grid, cv=3, **iid)
+    gs.fit(X, y)
+
+
 def test_pipeline_feature_union():
     iris = load_iris()
     X, y = iris.data, iris.target
@@ -332,13 +344,8 @@ def test_pipeline_feature_union():
     pca = PCA(random_state=0)
     kbest = SelectKBest()
 
-    if SK_022:
-        drop = "drop"
-    else:
-        drop = None
-
-    empty_union = FeatureUnion([("first", drop), ("second", drop)])
-    empty_pipeline = Pipeline([("first", drop), ("second", None)])
+    empty_union = FeatureUnion([("first", "drop"), ("second", "drop")])
+    empty_pipeline = Pipeline([("first", None), ("second", None)])
     scaling = Pipeline([("transform", ScalingTransformer())])
     svc = SVC(kernel="linear", random_state=0)
 
@@ -346,13 +353,13 @@ def test_pipeline_feature_union():
         [
             ("empty_pipeline", empty_pipeline),
             ("scaling", scaling),
-            ("missing", drop),
+            ("missing", None),
             (
                 "union",
                 FeatureUnion(
                     [
                         ("pca", pca),
-                        ("missing", drop),
+                        ("missing", "drop"),
                         ("kbest", kbest),
                         ("empty_union", empty_union),
                     ],
@@ -400,12 +407,11 @@ def test_pipeline_sub_estimators():
     X, y = iris.data, iris.target
 
     scaling = Pipeline([("transform", ScalingTransformer())])
-    drop = "drop" if SK_022 else None
 
     pipe = Pipeline(
         [
-            ("setup", drop),
-            ("missing", drop),
+            ("setup", None),
+            ("missing", None),
             ("scaling", scaling),
             ("svc", SVC(kernel="linear", random_state=0)),
         ]
