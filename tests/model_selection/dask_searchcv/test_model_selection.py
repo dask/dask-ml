@@ -331,7 +331,8 @@ def test_pipeline_feature_union():
 
     pca = PCA(random_state=0)
     kbest = SelectKBest()
-    empty_union = FeatureUnion([("first", None), ("second", None)])
+
+    empty_union = FeatureUnion([("first", "drop"), ("second", "drop")])
     empty_pipeline = Pipeline([("first", None), ("second", None)])
     scaling = Pipeline([("transform", ScalingTransformer())])
     svc = SVC(kernel="linear", random_state=0)
@@ -346,7 +347,7 @@ def test_pipeline_feature_union():
                 FeatureUnion(
                     [
                         ("pca", pca),
-                        ("missing", None),
+                        ("missing", "drop"),
                         ("kbest", kbest),
                         ("empty_union", empty_union),
                     ],
@@ -709,10 +710,13 @@ class CountTakes(np.ndarray):
 
     def take(self, *args, **kwargs):
         self.count += 1
-        return super(CountTakes, self).take(*args, **kwargs)
+        return super().take(*args, **kwargs)
+
+    def __getitem__(self, *args, **kwargs):
+        self.count += 1
+        return super().__getitem__(*args, **kwargs)
 
 
-@pytest.mark.xfail(SK_022, reason="upstream changes to ndarray subclass")
 def test_cache_cv():
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
     X2 = X.view(CountTakes)
