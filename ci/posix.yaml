@@ -23,8 +23,8 @@ jobs:
     displayName: "Add conda to PATH (posix)"
 
   - bash: |
-     conda install pip
-     conda update conda
+     conda install -y pip
+     conda update -y conda
     displayName: "update conda"
 
   - bash: conda env create --quiet --file=$(envFile) --name=dask-ml-test && conda list -n dask-ml-test
