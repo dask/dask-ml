@@ -89,7 +89,7 @@ def test_big(fit_intercept, is_sparse):
 @pytest.mark.parametrize("is_sparse", [True, False])
 def test_poisson_fit(fit_intercept, is_sparse):
     # XXX: this seems to take forever to converge. Setting a low max_iter for now.
-    X, y = make_counts(chunks=50, is_sparse=is_sparse)
+    X, y = make_counts(chunks=200, is_sparse=is_sparse)
     pr = PoissonRegression(fit_intercept=fit_intercept, max_iter=5)
     pr.fit(X, y)
     pr.predict(X)
