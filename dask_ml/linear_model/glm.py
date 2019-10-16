@@ -131,7 +131,7 @@ class LogisticRegression(_GLM):
 
     Examples
     --------
-    >>> from dask_glm.datasets import make_classification
+    >>> from dask_ml.datasets import make_classification
     >>> X, y = make_classification()
     >>> est = LogisticRegression()
     >>> est.fit(X, y)
@@ -186,7 +186,7 @@ class LinearRegression(_GLM):
 
     Examples
     --------
-    >>> from dask_glm.datasets import make_regression
+    >>> from dask_ml.datasets import make_regression
     >>> X, y = make_regression()
     >>> est = LinearRegression()
     >>> est.fit(X, y)
@@ -237,7 +237,7 @@ class PoissonRegression(_GLM):
 
     Examples
     --------
-    >>> from dask_glm.datasets import make_poisson
+    >>> from dask_ml.datasets import make_poisson
     >>> X, y = make_poisson()
     >>> est = PoissonRegression()
     >>> est.fit(X, y)

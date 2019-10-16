@@ -2,9 +2,9 @@ import dask.array as da
 import numpy as np
 import pytest
 from dask.array.utils import assert_eq
-from dask_glm import utils
 
 import sparse
+from dask_ml.linear_model import utils
 
 
 def test_normalize_normalizes():

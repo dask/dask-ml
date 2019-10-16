@@ -59,6 +59,13 @@ provides the following:
 :mod:`dask_ml.linear_model`: Generalized Linear Models
 ======================================================
 
+**Estimators**
+
+Generalized linear models are a broad class of commonly used models.  These
+implementations scale well out to large datasets either on a single machine or
+distributed cluster.  They can be powered by a variety of optimization
+algorithms and use a variety of regularizers.
+
 .. automodule:: dask_ml.linear_model
    :no-members:
    :no-inherited-members:
@@ -72,6 +79,42 @@ provides the following:
    linear_model.LinearRegression
    linear_model.LogisticRegression
    linear_model.PoissonRegression
+
+.. _api.families:
+
+**Families**
+
+.. automodule:: dask_ml.linear_model..families
+   :members:
+
+.. _api.algorithms:
+
+**Algorithms**
+
+.. automodule:: dask_ml.linear_model.algorithms
+   :members:
+
+.. _api.regularizers.available:
+
+Available ``Regularizers``
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These regularizers are included with dask-ml.
+
+.. automodule:: dask_ml.linear_model.regularizers
+   :members:
+   :exclude-members: Regularizer
+
+.. _api.regularizers.interface:
+
+``Regularizer`` Interface
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Users wishing to implement their own regularizer should
+satisfy this interface.
+
+.. autoclass:: dask_ml.linear_model.regularizers.Regularizer
+   :members:
 
 :mod:`dask_ml.wrappers`: Meta-Estimators
 ========================================

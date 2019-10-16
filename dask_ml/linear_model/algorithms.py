@@ -9,10 +9,16 @@ import dask
 import dask.array as da
 import numpy as np
 from dask import compute, delayed, persist
-from dask_glm.families import Logistic
-from dask_glm.regularizers import Regularizer
-from dask_glm.utils import dot, get_distributed_client, normalize, scatter_array
 from scipy.optimize import fmin_l_bfgs_b
+
+from dask_ml.linear_model.families import Logistic
+from dask_ml.linear_model.regularizers import Regularizer
+from dask_ml.linear_model.utils import (
+    dot,
+    get_distributed_client,
+    normalize,
+    scatter_array,
+)
 
 
 def compute_stepsize_dask(

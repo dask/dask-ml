@@ -1,8 +1,17 @@
 import dask
 import pytest
-from dask_glm.datasets import make_classification, make_poisson, make_regression
-from dask_glm.estimators import LinearRegression, LogisticRegression, PoissonRegression
-from dask_glm.regularizers import Regularizer
+
+from dask_ml.linear_model.datasets import (
+    make_classification,
+    make_poisson,
+    make_regression,
+)
+from dask_ml.linear_model.estimators import (
+    LinearRegression,
+    LogisticRegression,
+    PoissonRegression,
+)
+from dask_ml.linear_model.regularizers import Regularizer
 
 
 @pytest.fixture(params=[r() for r in Regularizer.__subclasses__()])

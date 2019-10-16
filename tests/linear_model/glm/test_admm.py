@@ -2,10 +2,11 @@ import dask.array as da
 import numpy as np
 import pytest
 from dask import persist
-from dask_glm.algorithms import admm, local_update
-from dask_glm.families import Logistic, Normal
-from dask_glm.regularizers import L1
-from dask_glm.utils import make_y
+
+from dask_ml.linear_model.algorithms import admm, local_update
+from dask_ml.linear_model.families import Logistic, Normal
+from dask_ml.linear_model.regularizers import L1
+from dask_ml.linear_model.utils import make_y
 
 
 @pytest.mark.parametrize("N", [1000, 10000])

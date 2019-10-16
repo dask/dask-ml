@@ -4,10 +4,17 @@ import dask.multiprocessing
 import numpy as np
 import pytest
 from dask import persist
-from dask_glm.algorithms import admm, gradient_descent, lbfgs, newton, proximal_grad
-from dask_glm.families import Logistic, Normal, Poisson
-from dask_glm.regularizers import Regularizer
-from dask_glm.utils import make_y, sigmoid
+
+from dask_ml.linear_model.algorithms import (
+    admm,
+    gradient_descent,
+    lbfgs,
+    newton,
+    proximal_grad,
+)
+from dask_ml.linear_model.families import Logistic, Normal, Poisson
+from dask_ml.linear_model.regularizers import Regularizer
+from dask_ml.linear_model.utils import make_y, sigmoid
 
 
 def add_l1(f, lam):

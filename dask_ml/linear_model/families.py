@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
-from dask_glm.utils import dot, exp, log1p, sigmoid
+from .utils import dot, exp, log1p, sigmoid
 
 
 class Logistic(object):

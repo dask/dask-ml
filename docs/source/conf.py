@@ -57,7 +57,6 @@ intersphinx_mapping = {
     "sklearn": ("http://scikit-learn.org/stable/", None),
     "dask": ("https://docs.dask.org/en/latest/", None),
     "distributed": ("https://distributed.dask.org/en/latest/", None),
-    "dask_glm": ("http://dask-glm.readthedocs.io/en/latest/", None),
 }
 
 sphinx_gallery_conf = {
