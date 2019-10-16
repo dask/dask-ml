@@ -40,6 +40,6 @@ jobs:
       isort --recursive --check-only .
 
       echo "[codecov]"
-      bash <(curl -s https://codecov.io/bash)
+      codecov
 
     displayName: "Lint"

@@ -5,6 +5,7 @@ channels:
 dependencies:
   - black
   - coverage
+  - codecov
   - dask
   - dask-glm >=0.2.0
   - distributed
