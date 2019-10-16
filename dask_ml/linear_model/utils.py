@@ -9,6 +9,8 @@ import dask.dataframe as dd
 import numpy as np
 from multipledispatch import dispatch
 
+from .._utils import is_sparse
+
 
 @dispatch(dd._Frame)
 def exp(A):
@@ -37,6 +39,10 @@ def add_intercept(X):
 
 def _add_intercept(x):
     ones = np.ones((x.shape[0], 1), dtype=x.dtype)
+
+    if is_sparse(x):
+        ones = sparse.COO(ones)
+
     return np.concatenate([ones, x], axis=1)
 
 
@@ -224,3 +230,18 @@ def is_dask_array_sparse(X):
         return False
 
     return isinstance(X._meta, sparse.SparseArray)
+
+
+try:
+    import sparse
+except ImportError:
+    pass
+else:
+
+    @dispatch(sparse.COO)
+    def exp(x):
+        return np.exp(x.todense())
+
+    @dispatch(sparse.SparseArray)
+    def add_intercept(X):
+        return sparse.concatenate([X, sparse.COO(np.ones((X.shape[0], 1)))], axis=1)
