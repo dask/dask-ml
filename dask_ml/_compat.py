@@ -1,4 +1,5 @@
 import contextlib
+import importlib
 from collections.abc import Mapping  # noqa
 
 import dask
@@ -35,3 +36,12 @@ def check_is_fitted(est, attributes=None):
         args = (attributes,)
 
     return sklearn.utils.validation.check_is_fitted(est, *args)
+
+
+def _import_sparse():
+    try:
+        return importlib.import_module("sparse")
+    except ImportError:
+        raise ImportError(
+            "This requires the optional 'sparse' library. Please install 'sparse'."
+        )

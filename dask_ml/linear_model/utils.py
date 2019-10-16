@@ -9,7 +9,7 @@ import numpy as np
 from dask.distributed import get_client
 from multipledispatch import dispatch
 
-import sparse
+from .. import _compat
 
 
 def normalize(algo):
@@ -144,17 +144,17 @@ def is_dask_array_sparse(X):
     """
     Check using _meta if a dask array contains sparse arrays
     """
+    try:
+        import sparse
+    except ImportError:
+        return False
+
     return isinstance(X._meta, sparse.SparseArray)
 
 
 @dispatch(np.ndarray)
 def add_intercept(X):
     return np.concatenate([X, np.ones((X.shape[0], 1))], axis=1)
-
-
-@dispatch(sparse.SparseArray)
-def add_intercept(X):
-    return sparse.concatenate([X, sparse.COO(np.ones((X.shape[0], 1)))], axis=1)
 
 
 @dispatch(da.Array)
@@ -166,6 +166,7 @@ def add_intercept(X):
     j, k = X.chunks
     o = da.ones((X.shape[0], 1), chunks=(j, 1))
     if is_dask_array_sparse(X):
+        sparse = _compat._import_sparse()
         o = o.map_blocks(sparse.COO)
     # TODO: Needed this `.rechunk` for the solver to work
     # Is this OK / correct?
@@ -201,6 +202,10 @@ else:
     @dispatch(sparse.COO)
     def exp(x):
         return np.exp(x.todense())
+
+    @dispatch(sparse.SparseArray)
+    def add_intercept(X):
+        return sparse.concatenate([X, sparse.COO(np.ones((X.shape[0], 1)))], axis=1)
 
 
 def package_of(obj):

@@ -1,16 +1,8 @@
 import dask
 import pytest
 
-from dask_ml.linear_model.datasets import (
-    make_classification,
-    make_poisson,
-    make_regression,
-)
-from dask_ml.linear_model.estimators import (
-    LinearRegression,
-    LogisticRegression,
-    PoissonRegression,
-)
+from dask_ml.datasets import make_classification, make_poisson, make_regression
+from dask_ml.linear_model import LinearRegression, LogisticRegression, PoissonRegression
 from dask_ml.linear_model.regularizers import Regularizer
 
 
@@ -40,7 +32,7 @@ class DoNothingTransformer(object):
         return {}
 
 
-X, y = make_classification()
+X, y = make_classification(chunks=50)
 
 
 def test_lr_init(solver):
@@ -55,7 +47,7 @@ def test_pr_init(solver):
 @pytest.mark.parametrize("is_sparse", [True, False])
 def test_fit(fit_intercept, is_sparse):
     X, y = make_classification(
-        n_samples=100, n_features=5, chunksize=10, is_sparse=is_sparse
+        n_samples=100, n_features=5, chunks=10, is_sparse=is_sparse
     )
     lr = LogisticRegression(fit_intercept=fit_intercept)
     lr.fit(X, y)
@@ -66,9 +58,7 @@ def test_fit(fit_intercept, is_sparse):
 @pytest.mark.parametrize("fit_intercept", [True, False])
 @pytest.mark.parametrize("is_sparse", [True, False])
 def test_lm(fit_intercept, is_sparse):
-    X, y = make_regression(
-        n_samples=100, n_features=5, chunksize=10, is_sparse=is_sparse
-    )
+    X, y = make_regression(n_samples=100, n_features=5, chunks=10, is_sparse=is_sparse)
     lr = LinearRegression(fit_intercept=fit_intercept)
     lr.fit(X, y)
     lr.predict(X)
@@ -80,7 +70,7 @@ def test_lm(fit_intercept, is_sparse):
 @pytest.mark.parametrize("is_sparse", [True, False])
 def test_big(fit_intercept, is_sparse):
     with dask.config.set(scheduler="synchronous"):
-        X, y = make_classification(is_sparse=is_sparse)
+        X, y = make_classification(chunks=50, is_sparse=is_sparse)
         lr = LogisticRegression(fit_intercept=fit_intercept)
         lr.fit(X, y)
         lr.predict(X)
@@ -93,7 +83,7 @@ def test_big(fit_intercept, is_sparse):
 @pytest.mark.parametrize("is_sparse", [True, False])
 def test_poisson_fit(fit_intercept, is_sparse):
     with dask.config.set(scheduler="synchronous"):
-        X, y = make_poisson(is_sparse=is_sparse)
+        X, y = make_poisson(chunks=50, is_sparse=is_sparse)
         pr = PoissonRegression(fit_intercept=fit_intercept)
         pr.fit(X, y)
         pr.predict(X)
@@ -105,7 +95,7 @@ def test_poisson_fit(fit_intercept, is_sparse):
 def test_in_pipeline():
     from sklearn.pipeline import make_pipeline
 
-    X, y = make_classification(n_samples=100, n_features=5, chunksize=10)
+    X, y = make_classification(n_samples=100, n_features=5, chunks=10)
     pipe = make_pipeline(DoNothingTransformer(), LogisticRegression())
     pipe.fit(X, y)
 
@@ -115,7 +105,7 @@ def test_gridsearch():
 
     dcv = pytest.importorskip("dask_searchcv")
 
-    X, y = make_classification(n_samples=100, n_features=5, chunksize=10)
+    X, y = make_classification(n_samples=100, n_features=5, chunks=10)
     grid = {"logisticregression__lamduh": [0.001, 0.01, 0.1, 0.5]}
     pipe = make_pipeline(DoNothingTransformer(), LogisticRegression())
     search = dcv.GridSearchCV(pipe, grid, cv=3)

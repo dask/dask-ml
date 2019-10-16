@@ -3,7 +3,6 @@ import numpy as np
 import pytest
 from dask.array.utils import assert_eq
 
-import sparse
 from dask_ml.linear_model import utils
 
 
@@ -75,6 +74,7 @@ def test_add_intercept_dask():
 
 
 def test_add_intercept_sparse():
+    sparse = pytest.importorskip("sparse")
     X = sparse.COO(np.zeros((4, 4)))
     result = utils.add_intercept(X)
     expected = sparse.COO(
@@ -87,6 +87,7 @@ def test_add_intercept_sparse():
 
 
 def test_add_intercept_sparse_dask():
+    sparse = pytest.importorskip("sparse")
     X = da.from_array(sparse.COO(np.zeros((4, 4))), chunks=(2, 4))
     result = utils.add_intercept(X)
     expected = da.from_array(
@@ -102,6 +103,7 @@ def test_add_intercept_sparse_dask():
 
 
 def test_sparse():
+    sparse = pytest.importorskip("sparse")
     x = sparse.COO({(0, 0): 1, (1, 2): 2, (2, 1): 3})
     y = x.todense()
     assert utils.sum(x) == utils.sum(x.todense())
@@ -110,6 +112,7 @@ def test_sparse():
 
 
 def test_dask_array_is_sparse():
+    sparse = pytest.importorskip("sparse")
     assert utils.is_dask_array_sparse(da.from_array(sparse.COO([], [], shape=(10, 10))))
     assert utils.is_dask_array_sparse(da.from_array(sparse.eye(10)))
     assert not utils.is_dask_array_sparse(da.from_array(np.eye(10)))
@@ -120,4 +123,5 @@ def test_dask_array_is_sparse():
     "(https://github.com/pydata/sparse/issues/292)"
 )
 def test_dok_dask_array_is_sparse():
+    sparse = pytest.importorskip("sparse")
     assert utils.is_dask_array_sparse(da.from_array(sparse.DOK((10, 10))))

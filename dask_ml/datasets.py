@@ -8,6 +8,8 @@ import sklearn.utils
 
 import dask_ml.utils
 
+from . import _compat
+
 
 def _check_axis_partitioning(chunks, n_features):
     c = chunks[1][0]
@@ -216,6 +218,7 @@ def make_regression(
     coef=False,
     random_state=None,
     chunks=None,
+    is_sparse=False,
 ):
     """
     Generate a random regression problem.
@@ -332,6 +335,10 @@ def make_regression(
 
     y_big = y_big.squeeze()
 
+    if is_sparse:
+        sparse = _compat._import_sparse()
+        X_big = X_big.map_blocks(sparse.COO)
+
     if return_coef:
         return X_big, y_big, coef
     else:
@@ -355,6 +362,7 @@ def make_classification(
     shuffle=True,
     random_state=None,
     chunks=None,
+    is_sparse=True,
 ):
     chunks = da.core.normalize_chunks(chunks, (n_samples, n_features))
     _check_axis_partitioning(chunks, n_features)
@@ -376,6 +384,10 @@ def make_classification(
     y = rng.random(z0.shape, chunks=chunks[0]) < 1 / (1 + da.exp(-z0))
     y = y.astype(int)
 
+    if is_sparse:
+        sparse = _compat._import_sparse()
+        X = X.map_blocks(sparse.COO)
+
     return X, y
 
 
@@ -384,7 +396,7 @@ def make_poisson(
     n_features=100,
     n_informative=2,
     scale=1.0,
-    chunksize=100,
+    chunks=100,
     is_sparse=False,
 ):
     """
@@ -419,10 +431,13 @@ def make_poisson(
     >>> y
     dask.array<da.random.poisson, shape=(1000,), dtype=int64, chunksize=(100,)>
     """
+    from .linear_model.utils import exp
+
     X = da.random.normal(
         0, 1, size=(n_samples, n_features), chunks=(chunksize, n_features)
     )
     if is_sparse:
+        sparse = _compat._import_sparse()
         X = X.map_blocks(sparse.COO)
     informative_idx = np.random.choice(n_features, n_informative)
     beta = (np.random.random(n_features) - 1) * scale
