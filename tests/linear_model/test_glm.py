@@ -4,11 +4,11 @@ import numpy as np
 import pandas as pd
 import pytest
 from dask.dataframe.utils import assert_eq
-from dask_glm.regularizers import Regularizer
 from sklearn.pipeline import make_pipeline
 
 from dask_ml.datasets import make_classification, make_counts, make_regression
 from dask_ml.linear_model import LinearRegression, LogisticRegression, PoissonRegression
+from dask_ml.linear_model.regularizers import Regularizer
 from dask_ml.linear_model.utils import add_intercept
 from dask_ml.model_selection import GridSearchCV
 
@@ -63,12 +63,6 @@ def test_fit(fit_intercept, solver):
     "solver", ["admm", "newton", "lbfgs", "proximal_grad", "gradient_descent"]
 )
 def test_fit_solver(solver):
-    import dask_glm
-    from distutils.version import LooseVersion
-
-    if LooseVersion(dask_glm.__version__) <= "0.2.0":
-        pytest.skip("FutureWarning for dask config.")
-
     X, y = make_classification(n_samples=100, n_features=5, chunks=50)
     lr = LogisticRegression(solver=solver)
     lr.fit(X, y)
