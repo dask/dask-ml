@@ -1,13 +1,32 @@
 Changelog
 =========
 
+Version 1.0.0
+~~~~~~~~~~~~~
+
+- Added new hyperparameter search meta-estimators for hyperparameter search on distributed datasets: :class:`~dask_ml.model_selection.HyperbandSearchCV` and :class:`~dask_ml.model_selection.SuccessiveHalvingSearchCV`
+- Dropped Python 2 support (:pr:`500`)
+
+Version 0.13.0
+~~~~~~~~~~~~~~
+
+- Compatibility with scikit-learn 0.21.1
+- Cross-validation results in ``GridSearchCV`` and ``RandomizedSearchCV`` are now gathered as completed, in case a worker is lost (:issue:`433`)
+- Fixed bug in :func:`dask_ml.model_selection.train_test_split` when only one of train / test size is provided (:issue:`502`)
+- Consistent random state for :class:`dask_ml.model_selection.IncrementalSearchCV`
+- Fixed various issues with 32-bit Windows builds (:issue:`487`)
+
+.. note::
+
+   dask-ml 0.13.0 will be the last release to support Python 2.
+
 Version 0.12.0
 ~~~~~~~~~~~~~~
 
 API Breaking Changes
 --------------------
 
-- :class:`dask_ml.model_selection.IncrementalSearchCV` now returns Dask objects for post-fit methods like ``.predict``, etc (:issues:`423`).
+- :class:`dask_ml.model_selection.IncrementalSearchCV` now returns Dask objects for post-fit methods like ``.predict``, etc (:issue:`423`).
 
 
 Version 0.11.0

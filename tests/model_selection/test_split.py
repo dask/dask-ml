@@ -3,10 +3,10 @@ import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import pytest
-import six
 from sklearn.datasets import fetch_20newsgroups, make_regression
 
 import dask_ml.model_selection
+from dask_ml._compat import DASK_200
 
 X, y = make_regression(n_samples=110, n_features=5)
 dX = da.from_array(X, 50)
@@ -20,7 +20,7 @@ def test_20_newsgroups():
     X_train, X_test, y_train, y_test = r
     for X in [X_train, X_test]:
         assert isinstance(X, list)
-        assert isinstance(X[0], six.string_types)
+        assert isinstance(X[0], str)
     for y in [y_train, y_test]:
         assert isinstance(y, np.ndarray)
         assert y.dtype == int
@@ -118,9 +118,7 @@ def test_kfold(shuffle):
 
 
 def test_train_test_split():
-    X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(
-        dX, dy, random_state=10
-    )
+    X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(dX, dy)
 
     assert len(X_train) == 99
     assert len(X_test) == 11
@@ -165,14 +163,21 @@ def test_complement():
     assert test_size == 0.2
 
 
-def test_train_test_split_dask_dataframe(xy_classification_pandas):
+@pytest.mark.parametrize(
+    "train_size, test_size", [(None, None), (0.9, None), (None, 0.1), (0.9, 0.1)]
+)
+def test_train_test_split_dask_dataframe(
+    xy_classification_pandas, train_size, test_size
+):
     X, y = xy_classification_pandas
 
     X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(
-        X, y, train_size=0.25, test_size=0.75
+        X, y, train_size=train_size, test_size=test_size
     )
     assert isinstance(X_train, dd.DataFrame)
     assert isinstance(y_train, dd.Series)
+
+    assert (y_train.size + y_test.size).compute() == len(y)
 
 
 def test_train_test_split_dask_dataframe_rng(xy_classification_pandas):
@@ -187,3 +192,20 @@ def test_train_test_split_dask_dataframe_rng(xy_classification_pandas):
     )
     for a, b in zip(split1, split2):
         dd.utils.assert_eq(a, b)
+
+
+@pytest.mark.skipif(not DASK_200, reason="assert_eq")
+def test_split_mixed():
+    y_series = dd.from_dask_array(dy)
+
+    with pytest.raises(TypeError, match="convert_mixed_types"):
+        dask_ml.model_selection.train_test_split(dX, y_series)
+
+    expected = dask_ml.model_selection.train_test_split(dX, dy, random_state=0)
+    results = dask_ml.model_selection.train_test_split(
+        dX, y_series, random_state=0, convert_mixed_types=True
+    )
+
+    assert len(expected) == len(results)
+    for a, b in zip(expected, results):
+        da.utils.assert_eq(a, b)

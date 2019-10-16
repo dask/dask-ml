@@ -6,7 +6,7 @@ from dask_ml.utils import assert_estimator_equal
 
 
 @pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")
-class TestMiniBatchKMeans(object):
+class TestMiniBatchKMeans:
     def test_basic(self, single_chunk_blobs):
         X, y = single_chunk_blobs
         a = cluster.PartialMiniBatchKMeans(n_clusters=3, random_state=0)

@@ -13,9 +13,9 @@ from pandas.api.types import is_categorical_dtype
 from scipy import stats
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import data as skdata
-from sklearn.utils.validation import check_is_fitted, check_random_state
+from sklearn.utils.validation import check_random_state
 
-from dask_ml._compat import blockwise
+from dask_ml._compat import DASK_110, SK_022, blockwise, check_is_fitted
 from dask_ml._utils import copy_learned_attributes
 from dask_ml.utils import check_array, handle_zeros_in_scale
 
@@ -210,7 +210,7 @@ class RobustScaler(skdata.RobustScaler):
         See License information here:
         https://github.com/scikit-learn/scikit-learn/blob/master/README.rst
         """
-        check_is_fitted(self, "center_", "scale_")
+        check_is_fitted(self, ["center_", "scale_"])
 
         # if sparse.issparse(X):
         #     if self.with_scaling:
@@ -232,7 +232,11 @@ class QuantileTransformer(skdata.QuantileTransformer):
 
     __doc__ = __doc__ + "\n".join(skdata.QuantileTransformer.__doc__.split("\n")[1:])
 
-    def _check_inputs(self, X, accept_sparse_negative=False):
+    def _check_inputs(self, X, accept_sparse_negative=False, copy=False):
+        kwargs = {}
+        if SK_022:
+            kwargs["copy"] = copy
+
         if isinstance(X, (pd.DataFrame, dd.DataFrame)):
             X = X.values
         if isinstance(X, np.ndarray):
@@ -245,7 +249,7 @@ class QuantileTransformer(skdata.QuantileTransformer):
         # TODO: mix of sparse, dense?
         sample = rng.uniform(size=(5, X.shape[1])).astype(X.dtype)
         super(QuantileTransformer, self)._check_inputs(
-            sample, accept_sparse_negative=accept_sparse_negative
+            sample, accept_sparse_negative=accept_sparse_negative, **kwargs
         )
         return X
 
@@ -265,7 +269,11 @@ class QuantileTransformer(skdata.QuantileTransformer):
             )
             for feature_idx in range(X.shape[1])
         ]
-        return da.vstack(transformed).T
+        if DASK_110:
+            kwargs = {"allow_unknown_chunksizes": True}
+        else:
+            kwargs = {}
+        return da.vstack(transformed, **kwargs).T
 
     def _transform_col(self, X_col, quantiles, inverse):
         output_distribution = self.output_distribution

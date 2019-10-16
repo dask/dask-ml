@@ -26,11 +26,10 @@ dependencies:
   - pytest-mock
   - python=3.6.6
   - sortedcontainers
-  - scikit-learn>=0.20.0
+  - scikit-learn>=0.21.3
   - scipy
-  - six
   - sparse
-  - sphinx
+  - sphinx==1.8.5
   - sphinx_rtd_theme
   - sphinx-gallery
   - tensorflow

@@ -356,12 +356,23 @@ def _blockwise_slice(arr, idx):
     return sliced
 
 
-def train_test_split(*arrays, **options):
+def train_test_split(
+    *arrays,
+    test_size=None,
+    train_size=None,
+    random_state=None,
+    shuffle=True,
+    blockwise=None,
+    convert_mixed_types=False,
+    **options
+):
     """Split arrays into random train and test matricies.
 
     Parameters
     ----------
-    *arrays : Sequence of Dask Arrays
+    *arrays : Sequence of Dask Arrays, DataFrames, or Series
+        Non-dask objects will be passed through to
+        :func:`sklearn.model_selection.train_test_split`.
     test_size : float or int, default 0.1
     train_size : float or int, optional
     random_state : int, RandomState instance or None, optional (default=None)
@@ -380,6 +391,11 @@ def train_test_split(*arrays, **options):
         the default is True (data are not shuffled between blocks). For Dask
         DataFrames, the default and only allowed value is False (data are
         shuffled between blocks).
+
+    convert_mixed_types : bool, defualt False
+        Whether to convert dask DataFrames and Series to dask Arrays when
+        arrays contains a mixiture of types. This results in some computation
+        to determine the length of each block.
 
     Returns
     -------
@@ -401,21 +417,36 @@ def train_test_split(*arrays, **options):
     array([[ 0.12372191,  0.58222459,  0.92950511, -2.09460307],
            [ 0.99439439, -0.70972797, -0.27567053,  1.73887268]])
     """
-    test_size = options.pop("test_size", None)
-    train_size = options.pop("train_size", None)
-    random_state = options.pop("random_state", None)
-    shuffle = options.pop("shuffle", True)
-    blockwise = options.pop("blockwise", None)
-
     if train_size is None and test_size is None:
         # all other validation dones elsewhere.
         test_size = 0.1
+
+    if train_size is None and test_size is not None:
+        train_size = 1 - test_size
+    if test_size is None and train_size is not None:
+        test_size = 1 - train_size
 
     if options:
         raise TypeError("Unexpected options {}".format(options))
 
     if not shuffle:
         raise NotImplementedError("'shuffle=False' is not currently supported.")
+
+    types = set(type(arr) for arr in arrays)
+
+    if da.Array in types and types & {dd.Series, dd.DataFrame}:
+        if convert_mixed_types:
+            arrays = tuple(
+                x.to_dask_array(lengths=True)
+                if isinstance(x, (dd.Series, dd.DataFrame))
+                else x
+                for x in arrays
+            )
+        else:
+            raise TypeError(
+                "Got mixture of dask DataFrames and Arrays. Specify "
+                "'convert_mixed_types=True'"
+            )
 
     if all(isinstance(arr, (dd.Series, dd.DataFrame)) for arr in arrays):
         check_matching_blocks(*arrays)
@@ -451,7 +482,6 @@ def train_test_split(*arrays, **options):
 
         return list(itertools.chain.from_iterable(train_test_pairs))
     else:
-        logger.warning("Mixture of types in 'arrays'. Falling back to scikit-learn.")
         return ms.train_test_split(
             *arrays,
             test_size=test_size,

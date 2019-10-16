@@ -48,11 +48,11 @@ optimization, and more.
 .. code-block:: python
 
    from dask.distributed import Client
-   from sklearn.externals.joblib import parallel_backend
+   import joblib
 
    client = Client()  # Connect to a Dask Cluster
 
-   with parallel_backend('dask'):
+   with joblib.parallel_backend('dask'):
        # Your normal scikit-learn code here
 
 See :doc:`Dask-ML Joblib documentation <joblib>` for more information.

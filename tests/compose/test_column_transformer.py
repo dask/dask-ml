@@ -80,14 +80,9 @@ def test_column_transformer_unk_chunksize():
             )
         ]
     )
-
-    # Checks:
-    #   ValueError: Tried to concatenate arrays with unknown shape (nan, 1).
-    #               To force concatenation pass allow_unknown_chunksizes=True.
     out = features.fit_transform(x)
 
     exp = np.array([[1, 3], [7, 9], [13, 15], [19, 21]])
-    assert isinstance(out, np.ndarray)
     np.testing.assert_array_equal(out, exp)
 
 
@@ -123,11 +118,11 @@ def test_sklearn_col_trans_disallows_hstack_then_block():
     )
 
     exp_msg = (
-        "The output of the 'a_b' transformer should be 2D "
-        "(scipy matrix, array, or pandas DataFrame)."
+        "The output of the .a_b. transformer should be 2D "
+        ".scipy matrix, array, or pandas DataFrame.."
     )
 
-    with pytest.raises(ValueError, message=exp_msg) as ex:
+    with pytest.raises(ValueError, match=exp_msg) as ex:
         features.fit_transform(x)
 
     cause = ex.traceback[-1]

@@ -1,3 +1,4 @@
+import dask
 import dask.array as da
 import numpy as np
 from dask import delayed
@@ -32,7 +33,7 @@ class GaussianNB(BaseEstimator):
     def fit(self, X, y=None):
         if self.classes is None:
             # TODO: delayed
-            self.classes_ = np.unique(y)
+            self.classes_, = dask.compute(np.unique(y))
 
         thetas = []
         sigmas = []

@@ -10,7 +10,6 @@ import numpy as np
 import packaging.version
 import pytest
 import scipy.sparse as sp
-import six
 import sklearn.metrics
 from numpy.testing import (
     assert_almost_equal,
@@ -1164,10 +1163,7 @@ def test_grid_search_failing_classifier():
         error_score=float("nan"),
     )
 
-    if not six.PY2:
-        with pytest.warns(FitFailedWarning):
-            gs.fit(X, y)
-    else:
+    with pytest.warns(FitFailedWarning):
         gs.fit(X, y)
 
     n_candidates = len(gs.cv_results_["params"])
@@ -1207,6 +1203,12 @@ def test_search_train_scores_set_to_false():
     for key in gs.cv_results_:
         assert not key.endswith("train_score")
 
+    if SK_VERSION >= packaging.version.parse("0.22.dev0"):
+        gs = dcv.GridSearchCV(clf, param_grid={"C": [0.1, 0.2]})
+        gs.fit(X, y)
+        for key in gs.cv_results_:
+            assert not key.endswith("train_score")
+
 
 def test_multiple_metrics():
     scoring = {"AUC": "roc_auc", "Accuracy": make_scorer(accuracy_score)}
@@ -1222,6 +1224,7 @@ def test_multiple_metrics():
         scoring=scoring,
         cv=5,
         refit="AUC",
+        return_train_score=True,
     )
     gs.fit(da_X, da_y)
     # some basic checks

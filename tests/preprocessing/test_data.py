@@ -13,6 +13,7 @@ from pandas.api.types import is_categorical_dtype, is_object_dtype
 from sklearn.exceptions import NotFittedError
 
 import dask_ml.preprocessing as dpp
+from dask_ml._compat import DASK_110
 from dask_ml.datasets import make_classification
 from dask_ml.utils import assert_estimator_equal
 
@@ -49,7 +50,7 @@ def dask_df(pandas_df):
     return dd.from_pandas(pandas_df, npartitions=5)
 
 
-class TestStandardScaler(object):
+class TestStandardScaler:
     def test_basic(self):
         a = dpp.StandardScaler()
         b = spp.StandardScaler()
@@ -90,7 +91,7 @@ class TestStandardScaler(object):
         assert_eq_ar(result, X)
 
 
-class TestMinMaxScaler(object):
+class TestMinMaxScaler:
     def test_basic(self):
         a = dpp.MinMaxScaler()
         b = spp.MinMaxScaler()
@@ -144,7 +145,7 @@ class TestMinMaxScaler(object):
         assert_eq_df(dfa.drop(mask, axis=1), df2.drop(mask, axis=1))
 
 
-class TestRobustScaler(object):
+class TestRobustScaler:
     def test_fit(self):
         a = dpp.RobustScaler()
         b = spp.RobustScaler()
@@ -205,7 +206,7 @@ class TestRobustScaler(object):
         assert_eq_ar(result_ar, result_df)
 
 
-class TestQuantileTransformer(object):
+class TestQuantileTransformer:
     @pytest.mark.parametrize("output_distribution", ["uniform", "normal"])
     def test_basic(self, output_distribution):
         rs = da.random.RandomState(0)
@@ -239,8 +240,20 @@ class TestQuantileTransformer(object):
         dqt = dpp.QuantileTransformer()
         dqt.fit(dX)
 
+    @pytest.mark.skipif(not DASK_110, reason="unsupported")
+    def test_fit_transform_frame(self):
+        df = pd.DataFrame(np.random.randn(1000, 3))
+        ddf = dd.from_pandas(df, 2)
 
-class TestCategorizer(object):
+        a = spp.QuantileTransformer()
+        b = dpp.QuantileTransformer()
+
+        expected = a.fit_transform(df)
+        result = b.fit_transform(ddf)
+        assert_eq_ar(result, expected, rtol=1e-3, atol=1e-3)
+
+
+class TestCategorizer:
     def test_ce(self):
         ce = dpp.Categorizer()
         original = raw.copy()

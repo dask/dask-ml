@@ -5,7 +5,7 @@ import packaging.version
 import pandas as pd
 import sklearn.preprocessing
 
-from .._compat import SK_VERSION
+from .._compat import SK_022, SK_VERSION
 from ..utils import check_array
 from .label import _encode, _encode_dask_array
 
@@ -130,7 +130,18 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
         }
         if SK_VERSION < packaging.version.parse("0.21.0"):
             del signature["drop"]
+        if SK_022:
+            del signature["n_values"]
+            del signature["categorical_features"]
+
         super(OneHotEncoder, self).__init__(**signature)
+
+    @classmethod
+    def _get_param_names(cls):
+        return ["categories", "drop", "dtype", "sparse", "dtype", "handle_unknown"]
+
+    def get_params(self, deep=True):
+        return super().get_params(deep)
 
     def fit(self, X, y=None):
         if self.handle_unknown == "ignore":
@@ -201,7 +212,13 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
 
         self.categories_ = dask.compute(self.categories_)[0]
 
+    def transform(self, X):
+        return self._transform(X)
+
     def _transform_new(self, X):
+        return self._transform(X)
+
+    def _transform(self, X, handle_unknown="error"):
         X = check_array(
             X, accept_dask_dataframe=True, dtype=None, preserve_pandas_dataframe=True
         )
