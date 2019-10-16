@@ -9,16 +9,12 @@ import dask
 import dask.array as da
 import numpy as np
 from dask import compute, delayed, persist
+from distributed import get_client
 from scipy.optimize import fmin_l_bfgs_b
 
 from dask_ml.linear_model.families import Logistic
 from dask_ml.linear_model.regularizers import Regularizer
-from dask_ml.linear_model.utils import (
-    dot,
-    get_distributed_client,
-    normalize,
-    scatter_array,
-)
+from dask_ml.linear_model.utils import dot, normalize, scatter_array
 
 
 def compute_stepsize_dask(
@@ -373,7 +369,11 @@ def lbfgs(
     -------
     beta : array-like, shape (n_features,)
     """
-    dask_distributed_client = get_distributed_client()
+    try:
+        dask_distributed_client = get_client()
+    except ValueError:
+        pass
+
     pointwise_loss = family.pointwise_loss
     pointwise_gradient = family.pointwise_gradient
     if regularizer is not None:

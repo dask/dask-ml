@@ -3,17 +3,10 @@ Models following scikit-learn's estimator API.
 """
 from sklearn.base import BaseEstimator
 
+from dask_ml.metrics import accuracy_score, mean_squared_error, poisson_deviance
+
 from . import algorithms, families
-from .utils import (
-    accuracy_score,
-    add_intercept,
-    dot,
-    exp,
-    is_dask_array_sparse,
-    mean_squared_error,
-    poisson_deviance,
-    sigmoid,
-)
+from .utils import add_intercept, dot, exp, is_dask_array_sparse, sigmoid
 
 
 class _GLM(BaseEstimator):

@@ -368,7 +368,7 @@ def make_classification(
     shuffle=True,
     random_state=None,
     chunks=None,
-    is_sparse=True,
+    is_sparse=False,
 ):
     chunks = da.core.normalize_chunks(chunks, (n_samples, n_features))
     _check_axis_partitioning(chunks, n_features)
