@@ -20,6 +20,7 @@ from ..metrics import (
     pairwise_distances_argmin_min,
 )
 from ..utils import _timed, _timer, check_array, row_norms
+from ._compat import _k_init
 
 logger = logging.getLogger(__name__)
 
@@ -377,7 +378,7 @@ def init_pp(X, n_clusters, random_state):
     logger.info("Initializing with k-means++")
     with _timer("initialization of %2d centers" % n_clusters, _logger=logger):
         # XXX: Using a private scikit-learn API
-        centers = sklearn.cluster._k_means._k_init(
+        centers = _k_init(
             X, n_clusters, random_state=random_state, x_squared_norms=x_squared_norms
         )
 
