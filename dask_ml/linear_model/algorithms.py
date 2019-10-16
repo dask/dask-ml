@@ -372,7 +372,7 @@ def lbfgs(
     try:
         dask_distributed_client = get_client()
     except ValueError:
-        pass
+        dask_distributed_client = None
 
     pointwise_loss = family.pointwise_loss
     pointwise_gradient = family.pointwise_gradient

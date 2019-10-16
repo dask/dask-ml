@@ -43,7 +43,7 @@ def _add_intercept(x):
     if is_sparse(x):
         ones = sparse.COO(ones)
 
-    return np.concatenate([ones, x], axis=1)
+    return np.concatenate([x, ones], axis=1)
 
 
 @dispatch(da.Array)  # noqa: F811
