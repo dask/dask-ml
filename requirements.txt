@@ -1,0 +1,7 @@
+cloudpickle>=0.2.2
+dask[array]
+multipledispatch>=0.4.9
+scipy>=0.18.1
+scikit-learn>=0.18
+distributed
+sparse>=0.7.0

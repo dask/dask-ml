@@ -1,0 +1,29 @@
+name: dask_glm
+channels:
+- defaults
+dependencies:
+- mkl=2017.0.1=0
+- numpy=1.12.0=py35_0
+- openssl=1.0.2k=0
+- pip=9.0.1=py35_1
+- python=3.5.2=0
+- python-dateutil=2.6.0=py35_0
+- pytz=2016.10=py35_0
+- readline=6.2=2
+- setuptools=27.2.0=py35_0
+- six=1.10.0=py35_0
+- sqlite=3.13.0=0
+- tk=8.5.18=0
+- toolz=0.8.2=py35_0
+- wheel=0.29.0=py35_0
+- xz=5.2.2=1
+- zlib=1.2.8=3
+- pip:
+  - cloudpickle==0.2.2
+  - "git+https://github.com/dask/dask.git"
+  - "git+https://github.com/dask/dask-glm.git"
+  - multipledispatch==0.4.9
+  - py==1.4.32
+  - pytest==3.0.6
+  - scipy==0.18.1
+  - sparse==0.8.0

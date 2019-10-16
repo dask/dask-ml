@@ -1,0 +1,11 @@
+dask[complete]
+pandas
+scikit-learn
+multipledispatch
+scipy
+numpydoc
+jupyter
+notebook
+nbsphinx
+sphinx
+sphinx_rtd_theme
