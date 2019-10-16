@@ -30,6 +30,7 @@ def make_counts(
     scale=1.0,
     chunks=100,
     random_state=None,
+    is_sparse=False,
 ):
     """
     Generate a dummy dataset for modeling count data.
@@ -72,6 +73,11 @@ def make_counts(
     z0 = X[:, informative_idx].dot(beta[informative_idx])
     rate = da.exp(z0)
     y = rng.poisson(rate, size=1, chunks=(chunks,))
+
+    if is_sparse:
+        sparse = _compat._import_sparse()
+        X = X.map_blocks(sparse.COO)
+
     return X, y
 
 
@@ -391,57 +397,4 @@ def make_classification(
     return X, y
 
 
-def make_poisson(
-    n_samples=1000,
-    n_features=100,
-    n_informative=2,
-    scale=1.0,
-    chunks=100,
-    is_sparse=False,
-):
-    """
-    Generate a dummy dataset for modeling count data.
-
-    Parameters
-    ----------
-    n_samples : int
-        number of rows in the output array
-    n_features : int
-        number of columns (features) in the output array
-    n_informative : int
-        number of features that are correlated with the outcome
-    scale : float
-        Scale the true coefficient array by this
-    chunksize : int
-        Number of rows per dask array block.
-    is_sparse: bool
-        Return a sparse matrix
-
-    Returns
-    -------
-    X : dask.array, size ``(n_samples, n_features)``
-    y : dask.array, size ``(n_samples,)``
-        array of non-negative integer-valued data
-
-    Examples
-    --------
-    >>> X, y = make_classification()
-    >>> X
-    dask.array<da.random.normal, shape=(1000, 100), dtype=float64, chunksize=(100, 100)>
-    >>> y
-    dask.array<da.random.poisson, shape=(1000,), dtype=int64, chunksize=(100,)>
-    """
-    from .linear_model.utils import exp
-
-    X = da.random.normal(
-        0, 1, size=(n_samples, n_features), chunks=(chunksize, n_features)
-    )
-    if is_sparse:
-        sparse = _compat._import_sparse()
-        X = X.map_blocks(sparse.COO)
-    informative_idx = np.random.choice(n_features, n_informative)
-    beta = (np.random.random(n_features) - 1) * scale
-    z0 = X[:, informative_idx].dot(beta[informative_idx])
-    rate = exp(z0)
-    y = da.random.poisson(rate, size=1, chunks=(chunksize,))
-    return X, y
+make_poisson = make_counts
