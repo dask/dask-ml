@@ -15,15 +15,12 @@ jobs:
   - powershell: Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
     displayName: "Add conda to PATH (windows)"
 
-  - bash: conda update --quiet -y conda
-    displayName: "Update conda"
-
   - bash: conda env create --quiet --file=$(envFile) --name=dask-ml-test && conda list -n dask-ml-test
     displayName: "install"
 
   - script: |
       call activate dask-ml-test
-      pytest --cov=dask_ml --cov-report=html --cov-report=xml tests
+      pytest --cov=dask_ml --cov-report=xml tests
     displayName: 'Run Tests'
 
   - script: |
@@ -38,5 +35,6 @@ jobs:
       isort --recursive --check-only .
 
       echo "[codecov]"
-      codecov --token $CODECOV_TOKEN
+      bash <(curl -s https://codecov.io/bash)
+
     displayName: "Lint"

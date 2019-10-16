@@ -4,7 +4,6 @@ channels:
   - defaults
 dependencies:
   - black
-  - codecov
   - coverage
   - dask
   - dask-glm >=0.2.0
