@@ -10,6 +10,7 @@ class Logistic(object):
 
     .. _Logistic regression: https://en.wikipedia.org/wiki/Logistic_regression
     """
+
     @staticmethod
     def loglike(Xbeta, y):
         """
@@ -57,6 +58,7 @@ class Normal(object):
 
     .. _Linear regression: https://en.wikipedia.org/wiki/Linear_regression
     """
+
     @staticmethod
     def loglike(Xbeta, y):
         return ((y - Xbeta) ** 2).sum()
@@ -90,6 +92,7 @@ class Poisson(object):
 
     .. _Poisson regression: https://en.wikipedia.org/wiki/Poisson_regression
     """
+
     @staticmethod
     def loglike(Xbeta, y):
         eXbeta = exp(Xbeta)

@@ -3,22 +3,30 @@
 
 from __future__ import absolute_import, division, print_function
 
-import dask
-from dask import delayed, persist, compute
 import functools
-import numpy as np
+
+import dask
 import dask.array as da
+import numpy as np
+from dask import compute, delayed, persist
+from dask_glm.families import Logistic
+from dask_glm.regularizers import Regularizer
+from dask_glm.utils import dot, get_distributed_client, normalize, scatter_array
 from scipy.optimize import fmin_l_bfgs_b
 
 
-from dask_glm.utils import dot, normalize, scatter_array, get_distributed_client
-from dask_glm.families import Logistic
-from dask_glm.regularizers import Regularizer
-
-
-def compute_stepsize_dask(beta, step, Xbeta, Xstep, y, curr_val,
-                          family=Logistic, stepSize=1.0,
-                          armijoMult=0.1, backtrackMult=0.1):
+def compute_stepsize_dask(
+    beta,
+    step,
+    Xbeta,
+    Xstep,
+    y,
+    curr_val,
+    family=Logistic,
+    stepSize=1.0,
+    armijoMult=0.1,
+    backtrackMult=0.1,
+):
     """Compute the optimal stepsize
 
     Parameters
@@ -43,7 +51,9 @@ def compute_stepsize_dask(beta, step, Xbeta, Xstep, y, curr_val,
     """
 
     loglike = family.loglike
-    beta, step, Xbeta, Xstep, y, curr_val = persist(beta, step, Xbeta, Xstep, y, curr_val)
+    beta, step, Xbeta, Xstep, y, curr_val = persist(
+        beta, step, Xbeta, Xstep, y, curr_val
+    )
     obeta, oXbeta = beta, Xbeta
     (step,) = compute(step)
     steplen = (step ** 2).sum()
@@ -110,19 +120,28 @@ def gradient_descent(X, y, max_iter=100, tol=1e-14, family=Logistic, **kwargs):
 
         # backtracking line search
         lf = func
-        stepSize, _, _, func = compute_stepsize_dask(beta, grad,
-                                                     Xbeta, Xgradient,
-                                                     y, func, family=family,
-                                                     backtrackMult=backtrackMult,
-                                                     armijoMult=armijoMult,
-                                                     stepSize=stepSize)
+        stepSize, _, _, func = compute_stepsize_dask(
+            beta,
+            grad,
+            Xbeta,
+            Xgradient,
+            y,
+            func,
+            family=family,
+            backtrackMult=backtrackMult,
+            armijoMult=armijoMult,
+            stepSize=stepSize,
+        )
 
         beta, stepSize, Xbeta, lf, func, grad, Xgradient = persist(
-            beta, stepSize, Xbeta, lf, func, grad, Xgradient)
+            beta, stepSize, Xbeta, lf, func, grad, Xgradient
+        )
 
         stepSize, lf, func, grad = compute(stepSize, lf, func, grad)
 
-        beta = beta - stepSize * grad  # tiny bit of repeat work here to avoid communication
+        beta = (
+            beta - stepSize * grad
+        )  # tiny bit of repeat work here to avoid communication
         Xbeta = Xbeta - stepSize * Xgradient
 
         if stepSize == 0:
@@ -179,14 +198,13 @@ def newton(X, y, max_iter=50, tol=1e-8, family=Logistic, **kwargs):
         # should this be dask or numpy?
         # currently uses Python 3 specific syntax
         step, _, _, _ = np.linalg.lstsq(hess, grad)
-        beta = (beta_old - step)
+        beta = beta_old - step
 
         iter_count += 1
 
         # should change this criterion
         coef_change = np.absolute(beta_old - beta)
-        converged = (
-            (not np.any(coef_change > tol)) or (iter_count > max_iter))
+        converged = (not np.any(coef_change > tol)) or (iter_count > max_iter)
 
         if not converged:
             Xbeta = dot(X, beta)  # numpy -> dask converstion of beta
@@ -195,8 +213,19 @@ def newton(X, y, max_iter=50, tol=1e-8, family=Logistic, **kwargs):
 
 
 @normalize
-def admm(X, y, regularizer='l1', lamduh=0.1, rho=1, over_relax=1,
-         max_iter=250, abstol=1e-4, reltol=1e-2, family=Logistic, **kwargs):
+def admm(
+    X,
+    y,
+    regularizer="l1",
+    lamduh=0.1,
+    rho=1,
+    over_relax=1,
+    max_iter=250,
+    abstol=1e-4,
+    reltol=1e-2,
+    family=Logistic,
+    **kwargs
+):
     """
     Alternating Direction Method of Multipliers
 
@@ -226,19 +255,20 @@ def admm(X, y, regularizer='l1', lamduh=0.1, rho=1, over_relax=1,
         @functools.wraps(func)
         def wrapped(beta, X, y, z, u, rho):
             return func(beta, X, y) + rho * (beta - z + u)
+
         return wrapped
 
     def create_local_f(func):
         @functools.wraps(func)
         def wrapped(beta, X, y, z, u, rho):
-            return func(beta, X, y) + (rho / 2) * np.dot(beta - z + u,
-                                                         beta - z + u)
+            return func(beta, X, y) + (rho / 2) * np.dot(beta - z + u, beta - z + u)
+
         return wrapped
 
     f = create_local_f(pointwise_loss)
     fprime = create_local_gradient(pointwise_gradient)
 
-    nchunks = getattr(X, 'npartitions', 1)
+    nchunks = getattr(X, "npartitions", 1)
     # nchunks = X.npartitions
     (n, p) = X.shape
     # XD = X.to_delayed().flatten().tolist()
@@ -259,9 +289,10 @@ def admm(X, y, regularizer='l1', lamduh=0.1, rho=1, over_relax=1,
     for k in range(max_iter):
 
         # x-update step
-        new_betas = [delayed(local_update)(xx, yy, bb, z, uu, rho, f=f,
-                                           fprime=fprime) for
-                     xx, yy, bb, uu in zip(XD, yD, betas, u)]
+        new_betas = [
+            delayed(local_update)(xx, yy, bb, z, uu, rho, f=f, fprime=fprime)
+            for xx, yy, bb, uu in zip(XD, yD, betas, u)
+        ]
         new_betas = np.array(da.compute(*new_betas))
 
         beta_hat = over_relax * new_betas + (1 - over_relax) * z
@@ -279,9 +310,9 @@ def admm(X, y, regularizer='l1', lamduh=0.1, rho=1, over_relax=1,
         dual_res = np.linalg.norm(rho * (z - zold))
 
         eps_pri = np.sqrt(p * nchunks) * abstol + reltol * np.maximum(
-            np.linalg.norm(new_betas), np.sqrt(nchunks) * np.linalg.norm(z))
-        eps_dual = np.sqrt(p * nchunks) * abstol + \
-            reltol * np.linalg.norm(rho * u)
+            np.linalg.norm(new_betas), np.sqrt(nchunks) * np.linalg.norm(z)
+        )
+        eps_dual = np.sqrt(p * nchunks) * abstol + reltol * np.linalg.norm(rho * u)
 
         if primal_res < eps_pri and dual_res < eps_dual:
             break
@@ -295,16 +326,25 @@ def local_update(X, y, beta, z, u, rho, f, fprime, solver=fmin_l_bfgs_b):
     u = u.ravel()
     z = z.ravel()
     solver_args = (X, y, z, u, rho)
-    beta, f, d = solver(f, beta, fprime=fprime, args=solver_args,
-                        maxiter=200,
-                        maxfun=250)
+    beta, f, d = solver(
+        f, beta, fprime=fprime, args=solver_args, maxiter=200, maxfun=250
+    )
 
     return beta
 
 
 @normalize
-def lbfgs(X, y, regularizer=None, lamduh=1.0, max_iter=100, tol=1e-4,
-          family=Logistic, verbose=False, **kwargs):
+def lbfgs(
+    X,
+    y,
+    regularizer=None,
+    lamduh=1.0,
+    max_iter=100,
+    tol=1e-4,
+    family=Logistic,
+    verbose=False,
+    **kwargs
+):
     """L-BFGS solver using scipy.optimize implementation
 
     Parameters
@@ -339,8 +379,11 @@ def lbfgs(X, y, regularizer=None, lamduh=1.0, max_iter=100, tol=1e-4,
     beta0 = np.zeros(p)
 
     def compute_loss_grad(beta, X, y):
-        scatter_beta = scatter_array(
-            beta, dask_distributed_client) if dask_distributed_client else beta
+        scatter_beta = (
+            scatter_array(beta, dask_distributed_client)
+            if dask_distributed_client
+            else beta
+        )
         loss_fn = pointwise_loss(scatter_beta, X, y)
         gradient_fn = pointwise_gradient(scatter_beta, X, y)
         loss, gradient = compute(loss_fn, gradient_fn)
@@ -348,16 +391,29 @@ def lbfgs(X, y, regularizer=None, lamduh=1.0, max_iter=100, tol=1e-4,
 
     with dask.config.set(fuse_ave_width=0):  # optimizations slows this down
         beta, loss, info = fmin_l_bfgs_b(
-            compute_loss_grad, beta0, fprime=None,
+            compute_loss_grad,
+            beta0,
+            fprime=None,
             args=(X, y),
-            iprint=(verbose > 0) - 1, pgtol=tol, maxiter=max_iter)
+            iprint=(verbose > 0) - 1,
+            pgtol=tol,
+            maxiter=max_iter,
+        )
 
     return beta
 
 
 @normalize
-def proximal_grad(X, y, regularizer='l1', lamduh=0.1, family=Logistic,
-                  max_iter=100, tol=1e-8, **kwargs):
+def proximal_grad(
+    X,
+    y,
+    regularizer="l1",
+    lamduh=0.1,
+    family=Logistic,
+    max_iter=100,
+    tol=1e-8,
+    **kwargs
+):
     """
     Proximal Gradient Method
 
@@ -398,15 +454,16 @@ def proximal_grad(X, y, regularizer='l1', lamduh=0.1, family=Logistic,
 
         gradient = family.gradient(Xbeta, X, y)
 
-        Xbeta, func, gradient = persist(
-            Xbeta, func, gradient)
+        Xbeta, func, gradient = persist(Xbeta, func, gradient)
 
         obeta = beta
 
         # Compute the step size
         lf = func
         for ii in range(100):
-            beta = regularizer.proximal_operator(obeta - stepSize * gradient, stepSize * lamduh)
+            beta = regularizer.proximal_operator(
+                obeta - stepSize * gradient, stepSize * lamduh
+            )
             step = obeta - beta
             Xbeta = X.dot(beta)
 
@@ -435,9 +492,9 @@ def proximal_grad(X, y, regularizer='l1', lamduh=0.1, family=Logistic,
 
 
 _solvers = {
-    'admm': admm,
-    'gradient_descent': gradient_descent,
-    'newton': newton,
-    'lbfgs': lbfgs,
-    'proximal_grad': proximal_grad
+    "admm": admm,
+    "gradient_descent": gradient_descent,
+    "newton": newton,
+    "lbfgs": lbfgs,
+    "proximal_grad": proximal_grad,
 }

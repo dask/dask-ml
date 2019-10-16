@@ -9,7 +9,8 @@ class Regularizer(object):
     Defines the set of methods required to create a new regularization object. This includes
     the regularization functions itself and its gradient, hessian, and proximal operator.
     """
-    name = '_base'
+
+    name = "_base"
 
     def f(self, beta):
         """Regularization function.
@@ -79,8 +80,10 @@ class Regularizer(object):
         wrapped : callable
             function taking ``beta`` and ``*args``
         """
+
         def wrapped(beta, *args):
             return f(beta, *args) + lam * self.f(beta)
+
         return wrapped
 
     def add_reg_grad(self, grad, lam):
@@ -98,8 +101,10 @@ class Regularizer(object):
         wrapped : callable
             function taking ``beta`` and ``*args``
         """
+
         def wrapped(beta, *args):
             return grad(beta, *args) + lam * self.gradient(beta)
+
         return wrapped
 
     def add_reg_hessian(self, hess, lam):
@@ -117,8 +122,10 @@ class Regularizer(object):
         wrapped : callable
             function taking ``beta`` and ``*args``
         """
+
         def wrapped(beta, *args):
             return hess(beta, *args) + lam * self.hessian(beta)
+
         return wrapped
 
     @classmethod
@@ -140,15 +147,16 @@ class Regularizer(object):
             return obj
         elif isinstance(obj, str):
             return {o.name: o for o in cls.__subclasses__()}[obj]()
-        raise TypeError('Not a valid regularizer object.')
+        raise TypeError("Not a valid regularizer object.")
 
 
 class L2(Regularizer):
     """L2 regularization."""
-    name = 'l2'
+
+    name = "l2"
 
     def f(self, beta):
-        return (beta**2).sum() / 2
+        return (beta ** 2).sum() / 2
 
     def gradient(self, beta):
         return beta
@@ -162,20 +170,21 @@ class L2(Regularizer):
 
 class L1(Regularizer):
     """L1 regularization."""
-    name = 'l1'
+
+    name = "l1"
 
     def f(self, beta):
         return (np.abs(beta)).sum()
 
     def gradient(self, beta):
         if np.any(np.isclose(beta, 0)):
-            raise ValueError('l1 norm is not differentiable at 0!')
+            raise ValueError("l1 norm is not differentiable at 0!")
         else:
             return np.sign(beta)
 
     def hessian(self, beta):
         if np.any(np.isclose(beta, 0)):
-            raise ValueError('l1 norm is not twice differentiable at 0!')
+            raise ValueError("l1 norm is not twice differentiable at 0!")
         return np.zeros((beta.shape[0], beta.shape[0]))
 
     def proximal_operator(self, beta, t):
@@ -185,7 +194,8 @@ class L1(Regularizer):
 
 class ElasticNet(Regularizer):
     """Elastic net regularization."""
-    name = 'elastic_net'
+
+    name = "elastic_net"
 
     def __init__(self, weight=0.5):
         self.weight = weight
@@ -213,4 +223,5 @@ class ElasticNet(Regularizer):
             if b <= g:
                 return 0
             return (b - g * np.sign(b)) / (t - g + 1)
+
         return beta
