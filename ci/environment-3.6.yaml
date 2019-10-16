@@ -4,10 +4,9 @@ channels:
   - defaults
 dependencies:
   - black
-  - codecov
   - coverage
   - dask =1.0.0
-  - dask-glm
+  - dask-glm >=0.2.0
   - distributed
   - flake8
   - isort
@@ -26,5 +25,6 @@ dependencies:
   - scipy
   - sparse
   - toolz
+  - pip
   - pip:
     - pytest-azurepipelines

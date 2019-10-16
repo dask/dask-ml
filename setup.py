@@ -18,7 +18,7 @@ install_requires = [
     "pandas>=0.23.4",
     "scikit-learn>=0.20",
     "scipy",
-    "dask-glm",
+    "dask-glm>=0.2.0",
     "multipledispatch>=0.4.9",
     "packaging",
 ]

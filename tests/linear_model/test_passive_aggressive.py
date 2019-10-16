@@ -1,3 +1,4 @@
+import dask
 import pytest
 from sklearn import linear_model as lm_
 
@@ -14,7 +15,7 @@ class TestPassiveAggressiveClassifier:
         )
         b = lm_.PassiveAggressiveClassifier(random_state=0, max_iter=100, tol=1e-3)
         a.fit(X, y)
-        b.partial_fit(X, y, classes=[0, 1])
+        b.partial_fit(*dask.compute(X, y), classes=[0, 1])
         assert_estimator_equal(a, b, exclude=["loss_function_"])
 
 
@@ -25,5 +26,5 @@ class TestPassiveAggressiveRegressor:
         a = lm.PartialPassiveAggressiveRegressor(random_state=0, max_iter=100, tol=1e-3)
         b = lm_.PassiveAggressiveRegressor(random_state=0, max_iter=100, tol=1e-3)
         a.fit(X, y)
-        b.partial_fit(X, y)
+        b.partial_fit(*dask.compute(X, y))
         assert_estimator_equal(a, b, exclude=["loss_function_"])

@@ -8,8 +8,9 @@ import scipy.sparse as sp
 from dask import compute
 from sklearn.decomposition.base import _BasePCA
 from sklearn.utils.extmath import fast_logdet
-from sklearn.utils.validation import check_is_fitted, check_random_state
+from sklearn.utils.validation import check_random_state
 
+from .._compat import check_is_fitted
 from .._utils import draw_seed
 from ..utils import svd_flip
 
@@ -379,7 +380,7 @@ class PCA(_BasePCA):
         X_new : array-like, shape (n_samples, n_components)
 
         """
-        check_is_fitted(self, ["mean_", "components_"], all_or_any=all)
+        check_is_fitted(self, ["mean_", "components_"])
 
         # X = check_array(X)
         if self.mean_ is not None:

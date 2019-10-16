@@ -12,12 +12,11 @@ from scipy import sparse
 from scipy.stats import rankdata
 from sklearn.exceptions import FitFailedWarning
 from sklearn.pipeline import FeatureUnion, Pipeline
-from sklearn.utils import safe_indexing
 from sklearn.utils.validation import check_consistent_length
 from toolz import pluck
 
 from .._compat import Mapping
-from .utils import _index_param_value, _num_samples, copy_estimator
+from .utils import _index_param_value, _num_samples, _safe_indexing, copy_estimator
 
 # Copied from scikit-learn/sklearn/utils/fixes.py, can be removed once we drop
 # support for scikit-learn < 0.18.1 or numpy < 1.12.0.
@@ -129,7 +128,7 @@ class CVCache:
             return self.cache[n, is_x, is_train]
 
         inds = self.splits[n][0] if is_train else self.splits[n][1]
-        result = safe_indexing(X if is_x else y, inds)
+        result = _safe_indexing(X if is_x else y, inds)
 
         if self.cache is not None:
             self.cache[n, is_x, is_train] = result
