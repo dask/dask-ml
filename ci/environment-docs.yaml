@@ -42,6 +42,7 @@ dependencies:
   - pip:
     - git+https://github.com/dask/dask.git
     - git+https://github.com/dask/distributed.git
+    - git+https://github.com/dask/dask-glm.git
     - git+https://github.com/dask/dask-tensorflow.git
     - dask_sphinx_theme >=1.1.0
     - graphviz
