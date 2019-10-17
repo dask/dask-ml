@@ -50,6 +50,7 @@ def test_local_update(N, beta, family):
 @pytest.mark.parametrize("N", [1000, 10000])
 @pytest.mark.parametrize("nchunks", [5, 10])
 @pytest.mark.parametrize("p", [1, 5, 10])
+@pytest.mark.skip(reason="Slow and dubious value")
 def test_admm_with_large_lamduh(N, p, nchunks):
     X = da.random.random((N, p), chunks=(N // nchunks, p))
     beta = np.random.random(p)
