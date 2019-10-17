@@ -28,6 +28,7 @@ def test_basic(as_ndarray, persist_embedding):
 @pytest.mark.parametrize(
     "assign_labels", [sklearn.cluster.KMeans(n_init=2), "sklearn-kmeans"]
 )
+@pytest.mark.filterwarnings("ignore:no implementation found")
 def test_sklearn_kmeans(assign_labels):
     sc = SpectralClustering(
         n_components=25,
