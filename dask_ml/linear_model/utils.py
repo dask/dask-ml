@@ -190,10 +190,11 @@ def normalize(algo):
             std[intercept_idx] = 1
             mean = mean if len(intercept_idx[0]) else np.zeros(mean.shape)
             Xn = (X - mean) / std
-            out = algo(Xn, y, *args, **kwargs).copy()
+            out, n_iter = algo(Xn, y, *args, **kwargs).copy()
+            out = out.copy()
             i_adj = np.sum(out * mean / std)
             out[intercept_idx] -= i_adj
-            return out / std
+            return out / std, n_iter
         else:
             return algo(X, y, *args, **kwargs)
 

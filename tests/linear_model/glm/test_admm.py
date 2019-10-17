@@ -52,11 +52,13 @@ def test_local_update(N, beta, family):
 @pytest.mark.parametrize("p", [1, 5, 10])
 @pytest.mark.skip(reason="Slow and dubious value")
 def test_admm_with_large_lamduh(N, p, nchunks):
+    max_iter = 500
     X = da.random.random((N, p), chunks=(N // nchunks, p))
     beta = np.random.random(p)
     y = make_y(X, beta=np.array(beta), chunks=(N // nchunks,))
 
     X, y = persist(X, y)
-    z = admm(X, y, regularizer=L1(), lamduh=1e5, rho=20, max_iter=500)
+    z, n_iter = admm(X, y, regularizer=L1(), lamduh=1e5, rho=20, max_iter=max_iter)
 
     assert np.allclose(z, np.zeros(p), atol=1e-4)
+    assert n_iter > 0 and n_iter <= max_iter

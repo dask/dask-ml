@@ -99,6 +99,7 @@ def gradient_descent(X, y, max_iter=100, tol=1e-14, family=Logistic, **kwargs):
     Returns
     -------
     beta : array-like, shape (n_features,)
+    n_iter : number of iterations executed
     """
     loglike, gradient = family.loglike, family.gradient
     n, p = X.shape
@@ -110,6 +111,7 @@ def gradient_descent(X, y, max_iter=100, tol=1e-14, family=Logistic, **kwargs):
     recalcRate = 10
     backtrackMult = firstBacktrackMult
     beta = np.zeros(p)
+    n_iter = 0
 
     for k in range(max_iter):
         # how necessary is this recalculation?
@@ -146,6 +148,8 @@ def gradient_descent(X, y, max_iter=100, tol=1e-14, family=Logistic, **kwargs):
         )  # tiny bit of repeat work here to avoid communication
         Xbeta = Xbeta - stepSize * Xgradient
 
+        n_iter += 1
+
         if stepSize == 0:
             break
 
@@ -157,7 +161,7 @@ def gradient_descent(X, y, max_iter=100, tol=1e-14, family=Logistic, **kwargs):
         stepSize *= stepGrowth
         backtrackMult = nextBacktrackMult
 
-    return beta
+    return beta, n_iter
 
 
 @normalize
@@ -179,13 +183,14 @@ def newton(X, y, max_iter=50, tol=1e-8, family=Logistic, **kwargs):
     Returns
     -------
     beta : array-like, shape (n_features,)
+    n_iter : number of iterations executed
     """
     gradient, hessian = family.gradient, family.hessian
     n, p = X.shape
     beta = np.zeros(p)  # always init to zeros?
     Xbeta = dot(X, beta)
 
-    iter_count = 0
+    n_iter = 0
     converged = False
 
     while not converged:
@@ -202,16 +207,15 @@ def newton(X, y, max_iter=50, tol=1e-8, family=Logistic, **kwargs):
         step, _, _, _ = np.linalg.lstsq(hess, grad)
         beta = beta_old - step
 
-        iter_count += 1
-
         # should change this criterion
         coef_change = np.absolute(beta_old - beta)
-        converged = (not np.any(coef_change > tol)) or (iter_count > max_iter)
+        n_iter += 1
+        converged = (not np.any(coef_change > tol)) or (n_iter >= max_iter)
 
         if not converged:
             Xbeta = dot(X, beta)  # numpy -> dask converstion of beta
 
-    return beta
+    return beta, n_iter
 
 
 @normalize
@@ -248,6 +252,7 @@ def admm(
     Returns
     -------
     beta : array-like, shape (n_features,)
+    n_iter : number of iterations executed
     """
     pointwise_loss = family.pointwise_loss
     pointwise_gradient = family.pointwise_gradient
@@ -288,6 +293,8 @@ def admm(
     u = np.array([np.zeros(p) for i in range(nchunks)])
     betas = np.array([np.ones(p) for i in range(nchunks)])
 
+    n_iter = 0
+
     for k in range(max_iter):
 
         # x-update step
@@ -316,10 +323,12 @@ def admm(
         )
         eps_dual = np.sqrt(p * nchunks) * abstol + reltol * np.linalg.norm(rho * u)
 
+        n_iter += 1
+
         if primal_res < eps_pri and dual_res < eps_dual:
             break
 
-    return z
+    return z, n_iter
 
 
 def local_update(X, y, beta, z, u, rho, f, fprime, solver=fmin_l_bfgs_b):
@@ -368,6 +377,7 @@ def lbfgs(
     Returns
     -------
     beta : array-like, shape (n_features,)
+    n_iter : number of iterations executed
     """
     try:
         dask_distributed_client = get_client()
@@ -406,7 +416,7 @@ def lbfgs(
             maxiter=max_iter,
         )
 
-    return beta
+    return beta, info["nit"]
 
 
 @normalize
@@ -440,6 +450,7 @@ def proximal_grad(
     Returns
     -------
     beta : array-like, shape (n_features,)
+    n_iter : number of iterations executed
     """
     n, p = X.shape
     firstBacktrackMult = 0.1
@@ -452,6 +463,8 @@ def proximal_grad(
     beta = np.zeros(p)
     regularizer = Regularizer.get(regularizer)
 
+    n_iter = 0
+
     for k in range(max_iter):
         # Compute the gradient
         if k % recalcRate == 0:
@@ -463,6 +476,8 @@ def proximal_grad(
         Xbeta, func, gradient = persist(Xbeta, func, gradient)
 
         obeta = beta
+
+        n_iter += 1
 
         # Compute the step size
         lf = func
@@ -492,9 +507,9 @@ def proximal_grad(
 
     # L2-regularization returned a dask-array
     try:
-        return beta.compute()
+        return beta.compute(), n_iter
     except AttributeError:
-        return beta
+        return beta, n_iter
 
 
 _solvers = {

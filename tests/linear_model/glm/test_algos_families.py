@@ -49,7 +49,7 @@ def make_intercept_data(N, p, seed=20009):
 )
 def test_methods(N, p, seed, opt):
     X, y = make_intercept_data(N, p, seed=seed)
-    coefs = opt(X, y)
+    coefs, _ = opt(X, y)
     p = sigmoid(X.dot(coefs).compute())
 
     y_sum = y.compute().sum()
@@ -60,9 +60,9 @@ def test_methods(N, p, seed, opt):
 @pytest.mark.parametrize(
     "func,kwargs",
     [
-        (newton, {"tol": 1e-5}),
-        (lbfgs, {"tol": 1e-8}),
-        (gradient_descent, {"tol": 1e-7}),
+        (newton, {"tol": 1e-5, "max_iter": 50}),
+        (lbfgs, {"tol": 1e-8, "max_iter": 100}),
+        (gradient_descent, {"tol": 1e-7, "max_iter": 100}),
     ],
 )
 @pytest.mark.parametrize("N", [1000])
@@ -76,17 +76,23 @@ def test_basic_unreg_descent(func, kwargs, N, nchunks, family):
 
     X, y = persist(X, y)
 
-    result = func(X, y, family=family, **kwargs)
+    result, n_iter = func(X, y, family=family, **kwargs)
     test_vec = np.random.normal(size=2)
 
     opt = family.pointwise_loss(result, X, y).compute()
     test_val = family.pointwise_loss(test_vec, X, y).compute()
 
+    max_iter = kwargs["max_iter"]
+    assert n_iter > 0 and n_iter <= max_iter
     assert opt < test_val
 
 
 @pytest.mark.parametrize(
-    "func,kwargs", [(admm, {"abstol": 1e-4}), (proximal_grad, {"tol": 1e-7})]
+    "func,kwargs",
+    [
+        (admm, {"abstol": 1e-4, "max_iter": 250}),
+        (proximal_grad, {"tol": 1e-7, "max_iter": 100}),
+    ],
 )
 @pytest.mark.parametrize("N", [1000])
 @pytest.mark.parametrize("nchunks", [1, 10])
@@ -101,7 +107,7 @@ def test_basic_reg_descent(func, kwargs, N, nchunks, family, lam, reg):
 
     X, y = persist(X, y)
 
-    result = func(X, y, family=family, lamduh=lam, regularizer=reg, **kwargs)
+    result, n_iter = func(X, y, family=family, lamduh=lam, regularizer=reg, **kwargs)
     test_vec = np.random.normal(size=2)
 
     f = reg.add_reg_f(family.pointwise_loss, lam)
@@ -109,6 +115,8 @@ def test_basic_reg_descent(func, kwargs, N, nchunks, family, lam, reg):
     opt = f(result, X, y).compute()
     test_val = f(test_vec, X, y).compute()
 
+    max_iter = kwargs["max_iter"]
+    assert n_iter > 0 and n_iter <= max_iter
     assert opt < test_val
 
 
@@ -126,15 +134,18 @@ def test_determinism(func, kwargs, scheduler):
     X, y = make_intercept_data(1000, 10)
 
     with dask.config.set(scheduler=scheduler):
-        a = func(X, y, **kwargs)
-        b = func(X, y, **kwargs)
+        a, n_iter_a = func(X, y, **kwargs)
+        b, n_iter_b = func(X, y, **kwargs)
 
+    max_iter = kwargs["max_iter"]
+    assert n_iter_a > 0 and n_iter_a <= max_iter
+    assert n_iter_b > 0 and n_iter_b <= max_iter
     assert (a == b).all()
 
 
 try:
     from distributed import Client
-    from distributed.utils_test import cluster, loop  # flake8: noqa
+    from distributed.utils_test import cluster, loop  # noqa
 except ImportError:
     pass
 else:
@@ -153,9 +164,12 @@ else:
             with Client(s["address"], loop=loop) as c:
                 X, y = make_intercept_data(1000, 10)
 
-                a = func(X, y, **kwargs)
-                b = func(X, y, **kwargs)
+                a, n_iter_a = func(X, y, **kwargs)
+                b, n_iter_b = func(X, y, **kwargs)
 
+                max_iter = kwargs["max_iter"]
+                assert n_iter_a > 0 and n_iter_a <= max_iter
+                assert n_iter_b > 0 and n_iter_b <= max_iter
                 assert (a == b).all()
 
     def broadcast_lbfgs_weight():
