@@ -12,7 +12,27 @@ from multipledispatch import dispatch
 from .._utils import is_sparse
 
 
-@dispatch(dd._Frame)
+@dispatch(object)
+def exp(A):
+    return A.exp()
+
+
+@dispatch(float)  # noqa: F811
+def exp(A):
+    return np.exp(A)
+
+
+@dispatch(np.ndarray)  # noqa: F811
+def exp(A):
+    return np.exp(A)
+
+
+@dispatch(da.Array)  # noqa: F811
+def exp(A):
+    return da.exp(A)
+
+
+@dispatch(dd._Frame)  # noqa: F811
 def exp(A):
     return da.exp(A)
 
@@ -82,67 +102,47 @@ def sigmoid(x):
     return 1 / (1 + exp(-x))
 
 
-@dispatch(object)
-def exp(A):
-    return A.exp()
-
-
-@dispatch(float)
-def exp(A):
-    return np.exp(A)
-
-
-@dispatch(np.ndarray)
-def exp(A):
-    return np.exp(A)
-
-
-@dispatch(da.Array)
-def exp(A):
-    return da.exp(A)
-
-
-@dispatch(object)
+@dispatch(object)  # noqa: F811
 def absolute(A):
     return abs(A)
 
 
-@dispatch(np.ndarray)
+@dispatch(np.ndarray)  # noqa: F811
 def absolute(A):
     return np.absolute(A)
 
 
-@dispatch(da.Array)
+@dispatch(da.Array)  # noqa: F811
 def absolute(A):
     return da.absolute(A)
 
 
-@dispatch(object)
+@dispatch(object)  # noqa: F811
 def sign(A):
     return A.sign()
 
 
-@dispatch(np.ndarray)
+@dispatch(np.ndarray)  # noqa: F811
 def sign(A):
     return np.sign(A)
 
 
-@dispatch(da.Array)
+@dispatch(da.Array)  # noqa: F811
 def sign(A):
     return da.sign(A)
 
 
-@dispatch(object)
+@dispatch(object)  # noqa: F811
 def log1p(A):
     return A.log1p()
 
 
-@dispatch(np.ndarray)
+@dispatch(np.ndarray)  # noqa: F811
 def log1p(A):
     return np.log1p(A)
 
 
-@dispatch(da.Array)
+@dispatch(da.Array)  # noqa: F811
 def log1p(A):
     return da.log1p(A)
 
@@ -154,24 +154,24 @@ def dot(A, B):
     return module.dot(A, B)
 
 
-@dispatch(da.Array, np.ndarray)
+@dispatch(da.Array, np.ndarray)  # noqa: F811
 def dot(A, B):
     B = da.from_array(B, chunks=B.shape)
     return da.dot(A, B)
 
 
-@dispatch(np.ndarray, da.Array)
+@dispatch(np.ndarray, da.Array)  # noqa: F811
 def dot(A, B):
     A = da.from_array(A, chunks=A.shape)
     return da.dot(A, B)
 
 
-@dispatch(np.ndarray, np.ndarray)
+@dispatch(np.ndarray, np.ndarray)  # noqa: F811
 def dot(A, B):
     return np.dot(A, B)
 
 
-@dispatch(da.Array, da.Array)
+@dispatch(da.Array, da.Array)  # noqa: F811
 def dot(A, B):
     return da.dot(A, B)
 
@@ -190,7 +190,7 @@ def normalize(algo):
             std[intercept_idx] = 1
             mean = mean if len(intercept_idx[0]) else np.zeros(mean.shape)
             Xn = (X - mean) / std
-            out, n_iter = algo(Xn, y, *args, **kwargs).copy()
+            out, n_iter = algo(Xn, y, *args, **kwargs)
             out = out.copy()
             i_adj = np.sum(out * mean / std)
             out[intercept_idx] -= i_adj
@@ -239,10 +239,10 @@ except ImportError:
     pass
 else:
 
-    @dispatch(sparse.COO)
+    @dispatch(sparse.COO)  # noqa: F811
     def exp(x):
         return np.exp(x.todense())
 
-    @dispatch(sparse.SparseArray)
+    @dispatch(sparse.SparseArray)  # noqa: F811
     def add_intercept(X):
         return sparse.concatenate([X, sparse.COO(np.ones((X.shape[0], 1)))], axis=1)
