@@ -5,14 +5,14 @@ channels:
 dependencies:
   - black
   - coverage
-  - dask =1.0.0
+  - dask ==1.2.0
   - dask-glm >=0.2.0
   - distributed
   - flake8
   - isort
   - multipledispatch ==0.4.9
   - numba
-  - numpy ==1.15.4
+  - numpy >=1.17.0
   - numpydoc
   - packaging
   - pandas =0.23.4
