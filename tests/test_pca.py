@@ -755,7 +755,7 @@ def test_unknown_shapes(fn, solver, errors):
     X = ddf.values
     assert np.isnan(X.shape[0])
 
-    match = "No check can be performed to make sure n_components is small enough."
+    match = "The check on n_components can't be completed"
     if solver == "auto":
         with pytest.raises(ValueError, match="automatically choose PCA solver"):
             fit_fn(X)
@@ -783,7 +783,9 @@ def test_dataframe_pca_fat_shape(solver):
     assert np.isnan(X.shape[0])
 
     pca = dd.PCA(n_components=3, svd_solver=solver, errors="warn")
-    with pytest.warns(UserWarning, match="No check can be performed"):
+    with pytest.warns(
+        UserWarning, match="The check on n_components can't be completed"
+    ):
         if solver == "randomized":
             # This test encodes the fact that PCA will fail silently with the
             # shapes!

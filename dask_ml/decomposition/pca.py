@@ -256,9 +256,9 @@ class PCA(_BasePCA):
         if isnan.any():
             msg = (
                 "At least one of [n_samples, n_features]={} is nan. "
-                "The complete check that needs to be satisfied is "
-                "`n_components <= min(n_samples, n_features)`. "
-                "That can't be performed completely. To continue, either\n\n"
+                "The check on n_components can't be completed "
+                "(i.e., `n_components <= min(n_samples, n_features)`). "
+                "To continue, either\n\n"
                 "    * pass X.to_dask_array(lengths=True)  "
                 "# for Dask DataFrame (dask >= 0.19)\n"
                 "    * pass X.compute_chunk_sizes()  "
