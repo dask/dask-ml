@@ -217,7 +217,6 @@ def _fit(
             The ranks of the scores. This is set the models score except
             for the bottom `num_workers` priorities (which are set to the
             same priority).
-
         """
         models = [k for k in model_scores]
         scores = np.array([model_scores[k] for k in models])
