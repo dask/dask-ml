@@ -335,8 +335,9 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         self._SHA_seed = seed_start
 
         # These brackets are ordered by adaptivity; bracket=0 is least adaptive
-        SHAs = {
-            b: SuccessiveHalvingSearchCV(
+        SHAs = {}
+        for b, (n, r) in brackets.items():
+            sha = SuccessiveHalvingSearchCV(
                 self.estimator,
                 self.parameters,
                 n_initial_parameters=n,
@@ -348,10 +349,10 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
                 test_size=self.test_size,
                 random_state=seed_start + b if b != 0 else self.random_state,
                 scoring=self.scoring,
-                verbose=(self.verbose, ", bracket=" + str(b)),
+                verbose=self.verbose,
             )
-            for b, (n, r) in brackets.items()
-        }
+            sha._prefix = ", bracket=" + str(b)
+            SHAs[b] = sha
         return SHAs
 
     @gen.coroutine

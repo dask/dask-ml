@@ -123,11 +123,8 @@ def _fit(
     scorer=None,
     random_state=None,
     verbose=False,
+    prefix="",
 ):
-    prefix = ""
-    if isinstance(verbose, tuple):
-        prefix = verbose[1]
-        verbose = verbose[0]
     if verbose:
         logger.info("[CV%s] train, test examples = %d, %d", prefix, len(y_train), len(y_test))
     original_model = model
@@ -309,6 +306,7 @@ def fit(
     scorer=None,
     random_state=None,
     verbose=False,
+    prefix="",
 ):
     """ Find a good model and search among a space of hyper-parameters
 
@@ -352,6 +350,9 @@ def fit(
         If ``True``, print the best validation score received to stdout every
         time possible.  If an integer, print ``1 / verbose``
         percent of the time.
+    prefix : str, optional, default: ""
+        The string to print out in each debug message. Each message is prefixed
+        with `[CV{prefix}]`.
 
     Examples
     --------
@@ -432,6 +433,7 @@ def fit(
         scorer=scorer,
         random_state=random_state,
         verbose=verbose,
+        prefix=prefix,
     )
 
 
@@ -610,6 +612,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
             scorer=scorer,
             random_state=self.random_state,
             verbose=self.verbose,
+            prefix=getattr(self, "_prefix", ""),
         )
         results = self._process_results(results)
         model_history, models, history, bst = results
