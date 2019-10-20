@@ -15,7 +15,7 @@ from dask.callbacks import Callback
 from dask.delayed import delayed
 from dask.utils import tmpdir
 from distributed import Client, Nanny, Variable
-from distributed.utils_test import cluster, loop
+from distributed.utils_test import cluster, loop  # noqa
 from sklearn.datasets import load_iris, make_classification
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
@@ -331,7 +331,8 @@ def test_pipeline_feature_union():
 
     pca = PCA(random_state=0)
     kbest = SelectKBest()
-    empty_union = FeatureUnion([("first", None), ("second", None)])
+
+    empty_union = FeatureUnion([("first", "drop"), ("second", "drop")])
     empty_pipeline = Pipeline([("first", None), ("second", None)])
     scaling = Pipeline([("transform", ScalingTransformer())])
     svc = SVC(kernel="linear", random_state=0)
@@ -346,7 +347,7 @@ def test_pipeline_feature_union():
                 FeatureUnion(
                     [
                         ("pca", pca),
-                        ("missing", None),
+                        ("missing", "drop"),
                         ("kbest", kbest),
                         ("empty_union", empty_union),
                     ],
@@ -709,7 +710,11 @@ class CountTakes(np.ndarray):
 
     def take(self, *args, **kwargs):
         self.count += 1
-        return super(CountTakes, self).take(*args, **kwargs)
+        return super().take(*args, **kwargs)
+
+    def __getitem__(self, *args, **kwargs):
+        self.count += 1
+        return super().__getitem__(*args, **kwargs)
 
 
 def test_cache_cv():
@@ -785,7 +790,7 @@ def test_scheduler_param(scheduler, n_jobs):
     gs.fit(X, y)
 
 
-def test_scheduler_param_distributed(loop):
+def test_scheduler_param_distributed(loop):  # noqa
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
     with cluster() as (s, [a, b]):
         with Client(s["address"], loop=loop) as client:
@@ -798,7 +803,7 @@ def test_scheduler_param_distributed(loop):
             assert client.run_on_scheduler(f)  # some work happened on cluster
 
 
-def test_as_completed_distributed(loop):
+def test_as_completed_distributed(loop):  # noqa
     with cluster(active_rpc_timeout=10, nanny=Nanny) as (s, [a, b]):
         with Client(s["address"], loop=loop) as c:
             counter_name = "counter_name"

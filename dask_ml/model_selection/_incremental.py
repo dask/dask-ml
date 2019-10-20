@@ -20,9 +20,9 @@ from sklearn.metrics.scorer import check_scoring
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
 from sklearn.utils.metaestimators import if_delegate_has_method
-from sklearn.utils.validation import check_is_fitted
 from tornado import gen
 
+from .._compat import check_is_fitted
 from ..utils import check_array
 from ..wrappers import ParallelPostFit
 from ._split import train_test_split

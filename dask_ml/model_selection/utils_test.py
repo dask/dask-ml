@@ -225,3 +225,39 @@ class AsCompletedEstimator(MockClassifier):
             if should_die:
                 os.kill(os.getpid(), 9)
         return self
+
+
+class LinearFunction(BaseEstimator):
+    def __init__(self, intercept=0, slope=1, foo=0):
+        self._num_calls = 0
+        self.intercept = intercept
+        self.slope = slope
+        self.foo = foo
+        super(LinearFunction, self).__init__()
+
+    def fit(self, *args):
+        return self
+
+    def partial_fit(self, *args, **kwargs):
+        self._num_calls += 1
+        return self
+
+    def score(self, *args, **kwargs):
+        return self.intercept + self.slope * self._num_calls
+
+
+class _MaybeLinearFunction(BaseEstimator):
+    def __init__(self, final_score=1):
+        self.final_score = final_score
+        self._calls = 0
+
+    def fit(self, X, y):
+        return self
+
+    def partial_fit(self, X, y):
+        self._calls += 1
+
+    def score(self, X, y):
+        if self.final_score <= 3:
+            return self.final_score * (1 - 1 / (self._calls + 2))
+        return self.final_score

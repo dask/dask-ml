@@ -8,7 +8,7 @@ import scipy
 import toolz
 from dask.distributed import Future
 from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
-from sklearn.base import BaseEstimator, clone
+from sklearn.base import clone
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import ParameterGrid, ParameterSampler
@@ -18,6 +18,7 @@ from tornado import gen
 from dask_ml.datasets import make_classification
 from dask_ml.model_selection import HyperbandSearchCV, IncrementalSearchCV
 from dask_ml.model_selection._incremental import _partial_fit, _score, fit
+from dask_ml.model_selection.utils_test import LinearFunction, _MaybeLinearFunction
 from dask_ml.utils import ConstantFunction
 from dask_ml.wrappers import Incremental
 
@@ -328,23 +329,6 @@ def test_search_plateau_patience(c, s, a, b):
 
 @gen_cluster(client=True, timeout=None)
 def test_search_plateau_tol(c, s, a, b):
-    class LinearFunction(BaseEstimator):
-        def __init__(self, intercept=0, slope=1, foo=0):
-            self._num_calls = 0
-            self.intercept = intercept
-            self.slope = slope
-            super(LinearFunction, self).__init__()
-
-        def fit(self, *args):
-            return self
-
-        def partial_fit(self, *args, **kwargs):
-            self._num_calls += 1
-            return self
-
-        def score(self, *args, **kwargs):
-            return self.intercept + self.slope * self._num_calls
-
     model = LinearFunction(slope=1)
     params = {"foo": np.linspace(0, 1)}
 
@@ -439,23 +423,6 @@ def test_smaller(c, s, a, b):
     yield search.fit(X, y, classes=[0, 1])
     X_, = yield c.compute([X])
     search.predict(X_)
-
-
-class _MaybeLinearFunction(BaseEstimator):
-    def __init__(self, final_score=1):
-        self.final_score = final_score
-        self._calls = 0
-
-    def fit(self, X, y):
-        return self
-
-    def partial_fit(self, X, y):
-        self._calls += 1
-
-    def score(self, X, y):
-        if self.final_score <= 3:
-            return self.final_score * (1 - 1 / (self._calls + 2))
-        return self.final_score
 
 
 def _remove_worst_performing_model(info):
@@ -706,23 +673,6 @@ def test_search_patience_infeasible_tol(c, s, a, b):
 
 @gen_cluster(client=True)
 def test_search_basic_patience(c, s, a, b):
-    class LinearFunction(BaseEstimator):
-        def __init__(self, intercept=0, slope=1, foo=0):
-            self._num_calls = 0
-            self.intercept = intercept
-            self.slope = slope
-            super(LinearFunction, self).__init__()
-
-        def fit(self, *args):
-            return self
-
-        def partial_fit(self, *args, **kwargs):
-            self._num_calls += 1
-            return self
-
-        def score(self, *args, **kwargs):
-            return self.intercept + self.slope * self._num_calls
-
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
 
     rng = check_random_state(42)
