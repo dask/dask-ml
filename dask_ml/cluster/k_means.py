@@ -7,9 +7,9 @@ import dask.dataframe as dd
 import numba
 import numpy as np
 import pandas as pd
+import sklearn.cluster
 from dask import compute
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.cluster import k_means_ as sk_k_means
 from sklearn.utils.extmath import squared_norm
 
 from .._compat import blockwise, check_is_fitted
@@ -20,6 +20,7 @@ from ..metrics import (
     pairwise_distances_argmin_min,
 )
 from ..utils import _timed, _timer, check_array, row_norms
+from ._compat import _k_init
 
 logger = logging.getLogger(__name__)
 
@@ -376,7 +377,8 @@ def init_pp(X, n_clusters, random_state):
     x_squared_norms = row_norms(X, squared=True).compute()
     logger.info("Initializing with k-means++")
     with _timer("initialization of %2d centers" % n_clusters, _logger=logger):
-        centers = sk_k_means._k_init(
+        # XXX: Using a private scikit-learn API
+        centers = _k_init(
             X, n_clusters, random_state=random_state, x_squared_norms=x_squared_norms
         )
 
@@ -460,7 +462,7 @@ def init_scalable(
             .compute(scheduler="single-threaded")
             .item()
         )
-        km = sk_k_means.KMeans(n_clusters, random_state=rng2)
+        km = sklearn.cluster.KMeans(n_clusters, random_state=rng2)
         km.fit(centers)
 
     return km.cluster_centers_

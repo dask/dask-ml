@@ -10,11 +10,13 @@ import numpy as np
 import pandas as pd
 import pytest
 import sklearn.datasets
+import sklearn.utils.extmath
 from dask.array.utils import assert_eq
-from sklearn.cluster import KMeans as SKKMeans, k_means_
+from sklearn.cluster import KMeans as SKKMeans
 from sklearn.utils.estimator_checks import check_estimator
 
 from dask_ml.cluster import KMeans as DKKMeans, k_means
+from dask_ml.cluster._compat import _k_init
 from dask_ml.utils import assert_estimator_equal, row_norms
 
 
@@ -26,7 +28,7 @@ def test_check_estimator():
 
 def test_row_norms(X_blobs):
     result = row_norms(X_blobs, squared=True)
-    expected = k_means_.row_norms(X_blobs.compute(), squared=True)
+    expected = sklearn.utils.extmath.row_norms(X_blobs.compute(), squared=True)
     assert_eq(result, expected)
 
 
@@ -88,9 +90,9 @@ class TestKMeans:
         X, y = sklearn.datasets.make_blobs(n_samples=1000, n_features=4, random_state=1)
         X = da.from_array(X, chunks=500)
         X_ = X.compute()
-        x_squared_norms = k_means_.row_norms(X_, squared=True)
+        x_squared_norms = sklearn.utils.extmath.row_norms(X_, squared=True)
         rs = np.random.RandomState(0)
-        init = k_means_._k_init(X_, 3, x_squared_norms, rs)
+        init = _k_init(X_, 3, x_squared_norms, rs)
         dkkm = DKKMeans(3, init=init, random_state=0)
         skkm = SKKMeans(3, init=init, random_state=0, n_init=1)
         dkkm.fit(X)
