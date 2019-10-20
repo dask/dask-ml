@@ -232,7 +232,8 @@ class PCA(_BasePCA):
                     "    * pass X.compute_chunk_sizes()  "
                     "# for Dask Array X (dask >= 2.4)\n"
                     "    * Use a specific SVD solver "
-                    "(e.g., set `svd_solver != 'auto'`)"
+                    "(e.g., set `svd_solver != 'auto'`, so `svd_solver in "
+                    "['tsqr', 'randomized', 'full']`)"
                 )
             if max(n_samples, n_features) <= 500:
                 solver = "full"
@@ -254,8 +255,9 @@ class PCA(_BasePCA):
         if isnan.any():
             msg = (
                 "At least one of [n_samples, n_features]={} is nan. "
-                "No check can be performed to make "
-                "sure n_components is small enough. To continue, either\n\n"
+                "The complete check that needs to be satisfied is "
+                "`n_components <= min(n_samples, n_features)`. "
+                "That can't be performed completely. To continue, either\n\n"
                 "    * pass X.to_dask_array(lengths=True)  "
                 "# for Dask DataFrame (dask >= 0.19)\n"
                 "    * pass X.compute_chunk_sizes()  "

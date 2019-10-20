@@ -764,13 +764,12 @@ def test_unknown_shapes(fn, solver, errors):
             fit_fn(X)
     elif errors == "warn":
         with pytest.warns(UserWarning, match=match):
-            ret = fit_fn(X)
+            X_hat = fit_fn(X)
         assert hasattr(pca, "components_")
         assert pca.n_components_ == 2
         assert pca.n_features_ == 3
         assert np.isnan(pca.n_samples_)
         if fn == "fit_transform":
-            X_hat = ret
             assert np.isnan(X_hat.shape[0])
             assert X_hat.shape[1] == 2
 
