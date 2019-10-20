@@ -5,7 +5,6 @@ channels:
 dependencies:
   - black
   - coverage
-  - codecov
   - flake8
   - graphviz
   - heapdict
@@ -26,7 +25,7 @@ dependencies:
   - pytest-mock
   - python=3.6.6
   - sortedcontainers
-  - scikit-learn>=0.20.0
+  - scikit-learn>=0.21.3
   - scipy
   - sparse
   - sphinx==1.8.5
@@ -38,6 +37,7 @@ dependencies:
   - toolz
   - xgboost
   - zict
+  - pip
   - pip:
     - dask-glm
     - git+https://github.com/dask/dask.git

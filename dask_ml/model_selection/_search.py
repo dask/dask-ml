@@ -33,9 +33,9 @@ from sklearn.model_selection._split import (
 from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.utils.metaestimators import if_delegate_has_method
 from sklearn.utils.multiclass import type_of_target
-from sklearn.utils.validation import _num_samples, check_is_fitted
+from sklearn.utils.validation import _num_samples
 
-from .._compat import SK_VERSION
+from .._compat import SK_VERSION, check_is_fitted
 from ._normalize import normalize_estimator
 from .methods import (
     MISSING,
@@ -697,7 +697,7 @@ def _do_fit_step(
         if is_transform:
             Xs = get(all_ids, new_Xs)
         fits = get(all_ids, new_fits)
-    elif step is None:
+    elif step is None or isinstance(step, str) and step == "drop":
         # Nothing to do
         fits = [None] * len(Xs)
         if not none_passthrough:
@@ -928,7 +928,7 @@ def _do_featureunion(
                 dsk[(fit_name, m, n)] = (
                     feature_union,
                     step_names,
-                    [None if s is None else s + (n,) for s in steps],
+                    ["drop" if s is None else s + (n,) for s in steps],
                     w,
                 )
                 dsk[(tr_name, m, n)] = (
