@@ -189,7 +189,7 @@ def test_dataframes():
     kmeans.fit(df)
 
 
-@pytest.mark.skipif(DASK_200, reason="Upstream bug.")
+@pytest.mark.skipif(not DASK_200, reason="Upstream bug.")
 def test_empty_chunks():
     # https://github.com/dask/dask-ml/issues/551
     X = da.random.random((100, 4), chunks=((0, 5, 95), (4,)))
