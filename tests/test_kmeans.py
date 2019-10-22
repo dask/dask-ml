@@ -16,6 +16,7 @@ from sklearn.cluster import KMeans as SKKMeans
 from sklearn.utils.estimator_checks import check_estimator
 
 import dask_ml.cluster
+from dask_ml._compat import DASK_200
 from dask_ml.cluster import KMeans as DKKMeans, k_means
 from dask_ml.cluster._compat import _k_init
 from dask_ml.utils import assert_estimator_equal, row_norms
@@ -188,6 +189,7 @@ def test_dataframes():
     kmeans.fit(df)
 
 
+@pytest.mark.skipif(DASK_200, reason="Upstream bug.")
 def test_empty_chunks():
     # https://github.com/dask/dask-ml/issues/551
     X = da.random.random((100, 4), chunks=((0, 5, 95), (4,)))
