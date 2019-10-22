@@ -15,6 +15,7 @@ from dask.array.utils import assert_eq
 from sklearn.cluster import KMeans as SKKMeans
 from sklearn.utils.estimator_checks import check_estimator
 
+import dask_ml.cluster
 from dask_ml.cluster import KMeans as DKKMeans, k_means
 from dask_ml.cluster._compat import _k_init
 from dask_ml.utils import assert_estimator_equal, row_norms
@@ -185,3 +186,10 @@ def test_dataframes():
 
     kmeans = DKKMeans()
     kmeans.fit(df)
+
+
+def test_empty_chunks():
+    # https://github.com/dask/dask-ml/issues/551
+    X = da.random.random((100, 4), chunks=((0, 5, 95), (4,)))
+    trn = dask_ml.cluster.KMeans(n_clusters=2).fit_transform(X)  # it works
+    assert trn.chunks == ((5, 95), (2,))

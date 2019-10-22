@@ -166,6 +166,7 @@ class KMeans(TransformerMixin, BaseEstimator):
             accept_dask_dataframe=False,
             accept_unknown_chunks=False,
             accept_sparse=False,
+            remove_zero_chunks=True,
         )
 
         if X.dtype == "int32":
@@ -542,7 +543,6 @@ def _kmeans_single_lloyd(
                 "i",
                 n_clusters,
                 None,
-                distances.astype(X.dtype),
                 "i",
                 adjust_chunks={"i": n_clusters, "j": P},
                 dtype=X.dtype,
@@ -575,7 +575,7 @@ def _kmeans_single_lloyd(
 
 
 @numba.njit(nogil=True, fastmath=True)
-def _centers_dense(X, labels, n_clusters, distances):
+def _centers_dense(X, labels, n_clusters):
     n_samples = X.shape[0]
     n_features = X.shape[1]
     centers = np.zeros((n_clusters, n_features), dtype=np.float64)
