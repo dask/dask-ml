@@ -257,7 +257,7 @@ class PCA(_BasePCA):
             msg = (
                 "At least one of [n_samples, n_features]={} is nan. "
                 "The check on n_components can't be completed "
-                "(i.e., `n_components <= min(n_samples, n_features)`). "
+                "to make sure `n_components <= min(n_samples, n_features)`. "
                 "To continue, either\n\n"
                 "    * pass X.to_dask_array(lengths=True)  "
                 "# for Dask DataFrame (dask >= 0.19)\n"
@@ -355,13 +355,18 @@ class PCA(_BasePCA):
             singular_values,
         )
 
-        if solver != "randomized":
-            self.components_ = self.components_[:n_components]
-            self.explained_variance_ = self.explained_variance_[:n_components]
-            self.explained_variance_ratio_ = self.explained_variance_ratio_[
-                :n_components
-            ]
-            self.singular_values_ = self.singular_values_[:n_components]
+        if len(self.singular_values_) < n_components:
+            # To get here, `self.errors in ["warn", "ignore"]`.
+            if self.errors == "warn":
+                msg = (
+                    "n_components={n} is larger than the number of singular values"
+                    " ({s}). PCA will continue with self.n_components_ == {n}"
+                )
+                warn(msg.format(n=n_components, s=len(self.singular_values_)))
+        self.components_ = self.components_[:n_components]
+        self.explained_variance_ = self.explained_variance_[:n_components]
+        self.explained_variance_ratio_ = self.explained_variance_ratio_[:n_components]
+        self.singular_values_ = self.singular_values_[:n_components]
 
         return U, S, V
 

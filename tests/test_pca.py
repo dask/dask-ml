@@ -783,17 +783,15 @@ def test_dataframe_pca_fat_shape(solver):
     assert np.isnan(X.shape[0])
 
     pca = dd.PCA(n_components=3, svd_solver=solver, errors="warn")
-    with pytest.warns(
-        UserWarning, match="The check on n_components can't be completed"
-    ):
-        if solver == "randomized":
-            # This condition will "fail" silently! It'll produce an array of the
-            # *mathematically correct* number of columns (2, not 3), even
-            # though the user specified n_components=3 (n_components is larger
-            # than 2, the number of singular values)
-            pass
-        else:
-            # In all other cases, it'll complain loudly
+    if solver == "randomized":
+        with pytest.warns(UserWarning) as _warnings:
+            pca.fit(X)
+        w1 = str(_warnings.list[0].message)
+        w2 = str(_warnings.list[1].message)
+        assert "check on n_components can't be completed" in w1
+        assert "n_components=3 is larger than the number of singular values" in w2
+    else:
+        with pytest.warns(UserWarning, match="check on n_components can't .* complete"):
             with pytest.raises(ValueError, match="operands could not be broadcast"):
                 pca.fit(X)
 
