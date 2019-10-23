@@ -461,6 +461,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         patience=False,
         tol=1e-3,
         verbose=False,
+        prefix="",
     ):
         self.parameters = parameters
         self.test_size = test_size
@@ -469,6 +470,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         self.patience = patience
         self.tol = tol
         self.verbose = verbose
+        self.prefix = prefix
         super(BaseIncrementalSearchCV, self).__init__(estimator, scoring=scoring)
 
     def _validate_parameters(self, X, y):
@@ -612,7 +614,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
             scorer=scorer,
             random_state=self.random_state,
             verbose=self.verbose,
-            prefix=getattr(self, "_prefix", ""),
+            prefix=self.prefix,
         )
         results = self._process_results(results)
         model_history, models, history, bst = results

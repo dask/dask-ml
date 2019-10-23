@@ -350,8 +350,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
                 random_state=seed_start + b if b != 0 else self.random_state,
                 scoring=self.scoring,
                 verbose=self.verbose,
+                prefix=", bracket=" + str(b),
             )
-            sha._prefix = ", bracket=" + str(b)
             SHAs[b] = sha
         return SHAs
 

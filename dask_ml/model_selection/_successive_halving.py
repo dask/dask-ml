@@ -98,6 +98,10 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         time possible.  If an integer, print ``1 / verbose``
         percent of the time.
 
+    prefix : string, optional, default: ""
+        Prefix to prepend to printed message. Only relevant when
+        ``bool(verbose) == True``.
+
 
     Attributes
     ----------
@@ -202,11 +206,8 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         random_state=None,
         scoring=None,
         verbose=False,
+        prefix="",
     ):
-        self.n_initial_parameters = n_initial_parameters
-        self.n_initial_iter = n_initial_iter
-        self.aggressiveness = aggressiveness
-
         super(SuccessiveHalvingSearchCV, self).__init__(
             estimator,
             parameters,
@@ -219,6 +220,14 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
             scoring=scoring,
             verbose=verbose,
         )
+        self.n_initial_parameters = n_initial_parameters
+        self.n_initial_iter = n_initial_iter
+        self.aggressiveness = aggressiveness
+
+        # unusual ordering allows BaseIncrementalSearchCV to have a prefix
+        # as a keyword argument AND for IncrementalSearchCV *not* to have
+        # prefix as a keyword argument.
+        self.prefix = prefix
 
     def _adapt(self, info, first_step_completed=False):
         if all(v[-1]["partial_fit_calls"] == 1 for v in info.values()):
