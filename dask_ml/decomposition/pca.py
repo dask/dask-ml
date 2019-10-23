@@ -78,7 +78,7 @@ class PCA(_BasePCA):
         If None, the random number generator is the RandomState instance used
         by `da.random`. Used when ``svd_solver`` == 'randomized'.
 
-    errors : {"raise", "warn"}, default "raise"
+    errors : {"raise", "warn", "ignore"}, default "raise"
         How should certain errors be handled? These errors are raised within
         this class and tend to be related to the size/shape of the passed array.
 
@@ -263,7 +263,7 @@ class PCA(_BasePCA):
                 "# for Dask DataFrame (dask >= 0.19)\n"
                 "    * pass X.compute_chunk_sizes()  "
                 "# for Dask Array X (dask >= 2.4)\n"
-                "    * pass errors='warn' and ensure "
+                "    * make ``errors in ['warn', 'ignore']`` and ensure "
                 "n_components <= min(X.shape)\n"
             )
             msg = msg.format([n_samples, n_features])
