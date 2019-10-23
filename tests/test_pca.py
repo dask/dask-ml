@@ -787,7 +787,10 @@ def test_dataframe_pca_fat_shape(solver):
         UserWarning, match="The check on n_components can't be completed"
     ):
         if solver == "randomized":
-            # This condition will fail silently with the shapes!
+            # This condition will "fail" silently! It'll produce an array of the
+            # *mathematically correct* number of columns (2, not 3), even
+            # though the user specified n_components=3 (n_components is larger
+            # than 2, the number of singular values)
             pass
         else:
             # In all other cases, it'll complain loudly
