@@ -1,3 +1,4 @@
+import logging
 import random
 
 import dask.array as da
@@ -7,7 +8,12 @@ import pytest
 import scipy
 import toolz
 from dask.distributed import Future
-from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
+from distributed.utils_test import (
+    cluster,
+    gen_cluster,
+    loop,
+    captured_logger,
+)  # noqa: F401
 from sklearn.base import clone
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.linear_model import SGDClassifier
@@ -621,35 +627,33 @@ def test_history(c, s, a, b):
         assert (np.diff(calls) >= 1).all() or len(calls) == 1
 
 
-@pytest.mark.parametrize("Search", [IncrementalSearchCV, HyperbandSearchCV])
-def test_verbosity(capsys, Search):
+@pytest.mark.parametrize("Search", [HyperbandSearchCV, IncrementalSearchCV])
+@pytest.mark.parametrize("verbose", [True, False])
+def test_verbosity(capsys, Search, verbose):
     @gen_cluster(client=True)
     def _test_verbosity(c, s, a, b):
         X, y = make_classification(n_samples=10, n_features=4, chunks=10)
         model = ConstantFunction()
         params = {"value": scipy.stats.uniform(0, 1)}
-        search = Search(model, params, max_iter=9, verbose=True)
+        search = Search(model, params, max_iter=9, verbose=verbose)
         yield search.fit(X, y)
 
-        captured = capsys.readouterr()
-        messages = [m for m in captured.out.split("\n") if m]
+    with captured_logger(logging.getLogger("dask_ml.model_selection")) as logs:
+        _test_verbosity()
+        messages = logs.getvalue().splitlines()
+
+    if verbose:
+        assert any("score" in m for m in messages)
         if "Hyperband" in str(Search):
             assert all("[CV, bracket=" in m for m in messages)
         else:
             assert all("[CV]" in m for m in messages)
-        assert any("score" in m for m in messages)
 
-        brackets = 6 if "Hyperband" in str(Search) else 1
+        brackets = 3 if "Hyperband" in str(Search) else 1
         assert sum("train, test examples" in m for m in messages) == brackets
         assert sum("creating" in m and "models" in m for m in messages) == brackets
-
-        search.verbose = False
-        search.fit(X, y)
-        captured = capsys.readouterr()
-        messages = [m for m in captured.out.split("\n") if m]
+    else:
         assert len(messages) == 0
-
-    _test_verbosity()
 
 
 @gen_cluster(client=True)

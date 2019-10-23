@@ -505,16 +505,6 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         X = check_array(X, **kwargs)
         return X
 
-    def _handle_verbosity(self, verbose):
-        if verbose:
-            logger.setLevel(logging.INFO)
-            if any("stdout" in str(h) for h in logger.handlers):
-                return
-            handler = logging.StreamHandler(stream=sys.stdout)
-            logger.addHandler(handler)
-        else:
-            logger.setLevel(logging.NOTSET)
-
     def _get_train_test_split(self, X, y, **kwargs):
         """CV-Split the arrays X and y
 
@@ -598,7 +588,6 @@ class BaseIncrementalSearchCV(ParallelPostFit):
 
     @gen.coroutine
     def _fit(self, X, y, **fit_params):
-        self._handle_verbosity(self.verbose)
         X, y, scorer = self._validate_parameters(X, y)
         X_train, X_test, y_train, y_test = self._get_train_test_split(X, y)
 
@@ -771,9 +760,22 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         If None, the estimator's default scorer (if available) is used.
 
     verbose : bool, int, optional, default: False
-        If ``True``, print the best validation score received to stdout every
-        time possible.  If an integer, print ``1 / verbose``
+        If ``True``, log the best validation score received every
+        time possible. If an integer, print ``1 / verbose``
         percent of the time.
+
+        The logger is available under the name ``dask_ml.model_selection``.
+        Logs can be piped to stdout with
+        ``logging.basicConfig(level=logging.INFO)``,
+        or with
+
+        .. code:: python
+
+           import logging
+           logger = logging.getLogger('dask_ml.model_selection')
+           logger.setLevel(logging.INFO)
+           logger.addHandler(logging.StreamHandler())
+
 
     Attributes
     ----------
