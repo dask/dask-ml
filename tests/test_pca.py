@@ -745,7 +745,7 @@ def test_fractional_n_components():
 
 @pytest.mark.parametrize("solver", ["auto", "tsqr", "randomized", "full"])
 @pytest.mark.parametrize("fn", ["fit", "fit_transform"])
-@pytest.mark.parametrize("errors", ["raise", "warn"])
+@pytest.mark.parametrize("errors", ["raise", "warn", "ignore"])
 def test_unknown_shapes(fn, solver, errors):
     df = pd.DataFrame({"0": [0, 0, 1, 1], "1": [0, 0, 1, 1], "2": [2, 4, 5, 2]})
     ddf = dask.dataframe.from_pandas(df, npartitions=2)
@@ -762,8 +762,11 @@ def test_unknown_shapes(fn, solver, errors):
     elif errors == "raise":
         with pytest.raises(ValueError, match=match):
             fit_fn(X)
-    elif errors == "warn":
-        with pytest.warns(UserWarning, match=match):
+    else:
+        if errors == "warn":
+            with pytest.warns(UserWarning, match=match):
+                X_hat = fit_fn(X)
+        elif errors == "ignore":
             X_hat = fit_fn(X)
         assert hasattr(pca, "components_")
         assert pca.n_components_ == 2
@@ -775,24 +778,33 @@ def test_unknown_shapes(fn, solver, errors):
 
 
 @pytest.mark.parametrize("solver", ["randomized", "tsqr", "full"])
-def test_dataframe_pca_fat_shape(solver):
+def test_unknown_shapes_n_components_too_large(solver):
     X = np.random.randn(2, 10)
     df = pd.DataFrame(X)
     ddf = dask.dataframe.from_pandas(df, npartitions=2)
     X = ddf.values
     assert np.isnan(X.shape[0])
 
+    check_msg = "check on n_components can't be completed"
     pca = dd.PCA(n_components=3, svd_solver=solver, errors="warn")
     if solver == "randomized":
         with pytest.warns(UserWarning) as _warnings:
             pca.fit(X)
         w1 = str(_warnings.list[0].message)
         w2 = str(_warnings.list[1].message)
-        assert "check on n_components can't be completed" in w1
+        assert check_msg in w1
         assert "n_components=3 is larger than the number of singular values" in w2
+        assert pca.n_components_ == 2
+        assert len(pca.singular_values_) == 2
+        assert len(pca.components_) == 2
+        assert pca.n_features_ == 10
+        assert np.isnan(pca.n_samples_)
+        if solver != "randomized":
+            assert pca.explained_variance_ratio_.max() == 1.0
     else:
-        with pytest.warns(UserWarning, match="check on n_components can't .* complete"):
-            with pytest.raises(ValueError, match="operands could not be broadcast"):
+        size_msg = "operands could not be broadcast"
+        with pytest.warns(UserWarning, match=check_msg):
+            with pytest.raises(ValueError, match=size_msg):
                 pca.fit(X)
 
 

@@ -264,7 +264,7 @@ class PCA(_BasePCA):
                 "    * pass X.compute_chunk_sizes()  "
                 "# for Dask Array X (dask >= 2.4)\n"
                 "    * make ``errors in ['warn', 'ignore']`` and ensure "
-                "n_components <= min(X.shape)\n"
+                "`n_components <= min(X.shape)` (errors will be raised otherwise)\n"
             )
             msg = msg.format([n_samples, n_features])
             if self.errors == "raise":
@@ -355,7 +355,13 @@ class PCA(_BasePCA):
             singular_values,
         )
 
+        self.components_ = self.components_[:n_components]
+        self.explained_variance_ = self.explained_variance_[:n_components]
+        self.explained_variance_ratio_ = self.explained_variance_ratio_[:n_components]
+        self.singular_values_ = self.singular_values_[:n_components]
+
         if len(self.singular_values_) < n_components:
+            self.n_components_ = len(self.singular_values_)
             # To get here, `self.errors in ["warn", "ignore"]`.
             if self.errors == "warn":
                 msg = (
@@ -363,10 +369,6 @@ class PCA(_BasePCA):
                     " ({s}). PCA will continue with self.n_components_ == {n}"
                 )
                 warn(msg.format(n=n_components, s=len(self.singular_values_)))
-        self.components_ = self.components_[:n_components]
-        self.explained_variance_ = self.explained_variance_[:n_components]
-        self.explained_variance_ratio_ = self.explained_variance_ratio_[:n_components]
-        self.singular_values_ = self.singular_values_[:n_components]
 
         return U, S, V
 
