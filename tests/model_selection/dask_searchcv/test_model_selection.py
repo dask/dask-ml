@@ -21,7 +21,6 @@ from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.exceptions import FitFailedWarning, NotFittedError
 from sklearn.feature_selection import SelectKBest
-from sklearn.metrics.scorer import _passthrough_scorer
 from sklearn.model_selection import (
     GridSearchCV,
     GroupKFold,
@@ -60,6 +59,11 @@ if SK_022:
     iid = {}
 else:
     iid = {"iid": True}
+
+
+def _passthrough_scorer(estimator, *args, **kwargs):
+    """Function that wraps estimator.score"""
+    return estimator.score(*args, **kwargs)
 
 
 class assert_dask_compute(Callback):

@@ -1,5 +1,4 @@
-from sklearn.metrics import make_scorer
-from sklearn.metrics.scorer import check_scoring as sklearn_check_scoring
+from sklearn.metrics import check_scoring as sklearn_check_scoring, make_scorer
 
 from . import accuracy_score, log_loss, mean_squared_error, r2_score
 
