@@ -8,11 +8,11 @@ import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
+import sklearn.preprocessing
 from dask import compute
 from pandas.api.types import is_categorical_dtype
 from scipy import stats
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.preprocessing import data as skdata
 from sklearn.utils.validation import check_random_state
 
 from dask_ml._compat import DASK_110, SK_022, blockwise, check_is_fitted
@@ -21,11 +21,30 @@ from dask_ml.utils import check_array, handle_zeros_in_scale
 
 _PANDAS_VERSION = LooseVersion(pd.__version__)
 _HAS_CTD = _PANDAS_VERSION >= "0.21.0"
+BOUNDS_THRESHOLD = 1e-7
 
 
-class StandardScaler(skdata.StandardScaler):
+def _handle_zeros_in_scale(scale, copy=True):
+    """ Makes sure that whenever scale is zero, we handle it correctly.
 
-    __doc__ = skdata.StandardScaler.__doc__
+    This happens in most scalers when we have constant features."""
+
+    # if we are fitting on 1D arrays, scale might be a scalar
+    if np.isscalar(scale):
+        if scale == 0.0:
+            scale = 1.0
+        return scale
+    elif isinstance(scale, np.ndarray):
+        if copy:
+            # New array to avoid side-effects
+            scale = scale.copy()
+        scale[scale == 0.0] = 1.0
+        return scale
+
+
+class StandardScaler(sklearn.preprocessing.StandardScaler):
+
+    __doc__ = sklearn.preprocessing.StandardScaler.__doc__
 
     def fit(self, X, y=None):
         self._reset()
@@ -68,9 +87,9 @@ class StandardScaler(skdata.StandardScaler):
         return X
 
 
-class MinMaxScaler(skdata.MinMaxScaler):
+class MinMaxScaler(sklearn.preprocessing.MinMaxScaler):
 
-    __doc__ = skdata.MinMaxScaler.__doc__
+    __doc__ = sklearn.preprocessing.MinMaxScaler.__doc__
 
     def fit(self, X, y=None):
         self._reset()
@@ -131,9 +150,9 @@ class MinMaxScaler(skdata.MinMaxScaler):
         return X
 
 
-class RobustScaler(skdata.RobustScaler):
+class RobustScaler(sklearn.preprocessing.RobustScaler):
 
-    __doc__ = skdata.RobustScaler.__doc__
+    __doc__ = sklearn.preprocessing.RobustScaler.__doc__
 
     def _check_array(self, X, *args, **kwargs):
         X = check_array(X, accept_dask_dataframe=True, **kwargs)
@@ -162,7 +181,7 @@ class RobustScaler(skdata.RobustScaler):
         quantiles = da.vstack(quantiles).compute()
         self.center_ = quantiles[:, 1]
         self.scale_ = quantiles[:, 2] - quantiles[:, 0]
-        self.scale_ = skdata._handle_zeros_in_scale(self.scale_, copy=False)
+        self.scale_ = _handle_zeros_in_scale(self.scale_, copy=False)
         return self
 
     def transform(self, X):
@@ -223,14 +242,16 @@ class RobustScaler(skdata.RobustScaler):
         return X
 
 
-class QuantileTransformer(skdata.QuantileTransformer):
+class QuantileTransformer(sklearn.preprocessing.QuantileTransformer):
     """Transforms features using quantile information.
 
     This implementation differs from the scikit-learn implementation
     by using approximate quantiles. The scikit-learn docstring follows.
     """
 
-    __doc__ = __doc__ + "\n".join(skdata.QuantileTransformer.__doc__.split("\n")[1:])
+    __doc__ = __doc__ + "\n".join(
+        sklearn.preprocessing.QuantileTransformer.__doc__.split("\n")[1:]
+    )
 
     def _check_inputs(self, X, accept_sparse_negative=False, copy=False):
         kwargs = {}
@@ -294,8 +315,8 @@ class QuantileTransformer(skdata.QuantileTransformer):
                 # else output distribution is already a uniform distribution
 
         if output_distribution == "normal":
-            lower_bounds_idx = X_col - skdata.BOUNDS_THRESHOLD < lower_bound_x
-            upper_bounds_idx = X_col + skdata.BOUNDS_THRESHOLD > upper_bound_x
+            lower_bounds_idx = X_col - BOUNDS_THRESHOLD < lower_bound_x
+            upper_bounds_idx = X_col + BOUNDS_THRESHOLD > upper_bound_x
         if output_distribution == "uniform":
             lower_bounds_idx = X_col == lower_bound_x
             upper_bounds_idx = X_col == upper_bound_x
@@ -322,8 +343,8 @@ class QuantileTransformer(skdata.QuantileTransformer):
                 # find the value to clip the data to avoid mapping to
                 # infinity. Clip such that the inverse transform will be
                 # consistent
-                clip_min = stats.norm.ppf(skdata.BOUNDS_THRESHOLD - np.spacing(1))
-                clip_max = stats.norm.ppf(1 - (skdata.BOUNDS_THRESHOLD - np.spacing(1)))
+                clip_min = stats.norm.ppf(BOUNDS_THRESHOLD - np.spacing(1))
+                clip_max = stats.norm.ppf(1 - (BOUNDS_THRESHOLD - np.spacing(1)))
                 X_col = da.clip(X_col, clip_min, clip_max)
 
             # else output distribution is uniform and the ppf is the
@@ -941,7 +962,7 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
         return X
 
 
-class PolynomialFeatures(skdata.PolynomialFeatures):
+class PolynomialFeatures(sklearn.preprocessing.PolynomialFeatures):
     """    preserve_dataframe : boolean
             If True, preserve pandas and dask dataframes after transforming.
             Using False (default) returns numpy or dask arrays and mimics
@@ -950,7 +971,9 @@ class PolynomialFeatures(skdata.PolynomialFeatures):
         Examples
     """
 
-    splitted_orig_doc = skdata.PolynomialFeatures.__doc__.split("    Examples\n")
+    splitted_orig_doc = sklearn.preprocessing.PolynomialFeatures.__doc__.split(
+        "    Examples\n"
+    )
     __doc__ = "".join([splitted_orig_doc[0], __doc__, splitted_orig_doc[1]])
 
     def __init__(
@@ -964,7 +987,7 @@ class PolynomialFeatures(skdata.PolynomialFeatures):
         self.preserve_dataframe = preserve_dataframe
 
     def fit(self, X, y=None):
-        self._transformer = skdata.PolynomialFeatures(
+        self._transformer = sklearn.preprocessing.PolynomialFeatures(
             degree=self.degree,
             interaction_only=self.interaction_only,
             include_bias=self.include_bias,
