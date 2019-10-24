@@ -41,6 +41,6 @@ def _check_multimetric_scoring(estimator, scoring=None):
     if SK_022:
         from sklearn.metrics._scorer import _check_multimetric_scoring
     else:
-        from sklearn.metrics._scorer import _check_multimetric_scoring
+        from sklearn.metrics.scorer import _check_multimetric_scoring
 
     return _check_multimetric_scoring(estimator, scoring)
