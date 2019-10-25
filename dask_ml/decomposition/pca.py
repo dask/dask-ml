@@ -1,5 +1,4 @@
 import numbers
-from warnings import warn
 
 import dask.array as da
 import dask.dataframe as dd
