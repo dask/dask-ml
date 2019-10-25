@@ -1013,12 +1013,12 @@ class PolynomialFeatures(sklearn.preprocessing.PolynomialFeatures):
             XP = X.pipe(self._transformer.transform)
             if self.preserve_dataframe:
                 columns = self._transformer.get_feature_names(X.columns)
-                XP = pd.DataFrame(data=XP, columns=columns)
+                XP = pd.DataFrame(data=XP, columns=columns, index=X.index)
         elif isinstance(X, dd.DataFrame):
             XP = X.map_partitions(self._transformer.transform)
             if self.preserve_dataframe:
                 columns = self._transformer.get_feature_names(X.columns)
-                XP = dd.from_dask_array(XP, columns)
+                XP = dd.from_dask_array(XP, columns, X.index)
         else:
             # typically X is instance of np.ndarray
             XP = self._transformer.transform(X)

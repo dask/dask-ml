@@ -1,3 +1,5 @@
+from copy import copy
+
 import dask
 import dask.array as da
 import dask.dataframe as dd
@@ -561,11 +563,12 @@ class TestPolynomialFeatures:
         res_df = a.fit_transform(frame)
         res_arr = b.fit_transform(frame)
         res_c = c.fit_transform(frame)
+
         if daskify:
             res_pandas = a.fit_transform(frame.compute())
             assert dask.is_dask_collection(res_df)
             assert dask.is_dask_collection(res_arr)
-            assert_eq_df(res_df.compute().reset_index(drop=True), res_pandas)
+            assert_eq_df(res_df.compute(), res_pandas)
         assert_eq_ar(res_df.values, res_c)
         assert_eq_ar(res_df.values, res_arr)
 
@@ -575,3 +578,16 @@ class TestPolynomialFeatures:
         assert pf._transformer.degree == pf.degree
         assert pf._transformer.interaction_only is pf.interaction_only
         assert pf._transformer.include_bias is pf.include_bias
+
+    @pytest.mark.parametrize("daskify", [True, False])
+    def test_df_transform_index(self, daskify):
+        frame = copy(df)
+        if not daskify:
+            frame = frame.compute()
+        frame = frame.sample(frac=1.0)
+        res_df = dpp.PolynomialFeatures(
+            preserve_dataframe=True, degree=1
+        ).fit_transform(frame)
+        if daskify:
+            res_df = res_df.compute()
+        assert_eq_df(res_df.iloc[:, 1:], frame, check_dtype=False)
