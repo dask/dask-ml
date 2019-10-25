@@ -785,14 +785,13 @@ def test_unknown_shapes_n_components_too_large(solver):
     X = ddf.values
     assert np.isnan(X.shape[0])
 
-    check_msg = "check on n_components can't be completed"
     pca = dd.PCA(n_components=3, svd_solver=solver, errors="warn")
     if solver == "randomized":
         with pytest.warns(UserWarning) as _warnings:
             pca.fit(X)
         w1 = str(_warnings.list[0].message)
         w2 = str(_warnings.list[1].message)
-        assert check_msg in w1
+        assert "check on n_components can't be completed" in w1
         assert "n_components=3 is larger than the number of singular values" in w2
         assert pca.n_components_ == 2
         assert len(pca.singular_values_) == 2
@@ -802,9 +801,10 @@ def test_unknown_shapes_n_components_too_large(solver):
         if solver != "randomized":
             assert pca.explained_variance_ratio_.max() == 1.0
     else:
-        size_msg = "operands could not be broadcast"
-        with pytest.warns(UserWarning, match=check_msg):
-            with pytest.raises(ValueError, match=size_msg):
+        with pytest.warns(
+            UserWarning, match="check on n_components can't be completed"
+        ):
+            with pytest.raises(ValueError, match="operands could not be broadcast"):
                 pca.fit(X)
 
 
