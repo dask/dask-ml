@@ -781,11 +781,12 @@ def test_unknown_shapes_n_components_larger_than_num_rows(solver):
 
     pca = dd.PCA(n_components=3, svd_solver=solver)
     if solver == "randomized":
-        with pytest.warns(
-            UserWarning,
+        with pytest.raises(
+            ValueError,
             match="n_components=3 is larger than the number of singular values",
-        ):
+        ) as error:
             pca.fit(X)
+        assert "PCA has attributes as if n_components == 2" in str(error.value)
         assert pca.n_components_ == 2
         assert len(pca.singular_values_) == 2
         assert len(pca.components_) == 2

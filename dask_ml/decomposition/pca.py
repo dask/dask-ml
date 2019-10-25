@@ -347,9 +347,9 @@ class PCA(_BasePCA):
             self.n_components_ = len(self.singular_values_)
             msg = (
                 "n_components={n} is larger than the number of singular values"
-                " ({s}). PCA will continue with self.n_components_ == {n}"
+                " ({s}) (note: PCA has attributes as if n_components == {s})"
             )
-            warn(msg.format(n=n_components, s=len(self.singular_values_)))
+            raise ValueError(msg.format(n=n_components, s=len(self.singular_values_)))
 
         return U, S, V
 
