@@ -13,7 +13,7 @@ import toolz
 from dask.distributed import Future, default_client, futures_of, wait
 from distributed.utils import log_errors
 from sklearn.base import clone
-from sklearn.metrics.scorer import check_scoring
+from sklearn.metrics import check_scoring
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
 from sklearn.utils.metaestimators import if_delegate_has_method

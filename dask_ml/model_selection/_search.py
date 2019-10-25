@@ -1183,7 +1183,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             Parameters passed to the ``fit`` method of the estimator
         """
         estimator = self.estimator
-        from sklearn.metrics.scorer import _check_multimetric_scoring
+        from .._compat import _check_multimetric_scoring
 
         scorer, multimetric = _check_multimetric_scoring(
             estimator, scoring=self.scoring
