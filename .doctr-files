@@ -1,6 +1,8 @@
 ./_images/examples_hyperparam-opt_8_0.png
 ./_images/examples_svd_5_0.png
 ./_images/examples_svd_9_0.png
+./_images/examples_torch-prediction_13_0.png
+./_images/examples_torch-prediction_30_0.png
 ./_images/examples_xgboost_20_0.png
 ./_images/examples_xgboost_25_0.png
 ./_images/merged_grid_search_graph.svg
@@ -17,6 +19,7 @@
 ./_sources/examples/parallel-prediction.ipynb.txt
 ./_sources/examples/scale-scikit-learn.ipynb.txt
 ./_sources/examples/svd.ipynb.txt
+./_sources/examples/torch-prediction.ipynb.txt
 ./_sources/examples/tpot.ipynb.txt
 ./_sources/examples/training-on-large-datasets.ipynb.txt
 ./_sources/examples/voting-classifier.ipynb.txt
@@ -145,6 +148,7 @@
 ./examples/parallel-prediction.html
 ./examples/scale-scikit-learn.html
 ./examples/svd.html
+./examples/torch-prediction.html
 ./examples/tpot.html
 ./examples/training-on-large-datasets.html
 ./examples/voting-classifier.html
