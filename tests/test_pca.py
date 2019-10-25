@@ -1,13 +1,16 @@
 from itertools import product
 
 import dask.array as da
+import dask.dataframe
 import numpy as np
+import pandas as pd
 import pytest
 import scipy as sp
 import sklearn.decomposition as sd
 from dask.array.utils import assert_eq
 from sklearn import datasets
 from sklearn.decomposition.pca import _assess_dimension_, _infer_dimension_
+from sklearn.utils import check_random_state as sk_check_random_state
 from sklearn.utils.testing import (
     assert_almost_equal,
     assert_array_almost_equal,
@@ -739,3 +742,58 @@ def test_fractional_n_components():
         pca.fit(X)
 
     assert w.match("Fractional 'n_components'")
+
+
+@pytest.mark.parametrize("solver", ["auto", "tsqr", "randomized", "full"])
+@pytest.mark.parametrize("fn", ["fit", "fit_transform"])
+def test_unknown_shapes(fn, solver):
+    rng = sk_check_random_state(42)
+    X = rng.uniform(-1, 1, size=(10, 3))
+    df = pd.DataFrame(X)
+    ddf = dask.dataframe.from_pandas(df, npartitions=2)
+
+    pca = dd.PCA(n_components=2, svd_solver=solver)
+    fit_fn = getattr(pca, fn)
+    X = ddf.values
+    assert np.isnan(X.shape[0])
+
+    if solver == "auto":
+        with pytest.raises(ValueError, match="Cannot automatically choose PCA solver"):
+            fit_fn(X)
+    else:
+        X_hat = fit_fn(X)
+        assert hasattr(pca, "components_")
+        assert pca.n_components_ == 2
+        assert pca.n_features_ == 3
+        assert np.isnan(pca.n_samples_)
+        if fn == "fit_transform":
+            assert np.isnan(X_hat.shape[0])
+            assert X_hat.shape[1] == 2
+
+
+@pytest.mark.parametrize("solver", ["randomized", "tsqr", "full"])
+def test_unknown_shapes_n_components_larger_than_num_rows(solver):
+    X = np.random.randn(2, 10)
+    df = pd.DataFrame(X)
+    ddf = dask.dataframe.from_pandas(df, npartitions=2)
+    X = ddf.values
+    assert np.isnan(X.shape[0])
+
+    pca = dd.PCA(n_components=3, svd_solver=solver)
+    if solver == "randomized":
+        with pytest.raises(
+            ValueError,
+            match="n_components=3 is larger than the number of singular values",
+        ) as error:
+            pca.fit(X)
+        assert "PCA has attributes as if n_components == 2" in str(error.value)
+        assert pca.n_components_ == 2
+        assert len(pca.singular_values_) == 2
+        assert len(pca.components_) == 2
+        assert pca.n_features_ == 10
+        assert np.isnan(pca.n_samples_)
+        if solver != "randomized":
+            assert pca.explained_variance_ratio_.max() == 1.0
+    else:
+        with pytest.raises(ValueError, match="n_components is too large"):
+            pca.fit(X)
