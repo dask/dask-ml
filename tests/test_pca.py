@@ -778,7 +778,7 @@ def test_unknown_shapes(fn, solver, errors):
 
 
 @pytest.mark.parametrize("solver", ["randomized", "tsqr", "full"])
-def test_unknown_shapes_n_components_too_large(solver):
+def test_unknown_shapes_n_components_too_large_few_rows(solver):
     X = np.random.randn(2, 10)
     df = pd.DataFrame(X)
     ddf = dask.dataframe.from_pandas(df, npartitions=2)
