@@ -568,7 +568,7 @@ class TestPolynomialFeatures:
             res_pandas = a.fit_transform(frame.compute())
             assert dask.is_dask_collection(res_df)
             assert dask.is_dask_collection(res_arr)
-            assert_eq_df(res_df.compute(), res_pandas)
+            assert_eq_df(res_df, res_pandas)
         assert_eq_ar(res_df.values, res_c)
         assert_eq_ar(res_df.values, res_arr)
 
@@ -588,6 +588,4 @@ class TestPolynomialFeatures:
         res_df = dpp.PolynomialFeatures(
             preserve_dataframe=True, degree=1
         ).fit_transform(frame)
-        if daskify:
-            res_df = res_df.compute()
         assert_eq_df(res_df.iloc[:, 1:], frame, check_dtype=False)
