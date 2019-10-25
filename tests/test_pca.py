@@ -10,6 +10,7 @@ import sklearn.decomposition as sd
 from dask.array.utils import assert_eq
 from sklearn import datasets
 from sklearn.decomposition.pca import _assess_dimension_, _infer_dimension_
+from sklearn.utils import check_random_state as sk_check_random_state
 from sklearn.utils.testing import (
     assert_almost_equal,
     assert_array_almost_equal,
@@ -745,29 +746,22 @@ def test_fractional_n_components():
 
 @pytest.mark.parametrize("solver", ["auto", "tsqr", "randomized", "full"])
 @pytest.mark.parametrize("fn", ["fit", "fit_transform"])
-@pytest.mark.parametrize("errors", ["raise", "warn", "ignore"])
-def test_unknown_shapes(fn, solver, errors):
-    df = pd.DataFrame({"0": [0, 0, 1, 1], "1": [0, 0, 1, 1], "2": [2, 4, 5, 2]})
+def test_unknown_shapes(fn, solver):
+    rng = sk_check_random_state(42)
+    X = rng.uniform(-1, 1, size=(10, 3))
+    df = pd.DataFrame(X)
     ddf = dask.dataframe.from_pandas(df, npartitions=2)
 
-    pca = dd.PCA(n_components=2, svd_solver=solver, errors=errors)
+    pca = dd.PCA(n_components=2, svd_solver=solver)
     fit_fn = getattr(pca, fn)
     X = ddf.values
     assert np.isnan(X.shape[0])
 
-    match = "The check on n_components can't be completed"
     if solver == "auto":
-        with pytest.raises(ValueError, match="automatically choose PCA solver"):
-            fit_fn(X)
-    elif errors == "raise":
-        with pytest.raises(ValueError, match=match):
+        with pytest.raises(ValueError, match="Cannot automatically choose PCA solver"):
             fit_fn(X)
     else:
-        if errors == "warn":
-            with pytest.warns(UserWarning, match=match):
-                X_hat = fit_fn(X)
-        elif errors == "ignore":
-            X_hat = fit_fn(X)
+        X_hat = fit_fn(X)
         assert hasattr(pca, "components_")
         assert pca.n_components_ == 2
         assert pca.n_features_ == 3
@@ -778,21 +772,20 @@ def test_unknown_shapes(fn, solver, errors):
 
 
 @pytest.mark.parametrize("solver", ["randomized", "tsqr", "full"])
-def test_unknown_shapes_n_components_too_large_few_rows(solver):
+def test_unknown_shapes_n_components_larger_than_num_rows(solver):
     X = np.random.randn(2, 10)
     df = pd.DataFrame(X)
     ddf = dask.dataframe.from_pandas(df, npartitions=2)
     X = ddf.values
     assert np.isnan(X.shape[0])
 
-    pca = dd.PCA(n_components=3, svd_solver=solver, errors="warn")
+    pca = dd.PCA(n_components=3, svd_solver=solver)
     if solver == "randomized":
-        with pytest.warns(UserWarning) as _warnings:
+        with pytest.warns(
+            UserWarning,
+            match="n_components=3 is larger than the number of singular values",
+        ):
             pca.fit(X)
-        w1 = str(_warnings.list[0].message)
-        w2 = str(_warnings.list[1].message)
-        assert "check on n_components can't be completed" in w1
-        assert "n_components=3 is larger than the number of singular values" in w2
         assert pca.n_components_ == 2
         assert len(pca.singular_values_) == 2
         assert len(pca.components_) == 2
@@ -801,15 +794,5 @@ def test_unknown_shapes_n_components_too_large_few_rows(solver):
         if solver != "randomized":
             assert pca.explained_variance_ratio_.max() == 1.0
     else:
-        with pytest.warns(
-            UserWarning, match="check on n_components can't be completed"
-        ):
-            with pytest.raises(ValueError, match="operands could not be broadcast"):
-                pca.fit(X)
-
-
-def test_pca_errors():
-    pca = dd.PCA(n_components=3, svd_solver="randomized", errors="foo")
-    X = np.random.randn(4, 2)
-    with pytest.raises(ValueError, match="errors=foo not in"):
-        pca.fit(X)
+        with pytest.raises(ValueError, match="n_components is too large"):
+            pca.fit(X)

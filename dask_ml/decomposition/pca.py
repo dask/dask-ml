@@ -78,10 +78,6 @@ class PCA(_BasePCA):
         If None, the random number generator is the RandomState instance used
         by `da.random`. Used when ``svd_solver`` == 'randomized'.
 
-    errors : {"raise", "warn", "ignore"}, default "raise"
-        How should certain errors be handled? These errors are raised within
-        this class and tend to be related to the size/shape of the passed array.
-
     Attributes
     ----------
     components_ : array, shape (n_components, n_features)
@@ -182,7 +178,6 @@ class PCA(_BasePCA):
         tol=0.0,
         iterated_power=0,
         random_state=None,
-        errors="raise",
     ):
         self.n_components = n_components
         self.copy = copy
@@ -191,7 +186,6 @@ class PCA(_BasePCA):
         self.tol = tol
         self.iterated_power = iterated_power
         self.random_state = random_state
-        self.errors = errors
 
     def fit(self, X, y=None):
         self._fit(X)
@@ -233,8 +227,7 @@ class PCA(_BasePCA):
                     "    * pass X.compute_chunk_sizes()  "
                     "# for Dask Array X (dask >= 2.4)\n"
                     "    * Use a specific SVD solver "
-                    "(e.g., set `svd_solver != 'auto'`, so `svd_solver in "
-                    "['tsqr', 'randomized', 'full']`)"
+                    "(e.g., ensure `svd_solver in ['randomized', 'tsqr', 'full']`)"
                 )
             if max(n_samples, n_features) <= 500:
                 solver = "full"
@@ -248,29 +241,6 @@ class PCA(_BasePCA):
             lower_limit = 1
         else:
             lower_limit = 0
-
-        if self.errors not in {"raise", "warn", "ignore"}:
-            err_msg = "errors={} not in ['raise', 'warn', ignore']"
-            raise ValueError(err_msg.format(self.errors))
-        isnan = np.isnan([n_samples, n_features])
-        if isnan.any():
-            msg = (
-                "At least one of [n_samples, n_features]={} is nan. "
-                "The check on n_components can't be completed "
-                "to make sure `n_components <= min(n_samples, n_features)`. "
-                "To continue, either\n\n"
-                "    * pass X.to_dask_array(lengths=True)  "
-                "# for Dask DataFrame (dask >= 0.19)\n"
-                "    * pass X.compute_chunk_sizes()  "
-                "# for Dask Array X (dask >= 2.4)\n"
-                "    * make ``errors in ['warn', 'ignore']`` and ensure "
-                "`n_components <= min(X.shape)` (errors will be raised otherwise)\n"
-            )
-            msg = msg.format([n_samples, n_features])
-            if self.errors == "raise":
-                raise ValueError(msg)
-            if self.errors == "warn":
-                warn(msg)
 
         if not (np.nanmin([n_samples, n_features]) >= n_components >= lower_limit):
             msg = (
@@ -333,27 +303,40 @@ class PCA(_BasePCA):
         else:
             noise_variance = 0.0
 
-        (
-            self.n_samples_,
-            self.n_features_,
-            self.n_components_,
-            self.components_,
-            self.explained_variance_,
-            self.explained_variance_ratio_,
-            self.singular_values_,
-            self.noise_variance_,
-            self.singular_values_,
-        ) = compute(
-            n_samples,
-            n_features,
-            n_components,
-            components,
-            explained_variance,
-            explained_variance_ratio,
-            singular_values,
-            noise_variance,
-            singular_values,
-        )
+        try:
+            (
+                self.n_samples_,
+                self.n_features_,
+                self.n_components_,
+                self.components_,
+                self.explained_variance_,
+                self.explained_variance_ratio_,
+                self.singular_values_,
+                self.noise_variance_,
+                self.singular_values_,
+            ) = compute(
+                n_samples,
+                n_features,
+                n_components,
+                components,
+                explained_variance,
+                explained_variance_ratio,
+                singular_values,
+                noise_variance,
+                singular_values,
+            )
+        except ValueError as e:
+            if np.isnan([n_samples, n_features]).any():
+                msg = (
+                    "Computation of the SVD raised an error. It is possible "
+                    "n_components is too large. i.e., "
+                    "`n_components > np.nanmin(X.shape) = "
+                    "np.nanmin({})`\n\n"
+                    "A possible resolution to this error is to ensure that "
+                    "n_components <= min(n_samples, n_features)"
+                )
+                raise ValueError(msg.format(X.shape)) from e
+            raise e
 
         self.components_ = self.components_[:n_components]
         self.explained_variance_ = self.explained_variance_[:n_components]
@@ -362,13 +345,11 @@ class PCA(_BasePCA):
 
         if len(self.singular_values_) < n_components:
             self.n_components_ = len(self.singular_values_)
-            # To get here, `self.errors in ["warn", "ignore"]`.
-            if self.errors == "warn":
-                msg = (
-                    "n_components={n} is larger than the number of singular values"
-                    " ({s}). PCA will continue with self.n_components_ == {n}"
-                )
-                warn(msg.format(n=n_components, s=len(self.singular_values_)))
+            msg = (
+                "n_components={n} is larger than the number of singular values"
+                " ({s}). PCA will continue with self.n_components_ == {n}"
+            )
+            warn(msg.format(n=n_components, s=len(self.singular_values_)))
 
         return U, S, V
 
