@@ -128,7 +128,7 @@
             
             
               <div class="version">
-                1.0.1.dev16+g45e8908
+                1.0.1.dev17+gb0a0915
               </div>
             
           
@@ -514,8 +514,8 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-CPU times: user 28 ms, sys: 12 ms, total: 40 ms
-Wall time: 1.49 s
+CPU times: user 28 ms, sys: 20 ms, total: 48 ms
+Wall time: 1.65 s
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -577,7 +577,7 @@ Wall time: 1.49 s
 <td style="vertical-align: top; border: 0px solid white">
 <h3 style="text-align: left;">Client</h3>
 <ul style="text-align: left; list-style: none; margin: 0; padding: 0;">
-  <li><b>Scheduler: </b>tcp://127.0.0.1:43659</li>
+  <li><b>Scheduler: </b>tcp://127.0.0.1:34767</li>
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
@@ -636,8 +636,8 @@ VotingClassifier(estimators=[(&#39;sgd&#39;,
                                   verbose=False))],
                  flatten_transform=True, n_jobs=-1, voting=&#39;hard&#39;,
                  weights=None)
-CPU times: user 112 ms, sys: 16 ms, total: 128 ms
-Wall time: 1.32 s
+CPU times: user 168 ms, sys: 16 ms, total: 184 ms
+Wall time: 1.54 s
 </pre></div></div>
 </div>
 <p>Note, that we see no advantage of using dask because we are using a local cluster rather than a distributed cluster and sklearn is already using all my computer’s cores. If we were using a distributed cluster, dask would enable us to take advantage of the multiple machines and train sub-estimators across them.</p>
