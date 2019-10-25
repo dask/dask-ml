@@ -142,8 +142,8 @@ def test_kfolds(cls, has_shuffle):
             cls(shuffle=True, random_state=2, n_splits=3)
         )
 
-        assert tokenize(cls(shuffle=False, random_state=0, n_splits=3)) == tokenize(
-            cls(shuffle=False, random_state=2, n_splits=3)
+        assert tokenize(cls(shuffle=False, random_state=None, n_splits=3)) == tokenize(
+            cls(shuffle=False, random_state=None, n_splits=3)
         )
 
     cv = cls(n_splits=3)
