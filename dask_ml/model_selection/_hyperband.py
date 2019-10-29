@@ -284,11 +284,28 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
     Let's decide to provide ``81 * len(X)`` examples and to sample 243
     parameters. Then each chunk will be 1/3rd the dataset and ``max_iter=243``.
 
+    If you use ``HyperbandSearchCV``, please use the citation for [2]_
+
+    .. code-block:: tex
+
+        @InProceedings{sievert2019better,
+            author    = {Scott Sievert and Tom Augspurger and Matthew Rocklin},
+            title     = {{B}etter and faster hyperparameter optimization with {D}ask},
+            booktitle = {{P}roceedings of the 18th {P}ython in {S}cience {C}onference},
+            pages     = {118 - 125},
+            year      = {2019},
+            editor    = {Chris Calloway and David Lippa and Dillon Niederhut and David Shupe},
+            doi       = {10.25080/Majora-7ddc1dd1-011}
+          }
+
     References
     ----------
     .. [1] "Hyperband: A novel bandit-based approach to hyperparameter
            optimization", 2016 by L. Li, K. Jamieson, G. DeSalvo, A.
            Rostamizadeh, and A. Talwalkar.  https://arxiv.org/abs/1603.06560
+    .. [2] "Better and faster hyperparameter optimization with Dask", 2018 by
+           S. Sievert, T. Augspurger, M. Rocklin.
+           https://doi.org/10.25080/Majora-7ddc1dd1-011
 
     """
 
