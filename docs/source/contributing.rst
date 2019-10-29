@@ -138,6 +138,27 @@ Documentation
 
 We use `numpydoc <http://numpydoc.readthedocs.io/en/latest/format.html>`_ for our docstrings.
 
+Building the docs is possible with
+
+.. code-block:: none
+
+   $ conda env create -f ci/environment-docs.yaml --name=dask-ml-dev-docs
+
+This will build the full documentation after a complete installation. For a
+minimal installation with less computation, the following commands allow not
+building the complete documentation:
+
+.. code-block:: none
+
+   $ # first 3 steps are from above
+   $ conda env create -f ci/environment-3.7.yaml --name=dask-ml-dev
+   $ conda activate dask-ml-dev
+   $ python -m pip install -e ".[dev]"
+   $ python -m pip install jupyter_client IPython dask_sphinx_theme
+   $ cd docs
+   $ echo "nbsphinx_allow_errors = True" >> source/conf.py
+   $ make html
+
 Examples are written as Jupyter notebooks with their output stripped, either
 manually or using `nbstripout <https://github.com/kynan/nbstripout>`_. We want
 examples to be runnable on binder so they should be small, but include
