@@ -128,7 +128,7 @@
             
             
               <div class="version">
-                1.0.1.dev17+gb0a0915
+                1.0.1.dev18+gcdba636
               </div>
             
           
@@ -499,6 +499,18 @@ search the possible hyper-parameters</li>
 </ul>
 <p>Let’s decide to provide <code class="docutils literal notranslate"><span class="pre">81</span> <span class="pre">*</span> <span class="pre">len(X)</span></code> examples and to sample 243
 parameters. Then each chunk will be 1/3rd the dataset and <code class="docutils literal notranslate"><span class="pre">max_iter=243</span></code>.</p>
+<p>If you use <code class="docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code>, please use the citation for <a class="reference internal" href="#r6ef2b88ca647-2" id="id4">[R6ef2b88ca647-2]</a></p>
+<div class="highlight-tex notranslate"><div class="highlight"><pre><span></span>@InProceedings<span class="nb">{</span>sievert2019better,
+    author    = <span class="nb">{</span>Scott Sievert and Tom Augspurger and Matthew Rocklin<span class="nb">}</span>,
+    title     = <span class="nb">{{</span>B<span class="nb">}</span>etter and faster hyperparameter optimization with <span class="nb">{</span>D<span class="nb">}</span>ask<span class="nb">}</span>,
+    booktitle = <span class="nb">{{</span>P<span class="nb">}</span>roceedings of the 18th <span class="nb">{</span>P<span class="nb">}</span>ython in <span class="nb">{</span>S<span class="nb">}</span>cience <span class="nb">{</span>C<span class="nb">}</span>onference<span class="nb">}</span>,
+    pages     = <span class="nb">{</span>118 - 125<span class="nb">}</span>,
+    year      = <span class="nb">{</span>2019<span class="nb">}</span>,
+    editor    = <span class="nb">{</span>Chris Calloway and David Lippa and Dillon Niederhut and David Shupe<span class="nb">}</span>,
+    doi       = <span class="nb">{</span>10.25080/Majora-7ddc1dd1-011<span class="nb">}</span>
+  <span class="nb">}</span>
+</pre></div>
+</div>
 <p class="rubric">References</p>
 <table class="docutils citation" frame="void" id="r6ef2b88ca647-1" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
@@ -506,6 +518,14 @@ parameters. Then each chunk will be 1/3rd the dataset and <code class="docutils 
 <tr><td class="label"><a class="fn-backref" href="#id2">[R6ef2b88ca647-1]</a></td><td>“Hyperband: A novel bandit-based approach to hyperparameter
 optimization”, 2016 by L. Li, K. Jamieson, G. DeSalvo, A.
 Rostamizadeh, and A. Talwalkar.  <a class="reference external" href="https://arxiv.org/abs/1603.06560">https://arxiv.org/abs/1603.06560</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="r6ef2b88ca647-2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[R6ef2b88ca647-2]</a></td><td>“Better and faster hyperparameter optimization with Dask”, 2018 by
+S. Sievert, T. Augspurger, M. Rocklin.
+<a class="reference external" href="https://doi.org/10.25080/Majora-7ddc1dd1-011">https://doi.org/10.25080/Majora-7ddc1dd1-011</a></td></tr>
 </tbody>
 </table>
 <p class="rubric">Examples</p>
