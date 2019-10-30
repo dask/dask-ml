@@ -145,6 +145,18 @@ with Dask Arrays or DataFrames.
    preprocessing.OrdinalEncoder
    preprocessing.LabelEncoder
    preprocessing.PolynomialFeatures
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. automodule:: dask_ml.preprocessing.text:
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   preprocessing.text.HashingVectorizer
+
    
 :mod:`dask_ml.compose`: Composite Estimators
 ============================================
