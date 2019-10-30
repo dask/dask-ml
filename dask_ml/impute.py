@@ -81,9 +81,8 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
     def transform(self, X):
         if isinstance(X, (pd.Series, pd.DataFrame, dd.Series, dd.DataFrame)):
             if self.strategy == "mean" or self.strategy == "median":
-                return X.astype(np.number).fillna(self.statistics_)
-            else:
-                return X.fillna(self.statistics_)
+                X = X.astype(np.number)
+            return X.fillna(self.statistics_)
 
         elif isinstance(X, da.Array):
             return da.where(da.isnull(X.astype(np.number)), self.statistics_, X.astype(np.number))
