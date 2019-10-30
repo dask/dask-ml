@@ -4,8 +4,8 @@ import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import scipy.sparse as sp
+import sklearn.decomposition
 from dask import compute
-from sklearn.decomposition.base import _BasePCA
 from sklearn.utils.extmath import fast_logdet
 from sklearn.utils.validation import check_random_state
 
@@ -14,7 +14,7 @@ from .._utils import draw_seed
 from ..utils import svd_flip
 
 
-class PCA(_BasePCA):
+class PCA(sklearn.decomposition.PCA):
     """Principal component analysis (PCA)
 
     Linear dimensionality reduction using Singular Value Decomposition of the
