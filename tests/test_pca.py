@@ -1,3 +1,4 @@
+import warnings
 from itertools import product
 
 import dask.array as da
@@ -9,17 +10,20 @@ import scipy as sp
 import sklearn.decomposition as sd
 from dask.array.utils import assert_eq
 from sklearn import datasets
-from sklearn.decomposition.pca import _assess_dimension_, _infer_dimension_
 from sklearn.utils import check_random_state as sk_check_random_state
-from sklearn.utils.testing import (
-    assert_almost_equal,
-    assert_array_almost_equal,
-    assert_raises,
-    assert_raises_regex,
-)
 
 import dask_ml.decomposition as dd
+from dask_ml.decomposition._compat import _assess_dimension_, _infer_dimension_
 from dask_ml.utils import assert_estimator_equal
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", FutureWarning)
+    from sklearn.utils.testing import (
+        assert_almost_equal,
+        assert_array_almost_equal,
+        assert_raises,
+    )
+
 
 iris = datasets.load_iris()
 solver_list = ["full", "randomized", "auto"]
@@ -359,7 +363,6 @@ def test_pca_validation():
     X = np.array([[0, 1, 0], [1, 0, 0]])
     X = da.from_array(X, chunks=(2, 3))
     smallest_d = 2  # The smallest dimension
-    lower_limit = {"randomized": 1, "full": 0, "auto": 0}
 
     for solver in solver_list:
         # We conduct the same test on X.T so that it is invariant to axis.
@@ -367,34 +370,14 @@ def test_pca_validation():
         for data in [X]:
             for n_components in [-1, 3]:
 
-                if solver == "auto":
-                    solver_reported = "full"
-                else:
-                    solver_reported = solver
+                with pytest.raises(ValueError, match="n_components"):
+                    dd.PCA(n_components, svd_solver=solver).fit(data)
 
-                assert_raises_regex(
-                    ValueError,
-                    r"n_components={}L? must be between "
-                    "{}L? and min\\(n_samples, n_features\\)="
-                    "{}L? with svd_solver='{}'".format(
-                        n_components, lower_limit[solver], smallest_d, solver_reported
-                    ),
-                    dd.PCA(n_components, svd_solver=solver).fit,
-                    data,
-                )
             if solver == "arpack":
 
                 n_components = smallest_d
-
-                assert_raises_regex(
-                    ValueError,
-                    r"n_components={}L? must be "
-                    "strictly less than "
-                    "min\\(n_samples, n_features\\)={}L?"
-                    " with svd_solver='arpack'".format(n_components, smallest_d),
-                    dd.PCA(n_components, svd_solver=solver).fit,
-                    data,
-                )
+                with pytest.raises(ValueError, match="n_components"):
+                    dd.PCA(n_components, svd_solver=solver).fit(data)
 
 
 def test_n_components_none():
