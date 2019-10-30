@@ -13,7 +13,7 @@ from sklearn.pipeline import make_pipeline
 
 import dask_ml.feature_extraction.text
 import dask_ml.metrics
-from dask_ml._compat import SK_022
+from dask_ml._compat import DASK_240, SK_022
 from dask_ml.metrics.scorer import check_scoring
 from dask_ml.wrappers import Incremental
 
@@ -211,7 +211,8 @@ def test_incremental_text_pipeline(container):
 
     pipe.fit(X, y, incremental__classes=[0, 1])
     X2 = pipe.steps[0][1].transform(X)
-
-    X2.compute_chunk_sizes()
-    assert X2.shape == (300, vect.n_features)
     assert hasattr(clf, "coef_")
+
+    if DASK_240:
+        X2.compute_chunk_sizes()
+        assert X2.shape == (300, vect.n_features)
