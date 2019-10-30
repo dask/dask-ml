@@ -1,0 +1,732 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dask_ml.feature_extraction.text.HashingVectorizer &mdash; dask-ml 1.1.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+        <script type="text/javascript" src="../../_static/js/custom.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/explore.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/nbsphinx.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dask_ml.compose.ColumnTransformer" href="../generted/dask_ml.compose.ColumnTransformer.html" />
+    <link rel="prev" title="dask_ml.preprocessing.PolynomialFeatures" href="dask_ml.preprocessing.PolynomialFeatures.html" />
+  <link rel="shortcut icon" href="../../_static/images/favicon.ico"/>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+  
+
+<nav id="explore-links">
+  <a href="https://docs.dask.org/">
+    <img class="caption" src="../../_static/images/dask-horizontal-white.svg"/>
+  </a>
+
+  <ul>
+    <li>
+      <a>Get Started</a>
+      <ul>
+        <li><a href="https://docs.dask.org/en/latest/install.html"> Install </a></li>
+        <li><a href="https://examples.dask.org"> Examples </a></li>
+        <li><a href="https://github.com/dask/dask-tutorial"> Tutorial </a></li>
+        <li><a href="https://docs.dask.org/en/latest/why.html"> Why Dask? </a></li>
+        <li><a href="https://stories.dask.org/en/latest"> Use Cases </a></li>
+        <li><a href="https://www.youtube.com/watch?v=RA_2qdipVng&list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri"> Talks </a></li>
+        <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab"> Try Online </a></li>
+        <li><a href="https://dask.org/slides"> Slides </a></li>
+      </ul>
+    </li>
+
+    <li>
+      <a href="">Algorithms</a>
+      <ul>
+        <li><a href="https://docs.dask.org/en/latest/array.html">Arrays</a></li>
+        <li><a href="https://docs.dask.org/en/latest/dataframe.html">Dataframes</a></li>
+        <li><a href="https://docs.dask.org/en/latest/bag.html">Bags</a></li>
+        <li><a href="https://docs.dask.org/en/latest/delayed.html">Delayed (custom)</a></li>
+        <li><a href="https://docs.dask.org/en/latest/futures.html">Futures (real-time)</a></li>
+        <li><a href="http://ml.dask.org">Machine Learning</a></li>
+        <li><a href="https://xarray.pydata.org/en/latest/">XArray</a></li>
+      </ul>
+    </li>
+
+    <li>
+      <a href="https://docs.dask.org/en/latest/setup.html">Setup</a>
+      <ul>
+        <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/cloud.html"> Cloud </a></li>
+        <li><a href="https://docs.dask.org/en/latest/setup/hpc.html"> HPC </a></li>
+        <li><a href="https://kubernetes.dask.org/en/latest/"> Kubernetes </a></li>
+        <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
+      </ul>
+    </li>
+
+    <li>
+      <a>Community</a>
+      <ul>
+        <li><a href="http://docs.dask.org/en/latest/support.html">Ask for Help</a></li>
+        <li><a href="https://github.com/dask">Github</a></li>
+        <li><a href="https://stackoverflow.com/questions/tagged/dask">Stack Overflow</a></li>
+        <li><a href="https://twitter.com/dask_dev">Twitter</a></li>
+        <li><a href="https://blog.dask.org/"> Developer Blog </a></li>
+      </ul>
+    </li>
+  </ul>
+
+</nav>
+
+
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> dask-ml
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.1.1.dev2+g39d1fd0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Get Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Use</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../preprocessing.html">Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cross_validation.html">Cross Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../hyper-parameter-search.html">Hyper Parameter Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../compose.html">Pipelines and Composite Estimators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glm.html">Generalized Linear Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../joblib.html">Joblib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../meta-estimators.html">Parallel Meta-estimators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../incremental.html">Incremental Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../clustering.html">Clustering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../xgboost.html">XGBoost</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tensorflow.html">Tensorflow</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.model_selection"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>: Model Selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.linear_model"><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>: Generalized Linear Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-wrappers-meta-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.wrappers</span></code>: Meta-Estimators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.cluster"><code class="docutils literal notranslate"><span class="pre">dask_ml.cluster</span></code>: Clustering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.decomposition"><code class="docutils literal notranslate"><span class="pre">dask_ml.decomposition</span></code>: Matrix Decomposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.preprocessing"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>: Preprocessing Data</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#dask-ml-feature-extraction-text-feature-extraction"><code class="docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>: Feature extraction</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>.HashingVectorizer</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-compose-composite-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.compose</span></code>: Composite Estimators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.impute"><code class="docutils literal notranslate"><span class="pre">dask_ml.impute</span></code>: Imputing Missing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-metrics-metrics"><code class="docutils literal notranslate"><span class="pre">dask_ml.metrics</span></code>: Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-tensorflow-tensorflow"><code class="docutils literal notranslate"><span class="pre">dask_ml.tensorflow</span></code>: Tensorflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.xgboost"><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code>: XGBoost</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Develop</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../roadmap.html">Dask-ML Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../history.html">History</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">dask-ml</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../api.html">API Reference</a> &raquo;</li>
+        
+      <li><code class="docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>.HashingVectorizer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/modules/generated/dask_ml.feature_extraction.text.HashingVectorizer.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="dask-ml-feature-extraction-text-hashingvectorizer">
+<h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>.HashingVectorizer<a class="headerlink" href="#dask-ml-feature-extraction-text-hashingvectorizer" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="dask_ml.feature_extraction.text.HashingVectorizer">
+<em class="property">class </em><code class="descclassname">dask_ml.feature_extraction.text.</code><code class="descname">HashingVectorizer</code><span class="sig-paren">(</span><em>input='content'</em>, <em>encoding='utf-8'</em>, <em>decode_error='strict'</em>, <em>strip_accents=None</em>, <em>lowercase=True</em>, <em>preprocessor=None</em>, <em>tokenizer=None</em>, <em>stop_words=None</em>, <em>token_pattern='(?u)\b\w\w+\b'</em>, <em>ngram_range=(1</em>, <em>1)</em>, <em>analyzer='word'</em>, <em>n_features=1048576</em>, <em>binary=False</em>, <em>norm='l2'</em>, <em>alternate_sign=True</em>, <em>dtype=&lt;class 'numpy.float64'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a collection of text documents to a matrix of token occurrences</p>
+<p>It turns a collection of text documents into a scipy.sparse matrix holding
+token occurrence counts (or binary occurrence information), possibly
+normalized as token frequencies if norm=’l1’ or projected on the euclidean
+unit sphere if norm=’l2’.</p>
+<p>This text vectorizer implementation uses the hashing trick to find the
+token string name to feature integer index mapping.</p>
+<p>This strategy has several advantages:</p>
+<ul class="simple">
+<li>it is very low memory scalable to large datasets as there is no need to
+store a vocabulary dictionary in memory</li>
+<li>it is fast to pickle and un-pickle as it holds no state besides the
+constructor parameters</li>
+<li>it can be used in a streaming (partial fit) or parallel pipeline as there
+is no state computed during fit.</li>
+</ul>
+<p>There are also a couple of cons (vs using a CountVectorizer with an
+in-memory vocabulary):</p>
+<ul class="simple">
+<li>there is no way to compute the inverse transform (from feature indices to
+string feature names) which can be a problem when trying to introspect
+which features are most important to a model.</li>
+<li>there can be collisions: distinct tokens can be mapped to the same
+feature index. However in practice this is rarely an issue if n_features
+is large enough (e.g. 2 ** 18 for text classification problems).</li>
+<li>no IDF weighting as this would render the transformer stateful.</li>
+</ul>
+<p>The hash function employed is the signed 32-bit version of Murmurhash3.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#text-feature-extraction" title="(in scikit-learn v0.21.3)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>input</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string {‘filename’, ‘file’, ‘content’}</span></dt>
+<dd><p class="first">If ‘filename’, the sequence passed as an argument to fit is
+expected to be a list of filenames that need reading to fetch
+the raw content to analyze.</p>
+<p>If ‘file’, the sequence items must have a ‘read’ method (file-like
+object) that is called to fetch the bytes in memory.</p>
+<p class="last">Otherwise the input is expected to be the sequence strings or
+bytes items are expected to be analyzed directly.</p>
+</dd>
+<dt><strong>encoding</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, default=’utf-8’</span></dt>
+<dd><p class="first last">If bytes or files are given to analyze, this encoding is used to
+decode.</p>
+</dd>
+<dt><strong>decode_error</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘strict’, ‘ignore’, ‘replace’}</span></dt>
+<dd><p class="first last">Instruction on what to do if a byte sequence is given to analyze that
+contains characters not of the given <cite>encoding</cite>. By default, it is
+‘strict’, meaning that a UnicodeDecodeError will be raised. Other
+values are ‘ignore’ and ‘replace’.</p>
+</dd>
+<dt><strong>strip_accents</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘ascii’, ‘unicode’, None}</span></dt>
+<dd><p class="first">Remove accents and perform other character normalization
+during the preprocessing step.
+‘ascii’ is a fast method that only works on characters that have
+an direct ASCII mapping.
+‘unicode’ is a slightly slower method that works on any characters.
+None (default) does nothing.</p>
+<p class="last">Both ‘ascii’ and ‘unicode’ use NFKD normalization from
+<a class="reference external" href="https://docs.python.org/3.6/library/unicodedata.html#unicodedata.normalize" title="(in Python v3.6)"><code class="xref py py-func docutils literal notranslate"><span class="pre">unicodedata.normalize()</span></code></a>.</p>
+</dd>
+<dt><strong>lowercase</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, default=True</span></dt>
+<dd><p class="first last">Convert all characters to lowercase before tokenizing.</p>
+</dd>
+<dt><strong>preprocessor</strong> <span class="classifier-delimiter">:</span> <span class="classifier">callable or None (default)</span></dt>
+<dd><p class="first last">Override the preprocessing (string transformation) stage while
+preserving the tokenizing and n-grams generation steps.</p>
+</dd>
+<dt><strong>tokenizer</strong> <span class="classifier-delimiter">:</span> <span class="classifier">callable or None (default)</span></dt>
+<dd><p class="first last">Override the string tokenization step while preserving the
+preprocessing and n-grams generation steps.
+Only applies if <code class="docutils literal notranslate"><span class="pre">analyzer</span> <span class="pre">==</span> <span class="pre">'word'</span></code>.</p>
+</dd>
+<dt><strong>stop_words</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string {‘english’}, list, or None (default)</span></dt>
+<dd><p class="first">If ‘english’, a built-in stop word list for English is used.
+There are several known issues with ‘english’ and you should
+consider an alternative (see <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#stop-words" title="(in scikit-learn v0.21.3)"><span>Using stop words</span></a>).</p>
+<p class="last">If a list, that list is assumed to contain stop words, all of which
+will be removed from the resulting tokens.
+Only applies if <code class="docutils literal notranslate"><span class="pre">analyzer</span> <span class="pre">==</span> <span class="pre">'word'</span></code>.</p>
+</dd>
+<dt><strong>token_pattern</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">Regular expression denoting what constitutes a “token”, only used
+if <code class="docutils literal notranslate"><span class="pre">analyzer</span> <span class="pre">==</span> <span class="pre">'word'</span></code>. The default regexp selects tokens of 2
+or more alphanumeric characters (punctuation is completely ignored
+and always treated as a token separator).</p>
+</dd>
+<dt><strong>ngram_range</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuple (min_n, max_n), default=(1, 1)</span></dt>
+<dd><p class="first last">The lower and upper boundary of the range of n-values for different
+n-grams to be extracted. All values of n such that min_n &lt;= n &lt;= max_n
+will be used.</p>
+</dd>
+<dt><strong>analyzer</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, {‘word’, ‘char’, ‘char_wb’} or callable</span></dt>
+<dd><p class="first">Whether the feature should be made of word or character n-grams.
+Option ‘char_wb’ creates character n-grams only from text inside
+word boundaries; n-grams at the edges of words are padded with space.</p>
+<p>If a callable is passed it is used to extract the sequence of features
+out of the raw, unprocessed input.</p>
+<div class="versionchanged">
+<p><span class="versionmodified">Changed in version 0.21.</span></p>
+</div>
+<p class="last">Since v0.21, if <code class="docutils literal notranslate"><span class="pre">input</span></code> is <code class="docutils literal notranslate"><span class="pre">filename</span></code> or <code class="docutils literal notranslate"><span class="pre">file</span></code>, the data is
+first read from the file and then passed to the given callable
+analyzer.</p>
+</dd>
+<dt><strong>n_features</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, default=(2 ** 20)</span></dt>
+<dd><p class="first last">The number of features (columns) in the output matrices. Small numbers
+of features are likely to cause hash collisions, but large numbers
+will cause larger coefficient dimensions in linear learners.</p>
+</dd>
+<dt><strong>binary</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, default=False.</span></dt>
+<dd><p class="first last">If True, all non zero counts are set to 1. This is useful for discrete
+probabilistic models that model binary events rather than integer
+counts.</p>
+</dd>
+<dt><strong>norm</strong> <span class="classifier-delimiter">:</span> <span class="classifier">‘l1’, ‘l2’ or None, optional</span></dt>
+<dd><p class="first last">Norm used to normalize term vectors. None for no normalization.</p>
+</dd>
+<dt><strong>alternate_sign</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional, default True</span></dt>
+<dd><p class="first">When True, an alternating sign is added to the features as to
+approximately conserve the inner product in the hashed space even for
+small n_features. This approach is similar to sparse random projection.</p>
+<div class="last versionadded">
+<p><span class="versionmodified">New in version 0.19.</span></p>
+</div>
+</dd>
+<dt><strong>dtype</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type, optional</span></dt>
+<dd><p class="first last">Type of the matrix returned by fit_transform() or transform().</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">CountVectorizer</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">TfidfVectorizer</span></code></dt>
+<dd></dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="k">import</span> <span class="n">HashingVectorizer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">corpus</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="s1">&#39;This is the first document.&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;This document is the second document.&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;And this is the third one.&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;Is this the first document?&#39;</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vectorizer</span> <span class="o">=</span> <span class="n">HashingVectorizer</span><span class="p">(</span><span class="n">n_features</span><span class="o">=</span><span class="mi">2</span><span class="o">**</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="go">(4, 16)</span>
+</pre></div>
+</div>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.HashingVectorizer.build_analyzer" title="dask_ml.feature_extraction.text.HashingVectorizer.build_analyzer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_analyzer</span></code></a>(self)</td>
+<td>Return a callable that handles preprocessing and tokenization</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.HashingVectorizer.build_preprocessor" title="dask_ml.feature_extraction.text.HashingVectorizer.build_preprocessor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_preprocessor</span></code></a>(self)</td>
+<td>Return a function to preprocess the text before tokenization</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.HashingVectorizer.build_tokenizer" title="dask_ml.feature_extraction.text.HashingVectorizer.build_tokenizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_tokenizer</span></code></a>(self)</td>
+<td>Return a function that splits a string into a sequence of tokens</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.HashingVectorizer.decode" title="dask_ml.feature_extraction.text.HashingVectorizer.decode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decode</span></code></a>(self,&nbsp;doc)</td>
+<td>Decode the input into a string of unicode symbols</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.HashingVectorizer.fit" title="dask_ml.feature_extraction.text.HashingVectorizer.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<td>Does nothing: this transformer is stateless.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.HashingVectorizer.fit_transform" title="dask_ml.feature_extraction.text.HashingVectorizer.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<td>Transform a sequence of documents to a document-term matrix.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.HashingVectorizer.get_params" title="dask_ml.feature_extraction.text.HashingVectorizer.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
+<td>Get parameters for this estimator.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.HashingVectorizer.get_stop_words" title="dask_ml.feature_extraction.text.HashingVectorizer.get_stop_words"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_stop_words</span></code></a>(self)</td>
+<td>Build or fetch the effective stop words list</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.HashingVectorizer.partial_fit" title="dask_ml.feature_extraction.text.HashingVectorizer.partial_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<td>Does nothing: this transformer is stateless.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.HashingVectorizer.set_params" title="dask_ml.feature_extraction.text.HashingVectorizer.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
+<td>Set the parameters of this estimator.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.HashingVectorizer.transform" title="dask_ml.feature_extraction.text.HashingVectorizer.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X)</td>
+<td>Transform a sequence of documents to a document-term matrix.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="dask_ml.feature_extraction.text.HashingVectorizer.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>input='content'</em>, <em>encoding='utf-8'</em>, <em>decode_error='strict'</em>, <em>strip_accents=None</em>, <em>lowercase=True</em>, <em>preprocessor=None</em>, <em>tokenizer=None</em>, <em>stop_words=None</em>, <em>token_pattern='(?u)\b\w\w+\b'</em>, <em>ngram_range=(1</em>, <em>1)</em>, <em>analyzer='word'</em>, <em>n_features=1048576</em>, <em>binary=False</em>, <em>norm='l2'</em>, <em>alternate_sign=True</em>, <em>dtype=&lt;class 'numpy.float64'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.feature_extraction.text.HashingVectorizer.build_analyzer">
+<code class="descname">build_analyzer</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer.build_analyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a callable that handles preprocessing and tokenization</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.feature_extraction.text.HashingVectorizer.build_preprocessor">
+<code class="descname">build_preprocessor</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer.build_preprocessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a function to preprocess the text before tokenization</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.feature_extraction.text.HashingVectorizer.build_tokenizer">
+<code class="descname">build_tokenizer</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer.build_tokenizer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a function that splits a string into a sequence of tokens</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.feature_extraction.text.HashingVectorizer.decode">
+<code class="descname">decode</code><span class="sig-paren">(</span><em>self</em>, <em>doc</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer.decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decode the input into a string of unicode symbols</p>
+<p>The decoding strategy depends on the vectorizer parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>doc</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">The string to decode</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.feature_extraction.text.HashingVectorizer.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Does nothing: this transformer is stateless.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape [n_samples, n_features]</span></dt>
+<dd><p class="first last">Training data.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.feature_extraction.text.HashingVectorizer.fit_transform">
+<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer.fit_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform a sequence of documents to a document-term matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">iterable over raw text documents, length = n_samples</span></dt>
+<dd><p class="first last">Samples. Each sample must be a text document (either bytes or
+unicode strings, file name or file object depending on the
+constructor argument) which will be tokenized and hashed.</p>
+</dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">any</span></dt>
+<dd><p class="first last">Ignored. This parameter exists only for compatibility with
+sklearn.pipeline.Pipeline.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">scipy.sparse matrix, shape = (n_samples, self.n_features)</span></dt>
+<dd><p class="first last">Document-term matrix.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.feature_extraction.text.HashingVectorizer.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameters for this estimator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span></dt>
+<dd><p class="first last">If True, will return the parameters for this estimator and
+contained subobjects that are estimators.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">mapping of string to any</span></dt>
+<dd><p class="first last">Parameter names mapped to their values.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.feature_extraction.text.HashingVectorizer.get_stop_words">
+<code class="descname">get_stop_words</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer.get_stop_words" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build or fetch the effective stop words list</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.feature_extraction.text.HashingVectorizer.partial_fit">
+<code class="descname">partial_fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer.partial_fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Does nothing: this transformer is stateless.</p>
+<p>This method is just there to mark the fact that this transformer
+can work in a streaming setup.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape [n_samples, n_features]</span></dt>
+<dd><p class="first last">Training data.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.feature_extraction.text.HashingVectorizer.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters of this estimator.</p>
+<p>The method works on simple estimators as well as on nested objects
+(such as pipelines). The latter have parameters of the form
+<code class="docutils literal notranslate"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it’s possible to update each
+component of a nested object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt>self</dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.feature_extraction.text.HashingVectorizer.transform">
+<code class="descname">transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer.transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform a sequence of documents to a document-term matrix.</p>
+<p>Transformation is done in parallel, and correctly handles dask
+collections.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dask.bag.Bag or dask.dataframe.Series, length = n_samples</span></dt>
+<dd><p class="first last">Each sample must be a text document (either bytes or
+unicode strings, file name or file object depending on the
+constructor argument) which will be tokenized and hashed.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dask.array.Array, shape = (n_samples, self.n_features)</span></dt>
+<dd><p class="first last">Document-term matrix. Each block of the array is a scipy sparse
+matrix.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The returned dask Array is composed scipy sparse matricies. If you need
+to compute on the result immediately, you may need to convert the individual
+blocks to ndarrays or pydata/sparse matricies.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">sparse</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="o">.</span><span class="n">map_blocks</span><span class="p">(</span><span class="n">sparse</span><span class="o">.</span><span class="n">COO</span><span class="o">.</span><span class="n">from_scipy_sparse</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>  <span class="c1"># doctest: +SKIP</span>
+</pre></div>
+</div>
+<p>See the <span class="xref std std-doc">examples/text-vectorization</span> for more.</p>
+</dd></dl>
+
+</dd></dl>
+
+<div class="clearer"></div></div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../generted/dask_ml.compose.ColumnTransformer.html" class="btn btn-neutral float-right" title="dask_ml.compose.ColumnTransformer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="dask_ml.preprocessing.PolynomialFeatures.html" class="btn btn-neutral float-left" title="dask_ml.preprocessing.PolynomialFeatures" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Dask developers
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

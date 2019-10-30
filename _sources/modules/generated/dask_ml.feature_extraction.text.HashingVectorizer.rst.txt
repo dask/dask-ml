@@ -1,0 +1,16 @@
+:mod:`dask_ml.feature_extraction.text`.HashingVectorizer
+===============================================================
+
+.. currentmodule:: dask_ml.feature_extraction.text
+
+.. autoclass:: HashingVectorizer
+
+   
+   .. automethod:: __init__
+   
+
+.. include:: dask_ml.feature_extraction.text.HashingVectorizer.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>

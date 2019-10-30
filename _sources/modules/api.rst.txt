@@ -146,7 +146,8 @@ with Dask Arrays or DataFrames.
    preprocessing.LabelEncoder
    preprocessing.PolynomialFeatures
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:mod:`dask_ml.feature_extraction.text`: Feature extraction
+==========================================================
 
 
 .. automodule:: dask_ml.preprocessing.text:
@@ -155,7 +156,7 @@ with Dask Arrays or DataFrames.
    :toctree: generated/
    :template: class.rst
 
-   preprocessing.text.HashingVectorizer
+   feature_extraction.text.HashingVectorizer
 
    
 :mod:`dask_ml.compose`: Composite Estimators
