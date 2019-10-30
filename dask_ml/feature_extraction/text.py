@@ -10,6 +10,9 @@ import sklearn.feature_extraction.text
 
 
 class HashingVectorizer(sklearn.feature_extraction.text.HashingVectorizer):
+    # explicit doc for Sphinx
+    __doc__ = sklearn.feature_extraction.text.HashingVectorizer.__doc__
+
     def transform(self, X):
         """Transform a sequence of documents to a document-term matrix.
 
