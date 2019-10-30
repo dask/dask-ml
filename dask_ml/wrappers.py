@@ -451,10 +451,16 @@ class Incremental(ParallelPostFit):
     """
 
     def __init__(
-        self, estimator=None, scoring=None, shuffle_blocks=True, random_state=None
+        self,
+        estimator=None,
+        scoring=None,
+        shuffle_blocks=True,
+        random_state=None,
+        assume_equal_chunks=True,
     ):
         self.shuffle_blocks = shuffle_blocks
         self.random_state = random_state
+        self.assume_equal_chunks = assume_equal_chunks
         super(Incremental, self).__init__(estimator=estimator, scoring=scoring)
 
     @property
@@ -473,6 +479,7 @@ class Incremental(ParallelPostFit):
                 y,
                 random_state=self.random_state,
                 shuffle_blocks=self.shuffle_blocks,
+                assume_equal_chunks=self.assume_equal_chunks,
                 **fit_kwargs
             )
 
