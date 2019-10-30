@@ -67,19 +67,13 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
 
     def _fit_frame(self, X):
         if self.strategy == "mean":
-            if isinstance(X,pd.DataFrame):
-                avg = X.mean(axis=0,numeric_only=False).values
-            else:
-                for col in X.columns:
-                    X[col] = X[col].astype(np.number)
-                avg = X.mean(axis=0).values
+            for col in X.columns:
+                X[col] = X[col].astype(np.number)
+            avg = X.mean(axis=0).values
         elif self.strategy == "median":
-            if isinstance(X,pd.DataFrame):
-                avg = X.quantile(numeric_only=False).values
-            else:
-                for col in X.columns:
-                    X[col] = X[col].astype(np.number)
-                avg = X.quantile().values
+            for col in X.columns:
+                X[col] = X[col].astype(np.number)
+            avg = X.quantile().values
         elif self.strategy == "constant":
             avg = np.full(len(X.columns), self.fill_value)
         else:
