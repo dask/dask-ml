@@ -61,7 +61,7 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
         if self.strategy == "mean":
             statistics = da.nanmean(X.astype(np.number), axis=0).compute()
         else:
-            statistics = np.full(X.shape[1], self.fill_value, dtype=X.dtype)
+            statistics = np.full(X.shape[1], self.fill_value, dtype=(X.dtype if np.issubdtype(X.dtype, np.number) else np.number))
 
         self.statistics_, = da.compute(statistics)
 
@@ -80,9 +80,12 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
 
     def transform(self, X):
         if isinstance(X, (pd.Series, pd.DataFrame, dd.Series, dd.DataFrame)):
-            return X.fillna(self.statistics_)
+            if self.strategy == "mean" or self.strategy == "median":
+                return X.astype(np.number).fillna(self.statistics_)
+            else:
+                return X.fillna(self.statistics_)
 
         elif isinstance(X, da.Array):
-            return da.where(da.isnull(X), self.statistics_, X)
+            return da.where(da.isnull(X.astype(np.number)), self.statistics_, X.astype(np.number))
         else:
             return super(SimpleImputer, self).transform(X)
