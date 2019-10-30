@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Cross Validation &mdash; dask-ml 1.1.0 documentation</title>
+  <title>Cross Validation &mdash; dask-ml 1.1.1 documentation</title>
   
 
   
@@ -128,7 +128,7 @@
             
             
               <div class="version">
-                1.1.0
+                1.1.1.dev1+gc31807b
               </div>
             
           
@@ -268,9 +268,9 @@ Out[7]: dask.array&lt;concatenate, shape=(112, 4), dtype=float64, chunksize=(45,
 
 In [8]: X_train.compute()[:3]
 Out[8]: 
-array([[ 0.00550963,  0.02080571, -0.4763186 , -1.56842247],
-       [ 0.12590048, -0.69540901, -1.18976616, -1.07897621],
-       [-0.67784643,  0.42250206,  0.87245318, -0.04349648]])
+array([[-0.54613065, -0.90709521,  1.47050494, -0.48765508],
+       [-2.48417857, -1.51302803,  1.18438   ,  0.64385103],
+       [-1.32835409,  0.3065724 ,  0.43893223,  0.65025546]])
 </pre>
 <p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v0.21.3)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
 using the Dask version for performance reasons. There are two major difference that let make the Dask version

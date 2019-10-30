@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Incremental Learning &mdash; dask-ml 1.1.0 documentation</title>
+  <title>Incremental Learning &mdash; dask-ml 1.1.1 documentation</title>
   
 
   
@@ -128,7 +128,7 @@
             
             
               <div class="version">
-                1.1.0
+                1.1.1.dev1+gc31807b
               </div>
             
           
@@ -347,18 +347,18 @@ can also explicitly pass <code class="docutils literal notranslate"><span class=
 </div>
 <p>We can get the accuracy score on our dataset.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gh">Out[9]: </span><span class="go">0.73</span>
+<span class="gh">Out[9]: </span><span class="go">0.61</span>
 </pre></div>
 </div>
 <p>All of the attributes learned durning training, like <code class="docutils literal notranslate"><span class="pre">coef_</span></code>, are available
 on the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> instance.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[ 27.19596126, -52.57463451, -27.36741775,  24.25130234,</span>
-<span class="go">         -4.82744493,  19.7553737 ,  -5.75214761, -37.82229333,</span>
-<span class="go">         -1.95102595,   3.74870531,  14.14945863,  34.60435048,</span>
-<span class="go">        -13.40413539,  33.83312241,  48.45526599,  33.12170505,</span>
-<span class="go">         46.14281042,   2.56872253,  10.21272459,  -0.78371361]])</span>
+<span class="go">array([[-16.43071826, -14.06995236, -14.91283778,  -4.33524528,</span>
+<span class="go">          7.29219112, -27.79036358,  24.81986272,  -6.50667479,</span>
+<span class="go">        -73.24028525, -48.28665508,  10.0430577 ,   1.79794744,</span>
+<span class="go">          3.88815821, -12.31311659, -18.66154313,  -3.1383453 ,</span>
+<span class="go">        -40.55969689, -25.52306858,  18.32449511,  -0.28330395]])</span>
 </pre></div>
 </div>
 <p>If necessary, the actual estimator trained is available as <code class="docutils literal notranslate"><span class="pre">Incremental.estimator_</span></code></p>
