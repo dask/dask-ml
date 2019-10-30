@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Changelog &mdash; dask-ml 1.0.1 documentation</title>
+  <title>Changelog &mdash; dask-ml 1.1.0 documentation</title>
   
 
   
@@ -128,7 +128,7 @@
             
             
               <div class="version">
-                1.0.1.dev20+ga4fe0f1
+                1.1.0
               </div>
             
           
@@ -175,6 +175,7 @@
 <p class="caption"><span class="caption-text">Develop</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#version-1-1-0">Version 1.1.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-1-0-0">Version 1.0.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-0-13-0">Version 0.13.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-0-12-0">Version 0.12.0</a><ul>
@@ -314,6 +315,18 @@
             
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="version-1-1-0">
+<h2>Version 1.1.0<a class="headerlink" href="#version-1-1-0" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Non-arrays (e.g. Dask Bags and DataFrames) are now allowed in <a class="reference internal" href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental" title="dask_ml.wrappers.Incremental"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.wrappers.Incremental</span></code></a>. This is useful for text classification pipelines (pr:<cite>570</cite>)</li>
+<li>The index is now preserved in <a class="reference internal" href="modules/generated/dask_ml.preprocessing.PolynomialFeatures.html#dask_ml.preprocessing.PolynomialFeatures" title="dask_ml.preprocessing.PolynomialFeatures"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.preprocessing.PolynomialFeatures</span></code></a> for DataFrame inputs (<a class="reference external" href="https://github.com/dask/dask-ml/pull/563">GH#563</a>)</li>
+<li><a class="reference internal" href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA" title="dask_ml.decomposition.PCA"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.decomposition.PCA</span></code></a> now works with DataFrame inputs (<a class="reference external" href="https://github.com/dask/dask-ml/pull/543">GH#543</a>)</li>
+<li><a class="reference internal" href="modules/generated/dask_ml.cluster.KMeans.html#dask_ml.cluster.KMeans" title="dask_ml.cluster.KMeans"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.cluster.KMeans</span></code></a> handles inputes where some blocks are length-0 (<a class="reference external" href="https://github.com/dask/dask-ml/pull/559">GH#559</a>)</li>
+<li>Improved error reporting for mixed inputs to <a class="reference internal" href="modules/generated/dask_ml.model_selection.train_test_split.html#dask_ml.model_selection.train_test_split" title="dask_ml.model_selection.train_test_split"><code class="xref py py-func docutils literal notranslate"><span class="pre">dask_ml.model_selection.train_test_split()</span></code></a> (<a class="reference external" href="https://github.com/dask/dask-ml/pull/552">GH#552</a>)</li>
+<li>Removed deprecated <code class="docutils literal notranslate"><span class="pre">dask_ml.joblib</span></code> module. Use <code class="docutils literal notranslate"><span class="pre">joblib.parallel_backend</span></code> instead (<a class="reference external" href="https://github.com/dask/dask-ml/pull/545">GH#545</a>)</li>
+<li><a class="reference internal" href="modules/generated/dask_ml.preprocessing.QuantileTransformer.html#dask_ml.preprocessing.QuantileTransformer" title="dask_ml.preprocessing.QuantileTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.preprocessing.QuantileTransformer</span></code></a> now handles DataFrame input (<a class="reference external" href="https://github.com/dask/dask-ml/pull/533">GH#533</a>)</li>
+</ul>
+</div>
 <div class="section" id="version-1-0-0">
 <h2>Version 1.0.0<a class="headerlink" href="#version-1-0-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
