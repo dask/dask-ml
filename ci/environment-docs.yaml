@@ -38,11 +38,11 @@ dependencies:
   - xgboost
   - zict
   - pip
+  - dask
+  - dask-glm
+  - distributed
+  - dask-xgboost
   - pip:
-    - dask-glm
-    - git+https://github.com/dask/dask.git
-    - git+https://github.com/dask/distributed.git
     - git+https://github.com/dask/dask-tensorflow.git
-    - git+https://github.com/dask/dask-xgboost.git
     - dask_sphinx_theme >=1.1.0
     - graphviz

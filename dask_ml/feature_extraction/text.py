@@ -1,3 +1,6 @@
+"""
+Utilities to build feature vectors from text documents.
+"""
 import dask
 import dask.array as da
 import dask.bag as db
@@ -15,8 +18,8 @@ class HashingVectorizer(sklearn.feature_extraction.text.HashingVectorizer):
 
         Parameters
         ----------
-        X : dask.Bag of raw text documents, length = n_samples
-            Samples. Each sample must be a text document (either bytes or
+        X : dask.bag.Bag or dask.dataframe.Series, length = n_samples
+            Each sample must be a text document (either bytes or
             unicode strings, file name or file object depending on the
             constructor argument) which will be tokenized and hashed.
 
