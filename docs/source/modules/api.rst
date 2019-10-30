@@ -149,7 +149,8 @@ with Dask Arrays or DataFrames.
 :mod:`dask_ml.feature_extraction.text`: Feature extraction
 ==========================================================
 
-.. automodule:: dask_ml.feature_extraction.text:
+
+.. automodule:: dask_ml.preprocessing.text:
 
 .. autosummary::
    :toctree: generated/
