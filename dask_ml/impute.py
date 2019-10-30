@@ -59,7 +59,7 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
             raise ValueError(msg)
 
         if self.strategy == "mean":
-            statistics = da.nanmean(X, axis=0).compute()
+            statistics = da.nanmean(X.astype(np.number), axis=0).compute()
         else:
             statistics = np.full(X.shape[1], self.fill_value, dtype=X.dtype)
 
