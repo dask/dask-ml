@@ -35,8 +35,8 @@ def test_fit_convert(data):
     a = sklearn.impute.SimpleImputer()
     b = dask_ml.impute.SimpleImputer()
 
-    expected = a.fit_transform(X.astype(str))
-    result = b.fit_transform(data.astype(str))
+    expected = a.fit_transform(X.astype(str).astype(object))
+    result = b.fit_transform(data.astype(str).astype(object))
 
     assert_estimator_equal(a, b)
     assert isinstance(result, type(data))
