@@ -128,7 +128,7 @@
             
             
               <div class="version">
-                1.0.1.dev19+g5039cf8
+                1.0.1.dev20+ga4fe0f1
               </div>
             
           
@@ -265,7 +265,7 @@
 <h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.wrappers</span></code>.Incremental<a class="headerlink" href="#dask-ml-wrappers-incremental" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="dask_ml.wrappers.Incremental">
-<em class="property">class </em><code class="descclassname">dask_ml.wrappers.</code><code class="descname">Incremental</code><span class="sig-paren">(</span><em>estimator=None</em>, <em>scoring=None</em>, <em>shuffle_blocks=True</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.wrappers.</code><code class="descname">Incremental</code><span class="sig-paren">(</span><em>estimator=None</em>, <em>scoring=None</em>, <em>shuffle_blocks=True</em>, <em>random_state=None</em>, <em>assume_equal_chunks=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental" title="Permalink to this definition">¶</a></dt>
 <dd><p>Metaestimator for feeding Dask Arrays to an estimator blockwise.</p>
 <p>This wrapper provides a bridge between Dask objects and estimators
 implementing the <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> API. These <em>incremental learners</em> can
@@ -399,7 +399,7 @@ parameter names with <code class="docutils literal notranslate"><span class="pre
 </table>
 <dl class="method">
 <dt id="dask_ml.wrappers.Incremental.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>estimator=None</em>, <em>scoring=None</em>, <em>shuffle_blocks=True</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>estimator=None</em>, <em>scoring=None</em>, <em>shuffle_blocks=True</em>, <em>random_state=None</em>, <em>assume_equal_chunks=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 

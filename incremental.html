@@ -128,7 +128,7 @@
             
             
               <div class="version">
-                1.0.1.dev19+g5039cf8
+                1.0.1.dev20+ga4fe0f1
               </div>
             
           
@@ -308,7 +308,8 @@ between machines.</p>
 
 <span class="gp">In [8]: </span><span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 <span class="gh">Out[8]: </span><span class="go"></span>
-<span class="go">Incremental(estimator=SGDClassifier(alpha=0.0001, average=False,</span>
+<span class="go">Incremental(assume_equal_chunks=True,</span>
+<span class="go">            estimator=SGDClassifier(alpha=0.0001, average=False,</span>
 <span class="go">                                    class_weight=None, early_stopping=False,</span>
 <span class="go">                                    epsilon=0.1, eta0=0.0, fit_intercept=True,</span>
 <span class="go">                                    l1_ratio=0.15, learning_rate=&#39;optimal&#39;,</span>
@@ -346,18 +347,18 @@ can also explicitly pass <code class="docutils literal notranslate"><span class=
 </div>
 <p>We can get the accuracy score on our dataset.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gh">Out[9]: </span><span class="go">0.7</span>
+<span class="gh">Out[9]: </span><span class="go">0.69</span>
 </pre></div>
 </div>
 <p>All of the attributes learned durning training, like <code class="docutils literal notranslate"><span class="pre">coef_</span></code>, are available
 on the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> instance.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[ 34.17336153,  16.19199777, -18.84652453,  20.17665866,</span>
-<span class="go">         14.51605163,  21.34312802, -13.36844608, -20.36336429,</span>
-<span class="go">        -10.59972776,   8.3546915 ,   8.12681458, -58.15963604,</span>
-<span class="go">         26.26270654,  20.92236411,  18.33679642,  56.49742173,</span>
-<span class="go">         43.77759762, -14.19088753,   2.99062234,  24.77908986]])</span>
+<span class="go">array([[ 16.49593182, -27.42752623,  40.66243458, -26.73312115,</span>
+<span class="go">         -4.14853981, -11.12836521,  27.48722883,  -5.46167505,</span>
+<span class="go">         37.56719098,  73.57626078,  37.47118687, -20.10254447,</span>
+<span class="go">         68.28803184, -34.65033823, -10.63062644,  -9.22825109,</span>
+<span class="go">        -12.38881959, -16.55575528,   1.55533783, -12.38646893]])</span>
 </pre></div>
 </div>
 <p>If necessary, the actual estimator trained is available as <code class="docutils literal notranslate"><span class="pre">Incremental.estimator_</span></code></p>

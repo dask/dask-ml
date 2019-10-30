@@ -128,7 +128,7 @@
             
             
               <div class="version">
-                1.0.1.dev19+g5039cf8
+                1.0.1.dev20+ga4fe0f1
               </div>
             
           
@@ -509,7 +509,7 @@ div.rendered_html tbody tr:hover {
 <td style="vertical-align: top; border: 0px solid white">
 <h3 style="text-align: left;">Client</h3>
 <ul style="text-align: left; list-style: none; margin: 0; padding: 0;">
-  <li><b>Scheduler: </b>tcp://127.0.0.1:45987</li>
+  <li><b>Scheduler: </b>tcp://127.0.0.1:44068</li>
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
@@ -754,7 +754,8 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>Incremental(estimator=SGDClassifier(alpha=0.0001, average=False,
+<span></span>Incremental(assume_equal_chunks=True,
+            estimator=SGDClassifier(alpha=0.0001, average=False,
                                     class_weight=None, early_stopping=False,
                                     epsilon=0.1, eta0=0.0, fit_intercept=True,
                                     l1_ratio=0.15, learning_rate=&#39;optimal&#39;,
@@ -782,7 +783,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.5359
+<span></span>0.567
 </pre></div>
 </div>
 </div>
@@ -816,16 +817,16 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Score: 0.5399
-Score: 0.5615
-Score: 0.5632
-Score: 0.5569
-Score: 0.5722
-Score: 0.5794
-Score: 0.5773
-Score: 0.5765
-Score: 0.5584
-Score: 0.5836
+Score: 0.5798
+Score: 0.5802
+Score: 0.5674
+Score: 0.5835
+Score: 0.5719
+Score: 0.5868
+Score: 0.6058
+Score: 0.6039
+Score: 0.6
+Score: 0.6141
 </pre></div></div>
 </div>
 </div>
@@ -906,11 +907,11 @@ Score: 0.5836
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>array([1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0,
-       1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0,
-       0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0,
-       1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0,
-       1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0])
+<span></span>array([1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0,
+       0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1,
+       0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,
+       1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0,
+       0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0])
 </pre></div>
 </div>
 </div>
@@ -928,7 +929,7 @@ Score: 0.5836
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.5836
+<span></span>0.6141
 </pre></div>
 </div>
 </div>
