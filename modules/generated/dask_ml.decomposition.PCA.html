@@ -128,7 +128,7 @@
             
             
               <div class="version">
-                1.0.1.dev18+gcdba636
+                1.0.1.dev19+g5039cf8
               </div>
             
           
@@ -431,7 +431,7 @@ IEEE International Conference on Big Data, 2013.
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><a class="reference internal" href="#dask_ml.decomposition.PCA.fit" title="dask_ml.decomposition.PCA.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
-<td>Placeholder for fit.</td>
+<td>Fit the model with X.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.decomposition.PCA.fit_transform" title="dask_ml.decomposition.PCA.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
 <td>Fit the model with X and apply the dimensionality reduction on X.</td>
@@ -471,17 +471,18 @@ IEEE International Conference on Big Data, 2013.
 <dl class="method">
 <dt id="dask_ml.decomposition.PCA.fit">
 <code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.decomposition.PCA.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Placeholder for fit. Subclasses should implement this method!</p>
-<p>Fit the model with X.</p>
+<dd><p>Fit the model with X.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape (n_samples, n_features)</span></dt>
-<dd><p class="first last">Training data, where n_samples is the number of samples and
-n_features is the number of features.</p>
+<dd><p class="first last">Training data, where n_samples is the number of samples
+and n_features is the number of features.</p>
 </dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Ignored</span></dt>
+<dd></dd>
 </dl>
 </td>
 </tr>
