@@ -128,7 +128,7 @@
             
             
               <div class="version">
-                1.1.1.dev2+g39d1fd0
+                1.1.1
               </div>
             
           
@@ -330,16 +330,16 @@ cause the scheduler to compute tasks in parallel. If you’ve connected to a
 cluster of machines.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_big</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">10</span><span class="p">]</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[0.29480181, 0.70519819],</span>
+<span class="go">array([[0.24519991, 0.75480009],</span>
 <span class="go">       [0.00464304, 0.99535696],</span>
 <span class="go">       [0.00902734, 0.99097266],</span>
 <span class="go">       [0.01299259, 0.98700741],</span>
-<span class="go">       [0.93776132, 0.06223868],</span>
-<span class="go">       [0.70641271, 0.29358729],</span>
-<span class="go">       [0.96834572, 0.03165428],</span>
+<span class="go">       [0.92958233, 0.07041767],</span>
+<span class="go">       [0.755881  , 0.244119  ],</span>
+<span class="go">       [0.93507817, 0.06492183],</span>
 <span class="go">       [0.0203811 , 0.9796189 ],</span>
-<span class="go">       [0.02708978, 0.97291022],</span>
-<span class="go">       [0.95012543, 0.04987457]])</span>
+<span class="go">       [0.021179  , 0.978821  ],</span>
+<span class="go">       [0.96243286, 0.03756714]])</span>
 </pre></div>
 </div>
 <p>See <a class="reference external" href="http://dask-ml-benchmarks.readthedocs.io/en/latest/auto_examples/plot_parallel_post_fit_scaling.html">parallelizing prediction</a> for an example of how this
