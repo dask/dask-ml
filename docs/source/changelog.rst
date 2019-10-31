@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Version 1.1.1
+~~~~~~~~~~~~~
+
+- Fixed an issue with the 1.1.0 wheel (:issue:`575`)
+
 Version 1.1.0
 ~~~~~~~~~~~~~
 
