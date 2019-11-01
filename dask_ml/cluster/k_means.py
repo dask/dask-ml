@@ -2,9 +2,9 @@ import logging
 from multiprocessing import cpu_count
 from numbers import Integral
 
+import numba
 import dask.array as da
 import dask.dataframe as dd
-import numba
 import numpy as np
 import pandas as pd
 from dask import compute
