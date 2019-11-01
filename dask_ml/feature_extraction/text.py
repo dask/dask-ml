@@ -6,6 +6,7 @@ import dask.array as da
 import dask.bag as db
 import dask.dataframe as dd
 import numpy as np
+import scipy.sparse
 import sklearn.feature_extraction.text
 
 
@@ -70,6 +71,8 @@ class HashingVectorizer(sklearn.feature_extraction.text.HashingVectorizer):
         else:
             raise ValueError(msg)
 
+        meta = scipy.sparse.eye(0, format="csr")
+        result._meta = meta
         return result
 
 

@@ -1,6 +1,8 @@
 import dask.array as da
 import dask.bag as db
+import dask.dataframe as dd
 import numpy as np
+import pandas as pd
 import pytest
 import scipy.sparse
 import sklearn.feature_extraction.text
@@ -68,3 +70,12 @@ def test_transform_raises():
 
     with pytest.raises(ValueError, match="1-dimensional array"):
         vect.transform(df.values)
+
+
+def test_correct_meta():
+    vect = dask_ml.feature_extraction.text.HashingVectorizer()
+    X = dd.from_pandas(pd.Series(["some text", "to classifiy"]), 2)
+    result = vect.fit_transform(X)
+    assert scipy.sparse.issparse(result._meta)
+    assert result._meta.dtype == "float64"
+    assert result._meta.shape == (0, 0)
