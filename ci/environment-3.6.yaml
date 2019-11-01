@@ -5,7 +5,7 @@ channels:
 dependencies:
   - black
   - coverage
-  - dask =1.0.0
+  - dask =2.0.0
   - dask-glm >=0.2.0
   - distributed
   - flake8
