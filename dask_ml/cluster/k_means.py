@@ -2,9 +2,9 @@ import logging
 from multiprocessing import cpu_count
 from numbers import Integral
 
+import numba  # isort:skip (see https://github.com/dask/dask-ml/pull/577)
 import dask.array as da
 import dask.dataframe as dd
-import numba
 import numpy as np
 import pandas as pd
 import sklearn.cluster
