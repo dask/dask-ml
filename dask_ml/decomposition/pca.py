@@ -3,6 +3,7 @@ import numbers
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
+import pandas as pd
 import scipy.sparse as sp
 import sklearn.decomposition
 from dask import compute
@@ -11,7 +12,7 @@ from sklearn.utils.validation import check_random_state
 
 from .._compat import check_is_fitted
 from .._utils import draw_seed
-from ..utils import svd_flip
+from ..utils import _copy_attrs, svd_flip
 
 
 class PCA(sklearn.decomposition.PCA):
@@ -187,6 +188,20 @@ class PCA(sklearn.decomposition.PCA):
         self.random_state = random_state
 
     def fit(self, X, y=None):
+        if isinstance(X, (np.ndarray, pd.DataFrame)):
+            est = sklearn.decomposition.PCA(
+                n_components=self.n_components,
+                copy=self.copy,
+                whiten=self.whiten,
+                svd_solver=self.svd_solver,
+                tol=self.tol,
+                iterated_power=self.iterated_power,
+                random_state=self.random_state,
+            )
+            est.fit(X)
+            attrs = [k for k in dir(est) if k[0] != "_" and k[-1] == "_"]
+            _copy_attrs(est, self, attrs)
+            return self
         self._fit(X)
         return self
 
@@ -396,6 +411,17 @@ class PCA(sklearn.decomposition.PCA):
 
         """
         # X = check_array(X)
+        if isinstance(X, (np.ndarray, pd.DataFrame)):
+            est = sklearn.decomposition.PCA(
+                n_components=self.n_components,
+                copy=self.copy,
+                whiten=self.whiten,
+                svd_solver=self.svd_solver,
+                tol=self.tol,
+                iterated_power=self.iterated_power,
+                random_state=self.random_state,
+            )
+            return est.fit_transform(X)
         U, S, V = self._fit(X)
         U = U[:, : self.n_components_]
 

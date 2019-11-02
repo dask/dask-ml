@@ -360,6 +360,11 @@ def _num_samples(X):
     return result
 
 
+def _copy_attrs(c1, c2, names):
+    for name in names:
+        setattr(c2, name, getattr(c1, name))
+
+
 __all__ = [
     "assert_estimator_equal",
     "check_array",
