@@ -2,12 +2,10 @@ import numbers
 
 import dask.array as da
 import numpy as np
-import packaging.version
 import pytest
 import sklearn.metrics
 
 import dask_ml.metrics
-from dask_ml._compat import DASK_VERSION
 
 
 @pytest.fixture(params=["accuracy_score"])
@@ -49,10 +47,6 @@ def test_ok(size, metric_pairs, normalize, compute):
     assert abs(result - expected) < 1e-5
 
 
-@pytest.mark.skipif(
-    DASK_VERSION <= packaging.version.parse("0.18.0"),
-    reason="Requires dask.array.average",
-)
 def test_sample_weight(metric_pairs, normalize):
     m1, m2 = metric_pairs
 
@@ -68,10 +62,6 @@ def test_sample_weight(metric_pairs, normalize):
     assert abs(result - expected) < 1e-5
 
 
-@pytest.mark.skipif(
-    DASK_VERSION > packaging.version.parse("0.18.0"),
-    reason="Requires dask.array.average to be missing",
-)
 def test_sample_weight_raises(metric_pairs, normalize):
     m1, m2 = metric_pairs
 
