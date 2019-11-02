@@ -5,9 +5,9 @@ channels:
 dependencies:
   - black
   - coverage
-  - dask ==2.2.0
+  - dask ==2.3.0
   - dask-glm >=0.2.0
-  - distributed ==2.2.0
+  - distributed ==2.3.0
   - flake8
   - isort
   - multipledispatch
