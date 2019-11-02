@@ -41,7 +41,7 @@
   <link rel="stylesheet" href="../../_static/css/nbsphinx.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="dask_ml.compose.ColumnTransformer" href="../generted/dask_ml.compose.ColumnTransformer.html" />
+    <link rel="next" title="dask_ml.feature_extraction.text.FeatureHasher" href="dask_ml.feature_extraction.text.FeatureHasher.html" />
     <link rel="prev" title="dask_ml.preprocessing.PolynomialFeatures" href="dask_ml.preprocessing.PolynomialFeatures.html" />
   <link rel="shortcut icon" href="../../_static/images/favicon.ico"/>
 
@@ -128,7 +128,7 @@
             
             
               <div class="version">
-                1.1.2.dev2+g8d604e4
+                1.1.2.dev3+gc11b988
               </div>
             
           
@@ -179,6 +179,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.preprocessing"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>: Preprocessing Data</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../api.html#dask-ml-feature-extraction-text-feature-extraction"><code class="docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>: Feature extraction</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>.HashingVectorizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dask_ml.feature_extraction.text.FeatureHasher.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>.FeatureHasher</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-compose-composite-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.compose</span></code>: Composite Estimators</a></li>
@@ -460,7 +461,7 @@ small n_features. This approach is similar to sparse random projection.</p>
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.HashingVectorizer.set_params" title="dask_ml.feature_extraction.text.HashingVectorizer.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.HashingVectorizer.transform" title="dask_ml.feature_extraction.text.HashingVectorizer.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.HashingVectorizer.transform" title="dask_ml.feature_extraction.text.HashingVectorizer.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;raw_X)</td>
 <td>Transform a sequence of documents to a document-term matrix.</td>
 </tr>
 </tbody>
@@ -638,7 +639,7 @@ component of a nested object.</p>
 
 <dl class="method">
 <dt id="dask_ml.feature_extraction.text.HashingVectorizer.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer.transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transform</code><span class="sig-paren">(</span><em>self</em>, <em>raw_X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform a sequence of documents to a document-term matrix.</p>
 <p>Transformation is done in parallel, and correctly handles dask
 collections.</p>
@@ -647,7 +648,7 @@ collections.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dask.bag.Bag or dask.dataframe.Series, length = n_samples</span></dt>
+<dt><strong>raw_X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dask.bag.Bag or dask.dataframe.Series, length = n_samples</span></dt>
 <dd><p class="first last">Each sample must be a text document (either bytes or
 unicode strings, file name or file object depending on the
 constructor argument) which will be tokenized and hashed.</p>
@@ -688,7 +689,7 @@ blocks to ndarrays or pydata/sparse matricies.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../generted/dask_ml.compose.ColumnTransformer.html" class="btn btn-neutral float-right" title="dask_ml.compose.ColumnTransformer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="dask_ml.feature_extraction.text.FeatureHasher.html" class="btn btn-neutral float-right" title="dask_ml.feature_extraction.text.FeatureHasher" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="dask_ml.preprocessing.PolynomialFeatures.html" class="btn btn-neutral float-left" title="dask_ml.preprocessing.PolynomialFeatures" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

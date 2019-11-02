@@ -39,6 +39,7 @@
 ./_sources/modules/generated/dask_ml.cluster.SpectralClustering.rst.txt
 ./_sources/modules/generated/dask_ml.decomposition.PCA.rst.txt
 ./_sources/modules/generated/dask_ml.decomposition.TruncatedSVD.rst.txt
+./_sources/modules/generated/dask_ml.feature_extraction.text.FeatureHasher.rst.txt
 ./_sources/modules/generated/dask_ml.feature_extraction.text.HashingVectorizer.rst.txt
 ./_sources/modules/generated/dask_ml.impute.SimpleImputer.rst.txt
 ./_sources/modules/generated/dask_ml.linear_model.LinearRegression.rst.txt
@@ -172,6 +173,7 @@
 ./modules/generated/dask_ml.cluster.SpectralClustering.html
 ./modules/generated/dask_ml.decomposition.PCA.html
 ./modules/generated/dask_ml.decomposition.TruncatedSVD.html
+./modules/generated/dask_ml.feature_extraction.text.FeatureHasher.html
 ./modules/generated/dask_ml.feature_extraction.text.HashingVectorizer.html
 ./modules/generated/dask_ml.impute.SimpleImputer.html
 ./modules/generated/dask_ml.linear_model.LinearRegression.html
