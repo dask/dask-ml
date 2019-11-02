@@ -1,11 +1,8 @@
 import dask
 import dask.array as da
 import numpy as np
-import packaging.version
 import sklearn.metrics
 import sklearn.utils.multiclass
-
-from .._compat import DASK_VERSION
 
 
 def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None, compute=True):
@@ -69,12 +66,6 @@ def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None, compute=T
     0.5
     """
 
-    no_average = DASK_VERSION <= packaging.version.parse("0.18.0")
-    if no_average and sample_weight is not None:
-        raise NotImplementedError(
-            "'sample_weight' is only supported for " "dask versions > 0.18.0."
-        )
-
     if y_true.ndim > 1:
         differing_labels = ((y_true - y_pred) == 0).all(1)
         score = differing_labels != 0
@@ -82,10 +73,7 @@ def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None, compute=T
         score = y_true == y_pred
 
     if normalize:
-        if no_average:
-            score = score.mean()
-        else:
-            score = da.average(score, weights=sample_weight)
+        score = da.average(score, weights=sample_weight)
     elif sample_weight is not None:
         score = da.dot(score, sample_weight)
     else:
