@@ -192,7 +192,8 @@ class PCA(sklearn.decomposition.PCA):
             msg = (
                 "Got an unsupported type ({}). To resolve this issue,\n\n"
                 "  * Use sklearn.decomposition.PCA  # recommended\n\n"
-                "Wrapping the input with a Dask Array/DataFrame is "
+                "Wrapping the input with a Dask Array/DataFrame will resolve "
+                "this issue but is "
                 "*not recommended* (Dask-ML's PCA implementation will likely "
                 "be slower because the data fit in memory)"
             )
@@ -410,7 +411,8 @@ class PCA(sklearn.decomposition.PCA):
             msg = (
                 "Got an unsupported type ({}). To resolve this issue,\n\n"
                 "  * Use sklearn.decomposition.PCA  # recommended\n\n"
-                "Wrapping the input with a Dask Array/DataFrame is "
+                "Wrapping the input with a Dask Array/DataFrame will resolve "
+                "this issue but is "
                 "*not recommended* (Dask-ML's PCA implementation will likely "
                 "be slower because the data fit in memory)"
             )
