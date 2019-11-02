@@ -8,7 +8,7 @@ import scipy.sparse
 import sklearn.preprocessing
 
 import dask_ml.preprocessing
-from dask_ml._compat import PANDAS_VERSION
+from dask_ml._compat import DASK_240, PANDAS_VERSION
 from dask_ml.utils import assert_estimator_equal
 
 X = np.array([["a"], ["a"], ["b"], ["c"]])
@@ -20,6 +20,9 @@ ddf = dd.from_pandas(df, npartitions=2)
 @pytest.mark.parametrize("sparse", [True, False])
 @pytest.mark.parametrize("method", ["fit", "fit_transform"])
 @pytest.mark.parametrize("categories", ["auto", [["a", "b", "c"]]])
+@pytest.mark.xfail(
+    condition=DASK_240, reason="https://github.com/dask/dask/issues/5008"
+)
 def test_basic_array(sparse, method, categories):
     a = sklearn.preprocessing.OneHotEncoder(categories=categories, sparse=sparse)
     b = dask_ml.preprocessing.OneHotEncoder(categories=categories, sparse=sparse)
@@ -140,6 +143,9 @@ def test_dataframe_prohibits_categories(data):
     assert e.match("Cannot specify 'categories'")
 
 
+@pytest.mark.xfail(
+    condition=DASK_240, reason="https://github.com/dask/dask/issues/5008"
+)
 def test_unknown_category_transform():
     df2 = ddf.copy()
     df2["A"] = ddf.A.cat.add_categories("new!")

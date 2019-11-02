@@ -60,17 +60,3 @@ def test_sample_weight(metric_pairs, normalize):
     result = m1(a, b, sample_weight=sample_weight_da, normalize=normalize, compute=True)
     expected = m2(a, b, sample_weight=sample_weight_np, normalize=normalize)
     assert abs(result - expected) < 1e-5
-
-
-def test_sample_weight_raises(metric_pairs, normalize):
-    m1, m2 = metric_pairs
-
-    size = (100,)
-    a = da.random.randint(0, 4, size=size, chunks=25)
-    b = da.random.randint(0, 4, size=size, chunks=25)
-
-    sample_weight_np = np.random.random_sample(size[0])
-    sample_weight_da = da.from_array(sample_weight_np, chunks=25)
-
-    with pytest.raises(NotImplementedError):
-        m1(a, b, sample_weight=sample_weight_da, normalize=normalize, compute=True)
