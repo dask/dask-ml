@@ -128,7 +128,7 @@
             
             
               <div class="version">
-                1.1.2.dev1+g6c3b91c
+                1.1.2.dev2+g8d604e4
               </div>
             
           
@@ -268,9 +268,9 @@ Out[7]: dask.array&lt;concatenate, shape=(112, 4), dtype=float64, chunksize=(45,
 
 In [8]: X_train.compute()[:3]
 Out[8]: 
-array([[-0.97705963,  1.08699586, -2.18309268,  0.77253372],
-       [ 0.70530725, -1.30363125, -0.12527161, -0.16084649],
-       [-0.67007472,  0.11768581, -0.42047692,  0.76148918]])
+array([[-0.91167124, -1.49118942, -0.04353167, -0.59867598],
+       [-1.05879148, -0.89722898,  0.96089406, -0.97585992],
+       [-0.45656184, -0.13857792, -1.52033112,  0.27454601]])
 </pre>
 <p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v0.21.3)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
 using the Dask version for performance reasons. There are two major difference that let make the Dask version
