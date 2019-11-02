@@ -191,7 +191,7 @@ class PCA(sklearn.decomposition.PCA):
         if isinstance(X, (np.ndarray, pd.DataFrame)):
             msg = (
                 "Got an unsupported type ({}). To resolve this issue,\n\n"
-                "  * Use sklearn.decomposition.PCA  # recommended!\n\n"
+                "  * Use sklearn.decomposition.PCA  # recommended\n\n"
                 "Wrapping the input with a Dask Array/DataFrame is "
                 "*not recommended* (Dask-ML's PCA implementation will likely "
                 "be slower because the data fit in memory)"
@@ -407,16 +407,14 @@ class PCA(sklearn.decomposition.PCA):
         """
         # X = check_array(X)
         if isinstance(X, (np.ndarray, pd.DataFrame)):
-            est = sklearn.decomposition.PCA(
-                n_components=self.n_components,
-                copy=self.copy,
-                whiten=self.whiten,
-                svd_solver=self.svd_solver,
-                tol=self.tol,
-                iterated_power=self.iterated_power,
-                random_state=self.random_state,
+            msg = (
+                "Got an unsupported type ({}). To resolve this issue,\n\n"
+                "  * Use sklearn.decomposition.PCA  # recommended\n\n"
+                "Wrapping the input with a Dask Array/DataFrame is "
+                "*not recommended* (Dask-ML's PCA implementation will likely "
+                "be slower because the data fit in memory)"
             )
-            return est.fit_transform(X)
+            raise ValueError(msg.format(X.shape))
         U, S, V = self._fit(X)
         U = U[:, : self.n_components_]
 

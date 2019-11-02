@@ -790,3 +790,5 @@ def test_pca_sklearn_inputs(input_type):
     _X = X if input_type != "dataframe" else pd.DataFrame(X)
     with pytest.raises(ValueError, match="unsupported type"):
         a.fit(_X)
+    with pytest.raises(ValueError, match="unsupported type"):
+        a.fit_transform(_X)
