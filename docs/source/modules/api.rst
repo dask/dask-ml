@@ -157,6 +157,7 @@ with Dask Arrays or DataFrames.
    :template: class.rst
 
    feature_extraction.text.HashingVectorizer
+   feature_extraction.text.FeatureHasher
 
    
 :mod:`dask_ml.compose`: Composite Estimators
