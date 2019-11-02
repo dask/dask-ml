@@ -143,9 +143,6 @@ def test_dataframe_prohibits_categories(data):
     assert e.match("Cannot specify 'categories'")
 
 
-@pytest.mark.xfail(
-    condition=DASK_240, reason="https://github.com/dask/dask/issues/5008"
-)
 def test_unknown_category_transform():
     df2 = ddf.copy()
     df2["A"] = ddf.A.cat.add_categories("new!")
