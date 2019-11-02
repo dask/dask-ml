@@ -12,9 +12,9 @@ with open(os.path.join(here, "README.rst"), encoding="utf-8") as f:
 
 install_requires = [
     "dask[array,dataframe]>=2.0.0",
-    "distributed>=1.25.0",
+    "distributed>=2.2.0",
     "numba",
-    "numpy",
+    "numpy>=1.17.3",
     "pandas>=0.23.4",
     "scikit-learn>=0.20",
     "scipy",
