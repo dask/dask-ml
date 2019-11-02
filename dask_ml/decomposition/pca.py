@@ -189,19 +189,14 @@ class PCA(sklearn.decomposition.PCA):
 
     def fit(self, X, y=None):
         if isinstance(X, (np.ndarray, pd.DataFrame)):
-            est = sklearn.decomposition.PCA(
-                n_components=self.n_components,
-                copy=self.copy,
-                whiten=self.whiten,
-                svd_solver=self.svd_solver,
-                tol=self.tol,
-                iterated_power=self.iterated_power,
-                random_state=self.random_state,
+            msg = (
+                "Got an unsupported type ({}). To resolve this issue,\n\n"
+                "  * Use sklearn.decomposition.PCA  # recommended!\n\n"
+                "Wrapping the input with a Dask Array/DataFrame is "
+                "*not recommended* (Dask-ML's PCA implementation will likely "
+                "be slower because the data fit in memory)"
             )
-            est.fit(X)
-            attrs = [k for k in dir(est) if k[0] != "_" and k[-1] == "_"]
-            _copy_attrs(est, self, attrs)
-            return self
+            raise ValueError(msg.format(X.shape))
         self._fit(X)
         return self
 

@@ -783,17 +783,10 @@ def test_unknown_shapes_n_components_larger_than_num_rows(solver):
 
 
 @pytest.mark.parametrize("input_type", ["array", "dataframe"])
-def test_pca_w_numpy_inputs(input_type):
+def test_pca_sklearn_inputs(input_type):
     a = dd.PCA()
-    b = sd.PCA()
 
     assert isinstance(X, np.ndarray)
     _X = X if input_type != "dataframe" else pd.DataFrame(X)
-    a.fit(_X)
-    b.fit(_X)
-    assert_estimator_equal(a, b)
-
-    Y1 = a.fit_transform(_X)
-    Y2 = b.fit_transform(_X)
-    assert_estimator_equal(a, b)
-    assert_array_almost_equal(Y1, Y2)
+    with pytest.raises(ValueError, match="unsupported type"):
+        a.fit(_X)
