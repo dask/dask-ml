@@ -654,13 +654,13 @@ def test_pca_sparse_input():
     for svd_solver in solver_list:
         pca = dd.PCA(n_components=3, svd_solver=svd_solver)
 
-        assert_raises(TypeError, pca.fit, X)
+        assert_raises(TypeError, pca.fit, X, msg="unsupported type")
 
 
 def test_pca_bad_solver():
     X = np.random.RandomState(0).rand(5, 4)
     pca = dd.PCA(n_components=3, svd_solver="bad_argument")
-    assert_raises(ValueError, pca.fit, X)
+    assert_raises(ValueError, pca.fit, da.from_array(X))
 
 
 # def test_pca_dtype_preservation():
@@ -782,12 +782,12 @@ def test_unknown_shapes_n_components_larger_than_num_rows(solver):
             pca.fit(X)
 
 
-@pytest.mark.parametrize("input_type", [np.array, pd.DataFrame])
+@pytest.mark.parametrize("input_type", [np.array, pd.DataFrame, sp.sparse.csr_matrix])
 def test_pca_sklearn_inputs(input_type):
     Y = input_type(X)
 
     a = dd.PCA()
-    with pytest.raises(ValueError, match="unsupported type"):
+    with pytest.raises(TypeError, match="unsupported type"):
         a.fit(Y)
-    with pytest.raises(ValueError, match="unsupported type"):
+    with pytest.raises(TypeError, match="unsupported type"):
         a.fit_transform(Y)

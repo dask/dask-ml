@@ -1,5 +1,6 @@
 import numbers
 
+import dask
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
@@ -197,8 +198,8 @@ class PCA(sklearn.decomposition.PCA):
         self.random_state = random_state
 
     def fit(self, X, y=None):
-        if isinstance(X, (np.ndarray, pd.DataFrame)):
-            raise ValueError(_TYPE_MSG.format(type(X)))
+        if not dask.is_dask_collection(X):
+            raise TypeError(_TYPE_MSG.format(type(X)))
         self._fit(X)
         return self
 
@@ -262,9 +263,6 @@ class PCA(sklearn.decomposition.PCA):
                 )
             )
             raise ValueError(msg)
-
-        if sp.issparse(X):
-            raise TypeError("Cannot fit PCA on sparse 'X'")
 
         self.mean_ = X.mean(0)
         X -= self.mean_
@@ -408,8 +406,8 @@ class PCA(sklearn.decomposition.PCA):
 
         """
         # X = check_array(X)
-        if isinstance(X, (np.ndarray, pd.DataFrame)):
-            raise ValueError(_TYPE_MSG.format(type(X)))
+        if not dask.is_dask_collection(X):
+            raise TypeError(_TYPE_MSG.format(type(X)))
         U, S, V = self._fit(X)
         U = U[:, : self.n_components_]
 
