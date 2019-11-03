@@ -784,11 +784,12 @@ def test_unknown_shapes_n_components_larger_than_num_rows(solver):
 
 @pytest.mark.parametrize("input_type", ["array", "dataframe"])
 def test_pca_sklearn_inputs(input_type):
-    a = dd.PCA()
+    X = np.linspace(0, 1, num=100).reshape(20, 5)
+    if input_type == "dataframe":
+        X = pd.DataFrame(X)
 
-    assert isinstance(X, np.ndarray)
-    _X = X if input_type != "dataframe" else pd.DataFrame(X)
+    a = dd.PCA()
     with pytest.raises(ValueError, match="unsupported type"):
-        a.fit(_X)
+        a.fit(X)
     with pytest.raises(ValueError, match="unsupported type"):
-        a.fit_transform(_X)
+        a.fit_transform(X)

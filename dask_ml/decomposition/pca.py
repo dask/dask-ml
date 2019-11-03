@@ -12,7 +12,7 @@ from sklearn.utils.validation import check_random_state
 
 from .._compat import check_is_fitted
 from .._utils import draw_seed
-from ..utils import _copy_attrs, svd_flip
+from ..utils import svd_flip
 
 
 class PCA(sklearn.decomposition.PCA):
