@@ -14,7 +14,7 @@ from .._compat import check_is_fitted
 from .._utils import draw_seed
 from ..utils import svd_flip
 
-TYPE_MSG = (
+_TYPE_MSG = (
     "Got an unsupported type ({}). Dask-ML's PCA only support Dask Arrays or "
     "DataFrames.\n\nTo resolve this issue,\n\n"
     "  * Use Scikit-learn's PCA through `sklearn.decomposition.PCA`  # recommended\n\n"
@@ -198,7 +198,7 @@ class PCA(sklearn.decomposition.PCA):
 
     def fit(self, X, y=None):
         if isinstance(X, (np.ndarray, pd.DataFrame)):
-            raise ValueError(TYPE_MSG.format(type(X)))
+            raise ValueError(_TYPE_MSG.format(type(X)))
         self._fit(X)
         return self
 
@@ -409,7 +409,7 @@ class PCA(sklearn.decomposition.PCA):
         """
         # X = check_array(X)
         if isinstance(X, (np.ndarray, pd.DataFrame)):
-            raise ValueError(TYPE_MSG.format(type(X)))
+            raise ValueError(_TYPE_MSG.format(type(X)))
         U, S, V = self._fit(X)
         U = U[:, : self.n_components_]
 
