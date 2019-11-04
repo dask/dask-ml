@@ -128,7 +128,7 @@
             
             
               <div class="version">
-                1.1.2.dev3+gc11b988
+                1.1.2.dev4+g7793962
               </div>
             
           
@@ -467,7 +467,7 @@ div.rendered_html tbody tr:hover {
 <p>The primary differences are that</p>
 <ul class="simple">
 <li>We fit the entire model, including text vectorization, as a pipeline.</li>
-<li>We use dask collections like <code class="docutils literal notranslate"><span class="pre">`dask.bag</span></code> &lt;<a class="reference external" href="https://docs.dask.org/en/latest/bag.html">https://docs.dask.org/en/latest/bag.html</a>&gt;`__, <code class="docutils literal notranslate"><span class="pre">`dask.dataframe</span></code> &lt;<a class="reference external" href="https://docs.dask.org/en/latest/dataframe.html">https://docs.dask.org/en/latest/dataframe.html</a>&gt;`__, and <code class="docutils literal notranslate"><span class="pre">`dask.array</span></code> &lt;<a class="reference external" href="https://docs.dask.org/en/latest/array.html">https://docs.dask.org/en/latest/array.html</a>&gt;`__ rather than generators to work with larger than memory datasets.</li>
+<li>We use dask collections like <a class="reference external" href="https://docs.dask.org/en/latest/bag.html">Dask Bag</a>, <a class="reference external" href="https://docs.dask.org/en/latest/dataframe.html">Dask Dataframe</a>, and <a class="reference external" href="https://docs.dask.org/en/latest/array.html">Dask Array</a> rather than generators to work with larger than memory datasets.</li>
 </ul>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -491,7 +491,7 @@ div.rendered_html tbody tr:hover {
 <td style="vertical-align: top; border: 0px solid white">
 <h3 style="text-align: left;">Client</h3>
 <ul style="text-align: left; list-style: none; margin: 0; padding: 0;">
-  <li><b>Scheduler: </b>tcp://127.0.0.1:41030</li>
+  <li><b>Scheduler: </b>tcp://127.0.0.1:42837</li>
   <li><b>Dashboard: </b><a href='http://127.0.0.1:8787/status' target='_blank'>http://127.0.0.1:8787/status</a>
 </ul>
 </td>
@@ -641,8 +641,7 @@ all I know. If anyone can tellme a m
 </div>
 <div class="section" id="Feature-Hashing">
 <h2>Feature Hashing<a class="headerlink" href="#Feature-Hashing" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">`dask_ml.feature_extraction.text.HashingVectorizer</span></code> &lt;<a class="reference external" href="https://ml.dask.org/modules/generated/dask_ml.feature_extraction.text.HashingVectorizer.html#dask_ml.feature_extraction.text.HashingVectorizer">https://ml.dask.org/modules/generated/dask_ml.feature_extraction.text.HashingVectorizer.html#dask_ml.feature_extraction.text.HashingVectorizer</a>&gt;`__ provides a similar API to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.HashingVectorizer.html">scikit-learn’s implementation</a>. In fact, Dask-ML’s implementation uses scikit-learn’s, applying it to each partition of the input <code class="docutils literal notranslate"><span class="pre">dask.dataframe.Series</span></code> or
-<code class="docutils literal notranslate"><span class="pre">dask.bag.Bag</span></code>.</p>
+<p>Dask’s <a class="reference external" href="https://ml.dask.org/modules/generated/dask_ml.feature_extraction.text.HashingVectorizer.html#dask_ml.feature_extraction.text.HashingVectorizer">HashingVectorizer</a> provides a similar API to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.HashingVectorizer.html">scikit-learn’s implementation</a>. In fact, Dask-ML’s implementation uses scikit-learn’s, applying it to each partition of the input <code class="docutils literal notranslate"><span class="pre">dask.dataframe.Series</span></code> or <code class="docutils literal notranslate"><span class="pre">dask.bag.Bag</span></code>.</p>
 <p>Transformation, once we actually compute the result, happens in parallel and returns a dask Array.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
@@ -708,7 +707,7 @@ all I know. If anyone can tellme a m
 </div>
 <div class="section" id="Classification-Pipeline">
 <h2>Classification Pipeline<a class="headerlink" href="#Classification-Pipeline" title="Permalink to this headline">¶</a></h2>
-<p>We can combine the <code class="docutils literal notranslate"><span class="pre">`HashingVectorizer</span></code> &lt;<a class="reference external" href="https://ml.dask.org/modules/generated/dask_ml.feature_extraction.text.HashingVectorizer.html#dask_ml.feature_extraction.text.HashingVectorizer">https://ml.dask.org/modules/generated/dask_ml.feature_extraction.text.HashingVectorizer.html#dask_ml.feature_extraction.text.HashingVectorizer</a>&gt;`__ with <code class="docutils literal notranslate"><span class="pre">`Incremental</span></code> &lt;<a class="reference external" href="https://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental">https://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental</a>&gt;`__ and a classifier like scikit-learn’s <code class="docutils literal notranslate"><span class="pre">SGDClassifier</span></code> to create a classification pipeline.</p>
+<p>We can combine the <a class="reference external" href="https://ml.dask.org/modules/generated/dask_ml.feature_extraction.text.HashingVectorizer.html#dask_ml.feature_extraction.text.HashingVectorizer">HashingVectorizer</a> with <a class="reference external" href="https://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental">Incremental</a> and a classifier like scikit-learn’s <code class="docutils literal notranslate"><span class="pre">SGDClassifier</span></code> to create a classification pipeline.</p>
 <p>We’ll predict whether the topic was in the <code class="docutils literal notranslate"><span class="pre">comp</span></code> category.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
@@ -869,7 +868,7 @@ Dask Name: astype, 101 tasks
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.9689764893052855
+<span></span>0.9612869011843733
 </pre></div>
 </div>
 </div>

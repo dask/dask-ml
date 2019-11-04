@@ -12,7 +12,7 @@
     "The primary differences are that\n",
     "\n",
     "* We fit the entire model, including text vectorization, as a pipeline.\n",
-    "* We use dask collections like [`dask.bag`](https://docs.dask.org/en/latest/bag.html), [`dask.dataframe`](https://docs.dask.org/en/latest/dataframe.html), and [`dask.array`](https://docs.dask.org/en/latest/array.html)\n",
+    "* We use dask collections like [Dask Bag](https://docs.dask.org/en/latest/bag.html), [Dask Dataframe](https://docs.dask.org/en/latest/dataframe.html), and [Dask Array](https://docs.dask.org/en/latest/array.html)\n",
     "  rather than generators to work with larger than memory datasets."
    ]
   },
@@ -103,7 +103,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "[`dask_ml.feature_extraction.text.HashingVectorizer`](https://ml.dask.org/modules/generated/dask_ml.feature_extraction.text.HashingVectorizer.html#dask_ml.feature_extraction.text.HashingVectorizer) provides a similar API to [scikit-learn's implementation](https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.HashingVectorizer.html). In fact, Dask-ML's implementation uses scikit-learn's, applying it to each partition of the input `dask.dataframe.Series` or `dask.bag.Bag`.\n",
+    "Dask's [HashingVectorizer](https://ml.dask.org/modules/generated/dask_ml.feature_extraction.text.HashingVectorizer.html#dask_ml.feature_extraction.text.HashingVectorizer) provides a similar API to [scikit-learn's implementation](https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.HashingVectorizer.html). In fact, Dask-ML's implementation uses scikit-learn's, applying it to each partition of the input `dask.dataframe.Series` or `dask.bag.Bag`.\n",
     "\n",
     "Transformation, once we actually compute the result, happens in parallel and returns a dask Array."
    ]
@@ -152,7 +152,7 @@
    "source": [
     "## Classification Pipeline\n",
     "\n",
-    "We can combine the [`HashingVectorizer`](https://ml.dask.org/modules/generated/dask_ml.feature_extraction.text.HashingVectorizer.html#dask_ml.feature_extraction.text.HashingVectorizer) with [`Incremental`](https://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental) and a classifier like scikit-learn's `SGDClassifier` to\n",
+    "We can combine the [HashingVectorizer](https://ml.dask.org/modules/generated/dask_ml.feature_extraction.text.HashingVectorizer.html#dask_ml.feature_extraction.text.HashingVectorizer) with [Incremental](https://ml.dask.org/modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental) and a classifier like scikit-learn's `SGDClassifier` to\n",
     "create a classification pipeline.\n",
     "\n",
     "We'll predict whether the topic was in the `comp` category."
@@ -293,9 +293,9 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.7.3"
+   "version": "3.7.4"
   }
  },
  "nbformat": 4,
- "nbformat_minor": 2
+ "nbformat_minor": 4
 }
