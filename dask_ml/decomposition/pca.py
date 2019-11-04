@@ -1,8 +1,10 @@
 import numbers
 
+import dask
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
+import pandas as pd
 import scipy.sparse as sp
 import sklearn.decomposition
 from dask import compute
@@ -12,6 +14,15 @@ from sklearn.utils.validation import check_random_state
 from .._compat import check_is_fitted
 from .._utils import draw_seed
 from ..utils import svd_flip
+
+_TYPE_MSG = (
+    "Got an unsupported type ({}). Dask-ML's PCA only support Dask Arrays or "
+    "DataFrames.\n\nTo resolve this issue,\n\n"
+    "  * Use Scikit-learn's PCA through `sklearn.decomposition.PCA`  # recommended\n\n"
+    "Wrapping the input with a Dask Array/DataFrame will resolve "
+    "this issue but is *not recommended* because Dask-ML's PCA "
+    "implementation will likely be slower because the data fits in memory"
+)
 
 
 class PCA(sklearn.decomposition.PCA):
@@ -187,6 +198,8 @@ class PCA(sklearn.decomposition.PCA):
         self.random_state = random_state
 
     def fit(self, X, y=None):
+        if not dask.is_dask_collection(X):
+            raise TypeError(_TYPE_MSG.format(type(X)))
         self._fit(X)
         return self
 
@@ -250,9 +263,6 @@ class PCA(sklearn.decomposition.PCA):
                 )
             )
             raise ValueError(msg)
-
-        if sp.issparse(X):
-            raise TypeError("Cannot fit PCA on sparse 'X'")
 
         self.mean_ = X.mean(0)
         X -= self.mean_
@@ -396,6 +406,8 @@ class PCA(sklearn.decomposition.PCA):
 
         """
         # X = check_array(X)
+        if not dask.is_dask_collection(X):
+            raise TypeError(_TYPE_MSG.format(type(X)))
         U, S, V = self._fit(X)
         U = U[:, : self.n_components_]
 
