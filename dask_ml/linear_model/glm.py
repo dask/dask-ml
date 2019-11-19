@@ -14,8 +14,6 @@ from dask_glm.utils import (
 )
 from sklearn.base import BaseEstimator
 
-# Register multiple dispatch
-from . import utils  # noqa
 from ..utils import check_array
 
 _base_doc = textwrap.dedent(
@@ -38,7 +36,7 @@ _base_doc = textwrap.dedent(
 
     C : float
         Regularization strength. Note that ``dask-glm`` solvers use
-        the parameterization :math:`\lambda = 1 / C`
+        the parameterization :math:`\\lambda = 1 / C`
 
     fit_intercept : bool, default True
         Specifies if a constant (a.k.a. bias or intercept) should be

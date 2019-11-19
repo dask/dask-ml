@@ -27,7 +27,7 @@ def test_smoke():
 
 
 @pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")
-class TestPartialMultinomialNB(object):
+class TestPartialMultinomialNB:
     def test_basic(self, single_chunk_count_classification):
         X, y = single_chunk_count_classification
         a = nb.PartialMultinomialNB(classes=[0, 1])
@@ -38,7 +38,7 @@ class TestPartialMultinomialNB(object):
 
 
 @pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")
-class TestPartialBernoulliNB(object):
+class TestPartialBernoulliNB:
     def test_basic(self, single_chunk_binary_classification):
         X, y = single_chunk_binary_classification
         a = nb.PartialBernoulliNB(classes=[0, 1])

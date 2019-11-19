@@ -1,6 +1,4 @@
-import six
-from sklearn.metrics import make_scorer
-from sklearn.metrics.scorer import check_scoring as sklearn_check_scoring
+from sklearn.metrics import check_scoring as sklearn_check_scoring, make_scorer
 
 from . import accuracy_score, log_loss, mean_squared_error, r2_score
 
@@ -34,7 +32,7 @@ def get_scorer(scoring, compute=True):
     """
     # This is the same as sklearns, only we use our SCORERS dict,
     # and don't have back-compat code
-    if isinstance(scoring, six.string_types):
+    if isinstance(scoring, str):
         try:
             scorer, kwargs = SCORERS[scoring]
         except KeyError:

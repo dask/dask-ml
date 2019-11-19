@@ -27,7 +27,7 @@ def dask_array(pandas_series):
     return da.from_array(pandas_series, chunks=5)
 
 
-class TestLabelEncoder(object):
+class TestLabelEncoder:
     def test_basic(self):
         a = dpp.LabelEncoder()
         b = spp.LabelEncoder()
@@ -56,7 +56,18 @@ class TestLabelEncoder(object):
             a.fit(dask_array), b.fit(pandas_series.values), exclude=exclude
         )
 
-    @pytest.mark.parametrize("array", [y, s])
+    @pytest.mark.parametrize(
+        "array",
+        [
+            y,
+            pytest.param(
+                s,
+                marks=[
+                    pytest.mark.xfail(reason="Incorrect 32-bit dtype.", strict=False)
+                ],
+            ),
+        ],
+    )
     def test_transform(self, array):
         a = dpp.LabelEncoder()
         b = spp.LabelEncoder()
@@ -130,6 +141,7 @@ class TestLabelEncoder(object):
 
     @pytest.mark.parametrize("daskify", [True, False])
     @pytest.mark.filterwarnings("ignore::DeprecationWarning")
+    @pytest.mark.xfail(reason="Incorrect 32-bit dtype.", strict=False)
     def test_use_categorical(self, daskify):
         data = pd.Series(
             ["b", "c"], dtype=pd.api.types.CategoricalDtype(["c", "a", "b"])
