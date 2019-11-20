@@ -46,14 +46,14 @@ class BlockTransformer(BaseEstimator, TransformerMixin):
             XP = X.map_blocks(self.func, dtype=X.dtype, chunks=X.chunks, **kwargs)
         elif isinstance(X, dd.DataFrame):
             if self.validate:
-                X = check_array(X, accept_dask_dataframe=True, preserve_pandas_dataframe=True)
+                X = check_array(
+                    X, accept_dask_dataframe=True, preserve_pandas_dataframe=True
+                )
             XP = X.map_partitions(self.func, **kwargs)
         elif isinstance(X, pd.DataFrame):
             if self.validate:
                 X = check_array(
-                    X,
-                    accept_dask_array=False,
-                    preserve_pandas_dataframe=True 
+                    X, accept_dask_array=False, preserve_pandas_dataframe=True
                 )
             XP = self.func(X, **kwargs)
         else:

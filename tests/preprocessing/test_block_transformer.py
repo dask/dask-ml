@@ -32,7 +32,6 @@ class TestBlockTransformer:
         da.utils.assert_eq(bt.transform(X), func(X))
         dd.utils.assert_eq(bt.transform(df), func(df))
 
-
     @pytest.mark.parametrize("validate", [True, False])
     @pytest.mark.parametrize("daskify", [True, False])
     def test_validate(self, mocker, daskify, validate):
