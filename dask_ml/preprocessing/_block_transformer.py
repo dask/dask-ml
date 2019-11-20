@@ -14,14 +14,14 @@ class BlockTransformer(BaseEstimator, TransformerMixin):
     This is useful for stateless operations, that can be performed on the cell or
     block level, such as taking the log of frequencies. In general the transformer
     is not suitable for e.g. standardization tasks as this requires information for
-    a complete columns
+    a complete column
 
     Parameters
     ----------
     func : callable
         The callable to use for the transformation.
 
-    validate : bool, optional default=True
+    validate : bool, optional default=False
          Indicate that the input X array should be checked before calling
         ``func``.
 
@@ -29,7 +29,7 @@ class BlockTransformer(BaseEstimator, TransformerMixin):
         Dictionary of additional keyword arguments to pass to func.
     """
 
-    def __init__(self, func, *, validate=True, kw_args=None):
+    def __init__(self, func, *, validate=False, kw_args=None):
         self.func = func
         self.validate = validate
         self.kw_args = kw_args
