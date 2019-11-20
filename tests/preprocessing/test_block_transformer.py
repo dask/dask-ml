@@ -30,7 +30,7 @@ class TestBlockTransformer:
             assert dask.is_dask_collection(bt.transform(X))
             assert dask.is_dask_collection(bt.transform(df))
         da.utils.assert_eq(bt.transform(X), func(X))
-        dd.utils.assert_eqf(bt.transform(df), func(df))
+        dd.utils.assert_eq(bt.transform(df), func(df))
 
 
     @pytest.mark.parametrize("validate", [True, False])
