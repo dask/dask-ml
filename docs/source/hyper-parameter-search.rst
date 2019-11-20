@@ -54,7 +54,7 @@ with Dask's :ref:`joblib backend <joblib>`.
 Flexible Backends
 ^^^^^^^^^^^^^^^^^
 
-Dask-searchcv can use any of the dask schedulers. By default the threaded
+Dask-ml can use any of the dask schedulers. By default the threaded
 scheduler is used, but this can easily be swapped out for the multiprocessing
 or distributed scheduler:
 
