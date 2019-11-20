@@ -29,11 +29,10 @@ class BlockTransformer(BaseEstimator, TransformerMixin):
         Dictionary of additional keyword arguments to pass to func.
     """
 
-    def __init__(self, func, *, validate=True, kw_args=None, preserve_dataframe=True):
+    def __init__(self, func, *, validate=True, kw_args=None):
         self.func = func
         self.validate = validate
         self.kw_args = kw_args
-        self.preserve_dataframe = preserve_dataframe
 
     def fit(self, X, y=None):
         return self
@@ -49,20 +48,13 @@ class BlockTransformer(BaseEstimator, TransformerMixin):
             if self.validate:
                 X = check_array(X, accept_dask_dataframe=True)
             XP = X.map_partitions(self.func, **kwargs)
-            # validate and preserve_dataframe lead to awkward situations
-            if not self.preserve_dataframe and isinstance(XP, dd.DataFrame):
-                XP = XP.values
         elif isinstance(X, pd.DataFrame):
             if self.validate:
                 X = check_array(
                     X,
-                    accept_dask_array=False,
-                    preserve_pandas_dataframe=self.preserve_dataframe,
+                    accept_dask_array=False
                 )
             XP = self.func(X, **kwargs)
-            # validate and preserve_dataframe lead to awkward situations
-            if not self.preserve_dataframe and isinstance(XP, pd.DataFrame):
-                XP = XP.values
         else:
             if self.validate:
                 X = check_array(X, accept_dask_array=False)
