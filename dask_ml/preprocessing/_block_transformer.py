@@ -10,11 +10,11 @@ class BlockTransformer(BaseEstimator, TransformerMixin):
     """Construct a transformer from a an arbitrary callable
 
     The BlockTransformer forwards the blocks of the X arguments to a user-defined
-    function or function-object an returns the result of this operation.
+    callable and returns the result of this operation.
     This is useful for stateless operations, that can be performed on the cell or
     block level, such as taking the log of frequencies. In general the transformer
     is not suitable for e.g. standardization tasks as this requires information for
-    a complete column
+    a complete column.
 
     Parameters
     ----------
