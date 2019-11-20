@@ -128,7 +128,7 @@
             
             
               <div class="version">
-                1.1.2.dev4+g7793962
+                1.1.2.dev5+g7ca2224
               </div>
             
           
@@ -491,7 +491,7 @@ div.rendered_html tbody tr:hover {
 <td style="vertical-align: top; border: 0px solid white">
 <h3 style="text-align: left;">Client</h3>
 <ul style="text-align: left; list-style: none; margin: 0; padding: 0;">
-  <li><b>Scheduler: </b>tcp://127.0.0.1:42837</li>
+  <li><b>Scheduler: </b>tcp://127.0.0.1:41594</li>
   <li><b>Dashboard: </b><a href='http://127.0.0.1:8787/status' target='_blank'>http://127.0.0.1:8787/status</a>
 </ul>
 </td>
@@ -509,7 +509,7 @@ div.rendered_html tbody tr:hover {
 <div class="section" id="Fetch-the-data">
 <h2>Fetch the data<a class="headerlink" href="#Fetch-the-data" title="Permalink to this headline">¶</a></h2>
 <p>Scikit-Learn provides a utility to fetch the newsgroups dataset.</p>
-<div class="nbinput docutils container">
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
@@ -519,15 +519,6 @@ div.rendered_html tbody tr:hover {
 <span class="n">bunch</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_20newsgroups</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-Downloading 20news dataset. This may take a few minutes.
-Downloading dataset from https://ndownloader.figshare.com/files/5975967 (14 MB)
-</pre></div></div>
 </div>
 <p>The data from scikit-learn isn’t <em>too</em> large, so the data is just returned in memory. Each document is a string. The target we’re predicting is an integer, which codes the topic of the post.</p>
 <p>We’ll load the documents and targets directly into a dask DataFrame. In practice, on a larger than memory dataset, you would likely load the documents from disk or cloud storage using <code class="docutils literal notranslate"><span class="pre">dask.bag</span></code> or <code class="docutils literal notranslate"><span class="pre">dask.delayed</span></code>.</p>
@@ -669,7 +660,7 @@ all I know. If anyone can tellme a m
     <tr><td> </td><th> Array </th><th> Chunk </th></tr>
   </thead>
   <tbody>
-    <tr><th> Bytes </th><td> unknown </td> <td> unknown </td></tr>
+
     <tr><th> Shape </th><td> (nan, 1048576) </td> <td> (nan, 1048576) </td></tr>
     <tr><th> Count </th><td> 75 Tasks </td><td> 25 Chunks </td></tr>
     <tr><th> Type </th><td> float64 </td><td> scipy.csr_matrix </td></tr>
@@ -868,7 +859,7 @@ Dask Name: astype, 101 tasks
 </pre></div>
 </div>
 <div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.9612869011843733
+<span></span>0.9411348771433622
 </pre></div>
 </div>
 </div>

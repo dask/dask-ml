@@ -15,29 +15,15 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 1,
+   "execution_count": null,
    "metadata": {
     "keep_output": true
    },
-   "outputs": [
-    {
-     "data": {
-      "text/html": [
-       "<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/5Zf6DQaf7jk\" frameborder=\"0\" allow=\"autoplay; encrypted-media\" allowfullscreen> </iframe>"
-      ],
-      "text/plain": [
-       "<IPython.core.display.HTML object>"
-      ]
-     },
-     "execution_count": 1,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
+   "outputs": [],
    "source": [
-    "from IPython.display import HTML\n",
+    "from IPython.display import IFrame\n",
     "\n",
-    "HTML(\"\"\"<iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/5Zf6DQaf7jk\" frameborder=\"0\" allow=\"autoplay; encrypted-media\" allowfullscreen> </iframe>\"\"\")"
+    "IFrame(\"https://www.youtube.com/embed/5Zf6DQaf7jk\", 560, 315, frameborder=\"0\", allow=\"autoplay; encrypted-media\")"
    ]
   },
   {
@@ -47,8 +33,7 @@
    "outputs": [],
    "source": [
     "from dask.distributed import Client, progress\n",
-    "client = Client(processes=False, threads_per_worker=4,\n",
-    "                n_workers=1, memory_limit='2GB')\n",
+    "client = Client(n_workers=4, threads_per_worker=1, memory_limit='2GB')\n",
     "client"
    ]
   },
@@ -87,7 +72,7 @@
     "import logging\n",
     "\n",
     "from sklearn.datasets import fetch_20newsgroups\n",
-    "from sklearn.feature_extraction.text import CountVectorizer\n",
+    "from sklearn.feature_extraction.text import HashingVectorizer\n",
     "from sklearn.feature_extraction.text import TfidfTransformer\n",
     "from sklearn.linear_model import SGDClassifier\n",
     "from sklearn.model_selection import GridSearchCV\n",
@@ -129,7 +114,7 @@
    "outputs": [],
    "source": [
     "pipeline = Pipeline([\n",
-    "    ('vect', CountVectorizer()),\n",
+    "    ('vect', HashingVectorizer()),\n",
     "    ('tfidf', TfidfTransformer()),\n",
     "    ('clf', SGDClassifier(max_iter=1000)),\n",
     "])"
@@ -156,14 +141,11 @@
    "outputs": [],
    "source": [
     "parameters = {\n",
-    "    'vect__max_df': (0.5, 0.75, 1.0),\n",
-    "    #'vect__max_features': (None, 5000, 10000, 50000),\n",
-    "    'vect__ngram_range': ((1, 1), (1, 2)),  # unigrams or bigrams\n",
-    "    #'tfidf__use_idf': (True, False),\n",
-    "    #'tfidf__norm': ('l1', 'l2'),\n",
-    "    # 'clf__alpha': (0.00001, 0.000001),\n",
+    "    'tfidf__use_idf': (True, False),\n",
+    "    'tfidf__norm': ('l1', 'l2'),\n",
+    "    'clf__alpha': (0.00001, 0.000001),\n",
     "    # 'clf__penalty': ('l2', 'elasticnet'),\n",
-    "    #'clf__n_iter': (10, 50, 80),\n",
+    "    # 'clf__n_iter': (10, 50, 80),\n",
     "}"
    ]
   },
