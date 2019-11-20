@@ -2,17 +2,17 @@ import logging
 from multiprocessing import cpu_count
 from numbers import Integral
 
+import numba  # isort:skip (see https://github.com/dask/dask-ml/pull/577)
 import dask.array as da
 import dask.dataframe as dd
-import numba
 import numpy as np
 import pandas as pd
+import sklearn.cluster
 from dask import compute
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.cluster import k_means_ as sk_k_means
 from sklearn.utils.extmath import squared_norm
-from sklearn.utils.validation import check_is_fitted
 
+from .._compat import blockwise, check_is_fitted
 from .._utils import draw_seed
 from ..metrics import (
     euclidean_distances,
@@ -20,6 +20,7 @@ from ..metrics import (
     pairwise_distances_argmin_min,
 )
 from ..utils import _timed, _timer, check_array, row_norms
+from ._compat import _k_init
 
 logger = logging.getLogger(__name__)
 
@@ -165,6 +166,7 @@ class KMeans(TransformerMixin, BaseEstimator):
             accept_dask_dataframe=False,
             accept_unknown_chunks=False,
             accept_sparse=False,
+            remove_zero_chunks=True,
         )
 
         if X.dtype == "int32":
@@ -376,7 +378,8 @@ def init_pp(X, n_clusters, random_state):
     x_squared_norms = row_norms(X, squared=True).compute()
     logger.info("Initializing with k-means++")
     with _timer("initialization of %2d centers" % n_clusters, _logger=logger):
-        centers = sk_k_means._k_init(
+        # XXX: Using a private scikit-learn API
+        centers = _k_init(
             X, n_clusters, random_state=random_state, x_squared_norms=x_squared_norms
         )
 
@@ -456,11 +459,11 @@ def init_scalable(
         # Step 7, 8 without weights
         # dask RandomState objects aren't valid for scikit-learn
         rng2 = (
-            draw_seed(random_state, 0, 2 ** 32 - 1, dtype="uint", chunks=())
-            .compute()
+            random_state.randint(0, np.iinfo("i4").max - 1, chunks=())
+            .compute(scheduler="single-threaded")
             .item()
         )
-        km = sk_k_means.KMeans(n_clusters, random_state=rng2)
+        km = sklearn.cluster.KMeans(n_clusters, random_state=rng2)
         km.fit(centers)
 
     return km.cluster_centers_
@@ -531,7 +534,7 @@ def _kmeans_single_lloyd(
             labels = labels.astype(np.int32)
             # distances is always float64, but we need it to match X.dtype
             # for centers_dense, but remain float64 for inertia
-            r = da.atop(
+            r = blockwise(
                 _centers_dense,
                 "ij",
                 X,
@@ -540,7 +543,6 @@ def _kmeans_single_lloyd(
                 "i",
                 n_clusters,
                 None,
-                distances.astype(X.dtype),
                 "i",
                 adjust_chunks={"i": n_clusters, "j": P},
                 dtype=X.dtype,
@@ -573,7 +575,7 @@ def _kmeans_single_lloyd(
 
 
 @numba.njit(nogil=True, fastmath=True)
-def _centers_dense(X, labels, n_clusters, distances):
+def _centers_dense(X, labels, n_clusters):
     n_samples = X.shape[0]
     n_features = X.shape[1]
     centers = np.zeros((n_clusters, n_features), dtype=np.float64)

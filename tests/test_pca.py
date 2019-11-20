@@ -1,29 +1,32 @@
+import warnings
 from itertools import product
 
 import dask.array as da
+import dask.dataframe
 import numpy as np
+import pandas as pd
 import pytest
 import scipy as sp
 import sklearn.decomposition as sd
 from dask.array.utils import assert_eq
 from sklearn import datasets
-from sklearn.decomposition.pca import _assess_dimension_, _infer_dimension_
-from sklearn.utils.testing import (
-    assert_almost_equal,
-    assert_array_almost_equal,
-    assert_equal,
-    assert_greater,
-    assert_less,
-    assert_raises,
-    assert_raises_regex,
-    assert_true,
-)
+from sklearn.utils import check_random_state as sk_check_random_state
 
 import dask_ml.decomposition as dd
+from dask_ml.decomposition._compat import _assess_dimension_, _infer_dimension_
 from dask_ml.utils import assert_estimator_equal
 
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", FutureWarning)
+    from sklearn.utils.testing import (
+        assert_almost_equal,
+        assert_array_almost_equal,
+        assert_raises,
+    )
+
+
 iris = datasets.load_iris()
-solver_list = ["full", "randomized", "auto"]
+solver_list = ["full", "randomized", "auto", "tsqr"]
 X = iris.data
 n_samples, n_features = X.shape
 dX = da.from_array(X, chunks=(n_samples // 2, n_features))
@@ -96,13 +99,13 @@ def test_pca_randomized_solver():
         pca.fit(dX)
 
     # Check internal state
-    assert_equal(
-        pca.n_components,
-        dd.PCA(n_components=0, svd_solver="randomized", random_state=0).n_components,
+    assert (
+        pca.n_components
+        == dd.PCA(n_components=0, svd_solver="randomized", random_state=0).n_components
     )
-    assert_equal(
-        pca.svd_solver,
-        dd.PCA(n_components=0, svd_solver="randomized", random_state=0).svd_solver,
+    assert (
+        pca.svd_solver
+        == dd.PCA(n_components=0, svd_solver="randomized", random_state=0).svd_solver
     )
 
 
@@ -137,10 +140,10 @@ def test_whitening():
     # mean component-wise variance of the remaining 30 features
     X[:, :50] *= 3
 
-    assert_equal(X.shape, (n_samples, n_features))
+    assert X.shape == (n_samples, n_features)
 
     # the component-wise variance is thus highly varying:
-    assert_greater(X.std(axis=0).std(), 43.8)
+    assert X.std(axis=0).std() > 43.8
     dX = da.from_array(X, chunks=(50, n_features))
 
     for solver, copy in product(solver_list, (True, False)):
@@ -156,7 +159,7 @@ def test_whitening():
         )
         # test fit_transform
         X_whitened = pca.fit_transform(X_.copy())
-        assert_equal(X_whitened.shape, (n_samples, n_components))
+        assert X_whitened.shape == (n_samples, n_components)
         # X_whitened2 = pca.transform(X_)
         # XXX: These differ for randomized.
         # assert_eq(X_whitened.compute(), X_whitened2.compute(),
@@ -176,7 +179,7 @@ def test_whitening():
             random_state=0,
         ).fit(X_)
         X_unwhitened = pca.transform(X_)
-        assert_equal(X_unwhitened.shape, (n_samples, n_components))
+        assert X_unwhitened.shape == (n_samples, n_components)
 
         # in that case the output components still have varying variances
         assert_almost_equal(X_unwhitened.std(axis=0).std(), 74.1, 1)
@@ -360,7 +363,6 @@ def test_pca_validation():
     X = np.array([[0, 1, 0], [1, 0, 0]])
     X = da.from_array(X, chunks=(2, 3))
     smallest_d = 2  # The smallest dimension
-    lower_limit = {"randomized": 1, "full": 0, "auto": 0}
 
     for solver in solver_list:
         # We conduct the same test on X.T so that it is invariant to axis.
@@ -368,34 +370,14 @@ def test_pca_validation():
         for data in [X]:
             for n_components in [-1, 3]:
 
-                if solver == "auto":
-                    solver_reported = "full"
-                else:
-                    solver_reported = solver
+                with pytest.raises(ValueError, match="n_components"):
+                    dd.PCA(n_components, svd_solver=solver).fit(data)
 
-                assert_raises_regex(
-                    ValueError,
-                    "n_components={}L? must be between "
-                    "{}L? and min\(n_samples, n_features\)="
-                    "{}L? with svd_solver='{}'".format(
-                        n_components, lower_limit[solver], smallest_d, solver_reported
-                    ),
-                    dd.PCA(n_components, svd_solver=solver).fit,
-                    data,
-                )
             if solver == "arpack":
 
                 n_components = smallest_d
-
-                assert_raises_regex(
-                    ValueError,
-                    "n_components={}L? must be "
-                    "strictly less than "
-                    "min\(n_samples, n_features\)={}L?"
-                    " with svd_solver='arpack'".format(n_components, smallest_d),
-                    dd.PCA(n_components, svd_solver=solver).fit,
-                    data,
-                )
+                with pytest.raises(ValueError, match="n_components"):
+                    dd.PCA(n_components, svd_solver=solver).fit(data)
 
 
 def test_n_components_none():
@@ -410,9 +392,9 @@ def test_n_components_none():
             pca = dd.PCA(svd_solver=solver)
             pca.fit(data)
             if solver == "arpack":
-                assert_equal(pca.n_components_, min(data.shape) - 1)
+                assert pca.n_components_ == min(data.shape) - 1
             else:
-                assert_equal(pca.n_components_, min(data.shape))
+                assert pca.n_components_ == min(data.shape)
 
 
 def test_randomized_pca_check_projection():
@@ -444,7 +426,7 @@ def test_randomized_pca_check_list():
         .fit(X)
         .transform(X)
     )
-    assert_equal(X_transformed.shape, (2, 1))
+    assert X_transformed.shape == (2, 1)
     assert_almost_equal(X_transformed.mean(), 0.00, 2)
     assert_almost_equal(X_transformed.std(), 0.71, 2)
 
@@ -472,7 +454,7 @@ def test_randomized_pca_inverse():
     Y = pca.transform(X)
     Y_inverse = pca.inverse_transform(Y)
     relative_max_delta = (np.abs(X - Y_inverse) / np.abs(X).mean()).max()
-    assert_less(relative_max_delta, 1e-5)
+    assert relative_max_delta < 1e-5
 
 
 @pytest.mark.xfail(reason="MLE")
@@ -483,8 +465,8 @@ def test_pca_dim():
     X = rng.randn(n, p) * 0.1
     X[:10] += np.array([3, 4, 5, 1, 2])
     pca = dd.PCA(n_components="mle", svd_solver="full").fit(X)
-    assert_equal(pca.n_components, "mle")
-    assert_equal(pca.n_components_, 1)
+    assert pca.n_components == "mle"
+    assert pca.n_components_ == 1
 
 
 def test_infer_dim_1():
@@ -505,7 +487,7 @@ def test_infer_dim_1():
     for k in range(p):
         ll.append(_assess_dimension_(spect, k, n, p))
     ll = np.array(ll)
-    assert_greater(ll[1], ll.max() - 0.01 * n)
+    assert ll[1] > ll.max() - 0.01 * n
 
 
 def test_infer_dim_2():
@@ -520,7 +502,7 @@ def test_infer_dim_2():
     pca = dd.PCA(n_components=p, svd_solver="full")
     pca.fit(dX)
     spect = pca.explained_variance_
-    assert_greater(_infer_dimension_(spect, n, p), 1)
+    assert _infer_dimension_(spect, n, p) > 1
 
 
 def test_infer_dim_3():
@@ -534,7 +516,7 @@ def test_infer_dim_3():
     pca = dd.PCA(n_components=p, svd_solver="full")
     pca.fit(X)
     spect = pca.explained_variance_
-    assert_greater(_infer_dimension_(spect, n, p), 2)
+    assert _infer_dimension_(spect, n, p) > 2
 
 
 @pytest.mark.xfail(reason="Fractional n_components")
@@ -542,21 +524,21 @@ def test_infer_dim_by_explained_variance():
     X = da.from_array(iris.data, chunks=iris.data.shape)
     pca = dd.PCA(n_components=0.95, svd_solver="full")
     pca.fit(X)
-    assert_equal(pca.n_components, 0.95)
-    assert_equal(pca.n_components_, 2)
+    assert pca.n_components == 0.95
+    assert pca.n_components_ == 2
 
     pca = dd.PCA(n_components=0.01, svd_solver="full")
     pca.fit(X)
-    assert_equal(pca.n_components, 0.01)
-    assert_equal(pca.n_components_, 1)
+    assert pca.n_components == 0.01
+    assert pca.n_components_ == 1
 
     # Can't do this
     rng = np.random.RandomState(0)
     # more features than samples
     X = rng.rand(5, 20)
     pca = dd.PCA(n_components=0.5, svd_solver="full").fit(X)
-    assert_equal(pca.n_components, 0.5)
-    assert_equal(pca.n_components_, 2)
+    assert pca.n_components == 0.5
+    assert pca.n_components_ == 2
 
 
 def test_pca_score():
@@ -584,13 +566,13 @@ def test_pca_score2():
         pca.fit(dX)
         ll1 = pca.score(dX)
         ll2 = pca.score(rng.randn(n, p) * 0.2 + np.array([3, 4, 5]))
-        assert_greater(ll1, ll2)
+        assert ll1 > ll2
 
         # Test that it gives different scores if whiten=True
         pca = dd.PCA(n_components=2, whiten=True, svd_solver=solver)
         pca.fit(dX)
         ll2 = pca.score(dX)
-        assert_true(ll1 > ll2)
+        assert ll1 > ll2
 
 
 def test_pca_score3():
@@ -607,7 +589,7 @@ def test_pca_score3():
         pca.fit(dXl)
         ll[k] = pca.score(dXt)
 
-    assert_true(ll.argmax() == 1)
+    assert ll.argmax() == 1
 
 
 def test_pca_score_with_different_solvers():
@@ -662,23 +644,13 @@ def test_pca_zero_noise_variance_edge_cases():
 
 # removed test_svd_solver_auto, as we don't do that.
 # removed test_deprecation_randomized_pca, as we don't do that
-
-
-def test_pca_sparse_input():
-    X = np.random.RandomState(0).rand(5, 4)
-    X = sp.sparse.csr_matrix(X)
-    assert sp.sparse.issparse(X)
-
-    for svd_solver in solver_list:
-        pca = dd.PCA(n_components=3, svd_solver=svd_solver)
-
-        assert_raises(TypeError, pca.fit, X)
+# removed test_pca_sparse_input: covered by test_pca_sklearn_inputs
 
 
 def test_pca_bad_solver():
     X = np.random.RandomState(0).rand(5, 4)
     pca = dd.PCA(n_components=3, svd_solver="bad_argument")
-    assert_raises(ValueError, pca.fit, X)
+    assert_raises(ValueError, pca.fit, da.from_array(X))
 
 
 # def test_pca_dtype_preservation():
@@ -689,7 +661,12 @@ def test_pca_bad_solver():
 
 @pytest.mark.parametrize(
     "svd_solver",
-    ["full", pytest.mark.xfail(reason="svd_compressed promotes")("randomized")],
+    [
+        "full",
+        pytest.param(
+            "randomized", marks=pytest.mark.xfail(reason="svd_compressed promotes")
+        ),
+    ],
 )
 def test_pca_float_dtype_preservation(svd_solver):
     # Ensure that PCA does not upscale the dtype when input is float32
@@ -738,3 +715,70 @@ def test_fractional_n_components():
         pca.fit(X)
 
     assert w.match("Fractional 'n_components'")
+
+
+@pytest.mark.parametrize("solver", ["auto", "tsqr", "randomized", "full"])
+@pytest.mark.parametrize("fn", ["fit", "fit_transform"])
+def test_unknown_shapes(fn, solver):
+    rng = sk_check_random_state(42)
+    X = rng.uniform(-1, 1, size=(10, 3))
+    df = pd.DataFrame(X)
+    ddf = dask.dataframe.from_pandas(df, npartitions=2)
+
+    pca = dd.PCA(n_components=2, svd_solver=solver)
+    fit_fn = getattr(pca, fn)
+    X = ddf.values
+    assert np.isnan(X.shape[0])
+
+    if solver == "auto":
+        with pytest.raises(ValueError, match="Cannot automatically choose PCA solver"):
+            fit_fn(X)
+    else:
+        X_hat = fit_fn(X)
+        assert hasattr(pca, "components_")
+        assert pca.n_components_ == 2
+        assert pca.n_features_ == 3
+        assert np.isnan(pca.n_samples_)
+        if fn == "fit_transform":
+            assert np.isnan(X_hat.shape[0])
+            assert X_hat.shape[1] == 2
+
+
+@pytest.mark.parametrize("solver", ["randomized", "tsqr", "full"])
+def test_unknown_shapes_n_components_larger_than_num_rows(solver):
+    X = np.random.randn(2, 10)
+    df = pd.DataFrame(X)
+    ddf = dask.dataframe.from_pandas(df, npartitions=2)
+    X = ddf.values
+    assert np.isnan(X.shape[0])
+
+    pca = dd.PCA(n_components=3, svd_solver=solver)
+    if solver == "randomized":
+        with pytest.raises(
+            ValueError,
+            match="n_components=3 is larger than the number of singular values",
+        ) as error:
+            pca.fit(X)
+        assert "PCA has attributes as if n_components == 2" in str(error.value)
+        assert pca.n_components_ == 2
+        assert len(pca.singular_values_) == 2
+        assert len(pca.components_) == 2
+        assert pca.n_features_ == 10
+        assert np.isnan(pca.n_samples_)
+        if solver != "randomized":
+            assert pca.explained_variance_ratio_.max() == 1.0
+    else:
+        with pytest.raises(ValueError, match="n_components is too large"):
+            pca.fit(X)
+
+
+@pytest.mark.parametrize("input_type", [np.array, pd.DataFrame, sp.sparse.csr_matrix])
+@pytest.mark.parametrize("solver", solver_list)
+def test_pca_sklearn_inputs(input_type, solver):
+    Y = input_type(X)
+
+    a = dd.PCA()
+    with pytest.raises(TypeError, match="unsupported type"):
+        a.fit(Y)
+    with pytest.raises(TypeError, match="unsupported type"):
+        a.fit_transform(Y)
