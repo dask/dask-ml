@@ -4,8 +4,6 @@ import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import pytest
-from dask.array.utils import assert_eq as assert_eq_ar
-from dask.dataframe.utils import assert_eq as assert_eq_df
 
 from dask_ml.preprocessing import BlockTransformer
 from dask_ml.utils import assert_estimator_equal
@@ -32,12 +30,12 @@ class TestBlockTransformer:
         if daskify:
             assert dask.is_dask_collection(bt.transform(X))
             assert dask.is_dask_collection(bt.transform(df))
-        assert_eq_ar(bt.transform(X), func(X))
+        da.array.utils.assert_eq(bt.transform(X), func(X))
 
         if preserve:
-            assert_eq_df(bt.transform(df), func(df))
+            dd.utils.assert_eqf(bt.transform(df), func(df))
         else:
-            assert_eq_ar(bt.transform(df), func(X))
+            da.array.utils.assert_eq(bt.transform(df), func(X))
 
     @pytest.mark.parametrize("validate", [True, False])
     @pytest.mark.parametrize("daskify", [True, False])
