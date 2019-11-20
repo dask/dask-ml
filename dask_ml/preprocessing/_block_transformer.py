@@ -35,10 +35,10 @@ class BlockTransformer(BaseEstimator, TransformerMixin):
         self.kw_args = kw_args
         self.preserve_dataframe = preserve_dataframe
 
-    def fit(self, X):
+    def fit(self, X, y=None):
         return self
 
-    def transform(self, X):
+    def transform(self, X, y=None):
         kwargs = self.kw_args if self.kw_args else {}
 
         if isinstance(X, da.Array):
