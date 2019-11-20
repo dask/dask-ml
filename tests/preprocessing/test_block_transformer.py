@@ -16,26 +16,22 @@ df = df_dask.compute()
 
 class TestBlockTransformer:
     @pytest.mark.parametrize("func", [lambda x: 2 * x])
-    @pytest.mark.parametrize("preserve", [True, False])
     @pytest.mark.parametrize("validation", [True, False])
     @pytest.mark.parametrize("daskify", [True, False])
-    def test_block_transform_func(self, daskify, validation, preserve, func):
+    def test_block_transform_func(self, daskify, validation, func):
         X = np.arange(100).reshape((25, 4))
         df = pd.DataFrame(X).rename(columns=str)
         if daskify:
             X = da.from_array(X, chunks=(5, 4))
             df = dd.from_pandas(df, npartitions=2)
-        bt = BlockTransformer(func, validate=validation, preserve_dataframe=preserve)
+        bt = BlockTransformer(func, validate=validation)
 
         if daskify:
             assert dask.is_dask_collection(bt.transform(X))
             assert dask.is_dask_collection(bt.transform(df))
-        da.array.utils.assert_eq(bt.transform(X), func(X))
+        da.utils.assert_eq(bt.transform(X), func(X))
+        dd.utils.assert_eqf(bt.transform(df), func(df))
 
-        if preserve:
-            dd.utils.assert_eqf(bt.transform(df), func(df))
-        else:
-            da.array.utils.assert_eq(bt.transform(df), func(X))
 
     @pytest.mark.parametrize("validate", [True, False])
     @pytest.mark.parametrize("daskify", [True, False])
