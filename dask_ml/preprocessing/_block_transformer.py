@@ -27,9 +27,22 @@ class BlockTransformer(BaseEstimator, TransformerMixin):
 
     kw_args : dict, optional
         Dictionary of additional keyword arguments to pass to func.
+
+    Examples
+    --------
+
+    >>> import dask.datasets
+    >>> import pandas as pd
+    >>> df = dask.datasets.timeseries()
+    >>> df
+    ... # doctest: +SKIP
+
+    >>> trn = BlockTransformer(pd.util.hash_pandas_object, index=False)
+    >>> trn.transform(df)
+    ... # doctest: +SKIP
     """
 
-    def __init__(self, func, *, validate=False, kw_args=None):
+    def __init__(self, func, *, validate=False, **kw_args):
         self.func = func
         self.validate = validate
         self.kw_args = kw_args
