@@ -46,7 +46,6 @@ class BlockTransformer(BaseEstimator, TransformerMixin):
     2000-01-30        ...     ...      ...      ...
     2000-01-31        ...     ...      ...      ...
     Dask Name: make-timeseries, 30 tasks
-
     >>> trn = BlockTransformer(pd.util.hash_pandas_object, index=False)
     >>> trn.transform(df)
     ... # doctest: +ELLIPSIS
