@@ -33,13 +33,32 @@ class BlockTransformer(BaseEstimator, TransformerMixin):
 
     >>> import dask.datasets
     >>> import pandas as pd
+    >>> from dask_ml.preprocessing import BlockTransformer
     >>> df = dask.datasets.timeseries()
     >>> df
     ... # doctest: +SKIP
+    Dask DataFrame Structure:
+                       id    name        x        y
+    npartitions=30
+    2000-01-01      int64  object  float64  float64
+    2000-01-02        ...     ...      ...      ...
+    ...               ...     ...      ...      ...
+    2000-01-30        ...     ...      ...      ...
+    2000-01-31        ...     ...      ...      ...
+    Dask Name: make-timeseries, 30 tasks
 
     >>> trn = BlockTransformer(pd.util.hash_pandas_object, index=False)
     >>> trn.transform(df)
-    ... # doctest: +SKIP
+    ... # doctest: +ELLIPSIS
+    Dask Series Structure:
+    npartitions=30
+    2000-01-01    uint64
+    2000-01-02       ...
+                ...
+    2000-01-30       ...
+    2000-01-31       ...
+    dtype: uint64
+    Dask Name: hash_pandas_object, 60 tasks
     """
 
     def __init__(self, func, *, validate=False, **kw_args):
