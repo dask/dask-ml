@@ -12,6 +12,7 @@ from .data import (
     StandardScaler,
 )
 from .label import LabelEncoder
+from ._block_transformer import BlockTransformer
 
 __all__ = [
     "StandardScaler",
@@ -24,4 +25,5 @@ __all__ = [
     "LabelEncoder",
     "OneHotEncoder",
     "PolynomialFeatures",
+    "BlockTransformer",
 ]
