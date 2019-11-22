@@ -126,7 +126,7 @@
             
             
               <div class="version">
-                1.1.2.dev5+g7ca2224
+                1.1.2.dev6+gcd8d81f
               </div>
             
           
@@ -245,16 +245,16 @@
 /* CSS for nbsphinx extension */
 
 /* remove conflicting styling from Sphinx themes */
-div.nbinput,
-div.nbinput div.prompt,
-div.nbinput div.input_area,
-div.nbinput div[class*=highlight],
-div.nbinput div[class*=highlight] pre,
-div.nboutput,
-div.nbinput div.prompt,
-div.nbinput div.output_area,
-div.nboutput div[class*=highlight],
-div.nboutput div[class*=highlight] pre {
+div.nbinput.container,
+div.nbinput.container div.prompt,
+div.nbinput.container div.input_area,
+div.nbinput.container div[class*=highlight],
+div.nbinput.container div[class*=highlight] pre,
+div.nboutput.container,
+div.nboutput.container div.prompt,
+div.nboutput.container div.output_area,
+div.nboutput.container div[class*=highlight],
+div.nboutput.container div[class*=highlight] pre {
     background: none;
     border: none;
     padding: 0 0;
@@ -263,13 +263,13 @@ div.nboutput div[class*=highlight] pre {
 }
 
 /* avoid gaps between output lines */
-div.nboutput div[class*=highlight] pre {
+div.nboutput.container div[class*=highlight] pre {
     line-height: normal;
 }
 
 /* input/output containers */
-div.nbinput,
-div.nboutput {
+div.nbinput.container,
+div.nboutput.container {
     display: -webkit-flex;
     display: flex;
     align-items: flex-start;
@@ -277,35 +277,35 @@ div.nboutput {
     width: 100%;
 }
 @media (max-width: 540px) {
-    div.nbinput,
-    div.nboutput {
+    div.nbinput.container,
+    div.nboutput.container {
         flex-direction: column;
     }
 }
 
 /* input container */
-div.nbinput {
+div.nbinput.container {
     padding-top: 5px;
 }
 
 /* last container */
-div.nblast {
+div.nblast.container {
     padding-bottom: 5px;
 }
 
 /* input prompt */
-div.nbinput div.prompt pre {
+div.nbinput.container div.prompt pre {
     color: #307FC1;
 }
 
 /* output prompt */
-div.nboutput div.prompt pre {
+div.nboutput.container div.prompt pre {
     color: #BF5B3D;
 }
 
 /* all prompts */
-div.nbinput div.prompt,
-div.nboutput div.prompt {
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
     min-width: 7ex;
     padding-top: 0.4em;
     padding-right: 0.4em;
@@ -313,56 +313,56 @@ div.nboutput div.prompt {
     flex: 0;
 }
 @media (max-width: 540px) {
-    div.nbinput div.prompt,
-    div.nboutput div.prompt {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
         text-align: left;
         padding: 0.4em;
     }
-    div.nboutput div.prompt.empty {
+    div.nboutput.container div.prompt.empty {
         padding: 0;
     }
 }
 
 /* disable scrollbars on prompts */
-div.nbinput div.prompt pre,
-div.nboutput div.prompt pre {
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
     overflow: hidden;
 }
 
 /* input/output area */
-div.nbinput div.input_area,
-div.nboutput div.output_area {
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
     padding: 0.4em;
     -webkit-flex: 1;
     flex: 1;
     overflow: auto;
 }
 @media (max-width: 540px) {
-    div.nbinput div.input_area,
-    div.nboutput div.output_area {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
         width: 100%;
     }
 }
 
 /* input area */
-div.nbinput div.input_area {
+div.nbinput.container div.input_area {
     border: 1px solid #e0e0e0;
     border-radius: 2px;
     background: #f5f5f5;
 }
 
 /* override MathJax center alignment in output cells */
-div.nboutput div[class*=MathJax] {
+div.nboutput.container div[class*=MathJax] {
     text-align: left !important;
 }
 
 /* override sphinx.ext.imgmath center alignment in output cells */
-div.nboutput div.math p {
+div.nboutput.container div.math p {
     text-align: left;
 }
 
 /* standard error */
-div.nboutput div.output_area.stderr {
+div.nboutput.container div.output_area.stderr {
     background: #fdd;
 }
 
@@ -500,8 +500,8 @@ div.rendered_html tbody tr:hover {
 <td style="vertical-align: top; border: 0px solid white">
 <h3 style="text-align: left;">Client</h3>
 <ul style="text-align: left; list-style: none; margin: 0; padding: 0;">
-  <li><b>Scheduler: </b>inproc://10.20.1.242/8321/1</li>
-  <li><b>Dashboard: </b><a href='http://10.20.1.242/8321/1:8787/status' target='_blank'>http://10.20.1.242/8321/1:8787/status</a>
+  <li><b>Scheduler: </b>inproc://10.20.0.159/8439/1</li>
+  <li><b>Dashboard: </b><a href='http://10.20.0.159/8439/1:8787/status' target='_blank'>http://10.20.0.159/8439/1:8787/status</a>
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
@@ -562,10 +562,10 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>(30000, 6)
-</pre></div>
-</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(30000, 6)
+</pre></div></div>
 </div>
 </div>
 <div class="section" id="Split-and-scale-data">
@@ -725,10 +725,10 @@ bytes = 240.00 kB
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>(8, 12500)
-</pre></div>
-</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(8, 12500)
+</pre></div></div>
 </div>
 <p>This means that the longest trained estimator will see about <code class="docutils literal notranslate"><span class="pre">n_examples</span></code> examples (specifically <code class="docutils literal notranslate"><span class="pre">n_params</span> <span class="pre">*</span> <span class="pre">(n_examples</span> <span class="pre">//</span> <span class="pre">n_params</span></code>).</p>
 </div>
@@ -824,10 +824,10 @@ bytes = 240.00 kB
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>26
-</pre></div>
-</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+26
+</pre></div></div>
 </div>
 <p>This shows how many <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> calls will be performed in the computation. <code class="docutils literal notranslate"><span class="pre">metadata</span></code> also includes information on the number of models created.</p>
 <p>So far, all that’s been done is getting the search ready for computation (and seeing how much computation will be performed). So far, all the computation has been quick and easy.</p>
@@ -850,16 +850,17 @@ bytes = 240.00 kB
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-CPU times: user 7.36 s, sys: 1.69 s, total: 9.05 s
-Wall time: 6.78 s
+CPU times: user 7.39 s, sys: 1.43 s, total: 8.82 s
+Wall time: 6.9 s
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>HyperbandSearchCV(aggressiveness=3,
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+HyperbandSearchCV(aggressiveness=3,
                   estimator=MLPClassifier(activation=&#39;relu&#39;, alpha=0.0001,
                                           batch_size=&#39;auto&#39;, beta_1=0.9,
                                           beta_2=0.999, early_stopping=False,
@@ -881,8 +882,7 @@ Wall time: 6.78 s
                                                      (12, 6, 3, 3)]},
                   patience=True, random_state=None, scoring=None,
                   test_size=None, tol=0.001)
-</pre></div>
-</div>
+</pre></div></div>
 </div>
 <p>The dashboard will be active while this is running. It will show which workers are running <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> and <code class="docutils literal notranslate"><span class="pre">score</span></code> calls. This takes about 10 seconds.</p>
 </div>
@@ -902,10 +902,10 @@ Wall time: 6.78 s
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.8492
-</pre></div>
-</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+0.5096
+</pre></div></div>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
@@ -920,16 +920,16 @@ Wall time: 6.78 s
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>MLPClassifier(activation=&#39;relu&#39;, alpha=2.1844360711494283e-05, batch_size=16,
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+MLPClassifier(activation=&#39;tanh&#39;, alpha=2.1693835183851823e-05, batch_size=32,
               beta_1=0.9, beta_2=0.999, early_stopping=False, epsilon=1e-08,
-              hidden_layer_sizes=(24,), learning_rate=&#39;constant&#39;,
+              hidden_layer_sizes=(4, 4, 4, 4, 4, 4), learning_rate=&#39;constant&#39;,
               learning_rate_init=0.001, max_iter=200, momentum=0.9,
               n_iter_no_change=10, nesterovs_momentum=True, power_t=0.5,
               random_state=None, shuffle=True, solver=&#39;adam&#39;, tol=0.0001,
               validation_fraction=0.1, verbose=False, warm_start=False)
-</pre></div>
-</div>
+</pre></div></div>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
@@ -964,107 +964,107 @@ Wall time: 6.78 s
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>params</th>
-      <th>model_id</th>
-      <th>test_score</th>
-      <th>std_score_time</th>
-      <th>std_partial_fit_time</th>
-      <th>param_hidden_layer_sizes</th>
-      <th>mean_partial_fit_time</th>
-      <th>mean_score_time</th>
-      <th>param_batch_size</th>
-      <th>param_activation</th>
-      <th>rank_test_score</th>
       <th>bracket</th>
+      <th>param_hidden_layer_sizes</th>
+      <th>param_activation</th>
+      <th>std_score_time</th>
+      <th>params</th>
+      <th>rank_test_score</th>
+      <th>model_id</th>
       <th>partial_fit_calls</th>
+      <th>param_batch_size</th>
       <th>param_alpha</th>
+      <th>test_score</th>
+      <th>mean_score_time</th>
+      <th>std_partial_fit_time</th>
+      <th>mean_partial_fit_time</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
-      <td>{'hidden_layer_sizes': (24,), 'batch_size': 64...</td>
-      <td>bracket=1-0</td>
-      <td>0.4994</td>
-      <td>0.015091</td>
-      <td>0.132703</td>
-      <td>(24,)</td>
-      <td>1.460507</td>
-      <td>0.028640</td>
-      <td>64</td>
-      <td>logistic</td>
-      <td>3</td>
       <td>1</td>
+      <td>(4, 4, 4, 4, 4, 4)</td>
+      <td>tanh</td>
+      <td>0.028114</td>
+      <td>{'hidden_layer_sizes': (4, 4, 4, 4, 4, 4), 'ba...</td>
+      <td>1</td>
+      <td>bracket=1-0</td>
       <td>2</td>
-      <td>0.000002</td>
+      <td>32</td>
+      <td>0.000022</td>
+      <td>0.5096</td>
+      <td>0.083275</td>
+      <td>0.047740</td>
+      <td>1.034072</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>{'hidden_layer_sizes': (4, 4, 4, 4, 4, 4), 'ba...</td>
-      <td>bracket=1-1</td>
-      <td>0.4996</td>
-      <td>0.013891</td>
-      <td>0.091017</td>
+      <td>1</td>
       <td>(4, 4, 4, 4, 4, 4)</td>
-      <td>1.281088</td>
-      <td>0.034287</td>
-      <td>16</td>
-      <td>logistic</td>
-      <td>1</td>
-      <td>1</td>
+      <td>tanh</td>
+      <td>0.004831</td>
+      <td>{'hidden_layer_sizes': (4, 4, 4, 4, 4, 4), 'ba...</td>
+      <td>3</td>
+      <td>bracket=1-1</td>
       <td>2</td>
-      <td>0.000037</td>
+      <td>16</td>
+      <td>0.000003</td>
+      <td>0.4904</td>
+      <td>0.063044</td>
+      <td>0.051768</td>
+      <td>1.837241</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>{'hidden_layer_sizes': (12, 6, 3, 3), 'batch_s...</td>
-      <td>bracket=1-2</td>
-      <td>0.4996</td>
-      <td>0.018523</td>
-      <td>0.082558</td>
+      <td>1</td>
       <td>(12, 6, 3, 3)</td>
-      <td>0.928932</td>
-      <td>0.043369</td>
-      <td>256</td>
       <td>tanh</td>
+      <td>0.001516</td>
+      <td>{'hidden_layer_sizes': (12, 6, 3, 3), 'batch_s...</td>
       <td>1</td>
-      <td>1</td>
+      <td>bracket=1-2</td>
       <td>2</td>
-      <td>0.000002</td>
+      <td>64</td>
+      <td>0.000016</td>
+      <td>0.5096</td>
+      <td>0.032255</td>
+      <td>0.037961</td>
+      <td>1.900420</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>{'hidden_layer_sizes': (24,), 'batch_size': 16...</td>
-      <td>bracket=0-0</td>
-      <td>0.8492</td>
-      <td>0.003105</td>
-      <td>0.045397</td>
-      <td>(24,)</td>
-      <td>0.413427</td>
-      <td>0.010777</td>
-      <td>16</td>
-      <td>relu</td>
-      <td>1</td>
       <td>0</td>
-      <td>8</td>
-      <td>0.000022</td>
+      <td>(12, 12)</td>
+      <td>logistic</td>
+      <td>0.066388</td>
+      <td>{'hidden_layer_sizes': (12, 12), 'batch_size':...</td>
+      <td>2</td>
+      <td>bracket=0-0</td>
+      <td>5</td>
+      <td>16</td>
+      <td>0.000634</td>
+      <td>0.4974</td>
+      <td>0.092854</td>
+      <td>0.155030</td>
+      <td>0.803991</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>{'hidden_layer_sizes': (12, 6, 3, 3), 'batch_s...</td>
-      <td>bracket=0-1</td>
-      <td>0.5510</td>
-      <td>0.012804</td>
-      <td>0.460032</td>
-      <td>(12, 6, 3, 3)</td>
-      <td>0.756095</td>
-      <td>0.022703</td>
-      <td>128</td>
-      <td>tanh</td>
-      <td>2</td>
       <td>0</td>
-      <td>8</td>
-      <td>0.000082</td>
+      <td>(24,)</td>
+      <td>logistic</td>
+      <td>0.006329</td>
+      <td>{'hidden_layer_sizes': (24,), 'batch_size': 64...</td>
+      <td>1</td>
+      <td>bracket=0-1</td>
+      <td>3</td>
+      <td>64</td>
+      <td>0.000002</td>
+      <td>0.5008</td>
+      <td>0.026026</td>
+      <td>0.276390</td>
+      <td>1.352523</td>
     </tr>
   </tbody>
 </table>
@@ -1083,10 +1083,10 @@ Wall time: 6.78 s
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>0.833
-</pre></div>
-</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+0.5024
+</pre></div></div>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
@@ -1152,10 +1152,10 @@ Wall time: 6.78 s
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
-<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>array([1, 0, 1, ..., 1, 0, 0])
-</pre></div>
-</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+array([1, 1, 1, ..., 1, 1, 1])
+</pre></div></div>
 </div>
 <p>It also has some other attributes.</p>
 <div class="nbinput docutils container">
@@ -1204,58 +1204,58 @@ Wall time: 6.78 s
   <tbody>
     <tr>
       <th>0</th>
-      <td>bracket=1-0</td>
-      <td>{'hidden_layer_sizes': (24,), 'batch_size': 64...</td>
+      <td>bracket=0-0</td>
+      <td>{'hidden_layer_sizes': (12, 12), 'batch_size':...</td>
       <td>1</td>
-      <td>1.327804</td>
-      <td>0.4990</td>
-      <td>0.043731</td>
-      <td>1.473403</td>
-      <td>1</td>
+      <td>0.897102</td>
+      <td>0.4970</td>
+      <td>0.044141</td>
+      <td>2.033839</td>
+      <td>0</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>bracket=1-1</td>
-      <td>{'hidden_layer_sizes': (4, 4, 4, 4, 4, 4), 'ba...</td>
+      <td>bracket=0-1</td>
+      <td>{'hidden_layer_sizes': (24,), 'batch_size': 64...</td>
       <td>1</td>
-      <td>1.190071</td>
-      <td>0.4996</td>
-      <td>0.048177</td>
-      <td>1.473405</td>
-      <td>1</td>
+      <td>1.628912</td>
+      <td>0.5078</td>
+      <td>0.019698</td>
+      <td>2.033842</td>
+      <td>0</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>bracket=1-2</td>
-      <td>{'hidden_layer_sizes': (12, 6, 3, 3), 'batch_s...</td>
+      <td>bracket=1-0</td>
+      <td>{'hidden_layer_sizes': (4, 4, 4, 4, 4, 4), 'ba...</td>
       <td>1</td>
-      <td>0.846374</td>
-      <td>0.4996</td>
-      <td>0.061892</td>
-      <td>1.473406</td>
+      <td>0.986332</td>
+      <td>0.5188</td>
+      <td>0.055161</td>
+      <td>2.072281</td>
       <td>1</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>bracket=0-0</td>
-      <td>{'hidden_layer_sizes': (24,), 'batch_size': 16...</td>
+      <td>bracket=1-1</td>
+      <td>{'hidden_layer_sizes': (4, 4, 4, 4, 4, 4), 'ba...</td>
       <td>1</td>
-      <td>0.462596</td>
-      <td>0.5384</td>
-      <td>0.007955</td>
-      <td>1.517775</td>
-      <td>0</td>
+      <td>1.785474</td>
+      <td>0.5170</td>
+      <td>0.058213</td>
+      <td>2.072284</td>
+      <td>1</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>bracket=0-1</td>
+      <td>bracket=1-2</td>
       <td>{'hidden_layer_sizes': (12, 6, 3, 3), 'batch_s...</td>
       <td>1</td>
-      <td>1.385827</td>
-      <td>0.5178</td>
-      <td>0.047373</td>
-      <td>1.517777</td>
-      <td>0</td>
+      <td>1.938380</td>
+      <td>0.5096</td>
+      <td>0.033771</td>
+      <td>2.072285</td>
+      <td>1</td>
     </tr>
   </tbody>
 </table>

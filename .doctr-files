@@ -58,6 +58,7 @@
 ./_sources/modules/generated/dask_ml.model_selection.ShuffleSplit.rst.txt
 ./_sources/modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.rst.txt
 ./_sources/modules/generated/dask_ml.model_selection.train_test_split.rst.txt
+./_sources/modules/generated/dask_ml.preprocessing.BlockTransformer.rst.txt
 ./_sources/modules/generated/dask_ml.preprocessing.Categorizer.rst.txt
 ./_sources/modules/generated/dask_ml.preprocessing.DummyEncoder.rst.txt
 ./_sources/modules/generated/dask_ml.preprocessing.LabelEncoder.rst.txt
@@ -192,6 +193,7 @@
 ./modules/generated/dask_ml.model_selection.ShuffleSplit.html
 ./modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html
 ./modules/generated/dask_ml.model_selection.train_test_split.html
+./modules/generated/dask_ml.preprocessing.BlockTransformer.html
 ./modules/generated/dask_ml.preprocessing.Categorizer.html
 ./modules/generated/dask_ml.preprocessing.DummyEncoder.html
 ./modules/generated/dask_ml.preprocessing.LabelEncoder.html

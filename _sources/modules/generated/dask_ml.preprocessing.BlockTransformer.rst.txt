@@ -1,0 +1,16 @@
+:mod:`dask_ml.preprocessing`.BlockTransformer
+====================================================
+
+.. currentmodule:: dask_ml.preprocessing
+
+.. autoclass:: BlockTransformer
+
+   
+   .. automethod:: __init__
+   
+
+.. include:: dask_ml.preprocessing.BlockTransformer.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>

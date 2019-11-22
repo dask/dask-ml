@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.preprocessing.OrdinalEncoder &mdash; dask-ml 1.1.2 documentation</title>
+  <title>dask_ml.preprocessing.BlockTransformer &mdash; dask-ml 1.1.2 documentation</title>
   
 
   
@@ -41,8 +41,8 @@
   <link rel="stylesheet" href="../../_static/css/nbsphinx.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="dask_ml.preprocessing.LabelEncoder" href="dask_ml.preprocessing.LabelEncoder.html" />
-    <link rel="prev" title="dask_ml.preprocessing.DummyEncoder" href="dask_ml.preprocessing.DummyEncoder.html" />
+    <link rel="next" title="dask_ml.feature_extraction.text.HashingVectorizer" href="dask_ml.feature_extraction.text.HashingVectorizer.html" />
+    <link rel="prev" title="dask_ml.preprocessing.PolynomialFeatures" href="dask_ml.preprocessing.PolynomialFeatures.html" />
   <link rel="shortcut icon" href="../../_static/images/favicon.ico"/>
 
 </head>
@@ -184,10 +184,10 @@
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.StandardScaler.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.StandardScaler</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.Categorizer.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.Categorizer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.DummyEncoder.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.DummyEncoder</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.OrdinalEncoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.OrdinalEncoder.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.OrdinalEncoder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.LabelEncoder.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.LabelEncoder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.PolynomialFeatures.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.PolynomialFeatures</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.BlockTransformer.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.BlockTransformer</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.BlockTransformer</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-feature-extraction-text-feature-extraction"><code class="docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>: Feature extraction</a></li>
@@ -252,13 +252,13 @@
         
           <li><a href="../api.html">API Reference</a> &raquo;</li>
         
-      <li><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.OrdinalEncoder</li>
+      <li><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.BlockTransformer</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../../_sources/modules/generated/dask_ml.preprocessing.OrdinalEncoder.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/modules/generated/dask_ml.preprocessing.BlockTransformer.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -271,87 +271,68 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="dask-ml-preprocessing-ordinalencoder">
-<h1><a class="reference internal" href="../api.html#module-dask_ml.preprocessing" title="dask_ml.preprocessing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code></a>.OrdinalEncoder<a class="headerlink" href="#dask-ml-preprocessing-ordinalencoder" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="dask-ml-preprocessing-blocktransformer">
+<h1><a class="reference internal" href="../api.html#module-dask_ml.preprocessing" title="dask_ml.preprocessing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code></a>.BlockTransformer<a class="headerlink" href="#dask-ml-preprocessing-blocktransformer" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="dask_ml.preprocessing.OrdinalEncoder">
-<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">OrdinalEncoder</code><span class="sig-paren">(</span><em>columns=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OrdinalEncoder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Ordinal (integer) encode categorical columns.</p>
+<dt id="dask_ml.preprocessing.BlockTransformer">
+<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">BlockTransformer</code><span class="sig-paren">(</span><em>func</em>, <em>*</em>, <em>validate=False</em>, <em>**kw_args</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.BlockTransformer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a transformer from a an arbitrary callable</p>
+<p>The BlockTransformer forwards the blocks of the X arguments to a user-defined
+callable and returns the result of this operation.
+This is useful for stateless operations, that can be performed on the cell or
+block level, such as taking the log of frequencies. In general the transformer
+is not suitable for e.g. standardization tasks as this requires information for
+a complete column.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>columns</strong> <span class="classifier-delimiter">:</span> <span class="classifier">sequence, optional</span></dt>
-<dd><p class="first last">The columns to encode. Must be categorical dtype.
-Encodes all categorical dtype columns by default.</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>func</strong> <span class="classifier-delimiter">:</span> <span class="classifier">callable</span></dt>
+<dd><p class="first last">The callable to use for the transformation.</p>
 </dd>
-</dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>columns_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Index</span></dt>
-<dd><p class="first last">The columns in the training data before/after encoding</p>
+<dt><strong>validate</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional default=False</span></dt>
+<dd><blockquote class="first">
+<div><p>Indicate that the input X array should be checked before calling</p>
+</div></blockquote>
+<p class="last"><code class="docutils literal notranslate"><span class="pre">func</span></code>.</p>
 </dd>
-<dt><strong>categorical_columns_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Index</span></dt>
-<dd><p class="first last">The categorical columns in the training data</p>
-</dd>
-<dt><strong>noncategorical_columns_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Index</span></dt>
-<dd><p class="first last">The rest of the columns in the training data</p>
-</dd>
-<dt><strong>dtypes_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first">Dictionary mapping column name to either</p>
-<ul class="last simple">
-<li>instances of CategoricalDtype (pandas &gt;= 0.21.0)</li>
-<li>tuples of (categories, ordered)</li>
-</ul>
+<dt><strong>kw_args</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict, optional</span></dt>
+<dd><p class="first last">Dictionary of additional keyword arguments to pass to func.</p>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Notes</p>
-<p>This transformer only applies to dask and pandas DataFrames. For dask
-DataFrames, all of your categoricals should be known.</p>
-<p>The inverse transformation can be used on a dataframe or array.</p>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
-<span class="gp">... </span>                     <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Categorical</span><span class="p">([</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">])})</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">enc</span> <span class="o">=</span> <span class="n">OrdinalEncoder</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">trn</span> <span class="o">=</span> <span class="n">enc</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">trn</span>
-<span class="go">   A  B</span>
-<span class="go">0  1  0</span>
-<span class="go">1  2  0</span>
-<span class="go">2  3  0</span>
-<span class="go">3  4  1</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">enc</span><span class="o">.</span><span class="n">columns_</span>
-<span class="go">Index([&#39;A&#39;, &#39;B&#39;], dtype=&#39;object&#39;)</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">enc</span><span class="o">.</span><span class="n">non_categorical_columns_</span>
-<span class="go">Index([&#39;A&#39;], dtype=&#39;object&#39;)</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">enc</span><span class="o">.</span><span class="n">categorical_columns_</span>
-<span class="go">Index([&#39;B&#39;], dtype=&#39;object&#39;)</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">enc</span><span class="o">.</span><span class="n">dtypes_</span>
-<span class="go">{&#39;B&#39;: CategoricalDtype(categories=[&#39;a&#39;, &#39;b&#39;], ordered=False)}</span>
-</pre></div>
-</div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">enc</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">dd</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dask.datasets</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dask_ml.preprocessing</span> <span class="k">import</span> <span class="n">BlockTransformer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">dask</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">timeseries</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span>
+<span class="gp">... </span><span class="c1"># doctest: +SKIP</span>
 <span class="go">Dask DataFrame Structure:</span>
-<span class="go">                   A     B</span>
-<span class="go">npartitions=2</span>
-<span class="go">0              int64  int8</span>
-<span class="go">2                ...   ...</span>
-<span class="go">3                ...   ...</span>
-<span class="go">Dask Name: assign, 8 tasks</span>
+<span class="go">                   id    name        x        y</span>
+<span class="go">npartitions=30</span>
+<span class="go">2000-01-01      int64  object  float64  float64</span>
+<span class="go">2000-01-02        ...     ...      ...      ...</span>
+<span class="gp">... </span>              <span class="o">...</span>     <span class="o">...</span>      <span class="o">...</span>      <span class="o">...</span>
+<span class="go">2000-01-30        ...     ...      ...      ...</span>
+<span class="go">2000-01-31        ...     ...      ...      ...</span>
+<span class="go">Dask Name: make-timeseries, 30 tasks</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">trn</span> <span class="o">=</span> <span class="n">BlockTransformer</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">hash_pandas_object</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">trn</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="gp">... </span><span class="c1"># doctest: +ELLIPSIS</span>
+<span class="go">Dask Series Structure:</span>
+<span class="go">npartitions=30</span>
+<span class="go">2000-01-01    uint64</span>
+<span class="go">2000-01-02       ...</span>
+<span class="go">            ...</span>
+<span class="go">2000-01-30       ...</span>
+<span class="go">2000-01-31       ...</span>
+<span class="go">dtype: uint64</span>
+<span class="go">Dask Name: hash_pandas_object, 60 tasks</span>
 </pre></div>
 </div>
 <p class="rubric">Methods</p>
@@ -361,61 +342,40 @@ DataFrames, all of your categoricals should be known.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.OrdinalEncoder.fit" title="dask_ml.preprocessing.OrdinalEncoder.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
-<td>Determine the categorical columns to be encoded.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.OrdinalEncoder.fit_transform" title="dask_ml.preprocessing.OrdinalEncoder.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.BlockTransformer.fit_transform" title="dask_ml.preprocessing.BlockTransformer.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
 <td>Fit to data, then transform it.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.OrdinalEncoder.get_params" title="dask_ml.preprocessing.OrdinalEncoder.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.BlockTransformer.get_params" title="dask_ml.preprocessing.BlockTransformer.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.OrdinalEncoder.inverse_transform" title="dask_ml.preprocessing.OrdinalEncoder.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(self,&nbsp;X)</td>
-<td>Inverse ordinal-encode the columns in <cite>X</cite></td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.OrdinalEncoder.set_params" title="dask_ml.preprocessing.OrdinalEncoder.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.BlockTransformer.set_params" title="dask_ml.preprocessing.BlockTransformer.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.OrdinalEncoder.transform" title="dask_ml.preprocessing.OrdinalEncoder.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
-<td>Ordinal encode the categorical columns in X</td>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="57%" />
+<col width="43%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>fit</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>transform</strong></td>
+<td>&#160;</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
-<dt id="dask_ml.preprocessing.OrdinalEncoder.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>columns=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OrdinalEncoder.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.preprocessing.BlockTransformer.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>func</em>, <em>*</em>, <em>validate=False</em>, <em>**kw_args</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.BlockTransformer.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.preprocessing.OrdinalEncoder.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OrdinalEncoder.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determine the categorical columns to be encoded.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame or dask.dataframe.DataFrame</span></dt>
-<dd></dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ignored</span></dt>
-<dd></dd>
-</dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt>self</dt>
-<dd></dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="dask_ml.preprocessing.OrdinalEncoder.fit_transform">
-<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>**fit_params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OrdinalEncoder.fit_transform" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.preprocessing.BlockTransformer.fit_transform">
+<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>**fit_params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.BlockTransformer.fit_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit to data, then transform it.</p>
 <p>Fits transformer to X and y with optional parameters fit_params
 and returns a transformed version of X.</p>
@@ -445,8 +405,8 @@ and returns a transformed version of X.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.preprocessing.OrdinalEncoder.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OrdinalEncoder.get_params" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.preprocessing.BlockTransformer.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.BlockTransformer.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get parameters for this estimator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -472,35 +432,8 @@ contained subobjects that are estimators.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.preprocessing.OrdinalEncoder.inverse_transform">
-<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OrdinalEncoder.inverse_transform" title="Permalink to this definition">¶</a></dt>
-<dd><p>Inverse ordinal-encode the columns in <cite>X</cite></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array or dataframe</span></dt>
-<dd><p class="first last">Either the NumPy, dask, or pandas version</p>
-</dd>
-</dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">DataFrame</span></dt>
-<dd><p class="first last">Dask array or dataframe will return a Dask DataFrame.
-Numpy array or pandas dataframe will return a pandas DataFrame</p>
-</dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="dask_ml.preprocessing.OrdinalEncoder.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OrdinalEncoder.set_params" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.preprocessing.BlockTransformer.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.BlockTransformer.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
 (such as pipelines). The latter have parameters of the form
@@ -520,33 +453,6 @@ component of a nested object.</p>
 </table>
 </dd></dl>
 
-<dl class="method">
-<dt id="dask_ml.preprocessing.OrdinalEncoder.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OrdinalEncoder.transform" title="Permalink to this definition">¶</a></dt>
-<dd><p>Ordinal encode the categorical columns in X</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame or dd.DataFrame</span></dt>
-<dd></dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ignored</span></dt>
-<dd></dd>
-</dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>transformed</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pd.DataFrame or dd.DataFrame</span></dt>
-<dd><p class="first last">Same type as the input</p>
-</dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 </dd></dl>
 
 <div class="clearer"></div></div>
@@ -559,10 +465,10 @@ component of a nested object.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="dask_ml.preprocessing.LabelEncoder.html" class="btn btn-neutral float-right" title="dask_ml.preprocessing.LabelEncoder" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="dask_ml.feature_extraction.text.HashingVectorizer.html" class="btn btn-neutral float-right" title="dask_ml.feature_extraction.text.HashingVectorizer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="dask_ml.preprocessing.DummyEncoder.html" class="btn btn-neutral float-left" title="dask_ml.preprocessing.DummyEncoder" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="dask_ml.preprocessing.PolynomialFeatures.html" class="btn btn-neutral float-left" title="dask_ml.preprocessing.PolynomialFeatures" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

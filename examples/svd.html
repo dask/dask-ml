@@ -126,7 +126,7 @@
             
             
               <div class="version">
-                1.1.2.dev5+g7ca2224
+                1.1.2.dev6+gcd8d81f
               </div>
             
           
@@ -245,16 +245,16 @@
 /* CSS for nbsphinx extension */
 
 /* remove conflicting styling from Sphinx themes */
-div.nbinput,
-div.nbinput div.prompt,
-div.nbinput div.input_area,
-div.nbinput div[class*=highlight],
-div.nbinput div[class*=highlight] pre,
-div.nboutput,
-div.nbinput div.prompt,
-div.nbinput div.output_area,
-div.nboutput div[class*=highlight],
-div.nboutput div[class*=highlight] pre {
+div.nbinput.container,
+div.nbinput.container div.prompt,
+div.nbinput.container div.input_area,
+div.nbinput.container div[class*=highlight],
+div.nbinput.container div[class*=highlight] pre,
+div.nboutput.container,
+div.nboutput.container div.prompt,
+div.nboutput.container div.output_area,
+div.nboutput.container div[class*=highlight],
+div.nboutput.container div[class*=highlight] pre {
     background: none;
     border: none;
     padding: 0 0;
@@ -263,13 +263,13 @@ div.nboutput div[class*=highlight] pre {
 }
 
 /* avoid gaps between output lines */
-div.nboutput div[class*=highlight] pre {
+div.nboutput.container div[class*=highlight] pre {
     line-height: normal;
 }
 
 /* input/output containers */
-div.nbinput,
-div.nboutput {
+div.nbinput.container,
+div.nboutput.container {
     display: -webkit-flex;
     display: flex;
     align-items: flex-start;
@@ -277,35 +277,35 @@ div.nboutput {
     width: 100%;
 }
 @media (max-width: 540px) {
-    div.nbinput,
-    div.nboutput {
+    div.nbinput.container,
+    div.nboutput.container {
         flex-direction: column;
     }
 }
 
 /* input container */
-div.nbinput {
+div.nbinput.container {
     padding-top: 5px;
 }
 
 /* last container */
-div.nblast {
+div.nblast.container {
     padding-bottom: 5px;
 }
 
 /* input prompt */
-div.nbinput div.prompt pre {
+div.nbinput.container div.prompt pre {
     color: #307FC1;
 }
 
 /* output prompt */
-div.nboutput div.prompt pre {
+div.nboutput.container div.prompt pre {
     color: #BF5B3D;
 }
 
 /* all prompts */
-div.nbinput div.prompt,
-div.nboutput div.prompt {
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
     min-width: 7ex;
     padding-top: 0.4em;
     padding-right: 0.4em;
@@ -313,56 +313,56 @@ div.nboutput div.prompt {
     flex: 0;
 }
 @media (max-width: 540px) {
-    div.nbinput div.prompt,
-    div.nboutput div.prompt {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
         text-align: left;
         padding: 0.4em;
     }
-    div.nboutput div.prompt.empty {
+    div.nboutput.container div.prompt.empty {
         padding: 0;
     }
 }
 
 /* disable scrollbars on prompts */
-div.nbinput div.prompt pre,
-div.nboutput div.prompt pre {
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
     overflow: hidden;
 }
 
 /* input/output area */
-div.nbinput div.input_area,
-div.nboutput div.output_area {
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
     padding: 0.4em;
     -webkit-flex: 1;
     flex: 1;
     overflow: auto;
 }
 @media (max-width: 540px) {
-    div.nbinput div.input_area,
-    div.nboutput div.output_area {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
         width: 100%;
     }
 }
 
 /* input area */
-div.nbinput div.input_area {
+div.nbinput.container div.input_area {
     border: 1px solid #e0e0e0;
     border-radius: 2px;
     background: #f5f5f5;
 }
 
 /* override MathJax center alignment in output cells */
-div.nboutput div[class*=MathJax] {
+div.nboutput.container div[class*=MathJax] {
     text-align: left !important;
 }
 
 /* override sphinx.ext.imgmath center alignment in output cells */
-div.nboutput div.math p {
+div.nboutput.container div.math p {
     text-align: left;
 }
 
 /* standard error */
-div.nboutput div.output_area.stderr {
+div.nboutput.container div.output_area.stderr {
     background: #fdd;
 }
 
@@ -470,8 +470,8 @@ div.rendered_html tbody tr:hover {
 <td style="vertical-align: top; border: 0px solid white">
 <h3 style="text-align: left;">Client</h3>
 <ul style="text-align: left; list-style: none; margin: 0; padding: 0;">
-  <li><b>Scheduler: </b>inproc://10.20.1.242/9328/1</li>
-  <li><b>Dashboard: </b><a href='http://10.20.1.242/9328/1:8787/status' target='_blank'>http://10.20.1.242/9328/1:8787/status</a>
+  <li><b>Scheduler: </b>inproc://10.20.0.159/9413/1</li>
+  <li><b>Dashboard: </b><a href='http://10.20.0.159/9413/1:8787/status' target='_blank'>http://10.20.0.159/9413/1:8787/status</a>
 </ul>
 </td>
 <td style="vertical-align: top; border: 0px solid white">
@@ -533,22 +533,22 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>array([[ 0.0999275 ,  0.10023249,  0.09986898, ...,  0.09986283,
-         0.10002485,  0.0997703 ],
-       [ 0.19184924,  0.04345354,  0.20356597, ...,  0.06332863,
-        -0.17612561,  0.08398351],
-       [-0.01137278, -0.03029577, -0.05180665, ...,  0.07689043,
-        -0.12166522, -0.1001216 ],
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+array([[ 0.09990012,  0.09992426,  0.10001021, ...,  0.09980601,
+         0.10000522,  0.10011731],
+       [-0.09704748, -0.04444801, -0.03360306, ..., -0.10935631,
+         0.02662768,  0.09673392],
+       [ 0.05828104,  0.01185805,  0.00141434, ...,  0.08899324,
+        -0.09723271, -0.05401271],
        ...,
-       [-0.04050164, -0.04179981,  0.00023425, ...,  0.04022432,
-         0.11591108,  0.0717453 ],
-       [ 0.06797197,  0.1040936 , -0.10407386, ...,  0.15799711,
-        -0.08373574, -0.0400345 ],
-       [-0.05795537, -0.05196365, -0.09094704, ...,  0.09189383,
-         0.12455363, -0.15035198]])
-</pre></div>
-</div>
+       [ 0.22610495, -0.03152345,  0.07962314, ...,  0.17629243,
+         0.07623133, -0.02841473],
+       [-0.0969918 ,  0.02050076,  0.08067569, ...,  0.12120915,
+         0.05798421, -0.06722218],
+       [ 0.01734096, -0.07270178, -0.00934777, ..., -0.02407988,
+         0.09289135,  0.03266349]])
+</pre></div></div>
 </div>
 </div>
 <div class="section" id="Compute-SVD-of-General-Non-Skinny-Matrix-with-Approximate-algorithm">
@@ -598,19 +598,19 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="output_area highlight-none notranslate"><div class="highlight"><pre>
-<span></span>array([[ 0.01003207,  0.01002351,  0.01003284, ...,  0.00998013,
-         0.00989605,  0.00994304],
-       [ 0.00930629, -0.01574187, -0.00684931, ..., -0.00082203,
-         0.00467376,  0.00705933],
-       [ 0.0153756 ,  0.00387617, -0.00693865, ...,  0.01281982,
-         0.00583348,  0.00231217],
-       [-0.01320089,  0.01401513,  0.0047337 , ...,  0.01081711,
-         0.00419671,  0.00989528],
-       [ 0.01207236, -0.00865751,  0.0040268 , ..., -0.00610762,
-         0.00502313,  0.00589998]])
-</pre></div>
-</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+array([[ 1.00523204e-02,  1.00425457e-02,  1.00255480e-02, ...,
+         9.87691470e-03,  1.00204910e-02,  1.00161215e-02],
+       [-1.44285269e-02,  8.79614699e-05,  1.64277763e-02, ...,
+        -1.21313557e-02, -5.00035126e-03, -4.39147764e-03],
+       [ 2.33729110e-02, -6.18640892e-03,  3.64000339e-03, ...,
+        -1.45915476e-02, -8.44635229e-03, -7.25827151e-03],
+       [ 1.44958891e-02, -1.22449956e-02,  5.15855711e-04, ...,
+        -1.21275426e-02,  4.94497481e-03,  1.84114073e-03],
+       [-9.62493083e-04,  3.78957137e-03, -1.86996403e-03, ...,
+         5.59407759e-03, -8.11343067e-03,  1.13485756e-03]])
+</pre></div></div>
 </div>
 </div>
 </div>

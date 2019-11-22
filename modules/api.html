@@ -128,7 +128,7 @@
             
             
               <div class="version">
-                1.1.2.dev5+g7ca2224
+                1.1.2.dev6+gcd8d81f
               </div>
             
           
@@ -214,6 +214,7 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.preprocessing.OrdinalEncoder.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.OrdinalEncoder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.preprocessing.LabelEncoder.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.LabelEncoder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.preprocessing.PolynomialFeatures.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.PolynomialFeatures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.preprocessing.BlockTransformer.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.BlockTransformer</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#dask-ml-feature-extraction-text-feature-extraction"><code class="docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>: Feature extraction</a><ul>
@@ -3320,6 +3321,182 @@ features generated from the combination of inputs.</p>
 
 </dd></dl>
 
+<dl class="class">
+<dt id="dask_ml.preprocessing.BlockTransformer">
+<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">BlockTransformer</code><span class="sig-paren">(</span><em>func</em>, <em>*</em>, <em>validate=False</em>, <em>**kw_args</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.BlockTransformer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a transformer from a an arbitrary callable</p>
+<p>The BlockTransformer forwards the blocks of the X arguments to a user-defined
+callable and returns the result of this operation.
+This is useful for stateless operations, that can be performed on the cell or
+block level, such as taking the log of frequencies. In general the transformer
+is not suitable for e.g. standardization tasks as this requires information for
+a complete column.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>func</strong> <span class="classifier-delimiter">:</span> <span class="classifier">callable</span></dt>
+<dd><p class="first last">The callable to use for the transformation.</p>
+</dd>
+<dt><strong>validate</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional default=False</span></dt>
+<dd><blockquote class="first">
+<div><p>Indicate that the input X array should be checked before calling</p>
+</div></blockquote>
+<p class="last"><code class="docutils literal notranslate"><span class="pre">func</span></code>.</p>
+</dd>
+<dt><strong>kw_args</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict, optional</span></dt>
+<dd><p class="first last">Dictionary of additional keyword arguments to pass to func.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dask.datasets</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dask_ml.preprocessing</span> <span class="k">import</span> <span class="n">BlockTransformer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">dask</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">timeseries</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span>
+<span class="gp">... </span><span class="c1"># doctest: +SKIP</span>
+<span class="go">Dask DataFrame Structure:</span>
+<span class="go">                   id    name        x        y</span>
+<span class="go">npartitions=30</span>
+<span class="go">2000-01-01      int64  object  float64  float64</span>
+<span class="go">2000-01-02        ...     ...      ...      ...</span>
+<span class="gp">... </span>              <span class="o">...</span>     <span class="o">...</span>      <span class="o">...</span>      <span class="o">...</span>
+<span class="go">2000-01-30        ...     ...      ...      ...</span>
+<span class="go">2000-01-31        ...     ...      ...      ...</span>
+<span class="go">Dask Name: make-timeseries, 30 tasks</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">trn</span> <span class="o">=</span> <span class="n">BlockTransformer</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">hash_pandas_object</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">trn</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="gp">... </span><span class="c1"># doctest: +ELLIPSIS</span>
+<span class="go">Dask Series Structure:</span>
+<span class="go">npartitions=30</span>
+<span class="go">2000-01-01    uint64</span>
+<span class="go">2000-01-02       ...</span>
+<span class="go">            ...</span>
+<span class="go">2000-01-30       ...</span>
+<span class="go">2000-01-31       ...</span>
+<span class="go">dtype: uint64</span>
+<span class="go">Dask Name: hash_pandas_object, 60 tasks</span>
+</pre></div>
+</div>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.BlockTransformer.html#dask_ml.preprocessing.BlockTransformer.fit_transform" title="dask_ml.preprocessing.BlockTransformer.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<td>Fit to data, then transform it.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.BlockTransformer.html#dask_ml.preprocessing.BlockTransformer.get_params" title="dask_ml.preprocessing.BlockTransformer.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
+<td>Get parameters for this estimator.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.BlockTransformer.html#dask_ml.preprocessing.BlockTransformer.set_params" title="dask_ml.preprocessing.BlockTransformer.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
+<td>Set the parameters of this estimator.</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="57%" />
+<col width="43%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>fit</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>transform</strong></td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="dask_ml.preprocessing.BlockTransformer.fit_transform">
+<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>**fit_params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.BlockTransformer.fit_transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit to data, then transform it.</p>
+<p>Fits transformer to X and y with optional parameters fit_params
+and returns a transformed version of X.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features]</span></dt>
+<dd><p class="first last">Training set.</p>
+</dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples]</span></dt>
+<dd><p class="first last">Target values.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features_new]</span></dt>
+<dd><p class="first last">Transformed array.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.preprocessing.BlockTransformer.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.BlockTransformer.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameters for this estimator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span></dt>
+<dd><p class="first last">If True, will return the parameters for this estimator and
+contained subobjects that are estimators.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">mapping of string to any</span></dt>
+<dd><p class="first last">Parameter names mapped to their values.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.preprocessing.BlockTransformer.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.BlockTransformer.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters of this estimator.</p>
+<p>The method works on simple estimators as well as on nested objects
+(such as pipelines). The latter have parameters of the form
+<code class="docutils literal notranslate"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it’s possible to update each
+component of a nested object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt>self</dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 <table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
@@ -3355,6 +3532,9 @@ features generated from the combination of inputs.</p>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.PolynomialFeatures.html#dask_ml.preprocessing.PolynomialFeatures" title="dask_ml.preprocessing.PolynomialFeatures"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.PolynomialFeatures</span></code></a>([degree,&nbsp;…])</td>
 <td>Generate polynomial and interaction features.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.BlockTransformer.html#dask_ml.preprocessing.BlockTransformer" title="dask_ml.preprocessing.BlockTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.BlockTransformer</span></code></a>(func,&nbsp;*[,&nbsp;…])</td>
+<td>Construct a transformer from a an arbitrary callable</td>
 </tr>
 </tbody>
 </table>

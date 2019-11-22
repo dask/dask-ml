@@ -145,6 +145,7 @@ with Dask Arrays or DataFrames.
    preprocessing.OrdinalEncoder
    preprocessing.LabelEncoder
    preprocessing.PolynomialFeatures
+   preprocessing.BlockTransformer
 
 :mod:`dask_ml.feature_extraction.text`: Feature extraction
 ==========================================================
