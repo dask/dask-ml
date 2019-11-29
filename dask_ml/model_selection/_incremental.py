@@ -126,10 +126,9 @@ def _fit(
     verbose=False,
     prefix="",
 ):
-    if verbose:
-        logger.info(
-            "[CV%s] train, test examples = %d, %d", prefix, len(y_train), len(y_test)
-        )
+    logger.info(
+        "[CV%s] train, test examples = %d, %d", prefix, len(y_train), len(y_test)
+    )
     original_model = model
     fit_params = fit_params or {}
     client = default_client()
@@ -139,8 +138,7 @@ def _fit(
     models = {}
     scores = {}
 
-    if verbose:
-        logger.info("[CV%s] creating %d models", prefix, len(params))
+    logger.info("[CV%s] creating %d models", prefix, len(params))
     for ident, param in enumerate(params):
         model = client.submit(_create_model, original_model, ident, **param)
         info[ident] = []
@@ -223,10 +221,7 @@ def _fit(
         if verbose and _i % int(verbose) == 0:
             idx = np.argmax([m["score"] for m in metas])
             best = metas[idx]
-            msg = (
-                "[CV%s] validation score of %0.4f received after %d "
-                "partial_fit calls"
-            )
+            msg = "[CV%s] validation score of %0.4f received after %d partial_fit calls"
             logger.info(msg, prefix, best["score"], best["partial_fit_calls"])
 
         for meta in metas:
@@ -598,6 +593,11 @@ class BaseIncrementalSearchCV(ParallelPostFit):
             msg = "verbose={} must not satisfy 0 < verbose < 1"
             raise ValueError(msg.format(self.verbose))
 
+        # self.verbose specifies "set up logging"
+        # Always log messages to logging.INFO
+        verbose = (
+            True if not isinstance(self.verbose, float) else np.round(1 / self.verbose)
+        )
         results = yield fit(
             self.estimator,
             self._get_params(),
@@ -609,7 +609,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
             fit_params=fit_params,
             scorer=scorer,
             random_state=self.random_state,
-            verbose=np.round(1 / self.verbose) if isinstance(self.verbose, float) else self.verbose,
+            verbose=verbose,
             prefix=self.prefix,
         )
         results = self._process_results(results)
@@ -650,9 +650,12 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         **fit_params
             Additional partial fit keyword arguments for the estimator.
         """
-        logger.setLevel(logging.INFO)
-        h = logging.StreamHandler(sys.stdout)
-        with LoggingContext(logger, level=logging.INFO, handler=h):
+        if self.verbose:
+            logger.setLevel(logging.INFO)
+            h = logging.StreamHandler(sys.stdout)
+            with LoggingContext(logger, level=logging.INFO, handler=h):
+                return default_client().sync(self._fit, X, y, **fit_params)
+        else:
             return default_client().sync(self._fit, X, y, **fit_params)
 
     @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
@@ -769,11 +772,11 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
         If None, the estimator's default scorer (if available) is used.
 
-    verbose : bool, int, optional, default: False
-        If ``True``, log the best validation score received every
-        time possible. If a float between 0 and 1, print (approximately)
-        ``verbose`` fraction of the time.
-
+    verbose : bool, float, optional, default: False
+        If specified, setup the logger to log information to stdout.
+        If ``True`` is specified, log the best validation score
+        received every time possible. If a float between 0 and 1 is specified,
+        print (approximately) ``verbose`` fraction of the time.
 
     Attributes
     ----------

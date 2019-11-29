@@ -630,7 +630,7 @@ def test_history(c, s, a, b):
 @pytest.mark.parametrize("Search", [HyperbandSearchCV, IncrementalSearchCV])
 @pytest.mark.parametrize("verbose", [True, False])
 def test_verbosity(capsys, Search, verbose):
-    max_iter = 15
+    max_iter = 27
 
     @gen_cluster(client=True)
     def _test_verbosity(c, s, a, b):
@@ -639,26 +639,34 @@ def test_verbosity(capsys, Search, verbose):
         params = {"value": scipy.stats.uniform(0, 1)}
         search = Search(model, params, max_iter=max_iter, verbose=verbose)
         yield search.fit(X, y)
-
-    with captured_logger(logging.getLogger("dask_ml.model_selection")) as logs:
-        _test_verbosity()
-        messages = logs.getvalue().splitlines()
+        return search
 
     if verbose:
-        assert any("score" in m for m in messages)
-        if "Hyperband" in str(Search):
-            assert all("[CV, bracket=" in m for m in messages)
-        else:
-            assert all("[CV]" in m for m in messages)
-
-        brackets = 3 if "Hyperband" in str(Search) else 1
-        assert sum("train, test examples" in m for m in messages) == brackets
-        assert sum("creating" in m and "models" in m for m in messages) == brackets
+        # Log to stdout
+        search = _test_verbosity()
+        assert hasattr(search, "best_params_")
+        captured = capsys.readouterr()
+        messages = captured.out.split("\n")
+        messages2 = captured.err.split("\n")
     else:
-        assert len(messages) == 0
+        # Log to INFO
+        with captured_logger(logging.getLogger("dask_ml.model_selection")) as logs:
+            _test_verbosity()
+            messages = logs.getvalue().splitlines()
+
+    # Always emit logs to INFO
+    assert any("score" in m for m in messages)
+    if "Hyperband" in str(Search):
+        assert all("[CV, bracket=" in m for m in messages)
+    else:
+        assert all("[CV]" in m for m in messages)
+
+    brackets = 3 if "Hyperband" in str(Search) else 1
+    assert sum("train, test examples" in m for m in messages) == brackets
+    assert sum("creating" in m and "models" in m for m in messages) == brackets
 
 
-@pytest.mark.parametrize("verbose", [1 / 2, 1 / 3])
+@pytest.mark.parametrize("verbose", [1 / 2, 1 / 3, False])
 def test_verbosity_levels(capsys, verbose):
     max_iter = 14
 
@@ -676,7 +684,10 @@ def test_verbosity_levels(capsys, verbose):
         _test_verbosity()
         messages = logs.getvalue().splitlines()
 
-    assert len(messages) == pytest.approx(max_iter * verbose + 2, abs=1)
+    if verbose:
+        assert len(messages) == pytest.approx(max_iter * verbose + 2, abs=1)
+    else:
+        assert len(messages) == max_iter + 2
 
 
 @gen_cluster(client=True)
