@@ -101,7 +101,7 @@ support the same API as the NumPy ndarray, so most methods won't work on the
 result. Even basic things like ``compute`` will fail. To work around this,
 we currently recommend converting the sparse matricies to dense.
 
-.. ipython:: python
+.. code-block:: python
 
    from dask_ml.preprocessing import OneHotEncoder
    import dask.array as da
@@ -115,7 +115,7 @@ we currently recommend converting the sparse matricies to dense.
 
 Each block of ``result`` is a scipy sparse matrix
 
-.. ipython:: python
+.. code-block:: python
 
    result.blocks[0].compute()
    # This would fail!
@@ -189,7 +189,7 @@ depending on whether the value in the original.
 Wherever the original was ``'a'``, the transformed now has a ``1`` in the ``a``
 column and a ``0`` everywhere else.
 
-Why was the ``Categorizizer`` step necessary? Why couldn't we operate directly
+Why was the ``Categorizer`` step necessary? Why couldn't we operate directly
 on the ``object`` (string) dtype column? Doing this would be fragile,
 especially when using ``dask.dataframe``, since *the shape of the output would
 depend on the values present*. For example, suppose that we just saw the first

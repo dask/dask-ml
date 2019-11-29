@@ -17,13 +17,14 @@ def test_it_works():
     clf = ParallelPostFit(GradientBoostingClassifier())
 
     X, y = make_classification(n_samples=1000, chunks=100)
-    clf.fit(X, y)
+    X_, y_ = dask.compute(X, y)
+    clf.fit(X_, y_)
 
     assert isinstance(clf.predict(X), da.Array)
     assert isinstance(clf.predict_proba(X), da.Array)
 
     result = clf.score(X, y)
-    expected = clf.estimator.score(X, y)
+    expected = clf.estimator.score(X_, y_)
     assert result == expected
 
 
@@ -61,8 +62,8 @@ def test_predict(kind):
     base = LogisticRegression(random_state=0, n_jobs=1, solver="lbfgs")
     wrap = ParallelPostFit(LogisticRegression(random_state=0, n_jobs=1, solver="lbfgs"))
 
-    base.fit(X, y)
-    wrap.fit(X, y)
+    base.fit(*dask.compute(X, y))
+    wrap.fit(*dask.compute(X, y))
 
     assert_estimator_equal(wrap.estimator, base)
 
@@ -72,6 +73,10 @@ def test_predict(kind):
 
     result = wrap.predict_proba(X)
     expected = base.predict_proba(X)
+    assert_eq_ar(result, expected)
+
+    result = wrap.predict_log_proba(X)
+    expected = base.predict_log_proba(X)
     assert_eq_ar(result, expected)
 
 
@@ -107,7 +112,7 @@ def test_multiclass():
         LogisticRegression(random_state=0, n_jobs=1, solver="lbfgs", multi_class="auto")
     )
 
-    clf.fit(X, y)
+    clf.fit(*dask.compute(X, y))
     result = clf.predict(X)
     expected = clf.estimator.predict(X)
 
@@ -118,6 +123,10 @@ def test_multiclass():
     expected = clf.estimator.predict_proba(X)
 
     assert isinstance(result, da.Array)
+    assert_eq_ar(result, expected)
+
+    result = clf.predict_log_proba(X)
+    expected = clf.estimator.predict_log_proba(X)
     assert_eq_ar(result, expected)
 
 

@@ -1,11 +1,15 @@
+import os
+from ast import literal_eval
+
 import numpy as np
+from distributed import Lock, Variable, get_worker
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import _num_samples, check_array
 
 
 # This class doesn't inherit from BaseEstimator to test hyperparameter search
 # on user-defined classifiers.
-class MockClassifier(object):
+class MockClassifier:
     """Dummy classifier to test the parameter search algorithms"""
 
     def __init__(self, foo_param=0):
@@ -114,7 +118,7 @@ class FailingClassifier(BaseEstimator):
 # here: https://github.com/scikit-learn/scikit-learn/issues/7319
 
 
-class ArraySlicingWrapper(object):
+class ArraySlicingWrapper:
     def __init__(self, array):
         self.array = array
 
@@ -122,7 +126,7 @@ class ArraySlicingWrapper(object):
         return MockDataFrame(self.array[aslice])
 
 
-class MockDataFrame(object):
+class MockDataFrame:
     # have shape and length but don't support indexing.
     def __init__(self, array):
         self.array = array
@@ -188,3 +192,72 @@ class CheckingClassifier(BaseEstimator, ClassifierMixin):
         else:
             score = 0.0
         return score
+
+
+class AsCompletedEstimator(MockClassifier):
+    def __init__(
+        self, killed_workers_name, lock_name, counter_name, min_complete, foo_param=None
+    ):
+        super(AsCompletedEstimator, self).__init__(foo_param)
+        self.counter_name = counter_name
+        self.killed_workers_name = killed_workers_name
+        self.lock_name = lock_name
+        self.min_complete = min_complete
+
+    def fit(self, X, y=None):
+        w = get_worker()
+        dsk_lock = Lock(self.lock_name, client=w.client)
+        dsk_counter = Variable(self.counter_name, client=w.client)
+        dsk_killed_workers = Variable(self.killed_workers_name, client=w.client)
+
+        for e in list(w.executing):
+            should_die = False
+            t = literal_eval(e)
+            with dsk_lock:
+                c = dsk_counter.get()
+                dsk_counter.set(c + 1)
+                killed_workers = dsk_killed_workers.get()
+                if c > self.min_complete and t not in killed_workers:
+                    killed_workers[t] = True
+                    should_die = True
+                    dsk_killed_workers.set(killed_workers)
+
+            if should_die:
+                os.kill(os.getpid(), 9)
+        return self
+
+
+class LinearFunction(BaseEstimator):
+    def __init__(self, intercept=0, slope=1, foo=0):
+        self._num_calls = 0
+        self.intercept = intercept
+        self.slope = slope
+        self.foo = foo
+        super(LinearFunction, self).__init__()
+
+    def fit(self, *args):
+        return self
+
+    def partial_fit(self, *args, **kwargs):
+        self._num_calls += 1
+        return self
+
+    def score(self, *args, **kwargs):
+        return self.intercept + self.slope * self._num_calls
+
+
+class _MaybeLinearFunction(BaseEstimator):
+    def __init__(self, final_score=1):
+        self.final_score = final_score
+        self._calls = 0
+
+    def fit(self, X, y):
+        return self
+
+    def partial_fit(self, X, y):
+        self._calls += 1
+
+    def score(self, X, y):
+        if self.final_score <= 3:
+            return self.final_score * (1 - 1 / (self._calls + 2))
+        return self.final_score

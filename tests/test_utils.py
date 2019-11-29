@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 import pandas.util.testing as tm
 import pytest
-import six
 from dask.array.utils import assert_eq as assert_eq_ar
 from dask.dataframe.utils import assert_eq as assert_eq_df
 
@@ -127,7 +126,6 @@ def test_check_random_state():
 
 
 @pytest.mark.parametrize("chunks", [None, 4, (2000, 4), [2000, 4]])
-@pytest.mark.skipif(six.PY2, reason="No mock")
 def test_get_chunks(chunks):
     from unittest import mock
 

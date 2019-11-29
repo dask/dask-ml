@@ -12,15 +12,16 @@ import scipy.stats
 import toolz
 from dask.distributed import Future, default_client, futures_of, wait
 from distributed.utils import log_errors
-from sklearn.base import BaseEstimator, MetaEstimatorMixin, clone
-from sklearn.metrics.scorer import check_scoring
+from sklearn.base import clone
+from sklearn.metrics import check_scoring
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
 from sklearn.utils.metaestimators import if_delegate_has_method
-from sklearn.utils.validation import check_is_fitted
 from tornado import gen
 
+from .._compat import check_is_fitted
 from ..utils import check_array
+from ..wrappers import ParallelPostFit
 from ._split import train_test_split
 
 Results = namedtuple("Results", ["info", "models", "history", "best"])
@@ -180,6 +181,7 @@ def _fit(
 
     d_partial_fit = dask.delayed(_partial_fit)
     d_score = dask.delayed(_score)
+
     for ident, model in models.items():
         model = d_partial_fit(model, X_future, y_future, fit_params)
         score = d_score(model, X_test, y_test, scorer)
@@ -199,6 +201,7 @@ def _fit(
 
     new_scores = list(_scores.values())
     history = []
+    start_time = time()
 
     # async for future, result in seq:
     while True:
@@ -206,6 +209,7 @@ def _fit(
 
         for meta in metas:
             ident = meta["model_id"]
+            meta["elapsed_wall_time"] = time() - start_time
 
             info[ident].append(meta)
             history.append(meta)
@@ -225,6 +229,7 @@ def _fit(
         _models = {}
         _scores = {}
         _specs = {}
+
         for ident, k in instructions.items():
             start = info[ident][-1]["partial_fit_calls"] + 1
             if k:
@@ -247,9 +252,9 @@ def _fit(
             k: v if isinstance(v, Future) else list(v.dask.values())[0]
             for k, v in _models2.items()
         }
-
         _scores2 = {k: list(v.dask.values())[0] for k, v in _scores2.items()}
         _specs2 = {k: list(v.dask.values())[0] for k, v in _specs2.items()}
+
         models.update(_models2)
         scores.update(_scores2)
         speculative = _specs2
@@ -263,6 +268,7 @@ def _fit(
 
     info = defaultdict(list)
     for h in history:
+        h.pop("_adapt", None)
         info[h["model_id"]].append(h)
     info = dict(info)
 
@@ -406,7 +412,7 @@ def fit(
 # ----------------------------------------------------------------------------
 
 
-class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
+class BaseIncrementalSearchCV(ParallelPostFit):
     """Base class for estimators using the incremental `fit`.
 
     Subclasses must implement the following abstract method
@@ -415,15 +421,43 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
     """
 
     def __init__(
-        self, estimator, parameters, test_size=None, random_state=None, scoring=None
+        self,
+        estimator,
+        parameters,
+        test_size=None,
+        random_state=None,
+        scoring=None,
+        max_iter=100,
+        patience=False,
+        tol=1e-3,
     ):
-        self.estimator = estimator
         self.parameters = parameters
         self.test_size = test_size
         self.random_state = random_state
-        self.scoring = scoring
+        self.max_iter = max_iter
+        self.patience = patience
+        self.tol = tol
+        super(BaseIncrementalSearchCV, self).__init__(estimator, scoring=scoring)
 
-    def _check_array(self, X, y, **kwargs):
+    def _validate_parameters(self, X, y):
+        if (self.max_iter is not None) and self.max_iter < 1:
+            raise ValueError(
+                "Received max_iter={}. max_iter < 1 is not supported".format(
+                    self.max_iter
+                )
+            )
+
+        X = self._check_array(X)
+        y = self._check_array(y, ensure_2d=False)
+        scorer = check_scoring(self.estimator, scoring=self.scoring)
+        return X, y, scorer
+
+    @property
+    def _postfit_estimator(self):
+        check_is_fitted(self, "best_estimator_")
+        return self.best_estimator_
+
+    def _check_array(self, X, **kwargs):
         """Validate the data arguments X and y.
 
         By default, NumPy arrays are converted to 1-block dask arrays.
@@ -434,12 +468,8 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
         """
         if isinstance(X, np.ndarray):
             X = da.from_array(X, X.shape)
-        if isinstance(y, np.ndarray):
-            y = da.from_array(y, y.shape)
         X = check_array(X, **kwargs)
-        kwargs["ensure_2d"] = False
-        y = check_array(y, **kwargs)
-        return X, y
+        return X
 
     def _get_train_test_split(self, X, y, **kwargs):
         """CV-Split the arrays X and y
@@ -456,7 +486,9 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
             test_size = min(0.2, 1 / X.npartitions)
         else:
             test_size = self.test_size
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size)
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=test_size, random_state=self.random_state
+        )
         return X_train, X_test, y_train, y_test
 
     def _additional_calls(self, info):
@@ -493,13 +525,14 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
 
         # Every model will have the same params because this class uses either
         # ParameterSampler or ParameterGrid
-        cv_results.update(
-            {
-                "param_" + k: v
-                for params in cv_results["params"]
-                for k, v in params.items()
-            }
-        )
+        params = defaultdict(list)
+        for model_params in cv_results["params"]:
+            for k, v in model_params.items():
+                params[k].append(v)
+
+        for k, v in params.items():
+            cv_results["param_" + k] = v
+
         cv_results = {k: np.array(v) for k, v in cv_results.items()}
         cv_results["rank_test_score"] = scipy.stats.rankdata(
             -cv_results["test_score"], method="min"
@@ -521,10 +554,8 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
 
     @gen.coroutine
     def _fit(self, X, y, **fit_params):
-        X, y = self._check_array(X, y)
-
+        X, y, scorer = self._validate_parameters(X, y)
         X_train, X_test, y_train, y_test = self._get_train_test_split(X, y)
-        scorer = check_scoring(self.estimator, scoring=self.scoring)
 
         results = yield fit(
             self.estimator,
@@ -559,10 +590,15 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
         self.best_score_ = cv_results["test_score"][best_idx]
         self.best_params_ = cv_results["params"][best_idx]
         self.n_splits_ = 1
-        self.multimetric_ = False  # TODO: is this always true?
+
+        # this is always true because adaptive searches need one number to
+        # judge model quality. I suppose different models run different metrics
+        # at each scoring, but one score is needed to choose the better of two
+        # models
+        self.multimetric_ = False
         raise gen.Return(self)
 
-    def fit(self, X, y, **fit_params):
+    def fit(self, X, y=None, **fit_params):
         """Find the best parameters for a particular model.
 
         Parameters
@@ -572,21 +608,6 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
             Additional partial fit keyword arguments for the estimator.
         """
         return default_client().sync(self._fit, X, y, **fit_params)
-
-    @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
-    def predict(self, X, y=None):
-        self._check_is_fitted("predict")
-        return self.best_estimator_.predict(X)
-
-    @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
-    def predict_proba(self, X):
-        self._check_is_fitted("predict_proba")
-        return self.best_estimator_.predict_proba(X)
-
-    @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
-    def predict_log_proba(self, X):
-        self._check_is_fitted("predict_log_proba")
-        return self.best_estimator_.predict_log_proba(X)
 
     @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
     def decision_function(self, X):
@@ -615,10 +636,6 @@ class BaseIncrementalSearchCV(BaseEstimator, MetaEstimatorMixin):
 class IncrementalSearchCV(BaseIncrementalSearchCV):
     """
     Incrementally search for hyper-parameters on models that support partial_fit
-
-    .. note::
-
-       This class depends on the optional ``distributed`` library.
 
     This incremental hyper-parameter optimization class starts training the
     model on many hyper-parameters on a small amount of data, and then only
@@ -655,8 +672,8 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         theoritical motivation [1]_.
 
     patience : int, default False
-        Maximum number of non-improving scores before we stop training a
-        model. Off by default.
+        If specified, training stops when the score does not increase by
+        ``tol`` after ``patience`` calls to ``partial_fit``. Off by default.
 
     scores_per_fit : int, default 1
         If ``patience`` is used the maximum number of ``partial_fit`` calls
@@ -739,6 +756,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         * ``model_id``
         * ``params``
         * ``partial_fit_calls``
+        * ``elapsed_wall_time``
 
         The key ``model_id`` corresponds to the ``model_id`` in ``cv_results_``.
         This list of dicts can be imported into Pandas.
@@ -767,7 +785,6 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
     multimetric_ : bool
         Whether this cross validation search uses multiple metrics.
-
 
     Examples
     --------
@@ -845,16 +862,67 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         self.scores_per_fit = scores_per_fit
         self.max_iter = max_iter
         super(IncrementalSearchCV, self).__init__(
-            estimator, param_distribution, test_size, random_state, scoring
+            estimator,
+            param_distribution,
+            test_size=test_size,
+            random_state=random_state,
+            scoring=scoring,
+            max_iter=max_iter,
+            patience=patience,
+            tol=tol,
         )
 
     def _get_params(self):
         if self.n_initial_parameters == "grid":
             return ParameterGrid(self.parameters)
         else:
-            return ParameterSampler(self.parameters, self.n_initial_parameters)
+            return ParameterSampler(
+                self.parameters,
+                self.n_initial_parameters,
+                random_state=self.random_state,
+            )
 
     def _additional_calls(self, info):
+        if not isinstance(self.patience, int):
+            msg = (
+                "patience must be an integer (or a subclass like boolean), "
+                "not patience={} of type {}"
+            )
+            raise ValueError(msg.format(self.patience, type(self.patience)))
+        if not isinstance(self.patience, bool) and self.patience <= 1:
+            raise ValueError(
+                "patience={}<=1 will always detect a plateau. "
+                "this, set\n\n    patience >= 2"
+            )
+
+        calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
+
+        if self.patience and max(calls.values()) > 1:
+            calls_so_far = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
+            adapt_calls = {
+                k: [
+                    vi["partial_fit_calls"] + vi["_adapt"] for vi in v if "_adapt" in vi
+                ][-1]
+                for k, v in info.items()
+            }
+
+            calls_to_make = {k: adapt_calls[k] - calls_so_far[k] for k in calls}
+            if sum(calls_to_make.values()) > 0:
+                out = self._stop_on_plateau(calls_to_make, info)
+                return {k: min(v, int(self.patience)) for k, v in out.items()}
+
+        instructions = self._adapt(info)
+        if self.patience:
+            for ident, calls in instructions.items():
+                info[ident][-1]["_adapt"] = calls
+
+        out = self._stop_on_plateau(instructions, info)
+
+        if self.patience:
+            return {k: min(v, int(self.patience)) for k, v in out.items()}
+        return out
+
+    def _adapt(self, info):
         # First, have an adaptive algorithm
         if self.n_initial_parameters == "grid":
             start = len(ParameterGrid(self.parameters))
@@ -890,7 +958,9 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
             return {best: 0}
         steps = next_time_step - current_time_step
         instructions = {b: steps for b in best}
+        return instructions
 
+    def _stop_on_plateau(self, instructions, info):
         # Second, stop on plateau if any models have already converged
         out = {}
         for k, steps in instructions.items():
@@ -904,7 +974,8 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
                     for h in records
                     if current_calls - h["partial_fit_calls"] <= self.patience
                 ]
-                if all(score <= plateau[0] + self.tol for score in plateau[1:]):
+                diffs = np.array(plateau[1:]) - plateau[0]
+                if (self.tol is not None) and diffs.max() <= self.tol:
                     out[k] = 0
                 else:
                     out[k] = steps

@@ -24,6 +24,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+pip-wheel-metadata/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -43,8 +44,10 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
+test-output.xml
 *.cover
 .hypothesis/
+.pytest_cache/
 
 # Translations
 *.mo
@@ -116,5 +119,6 @@ docs/source/examples/susy
 /docs/source/generated/
 source/auto_examples/
 docs/source/auto_examples/
+docs/source/examples/mydask.png
 
 dask-worker-space

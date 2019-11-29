@@ -55,7 +55,7 @@ extensions = [
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.6", None),
     "sklearn": ("http://scikit-learn.org/stable/", None),
-    "dask": ("https://dask.org/en/latest/", None),
+    "dask": ("https://docs.dask.org/en/latest/", None),
     "distributed": ("https://distributed.dask.org/en/latest/", None),
     "dask_glm": ("http://dask-glm.readthedocs.io/en/latest/", None),
 }

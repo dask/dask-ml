@@ -3,9 +3,11 @@
 These estimators will operate in parallel. Their scalability depends
 on the underlying estimators being used.
 """
-from ._search import GridSearchCV, RandomizedSearchCV, compute_n_splits, check_cv
-from ._split import ShuffleSplit, KFold, train_test_split
-
+from ._hyperband import HyperbandSearchCV
+from ._incremental import IncrementalSearchCV
+from ._search import GridSearchCV, RandomizedSearchCV, check_cv, compute_n_splits
+from ._split import KFold, ShuffleSplit, train_test_split
+from ._successive_halving import SuccessiveHalvingSearchCV
 
 __all__ = [
     "GridSearchCV",
@@ -15,12 +17,7 @@ __all__ = [
     "train_test_split",
     "compute_n_splits",
     "check_cv",
+    "IncrementalSearchCV",
+    "HyperbandSearchCV",
+    "SuccessiveHalvingSearchCV",
 ]
-
-
-try:
-    from ._incremental import IncrementalSearchCV  # noqa: F401
-
-    __all__.extend(["IncrementalSearchCV"])
-except ImportError:
-    pass
