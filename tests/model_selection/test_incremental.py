@@ -629,8 +629,8 @@ def test_history(c, s, a, b):
 
 @pytest.mark.parametrize("Search", [HyperbandSearchCV, IncrementalSearchCV])
 @pytest.mark.parametrize("verbose", [True, False])
-def test_verbosity(capsys, Search, verbose):
-    max_iter = 27
+def test_verbosity(Search, capsys, verbose):
+    max_iter = 15
 
     @gen_cluster(client=True)
     def _test_verbosity(c, s, a, b):
