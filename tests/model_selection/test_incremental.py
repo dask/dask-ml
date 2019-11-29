@@ -273,7 +273,7 @@ def _test_search_basic(decay_rate, c, s, a, b):
         "elapsed_wall_time",
     }
 
-    X_, = yield c.compute([X])
+    (X_,) = yield c.compute([X])
     # Dask Objects are lazy
 
     proba = search.predict_proba(X)
@@ -401,7 +401,7 @@ def test_transform(c, s, a, b):
     params = {"n_clusters": [3, 4, 5], "n_init": [1, 2]}
     search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
     yield search.fit(X, y)
-    X_, = yield c.compute([X])
+    (X_,) = yield c.compute([X])
     result = search.transform(X_)
     assert result.shape == (100, search.best_estimator_.n_clusters)
 
@@ -415,7 +415,7 @@ def test_small(c, s, a, b):
         model, params, n_initial_parameters="grid", decay_rate=0
     )
     yield search.fit(X, y, classes=[0, 1])
-    X_, = yield c.compute([X])
+    (X_,) = yield c.compute([X])
     search.predict(X_)
 
 
@@ -427,7 +427,7 @@ def test_smaller(c, s, a, b):
     params = {"alpha": [0.1, 0.5]}
     search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
     yield search.fit(X, y, classes=[0, 1])
-    X_, = yield c.compute([X])
+    (X_,) = yield c.compute([X])
     search.predict(X_)
 
 
@@ -630,12 +630,14 @@ def test_history(c, s, a, b):
 @pytest.mark.parametrize("Search", [HyperbandSearchCV, IncrementalSearchCV])
 @pytest.mark.parametrize("verbose", [True, False])
 def test_verbosity(capsys, Search, verbose):
+    max_iter = 15
+
     @gen_cluster(client=True)
     def _test_verbosity(c, s, a, b):
         X, y = make_classification(n_samples=10, n_features=4, chunks=10)
         model = ConstantFunction()
         params = {"value": scipy.stats.uniform(0, 1)}
-        search = Search(model, params, max_iter=9, verbose=verbose)
+        search = Search(model, params, max_iter=max_iter, verbose=verbose)
         yield search.fit(X, y)
 
     with captured_logger(logging.getLogger("dask_ml.model_selection")) as logs:
@@ -654,6 +656,27 @@ def test_verbosity(capsys, Search, verbose):
         assert sum("creating" in m and "models" in m for m in messages) == brackets
     else:
         assert len(messages) == 0
+
+
+@pytest.mark.parametrize("verbose", [1 / 2, 1 / 3])
+def test_verbosity_levels(capsys, verbose):
+    max_iter = 14
+
+    @gen_cluster(client=True)
+    def _test_verbosity(c, s, a, b):
+        X, y = make_classification(n_samples=10, n_features=4, chunks=10)
+        model = ConstantFunction()
+        params = {"value": scipy.stats.uniform(0, 1)}
+        search = IncrementalSearchCV(
+            model, params, max_iter=max_iter, verbose=verbose, decay_rate=0
+        )
+        yield search.fit(X, y)
+
+    with captured_logger(logging.getLogger("dask_ml.model_selection")) as logs:
+        _test_verbosity()
+        messages = logs.getvalue().splitlines()
+
+    assert len(messages) == pytest.approx(max_iter * verbose + 2, abs=1)
 
 
 @gen_cluster(client=True)
