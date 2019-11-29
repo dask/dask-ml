@@ -3,21 +3,21 @@ Hyper Parameter Search
 
 *Tools for performing hyperparameter optimization of Scikit-Learn API-compatible models using Dask*.
 
-Scaling in hyper-parameter searches
+Scaling in hyperparameter searches
 -----------------------------------
 
-Scaling a hyper-parameter optimization means that the problem becomes either
+Dask-ML has tools to scale hyperparameter searches to either **more data** or
+**more computational power.** This means searches that Dask-ML's tools can
+have either of the following problems:
 
-1. compute constrained
-2. memory constrained
+1. **Being "compute constrained".** e.g., this happens when many
+   hyperparameters need to be tuned (like the hyperparameter of neural
+   networks; learning rate, batch size, momentum, etc)
+2. **Being "memory constrained".** e.g., when a model needs to be tuned
+   for a larger-than-memory dataset.
 
-These issues are independent and both can happen the same time.  Examples:
-
-* Having many hyper-parameters leads to compute constrained problems. e.g., the
-  hyper-parameters in a neural network (learning rate, etc)
-* Having a larger-than-memory dataset leads to memory constrained problems.
-
-Dask-ML has work in all 4 combinations of these two constraints.
+These issues are independent and both can happen the same time.
+Dask-ML has the following tools to address these issues:
 
 Neither compute nor memory constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -27,36 +27,37 @@ Scikit-learn handles this case:
    sklearn.model_selection.GridSearchCV
    sklearn.model_selection.RandomizedSearchCV
 
-Compute constrained, but not memory constrained
+Memory constrained, but not compute constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Dask-ML has some drop in replacements for the Scikit-learn versions that ease
-the amount of compute required:
+Dask-ML has some drop in replacements for the Scikit-learn versions:
 
 .. autosummary::
    dask_ml.model_selection.GridSearchCV
    dask_ml.model_selection.RandomizedSearchCV
 
-There avoid unnecessary compute by avoiding repeated work. More detail is in
-:ref:`hyperparameter.drop-in`.
+These estimators call ``fit`` on the data provided. The data provided to
+``fit`` should fit in the memory of one worker. By default, they score
+different models by training estimators in parallel and averaging their scores.
+They avoid unnecessary computation by avoiding repeated work (i.e., in
+pipelines). More detail is in :ref:`hyperparameter.drop-in`.
 
-These estimators call `fit` on the data provided. The data provided to `fit`
-should fit in the RAM of one worker.
-
-Memory constrained, but not compute constrained
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-This estimator calls ``partial_fit`` on each chunk of the data.
+This estimator mirrors randomized or grid search by default but generalizes to
+larger datasets by training each model on the entire dataset.
 
 .. autosummary::
    dask_ml.model_selection.IncrementalSearchCV
 
-By default, this estimator mirrors randomized or grid search but generalizes to
-larger datasets. More detail is in
+It does this by calling ``partial_fit`` on each chunk of the data.  This
+estimator cannot perform repeated cross-validation like
+:class:`~dask_ml.model_selection.RandomizedSearchCV` or
+:class:`~dask_ml.model_selection.GridSearchCV`. More detail is in
 :ref:`hyperparameter.incremental`.
 
-Compute and memory constrained
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. _hyperparameter.compute-not-memory-constrained:
+
+Compute constrained, but not memory constrained
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autosummary::
    dask_ml.model_selection.HyperbandSearchCV
@@ -65,6 +66,12 @@ Compute and memory constrained
 These searches can reduce time to solution by (cleverly) deciding which
 parameters to evaluate. These searches *adapt* to history to decide which
 parameters to continue evaluating.
+
+Compute and memory constrained
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+See :ref:`hyperparameter.compute-not-memory-constrained`. These estimators also
+work with larger-than-memory datasets.
 
 .. _hyperparameter.drop-in:
 
@@ -242,13 +249,13 @@ Incremental Hyperparameter Optimization
    dask_ml.model_selection.SuccessiveHalvingSearchCV
 
 These estimators act identically. The example will use
-:ref:`~dask_ml.model_selection.HyperbandSearchCV`.
+:class:`~dask_ml.model_selection.HyperbandSearchCV`.
 
 .. note::
 
    These estimators require that the estimator implement ``partial_fit``
 
-By default, :ref:`~dask_ml.model_selection.SuccessiveHalvingSearchCV` calls
+By default, :class:`~dask_ml.model_selection.SuccessiveHalvingSearchCV` calls
 ``partial_fit`` on each chunk of the data. It can stop training any estimators if
 their score stops increasing (via ``patience`` and ``tol``).
 
@@ -258,8 +265,8 @@ First, let's look at basic usage. Some more adaptive use will be detailed in
 Basic use
 ^^^^^^^^^
 
-This section uses :ref:`~dask_ml.model_selection.HyperbandSearchCV`, but it can
-also be applied to to :ref:`~dask_ml.model_selection.IncrementalSearchCV` too.
+This section uses :class:`~dask_ml.model_selection.HyperbandSearchCV`, but it can
+also be applied to to :class:`~dask_ml.model_selection.IncrementalSearchCV` too.
 
 .. ipython:: python
 
@@ -323,7 +330,7 @@ that's underlying the :class:`dask_ml.wrappers.ParallelPostFit`.
 Adaptive Hyperparameter Optimization
 ------------------------------------
 
-:ref:`~dask_ml.model_selection.HyperbandSearchCV` determines when to
+:class:`~dask_ml.model_selection.HyperbandSearchCV` determines when to
 stop calling ``partial_fit`` by `adapting to previous calls`. It has several
 niceties:
 
@@ -332,8 +339,8 @@ niceties:
   ``n_initial_parameters``).
 
 More detail and performance comparisons with
-:ref:`~dask_ml.model_selection.IncrementalSearchCV` are in the Dask blog: TODO.
+:class:`~dask_ml.model_selection.IncrementalSearchCV` are in the Dask blog: TODO.
 
-:ref:`~dask_ml.model_selection.IncrementalSearchCV` can adapt to previous
+:class:`~dask_ml.model_selection.IncrementalSearchCV` can adapt to previous
 scores by changing ``decay_rate`` (``decay_rate=1`` is suggested `if` it's
 changed).
