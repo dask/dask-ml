@@ -771,8 +771,8 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
     verbose : bool, int, optional, default: False
         If ``True``, log the best validation score received every
-        time possible. If a float, print (approximately) ``verbose``
-        percent of the time.
+        time possible. If a float between 0 and 1, print (approximately)
+        ``verbose`` fraction of the time.
 
 
     Attributes
