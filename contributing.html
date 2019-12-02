@@ -25,9 +25,7 @@
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
         <script type="text/javascript" src="_static/language_data.js"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
         <script type="text/javascript" src="_static/js/custom.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
@@ -128,7 +126,7 @@
             
             
               <div class="version">
-                1.1.2.dev6+gcd8d81f
+                1.1.2.dev8+gfaaeff0
               </div>
             
           
@@ -364,6 +362,10 @@ the same type as the input. So if a <code class="docutils literal notranslate"><
 <div class="section" id="documentation">
 <h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
 <p>We use <a class="reference external" href="http://numpydoc.readthedocs.io/en/latest/format.html">numpydoc</a> for our docstrings.</p>
+<p>Building the docs is possible with</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ conda env create -f ci/environment-docs.yaml --name=dask-ml-dev-docs
+</pre></div>
+</div>
 <p>Examples are written as Jupyter notebooks with their output stripped, either
 manually or using <a class="reference external" href="https://github.com/kynan/nbstripout">nbstripout</a>. We want
 examples to be runnable on binder so they should be small, but include

@@ -25,9 +25,7 @@
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
         <script type="text/javascript" src="_static/language_data.js"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
         <script type="text/javascript" src="_static/js/custom.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
@@ -41,7 +39,7 @@
   <link rel="stylesheet" href="_static/css/nbsphinx.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Scale Scikit-Learn for Small Data Problems" href="examples/scale-scikit-learn.html" />
+    <link rel="next" title="Preprocessing" href="preprocessing.html" />
     <link rel="prev" title="Installation" href="install.html" />
   <link rel="shortcut icon" href="_static/images/favicon.ico"/>
 
@@ -128,7 +126,7 @@
             
             
               <div class="version">
-                1.1.2.dev6+gcd8d81f
+                1.1.2.dev8+gfaaeff0
               </div>
             
           
@@ -155,26 +153,7 @@
               <p class="caption"><span class="caption-text">Get Started</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#scaling-scikit-learn">Scaling Scikit-Learn</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="examples/scale-scikit-learn.html">Scale Scikit-Learn for Small Data Problems</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/parallel-prediction.html">Score and Predict Large Datasets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/voting-classifier.html">Use Voting Classifiers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/text-vectorization.html">Text Vectorization Pipeline</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#training-on-large-datasets">Training on Large Datasets</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="examples/training-on-large-datasets.html">Train Models on Large Datasets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/incremental.html">Incrementally Train Large Datasets</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#integrations-with-other-libraries">Integrations with Other Libraries</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="examples/xgboost.html">Scale XGBoost</a></li>
-<li class="toctree-l3"><a class="reference internal" href="examples/tpot.html">Automate Machine Learning with TPOT</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Use</span></p>
 <ul>
@@ -263,38 +242,9 @@
             
   <div class="section" id="examples">
 <span id="id1"></span><h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference external" href="https://www.github.com/dask/dask-examples">dask-examples</a> contains a set of runnable examples.
-Here are some machine-learning focused examples:</p>
-<div class="section" id="scaling-scikit-learn">
-<h2>Scaling Scikit-Learn<a class="headerlink" href="#scaling-scikit-learn" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="examples/scale-scikit-learn.html">Scale Scikit-Learn for Small Data Problems</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/parallel-prediction.html">Score and Predict Large Datasets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/voting-classifier.html">Use Voting Classifiers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/text-vectorization.html">Text Vectorization Pipeline</a></li>
-</ul>
-</div>
-</div>
-<div class="section" id="training-on-large-datasets">
-<h2>Training on Large Datasets<a class="headerlink" href="#training-on-large-datasets" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="examples/training-on-large-datasets.html">Train Models on Large Datasets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/incremental.html">Incrementally Train Large Datasets</a></li>
-</ul>
-</div>
-</div>
-<div class="section" id="integrations-with-other-libraries">
-<h2>Integrations with Other Libraries<a class="headerlink" href="#integrations-with-other-libraries" title="Permalink to this headline">¶</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="examples/xgboost.html">Scale XGBoost</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/tpot.html">Automate Machine Learning with TPOT</a></li>
-</ul>
-</div>
-<p>We also have sets of Dask-ML performance benchmarks in the <a class="reference external" href="https://dask-ml-benchmarks.readthedocs.io">dask-ml-benchmarks</a> repository.</p>
-</div>
+<p><a class="reference external" href="https://examples.dask.org">dask-examples</a> contains a set of runnable examples. The <a class="reference external" href="https://examples.dask.org/machine-learning.html">machine learning overview</a>
+gives an overview and many specific examples are listed in the table of contents on
+the main page.</p>
 </div>
 
 
@@ -305,7 +255,7 @@ Here are some machine-learning focused examples:</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="examples/scale-scikit-learn.html" class="btn btn-neutral float-right" title="Scale Scikit-Learn for Small Data Problems" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="preprocessing.html" class="btn btn-neutral float-right" title="Preprocessing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="install.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

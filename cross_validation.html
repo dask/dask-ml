@@ -25,9 +25,7 @@
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
         <script type="text/javascript" src="_static/language_data.js"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
         <script type="text/javascript" src="_static/js/custom.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
@@ -128,7 +126,7 @@
             
             
               <div class="version">
-                1.1.2.dev6+gcd8d81f
+                1.1.2.dev8+gfaaeff0
               </div>
             
           
@@ -247,7 +245,7 @@
 <p>See the <a class="reference external" href="http:/scikit-learn.org/stable/modules/cross_validation.html">scikit-learn cross validation documentation</a> for a fuller discussion of cross validation.
 This document only describes the extensions made to support Dask arrays.</p>
 <p>The simplest way to split one or more Dask arrays is with <a class="reference internal" href="modules/generated/dask_ml.model_selection.train_test_split.html#dask_ml.model_selection.train_test_split" title="dask_ml.model_selection.train_test_split"><code class="xref py py-func docutils literal notranslate"><span class="pre">dask_ml.model_selection.train_test_split()</span></code></a>.</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">import</span> <span class="nn">dask.array</span> <span class="kn">as</span> <span class="nn">da</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">import</span> <span class="nn">dask.array</span> <span class="k">as</span> <span class="nn">da</span>
 
 <span class="gp">In [2]: </span><span class="kn">from</span> <span class="nn">dask_ml.datasets</span> <span class="kn">import</span> <span class="n">make_regression</span>
 
@@ -260,18 +258,18 @@ This document only describes the extensions made to support Dask arrays.</p>
 </pre></div>
 </div>
 <p>The interface for splitting Dask arrays is the same as scikit-learn’s version.</p>
-<pre class="literal-block">
-In [6]: X_train, X_test, y_train, y_test = train_test_split(X, y)
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [6]: </span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 
-In [7]: X_train  # A dask Array
-Out[7]: dask.array&lt;concatenate, shape=(112, 4), dtype=float64, chunksize=(45, 4), chunktype=numpy.ndarray&gt;
+<span class="gp">In [7]: </span><span class="n">X_train</span>  <span class="c1"># A dask Array</span>
+<span class="gh">Out[7]: </span><span class="go">dask.array&lt;concatenate, shape=(112, 4), dtype=float64, chunksize=(45, 4), chunktype=numpy.ndarray&gt;</span>
 
-In [8]: X_train.compute()[:3]
-Out[8]: 
-array([[-0.3122028 , -0.88191003, -0.00495866,  0.91761886],
-       [ 1.14404497,  0.72980837, -0.45189179, -0.5557901 ],
-       [ 0.0245364 , -0.43393144,  1.62149195, -0.5357923 ]])
-</pre>
+<span class="gp">In [8]: </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span>
+<span class="gh">Out[8]: </span><span class="go"></span>
+<span class="go">array([[ 1.07432565, -1.17306786,  0.37381119, -1.55511111],</span>
+<span class="go">       [-1.50683048,  0.8588574 ,  0.94145644, -1.12419445],</span>
+<span class="go">       [ 0.00857379,  1.42919713, -0.0874478 ,  0.06874151]])</span>
+</pre></div>
+</div>
 <p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v0.21.3)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
 using the Dask version for performance reasons. There are two major difference that let make the Dask version
 faster.</p>

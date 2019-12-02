@@ -25,9 +25,7 @@
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
         <script type="text/javascript" src="_static/language_data.js"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
         <script type="text/javascript" src="_static/js/custom.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
@@ -128,7 +126,7 @@
             
             
               <div class="version">
-                1.1.2.dev6+gcd8d81f
+                1.1.2.dev8+gfaaeff0
               </div>
             
           
@@ -294,7 +292,7 @@ participate in general TensorFlow compuations.</p>
         <span class="n">tf_server</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">worker</span><span class="o">.</span><span class="n">tensorflow_server</span>
         <span class="n">tf_server</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
 
-<span class="n">ps_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">client</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">ps_function</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="n">worker</span><span class="p">,</span> <span class="n">pure</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">ps_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">client</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">ps_function</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="n">worker</span><span class="p">,</span> <span class="n">pure</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">worker</span> <span class="ow">in</span> <span class="n">dask_spec</span><span class="p">[</span><span class="s1">&#39;ps&#39;</span><span class="p">]]</span>
 
 <span class="k">def</span> <span class="nf">worker_function</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -303,7 +301,7 @@ participate in general TensorFlow compuations.</p>
 
         <span class="c1"># ... use tensorflow as desired ...</span>
 
-<span class="n">worker_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">client</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">worker_function</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="n">worker</span><span class="p">,</span> <span class="n">pure</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">worker_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">client</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">worker_function</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="n">worker</span><span class="p">,</span> <span class="n">pure</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">worker</span> <span class="ow">in</span> <span class="n">dask_spec</span><span class="p">[</span><span class="s1">&#39;worker&#39;</span><span class="p">]]</span>
 </pre></div>
 </div>
@@ -326,7 +324,7 @@ feed them data from dask arrays, dataframes, etc.</p>
     <span class="n">worker</span><span class="o">.</span><span class="n">tensorflow_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
 
 
-<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="kn">as</span> <span class="nn">dd</span>
+<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;hdfs:///path/to/*.csv&#39;</span><span class="p">)</span>
 <span class="c1"># clean up dataframe as necessary</span>
 <span class="n">partitions</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">to_delayed</span><span class="p">()</span>  <span class="c1"># delayed pandas dataframes</span>
