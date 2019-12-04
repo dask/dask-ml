@@ -629,7 +629,7 @@ def test_history(c, s, a, b):
 
 @pytest.mark.parametrize("Search", [HyperbandSearchCV, IncrementalSearchCV])
 @pytest.mark.parametrize("verbose", [True, False])
-def test_verbosity(Search, capsys, verbose):
+def test_verbosity(Search, verbose):
     max_iter = 15
 
     @gen_cluster(client=True)
@@ -641,20 +641,19 @@ def test_verbosity(Search, capsys, verbose):
         yield search.fit(X, y)
         return search
 
-    if verbose:
-        # Log to stdout
+    # IncrementalSearchCV always logs to INFO
+    with captured_logger(logging.getLogger("dask_ml.model_selection")) as logs:
         search = _test_verbosity()
-        assert hasattr(search, "best_params_")
-        captured = capsys.readouterr()
-        messages = captured.out.split("\n")
-        messages2 = captured.err.split("\n")
-    else:
-        # Log to INFO
-        with captured_logger(logging.getLogger("dask_ml.model_selection")) as logs:
-            _test_verbosity()
-            messages = logs.getvalue().splitlines()
+        messages = logs.getvalue().splitlines()
+    if verbose:
+        # If verbose, IncrementalSearchCV logs to stdout
+        # (this test has a hard time capturing that)
+        assert hasattr(search, "_logging_context")
+        assert "FileIO" in str(
+            search._logging_context.handler
+        )  # FileIO is a proxy for stdout?
 
-    # Always emit logs to INFO
+    # Make sure the messages are correct
     assert any("score" in m for m in messages)
     if "Hyperband" in str(Search):
         assert all("[CV, bracket=" in m for m in messages)

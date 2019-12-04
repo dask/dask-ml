@@ -653,8 +653,14 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         if self.verbose:
             logger.setLevel(logging.INFO)
             h = logging.StreamHandler(sys.stdout)
-            with LoggingContext(logger, level=logging.INFO, handler=h):
-                return default_client().sync(self._fit, X, y, **fit_params)
+            self._h = h
+            self._logging_context = LoggingContext(
+                logger, level=logging.INFO, handler=h
+            )  # to aid with testing ease; not neccessary
+            with self._logging_context:
+                ret = default_client().sync(self._fit, X, y, **fit_params)
+            h.flush()
+            return ret
         else:
             return default_client().sync(self._fit, X, y, **fit_params)
 
