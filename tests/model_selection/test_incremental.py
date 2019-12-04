@@ -647,11 +647,12 @@ def test_verbosity(Search, verbose):
         messages = logs.getvalue().splitlines()
     if verbose:
         # If verbose, IncrementalSearchCV logs to stdout
-        # (this test has a hard time capturing that)
+        # (this test has a hard time capturing that; see gh-528 for more
+        # detail)
         assert hasattr(search, "_logging_context")
         assert "FileIO" in str(
             search._logging_context.handler
-        )  # FileIO is a proxy for stdout?
+        )  # FileIO is a proxy for stdout
 
     # Make sure the messages are correct
     assert any("score" in m for m in messages)
