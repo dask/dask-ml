@@ -277,7 +277,8 @@ class PCA(sklearn.decomposition.PCA):
             U, S, V = da.linalg.svd_compressed(
                 X, n_components, n_power_iter=n_power_iter, seed=seed
             )
-        U, V = svd_flip(U, V)
+        V_copy = np.copy(V)
+        U, V = svd_flip(U, V_copy)
 
         explained_variance = (S ** 2) / (n_samples - 1)
         components, singular_values = V, S
