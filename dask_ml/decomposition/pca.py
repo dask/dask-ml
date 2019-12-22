@@ -13,7 +13,7 @@ from sklearn.utils.validation import check_random_state
 
 from .._compat import check_is_fitted
 from .._utils import draw_seed
-from ..utils import svd_flip
+from ..utils import svd_flip_new
 
 _TYPE_MSG = (
     "Got an unsupported type ({}). Dask-ML's PCA only support Dask Arrays or "
@@ -277,7 +277,7 @@ class PCA(sklearn.decomposition.PCA):
             U, S, V = da.linalg.svd_compressed(
                 X, n_components, n_power_iter=n_power_iter, seed=seed
             )
-        U, V = svd_flip(U, V)
+        U, V = svd_flip_new(U, V)
 
         explained_variance = (S ** 2) / (n_samples - 1)
         components, singular_values = V, S
