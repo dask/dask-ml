@@ -23,10 +23,10 @@ from ._utils import ConstantFunction
 logger = logging.getLogger()
 
 
-def svd_flip_fixed(u, v, u_based_decision=True):
+def svd_flip_with_copy(u, v, u_based_decision=True):
     """
     This is a replicate of svd_flip() from
-    miniconda3/lib/python3.7/site-packages/sklearn/utils/extmath.py
+    sklearn/utils/extmath.py
     To avoid error "ValueError: output array is read-only", it is changed
     as described by comments in code
     """
@@ -34,13 +34,9 @@ def svd_flip_fixed(u, v, u_based_decision=True):
         max_abs_cols = np.argmax(np.abs(u), axis=0)
         signs = np.sign(u[max_abs_cols, range(u.shape[1])])
         u *= signs
-        # DEBUG: replaced:
-        # v *= signs[:, np.newaxis]
-        # by :
-        v_copy = np.copy(v)
-        v_copy *= signs[:, np.newaxis]
-        return u, v_copy
-        # DEBUG end
+        # replaced:
+        # v *= signs[:, np.newaxis] by :
+        v = signs[:, np.newaxis] * v
     else:
         max_abs_rows = np.argmax(np.abs(v), axis=1)
         signs = np.sign(v[range(v.shape[0]), max_abs_rows])
@@ -49,19 +45,15 @@ def svd_flip_fixed(u, v, u_based_decision=True):
     return u, v
 
 
-def svd_flip_new(u, v):
-    """
-    This is a replicate of svd_flip() which calls svd_flip_fixed()
-    instead of skm.svd_flip()
-    """
-    u2, v2 = delayed(svd_flip_fixed, nout=2)(u, v)
-    u = da.from_delayed(u2, shape=u.shape, dtype=u.dtype)
-    v = da.from_delayed(v2, shape=v.shape, dtype=v.dtype)
-    return u, v
-
-
 def svd_flip(u, v):
-    u2, v2 = delayed(skm.svd_flip, nout=2)(u, v)
+    try:
+        # If the array is locked, copy the array and transpose it
+        # This happens with a very large array > 1TB
+        # GH: issue 592
+        u2, v2 = delayed(skm.svd_flip, nout=2)(u, v)
+    except ValueError:
+        u2, v2 = delayed(svd_flip_with_copy, nout=2)(u, v)
+        
     u = da.from_delayed(u2, shape=u.shape, dtype=u.dtype)
     v = da.from_delayed(v2, shape=v.shape, dtype=v.dtype)
     return u, v
