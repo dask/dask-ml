@@ -785,13 +785,13 @@ def test_pca_sklearn_inputs(input_type, solver):
         a.fit_transform(Y)
 
 
-@pytest.mark.parametrize("seed", [0, 1])
-def test_svd_flip(seed):
-    rng = np.random.RandomState(seed)
+def test_svd_flip():
+    rng = np.random.RandomState(0)
     u = rng.randn(8, 3)
     v = rng.randn(3, 10)
-    u = da.from_array(u, chunks=(2, 1))
-    v = da.from_array(v, chunks=(3, 1))
+    u = da.from_array(u, chunks=(-1, -1))
+    v = da.from_array(v, chunks=(-1, -1))
+    u2, v2 = svd_flip(u, v)
     
     def set_readonly(x):
         x.setflags(write=False)
@@ -799,8 +799,6 @@ def test_svd_flip(seed):
 
     u = u.map_blocks(set_readonly)
     v = v.map_blocks(set_readonly)
-    # should no error
     u, v = svd_flip(u, v)
-    u2, v2 = skm.svd_flip(u.compute(), v.compute())
     assert_eq(u, u2)
     assert_eq(v, v2)

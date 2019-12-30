@@ -24,19 +24,14 @@ logger = logging.getLogger()
 
 
 def _svd_flip_copy(x, y):
-    return skm.svd_flip(x.copy(), y.copy())
+    try:
+        return skm.svd_flip(x, y)
+    except ValueError:
+        return skm.svd_flip(x.copy(), y.copy())
 
 
 def svd_flip(u, v):
-    try:
-        # If the array is locked, copy the array and transpose it
-        # This happens with a very large array > 1TB
-        # GH: issue 592
-        u2, v2 = delayed(skm.svd_flip, nout=2)(u, v)
-    except ValueError:
-        raise ValueError
-        u2, v2 = delayed(_svd_flip_copy, nout=2)(u, v)
-        
+    u2, v2 = delayed(_svd_flip_copy, nout=2)(u, v)
     u = da.from_delayed(u2, shape=u.shape, dtype=u.dtype)
     v = da.from_delayed(v2, shape=v.shape, dtype=v.dtype)
     return u, v
