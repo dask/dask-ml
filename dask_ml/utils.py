@@ -24,6 +24,9 @@ logger = logging.getLogger()
 
 
 def _svd_flip_copy(x, y):
+    # If the array is locked, copy the array and transpose it
+    # This happens with a very large array > 1TB
+    # GH: issue 592
     try:
         return skm.svd_flip(x, y)
     except ValueError:
