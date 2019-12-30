@@ -11,7 +11,6 @@ import sklearn.decomposition as sd
 from dask.array.utils import assert_eq
 from sklearn import datasets
 from sklearn.utils import check_random_state as sk_check_random_state
-import sklearn.utils.extmath as skm
 
 import dask_ml.decomposition as dd
 from dask_ml.decomposition._compat import _assess_dimension_, _infer_dimension_
