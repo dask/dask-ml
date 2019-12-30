@@ -11,10 +11,11 @@ import sklearn.decomposition as sd
 from dask.array.utils import assert_eq
 from sklearn import datasets
 from sklearn.utils import check_random_state as sk_check_random_state
+import sklearn.utils.extmath as skm
 
 import dask_ml.decomposition as dd
 from dask_ml.decomposition._compat import _assess_dimension_, _infer_dimension_
-from dask_ml.utils import assert_estimator_equal
+from dask_ml.utils import assert_estimator_equal, svd_flip
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore", FutureWarning)
@@ -782,3 +783,24 @@ def test_pca_sklearn_inputs(input_type, solver):
         a.fit(Y)
     with pytest.raises(TypeError, match="unsupported type"):
         a.fit_transform(Y)
+
+
+@pytest.mark.parametrize("seed", [0, 1])
+def test_svd_flip(seed):
+    rng = np.random.RandomState(seed)
+    u = rng.randn(8, 3)
+    v = rng.randn(3, 10)
+    u = da.from_array(u, chunks=(2, 1))
+    v = da.from_array(v, chunks=(3, 1))
+    
+    def set_readonly(x):
+        x.setflags(write=False)
+        return x
+
+    u = u.map_blocks(set_readonly)
+    v = v.map_blocks(set_readonly)
+    # should no error
+    u, v = svd_flip(u, v)
+    u2, v2 = skm.svd_flip(u.compute(), v.compute())
+    assert_eq(u, u2)
+    assert_eq(v, v2)

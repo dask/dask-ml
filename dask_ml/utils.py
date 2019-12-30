@@ -23,26 +23,8 @@ from ._utils import ConstantFunction
 logger = logging.getLogger()
 
 
-def svd_flip_with_copy(u, v, u_based_decision=True):
-    """
-    This is a replicate of svd_flip() from
-    sklearn/utils/extmath.py
-    To avoid error "ValueError: output array is read-only", it is changed
-    as described by comments in code
-    """
-    if u_based_decision:
-        max_abs_cols = np.argmax(np.abs(u), axis=0)
-        signs = np.sign(u[max_abs_cols, range(u.shape[1])])
-        u *= signs
-        # replaced:
-        # v *= signs[:, np.newaxis] by :
-        v = signs[:, np.newaxis] * v
-    else:
-        max_abs_rows = np.argmax(np.abs(v), axis=1)
-        signs = np.sign(v[range(v.shape[0]), max_abs_rows])
-        u *= signs
-        v *= signs[:, np.newaxis]
-    return u, v
+def _svd_flip_copy(x, y):
+    return skm.svd_flip(x.copy(), y.copy())
 
 
 def svd_flip(u, v):
@@ -52,7 +34,8 @@ def svd_flip(u, v):
         # GH: issue 592
         u2, v2 = delayed(skm.svd_flip, nout=2)(u, v)
     except ValueError:
-        u2, v2 = delayed(svd_flip_with_copy, nout=2)(u, v)
+        raise ValueError
+        u2, v2 = delayed(_svd_flip_copy, nout=2)(u, v)
         
     u = da.from_delayed(u2, shape=u.shape, dtype=u.dtype)
     v = da.from_delayed(v2, shape=v.shape, dtype=v.dtype)
