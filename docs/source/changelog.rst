@@ -5,6 +5,7 @@ Version 1.1.1
 ~~~~~~~~~~~~~
 
 - Fixed an issue with the 1.1.0 wheel (:issue:`575`)
+- Make svd_flip work even when arrays are read only (:issue:`592`)
 
 Version 1.1.0
 ~~~~~~~~~~~~~
