@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Version 1.2.0
+~~~~~~~~~~~~~
+
+- Changed the name of the second positional argument in :class:`model_selection.IncrementalSearchCV` from ``param_distribution``
+  to ``parameters`` to match the name of the base class.
+- Compatibility with scikit-learn 0.22.1.
+
 Version 1.1.1
 ~~~~~~~~~~~~~
 
