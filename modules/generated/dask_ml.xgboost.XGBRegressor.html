@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.xgboost.XGBRegressor &mdash; dask-ml 1.1.2 documentation</title>
+  <title>dask_ml.xgboost.XGBRegressor &mdash; dask-ml 1.2.0 documentation</title>
   
 
   
@@ -126,7 +126,7 @@
             
             
               <div class="version">
-                1.1.2.dev8+gfaaeff0
+                1.2.0
               </div>
             
           
@@ -324,7 +324,7 @@
 <td>Save the model to a file.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.score" title="dask_ml.xgboost.XGBRegressor.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(self,&nbsp;X,&nbsp;y[,&nbsp;sample_weight])</td>
-<td>Returns the coefficient of determination R^2 of the prediction.</td>
+<td>Return the coefficient of determination R^2 of the prediction.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.set_params" title="dask_ml.xgboost.XGBRegressor.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
 <td>Set the parameters of this estimator.</td>
@@ -676,7 +676,7 @@ model object for best results.</strong></p>
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBRegressor.score">
 <code class="descname">score</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.score" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the coefficient of determination R^2 of the prediction.</p>
+<dd><p>Return the coefficient of determination R^2 of the prediction.</p>
 <p>The coefficient R^2 is defined as (1 - u/v), where u is the residual
 sum of squares ((y_true - y_pred) ** 2).sum() and v is the total
 sum of squares ((y_true - y_true.mean()) ** 2).sum().
@@ -689,16 +689,17 @@ would get a R^2 score of 0.0.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = (n_samples, n_features)</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples, n_features)</span></dt>
 <dd><p class="first last">Test samples. For some estimators this may be a
-precomputed kernel matrix instead, shape = (n_samples,
-n_samples_fitted], where n_samples_fitted is the number of
+precomputed kernel matrix or a list of generic objects instead,
+shape = (n_samples, n_samples_fitted),
+where n_samples_fitted is the number of
 samples used in the fitting for the estimator.</p>
 </dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = (n_samples) or (n_samples, n_outputs)</span></dt>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,) or (n_samples, n_outputs)</span></dt>
 <dd><p class="first last">True values for X.</p>
 </dd>
-<dt><strong>sample_weight</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples], optional</span></dt>
+<dt><strong>sample_weight</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,), default=None</span></dt>
 <dd><p class="first last">Sample weights.</p>
 </dd>
 </dl>
@@ -716,12 +717,13 @@ samples used in the fitting for the estimator.</p>
 <p class="rubric">Notes</p>
 <p>The R2 score used when calling <code class="docutils literal notranslate"><span class="pre">score</span></code> on a regressor will use
 <code class="docutils literal notranslate"><span class="pre">multioutput='uniform_average'</span></code> from version 0.23 to keep consistent
-with <cite>metrics.r2_score</cite>. This will influence the <code class="docutils literal notranslate"><span class="pre">score</span></code> method of
-all the multioutput regressors (except for
-<cite>multioutput.MultiOutputRegressor</cite>). To specify the default value
-manually and avoid the warning, please either call <cite>metrics.r2_score</cite>
-directly or make a custom scorer with <cite>metrics.make_scorer</cite> (the
-built-in scorer <code class="docutils literal notranslate"><span class="pre">'r2'</span></code> uses <code class="docutils literal notranslate"><span class="pre">multioutput='uniform_average'</span></code>).</p>
+with <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.r2_score.html#sklearn.metrics.r2_score" title="(in scikit-learn v0.22.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">r2_score()</span></code></a>. This will influence the
+<code class="docutils literal notranslate"><span class="pre">score</span></code> method of all the multioutput regressors (except for
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.multioutput.MultiOutputRegressor.html#sklearn.multioutput.MultiOutputRegressor" title="(in scikit-learn v0.22.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultiOutputRegressor</span></code></a>). To specify the
+default value manually and avoid the warning, please either call
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.r2_score.html#sklearn.metrics.r2_score" title="(in scikit-learn v0.22.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">r2_score()</span></code></a> directly or make a custom scorer with
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.make_scorer.html#sklearn.metrics.make_scorer" title="(in scikit-learn v0.22.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">make_scorer()</span></code></a> (the built-in scorer <code class="docutils literal notranslate"><span class="pre">'r2'</span></code> uses
+<code class="docutils literal notranslate"><span class="pre">multioutput='uniform_average'</span></code>).</p>
 </dd></dl>
 
 <dl class="method">

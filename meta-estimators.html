@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Parallel Meta-estimators &mdash; dask-ml 1.1.2 documentation</title>
+  <title>Parallel Meta-estimators &mdash; dask-ml 1.2.0 documentation</title>
   
 
   
@@ -126,7 +126,7 @@
             
             
               <div class="version">
-                1.1.2.dev8+gfaaeff0
+                1.2.0
               </div>
             
           
@@ -288,7 +288,8 @@ copying over learned attributes, that’s all that <code class="docutils literal
 
 <span class="gp">In [7]: </span><span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 <span class="gh">Out[7]: </span><span class="go"></span>
-<span class="go">ParallelPostFit(estimator=GradientBoostingClassifier(criterion=&#39;friedman_mse&#39;,</span>
+<span class="go">ParallelPostFit(estimator=GradientBoostingClassifier(ccp_alpha=0.0,</span>
+<span class="go">                                                     criterion=&#39;friedman_mse&#39;,</span>
 <span class="go">                                                     init=None,</span>
 <span class="go">                                                     learning_rate=0.1,</span>
 <span class="go">                                                     loss=&#39;deviance&#39;,</span>
@@ -302,7 +303,7 @@ copying over learned attributes, that’s all that <code class="docutils literal
 <span class="go">                                                     min_weight_fraction_leaf=0.0,</span>
 <span class="go">                                                     n_estimators=100,</span>
 <span class="go">                                                     n_iter_no_change=None,</span>
-<span class="go">                                                     presort=&#39;auto&#39;,</span>
+<span class="go">                                                     presort=&#39;deprecated&#39;,</span>
 <span class="go">                                                     random_state=None,</span>
 <span class="go">                                                     subsample=1.0, tol=0.0001,</span>
 <span class="go">                                                     validation_fraction=0.1,</span>
@@ -328,16 +329,16 @@ cause the scheduler to compute tasks in parallel. If you’ve connected to a
 cluster of machines.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_big</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">10</span><span class="p">]</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[0.24519991, 0.75480009],</span>
+<span class="go">array([[0.29480181, 0.70519819],</span>
 <span class="go">       [0.00464304, 0.99535696],</span>
 <span class="go">       [0.00902734, 0.99097266],</span>
 <span class="go">       [0.01299259, 0.98700741],</span>
-<span class="go">       [0.90754654, 0.09245346],</span>
-<span class="go">       [0.755881  , 0.244119  ],</span>
-<span class="go">       [0.94124115, 0.05875885],</span>
+<span class="go">       [0.94957204, 0.05042796],</span>
+<span class="go">       [0.70641271, 0.29358729],</span>
+<span class="go">       [0.95373328, 0.04626672],</span>
 <span class="go">       [0.0203811 , 0.9796189 ],</span>
-<span class="go">       [0.021179  , 0.978821  ],</span>
-<span class="go">       [0.95218171, 0.04781829]])</span>
+<span class="go">       [0.02708978, 0.97291022],</span>
+<span class="go">       [0.94190446, 0.05809554]])</span>
 </pre></div>
 </div>
 <p>See <a class="reference external" href="http://dask-ml-benchmarks.readthedocs.io/en/latest/auto_examples/plot_parallel_post_fit_scaling.html">parallelizing prediction</a> for an example of how this

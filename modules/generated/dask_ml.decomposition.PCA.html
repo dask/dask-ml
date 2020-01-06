@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.decomposition.PCA &mdash; dask-ml 1.1.2 documentation</title>
+  <title>dask_ml.decomposition.PCA &mdash; dask-ml 1.2.0 documentation</title>
   
 
   
@@ -126,7 +126,7 @@
             
             
               <div class="version">
-                1.1.2.dev8+gfaaeff0
+                1.2.0
               </div>
             
           
@@ -270,7 +270,7 @@
 data to project it to a lower dimensional space.</p>
 <p>It uses the “tsqr” algorithm from Benson et. al. (2013). See the References
 for more.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/decomposition.html#pca" title="(in scikit-learn v0.21.3)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/decomposition.html#pca" title="(in scikit-learn v0.22.1)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -480,8 +480,9 @@ IEEE International Conference on Big Data, 2013.
 <dd><p class="first last">Training data, where n_samples is the number of samples
 and n_features is the number of features.</p>
 </dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Ignored</span></dt>
-<dd></dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">None</span></dt>
+<dd><p class="first last">Ignored variable.</p>
+</dd>
 </dl>
 </td>
 </tr>
@@ -555,7 +556,7 @@ noise variances.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span></dt>
+<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default=True</span></dt>
 <dd><p class="first last">If True, will return the parameters for this estimator and
 contained subobjects that are estimators.</p>
 </dd>
@@ -696,9 +697,17 @@ component of a nested object.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt>self</dt>
-<dd></dd>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>**params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">Estimator parameters.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd><p class="first last">Estimator instance.</p>
+</dd>
 </dl>
 </td>
 </tr>

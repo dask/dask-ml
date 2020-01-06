@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.metrics.r2_score &mdash; dask-ml 1.1.2 documentation</title>
+  <title>dask_ml.metrics.r2_score &mdash; dask-ml 1.2.0 documentation</title>
   
 
   
@@ -126,7 +126,7 @@
             
             
               <div class="version">
-                1.1.2.dev8+gfaaeff0
+                1.2.0
               </div>
             
           
@@ -275,19 +275,19 @@
 model can be arbitrarily worse). A constant model that always
 predicts the expected value of y, disregarding the input features,
 would get a R^2 score of 0.0.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#r2-score" title="(in scikit-learn v0.21.3)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#r2-score" title="(in scikit-learn v0.22.1)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>y_true</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape = (n_samples) or (n_samples, n_outputs)</span></dt>
+<dt><strong>y_true</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,) or (n_samples, n_outputs)</span></dt>
 <dd><p class="first last">Ground truth (correct) target values.</p>
 </dd>
-<dt><strong>y_pred</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape = (n_samples) or (n_samples, n_outputs)</span></dt>
+<dt><strong>y_pred</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,) or (n_samples, n_outputs)</span></dt>
 <dd><p class="first last">Estimated target values.</p>
 </dd>
-<dt><strong>sample_weight</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape = (n_samples), optional</span></dt>
+<dt><strong>sample_weight</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,), optional</span></dt>
 <dd><p class="first last">Sample weights.</p>
 </dd>
 <dt><strong>multioutput</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string in [‘raw_values’, ‘uniform_average’, ‘variance_weighted’] or None or array-like of shape (n_outputs)</span></dt>
@@ -340,12 +340,12 @@ value if n_samples is less than two.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">r2_score</span>  <span class="c1"># doctest: +SKIP</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y_true</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span>  <span class="c1"># doctest: +SKIP</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y_pred</span> <span class="o">=</span> <span class="p">[</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">r2_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>  <span class="c1"># doctest: +ELLIPSIS, +SKIP</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r2_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>  <span class="c1"># doctest: +SKIP</span>
 <span class="go">0.948...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y_true</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="o">-</span><span class="mi">6</span><span class="p">]]</span>  <span class="c1"># doctest: +SKIP</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y_pred</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">]]</span>  <span class="c1"># doctest: +SKIP</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">r2_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="gp">... </span>         <span class="n">multioutput</span><span class="o">=</span><span class="s1">&#39;variance_weighted&#39;</span><span class="p">)</span> <span class="c1"># doctest: +ELLIPSIS</span>
+<span class="gp">... </span>         <span class="n">multioutput</span><span class="o">=</span><span class="s1">&#39;variance_weighted&#39;</span><span class="p">)</span>
 <span class="go">0.938...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y_true</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>  <span class="c1"># doctest: +SKIP</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y_pred</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>  <span class="c1"># doctest: +SKIP</span>

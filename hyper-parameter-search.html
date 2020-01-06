@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Hyper Parameter Search &mdash; dask-ml 1.1.2 documentation</title>
+  <title>Hyper Parameter Search &mdash; dask-ml 1.2.0 documentation</title>
   
 
   
@@ -126,7 +126,7 @@
             
             
               <div class="version">
-                1.1.2.dev8+gfaaeff0
+                1.2.0
               </div>
             
           
@@ -272,13 +272,13 @@ Dask-ML’s <a class="reference internal" href="#hyperparameter-incremental"><sp
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v0.21.3)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>(…[,&nbsp;…])</td>
+<tr class="row-odd"><td><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v0.22.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>(…[,&nbsp;…])</td>
 <td>Exhaustive search over specified parameter values for an estimator.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV" title="dask_ml.model_selection.GridSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.GridSearchCV</span></code></a>(…[,&nbsp;…])</td>
 <td>Exhaustive search over specified parameter values for an estimator.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v0.21.3)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.RandomizedSearchCV</span></code></a>(…)</td>
+<tr class="row-odd"><td><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v0.22.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.RandomizedSearchCV</span></code></a>(…)</td>
 <td>Randomized search on hyper parameters.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV" title="dask_ml.model_selection.RandomizedSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.RandomizedSearchCV</span></code></a>(…)</td>
@@ -473,11 +473,15 @@ train-and-score them until we find the best one.</p>
 <span class="go">                                            n_iter_no_change=5, n_jobs=None,</span>
 <span class="go">                                            penalty=&#39;elasticnet&#39;, power_t=0.5,</span>
 <span class="go">                                            random_state=0, shuffle=True,</span>
-<span class="go">                                            tol=0.001, validation_fraction=0.1,</span>
-<span class="go">                                            verbose=0, warm_start=False),</span>
-<span class="go">                    max_iter=100, n_initial_parameters=10,</span>
-<span class="go">                    param_distribution=None, patience=False, random_state=0,</span>
-<span class="go">                    scores_per_fit=1, scoring=None, test_size=None, tol=0.001)</span>
+<span class="go">                                            tol=0.001, validation_fractio...</span>
+<span class="go">       0.97097097, 0.97197197, 0.97297297, 0.97397397, 0.97497497,</span>
+<span class="go">       0.97597598, 0.97697698, 0.97797798, 0.97897898, 0.97997998,</span>
+<span class="go">       0.98098098, 0.98198198, 0.98298298, 0.98398398, 0.98498498,</span>
+<span class="go">       0.98598599, 0.98698699, 0.98798799, 0.98898899, 0.98998999,</span>
+<span class="go">       0.99099099, 0.99199199, 0.99299299, 0.99399399, 0.99499499,</span>
+<span class="go">       0.995996  , 0.996997  , 0.997998  , 0.998999  , 1.        ])},</span>
+<span class="go">                    patience=False, random_state=0, scores_per_fit=1,</span>
+<span class="go">                    scoring=None, test_size=None, tol=0.001)</span>
 </pre></div>
 </div>
 <p>Note that when you do post-fit tasks like <code class="docutils literal notranslate"><span class="pre">search.score</span></code>, the underlying
@@ -519,14 +523,15 @@ to use post-estimation features like scoring or prediction, we recommend using
 <span class="go">                                                                      power_t=0.5,</span>
 <span class="go">                                                                      random_state=0,</span>
 <span class="go">                                                                      shuffle=True,</span>
-<span class="go">                                                                      tol=0.001,</span>
-<span class="go">                                                                      validation_fraction=0.1,</span>
-<span class="go">                                                                      verbose=0,</span>
-<span class="go">                                                                      warm_start=False),</span>
-<span class="go">                                              scoring=None),</span>
-<span class="go">                    max_iter=100, n_initial_parameters=10,</span>
-<span class="go">                    param_distribution=None, patience=False, random_state=0,</span>
-<span class="go">                    scores_per_fit=1, scoring=None, test_size=None, tol=0.001)</span>
+<span class="go">                                                                      to...</span>
+<span class="go">       0.97097097, 0.97197197, 0.97297297, 0.97397397, 0.97497497,</span>
+<span class="go">       0.97597598, 0.97697698, 0.97797798, 0.97897898, 0.97997998,</span>
+<span class="go">       0.98098098, 0.98198198, 0.98298298, 0.98398398, 0.98498498,</span>
+<span class="go">       0.98598599, 0.98698699, 0.98798799, 0.98898899, 0.98998999,</span>
+<span class="go">       0.99099099, 0.99199199, 0.99299299, 0.99399399, 0.99499499,</span>
+<span class="go">       0.995996  , 0.996997  , 0.997998  , 0.998999  , 1.        ])},</span>
+<span class="go">                    patience=False, random_state=0, scores_per_fit=1,</span>
+<span class="go">                    scoring=None, test_size=None, tol=0.001)</span>
 
 <span class="gp">In [17]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 <span class="gh">Out[17]: </span><span class="go">0.5864312</span>

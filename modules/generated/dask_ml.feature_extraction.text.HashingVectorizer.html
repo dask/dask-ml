@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.feature_extraction.text.HashingVectorizer &mdash; dask-ml 1.1.2 documentation</title>
+  <title>dask_ml.feature_extraction.text.HashingVectorizer &mdash; dask-ml 1.2.0 documentation</title>
   
 
   
@@ -126,7 +126,7 @@
             
             
               <div class="version">
-                1.1.2.dev8+gfaaeff0
+                1.2.0
               </div>
             
           
@@ -293,7 +293,7 @@ is large enough (e.g. 2 ** 18 for text classification problems).</li>
 <li>no IDF weighting as this would render the transformer stateful.</li>
 </ul>
 <p>The hash function employed is the signed 32-bit version of Murmurhash3.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#text-feature-extraction" title="(in scikit-learn v0.21.3)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#text-feature-extraction" title="(in scikit-learn v0.22.1)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -305,8 +305,8 @@ expected to be a list of filenames that need reading to fetch
 the raw content to analyze.</p>
 <p>If ‘file’, the sequence items must have a ‘read’ method (file-like
 object) that is called to fetch the bytes in memory.</p>
-<p class="last">Otherwise the input is expected to be the sequence strings or
-bytes items are expected to be analyzed directly.</p>
+<p class="last">Otherwise the input is expected to be a sequence of items that
+can be of type string or byte.</p>
 </dd>
 <dt><strong>encoding</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, default=’utf-8’</span></dt>
 <dd><p class="first last">If bytes or files are given to analyze, this encoding is used to
@@ -333,7 +333,8 @@ None (default) does nothing.</p>
 </dd>
 <dt><strong>preprocessor</strong> <span class="classifier-delimiter">:</span> <span class="classifier">callable or None (default)</span></dt>
 <dd><p class="first last">Override the preprocessing (string transformation) stage while
-preserving the tokenizing and n-grams generation steps.</p>
+preserving the tokenizing and n-grams generation steps.
+Only applies if <code class="docutils literal notranslate"><span class="pre">analyzer</span> <span class="pre">is</span> <span class="pre">not</span> <span class="pre">callable</span></code>.</p>
 </dd>
 <dt><strong>tokenizer</strong> <span class="classifier-delimiter">:</span> <span class="classifier">callable or None (default)</span></dt>
 <dd><p class="first last">Override the string tokenization step while preserving the
@@ -343,7 +344,7 @@ Only applies if <code class="docutils literal notranslate"><span class="pre">ana
 <dt><strong>stop_words</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string {‘english’}, list, or None (default)</span></dt>
 <dd><p class="first">If ‘english’, a built-in stop word list for English is used.
 There are several known issues with ‘english’ and you should
-consider an alternative (see <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#stop-words" title="(in scikit-learn v0.21.3)"><span>Using stop words</span></a>).</p>
+consider an alternative (see <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#stop-words" title="(in scikit-learn v0.22.1)"><span>Using stop words</span></a>).</p>
 <p class="last">If a list, that list is assumed to contain stop words, all of which
 will be removed from the resulting tokens.
 Only applies if <code class="docutils literal notranslate"><span class="pre">analyzer</span> <span class="pre">==</span> <span class="pre">'word'</span></code>.</p>
@@ -357,7 +358,10 @@ and always treated as a token separator).</p>
 <dt><strong>ngram_range</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuple (min_n, max_n), default=(1, 1)</span></dt>
 <dd><p class="first last">The lower and upper boundary of the range of n-values for different
 n-grams to be extracted. All values of n such that min_n &lt;= n &lt;= max_n
-will be used.</p>
+will be used. For example an <code class="docutils literal notranslate"><span class="pre">ngram_range</span></code> of <code class="docutils literal notranslate"><span class="pre">(1,</span> <span class="pre">1)</span></code> means only
+unigrams, <code class="docutils literal notranslate"><span class="pre">(1,</span> <span class="pre">2)</span></code> means unigrams and bigrams, and <code class="docutils literal notranslate"><span class="pre">(2,</span> <span class="pre">2)</span></code> means
+only bigrams.
+Only applies if <code class="docutils literal notranslate"><span class="pre">analyzer</span> <span class="pre">is</span> <span class="pre">not</span> <span class="pre">callable</span></code>.</p>
 </dd>
 <dt><strong>analyzer</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, {‘word’, ‘char’, ‘char_wb’} or callable</span></dt>
 <dd><p class="first">Whether the feature should be made of word or character n-grams.
@@ -430,16 +434,16 @@ small n_features. This approach is similar to sparse random projection.</p>
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.HashingVectorizer.build_analyzer" title="dask_ml.feature_extraction.text.HashingVectorizer.build_analyzer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_analyzer</span></code></a>(self)</td>
-<td>Return a callable that handles preprocessing and tokenization</td>
+<td>Return a callable that handles preprocessing, tokenization and n-grams generation.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.HashingVectorizer.build_preprocessor" title="dask_ml.feature_extraction.text.HashingVectorizer.build_preprocessor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_preprocessor</span></code></a>(self)</td>
-<td>Return a function to preprocess the text before tokenization</td>
+<td>Return a function to preprocess the text before tokenization.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.HashingVectorizer.build_tokenizer" title="dask_ml.feature_extraction.text.HashingVectorizer.build_tokenizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_tokenizer</span></code></a>(self)</td>
-<td>Return a function that splits a string into a sequence of tokens</td>
+<td>Return a function that splits a string into a sequence of tokens.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.HashingVectorizer.decode" title="dask_ml.feature_extraction.text.HashingVectorizer.decode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decode</span></code></a>(self,&nbsp;doc)</td>
-<td>Decode the input into a string of unicode symbols</td>
+<td>Decode the input into a string of unicode symbols.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.HashingVectorizer.fit" title="dask_ml.feature_extraction.text.HashingVectorizer.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
 <td>Does nothing: this transformer is stateless.</td>
@@ -451,7 +455,7 @@ small n_features. This approach is similar to sparse random projection.</p>
 <td>Get parameters for this estimator.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.HashingVectorizer.get_stop_words" title="dask_ml.feature_extraction.text.HashingVectorizer.get_stop_words"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_stop_words</span></code></a>(self)</td>
-<td>Build or fetch the effective stop words list</td>
+<td>Build or fetch the effective stop words list.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.HashingVectorizer.partial_fit" title="dask_ml.feature_extraction.text.HashingVectorizer.partial_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
 <td>Does nothing: this transformer is stateless.</td>
@@ -473,33 +477,81 @@ small n_features. This approach is similar to sparse random projection.</p>
 <dl class="method">
 <dt id="dask_ml.feature_extraction.text.HashingVectorizer.build_analyzer">
 <code class="descname">build_analyzer</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer.build_analyzer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a callable that handles preprocessing and tokenization</p>
+<dd><p>Return a callable that handles preprocessing, tokenization
+and n-grams generation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt>analyzer: callable</dt>
+<dd><p class="first last">A function to handle preprocessing, tokenization
+and n-grams generation.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dask_ml.feature_extraction.text.HashingVectorizer.build_preprocessor">
 <code class="descname">build_preprocessor</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer.build_preprocessor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a function to preprocess the text before tokenization</p>
+<dd><p>Return a function to preprocess the text before tokenization.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt>preprocessor: callable</dt>
+<dd><p class="first last">A function to preprocess the text before tokenization.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dask_ml.feature_extraction.text.HashingVectorizer.build_tokenizer">
 <code class="descname">build_tokenizer</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer.build_tokenizer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a function that splits a string into a sequence of tokens</p>
+<dd><p>Return a function that splits a string into a sequence of tokens.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt>tokenizer: callable</dt>
+<dd><p class="first last">A function to split a string into a sequence of tokens.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dask_ml.feature_extraction.text.HashingVectorizer.decode">
 <code class="descname">decode</code><span class="sig-paren">(</span><em>self</em>, <em>doc</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer.decode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Decode the input into a string of unicode symbols</p>
+<dd><p>Decode the input into a string of unicode symbols.</p>
 <p>The decoding strategy depends on the vectorizer parameters.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>doc</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">The string to decode</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>doc</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd><p class="first last">The string to decode.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt>doc: str</dt>
+<dd><p class="first last">A string of unicode symbols.</p>
 </dd>
 </dl>
 </td>
@@ -549,7 +601,7 @@ sklearn.pipeline.Pipeline.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">scipy.sparse matrix, shape = (n_samples, self.n_features)</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">sparse matrix of shape (n_samples, n_features)</span></dt>
 <dd><p class="first last">Document-term matrix.</p>
 </dd>
 </dl>
@@ -568,7 +620,7 @@ sklearn.pipeline.Pipeline.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span></dt>
+<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default=True</span></dt>
 <dd><p class="first last">If True, will return the parameters for this estimator and
 contained subobjects that are estimators.</p>
 </dd>
@@ -589,7 +641,20 @@ contained subobjects that are estimators.</p>
 <dl class="method">
 <dt id="dask_ml.feature_extraction.text.HashingVectorizer.get_stop_words">
 <code class="descname">get_stop_words</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer.get_stop_words" title="Permalink to this definition">¶</a></dt>
-<dd><p>Build or fetch the effective stop words list</p>
+<dd><p>Build or fetch the effective stop words list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt>stop_words: list or None</dt>
+<dd><p class="first last">A list of stop words.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -625,9 +690,17 @@ component of a nested object.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt>self</dt>
-<dd></dd>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>**params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">Estimator parameters.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd><p class="first last">Estimator instance.</p>
+</dd>
 </dl>
 </td>
 </tr>

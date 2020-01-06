@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.feature_extraction.text.FeatureHasher &mdash; dask-ml 1.1.2 documentation</title>
+  <title>dask_ml.feature_extraction.text.FeatureHasher &mdash; dask-ml 1.2.0 documentation</title>
   
 
   
@@ -126,7 +126,7 @@
             
             
               <div class="version">
-                1.1.2.dev8+gfaaeff0
+                1.2.0
               </div>
             
           
@@ -277,7 +277,10 @@ Feature values must be (finite) numbers.</p>
 CountVectorizer, intended for large-scale (online) learning and situations
 where memory is tight, e.g. when running prediction code on embedded
 devices.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#feature-hashing" title="(in scikit-learn v0.21.3)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#feature-hashing" title="(in scikit-learn v0.22.1)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 0.13.</span></p>
+</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -318,7 +321,7 @@ small n_features. This approach is similar to sparse random projection.</p>
 <dl class="last docutils">
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">DictVectorizer</span></code></dt>
 <dd>vectorizes string-valued features using a hash table.</dd>
-<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html#sklearn.preprocessing.OneHotEncoder" title="(in scikit-learn v0.21.3)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.preprocessing.OneHotEncoder</span></code></a></dt>
+<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html#sklearn.preprocessing.OneHotEncoder" title="(in scikit-learn v0.22.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.preprocessing.OneHotEncoder</span></code></a></dt>
 <dd>handles nominal/categorical features.</dd>
 </dl>
 </div>
@@ -413,6 +416,9 @@ and returns a transformed version of X.</p>
 <dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples]</span></dt>
 <dd><p class="first last">Target values.</p>
 </dd>
+<dt><strong>**fit_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">Additional fit parameters.</p>
+</dd>
 </dl>
 </td>
 </tr>
@@ -436,7 +442,7 @@ and returns a transformed version of X.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span></dt>
+<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default=True</span></dt>
 <dd><p class="first last">If True, will return the parameters for this estimator and
 contained subobjects that are estimators.</p>
 </dd>
@@ -466,9 +472,17 @@ component of a nested object.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt>self</dt>
-<dd></dd>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>**params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">Estimator parameters.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd><p class="first last">Estimator instance.</p>
+</dd>
 </dl>
 </td>
 </tr>

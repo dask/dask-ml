@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.preprocessing.MinMaxScaler &mdash; dask-ml 1.1.2 documentation</title>
+  <title>dask_ml.preprocessing.MinMaxScaler &mdash; dask-ml 1.2.0 documentation</title>
   
 
   
@@ -126,7 +126,7 @@
             
             
               <div class="version">
-                1.1.2.dev8+gfaaeff0
+                1.2.0
               </div>
             
           
@@ -274,7 +274,7 @@
 <dl class="class">
 <dt id="dask_ml.preprocessing.MinMaxScaler">
 <em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">MinMaxScaler</code><span class="sig-paren">(</span><em>feature_range=(0</em>, <em>1)</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transforms features by scaling each feature to a given range.</p>
+<dd><p>Transform features by scaling each feature to a given range.</p>
 <p>This estimator scales and translates each feature individually such
 that it is in the given range on the training set, e.g. between
 zero and one.</p>
@@ -291,7 +291,7 @@ zero and one.</p>
 </div>
 <p>This transformation is often used as an alternative to zero mean,
 unit variance scaling.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.21.3)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.22.1)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -300,7 +300,7 @@ unit variance scaling.</p>
 <dt><strong>feature_range</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuple (min, max), default=(0, 1)</span></dt>
 <dd><p class="first last">Desired range of transformed data.</p>
 </dd>
-<dt><strong>copy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional, default True</span></dt>
+<dt><strong>copy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default=True</span></dt>
 <dd><p class="first last">Set to False to perform inplace row normalization and avoid a
 copy (if the input is already a numpy array).</p>
 </dd>
@@ -308,34 +308,39 @@ copy (if the input is already a numpy array).</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>min_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray, shape (n_features,)</span></dt>
+<dt><strong>min_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of shape (n_features,)</span></dt>
 <dd><p class="first last">Per feature adjustment for minimum. Equivalent to
 <code class="docutils literal notranslate"><span class="pre">min</span> <span class="pre">-</span> <span class="pre">X.min(axis=0)</span> <span class="pre">*</span> <span class="pre">self.scale_</span></code></p>
 </dd>
-<dt><strong>scale_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray, shape (n_features,)</span></dt>
+<dt><strong>scale_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of shape (n_features,)</span></dt>
 <dd><p class="first">Per feature relative scaling of the data. Equivalent to
 <code class="docutils literal notranslate"><span class="pre">(max</span> <span class="pre">-</span> <span class="pre">min)</span> <span class="pre">/</span> <span class="pre">(X.max(axis=0)</span> <span class="pre">-</span> <span class="pre">X.min(axis=0))</span></code></p>
 <div class="last versionadded">
 <p><span class="versionmodified">New in version 0.17: </span><em>scale_</em> attribute.</p>
 </div>
 </dd>
-<dt><strong>data_min_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray, shape (n_features,)</span></dt>
+<dt><strong>data_min_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of shape (n_features,)</span></dt>
 <dd><p class="first">Per feature minimum seen in the data</p>
 <div class="last versionadded">
 <p><span class="versionmodified">New in version 0.17: </span><em>data_min_</em></p>
 </div>
 </dd>
-<dt><strong>data_max_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray, shape (n_features,)</span></dt>
+<dt><strong>data_max_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of shape (n_features,)</span></dt>
 <dd><p class="first">Per feature maximum seen in the data</p>
 <div class="last versionadded">
 <p><span class="versionmodified">New in version 0.17: </span><em>data_max_</em></p>
 </div>
 </dd>
-<dt><strong>data_range_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray, shape (n_features,)</span></dt>
+<dt><strong>data_range_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of shape (n_features,)</span></dt>
 <dd><p class="first">Per feature range <code class="docutils literal notranslate"><span class="pre">(data_max_</span> <span class="pre">-</span> <span class="pre">data_min_)</span></code> seen in the data</p>
 <div class="last versionadded">
 <p><span class="versionmodified">New in version 0.17: </span><em>data_range_</em></p>
 </div>
+</dd>
+<dt><strong>n_samples_seen_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The number of samples processed by the estimator.
+It will be reset on new calls to fit, but increments across
+<code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> calls.</p>
 </dd>
 </dl>
 </td>
@@ -353,13 +358,13 @@ copy (if the input is already a numpy array).</p>
 <p>NaNs are treated as missing values: disregarded in fit, and maintained in
 transform.</p>
 <p>For a comparison of the different scalers, transformers, and normalizers,
-see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.21.3)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
+see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.22.1)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">MinMaxScaler</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">[[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">18</span><span class="p">]]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">scaler</span> <span class="o">=</span> <span class="n">MinMaxScaler</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">scaler</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
-<span class="go">MinMaxScaler(copy=True, feature_range=(0, 1))</span>
+<span class="go">MinMaxScaler()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">scaler</span><span class="o">.</span><span class="n">data_max_</span><span class="p">)</span>
 <span class="go">[ 1. 18.]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
@@ -397,7 +402,7 @@ see <a class="reference external" href="https://scikit-learn.org/stable/auto_exa
 <td>Set the parameters of this estimator.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.MinMaxScaler.transform" title="dask_ml.preprocessing.MinMaxScaler.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X[,&nbsp;y,&nbsp;copy])</td>
-<td>Scaling features of X according to feature_range.</td>
+<td>Scale features of X according to feature_range.</td>
 </tr>
 </tbody>
 </table>
@@ -415,10 +420,20 @@ see <a class="reference external" href="https://scikit-learn.org/stable/auto_exa
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape [n_samples, n_features]</span></dt>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples, n_features)</span></dt>
 <dd><p class="first last">The data used to compute the per-feature minimum and maximum
 used for later scaling along the features axis.</p>
+</dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">None</span></dt>
+<dd><p class="first last">Ignored.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd><p class="first last">Fitted scaler.</p>
 </dd>
 </dl>
 </td>
@@ -444,6 +459,9 @@ and returns a transformed version of X.</p>
 <dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples]</span></dt>
 <dd><p class="first last">Target values.</p>
 </dd>
+<dt><strong>**fit_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">Additional fit parameters.</p>
+</dd>
 </dl>
 </td>
 </tr>
@@ -467,7 +485,7 @@ and returns a transformed version of X.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span></dt>
+<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default=True</span></dt>
 <dd><p class="first last">If True, will return the parameters for this estimator and
 contained subobjects that are estimators.</p>
 </dd>
@@ -493,9 +511,16 @@ contained subobjects that are estimators.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape [n_samples, n_features]</span></dt>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples, n_features)</span></dt>
 <dd><p class="first last">Input data that will be transformed. It cannot be sparse.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>Xt</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples, n_features)</span></dt>
+<dd><p class="first last">Transformed data.</p>
 </dd>
 </dl>
 </td>
@@ -507,21 +532,28 @@ contained subobjects that are estimators.</p>
 <dl class="method">
 <dt id="dask_ml.preprocessing.MinMaxScaler.partial_fit">
 <code class="descname">partial_fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler.partial_fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Online computation of min and max on X for later scaling.
-All of X is processed as a single batch. This is intended for cases
-when <cite>fit</cite> is not feasible due to very large number of <cite>n_samples</cite>
-or because X is read from a continuous stream.</p>
+<dd><p>Online computation of min and max on X for later scaling.</p>
+<p>All of X is processed as a single batch. This is intended for cases
+when <a class="reference internal" href="#dask_ml.preprocessing.MinMaxScaler.fit" title="dask_ml.preprocessing.MinMaxScaler.fit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code></a> is not feasible due to very large number of
+<cite>n_samples</cite> or because X is read from a continuous stream.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape [n_samples, n_features]</span></dt>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples, n_features)</span></dt>
 <dd><p class="first last">The data used to compute the mean and standard deviation
 used for later scaling along the features axis.</p>
 </dd>
-<dt><strong>y</strong></dt>
-<dd><p class="first last">Ignored</p>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">None</span></dt>
+<dd><p class="first last">Ignored.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd><p class="first last">Transformer instance.</p>
 </dd>
 </dl>
 </td>
@@ -542,9 +574,17 @@ component of a nested object.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt>self</dt>
-<dd></dd>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>**params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">Estimator parameters.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd><p class="first last">Estimator instance.</p>
+</dd>
 </dl>
 </td>
 </tr>
@@ -555,14 +595,21 @@ component of a nested object.</p>
 <dl class="method">
 <dt id="dask_ml.preprocessing.MinMaxScaler.transform">
 <code class="descname">transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>copy=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler.transform" title="Permalink to this definition">¶</a></dt>
-<dd><p>Scaling features of X according to feature_range.</p>
+<dd><p>Scale features of X according to feature_range.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape [n_samples, n_features]</span></dt>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples, n_features)</span></dt>
 <dd><p class="first last">Input data that will be transformed.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>Xt</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples, n_features)</span></dt>
+<dd><p class="first last">Transformed data.</p>
 </dd>
 </dl>
 </td>

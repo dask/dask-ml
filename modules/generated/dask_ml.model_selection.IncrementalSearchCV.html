@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.model_selection.IncrementalSearchCV &mdash; dask-ml 1.1.2 documentation</title>
+  <title>dask_ml.model_selection.IncrementalSearchCV &mdash; dask-ml 1.2.0 documentation</title>
   
 
   
@@ -126,7 +126,7 @@
             
             
               <div class="version">
-                1.1.2.dev8+gfaaeff0
+                1.2.0
               </div>
             
           
@@ -270,7 +270,7 @@
 <h1><a class="reference internal" href="../api.html#module-dask_ml.model_selection" title="dask_ml.model_selection"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code></a>.IncrementalSearchCV<a class="headerlink" href="#dask-ml-model-selection-incrementalsearchcv" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="dask_ml.model_selection.IncrementalSearchCV">
-<em class="property">class </em><code class="descclassname">dask_ml.model_selection.</code><code class="descname">IncrementalSearchCV</code><span class="sig-paren">(</span><em>estimator</em>, <em>param_distribution</em>, <em>n_initial_parameters=10</em>, <em>decay_rate=1.0</em>, <em>test_size=None</em>, <em>patience=False</em>, <em>tol=0.001</em>, <em>scores_per_fit=1</em>, <em>max_iter=100</em>, <em>random_state=None</em>, <em>scoring=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.model_selection.</code><code class="descname">IncrementalSearchCV</code><span class="sig-paren">(</span><em>estimator</em>, <em>parameters</em>, <em>n_initial_parameters=10</em>, <em>decay_rate=1.0</em>, <em>test_size=None</em>, <em>patience=False</em>, <em>tol=0.001</em>, <em>scores_per_fit=1</em>, <em>max_iter=100</em>, <em>random_state=None</em>, <em>scoring=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV" title="Permalink to this definition">¶</a></dt>
 <dd><p>Incrementally search for hyper-parameters on models that support partial_fit</p>
 <p>This incremental hyper-parameter optimization class starts training the
 model on many hyper-parameters on a small amount of data, and then only
@@ -293,7 +293,7 @@ interface. Either estimator needs to provide a <cite>score`</cite> function,
 or <code class="docutils literal notranslate"><span class="pre">scoring</span></code> must be passed. The estimator must implement
 <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>, <code class="docutils literal notranslate"><span class="pre">set_params</span></code>, and work well with <code class="docutils literal notranslate"><span class="pre">clone</span></code>.</p>
 </dd>
-<dt><strong>param_distributions</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dt><strong>parameters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
 <dd><p class="first last">Dictionary with parameters names (string) as keys and distributions
 or lists of parameters to try. Distributions must provide a <code class="docutils literal notranslate"><span class="pre">rvs</span></code>
 method for sampling (such as those from scipy.stats.distributions).
@@ -343,14 +343,14 @@ If None, the random number generator is the RandomState instance used
 by <cite>np.random</cite>.</p>
 </dd>
 <dt><strong>scoring</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, callable, list/tuple, dict or None, default: None</span></dt>
-<dd><p class="first">A single string (see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter" title="(in scikit-learn v0.21.3)"><span>The scoring parameter: defining model evaluation rules</span></a>) or a callable
-(see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring" title="(in scikit-learn v0.21.3)"><span>Defining your scoring strategy from metric functions</span></a>) to evaluate the predictions on the test set.</p>
+<dd><p class="first">A single string (see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter" title="(in scikit-learn v0.22.1)"><span>The scoring parameter: defining model evaluation rules</span></a>) or a callable
+(see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring" title="(in scikit-learn v0.22.1)"><span>Defining your scoring strategy from metric functions</span></a>) to evaluate the predictions on the test set.</p>
 <p>For evaluating multiple metrics, either give a list of (unique) strings
 or a dict with names as keys and callables as values.</p>
 <p>NOTE that when using custom scorers, each scorer should return a single
 value. Metric functions returning a list/array of values can be wrapped
 into multiple scorers that return one value each.</p>
-<p>See <a class="reference external" href="https://scikit-learn.org/stable/modules/grid_search.html#multimetric-grid-search" title="(in scikit-learn v0.21.3)"><span>Specifying multiple metrics for evaluation</span></a> for an example.</p>
+<p>See <a class="reference external" href="https://scikit-learn.org/stable/modules/grid_search.html#multimetric-grid-search" title="(in scikit-learn v0.22.1)"><span>Specifying multiple metrics for evaluation</span></a> for an example.</p>
 <p class="last">If None, the estimator’s default scorer (if available) is used.</p>
 </dd>
 </dl>
@@ -522,7 +522,7 @@ or when <code class="docutils literal notranslate"><span class="pre">max_iter</s
 </table>
 <dl class="method">
 <dt id="dask_ml.model_selection.IncrementalSearchCV.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>estimator</em>, <em>param_distribution</em>, <em>n_initial_parameters=10</em>, <em>decay_rate=1.0</em>, <em>test_size=None</em>, <em>patience=False</em>, <em>tol=0.001</em>, <em>scores_per_fit=1</em>, <em>max_iter=100</em>, <em>random_state=None</em>, <em>scoring=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>estimator</em>, <em>parameters</em>, <em>n_initial_parameters=10</em>, <em>decay_rate=1.0</em>, <em>test_size=None</em>, <em>patience=False</em>, <em>tol=0.001</em>, <em>scores_per_fit=1</em>, <em>max_iter=100</em>, <em>random_state=None</em>, <em>scoring=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -556,7 +556,7 @@ or when <code class="docutils literal notranslate"><span class="pre">max_iter</s
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span></dt>
+<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default=True</span></dt>
 <dd><p class="first last">If True, will return the parameters for this estimator and
 contained subobjects that are estimators.</p>
 </dd>
@@ -702,9 +702,17 @@ component of a nested object.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt>self</dt>
-<dd></dd>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>**params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">Estimator parameters.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd><p class="first last">Estimator instance.</p>
+</dd>
 </dl>
 </td>
 </tr>

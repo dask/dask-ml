@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.xgboost.XGBClassifier &mdash; dask-ml 1.1.2 documentation</title>
+  <title>dask_ml.xgboost.XGBClassifier &mdash; dask-ml 1.2.0 documentation</title>
   
 
   
@@ -125,7 +125,7 @@
             
             
               <div class="version">
-                1.1.2.dev8+gfaaeff0
+                1.2.0
               </div>
             
           
@@ -326,7 +326,7 @@
 <td>Save the model to a file.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.score" title="dask_ml.xgboost.XGBClassifier.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(self,&nbsp;X,&nbsp;y[,&nbsp;sample_weight])</td>
-<td>Returns the mean accuracy on the given test data and labels.</td>
+<td>Return the mean accuracy on the given test data and labels.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.set_params" title="dask_ml.xgboost.XGBClassifier.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
 <td>Set the parameters of this estimator.</td>
@@ -733,7 +733,7 @@ model object for best results.</strong></p>
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.score">
 <code class="descname">score</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.score" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the mean accuracy on the given test data and labels.</p>
+<dd><p>Return the mean accuracy on the given test data and labels.</p>
 <p>In multi-label classification, this is the subset accuracy
 which is a harsh metric since you require for each sample that
 each label set be correctly predicted.</p>
@@ -742,13 +742,13 @@ each label set be correctly predicted.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = (n_samples, n_features)</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples, n_features)</span></dt>
 <dd><p class="first last">Test samples.</p>
 </dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = (n_samples) or (n_samples, n_outputs)</span></dt>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,) or (n_samples, n_outputs)</span></dt>
 <dd><p class="first last">True labels for X.</p>
 </dd>
-<dt><strong>sample_weight</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples], optional</span></dt>
+<dt><strong>sample_weight</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,), default=None</span></dt>
 <dd><p class="first last">Sample weights.</p>
 </dd>
 </dl>

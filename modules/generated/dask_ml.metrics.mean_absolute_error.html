@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.metrics.mean_absolute_error &mdash; dask-ml 1.1.2 documentation</title>
+  <title>dask_ml.metrics.mean_absolute_error &mdash; dask-ml 1.2.0 documentation</title>
   
 
   
@@ -126,7 +126,7 @@
             
             
               <div class="version">
-                1.1.2.dev8+gfaaeff0
+                1.2.0
               </div>
             
           
@@ -271,19 +271,19 @@
 <dt id="dask_ml.metrics.mean_absolute_error">
 <code class="descclassname">dask_ml.metrics.</code><code class="descname">mean_absolute_error</code><span class="sig-paren">(</span><em>y_true</em>, <em>y_pred</em>, <em>sample_weight=None</em>, <em>multioutput='uniform_average'</em>, <em>compute=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.metrics.mean_absolute_error" title="Permalink to this definition">¶</a></dt>
 <dd><p>Mean absolute error regression loss</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#mean-absolute-error" title="(in scikit-learn v0.21.3)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#mean-absolute-error" title="(in scikit-learn v0.22.1)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>y_true</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape = (n_samples) or (n_samples, n_outputs)</span></dt>
+<dt><strong>y_true</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,) or (n_samples, n_outputs)</span></dt>
 <dd><p class="first last">Ground truth (correct) target values.</p>
 </dd>
-<dt><strong>y_pred</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape = (n_samples) or (n_samples, n_outputs)</span></dt>
+<dt><strong>y_pred</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,) or (n_samples, n_outputs)</span></dt>
 <dd><p class="first last">Estimated target values.</p>
 </dd>
-<dt><strong>sample_weight</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape = (n_samples), optional</span></dt>
+<dt><strong>sample_weight</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,), optional</span></dt>
 <dd><p class="first last">Sample weights.</p>
 </dd>
 <dt><strong>multioutput</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string in [‘raw_values’, ‘uniform_average’]</span></dt>
@@ -328,7 +328,6 @@ weighted average of all output errors is returned.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">multioutput</span><span class="o">=</span><span class="s1">&#39;raw_values&#39;</span><span class="p">)</span>  <span class="c1"># doctest: +SKIP</span>
 <span class="go">array([0.5, 1. ])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">multioutput</span><span class="o">=</span><span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">])</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="gp">... </span><span class="c1"># doctest: +ELLIPSIS</span>
 <span class="go">0.85...</span>
 </pre></div>
 </div>

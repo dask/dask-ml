@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.cluster.SpectralClustering &mdash; dask-ml 1.1.2 documentation</title>
+  <title>dask_ml.cluster.SpectralClustering &mdash; dask-ml 1.2.0 documentation</title>
   
 
   
@@ -126,7 +126,7 @@
             
             
               <div class="version">
-                1.1.2.dev8+gfaaeff0
+                1.2.0
               </div>
             
           
@@ -296,9 +296,8 @@ the RandomState instance used by <cite>np.random</cite>.</p>
 Ignored for <code class="docutils literal notranslate"><span class="pre">affinity='nearest_neighbors'</span></code>.</p>
 </dd>
 <dt><strong>affinity</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, array-like or callable, default ‘rbf’</span></dt>
-<dd><p class="first">If a string, this may be one of ‘nearest_neighbors’, ‘precomputed’,
-‘rbf’ or one of the kernels supported by
-<cite>sklearn.metrics.pairwise_kernels</cite>.</p>
+<dd><p class="first">It may be ‘precomputed’ or one of the kernels supported by
+<cite>metrics.pairwise.PAIRWISE_KERNEL_FUNCTIONS</cite>.</p>
 <p>Only kernels that produce similarity scores (non-negative values that
 increase with similarity) should be used. This property is not checked
 by the clustering algorithm.</p>
@@ -393,7 +392,7 @@ IEEE Transactions on Pattern Analysis and Machine Intelligence
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><a class="reference internal" href="#dask_ml.cluster.SpectralClustering.fit_predict" title="dask_ml.cluster.SpectralClustering.fit_predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_predict</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
-<td>Performs clustering on X and returns cluster labels.</td>
+<td>Perform clustering on X and returns cluster labels.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.cluster.SpectralClustering.get_params" title="dask_ml.cluster.SpectralClustering.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
 <td>Get parameters for this estimator.</td>
@@ -423,7 +422,7 @@ IEEE Transactions on Pattern Analysis and Machine Intelligence
 <dl class="method">
 <dt id="dask_ml.cluster.SpectralClustering.fit_predict">
 <code class="descname">fit_predict</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.cluster.SpectralClustering.fit_predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Performs clustering on X and returns cluster labels.</p>
+<dd><p>Perform clustering on X and returns cluster labels.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -433,14 +432,14 @@ IEEE Transactions on Pattern Analysis and Machine Intelligence
 <dd><p class="first last">Input data.</p>
 </dd>
 <dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Ignored</span></dt>
-<dd><p class="first last">not used, present for API consistency by convention.</p>
+<dd><p class="first last">Not used, present for API consistency by convention.</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>labels</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray, shape (n_samples,)</span></dt>
-<dd><p class="first last">cluster labels</p>
+<dd><p class="first last">Cluster labels.</p>
 </dd>
 </dl>
 </td>
@@ -458,7 +457,7 @@ IEEE Transactions on Pattern Analysis and Machine Intelligence
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span></dt>
+<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default=True</span></dt>
 <dd><p class="first last">If True, will return the parameters for this estimator and
 contained subobjects that are estimators.</p>
 </dd>
@@ -488,9 +487,17 @@ component of a nested object.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt>self</dt>
-<dd></dd>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>**params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">Estimator parameters.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd><p class="first last">Estimator instance.</p>
+</dd>
 </dl>
 </td>
 </tr>

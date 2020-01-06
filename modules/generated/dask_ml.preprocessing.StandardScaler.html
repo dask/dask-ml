@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.preprocessing.StandardScaler &mdash; dask-ml 1.1.2 documentation</title>
+  <title>dask_ml.preprocessing.StandardScaler &mdash; dask-ml 1.2.0 documentation</title>
   
 
   
@@ -126,7 +126,7 @@
             
             
               <div class="version">
-                1.1.2.dev8+gfaaeff0
+                1.2.0
               </div>
             
           
@@ -283,8 +283,8 @@ and <cite>s</cite> is the standard deviation of the training samples or one if
 <cite>with_std=False</cite>.</p>
 <p>Centering and scaling happen independently on each feature by computing
 the relevant statistics on the samples in the training set. Mean and
-standard deviation are then stored to be used on later data using the
-<cite>transform</cite> method.</p>
+standard deviation are then stored to be used on later data using
+<a class="reference internal" href="#dask_ml.preprocessing.StandardScaler.transform" title="dask_ml.preprocessing.StandardScaler.transform"><code class="xref py py-meth docutils literal notranslate"><span class="pre">transform()</span></code></a>.</p>
 <p>Standardization of a dataset is a common requirement for many
 machine learning estimators: they might behave badly if the
 individual features do not more or less look like standard normally
@@ -298,7 +298,7 @@ that others, it might dominate the objective function and make the
 estimator unable to learn from other features correctly as expected.</p>
 <p>This scaler can also be applied to sparse CSR or CSC matrices by passing
 <cite>with_mean=False</cite> to avoid breaking the sparsity structure of the data.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.21.3)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.22.1)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -357,7 +357,7 @@ Will be reset on new calls to fit, but increments across
 <dl class="last docutils">
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">scale</span></code></dt>
 <dd>Equivalent function without the estimator API.</dd>
-<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html#sklearn.decomposition.PCA" title="(in scikit-learn v0.21.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.decomposition.PCA</span></code></a></dt>
+<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html#sklearn.decomposition.PCA" title="(in scikit-learn v0.22.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.decomposition.PCA</span></code></a></dt>
 <dd>Further removes the linear correlation across features with ‘whiten=True’.</dd>
 </dl>
 </div>
@@ -368,13 +368,13 @@ transform.</p>
 <cite>numpy.std(x, ddof=0)</cite>. Note that the choice of <cite>ddof</cite> is unlikely to
 affect model performance.</p>
 <p>For a comparison of the different scalers, transformers, and normalizers,
-see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.21.3)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
+see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.22.1)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">scaler</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
-<span class="go">StandardScaler(copy=True, with_mean=True, with_std=True)</span>
+<span class="go">StandardScaler()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">scaler</span><span class="o">.</span><span class="n">mean_</span><span class="p">)</span>
 <span class="go">[0.5 0.5]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
@@ -462,6 +462,9 @@ and returns a transformed version of X.</p>
 <dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples]</span></dt>
 <dd><p class="first last">Target values.</p>
 </dd>
+<dt><strong>**fit_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">Additional fit parameters.</p>
+</dd>
 </dl>
 </td>
 </tr>
@@ -485,7 +488,7 @@ and returns a transformed version of X.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span></dt>
+<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default=True</span></dt>
 <dd><p class="first last">If True, will return the parameters for this estimator and
 contained subobjects that are estimators.</p>
 </dd>
@@ -535,10 +538,10 @@ contained subobjects that are estimators.</p>
 <dl class="method">
 <dt id="dask_ml.preprocessing.StandardScaler.partial_fit">
 <code class="descname">partial_fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.partial_fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Online computation of mean and std on X for later scaling.
-All of X is processed as a single batch. This is intended for cases
-when <cite>fit</cite> is not feasible due to very large number of <cite>n_samples</cite>
-or because X is read from a continuous stream.</p>
+<dd><p>Online computation of mean and std on X for later scaling.</p>
+<p>All of X is processed as a single batch. This is intended for cases
+when <a class="reference internal" href="#dask_ml.preprocessing.StandardScaler.fit" title="dask_ml.preprocessing.StandardScaler.fit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code></a> is not feasible due to very large number of
+<cite>n_samples</cite> or because X is read from a continuous stream.</p>
 <p>The algorithm for incremental mean and std is given in Equation 1.5a,b
 in Chan, Tony F., Gene H. Golub, and Randall J. LeVeque. “Algorithms
 for computing the sample variance: Analysis and recommendations.”
@@ -547,13 +550,20 @@ The American Statistician 37.3 (1983): 242-247:</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{array-like, sparse matrix}, shape [n_samples, n_features]</span></dt>
 <dd><p class="first last">The data used to compute the mean and standard deviation
 used for later scaling along the features axis.</p>
 </dd>
-<dt><strong>y</strong></dt>
-<dd><p class="first last">Ignored</p>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">None</span></dt>
+<dd><p class="first last">Ignored.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd><p class="first last">Transformer instance.</p>
 </dd>
 </dl>
 </td>
@@ -574,9 +584,17 @@ component of a nested object.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt>self</dt>
-<dd></dd>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>**params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">Estimator parameters.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd><p class="first last">Estimator instance.</p>
+</dd>
 </dl>
 </td>
 </tr>
