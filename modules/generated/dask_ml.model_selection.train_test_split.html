@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.model_selection.train_test_split &mdash; dask-ml 1.2.0 documentation</title>
+  <title>dask_ml.model_selection.train_test_split &mdash; dask-ml 1.2.1 documentation</title>
   
 
   
@@ -126,7 +126,7 @@
             
             
               <div class="version">
-                1.2.0
+                1.2.1.dev1+g950ea46
               </div>
             
           
@@ -189,7 +189,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-compose-composite-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.compose</span></code>: Composite Estimators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.impute"><code class="docutils literal notranslate"><span class="pre">dask_ml.impute</span></code>: Imputing Missing Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-metrics-metrics"><code class="docutils literal notranslate"><span class="pre">dask_ml.metrics</span></code>: Metrics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-tensorflow-tensorflow"><code class="docutils literal notranslate"><span class="pre">dask_ml.tensorflow</span></code>: Tensorflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.tensorflow"><code class="docutils literal notranslate"><span class="pre">dask_ml.tensorflow</span></code>: Tensorflow</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.xgboost"><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code>: XGBoost</a></li>
 </ul>
 </li>
@@ -279,7 +279,7 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>*arrays</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Sequence of Dask Arrays, DataFrames, or Series</span></dt>
 <dd><p class="first last">Non-dask objects will be passed through to
-<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v0.22.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>.</p>
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v0.22)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>.</p>
 </dd>
 <dt><strong>test_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or int, default 0.1</span></dt>
 <dd></dd>
@@ -303,7 +303,7 @@ the default is True (data are not shuffled between blocks). For Dask
 DataFrames, the default and only allowed value is False (data are
 shuffled between blocks).</p>
 </dd>
-<dt><strong>convert_mixed_types</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, defualt False</span></dt>
+<dt><strong>convert_mixed_types</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default False</span></dt>
 <dd><p class="first last">Whether to convert dask DataFrames and Series to dask Arrays when
 arrays contains a mixiture of types. This results in some computation
 to determine the length of each block.</p>

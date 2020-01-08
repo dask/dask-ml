@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Cross Validation &mdash; dask-ml 1.2.0 documentation</title>
+  <title>Cross Validation &mdash; dask-ml 1.2.1 documentation</title>
   
 
   
@@ -126,7 +126,7 @@
             
             
               <div class="version">
-                1.2.0
+                1.2.1.dev1+g950ea46
               </div>
             
           
@@ -265,12 +265,12 @@ This document only describes the extensions made to support Dask arrays.</p>
 
 <span class="gp">In [8]: </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="gh">Out[8]: </span><span class="go"></span>
-<span class="go">array([[ 0.5042455 , -1.07535059,  0.21960535, -0.13748034],</span>
-<span class="go">       [ 0.72278447,  1.44812909, -0.48500419, -0.13090068],</span>
-<span class="go">       [ 0.46698325,  0.14795648,  0.00401895, -0.25118474]])</span>
+<span class="go">array([[-0.54613065, -0.90709521,  1.47050494, -0.48765508],</span>
+<span class="go">       [ 0.00550963,  0.02080571, -0.4763186 , -1.56842247],</span>
+<span class="go">       [-0.91167124, -1.49118942, -0.04353167, -0.59867598]])</span>
 </pre></div>
 </div>
-<p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v0.22.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
+<p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v0.22)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
 using the Dask version for performance reasons. There are two major difference that let make the Dask version
 faster.</p>
 <p>First, <strong>the Dask version shuffles blockwise</strong>.
