@@ -497,7 +497,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
     def _get_params(self):
         """Parameters to pass to `fit`.
 
-        By defualt, a GridSearch over ``self.parameters`` is used.
+        By default, a GridSearch over ``self.parameters`` is used.
         """
         return ParameterGrid(self.parameters)
 

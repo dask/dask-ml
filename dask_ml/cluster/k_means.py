@@ -34,7 +34,7 @@ class KMeans(TransformerMixin, BaseEstimator):
     n_clusters : int, default 8
         Number of clusters to end up with
     init : {'k-means||', 'k-means++' or ndarray}
-        Method for center initialization, defualts to 'k-means||'.
+        Method for center initialization, defaults to 'k-means||'.
 
         'k-means||' : selects the the gg
 

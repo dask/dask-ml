@@ -392,7 +392,7 @@ def train_test_split(
         DataFrames, the default and only allowed value is False (data are
         shuffled between blocks).
 
-    convert_mixed_types : bool, defualt False
+    convert_mixed_types : bool, default False
         Whether to convert dask DataFrames and Series to dask Arrays when
         arrays contains a mixiture of types. This results in some computation
         to determine the length of each block.
