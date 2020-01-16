@@ -10,7 +10,6 @@ Version 1.2.0
 - Added :class:`dask_ml.preprocessing.BlockTransfomer` an extension of scikit-learn's `FunctionTransformer` (:issue:`366`).
 - Added :class:`dask_ml.feature_extraction.FeatureHasher` which is similar to scikit-learn's implementation.
 
-
 Version 1.1.1
 ~~~~~~~~~~~~~
 
