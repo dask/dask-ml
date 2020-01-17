@@ -126,7 +126,7 @@
             
             
               <div class="version">
-                1.2.1.dev1+g950ea46
+                1.2.1.dev2+gff1b0af
               </div>
             
           
@@ -321,6 +321,8 @@
 <li>Changed the name of the second positional argument in <code class="xref py py-class docutils literal notranslate"><span class="pre">model_selection.IncrementalSearchCV</span></code> from <code class="docutils literal notranslate"><span class="pre">param_distribution</span></code>
 to <code class="docutils literal notranslate"><span class="pre">parameters</span></code> to match the name of the base class.</li>
 <li>Compatibility with scikit-learn 0.22.1.</li>
+<li>Added <code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.preprocessing.BlockTransfomer</span></code> an extension of scikit-learn’s <cite>FunctionTransformer</cite> (<a class="reference external" href="https://github.com/dask/dask-ml/issues/366">GH#366</a>).</li>
+<li>Added <code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.FeatureHasher</span></code> which is similar to scikit-learn’s implementation.</li>
 </ul>
 </div>
 <div class="section" id="version-1-1-1">
@@ -400,7 +402,7 @@ have more than one block along the features (<a class="reference external" href=
 <div class="section" id="id1">
 <h3>Enhancements<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>Added support for <a class="reference external" href="https://docs.dask.org/en/latest/dataframe-api.html#dask.dataframe.DataFrame" title="(in Dask v2.9.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask.dataframe.DataFrame</span></code></a> to <a class="reference internal" href="modules/generated/dask_ml.model_selection.train_test_split.html#dask_ml.model_selection.train_test_split" title="dask_ml.model_selection.train_test_split"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dask_ml.model_selection.train_test_split()</span></code></a> (<a class="reference external" href="https://github.com/dask/dask-ml/issues/351">GH#351</a>)</li>
+<li>Added support for <a class="reference external" href="https://docs.dask.org/en/latest/dataframe-api.html#dask.dataframe.DataFrame" title="(in Dask v2.9.2+3.g61354989)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask.dataframe.DataFrame</span></code></a> to <a class="reference internal" href="modules/generated/dask_ml.model_selection.train_test_split.html#dask_ml.model_selection.train_test_split" title="dask_ml.model_selection.train_test_split"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dask_ml.model_selection.train_test_split()</span></code></a> (<a class="reference external" href="https://github.com/dask/dask-ml/issues/351">GH#351</a>)</li>
 </ul>
 </div>
 </div>
