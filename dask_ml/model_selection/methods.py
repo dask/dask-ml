@@ -82,11 +82,13 @@ def warn_fit_failure(error_score, e):
 
 
 class CVCache:
-    def __init__(self, splits, pairwise=False, cache=True, num_train_samples=None):
+    def __init__(self, splits, pairwise=False, cache=True,
+                 num_train_samples=None, extract_fn=None):
         self.splits = splits
         self.pairwise = pairwise
         self.cache = {} if cache else None
         self.num_train_samples = num_train_samples
+        self.extract_fn = extract_fn
 
     def __reduce__(self):
         return (
@@ -127,8 +129,11 @@ class CVCache:
         if self.cache is not None and (n, is_x, is_train) in self.cache:
             return self.cache[n, is_x, is_train]
 
-        inds = self.splits[n][0] if is_train else self.splits[n][1]
-        result = _safe_indexing(X if is_x else y, inds)
+        if self.extract_fn is not None:
+            result = self.extract_fn(self, X, y, n, is_x, is_train)
+        else:
+            inds = self.splits[n][0] if is_train else self.splits[n][1]
+            result = _safe_indexing(X if is_x else y, inds)
 
         if self.cache is not None:
             self.cache[n, is_x, is_train] = result
@@ -153,9 +158,9 @@ class CVCache:
         return result
 
 
-def cv_split(cv, X, y, groups, is_pairwise, cache):
+def cv_split(cv, X, y, groups, is_pairwise, cache, extract_fn):
     check_consistent_length(X, y, groups)
-    return CVCache(list(cv.split(X, y, groups)), is_pairwise, cache, _num_samples(X))
+    return CVCache(list(cv.split(X, y, groups)), is_pairwise, cache, _num_samples(X), extract_fn=extract_fn)
 
 
 def cv_n_samples(cvs):
@@ -318,7 +323,8 @@ def fit_and_score(
     if not return_train_score:
         X_train = y_train = None
 
-    return score(est_and_time, X_test, y_test, X_train, y_train, scorer, error_score)
+    s = score(est_and_time, X_test, y_test, X_train, y_train, scorer, error_score)
+    return s
 
 
 def _store(
