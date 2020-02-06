@@ -53,10 +53,10 @@ class StandardScaler(sklearn.preprocessing.StandardScaler):
             X = X.values
 
         if self.with_mean:
-            mean_ = X.mean(0)
+            mean_ = X.nanmean(0)
             attributes["mean_"] = mean_
         if self.with_std:
-            var_ = X.var(0)
+            var_ = X.nanvar(0)
             scale_ = var_.copy()
             scale_[scale_ == 0] = 1
             scale_ = da.sqrt(scale_)
