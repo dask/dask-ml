@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import sklearn.preprocessing
 from dask import compute
+from dask.array import nanmean, nanvar
 from pandas.api.types import is_categorical_dtype
 from scipy import stats
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -53,10 +54,10 @@ class StandardScaler(sklearn.preprocessing.StandardScaler):
             X = X.values
 
         if self.with_mean:
-            mean_ = X.nanmean(0)
+            mean_ = nanmean(X, 0)
             attributes["mean_"] = mean_
         if self.with_std:
-            var_ = X.nanvar(0)
+            var_ = nanvar(X, 0)
             scale_ = var_.copy()
             scale_[scale_ == 0] = 1
             scale_ = da.sqrt(scale_)
