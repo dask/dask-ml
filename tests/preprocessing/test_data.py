@@ -50,6 +50,16 @@ def pandas_df():
 def dask_df(pandas_df):
     return dd.from_pandas(pandas_df, npartitions=5)
 
+@pytest.fixture
+def pandas_nan_df():
+    df = pd.DataFrame(5 * [range(42)]).T.rename(columns=str)
+    df.iloc[0] = np.nan
+
+
+@pytest.fixture
+def dask_nan_df(pandas_df):
+    return dd.from_pandas(pandas_df, npartitions=5)
+
 
 class TestStandardScaler:
     def test_basic(self):
@@ -90,6 +100,12 @@ class TestStandardScaler:
         result = a.inverse_transform(a.fit_transform(X))
         assert dask.is_dask_collection(result)
         assert_eq_ar(result, X)
+
+    def test_nan(self, dask_nan_df):
+        a = dpp.StandardScaler()
+        a.fit(dask_nan_df.values)
+        assert np.isnan(a.mean_).sum() == 0
+        assert np.isnan(a.var_).sum() == 0
 
 
 class TestMinMaxScaler:
