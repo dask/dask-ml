@@ -405,7 +405,7 @@ class TestDummyEncoder:
         assert isinstance(result, dd.DataFrame)
 
     def test_transform_explicit_columns(self):
-        de = dpp.DummyEncoder(columns=["A", "B", "C", "D"])
+        de = dpp.DummyEncoder(columns=["A", "B", "C"])
         de.fit(dummy)
         with pytest.raises(ValueError) as rec:
             de.transform(dummy.drop("B", axis="columns"))
