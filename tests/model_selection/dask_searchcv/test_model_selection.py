@@ -808,7 +808,10 @@ def test_scheduler_param_distributed(loop):  # noqa
 
 
 def test_as_completed_distributed(loop):  # noqa
-    with cluster(active_rpc_timeout=10, nanny=Nanny) as (s, [a, b]):
+    with cluster(active_rpc_timeout=10, disconnect_timeout=10, nanny=Nanny) as (
+        s,
+        [a, b],
+    ):
         with Client(s["address"], loop=loop) as c:
             counter_name = "counter_name"
             counter = Variable(counter_name, client=c)
