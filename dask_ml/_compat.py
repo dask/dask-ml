@@ -1,4 +1,5 @@
 import contextlib
+import os
 from collections.abc import Mapping  # noqa
 
 import dask
@@ -18,6 +19,7 @@ SK_022 = SK_VERSION >= packaging.version.parse("0.22")
 SK_0221 = SK_VERSION >= packaging.version.parse("0.22.1")
 DASK_240 = DASK_VERSION >= packaging.version.parse("2.4.0")
 DISTRIBUTED_211 = DISTRIBUTED_VERSION > packaging.version.parse("2.10.0")  # dev
+WINDOWS = os.name == "nt"
 
 
 @contextlib.contextmanager
