@@ -657,7 +657,7 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
         if not X.columns.equals(self.columns_):
             raise ValueError(
                 "Columns of 'X' do not match the training "
-                "columns. Got {!r}, expected {!r}".format(X.columns, self.columns)
+                "columns. Got {!r}, expected {!r}".format(X.columns, self.columns_)
             )
         if isinstance(X, pd.DataFrame):
             return pd.get_dummies(X, drop_first=self.drop_first, columns=self.columns)
