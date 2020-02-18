@@ -1,7 +1,7 @@
 import dask.array as da
 import numpy as np
 import sklearn.metrics
-from dask.array.random import doc_wraps
+from dask.utils import derived_from
 
 
 def _check_sample_weight(sample_weight):
@@ -22,7 +22,7 @@ def _check_reg_targets(y_true, y_pred, multioutput):
     return None, y_true, y_pred, multioutput
 
 
-@doc_wraps(sklearn.metrics.mean_squared_error)
+@derived_from(sklearn.metrics)
 def mean_squared_error(
     y_true, y_pred, sample_weight=None, multioutput="uniform_average", compute=True
 ):
@@ -43,7 +43,7 @@ def mean_squared_error(
     return result
 
 
-@doc_wraps(sklearn.metrics.mean_absolute_error)
+@derived_from(sklearn.metrics)
 def mean_absolute_error(
     y_true, y_pred, sample_weight=None, multioutput="uniform_average", compute=True
 ):
@@ -64,7 +64,7 @@ def mean_absolute_error(
     return result
 
 
-@doc_wraps(sklearn.metrics.r2_score)
+@derived_from(sklearn.metrics)
 def r2_score(
     y_true, y_pred, sample_weight=None, multioutput="uniform_average", compute=True
 ):

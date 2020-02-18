@@ -41,7 +41,7 @@ from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.svm import SVC
 
 import dask_ml.model_selection as dcv
-from dask_ml._compat import SK_022
+from dask_ml._compat import DISTRIBUTED_211, SK_022, WINDOWS
 from dask_ml.model_selection import check_cv, compute_n_splits
 from dask_ml.model_selection._search import _normalize_n_jobs
 from dask_ml.model_selection.methods import CVCache
@@ -807,8 +807,14 @@ def test_scheduler_param_distributed(loop):  # noqa
             assert client.run_on_scheduler(f)  # some work happened on cluster
 
 
+@pytest.mark.skipif(
+    WINDOWS, reason="https://github.com/dask/dask-ml/issues/611 TimeoutError"
+)
 def test_as_completed_distributed(loop):  # noqa
-    with cluster(active_rpc_timeout=10, nanny=Nanny) as (s, [a, b]):
+    cluster_kwargs = dict(active_rpc_timeout=10, nanny=Nanny)
+    if DISTRIBUTED_211:
+        cluster_kwargs["disconnect_timeout"] = 10
+    with cluster(**cluster_kwargs) as (s, [a, b]):
         with Client(s["address"], loop=loop) as c:
             counter_name = "counter_name"
             counter = Variable(counter_name, client=c)
