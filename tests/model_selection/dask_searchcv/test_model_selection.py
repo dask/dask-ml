@@ -7,6 +7,7 @@ from multiprocessing import cpu_count
 
 import dask
 import dask.array as da
+import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import pytest
@@ -21,6 +22,7 @@ from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.exceptions import FitFailedWarning, NotFittedError
 from sklearn.feature_selection import SelectKBest
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import (
     GridSearchCV,
     GroupKFold,
@@ -327,6 +329,28 @@ def test_grid_search_dask_inputs():
 
         gs.fit(X, y, groups=groups)
         np.testing.assert_allclose(sol, gs.best_estimator_.support_vectors_)
+
+
+def test_grid_search_dask_dataframe():
+    iris = load_iris()
+    X = iris.data
+    y = iris.target
+
+    df = pd.DataFrame(X)
+    ddf = dd.from_pandas(df, 2)
+
+    dy = pd.Series(y)
+    ddy = dd.from_pandas(dy, 2)
+
+    clf = LogisticRegression(multi_class="auto", solver="lbfgs", max_iter=200)
+
+    param_grid = {"C": [0.1, 1, 10]}
+    gs = GridSearchCV(clf, param_grid, cv=5)
+    dgs = dcv.GridSearchCV(clf, param_grid, cv=5)
+    gs.fit(df, dy)
+    dgs.fit(ddf, ddy)
+
+    assert gs.best_params_ == dgs.best_params_
 
 
 def test_pipeline_feature_union():
