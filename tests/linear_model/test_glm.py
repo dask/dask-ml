@@ -171,7 +171,7 @@ def test_add_intercept_raises_chunks():
     assert m.match("Chunking is only allowed")
 
 
-def test_lm_score():
+def test_lr_score():
     X = da.from_array(np.arange(1000).reshape(1000, 1))
     lr = LinearRegression()
     lr.fit(X, X)
