@@ -1,10 +1,20 @@
 Changelog
 =========
 
+Version 1.2.0
+~~~~~~~~~~~~~
+
+- Changed the name of the second positional argument in :class:`model_selection.IncrementalSearchCV` from ``param_distribution``
+  to ``parameters`` to match the name of the base class.
+- Compatibility with scikit-learn 0.22.1.
+- Added :class:`dask_ml.preprocessing.BlockTransfomer` an extension of scikit-learn's `FunctionTransformer` (:issue:`366`).
+- Added :class:`dask_ml.feature_extraction.FeatureHasher` which is similar to scikit-learn's implementation.
+
 Version 1.1.1
 ~~~~~~~~~~~~~
 
 - Fixed an issue with the 1.1.0 wheel (:issue:`575`)
+- Make svd_flip work even when arrays are read only (:issue:`592`)
 
 Version 1.1.0
 ~~~~~~~~~~~~~
