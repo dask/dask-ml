@@ -748,7 +748,7 @@ def _incremental_mean_and_var(X, last_mean, last_variance, last_sample_count):
         zeros = last_sample_count == 0
         # updated_unnormalized_variance[zeros] = new_unnormalized_variance[zeros]
         updated_unnormalized_variance = np.where(
-            zeros, new_unnormalized_variance[zeros], 
+            zeros, new_unnormalized_variance, 
             updated_unnormalized_variance)
         updated_variance = updated_unnormalized_variance / updated_sample_count
 

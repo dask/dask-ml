@@ -50,7 +50,8 @@ class IncrementalPCA(PCA):
         self.noise_variance_ = None
 
         X = check_array(X, accept_sparse=['csr', 'csc', 'lil'],
-                        copy=self.copy, dtype=[np.float64, np.float32])
+                        copy=self.copy, dtype=[np.float64, np.float32],
+                        accept_multiple_blocks=True)
         n_samples, n_features = X.shape
 
         if self.batch_size is None:
@@ -91,7 +92,8 @@ class IncrementalPCA(PCA):
                     "IncrementalPCA.partial_fit does not support "
                     "sparse input. Either convert data to dense "
                     "or use IncrementalPCA.fit to do so in batches.")
-            X = check_array(X, copy=self.copy, dtype=[np.float64, np.float32])
+            X = check_array(X, copy=self.copy, dtype=[np.float64, np.float32],
+                            accept_multiple_blocks=True)
         n_samples, n_features = X.shape
         if not hasattr(self, 'components_'):
             self.components_ = None
@@ -131,6 +133,8 @@ class IncrementalPCA(PCA):
                 X, last_mean=self.mean_, last_variance=self.var_,
                 last_sample_count=np.repeat(self.n_samples_seen_, X.shape[1]))
         n_total_samples = n_total_samples[0]
+        if hasattr(n_total_samples, 'compute'):
+            n_total_samples = n_total_samples.compute()
 
         # Whitening
         if self.n_samples_seen_ == 0:

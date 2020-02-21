@@ -39,26 +39,22 @@ def test_incremental_pca():
         np.testing.assert_allclose(np.dot(cov, precision),
                                    np.eye(X.shape[1]), atol=1e-13)
 
-'''
-@pytest.mark.parametrize('use_daskarray', [True, False])
-def test_incremental_pca_check_projection(use_daskarray):
+
+def test_incremental_pca_check_projection():
     # Test that the projection of data is correct.
     rng = np.random.RandomState(1999)
     n, p = 100, 3
     X = rng.randn(n, p) * .1
     X[:10] += np.array([3, 4, 5])
     Xt = 0.1 * rng.randn(1, p) + np.array([3, 4, 5])
-    if use_daskarray:
-        X = da.from_array(X, chunks=(3, 4))
-        Xt = da.from_array(Xt, chunks=(4, 3))
+    X = da.from_array(X, chunks=(3, 4))
+    Xt = da.from_array(Xt, chunks=(4, 3))
 
     # Get the reconstruction of the generated data X
     # Note that Xt has the same "components" as X, just separated
     # This is what we want to ensure is recreated correctly
     Yt = IncrementalPCA(n_components=2).fit(X).transform(Xt)
-    if use_daskarray:
-        print(type(Yt))
-        assert isinstance(Yt, da.Array)
+    assert isinstance(Yt, da.Array)
 
     # Normalize
     Yt /= np.sqrt((Yt ** 2).sum())
@@ -67,6 +63,7 @@ def test_incremental_pca_check_projection(use_daskarray):
     # the reconstruction worked as expected
     assert_almost_equal(np.abs(Yt[0][0]), 1., 1)
 
+
 def test_incremental_pca_inverse():
     # Test that the projection of data can be inverted.
     rng = np.random.RandomState(1999)
@@ -74,18 +71,20 @@ def test_incremental_pca_inverse():
     X = rng.randn(n, p)  # spherical data
     X[:, 1] *= .00001  # make middle component relatively small
     X += [5, 4, 3]  # make a large mean
+    X = da.from_array(X, chunks=[4, 3])
 
     # same check that we can find the original data from the transformed
     # signal (since the data is almost of rank n_components)
     ipca = IncrementalPCA(n_components=2, batch_size=10).fit(X)
     Y = ipca.transform(X)
     Y_inverse = ipca.inverse_transform(Y)
-    assert_almost_equal(X, Y_inverse, decimal=3)
+    assert_almost_equal(X.compute(), Y_inverse.compute(), decimal=3)
 
 
 def test_incremental_pca_validation():
     # Test that n_components is >=1 and <= n_features.
     X = np.array([[0, 1, 0], [1, 0, 0]])
+    X = da.from_array(X, chunks=[4, 3])
     n_samples, n_features = X.shape
     for n_components in [-1, 0, .99, 4]:
         with pytest.raises(ValueError, match="n_components={} invalid"
@@ -108,6 +107,7 @@ def test_n_components_none():
     rng = np.random.RandomState(1999)
     for n_samples, n_features in [(50, 10), (10, 50)]:
         X = rng.rand(n_samples, n_features)
+        X = da.from_array(X, chunks=[4, 3])
         ipca = IncrementalPCA(n_components=None)
 
         # First partial_fit call, ipca.n_components_ is inferred from
@@ -129,6 +129,10 @@ def test_incremental_pca_set_params():
     X = rng.randn(n_samples, n_features)
     X2 = rng.randn(n_samples, n_features)
     X3 = rng.randn(n_samples, n_features)
+    X = da.from_array(X, chunks=[4, 3])
+    X2 = da.from_array(X2, chunks=[4, 3])
+    X3 = da.from_array(X3, chunks=[4, 3])
+
     ipca = IncrementalPCA(n_components=20)
     ipca.fit(X)
     # Decreasing number of components
@@ -150,6 +154,9 @@ def test_incremental_pca_num_features_change():
     n_samples = 100
     X = rng.randn(n_samples, 20)
     X2 = rng.randn(n_samples, 50)
+    X = da.from_array(X, chunks=[4, 3])
+    X2 = da.from_array(X2, chunks=[4, 3])
+    
     ipca = IncrementalPCA(n_components=None)
     ipca.fit(X)
     with pytest.raises(ValueError):
@@ -162,6 +169,7 @@ def test_incremental_pca_batch_signs():
     n_samples = 100
     n_features = 3
     X = rng.randn(n_samples, n_features)
+    X = da.from_array(X, chunks=[40, 3])
     all_components = []
     batch_sizes = np.arange(10, 20)
     for batch_size in batch_sizes:
@@ -178,6 +186,7 @@ def test_incremental_pca_batch_values():
     n_samples = 100
     n_features = 3
     X = rng.randn(n_samples, n_features)
+    X = da.from_array(X, chunks=[40, 3])
     all_components = []
     batch_sizes = np.arange(20, 40, 3)
     for batch_size in batch_sizes:
@@ -194,6 +203,7 @@ def test_incremental_pca_batch_rank():
     n_samples = 100
     n_features = 20
     X = rng.randn(n_samples, n_features)
+    X = da.from_array(X, chunks=[40, 3])
     all_components = []
     batch_sizes = np.arange(20, 90, 3)
     for batch_size in batch_sizes:
@@ -212,6 +222,7 @@ def test_incremental_pca_partial_fit():
     X = rng.randn(n, p)  # spherical data
     X[:, 1] *= .00001  # make middle component relatively small
     X += [5, 4, 3]  # make a large mean
+    X = da.from_array(X, chunks=[4, 3])
 
     # same check that we can find the original data from the transformed
     # signal (since the data is almost of rank n_components)
@@ -228,6 +239,7 @@ def test_incremental_pca_partial_fit():
 def test_incremental_pca_against_pca_iris():
     # Test that IncrementalPCA and PCA are approximate (to a sign flip).
     X = iris.data
+    X = da.from_array(X, chunks=[50, -1])
 
     Y_pca = PCA(n_components=2).fit_transform(X)
     Y_ipca = IncrementalPCA(n_components=2, batch_size=25).fit_transform(X)
@@ -241,6 +253,7 @@ def test_incremental_pca_against_pca_random_data():
     n_samples = 100
     n_features = 3
     X = rng.randn(n_samples, n_features) + 5 * rng.rand(1, n_features)
+    X = da.from_array(X, chunks=[40, 3])
 
     Y_pca = PCA(n_components=3).fit_transform(X)
     Y_ipca = IncrementalPCA(n_components=3, batch_size=25).fit_transform(X)
@@ -252,6 +265,7 @@ def test_explained_variances():
     # Test that PCA and IncrementalPCA calculations match
     X = datasets.make_low_rank_matrix(1000, 100, tail_strength=0.,
                                       effective_rank=10, random_state=1999)
+    X = da.from_array(X, chunks=[400, 30])
     prec = 3
     n_samples, n_features = X.shape
     for nc in [None, 99]:
@@ -274,6 +288,7 @@ def test_singular_values():
 
     X = datasets.make_low_rank_matrix(n_samples, n_features, tail_strength=0.0,
                                       effective_rank=10, random_state=rng)
+    X = da.from_array(X, chunks=[200, 30])
 
     pca = PCA(n_components=10, svd_solver='full', random_state=rng).fit(X)
     ipca = IncrementalPCA(n_components=10, batch_size=100).fit(X)
@@ -300,6 +315,7 @@ def test_singular_values():
 
     X = datasets.make_low_rank_matrix(n_samples, n_features, tail_strength=0.0,
                                       effective_rank=3, random_state=rng)
+    X = da.from_array(X, chunks=[4, 3])
 
     pca = PCA(n_components=3, svd_solver='full', random_state=rng)
     ipca = IncrementalPCA(n_components=3, batch_size=100)
@@ -320,6 +336,7 @@ def test_whitening():
     # Test that PCA and IncrementalPCA transforms match to sign flip.
     X = datasets.make_low_rank_matrix(1000, 10, tail_strength=0.,
                                       effective_rank=2, random_state=1999)
+    X = da.from_array(X, chunks=[200, 30])
     prec = 3
     n_samples, n_features = X.shape
     for nc in [None, 9]:
@@ -332,8 +349,8 @@ def test_whitening():
         assert_almost_equal(np.abs(Xt_pca), np.abs(Xt_ipca), decimal=prec)
         Xinv_ipca = ipca.inverse_transform(Xt_ipca)
         Xinv_pca = pca.inverse_transform(Xt_pca)
-        assert_almost_equal(X, Xinv_ipca, decimal=prec)
-        assert_almost_equal(X, Xinv_pca, decimal=prec)
+        assert_almost_equal(X.compute(), Xinv_ipca, decimal=prec)
+        assert_almost_equal(X.compute(), Xinv_pca, decimal=prec)
         assert_almost_equal(Xinv_pca, Xinv_ipca, decimal=prec)
 
 
@@ -344,6 +361,8 @@ def test_incremental_pca_partial_fit_float_division():
     rng = np.random.RandomState(0)
     A = rng.randn(5, 3) + 2
     B = rng.randn(7, 3) + 5
+    A = da.from_array(A, chunks=[3, 2])
+    B = da.from_array(B, chunks=[3, 2])
 
     pca = IncrementalPCA(n_components=2)
     pca.partial_fit(A)
@@ -359,4 +378,3 @@ def test_incremental_pca_partial_fit_float_division():
 
     np.testing.assert_allclose(singular_vals_float_samples_seen,
                                singular_vals_int_samples_seen)
-'''
