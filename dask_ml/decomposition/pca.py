@@ -45,7 +45,7 @@ class PCA(sklearn.decomposition.PCA):
             n_components == min(n_samples, n_features)
 
         .. note::
-
+    
            Unlike scikit-learn, ``n_components='mle'`` and ``n_components``
            between ``(0, 1)`` are not currently supported.
 

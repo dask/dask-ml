@@ -5,23 +5,56 @@
 # License: BSD 3 clause
 
 import numpy as np
-from scipy import linalg, sparse
+from scipy import sparse
+from dask import array as da
+from dask.array import linalg
+from dask import delayed
 
 from sklearn.utils import gen_batches
+from sklearn.utils.validation import check_random_state
 from ..utils import check_array
-from ..utils import svd_flip_fixed as svd_flip
+from ..utils import svd_flip_fixed
+from .._utils import draw_seed
 from .extmath import _incremental_mean_and_var
 from . import PCA
 
 
+def svd_flip(u, v):
+    """
+    This is a replicate of svd_flip() which calls svd_flip_fixed()
+    instead of skm.svd_flip()
+    """
+    u2, v2 = delayed(svd_flip_fixed, nout=2)(u, v, False)
+    u = da.from_delayed(u2, shape=u.shape, dtype=u.dtype)
+    v = da.from_delayed(v2, shape=v.shape, dtype=v.dtype)
+    return u, v
+
+
 class IncrementalPCA(PCA):
+    """
+    svd_solver : string {'auto', 'full', 'tsqr', 'randomized'}
+        auto :
+            the solver is selected by a default policy based on `X.shape` and
+            `n_components`: if the input data is larger than 500x500 and the
+            number of components to extract is lower than 80% of the smallest
+            dimension of the data, then the more efficient 'randomized'
+            method is enabled. Otherwise the exact full SVD is computed and
+            optionally truncated afterwards.
+        full :
+            run exact full SVD and select the components by postprocessing
+        randomized :
+            run randomized SVD by using ``da.linalg.svd_compressed``.
+    """
     def __init__(self, n_components=None, whiten=False, copy=True,
-                 batch_size=None, svd_solver='auto'):
+                 batch_size=None, svd_solver='full', 
+                 iterated_power=0, random_state=None):
         self.n_components = n_components
         self.whiten = whiten
         self.copy = copy
         self.batch_size = batch_size
         self.svd_solver = svd_solver
+        self.iterated_power = iterated_power
+        self.random_state = random_state
 
     def fit(self, X, y=None):
         """Fit the model with X, using minibatches of size batch_size.
@@ -126,16 +159,15 @@ class IncrementalPCA(PCA):
             self.n_samples_seen_ = 0
             self.mean_ = .0
             self.var_ = .0
-
+        
         # Update stats - they are 0 if this is the first step
+        last_sample_count = np.tile(np.expand_dims(self.n_samples_seen_, 0), X.shape[1])
         col_mean, col_var, n_total_samples = \
             _incremental_mean_and_var(
                 X, last_mean=self.mean_, last_variance=self.var_,
-                last_sample_count=np.repeat(self.n_samples_seen_, X.shape[1]))
+                last_sample_count=last_sample_count)
         n_total_samples = n_total_samples[0]
-        if hasattr(n_total_samples, 'compute'):
-            n_total_samples = n_total_samples.compute()
-
+        
         # Whitening
         if self.n_samples_seen_ == 0:
             # If it is the first step, simply whiten X
@@ -150,8 +182,20 @@ class IncrementalPCA(PCA):
             X = np.vstack((self.singular_values_.reshape((-1, 1)) *
                            self.components_, X, mean_correction))
 
-        U, S, V = linalg.svd(X, full_matrices=False)
-        U, V = svd_flip(U, V, u_based_decision=False)
+        solver = self._get_solver(X, self.n_components_)
+        if solver in {"full", "tsqr"}:
+            if hasattr(X, 'rechunk'):
+                X = da.rechunk(X, (X.chunks[0], -1))
+            U, S, V = linalg.svd(X)
+        else:
+            # randomized
+            random_state = check_random_state(self.random_state)
+            seed = draw_seed(random_state, np.iinfo("int32").max)
+            n_power_iter = self.iterated_power
+            U, S, V = linalg.svd_compressed(
+                X, self.n_components, n_power_iter=n_power_iter, seed=seed
+            )
+        U, V = svd_flip(U, V)
         explained_variance = S ** 2 / (n_total_samples - 1)
         explained_variance_ratio = S ** 2 / np.sum(col_var * n_total_samples)
 

@@ -9,12 +9,31 @@ from sklearn.utils._testing import assert_allclose_dense_sparse
 
 from sklearn import datasets
 from sklearn.decomposition import PCA
+from sklearn import decomposition as sd
 from dask_ml.decomposition import IncrementalPCA
 
 from scipy import sparse
 
 iris = datasets.load_iris()
 
+
+@pytest.mark.parametrize('svd_solver', [
+    'full', 
+    'auto', 
+    'randomized'
+])
+def test_compare_with_sklearn(svd_solver):
+    X = iris.data
+    X_da = da.from_array(X, chunks=(3, 4))
+    batch_size = X.shape[0] // 3
+    ipca = sd.IncrementalPCA(n_components=2, batch_size=batch_size)
+    ipca.fit(X)
+    ipca_da = IncrementalPCA(n_components=2, batch_size=batch_size, 
+                             svd_solver=svd_solver)
+    ipca_da.fit(X_da)
+    np.testing.assert_allclose(
+        ipca.components_, ipca_da.components_, atol=1e-13)
+        
 
 def test_incremental_pca():
     # Incremental PCA on dense arrays.
@@ -177,6 +196,8 @@ def test_incremental_pca_batch_signs():
         all_components.append(ipca.components_)
 
     for i, j in zip(all_components[:-1], all_components[1:]):
+        i = i.compute()
+        j = j.compute()
         assert_almost_equal(np.sign(i), np.sign(j), decimal=6)
 
 
@@ -194,7 +215,7 @@ def test_incremental_pca_batch_values():
         all_components.append(ipca.components_)
 
     for i, j in zip(all_components[:-1], all_components[1:]):
-        assert_almost_equal(i, j, decimal=1)
+        assert_almost_equal(i.compute(), j.compute(), decimal=1)
 
 
 def test_incremental_pca_batch_rank():
@@ -233,7 +254,9 @@ def test_incremental_pca_partial_fit():
     batch_itr = np.arange(0, n + 1, batch_size)
     for i, j in zip(batch_itr[:-1], batch_itr[1:]):
         pipca.partial_fit(X[i:j, :])
-    assert_almost_equal(ipca.components_, pipca.components_, decimal=3)
+    assert_almost_equal(
+        ipca.components_.compute(), pipca.components_.compute(), 
+        decimal=3)
 
 
 def test_incremental_pca_against_pca_iris():
@@ -327,6 +350,7 @@ def test_singular_values():
 
     X_hat = np.dot(X_pca, pca.components_)
     pca.fit(X_hat)
+    X_hat = da.from_array(X_hat, chunks=(4, 3))
     ipca.fit(X_hat)
     assert_array_almost_equal(pca.singular_values_, [3.142, 2.718, 1.0], 14)
     assert_array_almost_equal(ipca.singular_values_, [3.142, 2.718, 1.0], 14)
