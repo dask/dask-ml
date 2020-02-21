@@ -45,7 +45,7 @@ class PCA(sklearn.decomposition.PCA):
             n_components == min(n_samples, n_features)
 
         .. note::
-    
+
            Unlike scikit-learn, ``n_components='mle'`` and ``n_components``
            between ``(0, 1)`` are not currently supported.
 
@@ -505,6 +505,58 @@ class PCA(sklearn.decomposition.PCA):
         """
         return da.mean(self.score_samples(X))
 
+    def get_covariance(self):
+        """Compute data covariance with the generative model.
+        ``cov = components_.T * S**2 * components_ + sigma2 * eye(n_features)``
+        where S**2 contains the explained variances, and sigma2 contains the
+        noise variances.
+        Returns
+        -------
+        cov : array, shape=(n_features, n_features)
+            Estimated covariance of data.
+        """
+        components_ = self.components_
+        exp_var = self.explained_variance_
+        if self.whiten:
+            components_ = components_ * np.sqrt(exp_var[:, np.newaxis])
+        exp_var_diff = np.maximum(exp_var - self.noise_variance_, 0.)
+        cov = np.dot(components_.T * exp_var_diff, components_)
+        cov += np.eye(len(cov)) * self.noise_variance_  # modify diag inplace
+        return cov
+
+    def get_precision(self):
+        """Compute data precision matrix with the generative model.
+        Equals the inverse of the covariance but computed with
+        the matrix inversion lemma for efficiency.
+        Returns
+        -------
+        precision : array, shape=(n_features, n_features)
+            Estimated precision of data.
+        """
+        n_features = self.components_.shape[1]
+
+        # handle corner cases first
+        if self.n_components_ == 0:
+            return np.eye(n_features) / self.noise_variance_
+        if self.n_components_ == n_features:
+            return da.linalg.inv(self.get_covariance())
+
+        # Get precision using matrix inversion lemma
+        components_ = self.components_
+        exp_var = self.explained_variance_
+        if self.whiten:
+            components_ = components_ * np.sqrt(exp_var[:, np.newaxis])
+        exp_var_diff = np.maximum(exp_var - self.noise_variance_, 0.)
+        precision = np.dot(components_, components_.T) / self.noise_variance_
+        precision += np.eye(len(precision)) / exp_var_diff
+        precision = np.dot(components_.T,
+                            np.dot(da.linalg.inv(precision), components_))
+        precision /= -(self.noise_variance_ ** 2)
+        precision += np.eye(len(precision)) / self.noise_variance_
+
+        return precision
+
 
 def _known_shape(shape):
     return all(isinstance(x, numbers.Integral) for x in shape)
+
