@@ -24,7 +24,7 @@ logger = logging.getLogger()
 
 
 def svd_flip_fixed(u, v, u_based_decision=True):
-    """
+    """ 
     This is a replicate of svd_flip() from
     miniconda3/lib/python3.7/site-packages/sklearn/utils/extmath.py
     To avoid error "ValueError: output array is read-only", it is changed
