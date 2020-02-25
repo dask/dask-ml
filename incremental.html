@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.2.1.dev5+g4c52e2d
+                1.2.1.dev6+ga3d0bf3
               </div>
             
           
@@ -257,7 +257,7 @@
   <div class="section" id="incremental-learning">
 <span id="id1"></span><h1>Incremental Learning<a class="headerlink" href="#incremental-learning" title="Permalink to this headline">¶</a></h1>
 <p>Some estimators can be trained incrementally – without seeing the entire
-dataset at once. Scikit-Learn provdes the <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> API to stream batches
+dataset at once. Scikit-Learn provides the <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> API to stream batches
 of data to an estimator that can be fit in batches.</p>
 <p>Normally, if you pass a Dask Array to an estimator expecting a NumPy array,
 the Dask Array will be converted to a single, large NumPy array. On a single
@@ -353,20 +353,18 @@ can also explicitly pass <code class="docutils literal notranslate"><span class=
 </div>
 <p>We can get the accuracy score on our dataset.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gh">Out[9]: </span><span class="go">0.66</span>
+<span class="gh">Out[9]: </span><span class="go">0.69</span>
 </pre></div>
 </div>
 <p>All of the attributes learned durning training, like <code class="docutils literal notranslate"><span class="pre">coef_</span></code>, are available
 on the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> instance.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[-6.05880667e+00, -2.04945781e+01, -2.76072248e+01,</span>
-<span class="go">        -1.75439079e+01, -1.86102023e+01, -4.96474214e+01,</span>
-<span class="go">         1.35052300e+01,  3.02986973e+01,  6.04812619e+00,</span>
-<span class="go">        -2.53478948e+01,  2.82348284e+01, -2.46745801e+01,</span>
-<span class="go">        -3.64385855e-02,  3.46197040e+01, -3.90842054e+01,</span>
-<span class="go">         2.27088346e+01, -1.49818359e+01,  1.53724818e+01,</span>
-<span class="go">         3.10948565e+01, -6.00360401e+00]])</span>
+<span class="go">array([[ 33.09597833, -37.79828105,  -0.180285  , -10.40196496,</span>
+<span class="go">          3.63186207, -19.65896179,  30.2561392 ,   8.79142064,</span>
+<span class="go">          4.23699408,  14.21754149, -29.41020452,  -0.69536536,</span>
+<span class="go">        -11.63281598,  10.5813753 , -16.81633213,  27.99565867,</span>
+<span class="go">         -9.46228707,   4.49732171, -17.94178178,   3.63330131]])</span>
 </pre></div>
 </div>
 <p>If necessary, the actual estimator trained is available as <code class="docutils literal notranslate"><span class="pre">Incremental.estimator_</span></code></p>
