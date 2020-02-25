@@ -31,7 +31,47 @@ def svd_flip(u, v):
 
 
 class IncrementalPCA(PCA):
-    """
+    """Incremental principal components analysis (IPCA).
+    Linear dimensionality reduction using Singular Value Decomposition of
+    the data, keeping only the most significant singular vectors to
+    project the data to a lower dimensional space. The input data is centered
+    but not scaled for each feature before applying the SVD.
+    Depending on the size of the input data, this algorithm can be much more
+    memory efficient than a PCA, and allows sparse input.
+    This algorithm has constant memory complexity, on the order
+    of ``batch_size * n_features``, enabling use of np.memmap files without
+    loading the entire file into memory. For sparse matrices, the input
+    is converted to dense in batches (in order to be able to subtract the
+    mean) which avoids storing the entire dense matrix at any one time.
+    The computational overhead of each SVD is
+    ``O(batch_size * n_features ** 2)``, but only 2 * batch_size samples
+    remain in memory at a time. There will be ``n_samples / batch_size`` SVD
+    computations to get the principal components, versus 1 large SVD of
+    complexity ``O(n_samples * n_features ** 2)`` for PCA.
+    Read more in the :ref:`User Guide <IncrementalPCA>`.
+    .. versionadded:: 0.16
+
+    Parameters
+    ----------
+    n_components : int or None, (default=None)
+        Number of components to keep. If ``n_components `` is ``None``,
+        then ``n_components`` is set to ``min(n_samples, n_features)``.
+    whiten : bool, optional
+        When True (False by default) the ``components_`` vectors are divided
+        by ``n_samples`` times ``components_`` to ensure uncorrelated outputs
+        with unit component-wise variances.
+        Whitening will remove some information from the transformed signal
+        (the relative variance scales of the components) but can sometimes
+        improve the predictive accuracy of the downstream estimators by
+        making data respect some hard-wired assumptions.
+    copy : bool, (default=True)
+        If False, X will be overwritten. ``copy=False`` can be used to
+        save memory but is unsafe for general use.
+    batch_size : int or None, (default=None)
+        The number of samples to use for each batch. Only used when calling
+        ``fit``. If ``batch_size`` is ``None``, then ``batch_size``
+        is inferred from the data and set to ``5 * n_features``, to provide a
+        balance between approximation accuracy and memory consumption.
     svd_solver : string {'auto', 'full', 'tsqr', 'randomized'}
         auto :
             the solver is selected by a default policy based on `X.shape` and
@@ -44,6 +84,40 @@ class IncrementalPCA(PCA):
             run exact full SVD and select the components by postprocessing
         randomized :
             run randomized SVD by using ``da.linalg.svd_compressed``.
+    iterated_power: integer
+    random_state: None or integer
+        Parameters used for randomized svd. 
+
+    Attributes
+    ----------
+    components_ : array, shape (n_components, n_features)
+        Components with maximum variance.
+    explained_variance_ : array, shape (n_components,)
+        Variance explained by each of the selected components.
+    explained_variance_ratio_ : array, shape (n_components,)
+        Percentage of variance explained by each of the selected components.
+        If all components are stored, the sum of explained variances is equal
+        to 1.0.
+    singular_values_ : array, shape (n_components,)
+        The singular values corresponding to each of the selected components.
+        The singular values are equal to the 2-norms of the ``n_components``
+        variables in the lower-dimensional space.
+    mean_ : array, shape (n_features,)
+        Per-feature empirical mean, aggregate over calls to ``partial_fit``.
+    var_ : array, shape (n_features,)
+        Per-feature empirical variance, aggregate over calls to
+        ``partial_fit``.
+    noise_variance_ : float
+        The estimated noise covariance following the Probabilistic PCA model
+        from Tipping and Bishop 1999. See "Pattern Recognition and
+        Machine Learning" by C. Bishop, 12.2.1 p. 574 or
+        http://www.miketipping.com/papers/met-mppca.pdf.
+    n_components_ : int
+        The estimated number of components. Relevant when
+        ``n_components=None``.
+    n_samples_seen_ : int
+        The number of samples processed by the estimator. Will be reset on
+        new calls to fit, but increments across ``partial_fit`` calls.
     """
     def __init__(self, n_components=None, whiten=False, copy=True,
                  batch_size=None, svd_solver='full', 
