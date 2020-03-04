@@ -85,7 +85,7 @@ def to_keys(dsk, *args):
             yield x.key
         else:
             assert not is_dask_collection(x)
-            key = "array-" + tokenize(x)
+            key = "ndarray-" + tokenize(x)
             dsk[key] = x
             yield key
 
