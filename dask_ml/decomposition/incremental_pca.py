@@ -121,7 +121,7 @@ class IncrementalPCA(PCA):
         new calls to fit, but increments across ``partial_fit`` calls.
     """
     def __init__(self, n_components=None, whiten=False, copy=True,
-                 batch_size=None, svd_solver='full', 
+                 batch_size=None, svd_solver='auto', 
                  iterated_power=0, random_state=None):
         self.n_components = n_components
         self.whiten = whiten
@@ -286,7 +286,7 @@ class IncrementalPCA(PCA):
         if self.n_components_ < min(n_features, n_samples):
             if solver == "randomized":
                 noise_variance = (total_var.sum() - explained_variance.sum()) / (
-                    min(n_features, n_samples) - n_components
+                    min(n_features, n_samples) - self.n_components_
                 )
             else:
                 noise_variance = \
