@@ -1,5 +1,6 @@
 import numpy as np
 from scipy import stats
+import pandas as pd
 from sklearn.svm import SVC
 
 from dask.distributed import Client
@@ -22,8 +23,9 @@ def test_search_basic(xy_classification):
 def test_to_keys_numpy_array():
     rng = np.random.RandomState(0)
     arr = rng.randn(20, 30)
+    df = pd.DataFrame(data=arr)
     dsk = {}
-    grid_search_key, = dms.to_keys(dsk, arr)
+    grid_search_keys = list(dms.utils.to_keys(dsk, arr, df))
     with Client() as client:
-        arr_future = client.scatter(arr)
-    assert grid_search_key == arr_future.key
+        data_futures = client.scatter([arr, df])
+    assert grid_search_keys == [f.key for f in data_futures]
