@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Generalized Linear Models for large datasets."""
 import textwrap
-
 from dask_glm import algorithms, families
 from dask_glm.utils import (
     accuracy_score,
@@ -11,8 +10,8 @@ from dask_glm.utils import (
     poisson_deviance,
     sigmoid,
 )
+import numpy as np
 from sklearn.base import BaseEstimator
-
 from ..utils import check_array
 from ..metrics import r2_score
 
@@ -181,6 +180,7 @@ class _GLM(BaseEstimator):
         self : objectj
         """
         X = self._check_array(X)
+        self.n_classes = len(np.unique(y))
 
         solver_kwargs = self._get_solver_kwargs()
 
@@ -230,7 +230,10 @@ class LogisticRegression(_GLM):
         C : array, shape = [n_samples,]
             Predicted class labels for each sample
         """
-        return self.predict_proba(X) > 0.5  # TODO: verify, multi_class broken
+        prob = self.predict_proba(X)
+        if self.n_classes == 2:
+            return prob.argmax(axis=1)
+        return prob > 0.5  # TODO: verify, multi_class broken
 
     def predict_proba(self, X):
         """Probability estimates for samples in X.
@@ -245,7 +248,11 @@ class LogisticRegression(_GLM):
             The probability of the sample for each class in the model.
         """
         X_ = self._check_array(X)
-        return sigmoid(dot(X_, self._coef))
+        prob = sigmoid(dot(X_, self._coef))  # TODO: verify, multi_class broken
+        if self.n_classes == 2:
+            return np.vstack([1 - prob, prob]).T
+        else:
+            return prob
 
     def score(self, X, y):
         """The mean accuracy on the given data and labels
