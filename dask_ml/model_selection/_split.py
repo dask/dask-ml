@@ -51,7 +51,7 @@ def _maybe_normalize_split_sizes(train_size, test_size):
     if test_size is not None:
         if test_size < 0 or test_size > 1:
             raise ValueError(
-                "'test_size' be between 0 and 1. " "Got {}".format(test_size)
+                "'test_size' must be between 0 and 1. " "Got {}".format(test_size)
             )
 
         if train_size is None:
@@ -429,9 +429,6 @@ def train_test_split(
     if options:
         raise TypeError("Unexpected options {}".format(options))
 
-    if not shuffle:
-        raise NotImplementedError("'shuffle=False' is not currently supported.")
-
     types = set(type(arr) for arr in arrays)
 
     if da.Array in types and types & {dd.Series, dd.DataFrame}:
@@ -450,19 +447,29 @@ def train_test_split(
 
     if all(isinstance(arr, (dd.Series, dd.DataFrame)) for arr in arrays):
         check_matching_blocks(*arrays)
-        if blockwise is None:
-            blockwise = False
+        if blockwise is False:
+            raise NotImplementedError(
+                "'blockwise=False' is not currently supported for dask DataFrames."
+            )
 
         rng = check_random_state(random_state)
         rng = draw_seed(rng, 0, _I4MAX, dtype="uint")
         return list(
             itertools.chain.from_iterable(
-                arr.random_split([train_size, test_size], random_state=rng)
+                arr.random_split(
+                    [train_size, test_size],
+                    random_state=rng,
+                    shuffle=shuffle,
+                )
                 for arr in arrays
             )
         )
 
     elif all(isinstance(arr, da.Array) for arr in arrays):
+        if not shuffle:
+            raise NotImplementedError(
+                "'shuffle=False' is not currently supported for dask Arrays."
+            )
         if blockwise is None:
             blockwise = True
 

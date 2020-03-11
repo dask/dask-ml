@@ -132,6 +132,20 @@ def test_train_test_split_test_size():
     )
 
 
+def test_train_test_split_shuffle_dataframe(xy_classification_pandas):
+    X, y = xy_classification_pandas
+    X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(
+        X, y, random_state=42, shuffle=True
+    )
+    with pytest.raises(AssertionError):
+        np.testing.assert_array_equal(X_train.index, sorted(X_train.index))
+
+    X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(
+        X, y, random_state=42, shuffle=False
+    )
+    np.testing.assert_array_equal(X_train.index, sorted(X_train.index))
+
+
 @pytest.mark.parametrize(
     "kwargs",
     [{"train_size": 10}, {"test_size": 10}, {"test_size": 10, "train_size": 0.1}],
