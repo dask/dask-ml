@@ -305,6 +305,7 @@ class IncrementalPCA(PCA):
             )
         U, V = svd_flip(U, V)
         explained_variance = S ** 2 / (n_total_samples - 1)
+        explained_variance_ratio = S ** 2 / np.sum(col_var * n_total_samples)
         components, singular_values = V, S
 
         if solver == "randomized":
@@ -315,14 +316,8 @@ class IncrementalPCA(PCA):
         explained_variance_ratio = explained_variance / total_var
 
         self.n_samples_seen_ = n_total_samples
-
-        if self.n_components_ < min(n_features, n_samples):
-            if solver == "randomized":
-                noise_variance = (total_var.sum() - explained_variance.sum()) / (
-                    min(n_features, n_samples) - self.n_components_
-                )
-            else:
-                noise_variance = da.mean(explained_variance[self.n_components_ :])
+        if self.n_components_ < n_features:
+            noise_variance = da.mean(explained_variance[self.n_components_ :])
         else:
             noise_variance = 0.0
 
