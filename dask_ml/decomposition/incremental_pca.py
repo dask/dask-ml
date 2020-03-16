@@ -241,7 +241,7 @@ class IncrementalPCA(PCA):
             _incremental_mean_and_var(
                 X, last_mean=self.mean_, last_variance=self.var_,
                 last_sample_count=last_sample_count)
-        n_total_samples = n_total_samples[0]
+        n_total_samples = da.compute(n_total_samples[0])[0]
         
         # Whitening
         if self.n_samples_seen_ == 0:
@@ -262,6 +262,9 @@ class IncrementalPCA(PCA):
             if hasattr(X, 'rechunk'):
                 X = da.rechunk(X, (X.chunks[0], -1))
             U, S, V = linalg.svd(X)
+            # manually implement full_matrix=False
+            if V.shape[0] > len(S):
+                V = V[:len(S)]
         else:
             # randomized
             random_state = check_random_state(self.random_state)
@@ -310,10 +313,10 @@ class IncrementalPCA(PCA):
                 col_mean,
                 col_var,
                 n_features,
-                components,
-                explained_variance,
-                explained_variance_ratio,
-                singular_values,
+                components[:self.n_components_],
+                explained_variance[:self.n_components_],
+                explained_variance_ratio[:self.n_components_],
+                singular_values[:self.n_components_],
                 noise_variance,
             )
         except ValueError as e:
@@ -328,12 +331,6 @@ class IncrementalPCA(PCA):
                 )
                 raise ValueError(msg.format(X.shape)) from e
             raise e
-
-        self.components_ = self.components_[:self.n_components_]
-        self.singular_values_ = self.singular_values_[:self.n_components_]
-        self.explained_variance_ = self.explained_variance_[:self.n_components_]
-        self.explained_variance_ratio_ = \
-            self.explained_variance_ratio_[:self.n_components_]
 
         if len(self.singular_values_) < self.n_components_:
             self.n_components_ = len(self.singular_values_)
@@ -379,7 +376,7 @@ class IncrementalPCA(PCA):
         if self.n_components_ == 0:
             return np.eye(n_features) / self.noise_variance_
         if self.n_components_ == n_features:
-            return da.linalg.inv(self.get_covariance())
+            return np.linalg.inv(self.get_covariance())
 
         # Get precision using matrix inversion lemma
         components_ = self.components_
@@ -390,7 +387,7 @@ class IncrementalPCA(PCA):
         precision = np.dot(components_, components_.T) / self.noise_variance_
         precision += np.eye(len(precision)) / exp_var_diff
         precision = np.dot(components_.T,
-                            np.dot(da.linalg.inv(precision), components_))
+                            np.dot(np.linalg.inv(precision), components_))
         precision /= -(self.noise_variance_ ** 2)
         precision += np.eye(len(precision)) / self.noise_variance_
 

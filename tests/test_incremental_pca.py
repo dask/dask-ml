@@ -97,7 +97,7 @@ def test_incremental_pca_inverse():
     ipca = IncrementalPCA(n_components=2, batch_size=10).fit(X)
     Y = ipca.transform(X)
     Y_inverse = ipca.inverse_transform(Y)
-    assert_almost_equal(X.compute(), Y_inverse.compute(), decimal=3)
+    assert_almost_equal(X.compute(), Y_inverse, decimal=3)
 
 
 def test_incremental_pca_validation():
@@ -196,8 +196,6 @@ def test_incremental_pca_batch_signs():
         all_components.append(ipca.components_)
 
     for i, j in zip(all_components[:-1], all_components[1:]):
-        i = i.compute()
-        j = j.compute()
         assert_almost_equal(np.sign(i), np.sign(j), decimal=6)
 
 
@@ -215,7 +213,7 @@ def test_incremental_pca_batch_values():
         all_components.append(ipca.components_)
 
     for i, j in zip(all_components[:-1], all_components[1:]):
-        assert_almost_equal(i.compute(), j.compute(), decimal=1)
+        assert_almost_equal(i, j, decimal=1)
 
 
 def test_incremental_pca_batch_rank():
@@ -255,7 +253,7 @@ def test_incremental_pca_partial_fit():
     for i, j in zip(batch_itr[:-1], batch_itr[1:]):
         pipca.partial_fit(X[i:j, :])
     assert_almost_equal(
-        ipca.components_.compute(), pipca.components_.compute(), 
+        ipca.components_, pipca.components_, 
         decimal=3)
 
 
