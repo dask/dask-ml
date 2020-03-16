@@ -120,9 +120,17 @@ class IncrementalPCA(PCA):
         The number of samples processed by the estimator. Will be reset on
         new calls to fit, but increments across ``partial_fit`` calls.
     """
-    def __init__(self, n_components=None, whiten=False, copy=True,
-                 batch_size=None, svd_solver='auto', 
-                 iterated_power=0, random_state=None):
+
+    def __init__(
+        self,
+        n_components=None,
+        whiten=False,
+        copy=True,
+        batch_size=None,
+        svd_solver="auto",
+        iterated_power=0,
+        random_state=None,
+    ):
         self.n_components = n_components
         self.whiten = whiten
         self.copy = copy
@@ -149,17 +157,21 @@ class IncrementalPCA(PCA):
         """
         self.components_ = None
         self.n_samples_seen_ = 0
-        self.mean_ = .0
-        self.var_ = .0
+        self.mean_ = 0.0
+        self.var_ = 0.0
         self.singular_values_ = None
         self.explained_variance_ = None
         self.explained_variance_ratio_ = None
         self.singular_values_ = None
         self.noise_variance_ = None
 
-        X = check_array(X, accept_sparse=['csr', 'csc', 'lil'],
-                        copy=self.copy, dtype=[np.float64, np.float32],
-                        accept_multiple_blocks=True)
+        X = check_array(
+            X,
+            accept_sparse=["csr", "csc", "lil"],
+            copy=self.copy,
+            dtype=[np.float64, np.float32],
+            accept_multiple_blocks=True,
+        )
         n_samples, n_features = X.shape
 
         if self.batch_size is None:
@@ -167,8 +179,9 @@ class IncrementalPCA(PCA):
         else:
             self.batch_size_ = self.batch_size
 
-        for batch in gen_batches(n_samples, self.batch_size_,
-                                 min_batch_size=self.n_components or 0):
+        for batch in gen_batches(
+            n_samples, self.batch_size_, min_batch_size=self.n_components or 0
+        ):
             X_batch = X[batch]
             if sparse.issparse(X_batch):
                 X_batch = X_batch.toarray()
@@ -199,11 +212,16 @@ class IncrementalPCA(PCA):
                 raise TypeError(
                     "IncrementalPCA.partial_fit does not support "
                     "sparse input. Either convert data to dense "
-                    "or use IncrementalPCA.fit to do so in batches.")
-            X = check_array(X, copy=self.copy, dtype=[np.float64, np.float32],
-                            accept_multiple_blocks=True)
+                    "or use IncrementalPCA.fit to do so in batches."
+                )
+            X = check_array(
+                X,
+                copy=self.copy,
+                dtype=[np.float64, np.float32],
+                accept_multiple_blocks=True,
+            )
         n_samples, n_features = X.shape
-        if not hasattr(self, 'components_'):
+        if not hasattr(self, "components_"):
             self.components_ = None
 
         if self.n_components is None:
@@ -212,37 +230,46 @@ class IncrementalPCA(PCA):
             else:
                 self.n_components_ = self.components_.shape[0]
         elif not 1 <= self.n_components <= n_features:
-            raise ValueError("n_components=%r invalid for n_features=%d, need "
-                             "more rows than columns for IncrementalPCA "
-                             "processing" % (self.n_components, n_features))
+            raise ValueError(
+                "n_components=%r invalid for n_features=%d, need "
+                "more rows than columns for IncrementalPCA "
+                "processing" % (self.n_components, n_features)
+            )
         elif not self.n_components <= n_samples:
-            raise ValueError("n_components=%r must be less or equal to "
-                             "the batch number of samples "
-                             "%d." % (self.n_components, n_samples))
+            raise ValueError(
+                "n_components=%r must be less or equal to "
+                "the batch number of samples "
+                "%d." % (self.n_components, n_samples)
+            )
         else:
             self.n_components_ = self.n_components
 
-        if (self.components_ is not None) and (self.components_.shape[0] !=
-                                               self.n_components_):
-            raise ValueError("Number of input features has changed from %i "
-                             "to %i between calls to partial_fit! Try "
-                             "setting n_components to a fixed value." %
-                             (self.components_.shape[0], self.n_components_))
+        if (self.components_ is not None) and (
+            self.components_.shape[0] != self.n_components_
+        ):
+            raise ValueError(
+                "Number of input features has changed from %i "
+                "to %i between calls to partial_fit! Try "
+                "setting n_components to a fixed value."
+                % (self.components_.shape[0], self.n_components_)
+            )
 
         # This is the first partial_fit
-        if not hasattr(self, 'n_samples_seen_'):
+        if not hasattr(self, "n_samples_seen_"):
             self.n_samples_seen_ = 0
-            self.mean_ = .0
-            self.var_ = .0
-        
+            self.mean_ = 0.0
+            self.var_ = 0.0
+
         # Update stats - they are 0 if this is the first step
         last_sample_count = np.tile(np.expand_dims(self.n_samples_seen_, 0), X.shape[1])
-        col_mean, col_var, n_total_samples = \
-            _incremental_mean_and_var(
-                X, last_mean=self.mean_, last_variance=self.var_,
-                last_sample_count=last_sample_count)
+        col_mean, col_var, n_total_samples = _incremental_mean_and_var(
+            X,
+            last_mean=self.mean_,
+            last_variance=self.var_,
+            last_sample_count=last_sample_count,
+        )
         n_total_samples = da.compute(n_total_samples[0])[0]
-        
+
         # Whitening
         if self.n_samples_seen_ == 0:
             # If it is the first step, simply whiten X
@@ -251,20 +278,25 @@ class IncrementalPCA(PCA):
             col_batch_mean = np.mean(X, axis=0)
             X -= col_batch_mean
             # Build matrix of combined previous basis and new data
-            mean_correction = \
-                np.sqrt((self.n_samples_seen_ * n_samples) /
-                        n_total_samples) * (self.mean_ - col_batch_mean)
-            X = np.vstack((self.singular_values_.reshape((-1, 1)) *
-                           self.components_, X, mean_correction))
+            mean_correction = np.sqrt(
+                (self.n_samples_seen_ * n_samples) / n_total_samples
+            ) * (self.mean_ - col_batch_mean)
+            X = np.vstack(
+                (
+                    self.singular_values_.reshape((-1, 1)) * self.components_,
+                    X,
+                    mean_correction,
+                )
+            )
 
         solver = self._get_solver(X, self.n_components_)
         if solver in {"full", "tsqr"}:
-            if hasattr(X, 'rechunk'):
+            if hasattr(X, "rechunk"):
                 X = da.rechunk(X, (X.chunks[0], -1))
             U, S, V = linalg.svd(X)
             # manually implement full_matrix=False
             if V.shape[0] > len(S):
-                V = V[:len(S)]
+                V = V[: len(S)]
         else:
             # randomized
             random_state = check_random_state(self.random_state)
@@ -292,10 +324,9 @@ class IncrementalPCA(PCA):
                     min(n_features, n_samples) - self.n_components_
                 )
             else:
-                noise_variance = \
-                    da.mean(explained_variance[self.n_components_:])
+                noise_variance = da.mean(explained_variance[self.n_components_ :])
         else:
-            noise_variance = 0.
+            noise_variance = 0.0
 
         try:
             (
@@ -313,10 +344,10 @@ class IncrementalPCA(PCA):
                 col_mean,
                 col_var,
                 n_features,
-                components[:self.n_components_],
-                explained_variance[:self.n_components_],
-                explained_variance_ratio[:self.n_components_],
-                singular_values[:self.n_components_],
+                components[: self.n_components_],
+                explained_variance[: self.n_components_],
+                explained_variance_ratio[: self.n_components_],
+                singular_values[: self.n_components_],
                 noise_variance,
             )
         except ValueError as e:
@@ -338,7 +369,9 @@ class IncrementalPCA(PCA):
                 "n_components={n} is larger than the number of singular values"
                 " ({s}) (note: PCA has attributes as if n_components == {s})"
             )
-            raise ValueError(msg.format(n=self.n_components_, s=len(self.singular_values_)))
+            raise ValueError(
+                msg.format(n=self.n_components_, s=len(self.singular_values_))
+            )
 
         return self
 
@@ -356,7 +389,7 @@ class IncrementalPCA(PCA):
         exp_var = self.explained_variance_
         if self.whiten:
             components_ = components_ * np.sqrt(exp_var[:, np.newaxis])
-        exp_var_diff = np.maximum(exp_var - self.noise_variance_, 0.)
+        exp_var_diff = np.maximum(exp_var - self.noise_variance_, 0.0)
         cov = np.dot(components_.T * exp_var_diff, components_)
         cov += np.eye(len(cov)) * self.noise_variance_  # modify diag inplace
         return cov
@@ -383,11 +416,10 @@ class IncrementalPCA(PCA):
         exp_var = self.explained_variance_
         if self.whiten:
             components_ = components_ * np.sqrt(exp_var[:, np.newaxis])
-        exp_var_diff = np.maximum(exp_var - self.noise_variance_, 0.)
+        exp_var_diff = np.maximum(exp_var - self.noise_variance_, 0.0)
         precision = np.dot(components_, components_.T) / self.noise_variance_
         precision += np.eye(len(precision)) / exp_var_diff
-        precision = np.dot(components_.T,
-                            np.dot(np.linalg.inv(precision), components_))
+        precision = np.dot(components_.T, np.dot(np.linalg.inv(precision), components_))
         precision /= -(self.noise_variance_ ** 2)
         precision += np.eye(len(precision)) / self.noise_variance_
 
