@@ -791,7 +791,7 @@ def test_svd_flip():
     u = da.from_array(u, chunks=(-1, -1))
     v = da.from_array(v, chunks=(-1, -1))
     u2, v2 = svd_flip(u, v)
-    
+
     def set_readonly(x):
         x.setflags(write=False)
         return x

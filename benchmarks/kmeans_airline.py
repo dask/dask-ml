@@ -91,7 +91,7 @@ def main(args=None):
 
     logger.info("Reading data")
     X = read().pipe(transform).pipe(as_array)
-    X, = persist(X)
+    (X,) = persist(X)
 
     timings = []
 

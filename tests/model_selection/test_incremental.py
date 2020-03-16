@@ -270,7 +270,7 @@ def _test_search_basic(decay_rate, c, s, a, b):
         "elapsed_wall_time",
     }
 
-    X_, = yield c.compute([X])
+    (X_,) = yield c.compute([X])
     # Dask Objects are lazy
 
     proba = search.predict_proba(X)
@@ -398,7 +398,7 @@ def test_transform(c, s, a, b):
     params = {"n_clusters": [3, 4, 5], "n_init": [1, 2]}
     search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
     yield search.fit(X, y)
-    X_, = yield c.compute([X])
+    (X_,) = yield c.compute([X])
     result = search.transform(X_)
     assert result.shape == (100, search.best_estimator_.n_clusters)
 
@@ -412,7 +412,7 @@ def test_small(c, s, a, b):
         model, params, n_initial_parameters="grid", decay_rate=0
     )
     yield search.fit(X, y, classes=[0, 1])
-    X_, = yield c.compute([X])
+    (X_,) = yield c.compute([X])
     search.predict(X_)
 
 
@@ -424,7 +424,7 @@ def test_smaller(c, s, a, b):
     params = {"alpha": [0.1, 0.5]}
     search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
     yield search.fit(X, y, classes=[0, 1])
-    X_, = yield c.compute([X])
+    (X_,) = yield c.compute([X])
     search.predict(X_)
 
 
