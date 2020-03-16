@@ -29,6 +29,19 @@ def test_compare_with_sklearn(svd_solver):
     )
     ipca_da.fit(X_da)
     np.testing.assert_allclose(ipca.components_, ipca_da.components_, atol=1e-13)
+    np.testing.assert_allclose(
+        ipca.explained_variance_, ipca_da.explained_variance_, atol=1e-13
+    )
+    np.testing.assert_allclose(
+        ipca.explained_variance_, ipca_da.explained_variance_, atol=1e-13
+    )
+    print(ipca.explained_variance_, ipca_da.explained_variance_)
+    np.testing.assert_allclose(
+        ipca.explained_variance_ratio_, ipca_da.explained_variance_ratio_, atol=1e-13
+    )
+    np.testing.assert_allclose(
+        ipca.noise_variance_, ipca_da.noise_variance_, atol=1e-13
+    )
 
 
 def test_incremental_pca():
