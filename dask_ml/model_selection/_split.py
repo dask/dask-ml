@@ -3,6 +3,8 @@
 import itertools
 import logging
 import numbers
+from distutils.version import LooseVersion
+import sys
 
 import dask
 import dask.array as da
@@ -18,6 +20,9 @@ from .._utils import draw_seed
 
 logger = logging.getLogger(__name__)
 _I4MAX = np.iinfo("i4").max
+
+DASK_VERSION = LooseVersion(dask.__version__)
+DASK_GT_2130 = DASK_VERSION >= LooseVersion("2.13.0")
 
 
 def _check_blockwise(blockwise):
@@ -361,7 +366,7 @@ def train_test_split(
     test_size=None,
     train_size=None,
     random_state=None,
-    shuffle=True,
+    shuffle=None,
     blockwise=None,
     convert_mixed_types=False,
     **options
@@ -380,7 +385,7 @@ def train_test_split(
         If RandomState instance, random_state is the random number generator;
         If None, the random number generator is the RandomState instance used
         by `np.random`.
-    shuffle : bool, default True
+    shuffle : bool, default None
         Whether to shuffle the data before splitting.
     blockwise : bool, optional.
         Whether to shuffle data only within blocks (True), or allow data to
@@ -454,18 +459,43 @@ def train_test_split(
 
         rng = check_random_state(random_state)
         rng = draw_seed(rng, 0, _I4MAX, dtype="uint")
-        return list(
-            itertools.chain.from_iterable(
-                arr.random_split(
-                    [train_size, test_size],
-                    random_state=rng,
-                    shuffle=shuffle,
+        if DASK_GT_2130:
+            if shuffle is None:
+                shuffle = False
+                if not sys.warnoptions:
+                    import warnings
+                    warnings.warn(
+                        message="The shuffle parameter will default to True"
+                                " in the future. Set to False to conserve"
+                                " backwards compatibility.",
+                        category=FutureWarning,
+                    )
+            return list(
+                itertools.chain.from_iterable(
+                    arr.random_split(
+                        [train_size, test_size],
+                        random_state=rng,
+                        shuffle=shuffle,
+                    )
+                    for arr in arrays
                 )
-                for arr in arrays
             )
-        )
+        else:
+            if not shuffle:
+                raise NotImplementedError(
+                    f"'shuffle=False' is not supported for DataFrames in"
+                    f" dask versions<2.12.1. Current version is {DASK_VERSION}."
+                )
+            return list(
+                itertools.chain.from_iterable(
+                    arr.random_split([train_size, test_size], random_state=rng)
+                    for arr in arrays
+                )
+            )
 
     elif all(isinstance(arr, da.Array) for arr in arrays):
+        if shuffle is None:
+            shuffle = True
         if not shuffle:
             raise NotImplementedError(
                 "'shuffle=False' is not currently supported for dask Arrays."
