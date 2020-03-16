@@ -58,6 +58,13 @@ def test_incremental_pca():
             np.dot(cov, precision), np.eye(X.shape[1]), atol=1e-13
         )
 
+        assert type(pca.singular_values_) == type(ipca.singular_values_)
+        assert type(pca.mean_) == type(ipca.mean_)
+        assert type(pca.explained_variance_) == type(ipca.explained_variance_)
+        assert type(pca.explained_variance_ratio_) == type(
+            ipca.explained_variance_ratio_
+        )
+
 
 def test_incremental_pca_check_projection():
     # Test that the projection of data is correct.
