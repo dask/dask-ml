@@ -281,7 +281,7 @@ class QuantileTransformer(sklearn.preprocessing.QuantileTransformer):
     def _dense_fit(self, X, random_state):
         references = self.references_ * 100
         quantiles = [da.percentile(col, references) for col in X.T]
-        (self.quantiles_,) = compute(da.vstack(quantiles).T)
+        self.quantiles_, = compute(da.vstack(quantiles).T)
 
     def _transform(self, X, inverse=False):
         X = X.copy()  # ...

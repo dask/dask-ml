@@ -50,7 +50,6 @@ def pandas_df():
 def dask_df(pandas_df):
     return dd.from_pandas(pandas_df, npartitions=5)
 
-
 class TestStandardScaler:
     def test_basic(self):
         a = dpp.StandardScaler()

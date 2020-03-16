@@ -13,8 +13,8 @@ from dask_glm.utils import (
 )
 from sklearn.base import BaseEstimator
 
-from ..metrics import r2_score
 from ..utils import check_array
+from ..metrics import r2_score
 
 _base_doc = textwrap.dedent(
     """\

@@ -2,6 +2,7 @@ import logging
 from multiprocessing import cpu_count
 from numbers import Integral
 
+import numba  # isort:skip (see https://github.com/dask/dask-ml/pull/577)
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
@@ -20,9 +21,6 @@ from ..metrics import (
 )
 from ..utils import _timed, _timer, check_array, row_norms
 from ._compat import _k_init
-
-import numba  # isort:skip (see https://github.com/dask/dask-ml/pull/577)
-
 
 logger = logging.getLogger(__name__)
 
@@ -413,7 +411,7 @@ def init_scalable(
     c_idx = {idx}
 
     # Step 2: Initialize cost
-    (cost,) = compute(evaluate_cost(X, centers))
+    cost, = compute(evaluate_cost(X, centers))
 
     if cost == 0:
         n_iter = 0
@@ -495,7 +493,7 @@ def _sample_points(X, centers, oversampling_factor, random_state):
     draws = random_state.uniform(size=len(p), chunks=p.chunks)
     picked = p > draws
 
-    (new_idxs,) = da.where(picked)
+    new_idxs, = da.where(picked)
     return new_idxs
 
 
@@ -556,7 +554,7 @@ def _kmeans_single_lloyd(
             # Require at least one per bucket, to avoid division by 0.
             counts = da.maximum(counts, 1)
             new_centers = new_centers / counts[:, None]
-            (new_centers,) = compute(new_centers)
+            new_centers, = compute(new_centers)
 
             # Convergence check
             shift = squared_norm(centers - new_centers)
