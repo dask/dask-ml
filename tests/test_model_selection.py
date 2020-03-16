@@ -1,5 +1,9 @@
+import numpy as np
 from scipy import stats
+import pandas as pd
 from sklearn.svm import SVC
+
+from dask.distributed import Client
 
 import dask_ml.model_selection as dms
 
@@ -14,3 +18,14 @@ def test_search_basic(xy_classification):
     param_dist = {"C": stats.uniform}
     b = dms.RandomizedSearchCV(SVC(kernel="rbf", gamma=0.1), param_dist)
     b.fit(X, y)
+
+
+def test_to_keys_numpy_array():
+    rng = np.random.RandomState(0)
+    arr = rng.randn(20, 30)
+    df = pd.DataFrame(data=arr)
+    dsk = {}
+    grid_search_keys = list(dms.utils.to_keys(dsk, arr, df))
+    with Client() as client:
+        data_futures = client.scatter([arr, df])
+    assert grid_search_keys == [f.key for f in data_futures]
