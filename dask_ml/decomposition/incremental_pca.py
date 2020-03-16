@@ -291,8 +291,6 @@ class IncrementalPCA(PCA):
 
         solver = self._get_solver(X, self.n_components_)
         if solver in {"full", "tsqr"}:
-            if hasattr(X, "rechunk"):
-                X = da.rechunk(X, (X.chunks[0], -1))
             U, S, V = linalg.svd(X)
             # manually implement full_matrix=False
             if V.shape[0] > len(S):
