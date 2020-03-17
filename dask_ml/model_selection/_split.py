@@ -366,7 +366,7 @@ def train_test_split(
     shuffle=None,
     blockwise=None,
     convert_mixed_types=False,
-    **options
+    **options,
 ):
     """Split arrays into random train and test matricies.
 
@@ -461,15 +461,17 @@ def train_test_split(
                 shuffle = False
                 warnings.warn(
                     message="The default value for 'shuffle' must be specified"
-                            " when splitting DataFrames. In the future"
-                            " DataFrames will automatically be shuffled within"
-                            " blocks prior to splitting. Specify 'shuffle=True'"
-                            " to adopt the future behavior now, or 'shuffle=False'"
-                            " to retain the previous behavior.",
+                    " when splitting DataFrames. In the future"
+                    " DataFrames will automatically be shuffled within"
+                    " blocks prior to splitting. Specify 'shuffle=True'"
+                    " to adopt the future behavior now, or 'shuffle=False'"
+                    " to retain the previous behavior.",
                     category=FutureWarning,
                 )
             kwargs = {"shuffle": shuffle}
         else:
+            if shuffle is None:
+                shuffle = True
             if not shuffle:
                 raise NotImplementedError(
                     f"'shuffle=False' is not supported for DataFrames in"
@@ -514,5 +516,5 @@ def train_test_split(
             test_size=test_size,
             train_size=train_size,
             random_state=random_state,
-            shuffle=shuffle
+            shuffle=shuffle,
         )
