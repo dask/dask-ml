@@ -3,8 +3,7 @@
 import itertools
 import logging
 import numbers
-from distutils.version import LooseVersion
-import sys
+import warnings
 
 import dask
 import dask.array as da
@@ -14,15 +13,13 @@ import sklearn.model_selection as ms
 from sklearn.model_selection._split import BaseCrossValidator, _validate_shuffle_split
 from sklearn.utils import check_random_state
 
+from dask_ml._compat import DASK_2130, DASK_VERSION
 from dask_ml.utils import check_array, check_matching_blocks
 
 from .._utils import draw_seed
 
 logger = logging.getLogger(__name__)
 _I4MAX = np.iinfo("i4").max
-
-DASK_VERSION = LooseVersion(dask.__version__)
-DASK_GT_2130 = DASK_VERSION >= LooseVersion("2.13.0")
 
 
 def _check_blockwise(blockwise):
@@ -459,39 +456,32 @@ def train_test_split(
 
         rng = check_random_state(random_state)
         rng = draw_seed(rng, 0, _I4MAX, dtype="uint")
-        if DASK_GT_2130:
+        if DASK_2130:
             if shuffle is None:
                 shuffle = False
-                if not sys.warnoptions:
-                    import warnings
-                    warnings.warn(
-                        message="The shuffle parameter will default to True"
-                                " in the future. Set to False to conserve"
-                                " backwards compatibility.",
-                        category=FutureWarning,
-                    )
-            return list(
-                itertools.chain.from_iterable(
-                    arr.random_split(
-                        [train_size, test_size],
-                        random_state=rng,
-                        shuffle=shuffle,
-                    )
-                    for arr in arrays
+                warnings.warn(
+                    message="The default value for 'shuffle' must be specified"
+                            " when splitting DataFrames. In the future"
+                            " DataFrames will automatically be shuffled within"
+                            " blocks prior to splitting. Specify 'shuffle=True'"
+                            " to adopt the future behavior now, or 'shuffle=False'"
+                            " to retain the previous behavior.",
+                    category=FutureWarning,
                 )
-            )
+            kwargs = {"shuffle": shuffle}
         else:
             if not shuffle:
                 raise NotImplementedError(
                     f"'shuffle=False' is not supported for DataFrames in"
-                    f" dask versions<2.12.1. Current version is {DASK_VERSION}."
+                    f" dask versions<2.13.0. Current version is {DASK_VERSION}."
                 )
-            return list(
-                itertools.chain.from_iterable(
-                    arr.random_split([train_size, test_size], random_state=rng)
-                    for arr in arrays
-                )
+            kwargs = {}
+        return list(
+            itertools.chain.from_iterable(
+                arr.random_split([train_size, test_size], random_state=rng, **kwargs)
+                for arr in arrays
             )
+        )
 
     elif all(isinstance(arr, da.Array) for arr in arrays):
         if shuffle is None:
