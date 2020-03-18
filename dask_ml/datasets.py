@@ -8,6 +8,8 @@ import sklearn.utils
 
 import dask_ml.utils
 
+from ._typing import ArrayLike
+
 
 def _check_axis_partitioning(chunks, n_features):
     c = chunks[1][0]
@@ -22,12 +24,12 @@ def _check_axis_partitioning(chunks, n_features):
 
 
 def make_counts(
-    n_samples=1000,
-    n_features=100,
-    n_informative=2,
-    scale=1.0,
-    chunks=100,
-    random_state=None,
+    n_samples: int = 1000,
+    n_features: int = 100,
+    n_informative: int = 2,
+    scale: float = 1.0,
+    chunks: int = 100,
+    random_state: int = None,
 ):
     """
     Generate a dummy dataset for modeling count data.
@@ -74,14 +76,14 @@ def make_counts(
 
 
 def make_blobs(
-    n_samples=100,
-    n_features=2,
-    centers=None,
-    cluster_std=1.0,
+    n_samples: int = 100,
+    n_features: int = 2,
+    centers: int = None,
+    cluster_std: float = 1.0,
     center_box=(-10.0, 10.0),
-    shuffle=True,
-    random_state=None,
-    chunks=None,
+    shuffle: bool = True,
+    random_state: int = None,
+    chunks: int = None,
 ):
     """
     Generate isotropic Gaussian blobs for clustering.
@@ -204,18 +206,18 @@ def make_blobs(
 
 
 def make_regression(
-    n_samples=100,
-    n_features=100,
-    n_informative=10,
-    n_targets=1,
-    bias=0.0,
-    effective_rank=None,
-    tail_strength=0.5,
-    noise=0.0,
-    shuffle=True,
-    coef=False,
-    random_state=None,
-    chunks=None,
+    n_samples: int = 100,
+    n_features: int = 100,
+    n_informative: int = 10,
+    n_targets: int = 1,
+    bias: float = 0.0,
+    effective_rank: int = None,
+    tail_strength: float = 0.5,
+    noise: float = 0.0,
+    shuffle: bool = True,
+    coef: bool = False,
+    random_state: int = None,
+    chunks: int = None,
 ):
     """
     Generate a random regression problem.
@@ -339,22 +341,22 @@ def make_regression(
 
 
 def make_classification(
-    n_samples=100,
-    n_features=20,
-    n_informative=2,
-    n_redundant=2,
-    n_repeated=0,
-    n_classes=2,
-    n_clusters_per_class=2,
+    n_samples: int = 100,
+    n_features: int = 20,
+    n_informative: int = 2,
+    n_redundant: int = 2,
+    n_repeated: int = 0,
+    n_classes: int = 2,
+    n_clusters_per_class: int = 2,
     weights=None,
-    flip_y=0.01,
-    class_sep=1.0,
-    hypercube=True,
-    shift=0.0,
-    scale=1.0,
-    shuffle=True,
-    random_state=None,
-    chunks=None,
+    flip_y: float = 0.01,
+    class_sep: float = 1.0,
+    hypercube: bool = True,
+    shift: float = 0.0,
+    scale: float = 1.0,
+    shuffle: bool = True,
+    random_state: int = None,
+    chunks: int = None,
 ):
     chunks = da.core.normalize_chunks(chunks, (n_samples, n_features))
     _check_axis_partitioning(chunks, n_features)

@@ -5,13 +5,14 @@ import numpy as np
 import pandas as pd
 import sklearn.impute
 
+from ._typing import ArrayLike
 from .utils import check_array
 
 
 class SimpleImputer(sklearn.impute.SimpleImputer):
     _types = (pd.Series, pd.DataFrame, dd.Series, dd.DataFrame, da.Array)
 
-    def _check_array(self, X):
+    def _check_array(self, X: ArrayLike):
         return check_array(
             X,
             accept_dask_dataframe=True,
@@ -20,7 +21,7 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
             force_all_finite=False,
         )
 
-    def fit(self, X, y=None):
+    def fit(self, X: ArrayLike, y: ArrayLike = None):
         # Check parameters
         if not isinstance(X, self._types):
             return super(SimpleImputer, self).fit(X, y=y)
@@ -53,7 +54,7 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
             self._fit_frame(X)
         return self
 
-    def _fit_array(self, X):
+    def _fit_array(self, X: ArrayLike):
         if self.strategy not in {"mean", "constant"}:
             msg = "Can only use strategy='mean' or 'constant' with Dask Array."
             raise ValueError(msg)
@@ -65,7 +66,7 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
 
         (self.statistics_,) = da.compute(statistics)
 
-    def _fit_frame(self, X):
+    def _fit_frame(self, X: ArrayLike):
         if self.strategy == "mean":
             avg = X.mean(axis=0).values
         elif self.strategy == "median":
@@ -78,7 +79,7 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
 
         self.statistics_ = pd.Series(dask.compute(avg)[0], index=X.columns)
 
-    def transform(self, X):
+    def transform(self, X: ArrayLike):
         if isinstance(X, (pd.Series, pd.DataFrame, dd.Series, dd.DataFrame)):
             return X.fillna(self.statistics_)
 

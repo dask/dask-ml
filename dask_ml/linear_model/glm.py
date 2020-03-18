@@ -13,8 +13,9 @@ from dask_glm.utils import (
 )
 from sklearn.base import BaseEstimator
 
-from ..utils import check_array
+from .._typing import ArrayLike
 from ..metrics import r2_score
+from ..utils import check_array
 
 _base_doc = textwrap.dedent(
     """\
@@ -102,21 +103,21 @@ class _GLM(BaseEstimator):
 
     def __init__(
         self,
-        penalty="l2",
-        dual=False,
-        tol=1e-4,
-        C=1.0,
-        fit_intercept=True,
-        intercept_scaling=1.0,
-        class_weight=None,
-        random_state=None,
-        solver="admm",
-        max_iter=100,
-        multi_class="ovr",
-        verbose=0,
-        warm_start=False,
-        n_jobs=1,
-        solver_kwargs=None,
+        penalty: str = "l2",
+        dual: bool = False,
+        tol: float = 1e-4,
+        C: float = 1.0,
+        fit_intercept: bool = True,
+        intercept_scaling: float = 1.0,
+        class_weight: float = None,
+        random_state: int = None,
+        solver: str = "admm",
+        max_iter: int = 100,
+        multi_class: str = "ovr",
+        verbose: int = 0,
+        warm_start: bool = False,
+        n_jobs: int = 1,
+        solver_kwargs: dict = None,
     ):
         self.penalty = penalty
         self.dual = dual
@@ -218,7 +219,7 @@ class LogisticRegression(_GLM):
     def family(self):
         return families.Logistic
 
-    def predict(self, X):
+    def predict(self, X: ArrayLike):
         """Predict class labels for samples in X.
 
         Parameters
@@ -232,7 +233,7 @@ class LogisticRegression(_GLM):
         """
         return self.predict_proba(X) > 0.5  # TODO: verify, multi_class broken
 
-    def predict_proba(self, X):
+    def predict_proba(self, X: ArrayLike):
         """Probability estimates for samples in X.
 
         Parameters
@@ -247,7 +248,7 @@ class LogisticRegression(_GLM):
         X_ = self._check_array(X)
         return sigmoid(dot(X_, self._coef))
 
-    def score(self, X, y):
+    def score(self, X: ArrayLike, y: ArrayLike):
         """The mean accuracy on the given data and labels
 
         Parameters
@@ -284,7 +285,7 @@ class LinearRegression(_GLM):
     def family(self):
         return families.Normal
 
-    def predict(self, X):
+    def predict(self, X: ArrayLike):
         """Predict values for samples in X.
 
         Parameters
@@ -345,7 +346,7 @@ class PoissonRegression(_GLM):
     def family(self):
         return families.Poisson
 
-    def predict(self, X):
+    def predict(self, X: ArrayLike):
         """Predict count for samples in X.
 
         Parameters
@@ -360,5 +361,5 @@ class PoissonRegression(_GLM):
         X_ = self._check_array(X)
         return exp(dot(X_, self._coef))
 
-    def get_deviance(self, X, y):
+    def get_deviance(self, X: ArrayLike, y: ArrayLike):
         return poisson_deviance(y, self.predict(X))

@@ -6,6 +6,7 @@ from sklearn import naive_bayes as _naive_bayes
 from sklearn.base import BaseEstimator
 
 from ._partial import _BigPartialFitMixin, _copy_partial_doc
+from ._typing import ArrayLike
 
 
 class GaussianNB(BaseEstimator):
@@ -30,7 +31,7 @@ class GaussianNB(BaseEstimator):
         self.theta_ = None
         self.sigma_ = None
 
-    def fit(self, X, y=None):
+    def fit(self, X: ArrayLike, y=None):
         if self.classes is None:
             # TODO: delayed
             (self.classes_,) = dask.compute(np.unique(y))

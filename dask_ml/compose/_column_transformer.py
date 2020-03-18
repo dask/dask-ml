@@ -8,6 +8,8 @@ import sklearn.compose
 from scipy import sparse
 from sklearn.compose._column_transformer import _get_transformer_list
 
+from .._typing import ArrayLike
+
 
 class ColumnTransformer(sklearn.compose.ColumnTransformer):
     """Applies transformers to columns of an array or pandas DataFrame.
@@ -154,11 +156,11 @@ boolean mask array or callable
     def __init__(
         self,
         transformers,
-        remainder="drop",
-        sparse_threshold=0.3,
-        n_jobs=1,
+        remainder: str = "drop",
+        sparse_threshold: float = 0.3,
+        n_jobs: int = 1,
         transformer_weights=None,
-        preserve_dataframe=True,
+        preserve_dataframe: bool = True,
     ):
         self.preserve_dataframe = preserve_dataframe
         super(ColumnTransformer, self).__init__(
