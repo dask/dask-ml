@@ -1,11 +1,14 @@
+from typing import Any, Tuple
+
 from sklearn.metrics import check_scoring as sklearn_check_scoring, make_scorer
 
+from .._typing import ArrayLike
 from . import accuracy_score, log_loss, mean_squared_error, r2_score
 
 # Scorers
-accuracy_scorer = (accuracy_score, {})
+accuracy_scorer: Tuple[Any, Any] = (accuracy_score, {})
 neg_mean_squared_error_scorer = (mean_squared_error, dict(greater_is_better=False))
-r2_scorer = (r2_score, {})
+r2_scorer: Tuple[Any, Any] = (r2_score, {})
 neg_log_loss_scorer = (log_loss, dict(greater_is_better=False, needs_proba=True))
 
 
