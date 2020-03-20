@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.2.1.dev10+g69680f7
+                1.2.1.dev11+gf512bf1
               </div>
             
           
@@ -278,7 +278,7 @@
 <h1>dask_ml.model_selection.train_test_split<a class="headerlink" href="#dask-ml-model-selection-train-test-split" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="dask_ml.model_selection.train_test_split">
-<code class="descclassname">dask_ml.model_selection.</code><code class="descname">train_test_split</code><span class="sig-paren">(</span><em>*arrays</em>, <em>test_size=None</em>, <em>train_size=None</em>, <em>random_state=None</em>, <em>shuffle=True</em>, <em>blockwise=None</em>, <em>convert_mixed_types=False</em>, <em>**options</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.train_test_split" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">dask_ml.model_selection.</code><code class="descname">train_test_split</code><span class="sig-paren">(</span><em>*arrays</em>, <em>test_size=None</em>, <em>train_size=None</em>, <em>random_state=None</em>, <em>shuffle=None</em>, <em>blockwise=None</em>, <em>convert_mixed_types=False</em>, <em>**options</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.train_test_split" title="Permalink to this definition">¶</a></dt>
 <dd><p>Split arrays into random train and test matricies.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -299,7 +299,7 @@ If RandomState instance, random_state is the random number generator;
 If None, the random number generator is the RandomState instance used
 by <cite>np.random</cite>.</p>
 </dd>
-<dt><strong>shuffle</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default True</span></dt>
+<dt><strong>shuffle</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default None</span></dt>
 <dd><p class="first last">Whether to shuffle the data before splitting.</p>
 </dd>
 <dt><strong>blockwise</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional.</span></dt>
