@@ -3,6 +3,7 @@ import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import pytest
+from dask_ml._compat import DASK_2130
 from sklearn.datasets import fetch_20newsgroups, make_regression
 
 import dask_ml.model_selection
@@ -130,6 +131,40 @@ def test_train_test_split_test_size():
     X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(
         dX, dy, random_state=10, test_size=0.8
     )
+
+
+def test_train_test_split_shuffle_array():
+    with pytest.raises(NotImplementedError):
+        dask_ml.model_selection.train_test_split(dX, dy, shuffle=False)
+
+
+@pytest.mark.xfail(
+    not DASK_2130,
+    reason="DataFrame blockwise shuffling implemented in dask2.13.0."
+)
+def test_train_test_split_shuffle_dataframe(xy_classification_pandas):
+    X, y = xy_classification_pandas
+    X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(
+        X, y, random_state=42, shuffle=True
+    )
+    with pytest.raises(AssertionError):
+        np.testing.assert_array_equal(X_train.index, sorted(X_train.index))
+
+    X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(
+        X, y, random_state=42, shuffle=False
+    )
+    np.testing.assert_array_equal(X_train.index, sorted(X_train.index))
+
+
+@pytest.mark.xfail(
+    not DASK_2130,
+    reason="DataFrame blockwise shuffling implemented in dask2.13.0."
+)
+def test_train_test_split_blockwise_dataframe(xy_classification_pandas):
+    with pytest.raises(NotImplementedError):
+        dask_ml.model_selection.train_test_split(
+            X, y, random_state=42, shuffle=False, blockwise=False
+        )
 
 
 @pytest.mark.parametrize(
