@@ -1,4 +1,4 @@
-from typing import Any, Tuple
+from typing import Any, Callable, Tuple, Union, Callable
 
 from sklearn.metrics import check_scoring as sklearn_check_scoring, make_scorer
 
@@ -20,7 +20,7 @@ SCORERS = dict(
 )
 
 
-def get_scorer(scoring, compute=True):
+def get_scorer(scoring: Union[str, Callable], compute=True) -> Callable:
     """Get a scorer from string
 
     Parameters

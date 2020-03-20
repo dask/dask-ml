@@ -94,7 +94,9 @@ def accuracy_score(
     return score
 
 
-def _log_loss_inner(x, y, sample_weight, **kwargs):
+def _log_loss_inner(
+    x: ArrayLike, y: ArrayLike, sample_weight: Optional[ArrayLike], **kwargs
+):
     # da.map_blocks wasn't able to concatenate together the results
     # when we reduce down to a scalar per block. So we make an
     # array with 1 element.
