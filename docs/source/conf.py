@@ -70,7 +70,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "dask-ml"
-copyright = "2017, Dask developers"
+copyright = "2020, Dask developers"
 author = "Dask developers"
 
 # The version info for the project you're documenting, acts as replacement for
