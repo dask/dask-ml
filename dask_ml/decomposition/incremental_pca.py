@@ -4,6 +4,7 @@
 #         Giorgio Patrini
 # License: BSD 3 clause
 
+import dask
 import numpy as np
 from scipy import sparse
 from dask import array as da
@@ -139,7 +140,7 @@ class IncrementalPCA(PCA):
         self.iterated_power = iterated_power
         self.random_state = random_state
 
-    def fit(self, X, y=None):
+    def _fit(self, X, y=None):
         """Fit the model with X, using minibatches of size batch_size.
 
         Parameters
@@ -159,6 +160,8 @@ class IncrementalPCA(PCA):
         self.n_samples_seen_ = 0
         self.mean_ = 0.0
         self.var_ = 0.0
+        self.squared_sum_ = 0.0
+        self.sum_ = 0.0
         self.singular_values_ = None
         self.explained_variance_ = None
         self.explained_variance_ratio_ = None
@@ -188,6 +191,33 @@ class IncrementalPCA(PCA):
             self.partial_fit(X_batch, check_input=False)
 
         return self
+
+    def fit_transform(self, X, y=None):
+        """Fit the model with X and apply the dimensionality reduction on X.
+    
+        Parameters
+        ----------
+        X : array-like, shape (n_samples, n_features)
+            New data, where n_samples in the number of samples
+            and n_features is the number of features.
+    
+        y : Ignored
+    
+        Returns
+        -------
+        X_new : array-like, shape (n_samples, n_components)
+    
+        """
+        # X = check_array(X)
+        if not dask.is_dask_collection(X):
+            raise TypeError(_TYPE_MSG.format(type(X)))
+
+        if y is None:
+            # fit method of arity 1 (unsupervised transformation)
+            return self.fit(X).transform(X)
+        else:
+            # fit method of arity 2 (supervised transformation)
+            return self.fit(X, y).transform(X)
 
     def partial_fit(self, X, y=None, check_input=True):
         """Incremental fit with X. All of X is processed as a single batch.
@@ -259,6 +289,8 @@ class IncrementalPCA(PCA):
             self.n_samples_seen_ = 0
             self.mean_ = 0.0
             self.var_ = 0.0
+            self.squared_sum_ = 0.0
+            self.sum_ = 0.0
 
         # Update stats - they are 0 if this is the first step
         last_sample_count = np.tile(np.expand_dims(self.n_samples_seen_, 0), X.shape[1])
@@ -295,31 +327,35 @@ class IncrementalPCA(PCA):
             # manually implement full_matrix=False
             if V.shape[0] > len(S):
                 V = V[: len(S)]
+            if U.shape[1] > len(S):
+                U = U[:, : len(S)]
         else:
             # randomized
             random_state = check_random_state(self.random_state)
             seed = draw_seed(random_state, np.iinfo("int32").max)
             n_power_iter = self.iterated_power
             U, S, V = linalg.svd_compressed(
-                X, self.n_components, n_power_iter=n_power_iter, seed=seed
+                X, self.n_components_, n_power_iter=n_power_iter, seed=seed
             )
         U, V = svd_flip(U, V)
         explained_variance = S ** 2 / (n_total_samples - 1)
-        explained_variance_ratio = S ** 2 / np.sum(col_var * n_total_samples)
         components, singular_values = V, S
 
-        if solver == "randomized":
-            total_var = X.var(ddof=1, axis=0).sum()
-        else:
-            total_var = explained_variance.sum()
+        total_var = np.sum(col_var)
+        explained_variance_ratio = explained_variance / total_var * ((n_total_samples - 1) / n_total_samples)
 
-        explained_variance_ratio = explained_variance / total_var
-
-        self.n_samples_seen_ = n_total_samples
-        if self.n_components_ < n_features:
-            noise_variance = da.mean(explained_variance[self.n_components_ :])
+        actual_rank = min(n_features, n_total_samples)
+        if self.n_components_ < actual_rank:
+            if solver == "randomized":
+                noise_variance = (total_var - explained_variance.sum()) / (
+                    actual_rank - self.n_components_
+                )
+            else:
+                noise_variance = da.mean(explained_variance[self.n_components_ :])
         else:
             noise_variance = 0.0
+
+        self.n_samples_seen_ = n_total_samples
 
         try:
             (

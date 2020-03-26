@@ -18,10 +18,11 @@ iris = datasets.load_iris()
 
 
 @pytest.mark.parametrize("svd_solver", ["full", "auto", "randomized"])
-def test_compare_with_sklearn(svd_solver):
+@pytest.mark.parametrize("batch_number", [3, 10])
+def test_compare_with_sklearn(svd_solver, batch_number):
     X = iris.data
     X_da = da.from_array(X, chunks=(3, -1))
-    batch_size = X.shape[0] // 3
+    batch_size = X.shape[0] // batch_number
     ipca = sd.IncrementalPCA(n_components=2, batch_size=batch_size)
     ipca.fit(X)
     ipca_da = IncrementalPCA(
@@ -35,22 +36,26 @@ def test_compare_with_sklearn(svd_solver):
     np.testing.assert_allclose(
         ipca.explained_variance_, ipca_da.explained_variance_, atol=1e-13
     )
-    print(ipca.explained_variance_, ipca_da.explained_variance_)
     np.testing.assert_allclose(
         ipca.explained_variance_ratio_, ipca_da.explained_variance_ratio_, atol=1e-13
     )
-    np.testing.assert_allclose(
-        ipca.noise_variance_, ipca_da.noise_variance_, atol=1e-13
-    )
+    if svd_solver == 'randomized':
+        # noise variance in randomized solver is probabilistic.
+        assert_almost_equal(ipca.noise_variance_, ipca_da.noise_variance_, decimal=1)
+    else:
+        np.testing.assert_allclose(
+            ipca.noise_variance_, ipca_da.noise_variance_, atol=1e-13
+        )
 
 
-def test_incremental_pca():
+@pytest.mark.parametrize("svd_solver", ["full", "auto", "randomized"])
+def test_incremental_pca(svd_solver):
     # Incremental PCA on dense arrays.
     X = iris.data
     X = da.from_array(X, chunks=(3, -1))
     batch_size = X.shape[0] // 3
-    ipca = IncrementalPCA(n_components=2, batch_size=batch_size)
-    pca = PCA(n_components=2)
+    ipca = IncrementalPCA(n_components=2, batch_size=batch_size, svd_solver=svd_solver)
+    pca = PCA(n_components=2, svd_solver=svd_solver)
     pca.fit_transform(X)
 
     X_transformed = ipca.fit_transform(X)
@@ -279,18 +284,20 @@ def test_incremental_pca_partial_fit():
     assert_almost_equal(ipca.components_, pipca.components_, decimal=3)
 
 
-def test_incremental_pca_against_pca_iris():
+@pytest.mark.parametrize("svd_solver", ["full", "auto", "randomized"])
+def test_incremental_pca_against_pca_iris(svd_solver):
     # Test that IncrementalPCA and PCA are approximate (to a sign flip).
     X = iris.data
     X = da.from_array(X, chunks=[50, -1])
 
-    Y_pca = PCA(n_components=2).fit_transform(X)
-    Y_ipca = IncrementalPCA(n_components=2, batch_size=25).fit_transform(X)
+    Y_pca = PCA(n_components=2, svd_solver=svd_solver).fit_transform(X)
+    Y_ipca = IncrementalPCA(n_components=2, batch_size=25, svd_solver=svd_solver).fit_transform(X)
 
     assert_almost_equal(np.abs(Y_pca), np.abs(Y_ipca), 1)
 
 
-def test_incremental_pca_against_pca_random_data():
+@pytest.mark.parametrize("svd_solver", ["full", "auto", "randomized"])
+def test_incremental_pca_against_pca_random_data(svd_solver):
     # Test that IncrementalPCA and PCA are approximate (to a sign flip).
     rng = np.random.RandomState(1999)
     n_samples = 100
@@ -298,13 +305,14 @@ def test_incremental_pca_against_pca_random_data():
     X = rng.randn(n_samples, n_features) + 5 * rng.rand(1, n_features)
     X = da.from_array(X, chunks=[40, -1])
 
-    Y_pca = PCA(n_components=3).fit_transform(X)
-    Y_ipca = IncrementalPCA(n_components=3, batch_size=25).fit_transform(X)
+    Y_pca = PCA(n_components=3, svd_solver=svd_solver).fit_transform(X)
+    Y_ipca = IncrementalPCA(n_components=3, batch_size=25, svd_solver=svd_solver).fit_transform(X)
 
     assert_almost_equal(np.abs(Y_pca), np.abs(Y_ipca), 1)
 
 
-def test_explained_variances():
+@pytest.mark.parametrize("svd_solver", ["full", "auto", "randomized"])
+def test_explained_variances(svd_solver):
     # Test that PCA and IncrementalPCA calculations match
     X = datasets.make_low_rank_matrix(
         1000, 100, tail_strength=0.0, effective_rank=10, random_state=1999
@@ -313,8 +321,8 @@ def test_explained_variances():
     prec = 3
     n_samples, n_features = X.shape
     for nc in [None, 99]:
-        pca = PCA(n_components=nc).fit(X)
-        ipca = IncrementalPCA(n_components=nc, batch_size=100).fit(X)
+        pca = PCA(n_components=nc, svd_solver=svd_solver).fit(X)
+        ipca = IncrementalPCA(n_components=nc, batch_size=100, svd_solver=svd_solver).fit(X)
         assert_almost_equal(
             pca.explained_variance_, ipca.explained_variance_, decimal=prec
         )
@@ -324,7 +332,8 @@ def test_explained_variances():
         assert_almost_equal(pca.noise_variance_, ipca.noise_variance_, decimal=prec)
 
 
-def test_singular_values():
+@pytest.mark.parametrize("svd_solver", ["full", "auto", "randomized"])
+def test_singular_values(svd_solver):
     # Check that the IncrementalPCA output has the correct singular values
 
     rng = np.random.RandomState(0)
@@ -336,8 +345,8 @@ def test_singular_values():
     )
     X = da.from_array(X, chunks=[200, -1])
 
-    pca = PCA(n_components=10, svd_solver="full", random_state=rng).fit(X)
-    ipca = IncrementalPCA(n_components=10, batch_size=100).fit(X)
+    pca = PCA(n_components=10, svd_solver=svd_solver, random_state=rng).fit(X)
+    ipca = IncrementalPCA(n_components=10, batch_size=100, svd_solver=svd_solver).fit(X)
     assert_array_almost_equal(pca.singular_values_, ipca.singular_values_, 2)
 
     # Compare to the Frobenius norm
@@ -368,8 +377,8 @@ def test_singular_values():
     )
     X = da.from_array(X, chunks=[4, -1])
 
-    pca = PCA(n_components=3, svd_solver="full", random_state=rng)
-    ipca = IncrementalPCA(n_components=3, batch_size=100)
+    pca = PCA(n_components=3, svd_solver=svd_solver, random_state=rng)
+    ipca = IncrementalPCA(n_components=3, batch_size=100, svd_solver=svd_solver)
 
     X_pca = pca.fit_transform(X)
     X_pca /= np.sqrt(np.sum(X_pca ** 2.0, axis=0))
@@ -384,7 +393,8 @@ def test_singular_values():
     assert_array_almost_equal(ipca.singular_values_, [3.142, 2.718, 1.0], 14)
 
 
-def test_whitening():
+@pytest.mark.parametrize("svd_solver", ["full", "auto", "randomized"])
+def test_whitening(svd_solver):
     # Test that PCA and IncrementalPCA transforms match to sign flip.
     X = datasets.make_low_rank_matrix(
         1000, 10, tail_strength=0.0, effective_rank=2, random_state=1999
@@ -393,8 +403,8 @@ def test_whitening():
     prec = 3
     n_samples, n_features = X.shape
     for nc in [None, 9]:
-        pca = PCA(whiten=True, n_components=nc).fit(X)
-        ipca = IncrementalPCA(whiten=True, n_components=nc, batch_size=250).fit(X)
+        pca = PCA(whiten=True, n_components=nc, svd_solver=svd_solver).fit(X)
+        ipca = IncrementalPCA(whiten=True, n_components=nc, batch_size=250, svd_solver=svd_solver).fit(X)
 
         Xt_pca = pca.transform(X)
         Xt_ipca = ipca.transform(X)
