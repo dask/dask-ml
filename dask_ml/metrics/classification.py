@@ -1,51 +1,50 @@
+from typing import Optional
+
 import dask
 import dask.array as da
 import numpy as np
 import sklearn.metrics
 import sklearn.utils.multiclass
 
+from .._typing import ArrayLike
 
-def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None, compute=True):
+
+def accuracy_score(
+    y_true: ArrayLike,
+    y_pred: ArrayLike,
+    normalize: bool = True,
+    sample_weight: Optional[ArrayLike] = None,
+    compute: bool = True,
+) -> ArrayLike:
     """Accuracy classification score.
-
     In multilabel classification, this function computes subset accuracy:
     the set of labels predicted for a sample must *exactly* match the
     corresponding set of labels in y_true.
-
     Read more in the :ref:`User Guide <accuracy_score>`.
-
     Parameters
     ----------
     y_true : 1d array-like, or label indicator array
         Ground truth (correct) labels.
-
     y_pred : 1d array-like, or label indicator array
         Predicted labels, as returned by a classifier.
-
     normalize : bool, optional (default=True)
         If ``False``, return the number of correctly classified samples.
         Otherwise, return the fraction of correctly classified samples.
-
     sample_weight : 1d array-like, optional
         Sample weights.
-
         .. versionadded:: 0.7.0
-
     Returns
     -------
     score : scalar dask Array
         If ``normalize == True``, return the correctly classified samples
         (float), else it returns the number of correctly classified samples
         (int).
-
         The best performance is 1 with ``normalize == True`` and the number
         of samples with ``normalize == False``.
-
     Notes
     -----
     In binary and multiclass classification, this function is equal
     to the ``jaccard_similarity_score`` function.
-
     Examples
     --------
     >>> import dask.array as da
@@ -59,9 +58,7 @@ def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None, compute=T
     0.5
     >>> accuracy_score(y_true, y_pred, normalize=False).compute()
     2
-
     In the multilabel case with binary label indicators:
-
     >>> accuracy_score(np.array([[0, 1], [1, 1]]), np.ones((2, 2)))
     0.5
     """
@@ -84,7 +81,9 @@ def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None, compute=T
     return score
 
 
-def _log_loss_inner(x, y, sample_weight, **kwargs):
+def _log_loss_inner(
+    x: ArrayLike, y: ArrayLike, sample_weight: Optional[ArrayLike], **kwargs
+):
     # da.map_blocks wasn't able to concatenate together the results
     # when we reduce down to a scalar per block. So we make an
     # array with 1 element.
@@ -110,7 +109,7 @@ def log_loss(
 
     if y_pred.ndim > 1 and y_true.ndim == 1:
         y_true = y_true.reshape(-1, 1)
-        drop_axis = 1
+        drop_axis: Optional[int] = 1
         if sample_weight is not None:
             sample_weight = sample_weight.reshape(-1, 1)
     else:

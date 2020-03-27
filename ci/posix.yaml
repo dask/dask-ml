@@ -56,4 +56,7 @@ jobs:
       echo "[codecov]"
       bash <(curl -s https://codecov.io/bash)
 
+      echo "[mypy]"
+      mypy dask_ml/metrics
+
     displayName: "Lint"
