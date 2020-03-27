@@ -22,10 +22,12 @@ SCORERS = dict(
 
 def get_scorer(scoring: Union[str, Callable], compute=True) -> Callable:
     """Get a scorer from string
+
     Parameters
     ----------
     scoring : str | callable
         scoring method as string. If callable it is returned as is.
+
     Returns
     -------
     scorer : callable
