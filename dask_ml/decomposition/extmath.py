@@ -22,7 +22,12 @@ from ..utils import check_array
 
 
 def _incremental_mean_and_var(X, last_mean, last_variance, last_sample_count):
-    """Calculate mean update and a Youngs and Cramer variance update.
+    """
+    Note. Most of this script is taken from scikit-learn, except for the last line.
+
+    --- Original doc ---
+    
+    Calculate mean update and a Youngs and Cramer variance update.
 
     last_mean and last_variance are statistics computed at the last step by the
     function. Both must be initialized to 0.0. In case no scaling is required
@@ -94,6 +99,8 @@ def _incremental_mean_and_var(X, last_mean, last_variance, last_sample_count):
 
         zeros = last_sample_count == 0
         # updated_unnormalized_variance[zeros] = new_unnormalized_variance[zeros]
+        # This line is replaced by the following, because dask-array does not 
+        # support item assignment.
         updated_unnormalized_variance = np.where(
             zeros, new_unnormalized_variance, 
             updated_unnormalized_variance)

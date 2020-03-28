@@ -289,10 +289,10 @@ class IncrementalPCA(PCA):
             self.n_samples_seen_ = 0
             self.mean_ = 0.0
             self.var_ = 0.0
-            self.squared_sum_ = 0.0
-            self.sum_ = 0.0
 
         # Update stats - they are 0 if this is the first step
+        # The next line is equivalent with np.repeat(self.n_samples_seen_, X.shape[1]), 
+        # which dask-array does not support
         last_sample_count = np.tile(np.expand_dims(self.n_samples_seen_, 0), X.shape[1])
         col_mean, col_var, n_total_samples = _incremental_mean_and_var(
             X,
@@ -321,6 +321,7 @@ class IncrementalPCA(PCA):
                 )
             )
 
+        # The following part is modified so that it can fit to large dask-array
         solver = self._get_solver(X, self.n_components_)
         if solver in {"full", "tsqr"}:
             U, S, V = linalg.svd(X)
@@ -341,6 +342,8 @@ class IncrementalPCA(PCA):
         explained_variance = S ** 2 / (n_total_samples - 1)
         components, singular_values = V, S
 
+        # The following part is also updated for randomized solver, 
+        # which computes only a limited number of the singular values
         total_var = np.sum(col_var)
         explained_variance_ratio = explained_variance / total_var * ((n_total_samples - 1) / n_total_samples)
 
@@ -403,53 +406,3 @@ class IncrementalPCA(PCA):
             )
 
         return self
-
-    def get_covariance(self):
-        """Compute data covariance with the generative model.
-        ``cov = components_.T * S**2 * components_ + sigma2 * eye(n_features)``
-        where S**2 contains the explained variances, and sigma2 contains the
-        noise variances.
-        Returns
-        -------
-        cov : array, shape=(n_features, n_features)
-            Estimated covariance of data.
-        """
-        components_ = self.components_
-        exp_var = self.explained_variance_
-        if self.whiten:
-            components_ = components_ * np.sqrt(exp_var[:, np.newaxis])
-        exp_var_diff = np.maximum(exp_var - self.noise_variance_, 0.0)
-        cov = np.dot(components_.T * exp_var_diff, components_)
-        cov += np.eye(len(cov)) * self.noise_variance_  # modify diag inplace
-        return cov
-
-    def get_precision(self):
-        """Compute data precision matrix with the generative model.
-        Equals the inverse of the covariance but computed with
-        the matrix inversion lemma for efficiency.
-        Returns
-        -------
-        precision : array, shape=(n_features, n_features)
-            Estimated precision of data.
-        """
-        n_features = self.components_.shape[1]
-
-        # handle corner cases first
-        if self.n_components_ == 0:
-            return np.eye(n_features) / self.noise_variance_
-        if self.n_components_ == n_features:
-            return np.linalg.inv(self.get_covariance())
-
-        # Get precision using matrix inversion lemma
-        components_ = self.components_
-        exp_var = self.explained_variance_
-        if self.whiten:
-            components_ = components_ * np.sqrt(exp_var[:, np.newaxis])
-        exp_var_diff = np.maximum(exp_var - self.noise_variance_, 0.0)
-        precision = np.dot(components_, components_.T) / self.noise_variance_
-        precision += np.eye(len(precision)) / exp_var_diff
-        precision = np.dot(components_.T, np.dot(np.linalg.inv(precision), components_))
-        precision /= -(self.noise_variance_ ** 2)
-        precision += np.eye(len(precision)) / self.noise_variance_
-
-        return precision
