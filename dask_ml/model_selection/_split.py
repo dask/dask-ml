@@ -362,6 +362,8 @@ def train_test_split(
     *arrays,
     test_size=None,
     train_size=None,
+    stratify=None,
+    classes=None,
     random_state=None,
     shuffle=None,
     blockwise=None,
@@ -377,6 +379,15 @@ def train_test_split(
         :func:`sklearn.model_selection.train_test_split`.
     test_size : float or int, default 0.1
     train_size : float or int, optional
+    stratify : Dask Array or Series, optional (default=None)
+        If all *arrays are non-dask objects, stratify will be passed through
+        to
+        :func:`sklearn.model_selection.train_test_split`.
+        If not None, data is split in a stratified fashion, using this as
+        the class labels.
+    classes: non-dask array-like object, optional (default=None)
+        If stratify is not None and any of *arrays is a dask object, this is
+        required. This contains the unique class labels in `stratify`
     random_state : int, RandomState instance or None, optional (default=None)
         If int, random_state is the seed used by the random number generator;
         If RandomState instance, random_state is the random number generator;
@@ -433,6 +444,22 @@ def train_test_split(
 
     types = set(type(arr) for arr in arrays)
 
+    if stratify is not None:
+        # type check
+        if not isinstance(stratify, (da.Array, dd.Series, dd.DataFrame)):
+            # raise error iff not passing thru to sklearn's train_test_split
+            if any(
+                isinstance(arr, (da.Array, dd.Series, dd.DataFrame)) for arr in arrays
+            ):
+                raise TypeError(
+                    "If 'stratify' is not None, it must be an instance of either"
+                    " one of dask Array, Series, or DataFrame. "
+                    "Got type {} instead".format(type(stratify))
+                )
+
+        if classes is None:
+            raise ValueError("If 'stratify' is not None, 'classes' must be specified")
+
     if da.Array in types and types & {dd.Series, dd.DataFrame}:
         if convert_mixed_types:
             arrays = tuple(
@@ -448,7 +475,13 @@ def train_test_split(
             )
 
     if all(isinstance(arr, (dd.Series, dd.DataFrame)) for arr in arrays):
-        check_matching_blocks(*arrays)
+        if stratify is not None:
+            # convert to dd.Series
+            if isinstance(stratify, da.Array):
+                stratify = dd.from_dask_array(stratify)
+            check_matching_blocks([*arrays] + [stratify])
+        else:
+            check_matching_blocks(*arrays)
         if blockwise is False:
             raise NotImplementedError(
                 "'blockwise=False' is not currently supported for dask DataFrames."
@@ -478,12 +511,36 @@ def train_test_split(
                     f" dask versions<2.13.0. Current version is {DASK_VERSION}."
                 )
             kwargs = {}
-        return list(
-            itertools.chain.from_iterable(
+
+        if stratify is not None:
+            train_test_pairs = []
+            for arr in arrays:
+                # list of class-wise train/test split dataframe slices
+                arr_train_slices = []
+                arr_test_slices = []
+                for ci in classes:
+                    # get subdf of data from this class
+                    ci_arr = arr[stratify == ci]
+
+                    # split subdf
+                    arr_train, arr_test = ci_arr.random_split(
+                        [train_size, test_size], random_state=rng, **kwargs,
+                    )
+
+                    # add subdf's from this class to list of all subdf's
+                    arr_train_slices.append(arr_train)
+                    arr_test_slices.append(arr_test)
+
+                # concat all train subdfs as 1 train df, same for test
+                train_test_pairs.append(
+                    [dd.concat(arr_train_slices), dd.concat(arr_test_slices)]
+                )
+        else:
+            train_test_pairs = [
                 arr.random_split([train_size, test_size], random_state=rng, **kwargs)
                 for arr in arrays
-            )
-        )
+            ]
+        return list(itertools.chain.from_iterable(train_test_pairs))
 
     elif all(isinstance(arr, da.Array) for arr in arrays):
         if shuffle is None:
@@ -502,12 +559,44 @@ def train_test_split(
             blockwise=blockwise,
             random_state=random_state,
         )
-        train_idx, test_idx = next(splitter.split(*arrays))
 
-        train_test_pairs = (
-            (_blockwise_slice(arr, train_idx), _blockwise_slice(arr, test_idx))
-            for arr in arrays
-        )
+        if stratify is not None:
+            # convert to da.Array
+            if not isinstance(stratify, da.Array):
+                stratify = stratify.to_dask_array(lengths=True)
+
+            # must be 1-d for indexing
+            stratify = stratify.ravel()
+
+            train_test_pairs = []
+            for arr in arrays:
+                # list of class-wise train/test split array slices
+                arr_train_slices = []
+                arr_test_slices = []
+                for ci in classes:
+                    # get subarray of data from this class
+                    ci_arr = arr[stratify == ci]
+                    # FIXME: can chunks be determined lazily?
+                    ci_arr.compute_chunk_sizes()
+
+                    # split for this class
+                    train_idx, test_idx = next(splitter.split(ci_arr))
+
+                    # add slices from this class to lists of all slices
+                    arr_train_slices.append(_blockwise_slice(ci_arr, train_idx))
+                    arr_test_slices.append(_blockwise_slice(ci_arr, test_idx))
+
+                # concat all train subarrays as 1 train arr, same for test
+                train_test_pairs.append(
+                    [da.concatenate(arr_train_slices), da.concatenate(arr_test_slices)]
+                )
+        else:
+            train_idx, test_idx = next(splitter.split(*arrays))
+
+            train_test_pairs = (
+                (_blockwise_slice(arr, train_idx), _blockwise_slice(arr, test_idx))
+                for arr in arrays
+            )
 
         return list(itertools.chain.from_iterable(train_test_pairs))
     else:
@@ -516,5 +605,6 @@ def train_test_split(
             test_size=test_size,
             train_size=train_size,
             random_state=random_state,
+            stratify=stratify,
             shuffle=shuffle,
         )
