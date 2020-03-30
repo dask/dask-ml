@@ -159,6 +159,7 @@ def test_train_test_split_shuffle_dataframe(xy_classification_pandas):
     DASK_2130, reason="DataFrame blockwise shuffling implemented in dask2.13.0."
 )
 def test_train_test_split_blockwise_dataframe(xy_classification_pandas):
+    X, y = xy_classification_pandas
     with pytest.raises(NotImplementedError):
         dask_ml.model_selection.train_test_split(
             X, y, random_state=42, shuffle=False, blockwise=False
@@ -202,9 +203,10 @@ def test_train_test_split_dask_dataframe(
     xy_classification_pandas, train_size, test_size
 ):
     X, y = xy_classification_pandas
+    kwargs = {"shuffle": True} if DASK_2130 else {}
 
     X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(
-        X, y, train_size=train_size, test_size=test_size
+        X, y, train_size=train_size, test_size=test_size, **kwargs
     )
     assert isinstance(X_train, dd.DataFrame)
     assert isinstance(y_train, dd.Series)
@@ -214,13 +216,14 @@ def test_train_test_split_dask_dataframe(
 
 def test_train_test_split_dask_dataframe_rng(xy_classification_pandas):
     X, y = xy_classification_pandas
+    kwargs = {"shuffle": True} if DASK_2130 else {}
 
     split1 = dask_ml.model_selection.train_test_split(
-        X, y, train_size=0.25, test_size=0.75, random_state=0, shuffle=True
+        X, y, train_size=0.25, test_size=0.75, random_state=0, **kwargs
     )
 
     split2 = dask_ml.model_selection.train_test_split(
-        X, y, train_size=0.25, test_size=0.75, random_state=0, shuffle=True
+        X, y, train_size=0.25, test_size=0.75, random_state=0, **kwargs
     )
     for a, b in zip(split1, split2):
         dd.utils.assert_eq(a, b)
