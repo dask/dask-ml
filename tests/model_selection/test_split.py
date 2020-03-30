@@ -3,10 +3,10 @@ import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import pytest
-from dask_ml._compat import DASK_2130
 from sklearn.datasets import fetch_20newsgroups, make_regression
 
 import dask_ml.model_selection
+from dask_ml._compat import DASK_2130
 
 X, y = make_regression(n_samples=110, n_features=5)
 dX = da.from_array(X, 50)
@@ -139,8 +139,7 @@ def test_train_test_split_shuffle_array():
 
 
 @pytest.mark.xfail(
-    not DASK_2130,
-    reason="DataFrame blockwise shuffling implemented in dask2.13.0."
+    not DASK_2130, reason="DataFrame blockwise shuffling implemented in dask2.13.0."
 )
 def test_train_test_split_shuffle_dataframe(xy_classification_pandas):
     X, y = xy_classification_pandas
@@ -157,8 +156,7 @@ def test_train_test_split_shuffle_dataframe(xy_classification_pandas):
 
 
 @pytest.mark.xfail(
-    not DASK_2130,
-    reason="DataFrame blockwise shuffling implemented in dask2.13.0."
+    DASK_2130, reason="DataFrame blockwise shuffling implemented in dask2.13.0."
 )
 def test_train_test_split_blockwise_dataframe(xy_classification_pandas):
     with pytest.raises(NotImplementedError):
@@ -218,11 +216,11 @@ def test_train_test_split_dask_dataframe_rng(xy_classification_pandas):
     X, y = xy_classification_pandas
 
     split1 = dask_ml.model_selection.train_test_split(
-        X, y, train_size=0.25, test_size=0.75, random_state=0
+        X, y, train_size=0.25, test_size=0.75, random_state=0, shuffle=True
     )
 
     split2 = dask_ml.model_selection.train_test_split(
-        X, y, train_size=0.25, test_size=0.75, random_state=0
+        X, y, train_size=0.25, test_size=0.75, random_state=0, shuffle=True
     )
     for a, b in zip(split1, split2):
         dd.utils.assert_eq(a, b)
