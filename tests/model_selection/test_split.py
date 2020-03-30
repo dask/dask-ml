@@ -155,9 +155,6 @@ def test_train_test_split_shuffle_dataframe(xy_classification_pandas):
     np.testing.assert_array_equal(X_train.index, sorted(X_train.index))
 
 
-@pytest.mark.xfail(
-    DASK_2130, reason="DataFrame blockwise shuffling implemented in dask2.13.0."
-)
 def test_train_test_split_blockwise_dataframe(xy_classification_pandas):
     X, y = xy_classification_pandas
     with pytest.raises(NotImplementedError):
