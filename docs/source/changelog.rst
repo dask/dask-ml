@@ -1,6 +1,15 @@
 Changelog
 =========
 
+Version 1.3.0
+~~~~~~~~~~~~~
+
+- Added ``shuffle`` support to :func:`dask_ml.model_selection.train_test_split` for ``DataFrame`` input (:pr:`625`)
+- Improved performance of :class:`dask_ml.model_selection.GridSearchCV` by re-using cached tasks (:pr:`622`)
+- Add support for ``DataFrame`` to :class:`dask_ml.model_selection.GridSearchCV` (:pr:`612`)
+- Fixed :meth:`dask_ml.linear_model.LinearRegression.score` to use ``r2_score`` rather than ``mse`` (:pr:`614`)
+- Handle missing data in :class:`dask_ml.preprocessing.StandardScaler` (:pr:`608`)
+
 Version 1.2.0
 ~~~~~~~~~~~~~
 
