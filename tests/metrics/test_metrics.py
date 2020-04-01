@@ -108,7 +108,7 @@ def test_log_loss(labels, normalize, sample_weight, daskify):
     else:
         dy_true = y_true
         dy_pred = y_pred
-        dsample_weight, = dask.compute(dsample_weight)
+        (dsample_weight,) = dask.compute(dsample_weight)
 
     a = sklearn.metrics.log_loss(
         y_true, y_pred, normalize=normalize, sample_weight=sample_weight

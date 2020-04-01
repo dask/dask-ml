@@ -413,7 +413,7 @@ def init_scalable(
     c_idx = {idx}
 
     # Step 2: Initialize cost
-    cost, = compute(evaluate_cost(X, centers))
+    (cost,) = compute(evaluate_cost(X, centers))
 
     if cost == 0:
         n_iter = 0
@@ -495,7 +495,7 @@ def _sample_points(X, centers, oversampling_factor, random_state):
     draws = random_state.uniform(size=len(p), chunks=p.chunks)
     picked = p > draws
 
-    new_idxs, = da.where(picked)
+    (new_idxs,) = da.where(picked)
     return new_idxs
 
 
@@ -556,7 +556,7 @@ def _kmeans_single_lloyd(
             # Require at least one per bucket, to avoid division by 0.
             counts = da.maximum(counts, 1)
             new_centers = new_centers / counts[:, None]
-            new_centers, = compute(new_centers)
+            (new_centers,) = compute(new_centers)
 
             # Convergence check
             shift = squared_norm(centers - new_centers)
