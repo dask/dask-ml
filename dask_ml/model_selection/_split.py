@@ -3,6 +3,7 @@
 import itertools
 import logging
 import numbers
+import warnings
 
 import dask
 import dask.array as da
@@ -12,6 +13,7 @@ import sklearn.model_selection as ms
 from sklearn.model_selection._split import BaseCrossValidator, _validate_shuffle_split
 from sklearn.utils import check_random_state
 
+from dask_ml._compat import DASK_2130, DASK_VERSION
 from dask_ml.utils import check_array, check_matching_blocks
 
 from .._utils import draw_seed
@@ -51,7 +53,7 @@ def _maybe_normalize_split_sizes(train_size, test_size):
     if test_size is not None:
         if test_size < 0 or test_size > 1:
             raise ValueError(
-                "'test_size' be between 0 and 1. " "Got {}".format(test_size)
+                "'test_size' must be between 0 and 1. " "Got {}".format(test_size)
             )
 
         if train_size is None:
@@ -361,10 +363,10 @@ def train_test_split(
     test_size=None,
     train_size=None,
     random_state=None,
-    shuffle=True,
+    shuffle=None,
     blockwise=None,
     convert_mixed_types=False,
-    **options
+    **options,
 ):
     """Split arrays into random train and test matricies.
 
@@ -380,7 +382,7 @@ def train_test_split(
         If RandomState instance, random_state is the random number generator;
         If None, the random number generator is the RandomState instance used
         by `np.random`.
-    shuffle : bool, default True
+    shuffle : bool, default None
         Whether to shuffle the data before splitting.
     blockwise : bool, optional.
         Whether to shuffle data only within blocks (True), or allow data to
@@ -429,9 +431,6 @@ def train_test_split(
     if options:
         raise TypeError("Unexpected options {}".format(options))
 
-    if not shuffle:
-        raise NotImplementedError("'shuffle=False' is not currently supported.")
-
     types = set(type(arr) for arr in arrays)
 
     if da.Array in types and types & {dd.Series, dd.DataFrame}:
@@ -450,19 +449,49 @@ def train_test_split(
 
     if all(isinstance(arr, (dd.Series, dd.DataFrame)) for arr in arrays):
         check_matching_blocks(*arrays)
-        if blockwise is None:
-            blockwise = False
+        if blockwise is False:
+            raise NotImplementedError(
+                "'blockwise=False' is not currently supported for dask DataFrames."
+            )
 
         rng = check_random_state(random_state)
         rng = draw_seed(rng, 0, _I4MAX, dtype="uint")
+        if DASK_2130:
+            if shuffle is None:
+                shuffle = False
+                warnings.warn(
+                    message="The default value for 'shuffle' must be specified"
+                    " when splitting DataFrames. In the future"
+                    " DataFrames will automatically be shuffled within"
+                    " blocks prior to splitting. Specify 'shuffle=True'"
+                    " to adopt the future behavior now, or 'shuffle=False'"
+                    " to retain the previous behavior.",
+                    category=FutureWarning,
+                )
+            kwargs = {"shuffle": shuffle}
+        else:
+            if shuffle is None:
+                shuffle = True
+            if not shuffle:
+                raise NotImplementedError(
+                    f"'shuffle=False' is not supported for DataFrames in"
+                    f" dask versions<2.13.0. Current version is {DASK_VERSION}."
+                )
+            kwargs = {}
         return list(
             itertools.chain.from_iterable(
-                arr.random_split([train_size, test_size], random_state=rng)
+                arr.random_split([train_size, test_size], random_state=rng, **kwargs)
                 for arr in arrays
             )
         )
 
     elif all(isinstance(arr, da.Array) for arr in arrays):
+        if shuffle is None:
+            shuffle = True
+        if not shuffle:
+            raise NotImplementedError(
+                "'shuffle=False' is not currently supported for dask Arrays."
+            )
         if blockwise is None:
             blockwise = True
 
@@ -487,5 +516,5 @@ def train_test_split(
             test_size=test_size,
             train_size=train_size,
             random_state=random_state,
-            shuffle=shuffle
+            shuffle=shuffle,
         )
