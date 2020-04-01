@@ -52,7 +52,7 @@ jobs:
       set -e
       source activate dask-ml-test
       black --check .
-  displayName: "Lint - black"
+    displayName: "Lint - black"
 
   - script: |
       set -e
@@ -64,4 +64,4 @@ jobs:
       set -e
       source activate dask-ml-test
       bash <(curl -s https://codecov.io/bash)
-  displayName: "Lint - codecov"
+    displayName: "Lint - codecov"
