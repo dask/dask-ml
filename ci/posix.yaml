@@ -43,17 +43,25 @@ jobs:
     displayName: 'Run Tests'
 
   - script: |
+      set -e
       source activate dask-ml-test
-      echo "[flake8]"
       flake8
+    displayName: "Lint - flake8"
 
-      echo "[black]"
+  - script: |
+      set -e
+      source activate dask-ml-test
       black --check .
+  displayName: "Lint - black"
 
-      echo "[isort]"
+  - script: |
+      set -e
+      source activate dask-ml-test
       isort --recursive --check-only .
+    displayName: "Lint - isort"
 
-      echo "[codecov]"
+  - script: |
+      set -e
+      source activate dask-ml-test
       bash <(curl -s https://codecov.io/bash)
-
-    displayName: "Lint"
+  displayName: "Lint - codecov"
