@@ -47,21 +47,25 @@ jobs:
       source activate dask-ml-test
       flake8
     displayName: "Lint - flake8"
+    continueOnError: true
 
   - script: |
       set -e
       source activate dask-ml-test
       black --check .
     displayName: "Lint - black"
+    continueOnError: true
 
   - script: |
       set -e
       source activate dask-ml-test
       isort --recursive --check-only .
     displayName: "Lint - isort"
+    continueOnError: true
 
   - script: |
       set -e
       source activate dask-ml-test
       bash <(curl -s https://codecov.io/bash)
     displayName: "Lint - codecov"
+    continueOnError: true
