@@ -12,6 +12,7 @@ dependencies:
   - isort
   - msgpack-python ==0.6.2
   - multipledispatch
+  - mypy
   - numba
   - numpy ==1.17.3
   - numpydoc

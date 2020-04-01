@@ -1,9 +1,8 @@
 import numpy as np
-from scipy import stats
 import pandas as pd
-from sklearn.svm import SVC
-
 from dask.distributed import Client
+from scipy import stats
+from sklearn.svm import SVC
 
 import dask_ml.model_selection as dms
 

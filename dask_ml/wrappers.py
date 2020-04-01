@@ -12,6 +12,7 @@ from dask_ml.utils import _timer
 
 from ._compat import check_is_fitted
 from ._partial import fit
+from ._typing import ArrayLike
 from ._utils import copy_learned_attributes
 from .metrics import check_scoring, get_scorer
 
@@ -119,7 +120,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         self.estimator = estimator
         self.scoring = scoring
 
-    def _check_array(self, X):
+    def _check_array(self, X: ArrayLike):
         """Validate an array for post-fit tasks.
 
         Parameters
@@ -150,7 +151,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         # The estimator instance to use for postfit tasks like score
         return self.estimator
 
-    def fit(self, X, y=None, **kwargs):
+    def fit(self, X: ArrayLike, y: ArrayLike = None, **kwargs):
         """Fit the underlying estimator.
 
         Parameters
@@ -172,7 +173,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         copy_learned_attributes(result, self.estimator)
         return self
 
-    def partial_fit(self, X, y=None, **kwargs):
+    def partial_fit(self, X: ArrayLike, y: ArrayLike = None, **kwargs):
         logger.info("Starting partial_fit")
         with _timer("fit", _logger=logger):
             result = self.estimator.partial_fit(X, y, **kwargs)
@@ -182,7 +183,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         copy_learned_attributes(result, self.estimator)
         return self
 
-    def transform(self, X):
+    def transform(self, X: ArrayLike):
         """Transform block or partition-wise for dask inputs.
 
         For dask inputs, a dask array or dataframe is returned. For other
@@ -210,7 +211,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         else:
             return _transform(X, estimator=self._postfit_estimator)
 
-    def score(self, X, y, compute=True):
+    def score(self, X: ArrayLike, y: ArrayLike, compute: bool = True):
         """Returns the score on the given data.
 
         Parameters
@@ -252,7 +253,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         else:
             return self._postfit_estimator.score(X, y)
 
-    def predict(self, X):
+    def predict(self, X: ArrayLike):
         """Predict for X.
 
         For dask inputs, a dask array or dataframe is returned. For other
@@ -284,7 +285,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         else:
             return _predict(X, estimator=self._postfit_estimator)
 
-    def predict_proba(self, X):
+    def predict_proba(self, X: ArrayLike):
         """Probability estimates.
 
         For dask inputs, a dask array or dataframe is returned. For other
@@ -319,7 +320,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         else:
             return _predict_proba(X, estimator=self._postfit_estimator)
 
-    def predict_log_proba(self, X):
+    def predict_log_proba(self, X: ArrayLike):
         """Log of proability estimates.
 
         For dask inputs, a dask array or dataframe is returned. For other
@@ -454,9 +455,9 @@ class Incremental(ParallelPostFit):
         self,
         estimator=None,
         scoring=None,
-        shuffle_blocks=True,
-        random_state=None,
-        assume_equal_chunks=True,
+        shuffle_blocks: bool = True,
+        random_state: int = None,
+        assume_equal_chunks: bool = True,
     ):
         self.shuffle_blocks = shuffle_blocks
         self.random_state = random_state
@@ -468,7 +469,7 @@ class Incremental(ParallelPostFit):
         check_is_fitted(self, "estimator_")
         return self.estimator_
 
-    def _fit_for_estimator(self, estimator, X, y, **fit_kwargs):
+    def _fit_for_estimator(self, estimator, X: ArrayLike, y: ArrayLike, **fit_kwargs):
         check_scoring(estimator, self.scoring)
         if not dask.is_dask_collection(X) and not dask.is_dask_collection(y):
             result = estimator.partial_fit(X=X, y=y, **fit_kwargs)
@@ -487,12 +488,12 @@ class Incremental(ParallelPostFit):
         self.estimator_ = result
         return self
 
-    def fit(self, X, y=None, **fit_kwargs):
+    def fit(self, X: ArrayLike, y: ArrayLike = None, **fit_kwargs):
         estimator = sklearn.base.clone(self.estimator)
         self._fit_for_estimator(estimator, X, y, **fit_kwargs)
         return self
 
-    def partial_fit(self, X, y=None, **fit_kwargs):
+    def partial_fit(self, X: ArrayLike, y: ArrayLike = None, **fit_kwargs):
         """Fit the underlying estimator.
 
         If this estimator has not been previously fit, this is identical to

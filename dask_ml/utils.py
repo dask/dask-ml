@@ -99,12 +99,12 @@ def assert_estimator_equal(left, right, exclude=None, **kwargs):
 def check_array(
     array,
     *args,
-    accept_dask_array=True,
-    accept_dask_dataframe=False,
-    accept_unknown_chunks=False,
-    accept_multiple_blocks=False,
-    preserve_pandas_dataframe=False,
-    remove_zero_chunks=True,
+    accept_dask_array: bool = True,
+    accept_dask_dataframe: bool = False,
+    accept_unknown_chunks: bool = False,
+    accept_multiple_blocks: bool = False,
+    preserve_pandas_dataframe: bool = False,
+    remove_zero_chunks: bool = True,
     **kwargs
 ):
     """Validate inputs
