@@ -20,7 +20,7 @@ SCORERS = dict(
 )
 
 
-def get_scorer(scoring: Union[str, Callable], compute=True) -> Callable:
+def get_scorer(scoring: Union[str, Callable], compute: bool =True) -> Callable:
     """Get a scorer from string
 
     Parameters

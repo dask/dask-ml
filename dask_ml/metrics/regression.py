@@ -8,7 +8,7 @@ from dask.utils import derived_from
 from .._typing import ArrayLike
 
 
-def _check_sample_weight(sample_weight: Optional[str]):
+def _check_sample_weight(sample_weight: Optional[ArrayLike]):
     if sample_weight is not None:
         raise ValueError("'sample_weight' is not supported.")
 
