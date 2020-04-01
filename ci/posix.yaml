@@ -44,5 +44,3 @@ jobs:
 
   - bash: ./ci/code_checks.sh
     displayName: "Lint"
-    env:
-      CODECOV_TOKEN: $(CODECOV_TOKEN)
