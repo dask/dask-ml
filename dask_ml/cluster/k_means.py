@@ -2,7 +2,6 @@ import logging
 from multiprocessing import cpu_count
 from numbers import Integral
 
-import numba  # isort:skip (see https://github.com/dask/dask-ml/pull/577)
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
@@ -21,6 +20,9 @@ from ..metrics import (
 )
 from ..utils import _timed, _timer, check_array, row_norms
 from ._compat import _k_init
+
+import numba  # isort:skip (see https://github.com/dask/dask-ml/pull/577)
+
 
 logger = logging.getLogger(__name__)
 

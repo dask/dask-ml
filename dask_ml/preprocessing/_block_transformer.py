@@ -3,7 +3,7 @@ import dask.dataframe as dd
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from dask_ml.utils import check_array, handle_zeros_in_scale
+from dask_ml.utils import check_array
 
 
 class BlockTransformer(BaseEstimator, TransformerMixin):
