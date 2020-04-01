@@ -68,7 +68,7 @@ def pairwise_distances(
 
 def euclidean_distances(
     X: ArrayLike,
-    Y: ArrayLike = None,
+    Y: Optional[ArrayLike] = None,
     Y_norm_squared: Optional[ArrayLike] = None,
     squared: bool = False,
     X_norm_squared: Optional[ArrayLike] = None,
