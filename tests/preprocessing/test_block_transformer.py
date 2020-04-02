@@ -13,8 +13,10 @@ X_dask = da.from_array(X, chunks=(5, 4))
 df_dask = X_dask.to_dask_dataframe().rename(columns=str)
 df = df_dask.compute()
 
+
 def multiply(x, factor=4):
     return factor * x
+
 
 class TestBlockTransformer:
     @pytest.mark.parametrize("factor", [2, 4, None])
@@ -39,7 +41,6 @@ class TestBlockTransformer:
         else:
             da.utils.assert_eq(bt.transform(X), multiply(X))
             dd.utils.assert_eq(bt.transform(df), multiply(df))
-
 
     @pytest.mark.parametrize("validate", [True, False])
     @pytest.mark.parametrize("daskify", [True, False])

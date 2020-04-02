@@ -294,7 +294,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
             booktitle = {{P}roceedings of the 18th {P}ython in {S}cience {C}onference},
             pages     = {118 - 125},
             year      = {2019},
-            editor    = {Chris Calloway and David Lippa and Dillon Niederhut and David Shupe},
+            editor    = {Chris Calloway and David Lippa and Dillon Niederhut and David Shupe},  # noqa
             doi       = {10.25080/Majora-7ddc1dd1-011}
           }
 

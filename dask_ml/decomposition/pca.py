@@ -4,8 +4,6 @@ import dask
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
-import pandas as pd
-import scipy.sparse as sp
 import sklearn.decomposition
 from dask import compute
 from sklearn.utils.extmath import fast_logdet
