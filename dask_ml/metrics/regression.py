@@ -1,15 +1,21 @@
+from typing import Optional
+
 import dask.array as da
 import numpy as np
 import sklearn.metrics
 from dask.utils import derived_from
 
+from .._typing import ArrayLike
 
-def _check_sample_weight(sample_weight):
+
+def _check_sample_weight(sample_weight: Optional[ArrayLike]):
     if sample_weight is not None:
         raise ValueError("'sample_weight' is not supported.")
 
 
-def _check_reg_targets(y_true, y_pred, multioutput):
+def _check_reg_targets(
+    y_true: ArrayLike, y_pred: ArrayLike, multioutput: Optional[str]
+):
     if multioutput != "uniform_average":
         raise NotImplementedError("'multioutput' must be 'uniform_average'")
 
@@ -24,8 +30,12 @@ def _check_reg_targets(y_true, y_pred, multioutput):
 
 @derived_from(sklearn.metrics)
 def mean_squared_error(
-    y_true, y_pred, sample_weight=None, multioutput="uniform_average", compute=True
-):
+    y_true: ArrayLike,
+    y_pred: ArrayLike,
+    sample_weight: Optional[ArrayLike] = None,
+    multioutput: Optional[str] = "uniform_average",
+    compute: bool = True,
+) -> ArrayLike:
     _check_sample_weight(sample_weight)
     output_errors = ((y_pred - y_true) ** 2).mean(axis=0)
 
@@ -45,8 +55,12 @@ def mean_squared_error(
 
 @derived_from(sklearn.metrics)
 def mean_absolute_error(
-    y_true, y_pred, sample_weight=None, multioutput="uniform_average", compute=True
-):
+    y_true: ArrayLike,
+    y_pred: ArrayLike,
+    sample_weight: Optional[ArrayLike] = None,
+    multioutput: Optional[str] = "uniform_average",
+    compute: bool = True,
+) -> ArrayLike:
     _check_sample_weight(sample_weight)
     output_errors = abs(y_pred - y_true).mean(axis=0)
 
@@ -66,8 +80,12 @@ def mean_absolute_error(
 
 @derived_from(sklearn.metrics)
 def r2_score(
-    y_true, y_pred, sample_weight=None, multioutput="uniform_average", compute=True
-):
+    y_true: ArrayLike,
+    y_pred: ArrayLike,
+    sample_weight: Optional[ArrayLike] = None,
+    multioutput: Optional[str] = "uniform_average",
+    compute: bool = True,
+) -> ArrayLike:
     _check_sample_weight(sample_weight)
     _, y_true, y_pred, multioutput = _check_reg_targets(y_true, y_pred, multioutput)
     weight = 1.0
