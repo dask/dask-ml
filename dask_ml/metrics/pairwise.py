@@ -2,7 +2,7 @@
 Daskified versions of sklearn.metrics.pairwise
 """
 import warnings
-from typing import Optional, Tuple
+from typing import Any, Callable, Dict, Optional, Tuple, Union
 
 import dask.array as da
 import numpy as np
@@ -19,9 +19,9 @@ def pairwise_distances_argmin_min(
     X: ArrayLike,
     Y: ArrayLike,
     axis: int = 1,
-    metric: str = "euclidean",
+    metric: Union[str, Callable[[ArrayLike, ArrayLike], float]] = "euclidean",
     batch_size: Optional[int] = None,
-    metric_kwargs=None,
+    metric_kwargs: Optional[Dict[str, Any]] = None,
 ):
     if batch_size is not None:
         msg = "'batch_size' is deprecated. Use sklearn.config_context instead.'"
@@ -49,9 +49,9 @@ def pairwise_distances_argmin_min(
 def pairwise_distances(
     X: ArrayLike,
     Y: ArrayLike,
-    metric: str = "euclidean",
+    metric: Union[str, Callable[[ArrayLike, ArrayLike], float]] = "euclidean",
     n_jobs: Optional[int] = None,
-    **kwargs
+    **kwargs: Any
 ):
     if isinstance(Y, da.Array):
         raise TypeError("`Y` must be a numpy array")
@@ -139,7 +139,7 @@ def linear_kernel(X: ArrayLike, Y: Optional[ArrayLike] = None) -> ArrayLike:
 
 @derived_from(metrics.pairwise)
 def rbf_kernel(
-    X: ArrayLike, Y: Optional[ArrayLike] = None, gamma: Optional[int] = None
+    X: ArrayLike, Y: Optional[ArrayLike] = None, gamma: Optional[float] = None
 ) -> ArrayLike:
     X, Y = check_pairwise_arrays(X, Y)
     if gamma is None:
@@ -155,8 +155,8 @@ def polynomial_kernel(
     X: ArrayLike,
     Y: Optional[ArrayLike] = None,
     degree: int = 3,
-    gamma: Optional[int] = None,
-    coef0: int = 1,
+    gamma: Optional[float] = None,
+    coef0: float = 1,
 ) -> ArrayLike:
     X, Y = check_pairwise_arrays(X, Y)
     if gamma is None:
@@ -170,8 +170,8 @@ def polynomial_kernel(
 def sigmoid_kernel(
     X: ArrayLike,
     Y: Optional[ArrayLike] = None,
-    gamma: Optional[int] = None,
-    coef0: int = 1,
+    gamma: Optional[float] = None,
+    coef0: float = 1,
 ) -> ArrayLike:
     X, Y = check_pairwise_arrays(X, Y)
     if gamma is None:
@@ -200,9 +200,9 @@ PAIRWISE_KERNEL_FUNCTIONS = {
 def pairwise_kernels(
     X: ArrayLike,
     Y: Optional[ArrayLike] = None,
-    metric: str = "linear",
+    metric: Union[str, Callable[[ArrayLike, ArrayLike], float]] = "linear",
     filter_params: bool = False,
-    n_jobs: int = 1,
+    n_jobs: Optional[int] = 1,
     **kwds
 ):
     from sklearn.gaussian_process.kernels import Kernel as GPKernel
