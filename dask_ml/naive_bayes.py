@@ -33,7 +33,7 @@ class GaussianNB(BaseEstimator):
     def fit(self, X, y=None):
         if self.classes is None:
             # TODO: delayed
-            self.classes_, = dask.compute(np.unique(y))
+            (self.classes_,) = dask.compute(np.unique(y))
 
         thetas = []
         sigmas = []
