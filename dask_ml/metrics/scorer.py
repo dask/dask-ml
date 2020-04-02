@@ -2,7 +2,6 @@ from typing import Any, Callable, Tuple, Union
 
 from sklearn.metrics import check_scoring as sklearn_check_scoring, make_scorer
 
-from .._typing import ArrayLike
 from . import accuracy_score, log_loss, mean_squared_error, r2_score
 
 # Scorers
