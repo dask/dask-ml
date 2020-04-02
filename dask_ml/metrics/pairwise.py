@@ -215,6 +215,7 @@ def pairwise_kernels(
     elif metric in PAIRWISE_KERNEL_FUNCTIONS:
         if filter_params:
             kwds = dict((k, kwds[k]) for k in kwds if k in KERNEL_PARAMS[metric])
+        assert isinstance(metric, str)
         func = PAIRWISE_KERNEL_FUNCTIONS[metric]
     elif callable(metric):
         raise NotImplementedError()
