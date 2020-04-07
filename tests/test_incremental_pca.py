@@ -17,8 +17,6 @@ from sklearn.decomposition import PCA
 from sklearn import decomposition as sd
 from dask_ml.decomposition import IncrementalPCA
 
-from scipy import sparse
-
 iris = datasets.load_iris()
 
 
@@ -81,12 +79,12 @@ def test_incremental_pca(svd_solver):
             np.dot(cov, precision), np.eye(X.shape[1]), atol=1e-13
         )
 
-        assert type(pca.singular_values_) == type(ipca.singular_values_)
-        assert type(pca.mean_) == type(ipca.mean_)
-        assert type(pca.explained_variance_) == type(ipca.explained_variance_)
-        assert type(pca.explained_variance_ratio_) == type(
+        assert isinstance(pca.singular_values_, type(ipca.singular_values_))
+        assert isinstance(pca.mean_, type(ipca.mean_))
+        assert isinstance(pca.explained_variance_, type(ipca.explained_variance_))
+        assert isinstance(pca.explained_variance_ratio_, type(
             ipca.explained_variance_ratio_
-        )
+        ))
 
 
 def test_incremental_pca_check_projection():

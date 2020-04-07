@@ -11,14 +11,8 @@ Extended math utilities.
 #          Giorgio Patrini
 # License: BSD 3 clause
 
-import warnings
-
 import numpy as np
-from scipy import linalg, sparse
-from dask import array as da
 from sklearn.utils.extmath import _safe_accumulator_op
-
-from ..utils import check_array
 
 
 def _incremental_mean_and_var(X, last_mean, last_variance, last_sample_count):
@@ -26,7 +20,7 @@ def _incremental_mean_and_var(X, last_mean, last_variance, last_sample_count):
     Note. Most of this script is taken from scikit-learn, except for the last line.
 
     --- Original doc ---
-    
+
     Calculate mean update and a Youngs and Cramer variance update.
 
     last_mean and last_variance are statistics computed at the last step by the
