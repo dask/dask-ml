@@ -508,4 +508,3 @@ class PCA(sklearn.decomposition.PCA):
 
 def _known_shape(shape):
     return all(isinstance(x, numbers.Integral) for x in shape)
-

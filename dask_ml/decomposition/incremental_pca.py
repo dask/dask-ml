@@ -291,7 +291,7 @@ class IncrementalPCA(PCA):
             self.var_ = 0.0
 
         # Update stats - they are 0 if this is the first step
-        # The next line is equivalent with np.repeat(self.n_samples_seen_, X.shape[1]), 
+        # The next line is equivalent with np.repeat(self.n_samples_seen_, X.shape[1]),
         # which dask-array does not support
         last_sample_count = np.tile(np.expand_dims(self.n_samples_seen_, 0), X.shape[1])
         col_mean, col_var, n_total_samples = _incremental_mean_and_var(
@@ -342,10 +342,12 @@ class IncrementalPCA(PCA):
         explained_variance = S ** 2 / (n_total_samples - 1)
         components, singular_values = V, S
 
-        # The following part is also updated for randomized solver, 
+        # The following part is also updated for randomized solver,
         # which computes only a limited number of the singular values
         total_var = np.sum(col_var)
-        explained_variance_ratio = explained_variance / total_var * ((n_total_samples - 1) / n_total_samples)
+        explained_variance_ratio = (
+            explained_variance / total_var * ((n_total_samples - 1) / n_total_samples)
+        )
 
         actual_rank = min(n_features, n_total_samples)
         if self.n_components_ < actual_rank:

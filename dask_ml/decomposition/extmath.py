@@ -87,25 +87,27 @@ def _incremental_mean_and_var(X, last_mean, last_variance, last_sample_count):
         updated_variance = None
     else:
         new_unnormalized_variance = (
-            _safe_accumulator_op(np.nanvar, X, axis=0) * new_sample_count)
+            _safe_accumulator_op(np.nanvar, X, axis=0) * new_sample_count
+        )
         last_unnormalized_variance = last_variance * last_sample_count
 
-        with np.errstate(divide='ignore', invalid='ignore'):
+        with np.errstate(divide="ignore", invalid="ignore"):
             last_over_new_count = last_sample_count / new_sample_count
             updated_unnormalized_variance = (
-                last_unnormalized_variance + new_unnormalized_variance +
-                last_over_new_count / updated_sample_count *
-                (last_sum / last_over_new_count - new_sum) ** 2)
+                last_unnormalized_variance
+                + new_unnormalized_variance
+                + last_over_new_count
+                / updated_sample_count
+                * (last_sum / last_over_new_count - new_sum) ** 2
+            )
 
         zeros = last_sample_count == 0
         # updated_unnormalized_variance[zeros] = new_unnormalized_variance[zeros]
-        # This line is replaced by the following, because dask-array does not 
+        # This line is replaced by the following, because dask-array does not
         # support item assignment.
         updated_unnormalized_variance = np.where(
-            zeros, new_unnormalized_variance, 
-            updated_unnormalized_variance)
+            zeros, new_unnormalized_variance, updated_unnormalized_variance
+        )
         updated_variance = updated_unnormalized_variance / updated_sample_count
 
     return updated_mean, updated_variance, updated_sample_count
-
-
