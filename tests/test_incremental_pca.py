@@ -44,7 +44,7 @@ def test_compare_with_sklearn(svd_solver, batch_number):
     np.testing.assert_allclose(
         ipca.explained_variance_ratio_, ipca_da.explained_variance_ratio_, atol=1e-13
     )
-    if svd_solver == 'randomized':
+    if svd_solver == "randomized":
         # noise variance in randomized solver is probabilistic.
         assert_almost_equal(ipca.noise_variance_, ipca_da.noise_variance_, decimal=1)
     else:
@@ -296,7 +296,9 @@ def test_incremental_pca_against_pca_iris(svd_solver):
     X = da.from_array(X, chunks=[50, -1])
 
     Y_pca = PCA(n_components=2, svd_solver=svd_solver).fit_transform(X)
-    Y_ipca = IncrementalPCA(n_components=2, batch_size=25, svd_solver=svd_solver).fit_transform(X)
+    Y_ipca = IncrementalPCA(
+        n_components=2, batch_size=25, svd_solver=svd_solver
+    ).fit_transform(X)
 
     assert_almost_equal(np.abs(Y_pca), np.abs(Y_ipca), 1)
 
@@ -311,7 +313,9 @@ def test_incremental_pca_against_pca_random_data(svd_solver):
     X = da.from_array(X, chunks=[40, -1])
 
     Y_pca = PCA(n_components=3, svd_solver=svd_solver).fit_transform(X)
-    Y_ipca = IncrementalPCA(n_components=3, batch_size=25, svd_solver=svd_solver).fit_transform(X)
+    Y_ipca = IncrementalPCA(
+        n_components=3, batch_size=25, svd_solver=svd_solver
+    ).fit_transform(X)
 
     assert_almost_equal(np.abs(Y_pca), np.abs(Y_ipca), 1)
 
@@ -327,7 +331,9 @@ def test_explained_variances(svd_solver):
     n_samples, n_features = X.shape
     for nc in [None, 99]:
         pca = PCA(n_components=nc, svd_solver=svd_solver).fit(X)
-        ipca = IncrementalPCA(n_components=nc, batch_size=100, svd_solver=svd_solver).fit(X)
+        ipca = IncrementalPCA(
+            n_components=nc, batch_size=100, svd_solver=svd_solver
+        ).fit(X)
         assert_almost_equal(
             pca.explained_variance_, ipca.explained_variance_, decimal=prec
         )
@@ -409,7 +415,9 @@ def test_whitening(svd_solver):
     n_samples, n_features = X.shape
     for nc in [None, 9]:
         pca = PCA(whiten=True, n_components=nc, svd_solver=svd_solver).fit(X)
-        ipca = IncrementalPCA(whiten=True, n_components=nc, batch_size=250, svd_solver=svd_solver).fit(X)
+        ipca = IncrementalPCA(
+            whiten=True, n_components=nc, batch_size=250, svd_solver=svd_solver
+        ).fit(X)
 
         Xt_pca = pca.transform(X)
         Xt_ipca = ipca.transform(X)
