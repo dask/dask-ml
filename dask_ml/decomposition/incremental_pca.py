@@ -14,7 +14,7 @@ from sklearn.utils.validation import check_random_state
 
 from .._utils import draw_seed
 from ..utils import _svd_flip_copy, check_array
-from . import PCA
+from . import pca
 from .extmath import _incremental_mean_and_var
 
 
@@ -29,7 +29,7 @@ def svd_flip(u, v):
     return u, v
 
 
-class IncrementalPCA(PCA):
+class IncrementalPCA(pca.PCA):
     """Incremental principal components analysis (IPCA).
     Linear dimensionality reduction using Singular Value Decomposition of
     the data, keeping only the most significant singular vectors to
@@ -207,7 +207,7 @@ class IncrementalPCA(PCA):
         """
         # X = check_array(X)
         if not dask.is_dask_collection(X):
-            raise TypeError(PCA._TYPE_MSG.format(type(X)))
+            raise TypeError(pca.PCA._TYPE_MSG.format(type(X)))
 
         if y is None:
             # fit method of arity 1 (unsupervised transformation)
