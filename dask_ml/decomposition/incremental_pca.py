@@ -6,19 +6,16 @@
 
 import dask
 import numpy as np
-from scipy import sparse
-from dask import array as da
+from dask import array as da, compute, delayed
 from dask.array import linalg
-from dask import delayed
-
-from dask import compute
+from scipy import sparse
 from sklearn.utils import gen_batches
 from sklearn.utils.validation import check_random_state
-from ..utils import check_array
-from ..utils import _svd_flip_copy
+
 from .._utils import draw_seed
-from .extmath import _incremental_mean_and_var
+from ..utils import _svd_flip_copy, check_array
 from . import PCA
+from .extmath import _incremental_mean_and_var
 
 
 def svd_flip(u, v):

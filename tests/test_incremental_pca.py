@@ -2,6 +2,10 @@
 import numpy as np
 import pytest
 from dask import array as da
+from sklearn import datasets, decomposition as sd
+from sklearn.decomposition import PCA
+
+from dask_ml.decomposition import IncrementalPCA
 
 try:
     from sklearn.utils._testing import assert_almost_equal
@@ -12,10 +16,6 @@ except ImportError:
     from sklearn.utils.testing import assert_array_almost_equal
     from sklearn.utils.testing import assert_allclose_dense_sparse
 
-from sklearn import datasets
-from sklearn.decomposition import PCA
-from sklearn import decomposition as sd
-from dask_ml.decomposition import IncrementalPCA
 
 iris = datasets.load_iris()
 
