@@ -158,10 +158,6 @@ def check_array(
         elif shape == 1:
             shape = min(10, shape[0])
 
-        if accept_unknown_chunks and np.isnan(shape).any():
-            idx = np.isnan(shape)
-            shape = tuple(s if not np.isnan(s) else 10 for s in shape)
-
         sample = np.ones(shape=shape, dtype=array.dtype)
         sk_validation.check_array(sample, *args, **kwargs)
         return array
