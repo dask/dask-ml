@@ -145,6 +145,7 @@ with Dask Arrays or DataFrames.
    preprocessing.OrdinalEncoder
    preprocessing.LabelEncoder
    preprocessing.PolynomialFeatures
+   preprocessing.BlockTransformer
 
 :mod:`dask_ml.feature_extraction.text`: Feature extraction
 ==========================================================
@@ -157,6 +158,7 @@ with Dask Arrays or DataFrames.
    :template: class.rst
 
    feature_extraction.text.HashingVectorizer
+   feature_extraction.text.FeatureHasher
 
    
 :mod:`dask_ml.compose`: Composite Estimators

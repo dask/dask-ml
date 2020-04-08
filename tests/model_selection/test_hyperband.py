@@ -9,6 +9,7 @@ import scipy.stats
 from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
 from sklearn.linear_model import SGDClassifier
 
+from dask_ml._compat import DISTRIBUTED_2_5_0
 from dask_ml.datasets import make_classification
 from dask_ml.model_selection import (
     HyperbandSearchCV,
@@ -18,6 +19,8 @@ from dask_ml.model_selection import (
 from dask_ml.model_selection._hyperband import _get_hyperband_params
 from dask_ml.utils import ConstantFunction
 from dask_ml.wrappers import Incremental
+
+pytestmark = pytest.mark.skipif(not DISTRIBUTED_2_5_0, reason="hangs")
 
 
 @pytest.mark.parametrize(

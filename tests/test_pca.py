@@ -14,7 +14,7 @@ from sklearn.utils import check_random_state as sk_check_random_state
 
 import dask_ml.decomposition as dd
 from dask_ml.decomposition._compat import _assess_dimension_, _infer_dimension_
-from dask_ml.utils import assert_estimator_equal
+from dask_ml.utils import assert_estimator_equal, svd_flip
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore", FutureWarning)
@@ -26,7 +26,7 @@ with warnings.catch_warnings():
 
 
 iris = datasets.load_iris()
-solver_list = ["full", "randomized", "auto"]
+solver_list = ["full", "randomized", "auto", "tsqr"]
 X = iris.data
 n_samples, n_features = X.shape
 dX = da.from_array(X, chunks=(n_samples // 2, n_features))
@@ -644,23 +644,13 @@ def test_pca_zero_noise_variance_edge_cases():
 
 # removed test_svd_solver_auto, as we don't do that.
 # removed test_deprecation_randomized_pca, as we don't do that
-
-
-def test_pca_sparse_input():
-    X = np.random.RandomState(0).rand(5, 4)
-    X = sp.sparse.csr_matrix(X)
-    assert sp.sparse.issparse(X)
-
-    for svd_solver in solver_list:
-        pca = dd.PCA(n_components=3, svd_solver=svd_solver)
-
-        assert_raises(TypeError, pca.fit, X)
+# removed test_pca_sparse_input: covered by test_pca_sklearn_inputs
 
 
 def test_pca_bad_solver():
     X = np.random.RandomState(0).rand(5, 4)
     pca = dd.PCA(n_components=3, svd_solver="bad_argument")
-    assert_raises(ValueError, pca.fit, X)
+    assert_raises(ValueError, pca.fit, da.from_array(X))
 
 
 # def test_pca_dtype_preservation():
@@ -780,3 +770,34 @@ def test_unknown_shapes_n_components_larger_than_num_rows(solver):
     else:
         with pytest.raises(ValueError, match="n_components is too large"):
             pca.fit(X)
+
+
+@pytest.mark.parametrize("input_type", [np.array, pd.DataFrame, sp.sparse.csr_matrix])
+@pytest.mark.parametrize("solver", solver_list)
+def test_pca_sklearn_inputs(input_type, solver):
+    Y = input_type(X)
+
+    a = dd.PCA()
+    with pytest.raises(TypeError, match="unsupported type"):
+        a.fit(Y)
+    with pytest.raises(TypeError, match="unsupported type"):
+        a.fit_transform(Y)
+
+
+def test_svd_flip():
+    rng = np.random.RandomState(0)
+    u = rng.randn(8, 3)
+    v = rng.randn(3, 10)
+    u = da.from_array(u, chunks=(-1, -1))
+    v = da.from_array(v, chunks=(-1, -1))
+    u2, v2 = svd_flip(u, v)
+
+    def set_readonly(x):
+        x.setflags(write=False)
+        return x
+
+    u = u.map_blocks(set_readonly)
+    v = v.map_blocks(set_readonly)
+    u, v = svd_flip(u, v)
+    assert_eq(u, u2)
+    assert_eq(v, v2)
