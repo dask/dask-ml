@@ -18,7 +18,6 @@ from sklearn.utils import check_random_state
 from tornado import gen
 
 from dask_ml.datasets import make_classification
-from sklearn.datasets import make_classification as sk_make_classification
 from dask_ml.model_selection import IncrementalSearchCV
 from dask_ml.model_selection._incremental import _partial_fit, _score, fit
 from dask_ml.model_selection.utils_test import LinearFunction, _MaybeLinearFunction

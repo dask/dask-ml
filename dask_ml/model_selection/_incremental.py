@@ -8,7 +8,6 @@ from time import time
 import dask
 import dask.array as da
 import numpy as np
-import pandas as pd
 import scipy.stats
 import toolz
 from dask.distributed import Future, default_client, futures_of, wait
