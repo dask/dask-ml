@@ -129,7 +129,10 @@ def check_array(
         if not accept_unknown_chunks:
             if np.isnan(array.shape[0]):
                 raise TypeError(
-                    "Cannot operate on Dask array with unknown chunk sizes."
+                    "Cannot operate on Dask array with unknown chunk sizes. "
+                    "Use the following the compute chunk sizes:\n\n"
+                    "   >>> X.compute_chunk_sizes()  # if Dask.Array\n"
+                    "   >>> ddf.to_dask_array(lengths=True)  # if Dask.Dataframe"
                 )
         if not accept_multiple_blocks and array.ndim > 1:
             if len(array.chunks[1]) > 1:
@@ -154,6 +157,10 @@ def check_array(
             shape = (min(10, shape[0]), shape[1])
         elif shape == 1:
             shape = min(10, shape[0])
+
+        if accept_unknown_chunks and np.isnan(shape).any():
+            idx = np.isnan(shape)
+            shape = tuple(s if not np.isnan(s) else 10 for s in shape)
 
         sample = np.ones(shape=shape, dtype=array.dtype)
         sk_validation.check_array(sample, *args, **kwargs)

@@ -8,9 +8,11 @@ from time import time
 import dask
 import dask.array as da
 import numpy as np
+import pandas as pd
 import scipy.stats
 import toolz
 from dask.distributed import Future, default_client, futures_of, wait
+import dask.dataframe as dd
 from distributed.utils import log_errors
 from sklearn.base import clone
 from sklearn.metrics import check_scoring
@@ -447,8 +449,13 @@ class BaseIncrementalSearchCV(ParallelPostFit):
                 )
             )
 
-        X = self._check_array(X)
-        y = self._check_array(y, ensure_2d=False)
+        if isinstance(X, dd.DataFrame):
+            X = X.to_dask_array()
+        if isinstance(y, (dd.DataFrame, dd.Series)):
+            y = y.to_dask_array()
+        kwargs = dict(accept_unknown_chunks=False, accept_dask_dataframe=False)
+        X = self._check_array(X, **kwargs)
+        y = self._check_array(y, ensure_2d=False, **kwargs)
         scorer = check_scoring(self.estimator, scoring=self.scoring)
         return X, y, scorer
 
