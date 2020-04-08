@@ -201,7 +201,8 @@ class PCA(sklearn.decomposition.PCA):
         self._fit(X)
         return self
 
-    def _fit(self, X):
+    def _get_solver(self, X, n_components):
+        n_samples, n_features = X.shape
         solvers = {"full", "auto", "tsqr", "randomized"}
         solver = self.svd_solver
 
@@ -209,22 +210,6 @@ class PCA(sklearn.decomposition.PCA):
             raise ValueError(
                 "Invalid solver '{}'. Must be one of {}".format(solver, solvers)
             )
-
-        if isinstance(X, dd.DataFrame):
-            X = X.values
-
-        # Handle n_components==None
-        if self.n_components is None:
-            # TODO: handle nan shapes
-            n_components = min(X.shape)
-        elif 0 < self.n_components < 1:
-            raise NotImplementedError(
-                "Fractional 'n_components' is not " "currently supported"
-            )
-        else:
-            n_components = self.n_components
-
-        n_samples, n_features = X.shape
 
         if solver == "auto":
             # Small problem, just call full PCA
@@ -261,6 +246,25 @@ class PCA(sklearn.decomposition.PCA):
                 )
             )
             raise ValueError(msg)
+        return solver
+
+    def _fit(self, X):
+        if isinstance(X, dd.DataFrame):
+            X = X.values
+
+        # Handle n_components==None
+        if self.n_components is None:
+            # TODO: handle nan shapes
+            n_components = min(X.shape)
+        elif 0 < self.n_components < 1:
+            raise NotImplementedError(
+                "Fractional 'n_components' is not " "currently supported"
+            )
+        else:
+            n_components = self.n_components
+
+        n_samples, n_features = X.shape
+        solver = self._get_solver(X, n_components)
 
         self.mean_ = X.mean(0)
         X -= self.mean_
