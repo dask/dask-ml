@@ -237,9 +237,10 @@ def _test_search_basic(decay_rate, input_type, memory, c, s, a, b):
     if memory == "distributed" and input_type == "dataframe":
         with pytest.raises(TypeError, match=r"to_dask_array\(lengths=True\)"):
             yield search.fit(X, y, classes=[0, 1])
-        return  # skip the rest of the test
-    else:
-        yield search.fit(X, y, classes=[0, 1])
+        return  # exit the test; some test difficulties with below statements
+        #  yield X.to_dask_array(lengths=True)
+        #  yield y.to_dask_array(lengths=True)
+    yield search.fit(X, y, classes=[0, 1])
 
     assert search.history_
     for d in search.history_:
