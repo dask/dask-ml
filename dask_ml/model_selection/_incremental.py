@@ -448,6 +448,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
                 )
             )
 
+        # Make sure dask arrays are passed so error on unknown chunk size is raised
         if isinstance(X, dd.DataFrame):
             X = X.to_dask_array()
         if isinstance(y, (dd.DataFrame, dd.Series)):
