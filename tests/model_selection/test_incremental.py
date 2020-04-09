@@ -1,6 +1,8 @@
+import itertools
 import random
 
 import dask.array as da
+import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import pytest
@@ -206,13 +208,28 @@ def test_explicit(c, s, a, b):
 
 @gen_cluster(client=True)
 def test_search_basic(c, s, a, b):
-    for decay_rate in {0, 1}:
-        yield _test_search_basic(decay_rate, c, s, a, b)
+    for decay_rate, input_type, memory in itertools.product(
+        {0, 1}, ["array", "dataframe"], ["distributed"]
+    ):
+        print(decay_rate, input_type, memory)
+        yield _test_search_basic(decay_rate, input_type, memory, c, s, a, b)
 
 
 @gen.coroutine
-def _test_search_basic(decay_rate, c, s, a, b):
+def _test_search_basic(decay_rate, input_type, memory, c, s, a, b):
     X, y = make_classification(n_samples=1000, n_features=5, chunks=(100, 5))
+    assert isinstance(X, da.Array)
+    if memory == "distributed" and input_type == "dataframe":
+        X = dd.from_array(X)
+        y = dd.from_array(y)
+        assert isinstance(X, dd.DataFrame)
+    elif memory == "local":
+        X, y = yield c.compute([X, y])
+        assert isinstance(X, np.ndarray)
+        if input_type == "dataframe":
+            X, y = pd.DataFrame(X), pd.DataFrame(y)
+            assert isinstance(X, pd.DataFrame)
+
     model = SGDClassifier(tol=1e-3, loss="log", penalty="elasticnet")
 
     params = {"alpha": np.logspace(-2, 2, 100), "l1_ratio": np.linspace(0.01, 1, 200)}
@@ -220,6 +237,12 @@ def _test_search_basic(decay_rate, c, s, a, b):
     search = IncrementalSearchCV(
         model, params, n_initial_parameters=20, max_iter=10, decay_rate=decay_rate
     )
+    if memory == "distributed" and input_type == "dataframe":
+        with pytest.raises(TypeError, match=r"to_dask_array\(lengths=True\)"):
+            yield search.fit(X, y, classes=[0, 1])
+        return  # exit the test; some test difficulties with below statements
+        #  yield X.to_dask_array(lengths=True)
+        #  yield y.to_dask_array(lengths=True)
     yield search.fit(X, y, classes=[0, 1])
 
     assert search.history_

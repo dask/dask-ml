@@ -7,6 +7,7 @@ from time import time
 
 import dask
 import dask.array as da
+import dask.dataframe as dd
 import numpy as np
 import scipy.stats
 import toolz
@@ -447,8 +448,14 @@ class BaseIncrementalSearchCV(ParallelPostFit):
                 )
             )
 
-        X = self._check_array(X)
-        y = self._check_array(y, ensure_2d=False)
+        # Make sure dask arrays are passed so error on unknown chunk size is raised
+        if isinstance(X, dd.DataFrame):
+            X = X.to_dask_array()
+        if isinstance(y, (dd.DataFrame, dd.Series)):
+            y = y.to_dask_array()
+        kwargs = dict(accept_unknown_chunks=False, accept_dask_dataframe=False)
+        X = self._check_array(X, **kwargs)
+        y = self._check_array(y, ensure_2d=False, **kwargs)
         scorer = check_scoring(self.estimator, scoring=self.scoring)
         return X, y, scorer
 
