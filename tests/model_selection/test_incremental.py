@@ -8,12 +8,12 @@ import pytest
 import scipy
 import toolz
 from dask.distributed import Future
-from distributed.utils_test import (
+from distributed.utils_test import (  # noqa: F401
+    captured_logger,
     cluster,
     gen_cluster,
     loop,
-    captured_logger,
-)  # noqa: F401
+)
 from sklearn.base import clone
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.linear_model import SGDClassifier

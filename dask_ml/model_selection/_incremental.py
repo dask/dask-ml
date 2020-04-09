@@ -23,8 +23,8 @@ from sklearn.utils.metaestimators import if_delegate_has_method
 from tornado import gen
 
 from .._compat import check_is_fitted
-from ..utils import check_array
 from .._utils import LoggingContext
+from ..utils import check_array
 from ..wrappers import ParallelPostFit
 from ._split import train_test_split
 
