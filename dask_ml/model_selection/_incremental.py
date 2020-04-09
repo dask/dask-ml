@@ -7,11 +7,11 @@ from time import time
 
 import dask
 import dask.array as da
+import dask.dataframe as dd
 import numpy as np
 import scipy.stats
 import toolz
 from dask.distributed import Future, default_client, futures_of, wait
-import dask.dataframe as dd
 from distributed.utils import log_errors
 from sklearn.base import clone
 from sklearn.metrics import check_scoring

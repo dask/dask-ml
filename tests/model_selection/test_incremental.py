@@ -1,14 +1,14 @@
-import random
 import itertools
+import random
 
 import dask.array as da
+import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import pytest
 import scipy
 import toolz
 from dask.distributed import Future
-import dask.dataframe as dd
 from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
 from sklearn.base import clone
 from sklearn.cluster import MiniBatchKMeans
