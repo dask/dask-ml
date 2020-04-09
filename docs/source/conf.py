@@ -17,10 +17,6 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
-import shutil
-import subprocess
-
 import packaging.version
 
 import dask_sphinx_theme
@@ -47,9 +43,7 @@ extensions = [
     "sphinx.ext.extlinks",
     "IPython.sphinxext.ipython_console_highlighting",
     "IPython.sphinxext.ipython_directive",
-    "nbsphinx",
     "numpydoc",
-    # 'sphinx_gallery.gen_gallery',
 ]
 
 intersphinx_mapping = {
@@ -59,22 +53,6 @@ intersphinx_mapping = {
     "distributed": ("https://distributed.dask.org/en/latest/", None),
     "dask_glm": ("http://dask-glm.readthedocs.io/en/latest/", None),
 }
-
-sphinx_gallery_conf = {
-    "examples_dir": "../examples",
-    "gallery_dirs": "source/auto_examples",
-    "backreferences_dir": False,
-}
-
-nbsphinx_timeout = 600
-nbsphinx_prolog = """
-{% set docname = env.doc2path(env.docname, base=None) %}
-
-You can run this notebook in a `live session <https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab/tree/{{ docname }}>`_ |Binder| or view it `on Github <https://github.com/dask/dask-examples/blob/master/{{ docname }}>`_.
-
-.. |Binder| image:: https://mybinder.org/badge.svg
-   :target: https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab/tree/{{ docname }}>
-"""
 
 numpydoc_class_members_toctree = False
 autodoc_default_flags = ["members", "inherited-members"]
@@ -197,48 +175,6 @@ texinfo_documents = [
         "Miscellaneous",
     )
 ]
-
-
-def generate_example_rst(app, what, name, obj, options, lines):
-    # generate empty examples files, so that we don't get
-    # inclusion errors if there are no examples for a class / module
-    examples_path = os.path.join(
-        app.srcdir, "modules", "generated", "%s.examples" % name
-    )
-    if not os.path.exists(examples_path):
-        # touch file
-        open(examples_path, "w").close()
-
-
-def update_examples(app):
-    import nbformat
-
-    print("Updating dask-examples")
-    if not os.path.exists("dask-examples"):
-        subprocess.run(["git", "clone", "https://github.com/dask/dask-examples"])
-    else:
-        subprocess.run(["git", "-C", "dask-examples", "pull"])
-
-    src_dir = "dask-examples/machine-learning"
-    dst_dir = "source/examples"
-
-    skip_execution = {"training-on-large-datasets.ipynb"}
-
-    for file in os.listdir(src_dir):
-        if file.endswith(".ipynb"):
-            if file in skip_execution:
-                print("Disabling execution for file", file)
-                nb = nbformat.read(os.path.join(src_dir, file), nbformat.NO_CONVERT)
-                nb["metadata"].setdefault("nbsphinx", {})
-                nb["metadata"]["nbsphinx"]["execute"] = "never"
-                nbformat.write(nb, os.path.join(src_dir, file))
-
-            shutil.copy(os.path.join(src_dir, file), os.path.join(dst_dir, file))
-
-
-def setup(app):
-    app.connect("autodoc-process-docstring", generate_example_rst)
-    app.connect("builder-inited", update_examples)
 
 
 extlinks = {

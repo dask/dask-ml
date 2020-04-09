@@ -12,6 +12,7 @@ dependencies:
   - ipython
   - isort
   - multipledispatch
+  - mypy
   - nbsphinx
   - nomkl
   - nose

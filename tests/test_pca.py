@@ -14,7 +14,7 @@ from sklearn.utils import check_random_state as sk_check_random_state
 
 import dask_ml.decomposition as dd
 from dask_ml.decomposition._compat import _assess_dimension_, _infer_dimension_
-from dask_ml.utils import assert_estimator_equal
+from dask_ml.utils import assert_estimator_equal, svd_flip
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore", FutureWarning)
@@ -203,6 +203,7 @@ def test_explained_variance():
     assert_array_almost_equal(
         pca.explained_variance_ratio_, apca.explained_variance_ratio_, 3
     )
+    assert_array_almost_equal(pca.noise_variance_, apca.noise_variance_, 3)
 
     rpca = dd.PCA(
         n_components=2, svd_solver="randomized", random_state=42, iterated_power=1
@@ -211,6 +212,7 @@ def test_explained_variance():
     assert_array_almost_equal(
         pca.explained_variance_ratio_, rpca.explained_variance_ratio_, 1
     )
+    assert_array_almost_equal(pca.noise_variance_, rpca.noise_variance_, 1)
 
     # compare to empirical variances
     expected_result = np.linalg.eig(np.cov(X, rowvar=False))[0]
@@ -782,3 +784,22 @@ def test_pca_sklearn_inputs(input_type, solver):
         a.fit(Y)
     with pytest.raises(TypeError, match="unsupported type"):
         a.fit_transform(Y)
+
+
+def test_svd_flip():
+    rng = np.random.RandomState(0)
+    u = rng.randn(8, 3)
+    v = rng.randn(3, 10)
+    u = da.from_array(u, chunks=(-1, -1))
+    v = da.from_array(v, chunks=(-1, -1))
+    u2, v2 = svd_flip(u, v)
+
+    def set_readonly(x):
+        x.setflags(write=False)
+        return x
+
+    u = u.map_blocks(set_readonly)
+    v = v.map_blocks(set_readonly)
+    u, v = svd_flip(u, v)
+    assert_eq(u, u2)
+    assert_eq(v, v2)

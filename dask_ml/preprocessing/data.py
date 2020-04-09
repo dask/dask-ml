@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import sklearn.preprocessing
 from dask import compute
+from dask.array import nanmean, nanvar
 from pandas.api.types import is_categorical_dtype
 from scipy import stats
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -53,10 +54,10 @@ class StandardScaler(sklearn.preprocessing.StandardScaler):
             X = X.values
 
         if self.with_mean:
-            mean_ = X.mean(0)
+            mean_ = nanmean(X, 0)
             attributes["mean_"] = mean_
         if self.with_std:
-            var_ = X.var(0)
+            var_ = nanvar(X, 0)
             scale_ = var_.copy()
             scale_[scale_ == 0] = 1
             scale_ = da.sqrt(scale_)
@@ -280,7 +281,7 @@ class QuantileTransformer(sklearn.preprocessing.QuantileTransformer):
     def _dense_fit(self, X, random_state):
         references = self.references_ * 100
         quantiles = [da.percentile(col, references) for col in X.T]
-        self.quantiles_, = compute(da.vstack(quantiles).T)
+        (self.quantiles_,) = compute(da.vstack(quantiles).T)
 
     def _transform(self, X, inverse=False):
         X = X.copy()  # ...
@@ -657,7 +658,7 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
         if not X.columns.equals(self.columns_):
             raise ValueError(
                 "Columns of 'X' do not match the training "
-                "columns. Got {!r}, expected {!r}".format(X.columns, self.columns)
+                "columns. Got {!r}, expected {!r}".format(X.columns, self.columns_)
             )
         if isinstance(X, pd.DataFrame):
             return pd.get_dummies(X, drop_first=self.drop_first, columns=self.columns)

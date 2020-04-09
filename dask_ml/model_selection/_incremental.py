@@ -497,7 +497,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
     def _get_params(self):
         """Parameters to pass to `fit`.
 
-        By defualt, a GridSearch over ``self.parameters`` is used.
+        By default, a GridSearch over ``self.parameters`` is used.
         """
         return ParameterGrid(self.parameters)
 
@@ -652,7 +652,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         or ``scoring`` must be passed. The estimator must implement
         ``partial_fit``, ``set_params``, and work well with ``clone``.
 
-    param_distributions : dict
+    parameters : dict
         Dictionary with parameters names (string) as keys and distributions
         or lists of parameters to try. Distributions must provide a ``rvs``
         method for sampling (such as those from scipy.stats.distributions).
@@ -844,7 +844,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
     def __init__(
         self,
         estimator,
-        param_distribution,
+        parameters,
         n_initial_parameters=10,
         decay_rate=0.0,
         test_size=None,
@@ -863,7 +863,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         self.max_iter = max_iter
         super(IncrementalSearchCV, self).__init__(
             estimator,
-            param_distribution,
+            parameters,
             test_size=test_size,
             random_state=random_state,
             scoring=scoring,

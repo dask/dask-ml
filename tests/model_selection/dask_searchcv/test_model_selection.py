@@ -7,6 +7,7 @@ from multiprocessing import cpu_count
 
 import dask
 import dask.array as da
+import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import pytest
@@ -21,6 +22,7 @@ from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.exceptions import FitFailedWarning, NotFittedError
 from sklearn.feature_selection import SelectKBest
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import (
     GridSearchCV,
     GroupKFold,
@@ -41,7 +43,7 @@ from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.svm import SVC
 
 import dask_ml.model_selection as dcv
-from dask_ml._compat import SK_022
+from dask_ml._compat import DISTRIBUTED_2_11_0, SK_022, WINDOWS
 from dask_ml.model_selection import check_cv, compute_n_splits
 from dask_ml.model_selection._search import _normalize_n_jobs
 from dask_ml.model_selection.methods import CVCache
@@ -327,6 +329,28 @@ def test_grid_search_dask_inputs():
 
         gs.fit(X, y, groups=groups)
         np.testing.assert_allclose(sol, gs.best_estimator_.support_vectors_)
+
+
+def test_grid_search_dask_dataframe():
+    iris = load_iris()
+    X = iris.data
+    y = iris.target
+
+    df = pd.DataFrame(X)
+    ddf = dd.from_pandas(df, 2)
+
+    dy = pd.Series(y)
+    ddy = dd.from_pandas(dy, 2)
+
+    clf = LogisticRegression(multi_class="auto", solver="lbfgs", max_iter=200)
+
+    param_grid = {"C": [0.1, 1, 10]}
+    gs = GridSearchCV(clf, param_grid, cv=5)
+    dgs = dcv.GridSearchCV(clf, param_grid, cv=5)
+    gs.fit(df, dy)
+    dgs.fit(ddf, ddy)
+
+    assert gs.best_params_ == dgs.best_params_
 
 
 def test_pipeline_feature_union():
@@ -807,8 +831,14 @@ def test_scheduler_param_distributed(loop):  # noqa
             assert client.run_on_scheduler(f)  # some work happened on cluster
 
 
+@pytest.mark.skipif(
+    WINDOWS, reason="https://github.com/dask/dask-ml/issues/611 TimeoutError"
+)
 def test_as_completed_distributed(loop):  # noqa
-    with cluster(active_rpc_timeout=10, nanny=Nanny) as (s, [a, b]):
+    cluster_kwargs = dict(active_rpc_timeout=10, nanny=Nanny)
+    if DISTRIBUTED_2_11_0:
+        cluster_kwargs["disconnect_timeout"] = 10
+    with cluster(**cluster_kwargs) as (s, [a, b]):
         with Client(s["address"], loop=loop) as c:
             counter_name = "counter_name"
             counter = Variable(counter_name, client=c)

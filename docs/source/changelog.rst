@@ -1,10 +1,29 @@
 Changelog
 =========
 
+Version 1.3.0
+~~~~~~~~~~~~~
+
+- Added ``shuffle`` support to :func:`dask_ml.model_selection.train_test_split` for ``DataFrame`` input (:pr:`625`)
+- Improved performance of :class:`dask_ml.model_selection.GridSearchCV` by re-using cached tasks (:pr:`622`)
+- Add support for ``DataFrame`` to :class:`dask_ml.model_selection.GridSearchCV` (:pr:`612`)
+- Fixed :meth:`dask_ml.linear_model.LinearRegression.score` to use ``r2_score`` rather than ``mse`` (:pr:`614`)
+- Handle missing data in :class:`dask_ml.preprocessing.StandardScaler` (:pr:`608`)
+
+Version 1.2.0
+~~~~~~~~~~~~~
+
+- Changed the name of the second positional argument in :class:`model_selection.IncrementalSearchCV` from ``param_distribution``
+  to ``parameters`` to match the name of the base class.
+- Compatibility with scikit-learn 0.22.1.
+- Added :class:`dask_ml.preprocessing.BlockTransfomer` an extension of scikit-learn's `FunctionTransformer` (:issue:`366`).
+- Added :class:`dask_ml.feature_extraction.FeatureHasher` which is similar to scikit-learn's implementation.
+
 Version 1.1.1
 ~~~~~~~~~~~~~
 
 - Fixed an issue with the 1.1.0 wheel (:issue:`575`)
+- Make svd_flip work even when arrays are read only (:issue:`592`)
 
 Version 1.1.0
 ~~~~~~~~~~~~~
