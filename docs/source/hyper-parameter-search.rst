@@ -8,7 +8,18 @@ data** *or* **more computational power.**
 Scaling hyperparameter searches
 -------------------------------
 
-Model selection searches are plagued by two issues:
+Dask-ML has a ton of tools to get around common issues in hyperparameter
+optimization:
+
+.. autosummary::
+   dask_ml.model_selection.GridSearchCV
+   dask_ml.model_selection.RandomizedSearchCV
+   dask_ml.model_selection.IncrementalSearchCV
+   dask_ml.model_selection.HyperbandSearchCV
+   dask_ml.model_selection.SuccessiveHalvingSearchCV
+
+What issues do these avoid? The two most common issues in hyperparameter
+optimization,
 
 1. The computation takes too long regardless of data size, a.k.a being
    **"compute constrained".** This typically happens when many hyperparameters
@@ -116,6 +127,17 @@ is a neural network to learn MNIST: it's a pretty small dataset (about 44MB) but
 These searches can reduce time to solution by (cleverly) deciding which
 parameters to evaluate. These searches *adapt* to history to decide which
 parameters to continue evaluating.
+
+.. autosummary::
+   dask_ml.model_selection.IncrementalSearchCV
+
+For this case, :class:`~dask_ml.model_selection.IncrementalSearchCV` can also
+be used with ``decay_rate=1``. This will vaguely mirror the number of
+``partial_fit`` calls on each model performed by
+:class:`~dask_ml.model_selection.SuccessiveHalvingSearchCV`. Use of
+:class:`~dask_ml.model_selection.IncrementalSearchCV` to replace the most
+aggressive bracket of :class:`~dask_ml.model_selection.HyperbandSearchCV` might
+find good models.
 
 Compute and memory constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -325,10 +347,11 @@ also be applied to to :class:`~dask_ml.model_selection.IncrementalSearchCV` too.
 .. ipython:: python
 
     from dask.distributed import Client
-    client = Client()
-    import numpy as np
     from dask_ml.datasets import make_classification
+    from dask_ml.model_selection import train_test_split
+    client = Client()
     X, y = make_classification(chunks=20, random_state=0)
+    X_train, X_test, y_train, y_test = train_test_split(X, y)
 
 Our underlying model is an :class:`sklearn.linear_model.SGDClasifier`. We
 specify a few parameters common to each clone of the model:
@@ -342,8 +365,9 @@ We also define the distribution of parameters from which we will sample:
 
 .. ipython:: python
 
-    params = {'alpha': np.logspace(-2, 1, num=1000),
-              'l1_ratio': np.linspace(0, 1, num=1000),
+    from scipy.stats import uniform, loguniform
+    params = {'alpha': loguniform(1e-2, 1e0),  # or np.logspace
+              'l1_ratio': uniform(0, 1),  # or np.linspace
               'average': [True, False]}
 
 
@@ -355,9 +379,10 @@ train-and-score them until we find the best one.
     from dask_ml.model_selection import HyperbandSearchCV
 
     search = HyperbandSearchCV(clf, params, max_iter=81, random_state=0)
-    search.fit(X, y, classes=[0, 1]);
-    search.best_score_
+    search.fit(X_train, y_train, classes=[0, 1]);
     search.best_params_
+    search.best_score_
+    search.best_estimator_.score(X_test, y_test)
 
 Note that when you do post-fit tasks like ``search.score``, the underlying
 model's score method is used. If that is unable to handle a
@@ -368,12 +393,12 @@ to use post-estimation features like scoring or prediction, we recommend using
 .. ipython:: python
 
    from dask_ml.wrappers import ParallelPostFit
-   params = {'estimator__alpha': np.logspace(-2, 1, num=1000),
-             'estimator__l1_ratio': np.linspace(0, 1, num=1000)}
+   params = {'estimator__alpha': loguniform(1e-2, 1e0),
+             'estimator__l1_ratio': uniform(0, 1)}
    est = ParallelPostFit(SGDClassifier(tol=1e-3, random_state=0))
    search = HyperbandSearchCV(est, params, max_iter=9, random_state=0)
-   search.fit(X, y, classes=[0, 1]);
-   search.score(X, y)
+   search.fit(X_train, y_train, classes=[0, 1]);
+   search.score(X_test, y_test)
 
 Note that the parameter names include the ``estimator__`` prefix, as we're
 tuning the hyperparameters of the :class:`sklearn.linear_model.SGDClasifier`
@@ -390,19 +415,96 @@ niceties:
 
 * :class:`~dask_ml.model_selection.HyperbandSearchCV` will *quickly* find high
   performing models (and provably too!)
-* :class:`~dask_ml.model_selection.HyperbandSearchCV` has simple input
-  parameters (it only requires ``max_iter``). This is simpler than
-  :class:`~dask_ml.model_selection.RandomizedSearchCV`, which requires
-  ``max_iter`` and ``n_initial_parameters``.
+* There's a good rule-of-thumb to determine :class:`~dask_ml.model_selection.HyperbandSearchCV`'s input parameters
+  parameters.
 
-More detail and performance comparisons with
-:class:`~dask_ml.model_selection.IncrementalSearchCV` are in the Dask blog:
-"`Better and faster hyperparameter optimization with Dask
-<https://blog.dask.org/2019/09/30/dask-hyperparam-opt>`_", which includes a
-section on "`Hyperband parameters: rule of thumb
-<https://blog.dask.org/2019/09/30/dask-hyperparam-opt#hyperband-parameters-rule-of-thumb>`_,
-which mentions how to select ``max_iter`` and the Dask array chunk size.
+We'll illustrate the points below. The section
+:ref:`hyperparameter.incremental` already mentioned how to use this tool so
+let's show how well Hyperband does when the inputs are chosen with a
+rule-of-thumb. Let's use the model/params from above:
 
-:class:`~dask_ml.model_selection.IncrementalSearchCV` can adapt to previous
-scores by changing ``decay_rate`` (``decay_rate=1`` is suggested `if` it's
-changed).
+.. ipython:: python
+
+    clf = SGDClassifier(tol=1e-3, penalty='elasticnet', random_state=0)
+    params = {'alpha': loguniform(1e-2, 1e0),  # or np.logspace
+              'l1_ratio': uniform(0, 1),  # or np.linspace
+              'average': [True, False]}
+
+Hyperband parameters: rule-of-thumb
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+:class:`~dask_ml.model_selection.HyperbandSearchCV` has two inputs:
+
+1. ``max_iter``, which determines how many times to call ``partial_fit``
+2. the chunk size of the Dask array, which determines how many data each
+   ``partial_fit`` call receives.
+
+These fall out pretty naturally once it's known how long to train the best
+model and very approximately how many parameters to sample:
+
+.. ipython:: python
+
+   n_examples = 20 * len(X_train)  # 20 passes through dataset for best model
+   n_params = 81  # approximate number of parameters to sample
+
+   # Inputs to Hyperband
+   max_iter = n_params
+   chunk_size = n_examples // n_params  # implicit
+
+Now that we've determined the inputs, let's create our search object and
+rechunk the Dask array:
+
+.. ipython:: python
+
+   search = HyperbandSearchCV(clf, params, max_iter=max_iter, aggressiveness=4, random_state=0)
+   X_train = X_train.rechunk((chunk_size, -1))
+   y_train = y_train.rechunk(chunk_size)
+
+
+We used ``aggressiveness=4`` because this is an initial search. I don't know
+much about the data, model or hyperparameters. If I knew more and had a at
+least some sense of what hyperparameters to use, I would specify
+``aggressiveness=3``, the default.
+
+The inputs to this rule-of-thumb are exactly what the user cares about:
+
+* A measure of how complex the search space is (via ``n_params``)
+* How long to train the best model (via ``n_examples``)
+* How confident they are in the hyperparameters (via ``aggressiveness``).
+
+Notably, there's no tradeoff between ``n_examples`` and ``n_params`` like with
+:class:`~dask_ml.model_selection.RandomizedSearchCV` because ``n_examples`` is
+only for *some* models, not for *all* models. There's more details on this
+rule-of-thumb in the "Notes" section of
+:class:`~dask_ml.model_selection.HyperbandSearchCV`
+
+However, this does not explicitly mention the amount of computation performed
+-- it's only an approximation. The amount of computation can be viewed like so:
+
+.. ipython:: python
+
+   meta = search.metadata
+   meta["partial_fit_calls"]  # best model will see `max_iter` chunks
+   meta["n_models"]  # actual number of parameters to sample
+
+If we wanted to do the same amount of work with some ``RandomizedSearchCV``
+object, we'd have to sample ``meta["partial_fit_calls"] / max_iter < 14``
+hyperparameters. Let's fit
+:class:`~dask_ml.model_selection.HyperbandSearchCV` with these different
+chunks:
+
+.. ipython:: python
+
+   search.fit(X_train, y_train, classes=[0, 1]);
+
+To be clear, this is a very small toy example: there are only 100 examples and
+20 features for each example. Let's see how the performance scales with a more
+realistic example.
+
+Performance
+^^^^^^^^^^^
+
+This performance comparison will briefly summarize the Dask blog post "`Better
+and faster hyperparameter optimization with Dask
+<https://blog.dask.org/2019/09/30/dask-hyperparam-opt>`_".
+
