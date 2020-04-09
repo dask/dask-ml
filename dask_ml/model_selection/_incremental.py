@@ -24,11 +24,12 @@ from tornado import gen
 
 from .._compat import check_is_fitted
 from ..utils import check_array
+from .._utils import LoggingContext
 from ..wrappers import ParallelPostFit
 from ._split import train_test_split
 
 Results = namedtuple("Results", ["info", "models", "history", "best"])
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("dask_ml.model_selection")
 
 
 def _partial_fit(model_and_meta, X, y, fit_params):
@@ -125,8 +126,9 @@ def _fit(
     verbose=False,
     prefix="",
 ):
-    if verbose:
-        logger.info("[CV%s] train, test examples = %d, %d", prefix, len(y_train), len(y_test))
+    logger.info(
+        "[CV%s] train, test examples = %d, %d", prefix, len(y_train), len(y_test)
+    )
     original_model = model
     fit_params = fit_params or {}
     client = default_client()
@@ -136,8 +138,7 @@ def _fit(
     models = {}
     scores = {}
 
-    if verbose:
-        logger.info("[CV%s] creating %d models", prefix, len(params))
+    logger.info("[CV%s] creating %d models", prefix, len(params))
     for ident, param in enumerate(params):
         model = client.submit(_create_model, original_model, ident, **param)
         info[ident] = []
@@ -220,10 +221,7 @@ def _fit(
         if verbose and _i % int(verbose) == 0:
             idx = np.argmax([m["score"] for m in metas])
             best = metas[idx]
-            msg = (
-                "[CV%s] test/validation score of %0.5f received after %d "
-                "partial_fit calls"
-            )
+            msg = "[CV%s] validation score of %0.4f received after %d partial_fit calls"
             logger.info(msg, prefix, best["score"], best["partial_fit_calls"])
 
         for meta in metas:
@@ -591,6 +589,15 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         X, y, scorer = self._validate_parameters(X, y)
         X_train, X_test, y_train, y_test = self._get_train_test_split(X, y)
 
+        if isinstance(self.verbose, float) and not (0 < self.verbose < 1):
+            msg = "verbose={} must not satisfy 0 < verbose < 1"
+            raise ValueError(msg.format(self.verbose))
+
+        # self.verbose specifies "set up logging"
+        # Always log messages to logging.INFO
+        verbose = (
+            True if not isinstance(self.verbose, float) else np.round(1 / self.verbose)
+        )
         results = yield fit(
             self.estimator,
             self._get_params(),
@@ -602,7 +609,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
             fit_params=fit_params,
             scorer=scorer,
             random_state=self.random_state,
-            verbose=self.verbose,
+            verbose=verbose,
             prefix=self.prefix,
         )
         results = self._process_results(results)
@@ -643,7 +650,19 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         **fit_params
             Additional partial fit keyword arguments for the estimator.
         """
-        return default_client().sync(self._fit, X, y, **fit_params)
+        if self.verbose:
+            logger.setLevel(logging.INFO)
+            h = logging.StreamHandler(sys.stdout)
+            self._h = h
+            self._logging_context = LoggingContext(
+                logger, level=logging.INFO, handler=h
+            )  # to aid with testing ease; not neccessary
+            with self._logging_context:
+                ret = default_client().sync(self._fit, X, y, **fit_params)
+            h.flush()
+            return ret
+        else:
+            return default_client().sync(self._fit, X, y, **fit_params)
 
     @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
     def decision_function(self, X):
@@ -759,23 +778,11 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
         If None, the estimator's default scorer (if available) is used.
 
-    verbose : bool, int, optional, default: False
-        If ``True``, log the best validation score received every
-        time possible. If an integer, print ``1 / verbose``
-        percent of the time.
-
-        The logger is available under the name ``dask_ml.model_selection``.
-        Logs can be piped to stdout with
-        ``logging.basicConfig(level=logging.INFO)``,
-        or with
-
-        .. code:: python
-
-           import logging
-           logger = logging.getLogger('dask_ml.model_selection')
-           logger.setLevel(logging.INFO)
-           logger.addHandler(logging.StreamHandler())
-
+    verbose : bool, float, optional, default: False
+        If specified, setup the logger to log information to stdout.
+        If ``True`` is specified, log the best validation score
+        received every time possible. If a float between 0 and 1 is specified,
+        print (approximately) ``verbose`` fraction of the time.
 
     Attributes
     ----------
@@ -945,7 +952,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         if not isinstance(self.patience, bool) and self.patience <= 1:
             raise ValueError(
                 "patience={}<=1 will always detect a plateau. "
-                "this, set\n\n    patience >= 2"
+                "To resolve this,\n\n    * set patience >= 2"
             )
 
         calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}

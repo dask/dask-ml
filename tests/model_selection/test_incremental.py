@@ -632,13 +632,55 @@ def test_history(c, s, a, b):
 
 @pytest.mark.parametrize("Search", [HyperbandSearchCV, IncrementalSearchCV])
 @pytest.mark.parametrize("verbose", [True, False])
-def test_verbosity(capsys, Search, verbose):
+def test_verbosity(Search, verbose):
+    max_iter = 15
+
     @gen_cluster(client=True)
     def _test_verbosity(c, s, a, b):
         X, y = make_classification(n_samples=10, n_features=4, chunks=10)
         model = ConstantFunction()
         params = {"value": scipy.stats.uniform(0, 1)}
-        search = Search(model, params, max_iter=9, verbose=verbose)
+        search = Search(model, params, max_iter=max_iter, verbose=verbose)
+        yield search.fit(X, y)
+        return search
+
+    # IncrementalSearchCV always logs to INFO
+    with captured_logger(logging.getLogger("dask_ml.model_selection")) as logs:
+        search = _test_verbosity()
+        messages = logs.getvalue().splitlines()
+    if verbose:
+        # If verbose, IncrementalSearchCV logs to stdout
+        # (this test has a hard time capturing that; see gh-528 for more
+        # detail)
+        assert hasattr(search, "_logging_context")
+        assert "FileIO" in str(
+            search._logging_context.handler
+        )  # FileIO is a proxy for stdout
+
+    # Make sure the messages are correct
+    assert any("score" in m for m in messages)
+    if "Hyperband" in str(Search):
+        assert all("[CV, bracket=" in m for m in messages)
+    else:
+        assert all("[CV]" in m for m in messages)
+
+    brackets = 3 if "Hyperband" in str(Search) else 1
+    assert sum("train, test examples" in m for m in messages) == brackets
+    assert sum("creating" in m and "models" in m for m in messages) == brackets
+
+
+@pytest.mark.parametrize("verbose", [1 / 2, 1 / 3, False])
+def test_verbosity_levels(capsys, verbose):
+    max_iter = 14
+
+    @gen_cluster(client=True)
+    def _test_verbosity(c, s, a, b):
+        X, y = make_classification(n_samples=10, n_features=4, chunks=10)
+        model = ConstantFunction()
+        params = {"value": scipy.stats.uniform(0, 1)}
+        search = IncrementalSearchCV(
+            model, params, max_iter=max_iter, verbose=verbose, decay_rate=0
+        )
         yield search.fit(X, y)
 
     with captured_logger(logging.getLogger("dask_ml.model_selection")) as logs:
@@ -646,17 +688,9 @@ def test_verbosity(capsys, Search, verbose):
         messages = logs.getvalue().splitlines()
 
     if verbose:
-        assert any("score" in m for m in messages)
-        if "Hyperband" in str(Search):
-            assert all("[CV, bracket=" in m for m in messages)
-        else:
-            assert all("[CV]" in m for m in messages)
-
-        brackets = 3 if "Hyperband" in str(Search) else 1
-        assert sum("train, test examples" in m for m in messages) == brackets
-        assert sum("creating" in m and "models" in m for m in messages) == brackets
+        assert len(messages) == pytest.approx(max_iter * verbose + 2, abs=1)
     else:
-        assert len(messages) == 0
+        assert len(messages) == max_iter + 2
 
 
 @gen_cluster(client=True)
