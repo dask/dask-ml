@@ -51,6 +51,7 @@ class ConstantFunction(BaseEstimator):
     def fit(self, *args):
         return self
 
+
 class LoggingContext:
     """
     Optionally change the logging level and add a logging handler purely
@@ -67,6 +68,7 @@ class LoggingContext:
 
     [1]:https://docs.python.org/3/howto/logging-cookbook.html#using-a-context-manager-for-selective-logging
     """
+
     def __init__(self, logger, level=None, handler=None, close=True):
         self.logger = logger
         self.level = level
