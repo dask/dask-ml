@@ -23,8 +23,18 @@ from ._utils import ConstantFunction
 logger = logging.getLogger()
 
 
+def _svd_flip_copy(x, y):
+    # If the array is locked, copy the array and transpose it
+    # This happens with a very large array > 1TB
+    # GH: issue 592
+    try:
+        return skm.svd_flip(x, y)
+    except ValueError:
+        return skm.svd_flip(x.copy(), y.copy())
+
+
 def svd_flip(u, v):
-    u2, v2 = delayed(skm.svd_flip, nout=2)(u, v)
+    u2, v2 = delayed(_svd_flip_copy, nout=2)(u, v)
     u = da.from_delayed(u2, shape=u.shape, dtype=u.dtype)
     v = da.from_delayed(v2, shape=v.shape, dtype=v.dtype)
     return u, v
@@ -86,7 +96,17 @@ def assert_estimator_equal(left, right, exclude=None, **kwargs):
         _assert_eq(l, r, **kwargs)
 
 
-def check_array(array, *args, **kwargs):
+def check_array(
+    array,
+    *args,
+    accept_dask_array=True,
+    accept_dask_dataframe=False,
+    accept_unknown_chunks=False,
+    accept_multiple_blocks=False,
+    preserve_pandas_dataframe=False,
+    remove_zero_chunks=True,
+    **kwargs
+):
     """Validate inputs
 
     Parameters
@@ -113,12 +133,6 @@ def check_array(array, *args, **kwargs):
     and passed to scikit-learn's ``check_array`` with all the additional
     arguments.
     """
-    accept_dask_array = kwargs.pop("accept_dask_array", True)
-    preserve_pandas_dataframe = kwargs.pop("preserve_pandas_dataframe", False)
-    accept_dask_dataframe = kwargs.pop("accept_dask_dataframe", False)
-    accept_unknown_chunks = kwargs.pop("accept_unknown_chunks", False)
-    accept_multiple_blocks = kwargs.pop("accept_multiple_blocks", False)
-
     if isinstance(array, da.Array):
         if not accept_dask_array:
             raise TypeError
@@ -135,6 +149,13 @@ def check_array(array, *args, **kwargs):
                     "rechunk to a single block along the second axis."
                 )
                 raise TypeError(msg)
+
+        if remove_zero_chunks:
+            if min(array.chunks[0]) == 0:
+                # scikit-learn does not gracefully handle length-0 chunks
+                # in some cases (e.g. pairwise_distances).
+                chunks2 = tuple(x for x in array.chunks[0] if x != 0)
+                array = array.rechunk({0: chunks2})
 
         # hmmm, we want to catch things like shape errors.
         # I'd like to make a small sample somehow

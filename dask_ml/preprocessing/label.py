@@ -7,12 +7,12 @@ import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import scipy.sparse
-from sklearn.preprocessing import label as sklabel
+import sklearn.preprocessing
 
 from .._compat import check_is_fitted
 
 
-class LabelEncoder(sklabel.LabelEncoder):
+class LabelEncoder(sklearn.preprocessing.LabelEncoder):
     """Encode labels with value between 0 and n_classes-1.
 
     .. note::

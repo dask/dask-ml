@@ -21,12 +21,15 @@ from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
 from tornado import gen
 
+from dask_ml._compat import DISTRIBUTED_2_5_0
 from dask_ml.datasets import make_classification
 from dask_ml.model_selection import HyperbandSearchCV, IncrementalSearchCV
 from dask_ml.model_selection._incremental import _partial_fit, _score, fit
 from dask_ml.model_selection.utils_test import LinearFunction, _MaybeLinearFunction
 from dask_ml.utils import ConstantFunction
 from dask_ml.wrappers import Incremental
+
+pytestmark = pytest.mark.skipif(not DISTRIBUTED_2_5_0, reason="hangs")
 
 
 @gen_cluster(client=True, timeout=500)
@@ -273,7 +276,7 @@ def _test_search_basic(decay_rate, c, s, a, b):
         "elapsed_wall_time",
     }
 
-    X_, = yield c.compute([X])
+    (X_,) = yield c.compute([X])
     # Dask Objects are lazy
 
     proba = search.predict_proba(X)
@@ -401,7 +404,7 @@ def test_transform(c, s, a, b):
     params = {"n_clusters": [3, 4, 5], "n_init": [1, 2]}
     search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
     yield search.fit(X, y)
-    X_, = yield c.compute([X])
+    (X_,) = yield c.compute([X])
     result = search.transform(X_)
     assert result.shape == (100, search.best_estimator_.n_clusters)
 
@@ -415,7 +418,7 @@ def test_small(c, s, a, b):
         model, params, n_initial_parameters="grid", decay_rate=0
     )
     yield search.fit(X, y, classes=[0, 1])
-    X_, = yield c.compute([X])
+    (X_,) = yield c.compute([X])
     search.predict(X_)
 
 
@@ -427,7 +430,7 @@ def test_smaller(c, s, a, b):
     params = {"alpha": [0.1, 0.5]}
     search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
     yield search.fit(X, y, classes=[0, 1])
-    X_, = yield c.compute([X])
+    (X_,) = yield c.compute([X])
     search.predict(X_)
 
 

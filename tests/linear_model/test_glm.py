@@ -169,3 +169,10 @@ def test_add_intercept_raises_chunks():
         add_intercept(X)
 
     assert m.match("Chunking is only allowed")
+
+
+def test_lr_score():
+    X = da.from_array(np.arange(1000).reshape(1000, 1))
+    lr = LinearRegression()
+    lr.fit(X, X)
+    assert lr.score(X, X) == pytest.approx(1, 0.001)

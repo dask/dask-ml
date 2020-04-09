@@ -138,6 +138,12 @@ Documentation
 
 We use `numpydoc <http://numpydoc.readthedocs.io/en/latest/format.html>`_ for our docstrings.
 
+Building the docs is possible with
+
+.. code-block:: none
+
+   $ conda env create -f ci/environment-docs.yaml --name=dask-ml-dev-docs
+
 Examples are written as Jupyter notebooks with their output stripped, either
 manually or using `nbstripout <https://github.com/kynan/nbstripout>`_. We want
 examples to be runnable on binder so they should be small, but include

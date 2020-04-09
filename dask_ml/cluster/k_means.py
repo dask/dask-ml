@@ -4,7 +4,6 @@ from numbers import Integral
 
 import dask.array as da
 import dask.dataframe as dd
-import numba
 import numpy as np
 import pandas as pd
 import sklearn.cluster
@@ -22,6 +21,9 @@ from ..metrics import (
 from ..utils import _timed, _timer, check_array, row_norms
 from ._compat import _k_init
 
+import numba  # isort:skip (see https://github.com/dask/dask-ml/pull/577)
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -34,7 +36,7 @@ class KMeans(TransformerMixin, BaseEstimator):
     n_clusters : int, default 8
         Number of clusters to end up with
     init : {'k-means||', 'k-means++' or ndarray}
-        Method for center initialization, defualts to 'k-means||'.
+        Method for center initialization, defaults to 'k-means||'.
 
         'k-means||' : selects the the gg
 
@@ -166,6 +168,7 @@ class KMeans(TransformerMixin, BaseEstimator):
             accept_dask_dataframe=False,
             accept_unknown_chunks=False,
             accept_sparse=False,
+            remove_zero_chunks=True,
         )
 
         if X.dtype == "int32":
@@ -410,7 +413,7 @@ def init_scalable(
     c_idx = {idx}
 
     # Step 2: Initialize cost
-    cost, = compute(evaluate_cost(X, centers))
+    (cost,) = compute(evaluate_cost(X, centers))
 
     if cost == 0:
         n_iter = 0
@@ -492,7 +495,7 @@ def _sample_points(X, centers, oversampling_factor, random_state):
     draws = random_state.uniform(size=len(p), chunks=p.chunks)
     picked = p > draws
 
-    new_idxs, = da.where(picked)
+    (new_idxs,) = da.where(picked)
     return new_idxs
 
 
@@ -542,7 +545,6 @@ def _kmeans_single_lloyd(
                 "i",
                 n_clusters,
                 None,
-                distances.astype(X.dtype),
                 "i",
                 adjust_chunks={"i": n_clusters, "j": P},
                 dtype=X.dtype,
@@ -554,7 +556,7 @@ def _kmeans_single_lloyd(
             # Require at least one per bucket, to avoid division by 0.
             counts = da.maximum(counts, 1)
             new_centers = new_centers / counts[:, None]
-            new_centers, = compute(new_centers)
+            (new_centers,) = compute(new_centers)
 
             # Convergence check
             shift = squared_norm(centers - new_centers)
@@ -575,7 +577,7 @@ def _kmeans_single_lloyd(
 
 
 @numba.njit(nogil=True, fastmath=True)
-def _centers_dense(X, labels, n_clusters, distances):
+def _centers_dense(X, labels, n_clusters):
     n_samples = X.shape[0]
     n_features = X.shape[1]
     centers = np.zeros((n_clusters, n_features), dtype=np.float64)

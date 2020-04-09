@@ -1,14 +1,21 @@
+from typing import Optional
+
 import dask
 import dask.array as da
 import numpy as np
-import packaging.version
 import sklearn.metrics
 import sklearn.utils.multiclass
 
-from .._compat import DASK_VERSION
+from .._typing import ArrayLike
 
 
-def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None, compute=True):
+def accuracy_score(
+    y_true: ArrayLike,
+    y_pred: ArrayLike,
+    normalize: bool = True,
+    sample_weight: Optional[ArrayLike] = None,
+    compute: bool = True,
+) -> ArrayLike:
     """Accuracy classification score.
 
     In multilabel classification, this function computes subset accuracy:
@@ -69,12 +76,6 @@ def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None, compute=T
     0.5
     """
 
-    no_average = DASK_VERSION <= packaging.version.parse("0.18.0")
-    if no_average and sample_weight is not None:
-        raise NotImplementedError(
-            "'sample_weight' is only supported for " "dask versions > 0.18.0."
-        )
-
     if y_true.ndim > 1:
         differing_labels = ((y_true - y_pred) == 0).all(1)
         score = differing_labels != 0
@@ -82,10 +83,7 @@ def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None, compute=T
         score = y_true == y_pred
 
     if normalize:
-        if no_average:
-            score = score.mean()
-        else:
-            score = da.average(score, weights=sample_weight)
+        score = da.average(score, weights=sample_weight)
     elif sample_weight is not None:
         score = da.dot(score, sample_weight)
     else:
@@ -96,7 +94,9 @@ def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None, compute=T
     return score
 
 
-def _log_loss_inner(x, y, sample_weight, **kwargs):
+def _log_loss_inner(
+    x: ArrayLike, y: ArrayLike, sample_weight: Optional[ArrayLike], **kwargs
+):
     # da.map_blocks wasn't able to concatenate together the results
     # when we reduce down to a scalar per block. So we make an
     # array with 1 element.
@@ -122,7 +122,7 @@ def log_loss(
 
     if y_pred.ndim > 1 and y_true.ndim == 1:
         y_true = y_true.reshape(-1, 1)
-        drop_axis = 1
+        drop_axis: Optional[int] = 1
         if sample_weight is not None:
             sample_weight = sample_weight.reshape(-1, 1)
     else:
