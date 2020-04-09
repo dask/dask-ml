@@ -1,26 +1,69 @@
 Hyper Parameter Search
 ======================
 
-*Tools for performing hyperparameter optimization of Scikit-Learn API-compatible models using Dask*.
+*Tools to perform hyperparameter optimizaiton of Scikit-Learn API-compatible
+models using Dask, and to scale hyperparameter optimization to either* **larger
+data** *or* **more computational power.**
 
-Scaling in hyperparameter searches
------------------------------------
+Scaling hyperparameter searches
+-------------------------------
 
-Dask-ML has tools to scale hyperparameter searches to either **more data** or
-**more computational power.** This means searches that Dask-ML's tools can
-have either of the following problems:
+Model selection searches are plagued by two issues:
 
-1. **Being "compute constrained".** e.g., this happens when many
-   hyperparameters need to be tuned (like the hyperparameter of neural
-   networks; learning rate, batch size, momentum, etc)
-2. **Being "memory constrained".** e.g., when a model needs to be tuned
-   for a larger-than-memory dataset.
+1. The computation takes too long regardless of data size, a.k.a being
+   **"compute constrained".** This typically happens when many hyperparameters
+   need to be tuned (like the hyperparameter of neural networks; learning rate,
+   batch size, momentum, etc)
+2. The dataset size is too large, a.k.a. being **"memory constrained".** This
+   typically happens when a model needs to be tuned for a larger-than-memory
+   dataset.
 
-These issues are independent and both can happen the same time.
-Dask-ML has the following tools to address these issues:
+These issues are independent and both can happen the same time. Here's an
+example of what "compute constrained" means:
+
+.. code:: python
+
+   from scipy.stats import uniform, loguniform
+   from sklearn.linear_model import SGDClasifier
+
+   model = SGDClasifier()
+
+   # not compute constrained
+   params = {"l1_ratio": uniform(0, 1)}
+
+   # compute constrained
+   params = {
+       "l1_ratio": uniform(0, 1),
+       "alpha": loguniform(1e-5, 1e-1),
+       "penalty": ["l2", "l1", "elasticnet"],
+       "learning_rate": ["invscaling", "adaptive"],
+       "power_t": uniform(0, 1),
+       "average": [True, False],
+   }
+
+Here's an example of what "memory constrained" means:
+
+.. code:: python
+
+   # not memory constrained
+   import pandas as pd
+   df = pd.read_csv("0.parquet")
+   print(df.shape)  # (30000, 200) => 23MB
+
+   # memory constrained
+   import dask.dataframe as dd
+   # Read 1000 of the above dataframes (22GB of data)
+   ddf = dd.read_parquet("*.parquet")
+
+
+Dask-ML addresses both these cases:
 
 Neither compute nor memory constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This case happens when there aren't many hyperparameters to search and the data
+is small, or if the search can run reasonably well on your laptop.
+
 Scikit-learn handles this case:
 
 .. autosummary::
@@ -29,6 +72,9 @@ Scikit-learn handles this case:
 
 Memory constrained, but not compute constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This case happens when the data is large but there aren't many hyperparameters
+to search over.
 
 Dask-ML has some drop in replacements for the Scikit-learn versions:
 
@@ -59,6 +105,10 @@ estimator cannot perform repeated cross-validation like
 Compute constrained, but not memory constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+This case happens when the data is small (or fits on in the memory of one
+machine) but there are a lot of hyperparameters to search. An example of this
+is a neural network to learn MNIST: it's a pretty small dataset (about 44MB) but requires a neural network and all the associated hyperparameters.
+
 .. autosummary::
    dask_ml.model_selection.HyperbandSearchCV
    dask_ml.model_selection.SuccessiveHalvingSearchCV
@@ -69,6 +119,9 @@ parameters to continue evaluating.
 
 Compute and memory constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This case happens when the dataset is larger than memory and there are many
+parameters to search.
 
 See :ref:`hyperparameter.compute-not-memory-constrained`. These estimators also
 work with larger-than-memory datasets.
@@ -97,9 +150,9 @@ In that case, why use Dask-ML's versions?
 - :ref:`Works well with Dask collections <works-with-dask-collections>`. Dask
   arrays, dataframes, and delayed can be passed to ``fit``.
 
-- :ref:`Avoid repeated work <avoid-repeated-work>`. Candidate estimators with
+- :ref:`Avoid repeated work <avoid-repeated-work>`. Candidate models with
   identical parameters and inputs will only be fit once. For
-  composite-estimators such as ``Pipeline`` this can be significantly more
+  composite-models such as ``Pipeline`` this can be significantly more
   efficient as it can avoid expensive repeated computations.
 
 Both scikit-learn's and Dask-ML's model selection meta-estimators can be used
@@ -157,9 +210,9 @@ This example will compute each CV split and store it on a single machine so
 Avoid Repeated Work
 ^^^^^^^^^^^^^^^^^^^
 
-When searching over composite estimators like ``sklearn.pipeline.Pipeline`` or
+When searching over composite models like ``sklearn.pipeline.Pipeline`` or
 ``sklearn.pipeline.FeatureUnion``, Dask-ML will avoid fitting the same
-estimator + parameter + data combination more than once. For pipelines with
+model + parameter + data combination more than once. For pipelines with
 expensive early steps this can be faster, as repeated work is avoided.
 
 For example, given the following 3-stage pipeline and grid (modified from `this
@@ -234,7 +287,7 @@ Looking closely, you can see that the Scikit-Learn version ends up fitting
 earlier steps in the pipeline multiple times with the same parameters and data.
 Due to the increased flexibility of Dask over Joblib, we're able to merge these
 tasks in the graph and only perform the fit step once for any
-parameter/data/estimator combination. For pipelines that have relatively
+parameter/data/model combination. For pipelines that have relatively
 expensive early steps, this can be a big win when performing a grid search.
 
 .. _hyperparameter.incremental:
@@ -253,11 +306,12 @@ These estimators act identically. The example will use
 
 .. note::
 
-   These estimators require that the estimator implement ``partial_fit``
+   These estimators require that the model implement ``partial_fit``
 
-By default, :class:`~dask_ml.model_selection.SuccessiveHalvingSearchCV` calls
-``partial_fit`` on each chunk of the data. It can stop training any estimators if
-their score stops increasing (via ``patience`` and ``tol``).
+By default, these class will call ``partial_fit`` on each chunk of the data.
+These classes can stop training any models if their score stops increasing
+(via ``patience`` and ``tol``). They even get one step fancier, and can choose
+which models to call ``partial_fit`` on.
 
 First, let's look at basic usage. Some more adaptive use will be detailed in
 :ref:`hyperparameter.adaptive`.
@@ -276,8 +330,8 @@ also be applied to to :class:`~dask_ml.model_selection.IncrementalSearchCV` too.
     from dask_ml.datasets import make_classification
     X, y = make_classification(chunks=20, random_state=0)
 
-Our underlying estimator is an :class:`sklearn.linear_model.SGDClasifier`. We
-specify a few parameters common to each clone of the estimator:
+Our underlying model is an :class:`sklearn.linear_model.SGDClasifier`. We
+specify a few parameters common to each clone of the model:
 
 .. ipython:: python
 
@@ -306,7 +360,7 @@ train-and-score them until we find the best one.
     search.best_params_
 
 Note that when you do post-fit tasks like ``search.score``, the underlying
-estimator's score method is used. If that is unable to handle a
+model's score method is used. If that is unable to handle a
 larger-than-memory Dask Array, you'll exhaust your machines memory. If you plan
 to use post-estimation features like scoring or prediction, we recommend using
 :class:`dask_ml.wrappers.ParallelPostFit`.
@@ -334,12 +388,20 @@ Adaptive Hyperparameter Optimization
 stop calling ``partial_fit`` by `adapting to previous calls`. It has several
 niceties:
 
-* it finds high performing estiamtors
-* it only requires ``max_iter`` (and does not require
-  ``n_initial_parameters``).
+* :class:`~dask_ml.model_selection.HyperbandSearchCV` will *quickly* find high
+  performing models (and provably too!)
+* :class:`~dask_ml.model_selection.HyperbandSearchCV` has simple input
+  parameters (it only requires ``max_iter``). This is simpler than
+  :class:`~dask_ml.model_selection.RandomizedSearchCV`, which requires
+  ``max_iter`` and ``n_initial_parameters``.
 
 More detail and performance comparisons with
-:class:`~dask_ml.model_selection.IncrementalSearchCV` are in the Dask blog: TODO.
+:class:`~dask_ml.model_selection.IncrementalSearchCV` are in the Dask blog:
+"`Better and faster hyperparameter optimization with Dask
+<https://blog.dask.org/2019/09/30/dask-hyperparam-opt>`_", which includes a
+section on "`Hyperband parameters: rule of thumb
+<https://blog.dask.org/2019/09/30/dask-hyperparam-opt#hyperband-parameters-rule-of-thumb>`_,
+which mentions how to select ``max_iter`` and the Dask array chunk size.
 
 :class:`~dask_ml.model_selection.IncrementalSearchCV` can adapt to previous
 scores by changing ``decay_rate`` (``decay_rate=1`` is suggested `if` it's
