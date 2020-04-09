@@ -1,5 +1,3 @@
-import logging
-import sys
 import time
 
 import dask.array as da
