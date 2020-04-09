@@ -90,4 +90,3 @@ class LoggingContext:
         if self.handler and self.close:
             self.handler.close()
         # implicit return of None => don't swallow exceptions
-
