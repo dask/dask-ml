@@ -692,6 +692,7 @@ def test_verbosity(Search, verbose):
     assert sum("train, test examples" in m for m in messages) == brackets
     assert sum("creating" in m and "models" in m for m in messages) == brackets
 
+
 @gen_cluster(client=True)
 def test_invalid_verbosity(c, s, a, b):
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
@@ -711,6 +712,7 @@ def test_invalid_verbosity(c, s, a, b):
         search = IncrementalSearchCV(model, params, verbose=verbose)
         with pytest.raises(TypeError, match="instance of float or bool"):
             yield search.fit(X, y)
+
 
 @pytest.mark.parametrize("verbose", [1 / 2, 1 / 3, False, True])
 def test_verbosity_levels(capsys, verbose):
