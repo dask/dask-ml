@@ -304,7 +304,7 @@ def fit(
     fit_params=None,
     scorer=None,
     random_state=None,
-    verbose=False,
+    verbose=1,
     prefix="",
 ):
     """ Find a good model and search among a space of hyper-parameters
@@ -345,12 +345,8 @@ def fit(
         If RandomState instance, random_state is the random number generator;
         If None, the random number generator is the RandomState instance used
         by `np.random`.
-    verbose : bool, float, optional, default: False
-        If ``False`` (default), log but  the best validation score, but do
-        not pipe to stdout aka "print".
-        If ``True``, log and print the best validation score received to
-        stdout every time possible.
-        If a float, log and print ``verbose`` percent of the time.
+    verbose : int, default=1
+        Print about `1 / verbose` percent of the time.
     prefix : str, optional, default: ""
         The string to print out in each debug message. Each message is prefixed
         with `[CV{prefix}]`.
