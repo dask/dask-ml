@@ -524,24 +524,19 @@ def test_same_models_with_random_state(c, s, a, b):
     X, y = make_classification(
         n_samples=100, n_features=2, chunks=(10, 5), random_state=0
     )
-    model = Incremental(
-        SGDClassifier(tol=-np.inf, penalty="elasticnet", random_state=42, eta0=0.1)
-    )
+    model = SGDClassifier(tol=-np.inf, penalty="elasticnet", random_state=42, eta0=0.1)
     params = {
         "loss": ["hinge", "log", "modified_huber", "squared_hinge", "perceptron"],
         "average": [True, False],
         "learning_rate": ["constant", "invscaling", "optimal"],
         "eta0": np.logspace(-2, 0, num=1000),
     }
-    params = {"estimator__" + k: v for k, v in params.items()}
-    search1 = IncrementalSearchCV(
-        clone(model), params, n_initial_parameters=10, random_state=0
-    )
-    search2 = IncrementalSearchCV(
-        clone(model), params, n_initial_parameters=10, random_state=0
-    )
+    kwargs = dict(n_initial_parameters=9, random_state=0, max_iter=9,)
 
+    search1 = IncrementalSearchCV(clone(model), params, **kwargs)
     yield search1.fit(X, y, classes=[0, 1])
+
+    search2 = IncrementalSearchCV(clone(model), params, **kwargs)
     yield search2.fit(X, y, classes=[0, 1])
 
     assert search1.best_score_ == search2.best_score_
