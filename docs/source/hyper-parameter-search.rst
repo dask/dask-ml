@@ -29,7 +29,8 @@ the hyperparameter search is...
    hyperparameters need to be tuned, which especially common with neural
    networks.
 
-Here's an example of what "memory constrained" means:
+"Memory constrained" searches happen when the data doesn't fit in the memory of
+a single machine:
 
 .. code:: python
 
@@ -43,7 +44,9 @@ Here's an example of what "memory constrained" means:
    # Read 1000 of the above dataframes (22GB of data)
    ddf = dd.read_parquet("*.parquet")
 
-Here's an example of what "compute constrained" means. Let's look at when
+"Compute constrained" is when the hyperparameter search takes too long even if
+the data fits in memory. There might a lot of hyperparameters to search, or the
+model may require specialized hardware like GPUs:
 
 .. code:: python
 
@@ -51,6 +54,7 @@ Here's an example of what "compute constrained" means. Let's look at when
    from sklearn.linear_model import SGDClasifier
 
    model = SGDClasifier()
+   df = pd.read_parquet("0.parquet")  # data to train on; 23MB as above
 
    # not compute constrained
    params = {"l1_ratio": uniform(0, 1)}
@@ -72,7 +76,7 @@ Neither compute nor memory constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This case happens when there aren't many hyperparameters to tune and the data
-fits in memory. This is common when the search can run on your laptop.
+fits in memory. This is common when the search doesn't take too long to run.
 
 Scikit-learn can handle this case:
 
@@ -110,13 +114,11 @@ estimators do that, possibly with some configuration:
 
 .. autosummary::
    dask_ml.model_selection.IncrementalSearchCV
-   dask_ml.model_selection.RandomizedSearchCV
-   dask_ml.model_selection.GridSearchCV
 
-A requirement for :class:`~dask_ml.model_selection.GridSearchCV` and
-:class:`~dask_ml.model_selection.RandomizedSearchCV` to call ``partial_fit`` on
-each chunk is that the model passed has to be wrapped with
-:class:`~dask_ml.wrappers.Incremental`.
+:class:`~dask_ml.model_selection.GridSearchCV` and
+:class:`~dask_ml.model_selection.RandomizedSearchCV` can to also call
+``partial_fit`` on each chunk of a Dask array, as long as the model passed is
+wrapped with :class:`~dask_ml.wrappers.Incremental`.
 
 More detail on :class:`~dask_ml.model_selection.IncrementalSearchCV` is in
 ":ref:`hyperparameter.incremental`".
@@ -157,10 +159,17 @@ To be useful for this case,
 be useful. Details are in the "Notes" section of
 :class:`~dask_ml.model_selection.IncrementalSearchCV`.
 
-:class:`~dask_ml.model_selection.GridSearchCV` and
-:class:`~dask_ml.model_selection.RandomizedSearchCV` avoid repeated work, which
-is especially useful with expensive preprocessing. This relies on the model
-being an instance of Scikit-learn's :class:`~sklearn.pipeline.Pipeline`. See
+All the estimators above determine which models to call ``partial_fit`` on.
+Another way to limit computation is to avoid repeated work in ``fit`` calls:
+
+.. autosummary::
+
+   dask_ml.model_selection.RandomizedSearchCV
+   dask_ml.model_selection.GridSearchCV
+
+These estimators avoid repeated work with a caching method, which is especially
+useful with expensive preprocessing. This relies on the model being an instance
+of Scikit-learn's :class:`~sklearn.pipeline.Pipeline`. See
 ":ref:`avoid-repeated-work`" for more detail.
 
 Compute and memory constrained
