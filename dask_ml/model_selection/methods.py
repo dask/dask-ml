@@ -11,7 +11,11 @@ from dask.base import normalize_token
 from scipy import sparse
 from scipy.stats import rankdata
 from sklearn.exceptions import FitFailedWarning
-from sklearn.pipeline import FeatureUnion, Pipeline
+from sklearn.pipeline import FeatureUnion
+try:
+    from imblearn.pipeline import Pipeline
+except:
+    from sklearn.pipeline import Pipeline
 from sklearn.utils.validation import check_consistent_length
 from toolz import pluck
 
@@ -258,9 +262,13 @@ def fit_transform(
             est = set_params(est, fields, params)
             if hasattr(est, "fit_transform"):
                 Xt = est.fit_transform(X, y, **fit_params)
+                yt = y
+            elif hasattr(est, "fit_resample"):
+                Xt, yt = est.fit_resample(X, y, **fit_params)
             else:
-                est.fit(X, y, **fit_params)
-                Xt = est.transform(X)
+               est.fit(X, y, **fit_params)
+               Xt = est.transform(X)
+               yt = y
         except Exception as e:
             if error_score == "raise":
                 raise
@@ -268,7 +276,7 @@ def fit_transform(
             est = Xt = FIT_FAILURE
         fit_time = default_timer() - start_time
 
-    return (est, fit_time), Xt
+    return (est, fit_time), Xt, yt
 
 
 def _score(est, X, y, scorer):

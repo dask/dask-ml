@@ -30,7 +30,11 @@ from sklearn.model_selection._split import (
     _BaseKFold,
     _CVIterableWrapper,
 )
-from sklearn.pipeline import FeatureUnion, Pipeline
+from sklearn.pipeline import FeatureUnion
+try:
+    from imblearn.pipeline import Pipeline
+except:
+    from sklearn.pipeline import Pipeline
 from sklearn.utils.metaestimators import if_delegate_has_method
 from sklearn.utils.multiclass import type_of_target
 from sklearn.utils.validation import _num_samples
@@ -326,7 +330,7 @@ def do_fit_and_score(
     scorer,
     return_train_score,
 ):
-    if not isinstance(est, Pipeline):
+    if not issubclass(type(est), Pipeline):
         # Fitting and scoring can all be done as a single task
         n_and_fit_params = _get_fit_params(cv, fit_params, n_splits)
 
@@ -384,7 +388,7 @@ def do_fit_and_score(
             y_trains,
             fit_params,
             n_splits,
-            error_score,
+            error_score
         )
 
         score_name = "score-" + main_token
@@ -430,7 +434,7 @@ def do_fit(
     n_splits,
     error_score,
 ):
-    if isinstance(est, Pipeline) and params is not None:
+    if issubclass(type(est), Pipeline) and params is not None:
         return _do_pipeline(
             dsk,
             next_token,
@@ -500,7 +504,7 @@ def do_fit_transform(
     n_splits,
     error_score,
 ):
-    if isinstance(est, Pipeline) and params is not None:
+    if issubclass(type(est), Pipeline) and params is not None:
         return _do_pipeline(
             dsk,
             next_token,
@@ -543,6 +547,7 @@ def do_fit_transform(
         fit_Xt_name = "%s-fit-transform-%s" % (name, token)
         fit_name = "%s-fit-%s" % (name, token)
         Xt_name = "%s-transform-%s" % (name, token)
+        yt_name = "%s-ytransform-%s" % (name, token)
         est_name = "%s-%s" % (type(est).__name__.lower(), token)
         dsk[est_name] = est
 
@@ -568,11 +573,12 @@ def do_fit_transform(
                     )
                     dsk[(fit_name, m, n)] = (getitem, (fit_Xt_name, m, n), 0)
                     dsk[(Xt_name, m, n)] = (getitem, (fit_Xt_name, m, n), 1)
+                    dsk[(yt_name, m, n)] = (getitem, (fit_Xt_name, m, n), 2)
                 seen[X, y, t] = m
                 out_append(m)
                 m += 1
 
-        return [(fit_name, i) for i in out], [(Xt_name, i) for i in out]
+        return [(fit_name, i) for i in out], [(Xt_name, i) for i in out], [(yt_name, i) for i in out]
 
 
 def _group_subparams(steps, fields, ignore=()):
@@ -631,6 +637,7 @@ def _do_fit_step(
         # The estimator may change each call
         new_fits = {}
         new_Xs = {}
+        new_ys = {}
         est_index = field_to_index[step_name]
 
         for ids in _group_ids_by_index(est_index, tokens):
@@ -660,7 +667,7 @@ def _do_fit_step(
                     sub_tokens = sub_params = None
 
                 if is_transform:
-                    sub_fits, sub_Xs = do_fit_transform(
+                    sub_fits, sub_Xs, sub_ys = do_fit_transform(
                         dsk,
                         next_token,
                         sub_est,
@@ -675,6 +682,7 @@ def _do_fit_step(
                         error_score,
                     )
                     new_Xs.update(zip(ids, sub_Xs))
+                    new_ys.update(zip(ids, sub_ys))
                     new_fits.update(zip(ids, sub_fits))
                 else:
                     sub_fits = do_fit(
@@ -696,6 +704,7 @@ def _do_fit_step(
         all_ids = list(range(len(Xs)))
         if is_transform:
             Xs = get(all_ids, new_Xs)
+            ys = get(all_ids, new_ys)
         fits = get(all_ids, new_fits)
     elif step is None or isinstance(step, str) and step == "drop":
         # Nothing to do
@@ -711,7 +720,7 @@ def _do_fit_step(
             sub_tokens = sub_params = None
 
         if is_transform:
-            fits, Xs = do_fit_transform(
+            fits, Xs, ys = do_fit_transform(
                 dsk,
                 next_token,
                 step,
@@ -740,7 +749,7 @@ def _do_fit_step(
                 n_splits,
                 error_score,
             )
-    return (fits, Xs) if is_transform else (fits, None)
+    return (fits, Xs, ys) if is_transform else (fits, None, None)
 
 
 def _do_pipeline(
@@ -770,7 +779,7 @@ def _do_pipeline(
 
     fit_steps = []
     for (step_name, step), transform in instrs:
-        fits, Xs = _do_fit_step(
+        fits, Xs, ys = _do_fit_step(
             dsk,
             next_token,
             step,
@@ -814,7 +823,7 @@ def _do_pipeline(
             m += 1
 
     if is_transform:
-        return out_ests, Xs
+        return out_ests, Xs, ys
     return out_ests
 
 
@@ -866,8 +875,9 @@ def _do_featureunion(
 
     fit_steps = []
     tr_Xs = []
+    tr_ys = []
     for (step_name, step) in est.transformer_list:
-        fits, out_Xs = _do_fit_step(
+        fits, out_Xs, out_ys = _do_fit_step(
             dsk,
             next_token,
             step,
@@ -889,6 +899,7 @@ def _do_featureunion(
         )
         fit_steps.append(fits)
         tr_Xs.append(out_Xs)
+        tr_ys.append(out_ys)
 
     # Rebuild the FeatureUnions
     step_names = [n for n, _ in est.transformer_list]
