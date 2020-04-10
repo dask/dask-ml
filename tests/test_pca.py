@@ -203,6 +203,7 @@ def test_explained_variance():
     assert_array_almost_equal(
         pca.explained_variance_ratio_, apca.explained_variance_ratio_, 3
     )
+    assert_array_almost_equal(pca.noise_variance_, apca.noise_variance_, 3)
 
     rpca = dd.PCA(
         n_components=2, svd_solver="randomized", random_state=42, iterated_power=1
@@ -211,6 +212,7 @@ def test_explained_variance():
     assert_array_almost_equal(
         pca.explained_variance_ratio_, rpca.explained_variance_ratio_, 1
     )
+    assert_array_almost_equal(pca.noise_variance_, rpca.noise_variance_, 1)
 
     # compare to empirical variances
     expected_result = np.linalg.eig(np.cov(X, rowvar=False))[0]

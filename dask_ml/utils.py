@@ -23,14 +23,14 @@ from ._utils import ConstantFunction
 logger = logging.getLogger()
 
 
-def _svd_flip_copy(x, y):
+def _svd_flip_copy(x, y, u_based_decision=True):
     # If the array is locked, copy the array and transpose it
     # This happens with a very large array > 1TB
     # GH: issue 592
     try:
-        return skm.svd_flip(x, y)
+        return skm.svd_flip(x, y, u_based_decision=u_based_decision)
     except ValueError:
-        return skm.svd_flip(x.copy(), y.copy())
+        return skm.svd_flip(x.copy(), y.copy(), u_based_decision=u_based_decision)
 
 
 def svd_flip(u, v):
@@ -139,7 +139,10 @@ def check_array(
         if not accept_unknown_chunks:
             if np.isnan(array.shape[0]):
                 raise TypeError(
-                    "Cannot operate on Dask array with unknown chunk sizes."
+                    "Cannot operate on Dask array with unknown chunk sizes. "
+                    "Use the following the compute chunk sizes:\n\n"
+                    "   >>> X.compute_chunk_sizes()  # if Dask.Array\n"
+                    "   >>> ddf.to_dask_array(lengths=True)  # if Dask.Dataframe"
                 )
         if not accept_multiple_blocks and array.ndim > 1:
             if len(array.chunks[1]) > 1:
