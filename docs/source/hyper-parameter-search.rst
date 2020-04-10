@@ -21,13 +21,13 @@ optimization:
 What issues do these avoid? The two most common issues in hyperparameter
 optimization,
 
-1. The computation takes too long regardless of data size, a.k.a being
-   **"compute constrained".** This typically happens when many hyperparameters
+1. The search is "**compute constrained**", or the computation takes too long
+   regardless of data size. This typically happens when many hyperparameters
    need to be tuned (like the hyperparameter of neural networks; learning rate,
    batch size, momentum, etc)
-2. The dataset size is too large, a.k.a. being **"memory constrained".** This
-   typically happens when a model needs to be tuned for a larger-than-memory
-   dataset.
+2. The search is "**memory constrained"**, or the dataset size is too large to
+   fit in memory. This typically happens when a model needs to be tuned for a
+   larger-than-memory dataset after local development.
 
 These issues are independent and both can happen the same time. Here's an
 example of what "compute constrained" means:
@@ -75,78 +75,106 @@ Neither compute nor memory constrained
 This case happens when there aren't many hyperparameters to search and the data
 is small, or if the search can run reasonably well on your laptop.
 
-Scikit-learn handles this case:
+Scikit-learn can handle this case:
 
 .. autosummary::
    sklearn.model_selection.GridSearchCV
    sklearn.model_selection.RandomizedSearchCV
 
-Memory constrained, but not compute constrained
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-This case happens when the data is large but there aren't many hyperparameters
-to search over.
-
-Dask-ML has some drop in replacements for the Scikit-learn versions:
+Dask-ML also has some drop in replacements for the Scikit-learn versions that
+works well with Dask.
 
 .. autosummary::
    dask_ml.model_selection.GridSearchCV
    dask_ml.model_selection.RandomizedSearchCV
 
-These estimators call ``fit`` on the data provided. The data provided to
-``fit`` should fit in the memory of one worker. By default, they score
-different models by training estimators in parallel and averaging their scores.
-They avoid unnecessary computation by avoiding repeated work (i.e., in
-pipelines). More detail is in :ref:`hyperparameter.drop-in`.
 
-This estimator mirrors randomized or grid search by default but generalizes to
-larger datasets by training each model on the entire dataset.
+These models work well with Dask Arrays/DataFrames. By default, these
+estimators will pass the entire dataset to ``fit`` even if a Dask
+Array/DataFrame is passed. More details are in ":ref:`hyperparameter.drop-in`".
+
+These estimators make some progress into hyperparameter searches that are
+"compute constrained" or "memory constrained". Details on the cases are
+mentioned below in ":ref:`hyperparameter.mem-ncpu`"and
+":ref:`hyperparameter.cpu-nmem`".
+
+.. _hyperparameter.mem-ncpu:
+
+Memory constrained, but not compute constrained
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This case happens when the data is large but there aren't many hyperparameters
+to search over. The data doesn't fit in memory, so it makes sense to call
+``partial_fit`` on each chunk of a Dask Array/Dataframe. These estimators do
+that, possibly with some configuration:
 
 .. autosummary::
    dask_ml.model_selection.IncrementalSearchCV
+   dask_ml.model_selection.RandomizedSearchCV
+   dask_ml.model_selection.GridSearchCV
 
-It does this by calling ``partial_fit`` on each chunk of the data.  This
-estimator cannot perform repeated cross-validation like
-:class:`~dask_ml.model_selection.RandomizedSearchCV` or
-:class:`~dask_ml.model_selection.GridSearchCV`. More detail is in
-:ref:`hyperparameter.incremental`.
+More detail on these estimators is in ":ref:`hyperparameter.incremental`".
 
-.. _hyperparameter.compute-not-memory-constrained:
+These estimators call ``partial_fit`` on each chunk of the data.  A requirement
+for :class:`~dask_ml.model_selection.GridSearchCV` and
+:class:`~dask_ml.model_selection.RandomizedSearchCV` to call ``partial_fit`` on
+each chunk is that the model passed has to be wrapped with
+:class:`~dask_ml.wrappers.Incremental`.
+
+
+.. _hyperparameter.cpu-nmem:
 
 Compute constrained, but not memory constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This case happens when the data is small (or fits on in the memory of one
-machine) but there are a lot of hyperparameters to search. An example of this
-is a neural network to learn MNIST: it's a pretty small dataset (about 44MB) but requires a neural network and all the associated hyperparameters.
+machine) but there are a lot of hyperparameters to search. We recommend use of
+this class:
 
 .. autosummary::
    dask_ml.model_selection.HyperbandSearchCV
-   dask_ml.model_selection.SuccessiveHalvingSearchCV
 
-These searches can reduce time to solution by (cleverly) deciding which
-parameters to evaluate. These searches *adapt* to history to decide which
-parameters to continue evaluating.
+More detail on this estimators is in ":ref:`hyperparameter.adaptive`".
+Details on exactly how to use this classifier and the rule-of-thumb to
+determine the input parameters to Hyperband are mentioned in
+":ref:`hyperparameter.hyperband-params`".
+
+Two other classes address "compute constrained but not memory constrained"
+searches. However, they are more difficult to use:
 
 .. autosummary::
+   dask_ml.model_selection.SuccessiveHalvingSearchCV
    dask_ml.model_selection.IncrementalSearchCV
 
-For this case, :class:`~dask_ml.model_selection.IncrementalSearchCV` can also
-be used with ``decay_rate=1``. This will vaguely mirror the number of
-``partial_fit`` calls on each model performed by
-:class:`~dask_ml.model_selection.SuccessiveHalvingSearchCV`. Use of
-:class:`~dask_ml.model_selection.IncrementalSearchCV` to replace the most
-aggressive bracket of :class:`~dask_ml.model_selection.HyperbandSearchCV` might
-find good models.
+All of these searches can reduce time to solution by (cleverly) deciding which
+parameters to evaluate. That is, these searches *adapt* to history to decide
+which parameters to continue evaluating.  All of these estimators support
+ignoring models models with decreasing score via the ``patience`` and ``tol``
+parameters.
+
+To be useful for this class,
+:class:`~dask_ml.model_selection.IncrementalSearchCV` requires
+``decay_rate=1``. To see why this `might` be useful, see the "Notes" section of
+:class:`~dask_ml.model_selection.IncrementalSearchCV`.
+
+:class:`~dask_ml.model_selection.GridSearchCV` and
+:class:`~dask_ml.model_selection.RandomizedSearchCV` avoid repeated work, which
+is especially useful with expensive preprocessing. This relies on the model
+being an instance of :class:`~sklearn.pipeline.Pipeline`. See
+":ref:`avoid-repeated-work`" for more detail.
 
 Compute and memory constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This case happens when the dataset is larger than memory and there are many
-parameters to search.
+parameters to search. In this case, it's useful to have strong support for Dask
+Arrays/DataFrames `and` to decide which models to continue training.
 
-See :ref:`hyperparameter.compute-not-memory-constrained`. These estimators also
-work with larger-than-memory datasets.
+See :ref:`hyperparameter.cpu-nmem` for detail.
+:class:`~dask_ml.model_selection.HyperbandSearchCV`
+:class:`~dask_ml.model_selection.SuccessiveHalvingSearchCV` and
+:class:`~dask_ml.model_selection.IncrementalSearchCV` are all useful for this
+case.
 
 .. _hyperparameter.drop-in:
 
@@ -336,7 +364,7 @@ These classes can stop training any models if their score stops increasing
 which models to call ``partial_fit`` on.
 
 First, let's look at basic usage. Some more adaptive use will be detailed in
-:ref:`hyperparameter.adaptive`.
+":ref:`hyperparameter.adaptive`".
 
 Basic use
 ^^^^^^^^^
@@ -419,16 +447,11 @@ niceties:
   parameters.
 
 We'll illustrate the points below. The section
-:ref:`hyperparameter.incremental` already mentioned how to use this tool so
+":ref:`hyperparameter.incremental`" already mentioned how to use this tool so
 let's show how well Hyperband does when the inputs are chosen with a
-rule-of-thumb. Let's use the model/params from above:
+rule-of-thumb.
 
-.. ipython:: python
-
-    clf = SGDClassifier(tol=1e-3, penalty='elasticnet', random_state=0)
-    params = {'alpha': loguniform(1e-2, 1e0),  # or np.logspace
-              'l1_ratio': uniform(0, 1),  # or np.linspace
-              'average': [True, False]}
+.. _hyperparameter.hyperband-params:
 
 Hyperband parameters: rule-of-thumb
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -445,9 +468,12 @@ model and very approximately how many parameters to sample:
 .. ipython:: python
 
    n_examples = 20 * len(X_train)  # 20 passes through dataset for best model
-   n_params = 81  # approximate number of parameters to sample
+   n_params = 81  # approximate number of parameters to sample; more will be sampled
 
-   # Inputs to Hyperband
+With this, it's easy use a rule-of-thumb to compute the inputs to Hyperband:
+
+.. ipython:: python
+
    max_iter = n_params
    chunk_size = n_examples // n_params  # implicit
 
@@ -456,6 +482,10 @@ rechunk the Dask array:
 
 .. ipython:: python
 
+   clf = SGDClassifier(tol=1e-3, penalty='elasticnet', random_state=0)
+   params = {'alpha': loguniform(1e-2, 1e0),  # or np.logspace
+             'l1_ratio': uniform(0, 1),  # or np.linspace
+             'average': [True, False]}
    search = HyperbandSearchCV(clf, params, max_iter=max_iter, aggressiveness=4, random_state=0)
    X_train = X_train.rechunk((chunk_size, -1))
    y_train = y_train.rechunk(chunk_size)
@@ -483,13 +513,12 @@ However, this does not explicitly mention the amount of computation performed
 
 .. ipython:: python
 
-   meta = search.metadata
-   meta["partial_fit_calls"]  # best model will see `max_iter` chunks
-   meta["n_models"]  # actual number of parameters to sample
+   search.metadata["partial_fit_calls"]  # best model will see `max_iter` chunks
+   search.metadata["n_models"]  # actual number of parameters to sample
 
-If we wanted to do the same amount of work with some ``RandomizedSearchCV``
-object, we'd have to sample ``meta["partial_fit_calls"] / max_iter < 14``
-hyperparameters. Let's fit
+This samples many more hyperparameters than ``RandomizedSearchCV``, which would
+only sample about 14 hyperparameters (or initialize 14 models) for the same
+amount of computation.  Let's fit
 :class:`~dask_ml.model_selection.HyperbandSearchCV` with these different
 chunks:
 
@@ -504,7 +533,85 @@ realistic example.
 Performance
 ^^^^^^^^^^^
 
-This performance comparison will briefly summarize the Dask blog post "`Better
-and faster hyperparameter optimization with Dask
+This performance comparison will briefly summarize an experiment to find
+performance results. This is similar to the case above, and complete details
+can be found in the Dask blog post "`Better and faster hyperparameter
+optimization with Dask
 <https://blog.dask.org/2019/09/30/dask-hyperparam-opt>`_".
 
+It will use these estimators with the following inputs:
+
+* Model: Scikit-learn's :class:`~sklearn.neural_network.MLPClassifier` with 12
+  neurons
+* Dataset: A simple synthetic dataset with 4 classes and 6 features (2
+  meaningful features and 4 random features):
+
+.. figure:: images/synthetic-dataset.png
+   :width: 30%
+   :align: center
+
+   The dataset to classify with 12 neurons in Scikit-learn's
+   :class:`~sklearn.neural_network.MLPClassifier`. The 4 classes are shown with
+   different colors, and 4 other random features are shown in addition to the
+   two useful features shown.
+
+Let's search for the best model to classify this dataset. Let's search over
+these parameters:
+
+* One hyperparameters that control optimal model architecture:
+  ``hidden_layer_sizes``. This can take values that have 12 neurons; for
+  example, 6 neurons in two layers or 4 neurons in 3 different layers.
+* Six hyperparameters that control finding the optimal model of a particular
+  architecture. This includes hyperparameters like weight decay and various
+  optimization parameters (including batch size, learning rate and momentum).
+
+Here's how we'll configure the two different estimators:
+
+1. "Incremental" will be ``IncrementalSearchCV(..., n_initial_parameters=19,
+   decay_rate=0)``
+2. "Hyperband" will be ``HyperbandSearchCV(..., max_iter=299,
+   aggressiveness=4)``
+
+These two estimators are configured do the same amount of computation, the
+equivalent of fitting about 19 models. With this amount of computation, how do
+the final accuracies look?
+
+.. figure:: images/synthetic-final-acc.svg
+   :width: 60%
+   :align: center
+
+   The final validation accuracy over 200 different runs of the estimators
+   above. Out of the 200 runs, the `worst` :class:`~dask_ml.model_selection.HyperbandSearchCV` run performed
+   better than 99 of the :class:`~dask_ml.models.IncrementalSearchCV` runs.
+
+This is great -- :class:`~dask_ml.model_selection.HyperbandSearchCV` looks to
+be a lot more confident than
+:class:`~dask_ml.model_selection.IncrementalSearchCV`. But how fast do these
+searches find models of (say) 85% accuracy? Experimentally, Hyperband reaches
+84% accuracy at about 350 passes through the dataset, and Incremental requires
+900 passes through the dataset:
+
+.. figure:: images/synthetic-val-acc.svg
+   :width: 60%
+   :align: center
+
+   The average accuracy obtained by each search after a certain number of
+   passes through the dataset. The green line is passes through the data
+   required to train 4 models to completion with 4 Dask workers.
+
+"Passes through the dataset" is a good proxy for "time to solution" in this
+case because only 4 Dask workers are used, and they're all busy for the vast
+majority of the search. How does this change with the number of workers?
+
+
+To see this, let's analyze how the time-to-completion for "hyperband" varies
+with the number of Dask workers in a seperate experiment.
+
+.. figure:: images/scaling-patience-true.svg
+   :width: 60%
+   :align: center
+
+   The time-to-completion for a single run of Hyperband as the number of Dask
+   workers vary.
+
+It looks like the speedup starts to saturate around 24 Dask workers.

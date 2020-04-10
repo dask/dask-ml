@@ -839,6 +839,15 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
            optimization. The Journal of Machine Learning Research, 18(1),
            6765-6816. http://www.jmlr.org/papers/volume18/16-558/16-558.pdf
 
+    Notes
+    -----
+    When ``decay_rate==1``, this class approximates the
+    number of ``partial_fit`` calls that :class:`SuccesiveHalvingSearchCV`
+    performs. If ``n_initial_parameters`` is configured properly with
+    ``decay_rate=1``, it's possible this class will mirror the most aggressive
+    bracket of :class:`HyperbandSearchCV`. This might yield good results
+    and/or find good models, but is untested.
+
     """
 
     def __init__(
