@@ -520,8 +520,9 @@ def test_same_params_with_random_state(c, s, a, b):
 
 @gen_cluster(client=True)
 def test_same_models_with_random_state(c, s, a, b):
+    n, d = 100, 10  # choose so d == n//10. Very unstable, models vary a lot.
     X, y = make_classification(
-        n_samples=100, n_features=2, chunks=(10, 5), random_state=0
+        n_samples=n, n_features=d, chunks=(n // 10, d), random_state=0
     )
     model = SGDClassifier(tol=-np.inf, penalty="elasticnet", random_state=42, eta0=0.1)
     params = {
@@ -529,8 +530,9 @@ def test_same_models_with_random_state(c, s, a, b):
         "average": [True, False],
         "learning_rate": ["constant", "invscaling", "optimal"],
         "eta0": np.logspace(-2, 0, num=1000),
+        "alpha": np.logspace(-5, -3, num=1000),
     }
-    kwargs = dict(n_initial_parameters=9, random_state=0, max_iter=9,)
+    kwargs = dict(n_initial_parameters=9, random_state=0, max_iter=20)
 
     search1 = IncrementalSearchCV(clone(model), params, **kwargs)
     yield search1.fit(X, y, classes=[0, 1])
