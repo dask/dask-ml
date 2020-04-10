@@ -648,17 +648,18 @@ def test_verbosity(Search, verbose):
     with captured_logger(logging.getLogger("dask_ml.model_selection")) as logs:
         search = _test_verbosity()
         messages = logs.getvalue().splitlines()
+
+    # Make sure we always log
+    assert any("score" in m for m in messages)
+
+    # If verbose=True, make sure logs to stdout
     if verbose:
-        # If verbose, IncrementalSearchCV logs to stdout
-        # (this test has a hard time capturing that; see gh-528 for more
-        # detail)
+        # (this test has a hard time capturing that; see gh-528 for more detail)
         assert hasattr(search, "_logging_context")
         assert "FileIO" in str(
             search._logging_context.handler
         )  # FileIO is a proxy for stdout
 
-    # Make sure the messages are correct
-    assert any("score" in m for m in messages)
     if "Hyperband" in str(Search):
         assert all("[CV, bracket=" in m for m in messages)
     else:
@@ -668,8 +669,27 @@ def test_verbosity(Search, verbose):
     assert sum("train, test examples" in m for m in messages) == brackets
     assert sum("creating" in m and "models" in m for m in messages) == brackets
 
+@gen_cluster(client=True)
+def test_invalid_verbosity(c, s, a, b):
+    X, y = make_classification(n_samples=10, n_features=4, chunks=10)
+    model = ConstantFunction()
+    params = {"value": scipy.stats.uniform(0, 1)}
 
-@pytest.mark.parametrize("verbose", [1 / 2, 1 / 3, False])
+    for verbose in [-1.0, -0.0, 0.0, 1 + 1e-10]:
+        search = IncrementalSearchCV(model, params, verbose=verbose)
+        with pytest.raises(ValueError, match="0 < verbose <= 1"):
+            yield search.fit(X, y)
+
+    verbose = 1.0
+    search = IncrementalSearchCV(model, params, verbose=verbose)
+    yield search.fit(X, y)
+
+    for verbose in [1, -1, 0, None, "foo", dict(), set(), list(), tuple()]:
+        search = IncrementalSearchCV(model, params, verbose=verbose)
+        with pytest.raises(TypeError, match="instance of float or bool"):
+            yield search.fit(X, y)
+
+@pytest.mark.parametrize("verbose", [1 / 2, 1 / 3, False, True])
 def test_verbosity_levels(capsys, verbose):
     max_iter = 14
 
@@ -687,10 +707,8 @@ def test_verbosity_levels(capsys, verbose):
         _test_verbosity()
         messages = logs.getvalue().splitlines()
 
-    if verbose:
-        assert len(messages) == pytest.approx(max_iter * verbose + 2, abs=1)
-    else:
-        assert len(messages) == max_iter + 2
+    factor = 1 if isinstance(verbose, bool) else verbose
+    assert len(messages) == pytest.approx(max_iter * factor + 2, abs=1)
 
 
 @gen_cluster(client=True)

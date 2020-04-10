@@ -123,7 +123,7 @@ def _fit(
     fit_params=None,
     scorer=None,
     random_state=None,
-    verbose=False,
+    verbose: int = 1,
     prefix="",
 ):
     logger.info(
@@ -218,7 +218,7 @@ def _fit(
     for _i in itertools.count():
         metas = yield client.gather(new_scores)
 
-        if verbose and _i % int(verbose) == 0:
+        if _i % int(verbose) == 0:
             idx = np.argmax([m["score"] for m in metas])
             best = metas[idx]
             msg = "[CV%s] validation score of %0.4f received after %d partial_fit calls"
@@ -344,10 +344,12 @@ def fit(
         If RandomState instance, random_state is the random number generator;
         If None, the random number generator is the RandomState instance used
         by `np.random`.
-    verbose : bool, int, optional, default: False
-        If ``True``, print the best validation score received to stdout every
-        time possible.  If an integer, print ``1 / verbose``
-        percent of the time.
+    verbose : bool, float, optional, default: False
+        If ``False`` (default), log but  the best validation score, but do
+        not pipe to stdout aka "print".
+        If ``True``, log and print the best validation score received to
+        stdout every time possible.
+        If a float, log and print ``verbose`` percent of the time.
     prefix : str, optional, default: ""
         The string to print out in each debug message. Each message is prefixed
         with `[CV{prefix}]`.
@@ -585,19 +587,10 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         return check_is_fitted(self, "best_estimator_")
 
     @gen.coroutine
-    def _fit(self, X, y, **fit_params):
+    def _fit(self, X, y, verbosity=1, **fit_params):
         X, y, scorer = self._validate_parameters(X, y)
         X_train, X_test, y_train, y_test = self._get_train_test_split(X, y)
 
-        if isinstance(self.verbose, float) and not (0 < self.verbose < 1):
-            msg = "verbose={} must not satisfy 0 < verbose < 1"
-            raise ValueError(msg.format(self.verbose))
-
-        # self.verbose specifies "set up logging"
-        # Always log messages to logging.INFO
-        verbose = (
-            True if not isinstance(self.verbose, float) else np.round(1 / self.verbose)
-        )
         results = yield fit(
             self.estimator,
             self._get_params(),
@@ -609,7 +602,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
             fit_params=fit_params,
             scorer=scorer,
             random_state=self.random_state,
-            verbose=verbose,
+            verbose=verbosity,
             prefix=self.prefix,
         )
         results = self._process_results(results)
@@ -650,6 +643,21 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         **fit_params
             Additional partial fit keyword arguments for the estimator.
         """
+        if isinstance(self.verbose, float) and not (0 < self.verbose <= 1):
+            msg = "verbose={} must satisfy 0 < verbose <= 1"
+            raise ValueError(msg.format(self.verbose))
+
+        if isinstance(self.verbose, bool):
+            # Log all the time if False or True.
+            # If True, logger will be configured to pipe to stdout
+            verbosity = 1
+        elif isinstance(self.verbose, float):
+            verbosity = np.round(1 / self.verbose)
+        else:
+            msg = "verbose must be an instance of float or bool. Got type={}"
+            raise TypeError(msg.format(type(self.verbose)))
+
+        kwargs = dict(verbosity=verbosity, **fit_params)
         if self.verbose:
             logger.setLevel(logging.INFO)
             h = logging.StreamHandler(sys.stdout)
@@ -658,11 +666,11 @@ class BaseIncrementalSearchCV(ParallelPostFit):
                 logger, level=logging.INFO, handler=h
             )  # to aid with testing ease; not neccessary
             with self._logging_context:
-                ret = default_client().sync(self._fit, X, y, **fit_params)
+                ret = default_client().sync(self._fit, X, y, **kwargs)
             h.flush()
             return ret
         else:
-            return default_client().sync(self._fit, X, y, **fit_params)
+            return default_client().sync(self._fit, X, y, **kwargs)
 
     @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
     def decision_function(self, X):
