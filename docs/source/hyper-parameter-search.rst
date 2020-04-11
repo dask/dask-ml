@@ -671,6 +671,8 @@ with the number of Dask workers in a seperate experiment.
    The time-to-completion for a single run of Hyperband as the number of Dask
    workers vary. The solid white line is the time required to train one model.
 
-It looks like the speedup starts to saturate around 24 Dask workers.
+It looks like the speedup starts to saturate around 24 Dask workers. This
+number will increase if the search space becomes larger or if model evaluation
+takes longer.
 
 .. [#f1] Approximately 300 parameters were desired; 299 was chosen to make the Dask array chunk evenly
