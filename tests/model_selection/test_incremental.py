@@ -525,7 +525,7 @@ def test_param_random_determinism(c, s, a, b):
 def test_model_random_determinism(c, s, a, b):
     # choose so d == n//10. Then each partial_fit call is very
     # unstable, so models will vary a lot.
-    n, d = 100, 10
+    n, d = 50, 5
     X, y = make_classification(
         n_samples=n, n_features=d, chunks=n // 10, random_state=0
     )
@@ -541,14 +541,13 @@ def test_model_random_determinism(c, s, a, b):
 
     search1 = IncrementalSearchCV(model, params, **kwargs)
     yield search1.fit(X, y, classes=[0, 1])
-    assert 0 < search1.best_score_
 
-    #  search2 = IncrementalSearchCV(clone(model), params, **kwargs)
-    #  await search2.fit(X, y, classes=[0, 1])
+    search2 = IncrementalSearchCV(clone(model), params, **kwargs)
+    yield search2.fit(X, y, classes=[0, 1])
 
-    #  assert search1.best_score_ == search2.best_score_
-    #  assert search1.best_params_ == search2.best_params_
-    #  assert np.allclose(search1.best_estimator_.coef_, search2.best_estimator_.coef_)
+    assert search1.best_score_ == search2.best_score_
+    assert search1.best_params_ == search2.best_params_
+    assert np.allclose(search1.best_estimator_.coef_, search2.best_estimator_.coef_)
 
 
 @gen_cluster(client=True)
