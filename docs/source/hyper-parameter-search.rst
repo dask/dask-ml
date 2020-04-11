@@ -5,6 +5,28 @@ Hyper Parameter Search
 models using Dask, and to scale hyperparameter optimization to either* **larger
 data** *or* **more computational power.**
 
+This page will presume knowledge of hyperparameter tuning/optimization; if not,
+see Scikit-learn's documentation on "`Tuning the hyper-parameters of an
+estimator <https://scikit-learn.org/stable/modules/grid_search.html>`_." The
+issues that arise in these hyperparameter searches will be explicitly mentioned
+in the following section:
+
+* :ref:`hyperparameter.scaling`: problems often seen in hyperparameter
+  optimization searches, and tools to get around these issues.
+  see
+
+Then, some tooling will be mentioned to circumvent the issues mentioned, and
+expanded on in the following sections:
+
+1. ":ref:`hyperparameter.drop-in`" will mention classes that are drop-in
+   replacements for Scikit-learn but work nicely with Dask objects.
+2. ":ref:`hyperparameter.incremental`" will mention classes that work well with
+   large datasets.
+3. ":ref:`hyperparameter.adaptive`" will mention classes that make clever
+   decisions to avoid extra computation.
+
+.. _hyperparameter.scaling:
+
 Scaling hyperparameter searches
 -------------------------------
 
@@ -109,19 +131,19 @@ Memory constrained, but not compute constrained
 
 This case happens when the data doesn't fit in memory but there aren't many
 hyperparameters to search over. The data doesn't fit in memory, so it makes
-sense to call ``partial_fit`` on each chunk of a Dask Array/Dataframe. These
-estimators do that, possibly with some configuration:
+sense to call ``partial_fit`` on each chunk of a Dask Array/Dataframe. This
+estimators does that:
 
 .. autosummary::
    dask_ml.model_selection.IncrementalSearchCV
+
+More detail on :class:`~dask_ml.model_selection.IncrementalSearchCV` is in
+":ref:`hyperparameter.incremental`".
 
 :class:`~dask_ml.model_selection.GridSearchCV` and
 :class:`~dask_ml.model_selection.RandomizedSearchCV` can to also call
 ``partial_fit`` on each chunk of a Dask array, as long as the model passed is
 wrapped with :class:`~dask_ml.wrappers.Incremental`.
-
-More detail on :class:`~dask_ml.model_selection.IncrementalSearchCV` is in
-":ref:`hyperparameter.incremental`".
 
 .. _hyperparameter.cpu-nmem:
 
@@ -147,29 +169,28 @@ searches. However, the input parameters are a more difficult to configure:
    dask_ml.model_selection.SuccessiveHalvingSearchCV
    dask_ml.model_selection.IncrementalSearchCV
 
-All of these searches can reduce time to solution by (cleverly) deciding which
-parameters to evaluate. That is, these searches *adapt* to history to decide
-which parameters to continue evaluating.  All of these estimators support
-ignoring models models with decreasing score via the ``patience`` and ``tol``
-parameters.
-
 To be useful for this case,
 :class:`~dask_ml.model_selection.IncrementalSearchCV` requires
 ``decay_rate=1``. This doesn't have any formal justification but could possibly
 be useful. Details are in the "Notes" section of
 :class:`~dask_ml.model_selection.IncrementalSearchCV`.
 
-All the estimators above determine which models to call ``partial_fit`` on.
-Another way to limit computation is to avoid repeated work in ``fit`` calls:
+All of these searches can reduce time to solution by (cleverly) deciding which
+parameters to evaluate. That is, these searches *adapt* to history to decide
+which parameters to continue evaluating.  All of these estimators support
+ignoring models models with decreasing score via the ``patience`` and ``tol``
+parameters.
+
+Another way to limit computation is to avoid repeated work in ``fit`` calls,
+which is especially useful with expensive preprocessing.
 
 .. autosummary::
 
    dask_ml.model_selection.RandomizedSearchCV
    dask_ml.model_selection.GridSearchCV
 
-These estimators avoid repeated work with a caching method, which is especially
-useful with expensive preprocessing. This relies on the model being an instance
-of Scikit-learn's :class:`~sklearn.pipeline.Pipeline`. See
+Avoiding repeated work with this class relies on the model being an instance of
+Scikit-learn's :class:`~sklearn.pipeline.Pipeline`.  See
 ":ref:`avoid-repeated-work`" for more detail.
 
 Compute and memory constrained
@@ -185,6 +206,20 @@ Arrays/DataFrames `and` to decide which models to continue training.
    dask_ml.model_selection.IncrementalSearchCV
 
 See :ref:`hyperparameter.cpu-nmem` for the details on these classes.
+
+----------
+
+Now, let's look at these classes in-depth.
+
+1. ":ref:`hyperparameter.drop-in`" will mention
+   :class:`~dask_ml.model_selection.RandomizedSearchCV` and
+   :class:`~dask_ml.model_selection.GridSearchCV`.
+2. ":ref:`hyperparameter.incremental`" will mention
+   :class:`~dask_ml.model_selection.IncrementalSearchCV` and all it's
+   subclasses (one of which is
+   :class:`~dask_ml.model_selection.HyperbandSearchCV`).
+3. ":ref:`hyperparameter.adaptive`" will mention usage and performance of
+   :class:`~dask_ml.model_selection.HyperbandSearchCV`.
 
 .. _hyperparameter.drop-in:
 
@@ -215,7 +250,7 @@ In that case, why use Dask-ML's versions?
   composite-models such as ``Pipeline`` this can be significantly more
   efficient as it can avoid expensive repeated computations.
 
-Both scikit-learn's and Dask-ML's model selection meta-estimators can be used
+Both Scikit-learn's and Dask-ML's model selection meta-estimators can be used
 with Dask's :ref:`joblib backend <joblib>`.
 
 .. _flexible-backends:
@@ -276,7 +311,7 @@ model + parameter + data combination more than once. For pipelines with
 expensive early steps this can be faster, as repeated work is avoided.
 
 For example, given the following 3-stage pipeline and grid (modified from `this
-scikit-learn example
+Scikit-learn example
 <http://scikit-learn.org/stable/auto_examples/model_selection/grid_search_text_feature_extraction.html>`__).
 
 .. code-block:: python
@@ -314,7 +349,7 @@ the Scikit-Learn grid-search implementation looks something like (simplified):
 As a directed acyclic graph, this might look like:
 
 .. figure:: images/unmerged_grid_search_graph.svg
-   :alt: "scikit-learn grid-search directed acyclic graph"
+   :alt: "Scikit-learn grid-search directed acyclic graph"
    :align: center
 
 
