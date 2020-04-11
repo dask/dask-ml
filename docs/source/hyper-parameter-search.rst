@@ -481,9 +481,22 @@ that's underlying the :class:`dask_ml.wrappers.ParallelPostFit`.
 Adaptive Hyperparameter Optimization
 ------------------------------------
 
-:class:`~dask_ml.model_selection.HyperbandSearchCV` determines when to
-stop calling ``partial_fit`` by `adapting to previous calls`. It has several
-niceties mentioned in the following sections:
+Dask-ML has these estimators that `adapt` to previous calls to ``partial_fit``
+and ``score`` to determine which models to continue training. This means high
+scoring models can be found with fewer cumulative calls to
+``partial_fit``.
+
+.. autosummary::
+   dask_ml.model_selection.HyperbandSearchCV
+   dask_ml.model_selection.SuccessiveHalvingSearchCV
+
+:class:`~dask_ml.model_selection.IncrementalSearchCV` also fits in this class
+when ``decay_rate=1``. All of these estimators require an implementation of
+``partial_fit``, and they all work with larger-than-memory datasets as
+mentioned in ":ref:`hyperparameter.incremental`".
+
+:class:`~dask_ml.model_selection.HyperbandSearchCV` has several niceties
+mentioned in the following sections:
 
 * :ref:`hyperparameter.hyperband-params`: a good rule-of-thumb to determine
   :class:`~dask_ml.model_selection.HyperbandSearchCV`'s input parameters.
@@ -612,7 +625,7 @@ these parameters:
 Here's how we'll configure the two different estimators:
 
 1. "Hyperband" will be configured with rule-of-thumb above with ``n_params =
-   299`` [#f1]_ and ``n_examples = 50*len(X_train)``.
+   299`` [#f1]_ and ``n_examples = 50 * len(X_train)``.
 2. "Incremental" will be configured to do the same amount of work as Hyperband
    with ``IncrementalSearchCV(..., n_initial_parameters=19, decay_rate=0)``
 
