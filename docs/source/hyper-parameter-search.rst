@@ -58,13 +58,13 @@ a single machine:
 
    # not memory constrained
    import pandas as pd
-   df = pd.read_csv("0.parquet")
+   df = pd.read_csv("data/0.parquet")
    print(df.shape)  # (30000, 200) => 23MB
 
    # memory constrained
    import dask.dataframe as dd
    # Read 1000 of the above dataframes (22GB of data)
-   ddf = dd.read_parquet("*.parquet")
+   ddf = dd.read_parquet("data/*.parquet")
 
 "Compute constrained" is when the hyperparameter search takes too long even if
 the data fits in memory. There might a lot of hyperparameters to search, or the
@@ -72,11 +72,13 @@ model may require specialized hardware like GPUs:
 
 .. code:: python
 
+   import pandas as pd
    from scipy.stats import uniform, loguniform
    from sklearn.linear_model import SGDClasifier
 
+   df = pd.read_parquet("data/0.parquet")  # data to train on; 23MB as above
+
    model = SGDClasifier()
-   df = pd.read_parquet("0.parquet")  # data to train on; 23MB as above
 
    # not compute constrained
    params = {"l1_ratio": uniform(0, 1)}
