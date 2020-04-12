@@ -5,15 +5,18 @@ Hyper Parameter Search
 models using Dask, and to scale hyperparameter optimization to either* **larger
 data** *or* **more computational power.**
 
-This page will presume knowledge of hyperparameter tuning/optimization; if not,
-see Scikit-learn's documentation on "`Tuning the hyper-parameters of an
-estimator <https://scikit-learn.org/stable/modules/grid_search.html>`_." The
-issues that arise in these hyperparameter searches will be explicitly mentioned
-in the following section:
+Hyperparameter searches are a require process in machine learning. Briefly,
+these searches require finding optimal values for a model that can not be found
+with the data. For more detail, see "`Tuning the hyper-parameters of an
+estimator <https://scikit-learn.org/stable/modules/grid_search.html>`_."
 
-* :ref:`hyperparameter.scaling`: problems often seen in hyperparameter
-  optimization searches, and tools to get around these issues.
-  see
+These searches often take weeks or months to complete, typically when searching
+for great performance or with massive datasets. This is common when preparing
+for production or a paper publication. These issues will be clarified in the
+following section:
+
+* ":ref:`hyperparameter.scaling`" will mention problems often seen in
+  hyperparameter optimization searches, and tools to get around these issues.
 
 Then, some tooling will be mentioned to circumvent the issues mentioned, and
 expanded on in the following sections:
@@ -22,31 +25,21 @@ expanded on in the following sections:
    replacements for Scikit-learn but work nicely with Dask objects.
 2. ":ref:`hyperparameter.incremental`" will mention classes that work well with
    large datasets.
-3. ":ref:`hyperparameter.adaptive`" will mention classes that make clever
-   decisions to avoid extra computation.
+3. ":ref:`hyperparameter.adaptive`" will mention classes that avoid extra
+   computation and find high-performing hyperparameters more quickly.
 
 .. _hyperparameter.scaling:
 
 Scaling hyperparameter searches
 -------------------------------
 
-Dask-ML has a ton of tools to get around common issues in hyperparameter
-optimization:
+Dask-ML provides classes to avoid the two most common issues in hyperparameter
+optimization, when the hyperparameter search is...
 
-.. autosummary::
-   dask_ml.model_selection.GridSearchCV
-   dask_ml.model_selection.RandomizedSearchCV
-   dask_ml.model_selection.IncrementalSearchCV
-   dask_ml.model_selection.HyperbandSearchCV
-   dask_ml.model_selection.SuccessiveHalvingSearchCV
-
-These avoid the two most common issues in hyperparameter optimization, when
-the hyperparameter search is...
-
-1. "**memory constrained"**, which happens when the dataset size is too large
-   to fit in memory.  This typically happens when a model needs to be tuned for
-   a larger-than-memory dataset after local development.
-2. "**compute constrained**", which happen when the computation takes too long
+1. "**memory constrained"**. This happens when the dataset size is too large to
+   fit in memory.  This typically happens when a model needs to be tuned for a
+   larger-than-memory dataset after local development.
+2. "**compute constrained**". This happen when the computation takes too long
    even with data that can fit in memory.  This typically happens when many
    hyperparameters need to be tuned, which especially common with neural
    networks.
@@ -207,7 +200,7 @@ Arrays/DataFrames `and` to decide which models to continue training.
    dask_ml.model_selection.SuccessiveHalvingSearchCV
    dask_ml.model_selection.IncrementalSearchCV
 
-See :ref:`hyperparameter.cpu-nmem` for the details on these classes.
+See ":ref:`hyperparameter.cpu-nmem`" for the details on these classes.
 
 ----------
 
@@ -260,7 +253,7 @@ with Dask's :ref:`joblib backend <joblib>`.
 Flexible Backends
 ^^^^^^^^^^^^^^^^^
 
-Dask-ml can use any of the dask schedulers. By default the threaded
+Dask-ML can use any of the dask schedulers. By default the threaded
 scheduler is used, but this can easily be swapped out for the multiprocessing
 or distributed scheduler:
 
@@ -483,10 +476,9 @@ that's underlying the :class:`dask_ml.wrappers.ParallelPostFit`.
 Adaptive Hyperparameter Optimization
 ------------------------------------
 
-Dask-ML has these estimators that `adapt` to previous calls to ``partial_fit``
-and ``score`` to determine which models to continue training. This means high
-scoring models can be found with fewer cumulative calls to
-``partial_fit``.
+Dask-ML has these estimators that `adapt` to historical data to determine which
+models to continue training. This means high scoring models can be found with
+fewer cumulative calls to ``partial_fit``.
 
 .. autosummary::
    dask_ml.model_selection.HyperbandSearchCV
@@ -549,9 +541,8 @@ rechunk the Dask array:
 
 
 We used ``aggressiveness=4`` because this is an initial search. I don't know
-much about the data, model or hyperparameters. If I knew more and had a at
-least some sense of what hyperparameters to use, I would specify
-``aggressiveness=3``, the default.
+much about the data, model or hyperparameters. If I had at least some sense of
+what hyperparameters to use, I would specify ``aggressiveness=3``, the default.
 
 The inputs to this rule-of-thumb are exactly what the user cares about:
 
@@ -582,6 +573,7 @@ chunks:
 .. ipython:: python
 
    search.fit(X_train, y_train, classes=[0, 1]);
+   search.best_params_
 
 To be clear, this is a very small toy example: there are only 100 examples and
 20 features for each example. Let's see how the performance scales with a more
@@ -609,8 +601,7 @@ It will use these estimators with the following inputs:
    :width: 30%
    :align: center
 
-   The dataset to classify with 12 neurons in Scikit-learn's
-   :class:`~sklearn.neural_network.MLPClassifier`. The 4 classes are shown with
+   The training dataset with 60,000 data. The 4 classes are shown with
    different colors, and in addition to the two features shown (on the x/y
    axes) there are also 4 other usefuless features.
 
@@ -619,7 +610,7 @@ these parameters:
 
 * One hyperparameters that control optimal model architecture:
   ``hidden_layer_sizes``. This can take values that have 12 neurons; for
-  example, 6 neurons in two layers or 4 neurons in 3 different layers.
+  example, 6 neurons in two layers or 4 neurons in 3 layers.
 * Six hyperparameters that control finding the optimal model of a particular
   architecture. This includes hyperparameters like weight decay and various
   optimization parameters (including batch size, learning rate and momentum).
@@ -663,8 +654,8 @@ case because only 4 Dask workers are used, and they're all busy for the vast
 majority of the search. How does this change with the number of workers?
 
 
-To see this, let's analyze how the time-to-completion for "hyperband" varies
-with the number of Dask workers in a seperate experiment.
+To see this, let's analyze how the time-to-completion for Hyperband varies with
+the number of Dask workers in a seperate experiment.
 
 .. figure:: images/scaling-patience-true.svg
    :width: 60%
