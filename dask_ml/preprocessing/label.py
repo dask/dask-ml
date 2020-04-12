@@ -1,6 +1,7 @@
 from __future__ import division
 
 from operator import getitem
+from typing import Any, Optional, Union
 
 import dask.array as da
 import dask.dataframe as dd
@@ -10,6 +11,7 @@ import scipy.sparse
 import sklearn.preprocessing
 
 from .._compat import check_is_fitted
+from .._typing import ArrayLike, SeriesType
 
 
 class LabelEncoder(sklearn.preprocessing.LabelEncoder):
@@ -82,11 +84,11 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
     array([0, 0, 1], dtype=int8)
     """
 
-    def __init__(self, use_categorical=True):
+    def __init__(self, use_categorical: bool = True):
         self.use_categorical = use_categorical
         super(LabelEncoder, self).__init__()
 
-    def _check_array(self, y):
+    def _check_array(self, y: SeriesType):
         if isinstance(y, (dd.Series, pd.DataFrame)):
             y = y.squeeze()
 
@@ -109,13 +111,13 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
                 y = y.to_dask_array(lengths=True)
         return y
 
-    def fit(self, y):
+    def fit(self, y: SeriesType):
         y = self._check_array(y)
 
         if isinstance(y, da.Array):
             classes_ = _encode_dask_array(y)
             self.classes_ = classes_.compute()
-            self.dtype_ = None
+            self.dtype_: Optional[pd.Categorical] = None
         elif _is_categorical(y):
             self.classes_ = _encode_categorical(y)
             self.dtype_ = y.dtype
@@ -125,7 +127,7 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
 
         return self
 
-    def fit_transform(self, y):
+    def fit_transform(self, y: SeriesType):
         y = self._check_array(y)
 
         if isinstance(y, da.Array):
@@ -139,7 +141,7 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
 
         return y
 
-    def transform(self, y):
+    def transform(self, y: SeriesType):
         check_is_fitted(self, "classes_")
         y = self._check_array(y)
 
@@ -151,7 +153,7 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
         else:
             return np.searchsorted(self.classes_, y)
 
-    def inverse_transform(self, y):
+    def inverse_transform(self, y: SeriesType):
         check_is_fitted(self, "classes_")
         y = self._check_array(y)
 
@@ -189,7 +191,9 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
                 return self.classes_[y]
 
 
-def _encode_categorical(values, uniques=None, encode=False):
+def _encode_categorical(
+    values: np.ndarray, uniques: np.ndarray = None, encode: bool = False
+):
     new_uniques = np.asarray(values.cat.categories)
 
     if uniques is not None:
@@ -222,7 +226,7 @@ def _check_and_search_block(arr, uniques, onehot_dtype=None, block_info=None):
         return label_encoded
 
 
-def _construct(x, categories):
+def _construct(x: np.ndarray, categories: np.ndarray) -> scipy.sparse.csr_matrix:
     """Make a sparse matrix from an encoded array.
 
     >>> construct(np.array([0, 1, 0]), np.array([0, 1])).toarray()
@@ -230,7 +234,7 @@ def _construct(x, categories):
            [0., 1.],
            [1., 0.]])
     """
-    # type: (np.ndarray, np.ndarray) -> scipy.sparse.csr_matrix
+    # type : (np.ndarray, np.ndarray) -> scipy.sparse.csr_matrix
     data = np.ones(len(x))
     rows = np.arange(len(x))
     columns = x.ravel()
