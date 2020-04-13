@@ -6,11 +6,6 @@ This document only describes the extensions made to support Dask arrays.
 
 The simplest way to split one or more Dask arrays is with :func:`dask_ml.model_selection.train_test_split`:
 
-.. autosummary::
-   dask_ml.model_selection.train_test_split
-
-Here's an example usage:
-
 .. ipython:: python
 
    import dask.array as da
