@@ -5,7 +5,7 @@ Hyper Parameter Search
 models using Dask, and to scale hyperparameter optimization to either* **larger
 data** *or* **more computational power.**
 
-Hyperparameter searches are a require process in machine learning. Briefly,
+Hyperparameter searches are a required process in machine learning. Briefly,
 these searches require finding optimal values for a model that can not be found
 with the data. For more detail, see "`Tuning the hyper-parameters of an
 estimator <https://scikit-learn.org/stable/modules/grid_search.html>`_."
