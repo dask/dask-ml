@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.3.1.dev4+gb9d903e
+                1.3.1.dev5+g5d24b72
               </div>
             
           
@@ -269,11 +269,11 @@ underlying estimator in <code class="docutils literal notranslate"><span class="
 block of a Dask Array to the underlying estimator’s <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> method.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.wrappers.Incremetnal</span></code> currently does not work well with
+<p class="last"><a class="reference internal" href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental" title="dask_ml.wrappers.Incremental"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.wrappers.Incremental</span></code></a> currently does not work well with
 hyper-parameter optimization like <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v0.22)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>.
 If you need to do hyper-parameter optimization on larger-than-memory datasets,
-we recommend <code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearch</span></code>. See
-<a class="reference internal" href="hyper-parameter-search.html#hyperparameter-incremental"><span class="std std-ref">Incremental Hyperparameter Optimization</span></a> for an introduction.</p>
+we recommend <a class="reference internal" href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV" title="dask_ml.model_selection.IncrementalSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearchCV</span></code></a>. See
+“<a class="reference internal" href="hyper-parameter-search.html#hyperparameter-incremental"><span class="std std-ref">Incremental Hyperparameter Optimization</span></a>” for an introduction.</p>
 </div>
 <div class="section" id="incremental-meta-estimator">
 <span id="incremental-blockwise-metaestimator"></span><h2>Incremental Meta-estimator<a class="headerlink" href="#incremental-meta-estimator" title="Permalink to this headline">¶</a></h2>
@@ -353,18 +353,18 @@ can also explicitly pass <code class="docutils literal notranslate"><span class=
 </div>
 <p>We can get the accuracy score on our dataset.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gh">Out[9]: </span><span class="go">0.52</span>
+<span class="gh">Out[9]: </span><span class="go">0.7</span>
 </pre></div>
 </div>
 <p>All of the attributes learned durning training, like <code class="docutils literal notranslate"><span class="pre">coef_</span></code>, are available
 on the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> instance.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[-12.7698057 ,  21.6815716 ,  24.04040631,  -5.37497806,</span>
-<span class="go">         -7.87662414,  -7.95477764, -28.73245528,  22.75026801,</span>
-<span class="go">         -4.23060326, -69.96767427,   4.52730469,   4.96301527,</span>
-<span class="go">         24.10135147,   4.46345981, -13.84626068,  11.28802793,</span>
-<span class="go">          0.65844368, -12.39906078,  -4.06300856, -47.65377155]])</span>
+<span class="go">array([[  3.03636919, -23.79109542, -15.23758532, -50.82723601,</span>
+<span class="go">        -27.26268074,  -2.20675039,   9.68685577, -13.22658788,</span>
+<span class="go">         26.69603331, -23.68826555,  16.11458127,  21.36735518,</span>
+<span class="go">        -16.62854015,  21.48427911, -15.65885093,  -1.81097792,</span>
+<span class="go">         44.64928392,  16.15972459,   7.52592161, -19.66265617]])</span>
 </pre></div>
 </div>
 <p>If necessary, the actual estimator trained is available as <code class="docutils literal notranslate"><span class="pre">Incremental.estimator_</span></code></p>
@@ -380,7 +380,7 @@ on the <code class="docutils literal notranslate"><span class="pre">Incremental<
 </div>
 <div class="section" id="incremental-learning-and-hyper-parameter-optimization">
 <h3>Incremental Learning and Hyper-parameter Optimization<a class="headerlink" href="#incremental-learning-and-hyper-parameter-optimization" title="Permalink to this headline">¶</a></h3>
-<p>See <a class="reference internal" href="hyper-parameter-search.html#hyperparameter-incremental"><span class="std std-ref">Incremental Hyperparameter Optimization</span></a> for more on how to do hyperparameter optimization on
+<p>See “<a class="reference internal" href="hyper-parameter-search.html#hyperparameter-incremental"><span class="std std-ref">Incremental Hyperparameter Optimization</span></a>” for more on how to do hyperparameter optimization on
 larger than memory datasets.</p>
 </div>
 </div>
