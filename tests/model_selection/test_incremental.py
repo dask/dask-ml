@@ -655,7 +655,7 @@ def test_history(c, s, a, b):
 
 @pytest.mark.parametrize("Search", [HyperbandSearchCV, IncrementalSearchCV])
 @pytest.mark.parametrize("verbose", [True, False])
-def test_verbosity(Search, verbose):
+def test_verbosity(Search, verbose, capsys):
     max_iter = 15
 
     @gen_cluster(client=True)
@@ -676,12 +676,14 @@ def test_verbosity(Search, verbose):
     assert any("score" in m for m in messages)
 
     # If verbose=True, make sure logs to stdout
+    stdout = capsys.readouterr().out
+    stdout = [line for line in stdout.split("\n") if line]
     if verbose:
-        # (this test has a hard time capturing that; see gh-528 for more detail)
-        assert hasattr(search, "_logging_context")
-        assert "FileIO" in str(
-            search._logging_context.handler
-        )  # FileIO is a proxy for stdout
+        assert len(stdout) >= 1
+        assert all(["CV" in line for line in stdout])
+    else:
+        assert not len(stdout)
+
 
     if "Hyperband" in str(Search):
         assert all("[CV, bracket=" in m for m in messages)

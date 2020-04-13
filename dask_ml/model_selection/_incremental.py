@@ -659,7 +659,6 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         if self.verbose:
             h = logging.StreamHandler(sys.stdout)
             context = LoggingContext(logger, level=logging.INFO, handler=h)
-            self._logging_context = context  # for testing ease; not necessary
         else:
             context = contextlib.nullcontext()
 
