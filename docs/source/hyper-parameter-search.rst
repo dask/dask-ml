@@ -2,30 +2,29 @@ Hyper Parameter Search
 ======================
 
 *Tools to perform hyperparameter optimizaiton of Scikit-Learn API-compatible
-models using Dask, and to scale hyperparameter optimization to either* **larger
-data** *or* **more computational power.**
+models using Dask, and to scale hyperparameter optimization to* **larger
+data and/or larger searches.**
 
 Hyperparameter searches are a required process in machine learning. Briefly,
 these searches require finding optimal values for a model that can not be found
 with the data. For more detail, see "`Tuning the hyper-parameters of an
 estimator <https://scikit-learn.org/stable/modules/grid_search.html>`_."
 
-These searches often take weeks or months to complete, typically when searching
+These searches can take an ample time (days or weeks), typically when searching
 for great performance or with massive datasets. This is common when preparing
-for production or a paper publication. These issues will be clarified in the
-following section:
+for production or a paper publication. The
+following section clarifies the issues that can occur:
 
-* ":ref:`hyperparameter.scaling`" will mention problems often seen in
-  hyperparameter optimization searches, and tools to get around these issues.
+* ":ref:`hyperparameter.scaling`" mentions problems that often occur in
+  hyperparameter optimization searches.
 
-Then, some tooling will be mentioned to circumvent the issues mentioned, and
-expanded on in the following sections:
+Tools that address these problems are expanded upon in these sections:
 
-1. ":ref:`hyperparameter.drop-in`" will mention classes that are drop-in
+1. ":ref:`hyperparameter.drop-in`" details classes that are drop-in
    replacements for Scikit-learn but work nicely with Dask objects.
-2. ":ref:`hyperparameter.incremental`" will mention classes that work well with
+2. ":ref:`hyperparameter.incremental`" details classes that work well with
    large datasets.
-3. ":ref:`hyperparameter.adaptive`" will mention classes that avoid extra
+3. ":ref:`hyperparameter.adaptive`" details classes that avoid extra
    computation and find high-performing hyperparameters more quickly.
 
 .. _hyperparameter.scaling:
@@ -206,14 +205,14 @@ See ":ref:`hyperparameter.cpu-nmem`" for the details on these classes.
 
 Now, let's look at these classes in-depth.
 
-1. ":ref:`hyperparameter.drop-in`" will mention
+1. ":ref:`hyperparameter.drop-in`" details
    :class:`~dask_ml.model_selection.RandomizedSearchCV` and
    :class:`~dask_ml.model_selection.GridSearchCV`.
-2. ":ref:`hyperparameter.incremental`" will mention
+2. ":ref:`hyperparameter.incremental`" details
    :class:`~dask_ml.model_selection.IncrementalSearchCV` and all it's
    subclasses (one of which is
    :class:`~dask_ml.model_selection.HyperbandSearchCV`).
-3. ":ref:`hyperparameter.adaptive`" will mention usage and performance of
+3. ":ref:`hyperparameter.adaptive`" details usage and performance of
    :class:`~dask_ml.model_selection.HyperbandSearchCV`.
 
 .. _hyperparameter.drop-in:
@@ -403,8 +402,8 @@ These classes can stop training any models if their score stops increasing
 (via ``patience`` and ``tol``). They even get one step fancier, and can choose
 which models to call ``partial_fit`` on.
 
-First, let's look at basic usage. Some more adaptive use will be detailed in
-":ref:`hyperparameter.adaptive`".
+First, let's look at basic usage. ":ref:`hyperparameter.adaptive`" details
+estimators that reduce the amount of computation required.
 
 Basic use
 ^^^^^^^^^
@@ -617,9 +616,9 @@ these parameters:
 
 Here's how we'll configure the two different estimators:
 
-1. "Hyperband" will be configured with rule-of-thumb above with ``n_params =
+1. "Hyperband" is configured with rule-of-thumb above with ``n_params =
    299`` [#f1]_ and ``n_examples = 50 * len(X_train)``.
-2. "Incremental" will be configured to do the same amount of work as Hyperband
+2. "Incremental" is configured to do the same amount of work as Hyperband
    with ``IncrementalSearchCV(..., n_initial_parameters=19, decay_rate=0)``
 
 These two estimators are configured do the same amount of computation, the
