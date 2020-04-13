@@ -689,7 +689,7 @@ def test_verbosity(Search, verbose):
         assert all("[CV]" in m for m in messages)
 
     brackets = 3 if "Hyperband" in str(Search) else 1
-    assert sum("train, test examples" in m for m in messages) == brackets
+    assert sum("examples in each chunk" in m for m in messages) == brackets
     assert sum("creating" in m and "models" in m for m in messages) == brackets
 
 

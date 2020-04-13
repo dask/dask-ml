@@ -7,6 +7,7 @@ import sys
 from collections import defaultdict, namedtuple
 from copy import deepcopy
 from time import time
+from typing import Union
 
 import dask
 import dask.array as da
@@ -116,20 +117,22 @@ def _create_model(model, ident, **params):
 def _fit(
     model,
     params,
-    X_train,
-    y_train,
-    X_test,
-    y_test,
+    X_train: da.Array,
+    y_train: da.Array,
+    X_test: da.Array,
+    y_test: da.Array,
     additional_calls,
     fit_params=None,
     scorer=None,
     random_state=None,
-    verbose: int = 1,
+    log_freq: float = 1.0,
     prefix="",
 ):
-    logger.info(
-        "[CV%s] train, test examples = %d, %d", prefix, len(y_train), len(y_test)
-    )
+    if not (0 < log_freq <= 1):
+        msg = "log_freq={} must satisfy 0 < log_freq <= 1"
+        raise ValueError(msg.format(log_freq))
+    log_delay = 1 / log_freq
+
     original_model = model
     fit_params = fit_params or {}
     client = default_client()
@@ -164,6 +167,10 @@ def _fit(
     X_train = sorted(futures_of(X_train), key=lambda f: f.key)
     y_train = sorted(futures_of(y_train), key=lambda f: f.key)
     assert len(X_train) == len(y_train)
+
+    train_eg = yield client.map(len, y_train)
+    msg = "[CV%s] For training there are between %d and %d examples in each chunk"
+    logger.info(msg, prefix, min(train_eg), max(train_eg))
 
     # Order by which we process training data futures
     order = []
@@ -219,7 +226,7 @@ def _fit(
     for _i in itertools.count():
         metas = yield client.gather(new_scores)
 
-        if _i % int(verbose) == 0:
+        if _i % int(log_delay) == 0:
             idx = np.argmax([m["score"] for m in metas])
             best = metas[idx]
             msg = "[CV%s] validation score of %0.4f received after %d partial_fit calls"
@@ -304,7 +311,7 @@ def fit(
     fit_params=None,
     scorer=None,
     random_state=None,
-    verbose=1,
+    log_freq: float=1.0,
     prefix="",
 ):
     """ Find a good model and search among a space of hyper-parameters
@@ -345,8 +352,8 @@ def fit(
         If RandomState instance, random_state is the random number generator;
         If None, the random number generator is the RandomState instance used
         by `np.random`.
-    verbose : int, default=1
-        Print about `1 / verbose` percent of the time.
+    log_freq : float, default=1.0
+        Logs approximately ``log_freq`` percent of the time.
     prefix : str, optional, default: ""
         The string to print out in each debug message. Each message is prefixed
         with `[CV{prefix}]`.
@@ -429,7 +436,7 @@ def fit(
         fit_params=fit_params,
         scorer=scorer,
         random_state=random_state,
-        verbose=verbose,
+        log_freq=log_freq,
         prefix=prefix,
     )
 
@@ -590,9 +597,23 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         return check_is_fitted(self, "best_estimator_")
 
     @gen.coroutine
-    def _fit(self, X, y, verbosity=1, **fit_params):
+    def _fit(self, X, y, **fit_params):
         X, y, scorer = self._validate_parameters(X, y)
         X_train, X_test, y_train, y_test = self._get_train_test_split(X, y)
+
+        if isinstance(self.verbose, bool):
+            # Log all the time if False or True.
+            # If True, logger will be configured to pipe to stdout
+            log_freq = 1.0
+        elif isinstance(self.verbose, float):
+            if not (0 < self.verbose <= 1):
+                msg = "verbose={} must satisfy 0 < verbose <= 1"
+                raise ValueError(msg.format(self.verbose))
+            log_freq = self.verbose
+        else:
+            msg = "verbose must be an instance of float or bool. Got type={}"
+            raise TypeError(msg.format(type(self.verbose)))
+
 
         results = yield fit(
             self.estimator,
@@ -605,7 +626,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
             fit_params=fit_params,
             scorer=scorer,
             random_state=self.random_state,
-            verbose=verbosity,
+            log_freq=log_freq,
             prefix=self.prefix,
         )
         results = self._process_results(results)
@@ -646,21 +667,6 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         **fit_params
             Additional partial fit keyword arguments for the estimator.
         """
-        if isinstance(self.verbose, float) and not (0 < self.verbose <= 1):
-            msg = "verbose={} must satisfy 0 < verbose <= 1"
-            raise ValueError(msg.format(self.verbose))
-
-        if isinstance(self.verbose, bool):
-            # Log all the time if False or True.
-            # If True, logger will be configured to pipe to stdout
-            verbosity = 1
-        elif isinstance(self.verbose, float):
-            verbosity = np.round(1 / self.verbose)
-        else:
-            msg = "verbose must be an instance of float or bool. Got type={}"
-            raise TypeError(msg.format(type(self.verbose)))
-
-        kwargs = dict(verbosity=verbosity, **fit_params)
         if self.verbose:
             logger.setLevel(logging.INFO)
             h = logging.StreamHandler(sys.stdout)
@@ -669,11 +675,11 @@ class BaseIncrementalSearchCV(ParallelPostFit):
                 logger, level=logging.INFO, handler=h
             )  # to aid with testing ease; not neccessary
             with self._logging_context:
-                ret = default_client().sync(self._fit, X, y, **kwargs)
+                ret = default_client().sync(self._fit, X, y, **fit_params)
             h.flush()
             return ret
         else:
-            return default_client().sync(self._fit, X, y, **kwargs)
+            return default_client().sync(self._fit, X, y, **fit_params)
 
     @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
     def decision_function(self, X):
