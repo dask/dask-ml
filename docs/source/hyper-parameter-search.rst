@@ -21,7 +21,7 @@ following section clarifies the issues that can occur:
 Tools that address these problems are expanded upon in these sections:
 
 1. ":ref:`hyperparameter.drop-in`" details classes that are drop-in
-   replacements for Scikit-learn but work nicely with Dask objects.
+   replacements for Scikit-learn but work nicely with Dask objects and can offer better performance.
 2. ":ref:`hyperparameter.incremental`" details classes that work well with
    large datasets.
 3. ":ref:`hyperparameter.adaptive`" details classes that avoid extra
