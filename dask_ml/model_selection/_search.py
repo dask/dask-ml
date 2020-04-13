@@ -330,7 +330,7 @@ def do_fit_and_score(
     scorer,
     return_train_score,
 ):
-    if not issubclass(type(est), Pipeline):
+    if not isinstance(est, Pipeline):
         # Fitting and scoring can all be done as a single task
         n_and_fit_params = _get_fit_params(cv, fit_params, n_splits)
 
@@ -434,7 +434,7 @@ def do_fit(
     n_splits,
     error_score,
 ):
-    if issubclass(type(est), Pipeline) and params is not None:
+    if isinstance(est, Pipeline) and params is not None:
         return _do_pipeline(
             dsk,
             next_token,
@@ -504,7 +504,7 @@ def do_fit_transform(
     n_splits,
     error_score,
 ):
-    if issubclass(type(est), Pipeline) and params is not None:
+    if isinstance(est, Pipeline) and params is not None:
         return _do_pipeline(
             dsk,
             next_token,
