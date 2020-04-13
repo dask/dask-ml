@@ -699,22 +699,13 @@ def test_invalid_verbosity(c, s, a, b):
     model = ConstantFunction()
     params = {"value": scipy.stats.uniform(0, 1)}
 
-    for verbose in [-1.0, -0.0, 0.0, 1 + 1e-10]:
+    for verbose in [-1.0, -0.0, 0.0]:
         search = IncrementalSearchCV(model, params, verbose=verbose)
-        with pytest.raises(ValueError, match="0 < verbose <= 1"):
-            yield search.fit(X, y)
-
-    verbose = 1.0
-    search = IncrementalSearchCV(model, params, verbose=verbose)
-    yield search.fit(X, y)
-
-    for verbose in [1, -1, 0, None, "foo", dict(), set(), list(), tuple()]:
-        search = IncrementalSearchCV(model, params, verbose=verbose)
-        with pytest.raises(TypeError, match="instance of float or bool"):
+        with pytest.raises(ValueError, match="verbose > 0"):
             yield search.fit(X, y)
 
 
-@pytest.mark.parametrize("verbose", [1 / 2, 1 / 3, False, True])
+@pytest.mark.parametrize("verbose", [25, 50, False, True])
 def test_verbosity_levels(capsys, verbose):
     max_iter = 14
 
@@ -732,7 +723,7 @@ def test_verbosity_levels(capsys, verbose):
         _test_verbosity()
         messages = logs.getvalue().splitlines()
 
-    factor = 1 if isinstance(verbose, bool) else verbose
+    factor = 1 if isinstance(verbose, bool) else verbose / 100
     assert len(messages) == pytest.approx(max_iter * factor + 2, abs=1)
 
 

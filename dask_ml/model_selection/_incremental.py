@@ -118,21 +118,22 @@ def _create_model(model, ident, **params):
 def _fit(
     model,
     params,
-    X_train: da.Array,
-    y_train: da.Array,
-    X_test: da.Array,
-    y_test: da.Array,
+    X_train,
+    y_train,
+    X_test,
+    y_test,
     additional_calls,
     fit_params=None,
     scorer=None,
     random_state=None,
-    log_freq: float = 1.0,
+    verbose: Union[bool, int, float] = False,
     prefix="",
 ):
-    if not (0 < log_freq <= 1):
-        msg = "log_freq={} must satisfy 0 < log_freq <= 1"
-        raise ValueError(msg.format(log_freq))
-    log_delay = 1 / log_freq
+    if isinstance(verbose, int) and int(verbose) < 0:
+        raise ValueError("verbose={} does not satisfy int(verbose) > 0".format(verbose))
+    if not isinstance(verbose, bool) and verbose <= 0:
+        raise ValueError("verbose={} does not satisfy verbose > 0".format(verbose))
+    log_delay = 1 if isinstance(verbose, bool) else int(100 / verbose)
 
     original_model = model
     fit_params = fit_params or {}
@@ -312,7 +313,7 @@ def fit(
     fit_params=None,
     scorer=None,
     random_state=None,
-    log_freq: float = 1.0,
+    verbose: Union[bool, int] = False,
     prefix="",
 ):
     """ Find a good model and search among a space of hyper-parameters
@@ -353,8 +354,9 @@ def fit(
         If RandomState instance, random_state is the random number generator;
         If None, the random number generator is the RandomState instance used
         by `np.random`.
-    log_freq : float, default=1.0
-        Logs approximately ``log_freq`` percent of the time.
+    verbose : boo, int, default=False
+        Logs approximately ``verbose`` percent of the time.
+        If bool, always log.
     prefix : str, optional, default: ""
         The string to print out in each debug message. Each message is prefixed
         with `[CV{prefix}]`.
@@ -437,7 +439,7 @@ def fit(
         fit_params=fit_params,
         scorer=scorer,
         random_state=random_state,
-        log_freq=log_freq,
+        verbose=verbose,
         prefix=prefix,
     )
 
@@ -602,19 +604,6 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         X, y, scorer = self._validate_parameters(X, y)
         X_train, X_test, y_train, y_test = self._get_train_test_split(X, y)
 
-        if isinstance(self.verbose, bool):
-            # Log all the time if False or True.
-            # If True, logger will be configured to pipe to stdout
-            log_freq = 1.0
-        elif isinstance(self.verbose, float):
-            if not (0 < self.verbose <= 1):
-                msg = "verbose={} must satisfy 0 < verbose <= 1"
-                raise ValueError(msg.format(self.verbose))
-            log_freq = self.verbose
-        else:
-            msg = "verbose must be an instance of float or bool. Got type={}"
-            raise TypeError(msg.format(type(self.verbose)))
-
         results = yield fit(
             self.estimator,
             self._get_params(),
@@ -626,7 +615,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
             fit_params=fit_params,
             scorer=scorer,
             random_state=self.random_state,
-            log_freq=log_freq,
+            verbose=self.verbose,
             prefix=self.prefix,
         )
         results = self._process_results(results)
@@ -791,11 +780,12 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
         If None, the estimator's default scorer (if available) is used.
 
-    verbose : bool, float, optional, default: False
+    verbose : bool, int, optional, default: False
         If specified, setup the logger to log information to stdout.
         If ``True`` is specified, log the best validation score
-        received every time possible. If a float between 0 and 1 is specified,
-        print (approximately) ``verbose`` fraction of the time.
+        received every time possible.
+        If an int 0 and 100 is specified,
+        print (approximately) ``verbose`` percent of the time.
 
     Attributes
     ----------
