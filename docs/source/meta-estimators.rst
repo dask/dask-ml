@@ -31,7 +31,6 @@ and prediction or transformation must be done on a much larger dataset (perhaps
 larger than a single machine's memory).
 
 .. ipython:: python
-   :okwarning:
 
    from sklearn.ensemble import GradientBoostingClassifier
    import sklearn.datasets

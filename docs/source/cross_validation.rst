@@ -12,7 +12,6 @@ The simplest way to split one or more Dask arrays is with :func:`dask_ml.model_s
 Here's an example usage:
 
 .. ipython:: python
-   :okwarning:
 
    import dask.array as da
    from dask_ml.datasets import make_regression
