@@ -46,7 +46,7 @@ optimization, when the hyperparameter search is...
 "Memory constrained" searches happen when the data doesn't fit in the memory of
 a single machine:
 
-.. code:: python
+.. code-block:: python
 
    # not memory constrained
    import pandas as pd
@@ -62,7 +62,7 @@ a single machine:
 the data fits in memory. There might a lot of hyperparameters to search, or the
 model may require specialized hardware like GPUs:
 
-.. code:: python
+.. code-block:: python
 
    import pandas as pd
    from scipy.stats import uniform, loguniform
