@@ -48,15 +48,17 @@ a single machine:
 
 .. code-block:: python
 
-   # not memory constrained
-   import pandas as pd
-   df = pd.read_csv("data/0.parquet")
-   print(df.shape)  # (30000, 200) => 23MB
-
-   # memory constrained
-   import dask.dataframe as dd
-   # Read 1000 of the above dataframes (22GB of data)
-   ddf = dd.read_parquet("data/*.parquet")
+   >>> import pandas as pd
+   >>> import dask.dataframe as dd
+   >>>
+   >>> ## not memory constrained
+   >>> df = pd.read_csv("data/0.parquet")
+   >>> df.shape
+   (30000, 200)  # => 23MB
+   >>>
+   >>> ## memory constrained
+   >>> # Read 1000 of the above dataframes (=> 22GB of data)
+   >>> ddf = dd.read_parquet("data/*.parquet")
 
 "Compute constrained" is when the hyperparameter search takes too long even if
 the data fits in memory. There might a lot of hyperparameters to search, or the
@@ -64,26 +66,27 @@ model may require specialized hardware like GPUs:
 
 .. code-block:: python
 
-   import pandas as pd
-   from scipy.stats import uniform, loguniform
-   from sklearn.linear_model import SGDClasifier
-
-   df = pd.read_parquet("data/0.parquet")  # data to train on; 23MB as above
-
-   model = SGDClasifier()
-
-   # not compute constrained
-   params = {"l1_ratio": uniform(0, 1)}
-
-   # compute constrained
-   params = {
-       "l1_ratio": uniform(0, 1),
-       "alpha": loguniform(1e-5, 1e-1),
-       "penalty": ["l2", "l1", "elasticnet"],
-       "learning_rate": ["invscaling", "adaptive"],
-       "power_t": uniform(0, 1),
-       "average": [True, False],
-   }
+   >>> import pandas as pd
+   >>> from scipy.stats import uniform, loguniform
+   >>> from sklearn.linear_model import SGDClasifier
+   >>>
+   >>> df = pd.read_parquet("data/0.parquet")  # data to train on; 23MB as above
+   >>>
+   >>> model = SGDClasifier()
+   >>>
+   >>> # not compute constrained
+   >>> params = {"l1_ratio": uniform(0, 1)}
+   >>>
+   >>> # compute constrained
+   >>> params = {
+   ...     "l1_ratio": uniform(0, 1),
+   ...     "alpha": loguniform(1e-5, 1e-1),
+   ...     "penalty": ["l2", "l1", "elasticnet"],
+   ...     "learning_rate": ["invscaling", "adaptive"],
+   ...     "power_t": uniform(0, 1),
+   ...     "average": [True, False],
+   ... }
+   >>>
 
 These issues are independent and both can happen the same time. Dask-ML has
 tools to address all 4 combinations. Let's look at each case.
@@ -101,22 +104,22 @@ Scikit-learn can handle this case:
    sklearn.model_selection.RandomizedSearchCV
 
 Dask-ML also has some drop in replacements for the Scikit-learn versions that
-works well with Dask.
+works well with `Dask collections`_ (like Dask Arrays and Dask DataFrames):
+
+.. _Dask collections: https://docs.dask.org/en/latest/user-interfaces.html#high-level-collections
 
 .. autosummary::
    dask_ml.model_selection.GridSearchCV
    dask_ml.model_selection.RandomizedSearchCV
 
-
-These models work well with Dask Arrays/DataFrames. By default, these
-estimators will pass the entire dataset to ``fit`` even if a Dask
+The estimator above work well with Dask Arrays/DataFrames. By default, these
+estimators will efficiently pass the entire dataset to ``fit`` if a Dask
 Array/DataFrame is passed.  More detail is in
 ":ref:`works-with-dask-collections`".
 
-These estimators make some progress into hyperparameter searches that are
-"compute constrained" or "memory constrained". Details on the cases are
-mentioned below in ":ref:`hyperparameter.mem-ncpu`"and
-":ref:`hyperparameter.cpu-nmem`".
+These estimators above work especially well with models that have expensive
+preprocessing, which is common in natural language processing (NLP). More
+detail is in ":ref:`hyperparameter.cpu-nmem`" and ":ref:`avoid-repeated-work`".
 
 .. _hyperparameter.mem-ncpu:
 
@@ -175,8 +178,9 @@ which parameters to continue evaluating.  All of these estimators support
 ignoring models models with decreasing score via the ``patience`` and ``tol``
 parameters.
 
-Another way to limit computation is to avoid repeated work in ``fit`` calls,
-which is especially useful with expensive preprocessing.
+Another way to limit computation is to avoid repeated work during during the
+searches. This is especially useful with expensive preprocessing, which is
+common in natural language processing (NLP).
 
 .. autosummary::
 
@@ -199,7 +203,8 @@ Arrays/DataFrames `and` to decide which models to continue training.
    dask_ml.model_selection.SuccessiveHalvingSearchCV
    dask_ml.model_selection.IncrementalSearchCV
 
-See ":ref:`hyperparameter.cpu-nmem`" for the details on these classes.
+These classes work well with data that does not fit in memory. They also reduce
+the computation required as described in ":ref:`hyperparameter.cpu-nmem`."
 
 ----------
 
