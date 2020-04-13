@@ -1,5 +1,6 @@
 from __future__ import division
 
+import contextlib
 import itertools
 import logging
 import operator
@@ -311,7 +312,7 @@ def fit(
     fit_params=None,
     scorer=None,
     random_state=None,
-    log_freq: float=1.0,
+    log_freq: float = 1.0,
     prefix="",
 ):
     """ Find a good model and search among a space of hyper-parameters
@@ -614,7 +615,6 @@ class BaseIncrementalSearchCV(ParallelPostFit):
             msg = "verbose must be an instance of float or bool. Got type={}"
             raise TypeError(msg.format(type(self.verbose)))
 
-
         results = yield fit(
             self.estimator,
             self._get_params(),
@@ -668,17 +668,13 @@ class BaseIncrementalSearchCV(ParallelPostFit):
             Additional partial fit keyword arguments for the estimator.
         """
         if self.verbose:
-            logger.setLevel(logging.INFO)
             h = logging.StreamHandler(sys.stdout)
-            self._h = h
-            self._logging_context = LoggingContext(
-                logger, level=logging.INFO, handler=h
-            )  # to aid with testing ease; not neccessary
-            with self._logging_context:
-                ret = default_client().sync(self._fit, X, y, **fit_params)
-            h.flush()
-            return ret
+            context = LoggingContext(logger, level=logging.INFO, handler=h)
+            self._logging_context = context  # for testing ease; not necessary
         else:
+            context = contextlib.nullcontext()
+
+        with context:
             return default_client().sync(self._fit, X, y, **fit_params)
 
     @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
