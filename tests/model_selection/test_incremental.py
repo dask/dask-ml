@@ -684,7 +684,6 @@ def test_verbosity(Search, verbose, capsys):
     else:
         assert not len(stdout)
 
-
     if "Hyperband" in str(Search):
         assert all("[CV, bracket=" in m for m in messages)
     else:
