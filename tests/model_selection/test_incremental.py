@@ -700,17 +700,17 @@ def test_verbosity_types(c, s, a, b):
     model = ConstantFunction()
     params = {"value": scipy.stats.uniform(0, 1)}
 
-    for verbose in [-1.0, -0.0, 0.0]:
+    for verbose in [-1.0, 1.2]:
         search = IncrementalSearchCV(model, params, verbose=verbose)
-        with pytest.raises(ValueError, match="0 < verbose <= 1"):
+        with pytest.raises(ValueError, match="0 <= verbose <= 1"):
             yield search.fit(X, y)
 
-    for verbose in [1, 1.0, True, False]:
+    for verbose in [0.0, 0, 1, 1.0, True, False]:
         search = IncrementalSearchCV(model, params, verbose=verbose)
         yield search.fit(X, y)
 
 
-@pytest.mark.parametrize("verbose", [1/2, 1/3, 1/4, False, True])
+@pytest.mark.parametrize("verbose", [0, 0.0, 1/2, 1, 1.0, False, True])
 def test_verbosity_levels(capsys, verbose):
     max_iter = 14
 

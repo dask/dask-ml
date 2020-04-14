@@ -131,9 +131,9 @@ def _fit(
 ):
     if isinstance(verbose, bool):
         verbose = 1.0
-    if not 0 < verbose <= 1:
-        raise ValueError("verbose={} does not satisfy 0 < verbose <= 1".format(verbose))
-    log_delay = int(1 / float(verbose))
+    if not 0 <= verbose <= 1:
+        raise ValueError("verbose={} does not satisfy 0 <= verbose <= 1".format(verbose))
+    log_delay = int(1 / float(verbose)) if verbose > 0 else 0
 
     original_model = model
     fit_params = fit_params or {}
@@ -228,7 +228,7 @@ def _fit(
     for _i in itertools.count():
         metas = yield client.gather(new_scores)
 
-        if _i % int(log_delay) == 0:
+        if log_delay and _i % int(log_delay) == 0:
             idx = np.argmax([m["score"] for m in metas])
             best = metas[idx]
             msg = "[CV%s] validation score of %0.4f received after %d partial_fit calls"
@@ -355,8 +355,10 @@ def fit(
         If None, the random number generator is the RandomState instance used
         by `np.random`.
     verbose : bool, int, float, default=False
-        If bool (default), log all the time.
-        If float or int, log ``verbose`` fraction of the time.
+        If bool (default), log everytime possible.
+        If non-zero, configure logging to print/pipe to stdout.
+        If float or int, log and print ``verbose`` fraction of the time.
+        If zero, do not log past initialization.
     prefix : str, optional, default: ""
         The string to print out in each debug message. Each message is prefixed
         with `[CV{prefix}]`.
