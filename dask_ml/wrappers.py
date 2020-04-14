@@ -368,7 +368,7 @@ class Incremental(ParallelPostFit):
 
        This meta-estimator is not appropriate for hyperparameter optimization
        on larger-than-memory datasets. For that, see
-       :class:dask_ml.model_selection.IncrementalSearch`.
+       :class:dask_ml.model_selection.IncrementalSearchCV`.
 
     See the `list of incremental learners`_ in the scikit-learn documentation
     for a list of estimators that implement the ``partial_fit`` API. Note that
@@ -429,7 +429,7 @@ class Incremental(ParallelPostFit):
     See Also
     --------
     ParallelPostFit
-    dask_ml.model_selection.IncrementalSearch
+    dask_ml.model_selection.IncrementalSearchCV
 
     Examples
     --------
