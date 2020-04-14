@@ -223,10 +223,6 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         self.n_initial_parameters = n_initial_parameters
         self.n_initial_iter = n_initial_iter
         self.aggressiveness = aggressiveness
-
-        # unusual ordering allows BaseIncrementalSearchCV to have a prefix
-        # as a keyword argument AND for IncrementalSearchCV *not* to have
-        # prefix as a keyword argument.
         self.prefix = prefix
 
     def _adapt(self, info, first_step_completed=False):

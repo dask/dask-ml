@@ -470,6 +470,19 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         verbose=False,
         prefix="",
     ):
+        # Classes that inherit from this class should set attributes
+        # *after* the call to this function, `super().__init(...)`
+        #
+        # Why?
+        # Because IncrementalSearchCV doesn't have a prefix parameter
+        # (why should it? The user doesn't need to see that), but
+        # BaseIncrementalSearchCV does. That means that after the
+        # super call, `self.prefix = ""`.
+        #
+        # Setting attributes after the super().__init__ call resolve
+        # that issue and overrides any attributes
+        # BaseIncrementalSearchCV sets that can not be passed through
+        # IncrementalSearchCV
         self.parameters = parameters
         self.test_size = test_size
         self.random_state = random_state
