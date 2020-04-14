@@ -1,6 +1,5 @@
 from __future__ import division
 
-import contextlib
 import itertools
 import logging
 import operator
