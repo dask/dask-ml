@@ -25,7 +25,7 @@ from sklearn.utils import check_random_state
 from sklearn.utils.metaestimators import if_delegate_has_method
 from tornado import gen
 
-from .._compat import check_is_fitted
+from .._compat import check_is_fitted, dummy_context
 from .._utils import LoggingContext
 from ..utils import check_array
 from ..wrappers import ParallelPostFit
@@ -675,7 +675,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
             h = logging.StreamHandler(sys.stdout)
             context = LoggingContext(logger, level=logging.INFO, handler=h)
         else:
-            context = contextlib.nullcontext()
+            context = dummy_context()
 
         with context:
             return default_client().sync(self._fit, X, y, **fit_params)
