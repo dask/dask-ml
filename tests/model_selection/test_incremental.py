@@ -710,7 +710,7 @@ def test_verbosity_types(c, s, a, b):
         yield search.fit(X, y)
 
 
-@pytest.mark.parametrize("verbose", [0, 0.0, 1/2, 1, 1.0, False, True])
+@pytest.mark.parametrize("verbose", [0, 0.0, 1 / 2, 1, 1.0, False, True])
 def test_verbosity_levels(capsys, verbose):
     max_iter = 14
 
