@@ -129,11 +129,13 @@ def _fit(
     verbose: Union[bool, int, float] = False,
     prefix="",
 ):
-    if isinstance(verbose, int) and int(verbose) < 0:
-        raise ValueError("verbose={} does not satisfy int(verbose) > 0".format(verbose))
-    if not isinstance(verbose, bool) and verbose <= 0:
-        raise ValueError("verbose={} does not satisfy verbose > 0".format(verbose))
-    log_delay = 1 if isinstance(verbose, bool) else int(100 / verbose)
+    if isinstance(verbose, bool):
+        verbose = 1.0
+    elif isinstance(verbose, int):
+        verbose = float(verbose)
+    if not 0 < verbose <= 1:
+        raise ValueError("verbose={} does not satisfy 0 < verbose <= 1".format(verbose))
+    log_delay = int(1 / verbose)
 
     original_model = model
     fit_params = fit_params or {}
@@ -354,9 +356,9 @@ def fit(
         If RandomState instance, random_state is the random number generator;
         If None, the random number generator is the RandomState instance used
         by `np.random`.
-    verbose : boo, int, default=False
-        Logs approximately ``verbose`` percent of the time.
-        If bool, always log.
+    verbose : bool, int, float, default=False
+        If bool (default), log all the time.
+        If float or int, log ``verbose`` fraction of the time.
     prefix : str, optional, default: ""
         The string to print out in each debug message. Each message is prefixed
         with `[CV{prefix}]`.
@@ -792,12 +794,14 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
         If None, the estimator's default scorer (if available) is used.
 
-    verbose : bool, int, optional, default: False
+    verbose : bool, float, int, optional, default: False
         If specified, setup the logger to log information to stdout.
         If ``True`` is specified, log the best validation score
         received every time possible.
-        If an int 0 and 100 is specified,
-        print (approximately) ``verbose`` percent of the time.
+        If an float between 0 and 1 is specified,
+        print (approximately) ``verbose`` fraction of the time.
+        ``verbose`` is cast as a float if an int.
+
 
     Attributes
     ----------
