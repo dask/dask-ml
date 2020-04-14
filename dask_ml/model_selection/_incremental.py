@@ -131,11 +131,9 @@ def _fit(
 ):
     if isinstance(verbose, bool):
         verbose = 1.0
-    elif isinstance(verbose, int):
-        verbose = float(verbose)
     if not 0 < verbose <= 1:
         raise ValueError("verbose={} does not satisfy 0 < verbose <= 1".format(verbose))
-    log_delay = int(1 / verbose)
+    log_delay = int(1 / float(verbose))
 
     original_model = model
     fit_params = fit_params or {}
