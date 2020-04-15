@@ -1053,7 +1053,6 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         instructions = {b: steps for b in best}
         return instructions
 
-        raise NotImplementedError
     def _stop_on_plateau(self, instructions, info):
         # Second, stop on plateau if any models have already converged
         out = {}
