@@ -17,7 +17,6 @@ from distributed.utils_test import (  # noqa: F401
     gen_cluster,
     loop,
 )
-from packaging import version
 from sklearn.base import clone
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.linear_model import SGDClassifier
@@ -25,7 +24,6 @@ from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
 from tornado import gen
 
-import dask_ml
 from dask_ml._compat import DISTRIBUTED_2_5_0
 from dask_ml.datasets import make_classification
 from dask_ml.model_selection import HyperbandSearchCV, IncrementalSearchCV
