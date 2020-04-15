@@ -1,7 +1,6 @@
 import itertools
 import logging
 import random
-from datetime import datetime
 
 import dask.array as da
 import dask.dataframe as dd
@@ -830,7 +829,3 @@ def test_warns_scores_per_fit():
 
     with pytest.warns(UserWarning, match="deprecated since Dask-ML v1.4.0"):
         IncrementalSearchCV(model, params, scores_per_fit=2)
-    if datetime.now() >= datetime(2021, 1, 1):
-        # scores_per_fit should raise a warning by now
-        with pytest.raises(TypeError, match="unexpected keyword argument"):
-            IncrementalSearchCV(model, params, scores_per_fit=2)
