@@ -8,6 +8,7 @@ from collections import defaultdict, namedtuple
 from copy import deepcopy
 from time import time
 from typing import Union
+from warnings import warn
 
 import dask
 import dask.array as da
@@ -715,7 +716,7 @@ class _IncrementalSearchCV(BaseIncrementalSearchCV):
         test_size=None,
         patience=False,
         tol=0.001,
-        scores_per_fit=1,
+        fits_per_score=1,
         max_iter=100,
         random_state=None,
         scoring=None,
@@ -726,7 +727,7 @@ class _IncrementalSearchCV(BaseIncrementalSearchCV):
         self.decay_rate = decay_rate
         self.patience = patience
         self.tol = tol
-        self.scores_per_fit = scores_per_fit
+        self.fits_per_score = fits_per_score
         self.max_iter = max_iter
         self.prefix = prefix
 
@@ -817,7 +818,7 @@ class _IncrementalSearchCV(BaseIncrementalSearchCV):
         while inverse(current_time_step) == inverse(next_time_step) and (
             self.decay_rate
             and not self.patience
-            or next_time_step - current_time_step < self.scores_per_fit
+            or next_time_step - current_time_step < self.fits_per_score
         ):
             next_time_step += 1
 
@@ -908,9 +909,15 @@ class IncrementalSearchCV(_IncrementalSearchCV):
         If specified, training stops when the score does not increase by
         ``tol`` after ``patience`` calls to ``partial_fit``. Off by default.
 
+    fits_per_scores : int, optional, default=1
+        If ``patience`` is used the maximum number of ``partial_fit`` calls
+        between ``score`` calls.
+
     scores_per_fit : int, default 1
         If ``patience`` is used the maximum number of ``partial_fit`` calls
         between ``score`` calls.
+
+        *Deprecated in Dask-ML v1.4.0.*
 
     tol : float, default 0.001
         The required level of improvement to consider stopping training on
@@ -1074,6 +1081,7 @@ class IncrementalSearchCV(_IncrementalSearchCV):
     after two consecutive calls to ``model.partial_fit`` without improvement,
     or when ``max_iter`` total calls to ``model.parital_fit`` are reached.
     """
+
     def __init__(
         self,
         estimator,
@@ -1083,12 +1091,24 @@ class IncrementalSearchCV(_IncrementalSearchCV):
         test_size=None,
         patience=False,
         tol=0.001,
-        scores_per_fit=1,
+        fits_per_score=1,
         max_iter=100,
         random_state=None,
         scoring=None,
         verbose=False,
+        scores_per_fit=None,
     ):
+        if scores_per_fit is not None and fits_per_score != 1:
+            msg = "Specify fits_per_score, not scores_per_fit"
+            raise ValueError(msg)
+
+        if scores_per_fit:
+            fits_per_score = scores_per_fit
+            warn(
+                "scores_per_fit has been deprecated since Dask-ML v1.4.0. "
+                "Specify fits_per_score={} instead".format(scores_per_fit)
+            )
+
         super(IncrementalSearchCV, self).__init__(
             estimator,
             parameters,
@@ -1097,7 +1117,7 @@ class IncrementalSearchCV(_IncrementalSearchCV):
             test_size=test_size,
             patience=patience,
             tol=tol,
-            scores_per_fit=scores_per_fit,
+            fits_per_score=fits_per_score,
             max_iter=max_iter,
             random_state=random_state,
             scoring=scoring,

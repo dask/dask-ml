@@ -1,6 +1,7 @@
 import itertools
 import logging
 import random
+from packaging import version
 
 import dask.array as da
 import dask.dataframe as dd
@@ -23,6 +24,7 @@ from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
 from tornado import gen
 
+import dask_ml
 from dask_ml._compat import DISTRIBUTED_2_5_0
 from dask_ml.datasets import make_classification
 from dask_ml.model_selection import HyperbandSearchCV, IncrementalSearchCV
@@ -773,7 +775,7 @@ def test_search_basic_patience(c, s, a, b):
         tol=increase_after_patience,
         patience=patience,
         decay_rate=0,
-        scores_per_fit=3,
+        fits_per_score=3,
     )
     yield search.fit(X, y, classes=[0, 1])
 
@@ -792,13 +794,12 @@ def test_search_basic_patience(c, s, a, b):
         tol=increase_after_patience,
         patience=patience,
         decay_rate=0,
-        scores_per_fit=3,
+        fits_per_score=3,
     )
     yield search.fit(X, y, classes=[0, 1])
 
     hist = pd.DataFrame(search.history_)
     assert hist.partial_fit_calls.max() == patience + 2
-
 
 @gen_cluster(client=True)
 def test_search_invalid_patience(c, s, a, b):
@@ -819,3 +820,17 @@ def test_search_invalid_patience(c, s, a, b):
     search = IncrementalSearchCV(model, params, patience=False, max_iter=10)
     yield search.fit(X, y, classes=[0, 1])
     assert search.history_
+
+def test_warns_scores_per_fit():
+    X, y = make_classification(n_samples=100, n_features=5, chunks=10)
+
+    params = {"value": np.random.RandomState(42).rand(1000)}
+    model = ConstantFunction()
+
+    if version.parse(dask_ml.__version__) < version.parse("1.7.0"):
+        with pytest.warns(UserWarning, match="deprecated since Dask-ML v1.4.0"):
+            IncrementalSearchCV(model, params, scores_per_fit=2)
+    else:
+        # scores_per_fit should raise a warning in Dask-ML v1.7
+        with pytest.raises(TypeError, match="unexpected keyword argument"):
+            IncrementalSearchCV(model, params, scores_per_fit=2)
