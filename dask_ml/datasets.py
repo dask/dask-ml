@@ -1,7 +1,9 @@
 import numbers
+from datetime import timedelta
 
 import dask
 import dask.array as da
+import dask.dataframe as dd
 import numpy as np
 import sklearn.datasets
 import sklearn.utils
@@ -377,3 +379,84 @@ def make_classification(
     y = y.astype(int)
 
     return X, y
+
+
+def random_date(start, end):
+    delta = end - start
+    int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
+    random_second = np.random.randint(int_delta)
+    return start + timedelta(seconds=random_second)
+
+
+def make_classification_df(
+    n_samples=10000,
+    response_rate=0.5,
+    predictability=0.1,
+    random_state=None,
+    chunks=None,
+    dates=None,
+    **kwargs,
+):
+    """
+    Uses the make_classification function to create a dask
+    dataframe for testing.
+
+    Parameters
+    ----------
+    n_samples : int, default is 10000
+        number of observations to be generated
+    response_rate : float between 0.0 and 0.5, default is 0.5
+        percentage of sample to be response records max is 0.5
+    predictability : float between 0.0 and 1.0, default is 0.1
+        how hard is the response to predict (1.0 being easist)
+    random_state : int, default is None
+        seed for reproducability purposes
+    chunks : int
+        How to chunk the array. Must be one of the following forms:
+        -   A blocksize like 1000.
+    dates : tuple, optional, default is None
+        tuple of start and end date objects to use for generating
+        random dates in the date column
+    **kwargs
+        Other keyword arguments to pass to `sklearn.datasets.make_classification`
+
+    Returns
+    -------
+    dask.DataFrame
+
+    """
+    X_array, y_array = make_classification(
+        n_samples=n_samples,
+        flip_y=(1 - predictability),
+        random_state=random_state,
+        weights=[(1 - response_rate), response_rate],
+        chunks=chunks,
+        **kwargs,
+    )
+
+    # merge into a dataframe and name columns
+    columns = ["var" + str(i) for i in range(np.shape(X_array)[1])]
+    df = dd.concat(
+        [
+            dd.from_array(y_array, chunksize=chunks, columns=["target"]),
+            dd.from_array(X_array, chunksize=chunks, columns=columns),
+        ],
+        axis=1,
+    )
+
+    if dates:
+        # create a date variable
+        np.random.seed(random_state)
+        df = dd.concat(
+            [
+                df,
+                dd.from_array(
+                    np.array([random_date(*dates)] * len(df)),
+                    chunksize=chunks,
+                    columns=["date"],
+                ),
+            ],
+            axis=1,
+        )
+
+    return df
