@@ -270,6 +270,7 @@ def test_correct_params(c, s, a, b):
         "random_state",
         "scoring",
         "verbose",
+        "prefix",
     }
     assert set(search.get_params().keys()) == base.union({"aggressiveness"})
     meta = search.metadata

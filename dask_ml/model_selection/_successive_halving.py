@@ -5,10 +5,10 @@ import numpy as np
 import toolz
 
 from .._compat import check_is_fitted
-from ._incremental import _IncrementalSearchCV
+from ._incremental import IncrementalSearchCV
 
 
-class SuccessiveHalvingSearchCV(_IncrementalSearchCV):
+class SuccessiveHalvingSearchCV(IncrementalSearchCV):
     """
     Perform the successive halving algorithm [1]_.
 
@@ -208,6 +208,8 @@ class SuccessiveHalvingSearchCV(_IncrementalSearchCV):
         verbose=False,
         prefix="",
     ):
+        self.n_initial_iter = n_initial_iter
+        self.aggressiveness = aggressiveness
         super(SuccessiveHalvingSearchCV, self).__init__(
             estimator,
             parameters,
@@ -219,11 +221,8 @@ class SuccessiveHalvingSearchCV(_IncrementalSearchCV):
             random_state=random_state,
             scoring=scoring,
             verbose=verbose,
+            prefix=prefix,
         )
-        self.n_initial_parameters = n_initial_parameters
-        self.n_initial_iter = n_initial_iter
-        self.aggressiveness = aggressiveness
-        self.prefix = prefix
 
     def _adapt(self, info, first_step_completed=False):
         if all(v[-1]["partial_fit_calls"] == 1 for v in info.values()):
