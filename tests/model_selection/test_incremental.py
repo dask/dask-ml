@@ -724,9 +724,11 @@ def test_verbosity_levels(capsys, verbose):
             model, params, max_iter=max_iter, verbose=verbose, decay_rate=0
         )
         yield search.fit(X, y)
+        return search
 
     with captured_logger(logging.getLogger("dask_ml.model_selection")) as logs:
-        _test_verbosity()
+        search = _test_verbosity()
+        assert search.best_score_ > 0  # ensure search ran
         messages = logs.getvalue().splitlines()
 
     factor = 1 if isinstance(verbose, bool) else verbose
