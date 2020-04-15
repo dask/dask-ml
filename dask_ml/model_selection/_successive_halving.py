@@ -5,10 +5,10 @@ import numpy as np
 import toolz
 
 from .._compat import check_is_fitted
-from ._incremental import IncrementalSearchCV
+from ._incremental import _IncrementalSearchCV
 
 
-class SuccessiveHalvingSearchCV(IncrementalSearchCV):
+class SuccessiveHalvingSearchCV(_IncrementalSearchCV):
     """
     Perform the successive halving algorithm [1]_.
 

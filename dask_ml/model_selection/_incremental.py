@@ -705,7 +705,158 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         return self.scorer_(self.best_estimator_, X, y)
 
 
-class IncrementalSearchCV(BaseIncrementalSearchCV):
+class _IncrementalSearchCV(BaseIncrementalSearchCV):
+    def __init__(
+        self,
+        estimator,
+        parameters,
+        n_initial_parameters=10,
+        decay_rate=1.0,
+        test_size=None,
+        patience=False,
+        tol=0.001,
+        scores_per_fit=1,
+        max_iter=100,
+        random_state=None,
+        scoring=None,
+        verbose=False,
+        prefix="",
+    ):
+        self.n_initial_parameters = n_initial_parameters
+        self.decay_rate = decay_rate
+        self.patience = patience
+        self.tol = tol
+        self.scores_per_fit = scores_per_fit
+        self.max_iter = max_iter
+        self.prefix = prefix
+
+        super(_IncrementalSearchCV, self).__init__(
+            estimator,
+            parameters,
+            test_size=test_size,
+            random_state=random_state,
+            scoring=scoring,
+            max_iter=max_iter,
+            patience=patience,
+            tol=tol,
+            verbose=verbose,
+            prefix=prefix,
+        )
+
+    def _get_params(self):
+        if self.n_initial_parameters == "grid":
+            return ParameterGrid(self.parameters)
+        else:
+            return ParameterSampler(
+                self.parameters,
+                self.n_initial_parameters,
+                random_state=self.random_state,
+            )
+
+    def _additional_calls(self, info):
+        if not isinstance(self.patience, int):
+            msg = (
+                "patience must be an integer (or a subclass like boolean), "
+                "not patience={} of type {}"
+            )
+            raise ValueError(msg.format(self.patience, type(self.patience)))
+        if not isinstance(self.patience, bool) and self.patience <= 1:
+            raise ValueError(
+                "patience={}<=1 will always detect a plateau. "
+                "To resolve this,\n\n    * set patience >= 2"
+            )
+
+        calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
+
+        if self.patience and max(calls.values()) > 1:
+            calls_so_far = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
+            adapt_calls = {
+                k: [
+                    vi["partial_fit_calls"] + vi["_adapt"] for vi in v if "_adapt" in vi
+                ][-1]
+                for k, v in info.items()
+            }
+
+            calls_to_make = {k: adapt_calls[k] - calls_so_far[k] for k in calls}
+            if sum(calls_to_make.values()) > 0:
+                out = self._stop_on_plateau(calls_to_make, info)
+                return {k: min(v, int(self.patience)) for k, v in out.items()}
+
+        instructions = self._adapt(info)
+        if self.patience:
+            for ident, calls in instructions.items():
+                info[ident][-1]["_adapt"] = calls
+
+        out = self._stop_on_plateau(instructions, info)
+
+        if self.patience:
+            return {k: min(v, int(self.patience)) for k, v in out.items()}
+        return out
+
+    def _adapt(self, info):
+        # First, have an adaptive algorithm
+        if self.n_initial_parameters == "grid":
+            start = len(ParameterGrid(self.parameters))
+        else:
+            start = self.n_initial_parameters
+
+        def inverse(time):
+            """ Decrease target number of models inversely with time """
+            return int(start / (1 + time) ** self.decay_rate)
+
+        example = toolz.first(info.values())
+        time_step = example[-1]["partial_fit_calls"]
+
+        current_time_step = time_step + 1
+        next_time_step = current_time_step
+
+        if inverse(current_time_step) == 0:
+            # we'll never get out of here
+            next_time_step = 1
+
+        while inverse(current_time_step) == inverse(next_time_step) and (
+            self.decay_rate
+            and not self.patience
+            or next_time_step - current_time_step < self.scores_per_fit
+        ):
+            next_time_step += 1
+
+        target = max(1, inverse(next_time_step))
+        best = toolz.topk(target, info, key=lambda k: info[k][-1]["score"])
+
+        if len(best) == 1:
+            [best] = best
+            return {best: 0}
+        steps = next_time_step - current_time_step
+        instructions = {b: steps for b in best}
+        return instructions
+
+    def _stop_on_plateau(self, instructions, info):
+        # Second, stop on plateau if any models have already converged
+        out = {}
+        for k, steps in instructions.items():
+            records = info[k]
+            current_calls = records[-1]["partial_fit_calls"]
+            if self.max_iter and current_calls >= self.max_iter:
+                out[k] = 0
+            elif self.patience and current_calls >= self.patience:
+                plateau = [
+                    h["score"]
+                    for h in records
+                    if current_calls - h["partial_fit_calls"] <= self.patience
+                ]
+                diffs = np.array(plateau[1:]) - plateau[0]
+                if (self.tol is not None) and diffs.max() <= self.tol:
+                    out[k] = 0
+                else:
+                    out[k] = steps
+
+            else:
+                out[k] = steps
+        return out
+
+
+class IncrementalSearchCV(_IncrementalSearchCV):
     """
     Incrementally search for hyper-parameters on models that support partial_fit
 
@@ -717,9 +868,15 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
     with an inverse decay given by the initial number of parameters and the
     decay rate:
 
+    .. code-block:: pytho
+
         n_models = n_initial_parameters * (n_batches ** -decay_rate)
 
-    See the :ref:`User Guide <hyperparameter.incremental>` for more.
+    With ``decay_rate=1``, this class is a contiuous time approximation to
+    the quantized inverse decay in
+    :class:`~dask_ml.model_selection.SuccessiveHalvingSearchCV`.
+
+    Usage details are in the :ref:`User Guide <hyperparameter.incremental>`.
 
     Parameters
     ----------
@@ -917,7 +1074,6 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
     after two consecutive calls to ``model.partial_fit`` without improvement,
     or when ``max_iter`` total calls to ``model.parital_fit`` are reached.
     """
-
     def __init__(
         self,
         estimator,
@@ -933,133 +1089,17 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         scoring=None,
         verbose=False,
     ):
-        self.n_initial_parameters = n_initial_parameters
-        self.decay_rate = decay_rate
-        self.patience = patience
-        self.tol = tol
-        self.scores_per_fit = scores_per_fit
-        self.max_iter = max_iter
-
         super(IncrementalSearchCV, self).__init__(
             estimator,
             parameters,
+            n_initial_parameters=n_initial_parameters,
+            decay_rate=decay_rate,
             test_size=test_size,
-            random_state=random_state,
-            scoring=scoring,
-            max_iter=max_iter,
             patience=patience,
             tol=tol,
+            scores_per_fit=scores_per_fit,
+            max_iter=max_iter,
+            random_state=random_state,
+            scoring=scoring,
             verbose=verbose,
         )
-
-    def _get_params(self):
-        if self.n_initial_parameters == "grid":
-            return ParameterGrid(self.parameters)
-        else:
-            return ParameterSampler(
-                self.parameters,
-                self.n_initial_parameters,
-                random_state=self.random_state,
-            )
-
-    def _additional_calls(self, info):
-        if not isinstance(self.patience, int):
-            msg = (
-                "patience must be an integer (or a subclass like boolean), "
-                "not patience={} of type {}"
-            )
-            raise ValueError(msg.format(self.patience, type(self.patience)))
-        if not isinstance(self.patience, bool) and self.patience <= 1:
-            raise ValueError(
-                "patience={}<=1 will always detect a plateau. "
-                "To resolve this,\n\n    * set patience >= 2"
-            )
-
-        calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
-
-        if self.patience and max(calls.values()) > 1:
-            calls_so_far = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
-            adapt_calls = {
-                k: [
-                    vi["partial_fit_calls"] + vi["_adapt"] for vi in v if "_adapt" in vi
-                ][-1]
-                for k, v in info.items()
-            }
-
-            calls_to_make = {k: adapt_calls[k] - calls_so_far[k] for k in calls}
-            if sum(calls_to_make.values()) > 0:
-                out = self._stop_on_plateau(calls_to_make, info)
-                return {k: min(v, int(self.patience)) for k, v in out.items()}
-
-        instructions = self._adapt(info)
-        if self.patience:
-            for ident, calls in instructions.items():
-                info[ident][-1]["_adapt"] = calls
-
-        out = self._stop_on_plateau(instructions, info)
-
-        if self.patience:
-            return {k: min(v, int(self.patience)) for k, v in out.items()}
-        return out
-
-    def _adapt(self, info):
-        # First, have an adaptive algorithm
-        if self.n_initial_parameters == "grid":
-            start = len(ParameterGrid(self.parameters))
-        else:
-            start = self.n_initial_parameters
-
-        def inverse(time):
-            """ Decrease target number of models inversely with time """
-            return int(start / (1 + time) ** self.decay_rate)
-
-        example = toolz.first(info.values())
-        time_step = example[-1]["partial_fit_calls"]
-
-        current_time_step = time_step + 1
-        next_time_step = current_time_step
-
-        if inverse(current_time_step) == 0:
-            # we'll never get out of here
-            next_time_step = 1
-
-        while inverse(current_time_step) == inverse(next_time_step) and (
-            self.decay_rate
-            and not self.patience
-            or next_time_step - current_time_step < self.scores_per_fit
-        ):
-            next_time_step += 1
-
-        target = max(1, inverse(next_time_step))
-        best = toolz.topk(target, info, key=lambda k: info[k][-1]["score"])
-
-        if len(best) == 1:
-            [best] = best
-            return {best: 0}
-        steps = next_time_step - current_time_step
-        instructions = {b: steps for b in best}
-        return instructions
-
-    def _stop_on_plateau(self, instructions, info):
-        # Second, stop on plateau if any models have already converged
-        out = {}
-        for k, steps in instructions.items():
-            records = info[k]
-            current_calls = records[-1]["partial_fit_calls"]
-            if self.max_iter and current_calls >= self.max_iter:
-                out[k] = 0
-            elif self.patience and current_calls >= self.patience:
-                plateau = [
-                    h["score"]
-                    for h in records
-                    if current_calls - h["partial_fit_calls"] <= self.patience
-                ]
-                diffs = np.array(plateau[1:]) - plateau[0]
-                if (self.tol is not None) and diffs.max() <= self.tol:
-                    out[k] = 0
-                else:
-                    out[k] = steps
-
-            else:
-                out[k] = steps
-        return out
