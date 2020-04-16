@@ -15,7 +15,7 @@ RET=$(($RET + $?)) ; echo $MSG "DONE"
 
 MSG='Checking mypy... ' ; echo $MSG
 mypy dask_ml/metrics
-mypy dask_ml/preprocessing
+mypy --no-strict-optional dask_ml/preprocessing
 RET=$(($RET + $?)) ; echo $MSG "DONE"
 
 exit $RET

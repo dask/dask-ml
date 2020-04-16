@@ -117,7 +117,7 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
         if isinstance(y, da.Array):
             classes_ = _encode_dask_array(y)
             self.classes_ = classes_.compute()
-            self.dtype_: Optional[pd.Categorical] = None
+            self.dtype_: Optional[pd.CategoricalDtype] = None
         elif _is_categorical(y):
             self.classes_ = _encode_categorical(y)
             self.dtype_ = y.dtype

@@ -35,7 +35,7 @@ blockwise = da.blockwise
 
 def check_is_fitted(est, attributes: Optional[Union[str, List[str]]] = None):
     if SK_022:
-        args: Tuple[Any] = ()
+        args: Any = ()
     else:
         args = (attributes,)
 
