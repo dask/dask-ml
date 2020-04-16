@@ -232,13 +232,7 @@ We also define the distribution of parameters from which we will sample:
 Finally we create many random models in this parameter space and
 train-and-score them until we find the best one.
 
-..
-
-   (note) :okwarning:s in this section are because "scores_per_fit" is
-   deprecated and sklearn throws warning in get_params
-
 .. ipython:: python
-    :okwarning:
 
     from dask_ml.model_selection import IncrementalSearchCV
 
@@ -252,7 +246,6 @@ to use post-estimation features like scoring or prediction, we recommend using
 :class:`dask_ml.wrappers.ParallelPostFit`.
 
 .. ipython:: python
-   :okwarning:
 
    from dask_ml.wrappers import ParallelPostFit
 

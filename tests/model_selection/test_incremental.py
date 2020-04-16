@@ -821,11 +821,13 @@ def test_search_invalid_patience(c, s, a, b):
     assert search.history_
 
 
-def test_warns_scores_per_fit():
+@gen_cluster(client=True)
+def test_warns_scores_per_fit(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=10)
 
     params = {"value": np.random.RandomState(42).rand(1000)}
     model = ConstantFunction()
 
+    search = IncrementalSearchCV(model, params, scores_per_fit=2)
     with pytest.warns(UserWarning, match="deprecated since Dask-ML v1.4.0"):
-        IncrementalSearchCV(model, params, scores_per_fit=2)
+        yield search.fit(X, y)

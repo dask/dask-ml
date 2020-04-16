@@ -938,20 +938,11 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         prefix="",
         scores_per_fit=None,
     ):
-        if scores_per_fit is not None and fits_per_score != 1:
-            msg = "Specify fits_per_score, not scores_per_fit"
-            raise ValueError(msg)
-
-        if scores_per_fit:
-            fits_per_score = scores_per_fit
-            warn(
-                "scores_per_fit has been deprecated since Dask-ML v1.4.0. "
-                "Specify fits_per_score={} instead".format(scores_per_fit)
-            )
 
         self.n_initial_parameters = n_initial_parameters
         self.decay_rate = decay_rate
         self.fits_per_score = fits_per_score
+        self.scores_per_fit = scores_per_fit
 
         super(IncrementalSearchCV, self).__init__(
             estimator,
@@ -965,6 +956,19 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
             verbose=verbose,
             prefix=prefix,
         )
+
+    def fit(self, X, y=None, **fit_params):
+        if self.scores_per_fit is not None and self.fits_per_score != 1:
+            msg = "Specify fits_per_score, not scores_per_fit"
+            raise ValueError(msg)
+
+        if self.scores_per_fit:
+            self.fits_per_score = self.scores_per_fit
+            warn(
+                "scores_per_fit has been deprecated since Dask-ML v1.4.0. "
+                "Specify fits_per_score={} instead".format(self.scores_per_fit)
+            )
+        return super(IncrementalSearchCV, self).fit(X, y=y, **fit_params)
 
     def _get_params(self):
         if self.n_initial_parameters == "grid":
