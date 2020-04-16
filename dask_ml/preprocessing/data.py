@@ -74,13 +74,13 @@ class StandardScaler(sklearn.preprocessing.StandardScaler):
         return self
 
     def partial_fit(
-        self, X=Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None
+        self, X: Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None
     ):
         raise NotImplementedError()
 
     def transform(
         self,
-        X=Union[ArrayLike, DataFrameType],
+        X: Union[ArrayLike, DataFrameType],
         y: Optional[SeriesType] = None,
         copy: Optional[bool] = None,
     ):
@@ -204,7 +204,7 @@ class RobustScaler(sklearn.preprocessing.RobustScaler):
                 ]
             )
 
-        quantiles: ArrayLike = [da.percentile(col, [q_min, 50.0, q_max]) for col in X.T]
+        quantiles: Any = [da.percentile(col, [q_min, 50.0, q_max]) for col in X.T]
         quantiles = da.vstack(quantiles).compute()
         self.center_: List[float] = quantiles[:, 1]
         self.scale_: List[float] = quantiles[:, 2] - quantiles[:, 0]
