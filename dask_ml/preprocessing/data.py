@@ -21,7 +21,7 @@ from dask_ml._compat import SK_022, blockwise, check_is_fitted
 from dask_ml._utils import copy_learned_attributes
 from dask_ml.utils import check_array, handle_zeros_in_scale
 
-from ..typing import ArrayLike, DataFrameType, SeriesType
+from .._typing import ArrayLike, DataFrameType, SeriesType
 
 _PANDAS_VERSION = LooseVersion(pd.__version__)
 _HAS_CTD = _PANDAS_VERSION >= "0.21.0"
