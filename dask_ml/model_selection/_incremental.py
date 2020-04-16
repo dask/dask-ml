@@ -753,7 +753,8 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         If ``patience`` is used the maximum number of ``partial_fit`` calls
         between ``score`` calls.
 
-        *Deprecated in Dask-ML v1.4.0.*
+        .. deprecated:: v1.4.0
+           Renamed to ``fits_per_score``.
 
     tol : float, default 0.001
         The required level of improvement to consider stopping training on
@@ -796,12 +797,12 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         If None, the estimator's default scorer (if available) is used.
 
     verbose : bool, float, int, optional, default: False
-        If specified, setup the logger to log information to stdout.
-        If ``True`` is specified, log the best validation score
-        received every time possible.
-        If an float between 0 and 1 is specified,
-        print (approximately) ``verbose`` fraction of the time.
-        ``verbose`` is cast as a float if an int.
+        If False (default), don't print logs (or pipe them to stdout). However,
+        standard logging will still be used.
+
+        If True, print logs and use standard logging.
+
+        If float, print/log approximately ``verbose`` fraction of the time.
 
     prefix : str, optional, default=""
         While logging, add ``prefix`` to each message.
@@ -935,17 +936,17 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         scoring=None,
         verbose=False,
         prefix="",
-        scores_per_fit=None,
+        **kwargs,
     ):
-        if scores_per_fit is not None and fits_per_score != 1:
+        if "scores_per_fit" in kwargs and fits_per_score != 1:
             msg = "Specify fits_per_score, not scores_per_fit"
             raise ValueError(msg)
 
-        if scores_per_fit:
-            fits_per_score = scores_per_fit
+        if "scores_per_fit" in kwargs:
+            fits_per_score = kwargs["scores_per_fit"]
             warn(
                 "scores_per_fit has been deprecated since Dask-ML v1.4.0. "
-                "Specify fits_per_score={} instead".format(scores_per_fit)
+                "Specify fits_per_score={} instead".format(kwargs["scores_per_fit"])
             )
 
         self.n_initial_parameters = n_initial_parameters

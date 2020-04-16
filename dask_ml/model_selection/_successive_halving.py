@@ -93,14 +93,16 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         If None, the random number generator is the RandomState instance used
         by `np.random`.
 
-    verbose : bool, int, optional, default: False
-        If ``True``, print the best validation score received to stdout every
-        time possible.  If an integer, print ``1 / verbose``
-        percent of the time.
+    verbose : bool, float, int, optional, default: False
+        If False (default), don't print logs (or pipe them to stdout). However,
+        standard logging will still be used.
 
-    prefix : string, optional, default: ""
-        Prefix to prepend to printed message. Only relevant when
-        ``bool(verbose) == True``.
+        If True, print logs and use standard logging.
+
+        If float, print/log approximately ``verbose`` fraction of the time.
+
+    prefix : str, optional, default=""
+        While logging, add ``prefix`` to each message.
 
 
     Attributes
