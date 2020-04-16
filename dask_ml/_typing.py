@@ -1,6 +1,6 @@
 from typing import TypeVar, Union
 
-import dask as dd
+import dask.dataframe as dd
 import numpy as np
 from dask.array import Array
 from pandas import Index, Series, DataFrame
