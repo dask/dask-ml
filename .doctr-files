@@ -48,7 +48,6 @@
 ./_sources/modules/generated/dask_ml.preprocessing.QuantileTransformer.rst.txt
 ./_sources/modules/generated/dask_ml.preprocessing.RobustScaler.rst.txt
 ./_sources/modules/generated/dask_ml.preprocessing.StandardScaler.rst.txt
-./_sources/modules/generated/dask_ml.tensorflow.start_tensorflow.rst.txt
 ./_sources/modules/generated/dask_ml.wrappers.Incremental.rst.txt
 ./_sources/modules/generated/dask_ml.wrappers.ParallelPostFit.rst.txt
 ./_sources/modules/generated/dask_ml.xgboost.XGBClassifier.rst.txt
@@ -59,7 +58,6 @@
 ./_sources/modules/generted/dask_ml.compose.make_column_transformer.rst.txt
 ./_sources/preprocessing.rst.txt
 ./_sources/roadmap.rst.txt
-./_sources/tensorflow.rst.txt
 ./_sources/xgboost.rst.txt
 ./_static/ajax-loader.gif
 ./_static/basic.css
@@ -171,7 +169,6 @@
 ./modules/generated/dask_ml.preprocessing.QuantileTransformer.html
 ./modules/generated/dask_ml.preprocessing.RobustScaler.html
 ./modules/generated/dask_ml.preprocessing.StandardScaler.html
-./modules/generated/dask_ml.tensorflow.start_tensorflow.html
 ./modules/generated/dask_ml.wrappers.Incremental.html
 ./modules/generated/dask_ml.wrappers.ParallelPostFit.html
 ./modules/generated/dask_ml.xgboost.XGBClassifier.html
@@ -186,5 +183,4 @@
 ./roadmap.html
 ./search.html
 ./searchindex.js
-./tensorflow.html
 ./xgboost.html
