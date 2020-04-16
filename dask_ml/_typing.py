@@ -3,9 +3,7 @@ from typing import TypeVar, Union
 import dask.dataframe as dd
 import numpy as np
 from dask.array import Array
-from pandas import Index, Series, DataFrame
-
-# array-like
+from pandas import DataFrame, Index, Series
 
 AnyArrayLike = TypeVar("AnyArrayLike", Index, Series, Array, np.ndarray)
 ArrayLike = TypeVar("ArrayLike", Array, np.ndarray)

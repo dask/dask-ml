@@ -1,7 +1,7 @@
 from __future__ import division
 
 from operator import getitem
-from typing import Any, Optional, Union
+from typing import Optional
 
 import dask.array as da
 import dask.dataframe as dd
@@ -11,7 +11,7 @@ import scipy.sparse
 import sklearn.preprocessing
 
 from .._compat import check_is_fitted
-from .._typing import ArrayLike, SeriesType
+from .._typing import SeriesType
 
 
 class LabelEncoder(sklearn.preprocessing.LabelEncoder):

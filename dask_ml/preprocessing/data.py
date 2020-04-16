@@ -3,7 +3,7 @@ from __future__ import division
 import multiprocessing
 from collections import OrderedDict
 from distutils.version import LooseVersion
-from typing import Any, List, Optional, Sequence, Tuple, Union
+from typing import Any, List, Optional, Sequence, Union
 
 import dask.array as da
 import dask.dataframe as dd
