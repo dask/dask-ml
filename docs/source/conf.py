@@ -31,16 +31,6 @@
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = [
-    "sphinx.ext.mathjax",
-    "sphinx.ext.intersphinx",
-    "sphinx.ext.autodoc",
-    "sphinx.ext.autosummary",
-    "sphinx.ext.extlinks",
-    "IPython.sphinxext.ipython_console_highlighting",
-    "IPython.sphinxext.ipython_directive",
-    "numpydoc",
-]
 
 numpydoc_class_members_toctree = False
 autodoc_default_flags = ["members", "inherited-members"]
