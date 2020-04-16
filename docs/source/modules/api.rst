@@ -226,20 +226,6 @@ Classification Metrics
    metrics.log_loss
 
 
-:mod:`dask_ml.tensorflow`: Tensorflow
-=====================================
-
-.. automodule:: dask_ml.tensorflow
-
-.. currentmodule:: dask_ml.tensorflow
-
-.. autosummary::
-   :toctree: generated/
-
-   start_tensorflow
-
-
-
 :mod:`dask_ml.xgboost`: XGBoost
 ===============================
 

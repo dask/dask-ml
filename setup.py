@@ -35,15 +35,13 @@ test_requires = [
     "pytest-mock",
 ]
 dev_requires = doc_requires + test_requires
-tensorflow_requires = ["dask-tensorflow", "tensorflow"]
 xgboost_requires = ["dask-xgboost", "xgboost"]
-complete_requires = tensorflow_requires + xgboost_requires
+complete_requires = xgboost_requires
 
 extras_require = {
     "docs": doc_requires,
     "test": test_requires,
     "dev": dev_requires,
-    "tensorflow": tensorflow_requires,
     "xgboost": xgboost_requires,
     "complete": complete_requires,
 }
