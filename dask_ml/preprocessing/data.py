@@ -3,7 +3,7 @@ from __future__ import division
 import multiprocessing
 from collections import OrderedDict
 from distutils.version import LooseVersion
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, List, Optional, Sequence, Tuple, Union
 
 import dask.array as da
 import dask.dataframe as dd
@@ -74,14 +74,14 @@ class StandardScaler(sklearn.preprocessing.StandardScaler):
         return self
 
     def partial_fit(
-        self, X=Union[ArrayLike, DataFrameType], y: Optional[Series] = None
+        self, X=Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None
     ):
         raise NotImplementedError()
 
     def transform(
         self,
         X=Union[ArrayLike, DataFrameType],
-        y: Optional[Series] = None,
+        y: Optional[SeriesType] = None,
         copy: Optional[bool] = None,
     ):
         if self.with_mean:
@@ -204,7 +204,7 @@ class RobustScaler(sklearn.preprocessing.RobustScaler):
                 ]
             )
 
-        quantiles = [da.percentile(col, [q_min, 50.0, q_max]) for col in X.T]
+        quantiles: ArrayLike = [da.percentile(col, [q_min, 50.0, q_max]) for col in X.T]
         quantiles = da.vstack(quantiles).compute()
         self.center_: List[float] = quantiles[:, 1]
         self.scale_: List[float] = quantiles[:, 2] - quantiles[:, 0]
@@ -440,7 +440,7 @@ class Categorizer(BaseEstimator, TransformerMixin):
     CategoricalDtype(categories=['a', 'b', 'c'], ordered=False)
     """
 
-    def __init__(self, categories: dict = None, columns: pd.Index = None):
+    def __init__(self, categories: Optional[dict] = None, columns: pd.Index = None):
         self.categories = categories
         self.columns = columns
 
@@ -721,7 +721,7 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
             if unknown:
                 lengths = blockwise(len, "i", X[:, 0], "i", dtype="i8").compute()
                 X = X.copy()
-                chunks = (tuple(lengths), X.chunks[1])
+                chunks: ArrayLike = (tuple(lengths), X.chunks[1])
                 X._chunks = chunks
 
             X = dd.from_dask_array(X, columns=self.transformed_columns_)
@@ -940,7 +940,7 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
             if unknown:
                 lengths = blockwise(len, "i", X[:, 0], "i", dtype="i8").compute()
                 X = X.copy()
-                chunks = (tuple(lengths), X.chunks[1])
+                chunks: ArrayLike = (tuple(lengths), X.chunks[1])
                 X._chunks = chunks
 
             X = dd.from_dask_array(X, columns=self.columns_)

@@ -243,7 +243,12 @@ def _construct(x: np.ndarray, categories: np.ndarray) -> scipy.sparse.csr_matrix
     )
 
 
-def _encode_dask_array(values, uniques=None, encode=False, onehot_dtype=None):
+def _encode_dask_array(
+    values: da.Array,
+    uniques: Optional[np.ndarray] = None,
+    encode: bool = False,
+    onehot_dtype: Optional[np.dtype] = None,
+):
     """One-hot or label encode a dask array.
 
     Parameters
@@ -284,7 +289,7 @@ def _encode_dask_array(values, uniques=None, encode=False, onehot_dtype=None):
     if encode:
         if onehot_dtype:
             dtype = onehot_dtype
-            new_axis = 1
+            new_axis: Optional[int] = 1
             chunks = values.chunks + (len(uniques),)
         else:
             dtype = np.dtype("int")
