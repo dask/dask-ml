@@ -422,7 +422,12 @@ def make_classification_df(
 
     Returns
     -------
-    dask.DataFrame
+    X : Dask DataFrame of shape [n_samples, n_features] or
+        [n_samples, n_features + 1] when dates specified
+        The input samples.
+
+    y : Dask Series of shape [n_samples] or [n_samples, n_targets]
+        The output values.
 
     """
     X_array, y_array = make_classification(
@@ -436,22 +441,17 @@ def make_classification_df(
 
     # merge into a dataframe and name columns
     columns = ["var" + str(i) for i in range(np.shape(X_array)[1])]
-    df = dd.concat(
-        [
-            dd.from_array(y_array, chunksize=chunks, columns=["target"]),
-            dd.from_array(X_array, chunksize=chunks, columns=columns),
-        ],
-        axis=1,
-    )
+    X_df = dd.from_dask_array(X_array, columns=columns)
+    y_series = dd.from_dask_array(y_array, columns="target", index=X_df.index)
 
     if dates:
         # create a date variable
         np.random.seed(random_state)
-        df = dd.concat(
+        X_df = dd.concat(
             [
-                df,
+                X_df,
                 dd.from_array(
-                    np.array([random_date(*dates)] * len(df)),
+                    np.array([random_date(*dates)] * len(X_df)),
                     chunksize=chunks,
                     columns=["date"],
                 ),
@@ -459,4 +459,4 @@ def make_classification_df(
             axis=1,
         )
 
-    return df
+    return X_df, y_series
