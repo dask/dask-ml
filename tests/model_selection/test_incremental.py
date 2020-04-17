@@ -25,7 +25,11 @@ from tornado import gen
 
 from dask_ml._compat import DISTRIBUTED_2_5_0
 from dask_ml.datasets import make_classification
-from dask_ml.model_selection import HyperbandSearchCV, IncrementalSearchCV, InverseDecaySearchCV
+from dask_ml.model_selection import (
+    HyperbandSearchCV,
+    IncrementalSearchCV,
+    InverseDecaySearchCV,
+)
 from dask_ml.model_selection._incremental import _partial_fit, _score, fit
 from dask_ml.model_selection.utils_test import LinearFunction, _MaybeLinearFunction
 from dask_ml.utils import ConstantFunction
@@ -241,7 +245,7 @@ def _test_search_basic(decay_rate, input_type, memory, c, s, a, b):
 
     kwargs = dict(n_initial_parameters=20, max_iter=10)
     if decay_rate == 0:
-        search = IncrementalSearchCV( model, params, **kwargs)
+        search = IncrementalSearchCV(model, params, **kwargs)
     elif decay_rate == 1:
         search = InverseDecaySearchCV(model, params, **kwargs)
     else:
@@ -339,12 +343,7 @@ def test_search_plateau_patience(c, s, a, b):
     model = ConstantClassifier()
 
     search = IncrementalSearchCV(
-        model,
-        params,
-        n_initial_parameters=10,
-        patience=5,
-        tol=0,
-        max_iter=10,
+        model, params, n_initial_parameters=10, patience=5, tol=0, max_iter=10,
     )
     yield search.fit(X, y, classes=[0, 1])
 
@@ -367,17 +366,13 @@ def test_search_plateau_tol(c, s, a, b):
     params = {"foo": np.linspace(0, 1)}
 
     # every 3 calls, score will increase by 3. tol=1: model did improved enough
-    search = IncrementalSearchCV(
-        model, params, patience=3, tol=1, max_iter=10
-    )
+    search = IncrementalSearchCV(model, params, patience=3, tol=1, max_iter=10)
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     yield search.fit(X, y)
     assert set(search.cv_results_["partial_fit_calls"]) == {10}
 
     # Every 3 calls, score increases by 3. tol=4: model didn't improve enough
-    search = IncrementalSearchCV(
-        model, params, patience=3, tol=4, max_iter=10
-    )
+    search = IncrementalSearchCV(model, params, patience=3, tol=4, max_iter=10)
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     yield search.fit(X, y)
     assert set(search.cv_results_["partial_fit_calls"]) == {3}
@@ -443,9 +438,7 @@ def test_small(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = {"alpha": [0.1, 0.5, 0.75, 1.0]}
-    search = IncrementalSearchCV(
-        model, params, n_initial_parameters="grid"
-    )
+    search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
     yield search.fit(X, y, classes=[0, 1])
     (X_,) = yield c.compute([X])
     search.predict(X_)
@@ -725,9 +718,7 @@ def test_verbosity_levels(capsys, verbose):
         X, y = make_classification(n_samples=10, n_features=4, chunks=10)
         model = ConstantFunction()
         params = {"value": scipy.stats.uniform(0, 1)}
-        search = IncrementalSearchCV(
-            model, params, max_iter=max_iter, verbose=verbose
-        )
+        search = IncrementalSearchCV(model, params, max_iter=max_iter, verbose=verbose)
         yield search.fit(X, y)
         return search
 

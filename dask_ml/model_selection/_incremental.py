@@ -1038,6 +1038,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
                 out[k] = steps
         return out
 
+
 class InverseDecaySearchCV(IncrementalSearchCV):
     """
 
@@ -1059,6 +1060,7 @@ class InverseDecaySearchCV(IncrementalSearchCV):
     bracket of :class:`HyperbandSearchCV`. This might yield good results
     and/or find good models, but is untested.
     """
+
     def __init__(self, *args, decay_rate=1, **kwargs):
         self.decay_rate = decay_rate
         super().__init__(*args, **kwargs)
