@@ -25,7 +25,7 @@ from tornado import gen
 
 from dask_ml._compat import DISTRIBUTED_2_5_0
 from dask_ml.datasets import make_classification
-from dask_ml.model_selection import HyperbandSearchCV, IncrementalSearchCV
+from dask_ml.model_selection import HyperbandSearchCV, IncrementalSearchCV, InverseDecaySearchCV
 from dask_ml.model_selection._incremental import _partial_fit, _score, fit
 from dask_ml.model_selection.utils_test import LinearFunction, _MaybeLinearFunction
 from dask_ml.utils import ConstantFunction
@@ -239,9 +239,13 @@ def _test_search_basic(decay_rate, input_type, memory, c, s, a, b):
 
     params = {"alpha": np.logspace(-2, 2, 100), "l1_ratio": np.linspace(0.01, 1, 200)}
 
-    search = IncrementalSearchCV(
-        model, params, n_initial_parameters=20, max_iter=10, decay_rate=decay_rate
-    )
+    kwargs = dict(n_initial_parameters=20, max_iter=10)
+    if decay_rate == 0:
+        search = IncrementalSearchCV( model, params, **kwargs)
+    elif decay_rate == 1:
+        search = InverseDecaySearchCV(model, params, **kwargs)
+    else:
+        raise ValueError()
     if memory == "distributed" and input_type == "dataframe":
         with pytest.raises(TypeError, match=r"to_dask_array\(lengths=True\)"):
             yield search.fit(X, y, classes=[0, 1])
@@ -341,7 +345,6 @@ def test_search_plateau_patience(c, s, a, b):
         patience=5,
         tol=0,
         max_iter=10,
-        decay_rate=0,
     )
     yield search.fit(X, y, classes=[0, 1])
 
@@ -365,7 +368,7 @@ def test_search_plateau_tol(c, s, a, b):
 
     # every 3 calls, score will increase by 3. tol=1: model did improved enough
     search = IncrementalSearchCV(
-        model, params, patience=3, tol=1, max_iter=10, decay_rate=0
+        model, params, patience=3, tol=1, max_iter=10
     )
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     yield search.fit(X, y)
@@ -373,7 +376,7 @@ def test_search_plateau_tol(c, s, a, b):
 
     # Every 3 calls, score increases by 3. tol=4: model didn't improve enough
     search = IncrementalSearchCV(
-        model, params, patience=3, tol=4, decay_rate=0, max_iter=10
+        model, params, patience=3, tol=4, max_iter=10
     )
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     yield search.fit(X, y)
@@ -418,7 +421,7 @@ def test_numpy_array(c, s, a, b):
         "l1_ratio": np.linspace(0, 1, num=1000),
     }
 
-    search = IncrementalSearchCV(model, params, n_initial_parameters=10, decay_rate=0)
+    search = IncrementalSearchCV(model, params, n_initial_parameters=10)
     yield search.fit(X, y, classes=[0, 1])
     assert search.best_score_ > 0  # smoke test
 
@@ -441,7 +444,7 @@ def test_small(c, s, a, b):
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = {"alpha": [0.1, 0.5, 0.75, 1.0]}
     search = IncrementalSearchCV(
-        model, params, n_initial_parameters="grid", decay_rate=0
+        model, params, n_initial_parameters="grid"
     )
     yield search.fit(X, y, classes=[0, 1])
     (X_,) = yield c.compute([X])
@@ -520,7 +523,6 @@ def test_high_performing_models_are_retained_with_patience(c, s, a, b):
         params,
         patience=2,
         tol=1e-3,  # only stop the constant functions
-        decay_rate=0,
         n_initial_parameters="grid",
         max_iter=20,
     )
@@ -537,13 +539,15 @@ def test_param_random_determinism(c, s, a, b):
     model = SGDClassifier(tol=1e-3, penalty="elasticnet", random_state=1)
     params = {"l1_ratio": scipy.stats.uniform(0, 1)}
 
-    kwargs = dict(n_initial_parameters=10, random_state=2, decay_rate=1)
+    # Use InverseDecaySearchCV to decay the models and make sure the same ones
+    # are selected
+    kwargs = dict(n_initial_parameters=10, random_state=2)
 
-    search1 = IncrementalSearchCV(clone(model), params, **kwargs)
+    search1 = InverseDecaySearchCV(clone(model), params, **kwargs)
     yield search1.fit(X, y, classes=[0, 1])
     params1 = search1.cv_results_["param_l1_ratio"]
 
-    search2 = IncrementalSearchCV(clone(model), params, **kwargs)
+    search2 = InverseDecaySearchCV(clone(model), params, **kwargs)
     yield search2.fit(X, y, classes=[0, 1])
     params2 = search2.cv_results_["param_l1_ratio"]
 
@@ -568,10 +572,10 @@ def test_model_random_determinism(c, s, a, b):
     model = SGDClassifier(random_state=1)
     kwargs = dict(n_initial_parameters=10, random_state=2, max_iter=10)
 
-    search1 = IncrementalSearchCV(model, params, **kwargs)
+    search1 = InverseDecaySearchCV(model, params, **kwargs)
     yield search1.fit(X, y, classes=[0, 1])
 
-    search2 = IncrementalSearchCV(clone(model), params, **kwargs)
+    search2 = InverseDecaySearchCV(clone(model), params, **kwargs)
     yield search2.fit(X, y, classes=[0, 1])
 
     assert search1.best_score_ == search2.best_score_
@@ -722,7 +726,7 @@ def test_verbosity_levels(capsys, verbose):
         model = ConstantFunction()
         params = {"value": scipy.stats.uniform(0, 1)}
         search = IncrementalSearchCV(
-            model, params, max_iter=max_iter, verbose=verbose, decay_rate=0
+            model, params, max_iter=max_iter, verbose=verbose
         )
         yield search.fit(X, y)
         return search
@@ -747,7 +751,7 @@ def test_search_patience_infeasible_tol(c, s, a, b):
     max_iter = 10
     score_increase = -10
     search = IncrementalSearchCV(
-        model, params, max_iter=max_iter, patience=3, tol=score_increase, decay_rate=0
+        model, params, max_iter=max_iter, patience=3, tol=score_increase
     )
     yield search.fit(X, y, classes=[0, 1])
 
@@ -773,7 +777,6 @@ def test_search_basic_patience(c, s, a, b):
         max_iter=max_iter,
         tol=increase_after_patience,
         patience=patience,
-        decay_rate=0,
         fits_per_score=3,
     )
     yield search.fit(X, y, classes=[0, 1])
@@ -792,7 +795,6 @@ def test_search_basic_patience(c, s, a, b):
         max_iter=max_iter,
         tol=increase_after_patience,
         patience=patience,
-        decay_rate=0,
         fits_per_score=3,
     )
     yield search.fit(X, y, classes=[0, 1])

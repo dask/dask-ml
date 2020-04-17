@@ -724,12 +724,6 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
         Alternatively, you can set this to ``"grid"`` to do a full grid search.
 
-    decay_rate : float, default 0.0
-        How quickly to decrease the number partial future fit calls.
-        Higher `decay_rate` will result in lower training times, at the cost
-        of worse models. This is best changed for compute bound model selection
-        problems. If changed, note that ``decay_rate == 1`` has some
-        theoritical motivation [1]_.
 
     patience : int, default False
         If specified, training stops when the score does not increase by
@@ -917,14 +911,6 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
            optimization. The Journal of Machine Learning Research, 18(1),
            6765-6816. http://www.jmlr.org/papers/volume18/16-558/16-558.pdf
 
-    Notes
-    -----
-    When ``decay_rate==1``, this class approximates the
-    number of ``partial_fit`` calls that :class:`SuccesiveHalvingSearchCV`
-    performs. If ``n_initial_parameters`` is configured properly with
-    ``decay_rate=1``, it's possible this class will mirror the most aggressive
-    bracket of :class:`HyperbandSearchCV`. This might yield good results
-    and/or find good models, but is untested.
 
     """
 
@@ -933,7 +919,6 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         estimator,
         parameters,
         n_initial_parameters=10,
-        decay_rate=0.0,
         test_size=None,
         patience=False,
         tol=0.001,
@@ -947,7 +932,6 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
     ):
 
         self.n_initial_parameters = n_initial_parameters
-        self.decay_rate = decay_rate
         self.fits_per_score = fits_per_score
         self.scores_per_fit = scores_per_fit
 
@@ -1028,6 +1012,58 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         return out
 
     def _adapt(self, info):
+        return {k: self.fits_per_score for k in info}
+
+    def _stop_on_plateau(self, instructions, info):
+        # Second, stop on plateau if any models have already converged
+        out = {}
+        for k, steps in instructions.items():
+            records = info[k]
+            current_calls = records[-1]["partial_fit_calls"]
+            if self.max_iter and current_calls >= self.max_iter:
+                out[k] = 0
+            elif self.patience and current_calls >= self.patience:
+                plateau = [
+                    h["score"]
+                    for h in records
+                    if current_calls - h["partial_fit_calls"] <= self.patience
+                ]
+                diffs = np.array(plateau[1:]) - plateau[0]
+                if (self.tol is not None) and diffs.max() <= self.tol:
+                    out[k] = 0
+                else:
+                    out[k] = steps
+
+            else:
+                out[k] = steps
+        return out
+
+class InverseDecaySearchCV(IncrementalSearchCV):
+    """
+
+    (TODO)
+
+    decay_rate : float, default 0.0
+        How quickly to decrease the number partial future fit calls.
+        Higher `decay_rate` will result in lower training times, at the cost
+        of worse models. This is best changed for compute bound model selection
+        problems. If changed, note that ``decay_rate == 1`` has some
+        theoritical motivation [1]_.
+
+    Notes
+    -----
+    When ``decay_rate==1``, this class approximates the
+    number of ``partial_fit`` calls that :class:`SuccesiveHalvingSearchCV`
+    performs. If ``n_initial_parameters`` is configured properly with
+    ``decay_rate=1``, it's possible this class will mirror the most aggressive
+    bracket of :class:`HyperbandSearchCV`. This might yield good results
+    and/or find good models, but is untested.
+    """
+    def __init__(self, *args, decay_rate=1, **kwargs):
+        self.decay_rate = decay_rate
+        super().__init__(*args, **kwargs)
+
+    def _adapt(self, info):
         # First, have an adaptive algorithm
         if self.n_initial_parameters == "grid":
             start = len(ParameterGrid(self.parameters))
@@ -1036,7 +1072,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
         def inverse(time):
             """ Decrease target number of models inversely with time """
-            return int(start / (1 + time) ** self.decay_rate)
+            return int(start / (1 + time))
 
         example = toolz.first(info.values())
         time_step = example[-1]["partial_fit_calls"]
@@ -1064,27 +1100,3 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         steps = next_time_step - current_time_step
         instructions = {b: steps for b in best}
         return instructions
-
-    def _stop_on_plateau(self, instructions, info):
-        # Second, stop on plateau if any models have already converged
-        out = {}
-        for k, steps in instructions.items():
-            records = info[k]
-            current_calls = records[-1]["partial_fit_calls"]
-            if self.max_iter and current_calls >= self.max_iter:
-                out[k] = 0
-            elif self.patience and current_calls >= self.patience:
-                plateau = [
-                    h["score"]
-                    for h in records
-                    if current_calls - h["partial_fit_calls"] <= self.patience
-                ]
-                diffs = np.array(plateau[1:]) - plateau[0]
-                if (self.tol is not None) and diffs.max() <= self.tol:
-                    out[k] = 0
-                else:
-                    out[k] = steps
-
-            else:
-                out[k] = steps
-        return out
