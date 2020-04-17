@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.3.1.dev6+gad13e1f
+                1.3.1.dev7+g6fc6011
               </div>
             
           
@@ -276,7 +276,7 @@
 <h1><a class="reference internal" href="../api.html#module-dask_ml.model_selection" title="dask_ml.model_selection"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code></a>.SuccessiveHalvingSearchCV<a class="headerlink" href="#dask-ml-model-selection-successivehalvingsearchcv" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="dask_ml.model_selection.SuccessiveHalvingSearchCV">
-<em class="property">class </em><code class="descclassname">dask_ml.model_selection.</code><code class="descname">SuccessiveHalvingSearchCV</code><span class="sig-paren">(</span><em>estimator</em>, <em>parameters</em>, <em>n_initial_parameters=10</em>, <em>n_initial_iter=None</em>, <em>max_iter=None</em>, <em>aggressiveness=3</em>, <em>test_size=None</em>, <em>patience=False</em>, <em>tol=0.001</em>, <em>random_state=None</em>, <em>scoring=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.SuccessiveHalvingSearchCV" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.model_selection.</code><code class="descname">SuccessiveHalvingSearchCV</code><span class="sig-paren">(</span><em>estimator</em>, <em>parameters</em>, <em>n_initial_parameters=10</em>, <em>n_initial_iter=None</em>, <em>max_iter=None</em>, <em>aggressiveness=3</em>, <em>test_size=None</em>, <em>patience=False</em>, <em>tol=0.001</em>, <em>random_state=None</em>, <em>scoring=None</em>, <em>verbose=False</em>, <em>prefix=''</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.SuccessiveHalvingSearchCV" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform the successive halving algorithm <a class="reference internal" href="#r424ea1a907b1-1" id="id1">[R424ea1a907b1-1]</a>.</p>
 <p>This algorithm trains estimators for a certain number <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>
 calls to <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>, then kills the worst performing half.
@@ -358,6 +358,15 @@ of worse models.</p>
 If RandomState instance, random_state is the random number generator;
 If None, the random number generator is the RandomState instance used
 by <cite>np.random</cite>.</p>
+</dd>
+<dt><strong>verbose</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, float, int, optional, default: False</span></dt>
+<dd><p class="first">If False (default), don’t print logs (or pipe them to stdout). However,
+standard logging will still be used.</p>
+<p>If True, print logs and use standard logging.</p>
+<p class="last">If float, print/log approximately <code class="docutils literal notranslate"><span class="pre">verbose</span></code> fraction of the time.</p>
+</dd>
+<dt><strong>prefix</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional, default=””</span></dt>
+<dd><p class="first last">While logging, add <code class="docutils literal notranslate"><span class="pre">prefix</span></code> to each message.</p>
 </dd>
 </dl>
 </td>
@@ -506,7 +515,7 @@ optimization” by Jamieson, Kevin and Talwalkar, Ameet. 2016.
 </table>
 <dl class="method">
 <dt id="dask_ml.model_selection.SuccessiveHalvingSearchCV.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>estimator</em>, <em>parameters</em>, <em>n_initial_parameters=10</em>, <em>n_initial_iter=None</em>, <em>max_iter=None</em>, <em>aggressiveness=3</em>, <em>test_size=None</em>, <em>patience=False</em>, <em>tol=0.001</em>, <em>random_state=None</em>, <em>scoring=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.SuccessiveHalvingSearchCV.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>estimator</em>, <em>parameters</em>, <em>n_initial_parameters=10</em>, <em>n_initial_iter=None</em>, <em>max_iter=None</em>, <em>aggressiveness=3</em>, <em>test_size=None</em>, <em>patience=False</em>, <em>tol=0.001</em>, <em>random_state=None</em>, <em>scoring=None</em>, <em>verbose=False</em>, <em>prefix=''</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.SuccessiveHalvingSearchCV.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 

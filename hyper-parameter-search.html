@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.3.1.dev6+gad13e1f
+                1.3.1.dev7+g6fc6011
               </div>
             
           
@@ -481,14 +481,14 @@ train-and-score them until we find the best one.</p>
 <span class="go">                                            penalty=&#39;elasticnet&#39;, power_t=0.5,</span>
 <span class="go">                                            random_state=0, shuffle=True,</span>
 <span class="go">                                            tol=0.001, validation_fractio...</span>
-<span class="go">       0.97097097, 0.97197197, 0.97297297, 0.97397397, 0.97497497,</span>
 <span class="go">       0.97597598, 0.97697698, 0.97797798, 0.97897898, 0.97997998,</span>
 <span class="go">       0.98098098, 0.98198198, 0.98298298, 0.98398398, 0.98498498,</span>
 <span class="go">       0.98598599, 0.98698699, 0.98798799, 0.98898899, 0.98998999,</span>
 <span class="go">       0.99099099, 0.99199199, 0.99299299, 0.99399399, 0.99499499,</span>
 <span class="go">       0.995996  , 0.996997  , 0.997998  , 0.998999  , 1.        ])},</span>
-<span class="go">                    patience=False, random_state=0, scores_per_fit=1,</span>
-<span class="go">                    scoring=None, test_size=None, tol=0.001)</span>
+<span class="go">                    patience=False, prefix=&#39;&#39;, random_state=0,</span>
+<span class="go">                    scores_per_fit=None, scoring=None, test_size=None,</span>
+<span class="go">                    tol=0.001, verbose=False)</span>
 </pre></div>
 </div>
 <p>Note that when you do post-fit tasks like <code class="docutils literal notranslate"><span class="pre">search.score</span></code>, the underlying
@@ -531,14 +531,14 @@ to use post-estimation features like scoring or prediction, we recommend using
 <span class="go">                                                                      random_state=0,</span>
 <span class="go">                                                                      shuffle=True,</span>
 <span class="go">                                                                      to...</span>
-<span class="go">       0.97097097, 0.97197197, 0.97297297, 0.97397397, 0.97497497,</span>
 <span class="go">       0.97597598, 0.97697698, 0.97797798, 0.97897898, 0.97997998,</span>
 <span class="go">       0.98098098, 0.98198198, 0.98298298, 0.98398398, 0.98498498,</span>
 <span class="go">       0.98598599, 0.98698699, 0.98798799, 0.98898899, 0.98998999,</span>
 <span class="go">       0.99099099, 0.99199199, 0.99299299, 0.99399399, 0.99499499,</span>
 <span class="go">       0.995996  , 0.996997  , 0.997998  , 0.998999  , 1.        ])},</span>
-<span class="go">                    patience=False, random_state=0, scores_per_fit=1,</span>
-<span class="go">                    scoring=None, test_size=None, tol=0.001)</span>
+<span class="go">                    patience=False, prefix=&#39;&#39;, random_state=0,</span>
+<span class="go">                    scores_per_fit=None, scoring=None, test_size=None,</span>
+<span class="go">                    tol=0.001, verbose=False)</span>
 
 <span class="gp">In [17]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 <span class="gh">Out[17]: </span><span class="go">0.5864312</span>
