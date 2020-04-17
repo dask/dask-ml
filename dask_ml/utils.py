@@ -139,7 +139,10 @@ def check_array(
         if not accept_unknown_chunks:
             if np.isnan(array.shape[0]):
                 raise TypeError(
-                    "Cannot operate on Dask array with unknown chunk sizes."
+                    "Cannot operate on Dask array with unknown chunk sizes. "
+                    "Use the following the compute chunk sizes:\n\n"
+                    "   >>> X.compute_chunk_sizes()  # if Dask.Array\n"
+                    "   >>> ddf.to_dask_array(lengths=True)  # if Dask.Dataframe"
                 )
         if not accept_multiple_blocks and array.ndim > 1:
             if len(array.chunks[1]) > 1:

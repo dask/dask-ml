@@ -1,12 +1,18 @@
 from __future__ import division
 
+import itertools
+import logging
 import operator
+import sys
 from collections import defaultdict, namedtuple
 from copy import deepcopy
 from time import time
+from typing import Union
+from warnings import warn
 
 import dask
 import dask.array as da
+import dask.dataframe as dd
 import numpy as np
 import scipy.stats
 import toolz
@@ -19,12 +25,14 @@ from sklearn.utils import check_random_state
 from sklearn.utils.metaestimators import if_delegate_has_method
 from tornado import gen
 
-from .._compat import check_is_fitted
+from .._compat import check_is_fitted, dummy_context
+from .._utils import LoggingContext
 from ..utils import check_array
 from ..wrappers import ParallelPostFit
 from ._split import train_test_split
 
 Results = namedtuple("Results", ["info", "models", "history", "best"])
+logger = logging.getLogger("dask_ml.model_selection")
 
 
 def _partial_fit(model_and_meta, X, y, fit_params):
@@ -118,7 +126,17 @@ def _fit(
     fit_params=None,
     scorer=None,
     random_state=None,
+    verbose: Union[bool, int, float] = False,
+    prefix="",
 ):
+    if isinstance(verbose, bool):
+        verbose = 1.0
+    if not 0 <= verbose <= 1:
+        raise ValueError(
+            "verbose={} does not satisfy 0 <= verbose <= 1".format(verbose)
+        )
+    log_delay = int(1 / float(verbose)) if verbose > 0 else 0
+
     original_model = model
     fit_params = fit_params or {}
     client = default_client()
@@ -128,6 +146,7 @@ def _fit(
     models = {}
     scores = {}
 
+    logger.info("[CV%s] creating %d models", prefix, len(params))
     for ident, param in enumerate(params):
         model = client.submit(_create_model, original_model, ident, **param)
         info[ident] = []
@@ -152,6 +171,10 @@ def _fit(
     X_train = sorted(futures_of(X_train), key=lambda f: f.key)
     y_train = sorted(futures_of(y_train), key=lambda f: f.key)
     assert len(X_train) == len(y_train)
+
+    train_eg = yield client.map(len, y_train)
+    msg = "[CV%s] For training there are between %d and %d examples in each chunk"
+    logger.info(msg, prefix, min(train_eg), max(train_eg))
 
     # Order by which we process training data futures
     order = []
@@ -204,8 +227,14 @@ def _fit(
     start_time = time()
 
     # async for future, result in seq:
-    while True:
+    for _i in itertools.count():
         metas = yield client.gather(new_scores)
+
+        if log_delay and _i % int(log_delay) == 0:
+            idx = np.argmax([m["score"] for m in metas])
+            best = metas[idx]
+            msg = "[CV%s] validation score of %0.4f received after %d partial_fit calls"
+            logger.info(msg, prefix, best["score"], best["partial_fit_calls"])
 
         for meta in metas:
             ident = meta["model_id"]
@@ -286,6 +315,8 @@ def fit(
     fit_params=None,
     scorer=None,
     random_state=None,
+    verbose: Union[bool, int] = False,
+    prefix="",
 ):
     """ Find a good model and search among a space of hyper-parameters
 
@@ -325,6 +356,14 @@ def fit(
         If RandomState instance, random_state is the random number generator;
         If None, the random number generator is the RandomState instance used
         by `np.random`.
+    verbose : bool, int, float, default=False
+        If bool (default), log everytime possible.
+        If non-zero, configure logging to print/pipe to stdout.
+        If float or int, log and print ``verbose`` fraction of the time.
+        If zero, do not log past initialization.
+    prefix : str, optional, default: ""
+        The string to print out in each debug message. Each message is prefixed
+        with `[CV{prefix}]`.
 
     Examples
     --------
@@ -404,6 +443,8 @@ def fit(
         fit_params=fit_params,
         scorer=scorer,
         random_state=random_state,
+        verbose=verbose,
+        prefix=prefix,
     )
 
 
@@ -430,6 +471,8 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         max_iter=100,
         patience=False,
         tol=1e-3,
+        verbose=False,
+        prefix="",
     ):
         self.parameters = parameters
         self.test_size = test_size
@@ -437,6 +480,8 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         self.max_iter = max_iter
         self.patience = patience
         self.tol = tol
+        self.verbose = verbose
+        self.prefix = prefix
         super(BaseIncrementalSearchCV, self).__init__(estimator, scoring=scoring)
 
     def _validate_parameters(self, X, y):
@@ -447,8 +492,14 @@ class BaseIncrementalSearchCV(ParallelPostFit):
                 )
             )
 
-        X = self._check_array(X)
-        y = self._check_array(y, ensure_2d=False)
+        # Make sure dask arrays are passed so error on unknown chunk size is raised
+        if isinstance(X, dd.DataFrame):
+            X = X.to_dask_array()
+        if isinstance(y, (dd.DataFrame, dd.Series)):
+            y = y.to_dask_array()
+        kwargs = dict(accept_unknown_chunks=False, accept_dask_dataframe=False)
+        X = self._check_array(X, **kwargs)
+        y = self._check_array(y, ensure_2d=False, **kwargs)
         scorer = check_scoring(self.estimator, scoring=self.scoring)
         return X, y, scorer
 
@@ -568,6 +619,8 @@ class BaseIncrementalSearchCV(ParallelPostFit):
             fit_params=fit_params,
             scorer=scorer,
             random_state=self.random_state,
+            verbose=self.verbose,
+            prefix=self.prefix,
         )
         results = self._process_results(results)
         model_history, models, history, bst = results
@@ -607,7 +660,14 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         **fit_params
             Additional partial fit keyword arguments for the estimator.
         """
-        return default_client().sync(self._fit, X, y, **fit_params)
+        if self.verbose:
+            h = logging.StreamHandler(sys.stdout)
+            context = LoggingContext(logger, level=logging.INFO, handler=h)
+        else:
+            context = dummy_context()
+
+        with context:
+            return default_client().sync(self._fit, X, y, **fit_params)
 
     @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
     def decision_function(self, X):
@@ -675,9 +735,16 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         If specified, training stops when the score does not increase by
         ``tol`` after ``patience`` calls to ``partial_fit``. Off by default.
 
+    fits_per_scores : int, optional, default=1
+        If ``patience`` is used the maximum number of ``partial_fit`` calls
+        between ``score`` calls.
+
     scores_per_fit : int, default 1
         If ``patience`` is used the maximum number of ``partial_fit`` calls
         between ``score`` calls.
+
+        .. deprecated:: v1.4.0
+           Renamed to ``fits_per_score``.
 
     tol : float, default 0.001
         The required level of improvement to consider stopping training on
@@ -718,6 +785,17 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         See :ref:`multimetric_grid_search` for an example.
 
         If None, the estimator's default scorer (if available) is used.
+
+    verbose : bool, float, int, optional, default: False
+        If False (default), don't print logs (or pipe them to stdout). However,
+        standard logging will still be used.
+
+        If True, print logs and use standard logging.
+
+        If float, print/log approximately ``verbose`` fraction of the time.
+
+    prefix : str, optional, default=""
+        While logging, add ``prefix`` to each message.
 
     Attributes
     ----------
@@ -859,17 +937,20 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         test_size=None,
         patience=False,
         tol=0.001,
-        scores_per_fit=1,
+        fits_per_score=1,
         max_iter=100,
         random_state=None,
         scoring=None,
+        verbose=False,
+        prefix="",
+        scores_per_fit=None,
     ):
+
         self.n_initial_parameters = n_initial_parameters
         self.decay_rate = decay_rate
-        self.patience = patience
-        self.tol = tol
+        self.fits_per_score = fits_per_score
         self.scores_per_fit = scores_per_fit
-        self.max_iter = max_iter
+
         super(IncrementalSearchCV, self).__init__(
             estimator,
             parameters,
@@ -879,7 +960,22 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
             max_iter=max_iter,
             patience=patience,
             tol=tol,
+            verbose=verbose,
+            prefix=prefix,
         )
+
+    def fit(self, X, y=None, **fit_params):
+        if self.scores_per_fit is not None and self.fits_per_score != 1:
+            msg = "Specify fits_per_score, not scores_per_fit"
+            raise ValueError(msg)
+
+        if self.scores_per_fit:
+            self.fits_per_score = self.scores_per_fit
+            warn(
+                "scores_per_fit has been deprecated since Dask-ML v1.4.0. "
+                "Specify fits_per_score={} instead".format(self.scores_per_fit)
+            )
+        return super(IncrementalSearchCV, self).fit(X, y=y, **fit_params)
 
     def _get_params(self):
         if self.n_initial_parameters == "grid":
@@ -901,7 +997,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         if not isinstance(self.patience, bool) and self.patience <= 1:
             raise ValueError(
                 "patience={}<=1 will always detect a plateau. "
-                "this, set\n\n    patience >= 2"
+                "To resolve this,\n\n    * set patience >= 2"
             )
 
         calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
@@ -955,7 +1051,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         while inverse(current_time_step) == inverse(next_time_step) and (
             self.decay_rate
             and not self.patience
-            or next_time_step - current_time_step < self.scores_per_fit
+            or next_time_step - current_time_step < self.fits_per_score
         ):
             next_time_step += 1
 

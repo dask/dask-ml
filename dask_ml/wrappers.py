@@ -430,7 +430,7 @@ class Incremental(ParallelPostFit):
     See Also
     --------
     ParallelPostFit
-    dask_ml.model_selection.IncrementalSearch
+    dask_ml.model_selection.IncrementalSearchCV
 
     Examples
     --------

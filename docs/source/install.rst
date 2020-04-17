@@ -30,7 +30,6 @@ Certain modules have additional dependencies:
 module                 Additional Dependencies               
 ====================== ===========================
 ``dask_ml.xgboost``    xgboost, dask-xgboost
-``dask_ml.tensorflow`` tensorflow, dask-tensorflow
 ====================== ===========================
 
 These additional dependencies will need to be installed separately. With pip,
@@ -39,5 +38,4 @@ they can be installed with
 .. code-block:: none
 
    pip install dask-ml[xgboost]    # also install xgboost and dask-xgboost
-   pip install dask-ml[tensorflow]
    pip install dask-ml[complete]   # install all optional dependencies
