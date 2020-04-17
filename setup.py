@@ -11,14 +11,14 @@ with open(os.path.join(here, "README.rst"), encoding="utf-8") as f:
     long_description = f.read()
 
 install_requires = [
-    "dask[array]>=0.18.2",
+    "dask[array,dataframe]>=2.4.0",
+    "distributed>=2.4.0",
     "numba",
-    "numpy",
-    "pandas>=0.21.0",  # CategoricalDtype
-    "scikit-learn>=0.20",
+    "numpy>=1.17.3",
+    "pandas>=0.23.4",
+    "scikit-learn>=0.21",
     "scipy",
-    "dask-glm",
-    "six",
+    "dask-glm>=0.2.0",
     "multipledispatch>=0.4.9",
     "packaging",
 ]
@@ -35,15 +35,13 @@ test_requires = [
     "pytest-mock",
 ]
 dev_requires = doc_requires + test_requires
-tensorflow_requires = ["dask-tensorflow", "tensorflow"]
 xgboost_requires = ["dask-xgboost", "xgboost"]
-complete_requires = tensorflow_requires + xgboost_requires
+complete_requires = xgboost_requires
 
 extras_require = {
     "docs": doc_requires,
     "test": test_requires,
     "dev": dev_requires,
-    "tensorflow": tensorflow_requires,
     "xgboost": xgboost_requires,
     "complete": complete_requires,
 }
@@ -62,16 +60,13 @@ setup(
         "Topic :: Database",
         "Topic :: Scientific/Engineering",
         "License :: OSI Approved :: BSD License",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
     ],
     packages=find_packages(exclude=["docs", "tests", "tests.*", "docs.*"]),
     use_scm_version=True,
     setup_requires=["setuptools_scm"],
     install_requires=install_requires,
     extras_require=extras_require,
+    python_requires=">=3.6",
 )

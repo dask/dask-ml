@@ -1,13 +1,13 @@
-import six
-from sklearn.metrics import make_scorer
-from sklearn.metrics.scorer import check_scoring as sklearn_check_scoring
+from typing import Any, Callable, Tuple, Union
+
+from sklearn.metrics import check_scoring as sklearn_check_scoring, make_scorer
 
 from . import accuracy_score, log_loss, mean_squared_error, r2_score
 
 # Scorers
-accuracy_scorer = (accuracy_score, {})
+accuracy_scorer: Tuple[Any, Any] = (accuracy_score, {})
 neg_mean_squared_error_scorer = (mean_squared_error, dict(greater_is_better=False))
-r2_scorer = (r2_score, {})
+r2_scorer: Tuple[Any, Any] = (r2_score, {})
 neg_log_loss_scorer = (log_loss, dict(greater_is_better=False, needs_proba=True))
 
 
@@ -19,7 +19,7 @@ SCORERS = dict(
 )
 
 
-def get_scorer(scoring, compute=True):
+def get_scorer(scoring: Union[str, Callable], compute: bool = True) -> Callable:
     """Get a scorer from string
 
     Parameters
@@ -34,7 +34,7 @@ def get_scorer(scoring, compute=True):
     """
     # This is the same as sklearns, only we use our SCORERS dict,
     # and don't have back-compat code
-    if isinstance(scoring, six.string_types):
+    if isinstance(scoring, str):
         try:
             scorer, kwargs = SCORERS[scoring]
         except KeyError:

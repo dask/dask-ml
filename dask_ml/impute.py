@@ -25,6 +25,13 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
         if not isinstance(X, self._types):
             return super(SimpleImputer, self).fit(X, y=y)
 
+        if hasattr(self, "add_indicator"):
+            # scikit-learn version has add_indicator
+            if self.add_indicator:
+                msg = "dask-ml does not currently implement add_indicator" ""
+                raise NotImplementedError(msg)
+            self.indicator_ = None
+
         allowed_strategies = ["mean", "median", "most_frequent", "constant"]
         if self.strategy not in allowed_strategies:
             raise ValueError(
@@ -56,7 +63,7 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
         else:
             statistics = np.full(X.shape[1], self.fill_value, dtype=X.dtype)
 
-        self.statistics_, = da.compute(statistics)
+        (self.statistics_,) = da.compute(statistics)
 
     def _fit_frame(self, X):
         if self.strategy == "mean":

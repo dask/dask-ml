@@ -8,23 +8,44 @@ import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
+import sklearn.preprocessing
 from dask import compute
+from dask.array import nanmean, nanvar
 from pandas.api.types import is_categorical_dtype
 from scipy import stats
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.preprocessing import data as skdata
-from sklearn.utils.validation import check_is_fitted, check_random_state
+from sklearn.utils.validation import check_random_state
 
+from dask_ml._compat import SK_022, blockwise, check_is_fitted
 from dask_ml._utils import copy_learned_attributes
 from dask_ml.utils import check_array, handle_zeros_in_scale
 
 _PANDAS_VERSION = LooseVersion(pd.__version__)
 _HAS_CTD = _PANDAS_VERSION >= "0.21.0"
+BOUNDS_THRESHOLD = 1e-7
 
 
-class StandardScaler(skdata.StandardScaler):
+def _handle_zeros_in_scale(scale, copy=True):
+    """ Makes sure that whenever scale is zero, we handle it correctly.
 
-    __doc__ = skdata.StandardScaler.__doc__
+    This happens in most scalers when we have constant features."""
+
+    # if we are fitting on 1D arrays, scale might be a scalar
+    if np.isscalar(scale):
+        if scale == 0.0:
+            scale = 1.0
+        return scale
+    elif isinstance(scale, np.ndarray):
+        if copy:
+            # New array to avoid side-effects
+            scale = scale.copy()
+        scale[scale == 0.0] = 1.0
+        return scale
+
+
+class StandardScaler(sklearn.preprocessing.StandardScaler):
+
+    __doc__ = sklearn.preprocessing.StandardScaler.__doc__
 
     def fit(self, X, y=None):
         self._reset()
@@ -33,10 +54,10 @@ class StandardScaler(skdata.StandardScaler):
             X = X.values
 
         if self.with_mean:
-            mean_ = X.mean(0)
+            mean_ = nanmean(X, 0)
             attributes["mean_"] = mean_
         if self.with_std:
-            var_ = X.var(0)
+            var_ = nanvar(X, 0)
             scale_ = var_.copy()
             scale_[scale_ == 0] = 1
             scale_ = da.sqrt(scale_)
@@ -67,9 +88,9 @@ class StandardScaler(skdata.StandardScaler):
         return X
 
 
-class MinMaxScaler(skdata.MinMaxScaler):
+class MinMaxScaler(sklearn.preprocessing.MinMaxScaler):
 
-    __doc__ = skdata.MinMaxScaler.__doc__
+    __doc__ = sklearn.preprocessing.MinMaxScaler.__doc__
 
     def fit(self, X, y=None):
         self._reset()
@@ -130,9 +151,9 @@ class MinMaxScaler(skdata.MinMaxScaler):
         return X
 
 
-class RobustScaler(skdata.RobustScaler):
+class RobustScaler(sklearn.preprocessing.RobustScaler):
 
-    __doc__ = skdata.RobustScaler.__doc__
+    __doc__ = sklearn.preprocessing.RobustScaler.__doc__
 
     def _check_array(self, X, *args, **kwargs):
         X = check_array(X, accept_dask_dataframe=True, **kwargs)
@@ -161,7 +182,7 @@ class RobustScaler(skdata.RobustScaler):
         quantiles = da.vstack(quantiles).compute()
         self.center_ = quantiles[:, 1]
         self.scale_ = quantiles[:, 2] - quantiles[:, 0]
-        self.scale_ = skdata._handle_zeros_in_scale(self.scale_, copy=False)
+        self.scale_ = _handle_zeros_in_scale(self.scale_, copy=False)
         return self
 
     def transform(self, X):
@@ -209,7 +230,7 @@ class RobustScaler(skdata.RobustScaler):
         See License information here:
         https://github.com/scikit-learn/scikit-learn/blob/master/README.rst
         """
-        check_is_fitted(self, "center_", "scale_")
+        check_is_fitted(self, ["center_", "scale_"])
 
         # if sparse.issparse(X):
         #     if self.with_scaling:
@@ -222,16 +243,22 @@ class RobustScaler(skdata.RobustScaler):
         return X
 
 
-class QuantileTransformer(skdata.QuantileTransformer):
+class QuantileTransformer(sklearn.preprocessing.QuantileTransformer):
     """Transforms features using quantile information.
 
     This implementation differs from the scikit-learn implementation
     by using approximate quantiles. The scikit-learn docstring follows.
     """
 
-    __doc__ = __doc__ + "\n".join(skdata.QuantileTransformer.__doc__.split("\n")[1:])
+    __doc__ = __doc__ + "\n".join(
+        sklearn.preprocessing.QuantileTransformer.__doc__.split("\n")[1:]
+    )
 
-    def _check_inputs(self, X, accept_sparse_negative=False):
+    def _check_inputs(self, X, accept_sparse_negative=False, copy=False):
+        kwargs = {}
+        if SK_022:
+            kwargs["copy"] = copy
+
         if isinstance(X, (pd.DataFrame, dd.DataFrame)):
             X = X.values
         if isinstance(X, np.ndarray):
@@ -244,7 +271,7 @@ class QuantileTransformer(skdata.QuantileTransformer):
         # TODO: mix of sparse, dense?
         sample = rng.uniform(size=(5, X.shape[1])).astype(X.dtype)
         super(QuantileTransformer, self)._check_inputs(
-            sample, accept_sparse_negative=accept_sparse_negative
+            sample, accept_sparse_negative=accept_sparse_negative, **kwargs
         )
         return X
 
@@ -254,7 +281,7 @@ class QuantileTransformer(skdata.QuantileTransformer):
     def _dense_fit(self, X, random_state):
         references = self.references_ * 100
         quantiles = [da.percentile(col, references) for col in X.T]
-        self.quantiles_, = compute(da.vstack(quantiles).T)
+        (self.quantiles_,) = compute(da.vstack(quantiles).T)
 
     def _transform(self, X, inverse=False):
         X = X.copy()  # ...
@@ -264,14 +291,10 @@ class QuantileTransformer(skdata.QuantileTransformer):
             )
             for feature_idx in range(X.shape[1])
         ]
-        return da.vstack(transformed).T
+        return da.vstack(transformed, allow_unknown_chunksizes=True).T
 
     def _transform_col(self, X_col, quantiles, inverse):
-        if self.output_distribution == "normal":
-            output_distribution = "norm"
-        else:
-            output_distribution = self.output_distribution
-        output_distribution = getattr(stats, output_distribution)
+        output_distribution = self.output_distribution
 
         if not inverse:
             lower_bound_x = quantiles[0]
@@ -283,10 +306,18 @@ class QuantileTransformer(skdata.QuantileTransformer):
             upper_bound_x = 1
             lower_bound_y = quantiles[0]
             upper_bound_y = quantiles[-1]
-            X_col = X_col.map_blocks(output_distribution.cdf)
+            #  for inverse transform, match a uniform distribution
+            if output_distribution == "normal":
+                X_col = X_col.map_blocks(stats.norm.cdf)
+                # else output distribution is already a uniform distribution
 
-        lower_bounds_idx = X_col - skdata.BOUNDS_THRESHOLD < lower_bound_x
-        upper_bounds_idx = X_col + skdata.BOUNDS_THRESHOLD > upper_bound_x
+        if output_distribution == "normal":
+            lower_bounds_idx = X_col - BOUNDS_THRESHOLD < lower_bound_x
+            upper_bounds_idx = X_col + BOUNDS_THRESHOLD > upper_bound_x
+        if output_distribution == "uniform":
+            lower_bounds_idx = X_col == lower_bound_x
+            upper_bounds_idx = X_col == upper_bound_x
+
         if not inverse:
             # See the note in scikit-learn. This trick is to avoid
             # repeated extreme values
@@ -303,12 +334,18 @@ class QuantileTransformer(skdata.QuantileTransformer):
         X_col[lower_bounds_idx] = lower_bound_y
 
         if not inverse:
-            X_col = X_col.map_blocks(output_distribution.ppf)
-            clip_min = output_distribution.ppf(skdata.BOUNDS_THRESHOLD - np.spacing(1))
-            clip_max = output_distribution.ppf(
-                1 - (skdata.BOUNDS_THRESHOLD - np.spacing(1))
-            )
-            X_col = da.clip(X_col, clip_min, clip_max)
+
+            if output_distribution == "normal":
+                X_col = X_col.map_blocks(stats.norm.ppf)
+                # find the value to clip the data to avoid mapping to
+                # infinity. Clip such that the inverse transform will be
+                # consistent
+                clip_min = stats.norm.ppf(BOUNDS_THRESHOLD - np.spacing(1))
+                clip_max = stats.norm.ppf(1 - (BOUNDS_THRESHOLD - np.spacing(1)))
+                X_col = da.clip(X_col, clip_min, clip_max)
+
+            # else output distribution is uniform and the ppf is the
+            # identity function so we let X_col unchanged
 
         return X_col
 
@@ -621,7 +658,7 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
         if not X.columns.equals(self.columns_):
             raise ValueError(
                 "Columns of 'X' do not match the training "
-                "columns. Got {!r}, expected {!r}".format(X.columns, self.columns)
+                "columns. Got {!r}, expected {!r}".format(X.columns, self.columns_)
             )
         if isinstance(X, pd.DataFrame):
             return pd.get_dummies(X, drop_first=self.drop_first, columns=self.columns)
@@ -652,7 +689,7 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
             # known divisions. Suboptimal, but I think unavoidable.
             unknown = np.isnan(X.chunks[0]).any()
             if unknown:
-                lengths = da.atop(len, "i", X[:, 0], "i", dtype="i8").compute()
+                lengths = blockwise(len, "i", X[:, 0], "i", dtype="i8").compute()
                 X = X.copy()
                 chunks = (tuple(lengths), X.chunks[1])
                 X._chunks = chunks
@@ -871,7 +908,7 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
             # known divisions. Suboptimal, but I think unavoidable.
             unknown = np.isnan(X.chunks[0]).any()
             if unknown:
-                lengths = da.atop(len, "i", X[:, 0], "i", dtype="i8").compute()
+                lengths = blockwise(len, "i", X[:, 0], "i", dtype="i8").compute()
                 X = X.copy()
                 chunks = (tuple(lengths), X.chunks[1])
                 X._chunks = chunks
@@ -922,7 +959,7 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
         return X
 
 
-class PolynomialFeatures(skdata.PolynomialFeatures):
+class PolynomialFeatures(sklearn.preprocessing.PolynomialFeatures):
     """    preserve_dataframe : boolean
             If True, preserve pandas and dask dataframes after transforming.
             Using False (default) returns numpy or dask arrays and mimics
@@ -931,7 +968,9 @@ class PolynomialFeatures(skdata.PolynomialFeatures):
         Examples
     """
 
-    splitted_orig_doc = skdata.PolynomialFeatures.__doc__.split("    Examples\n")
+    splitted_orig_doc = sklearn.preprocessing.PolynomialFeatures.__doc__.split(
+        "    Examples\n"
+    )
     __doc__ = "".join([splitted_orig_doc[0], __doc__, splitted_orig_doc[1]])
 
     def __init__(
@@ -945,7 +984,7 @@ class PolynomialFeatures(skdata.PolynomialFeatures):
         self.preserve_dataframe = preserve_dataframe
 
     def fit(self, X, y=None):
-        self._transformer = skdata.PolynomialFeatures(
+        self._transformer = sklearn.preprocessing.PolynomialFeatures(
             degree=self.degree,
             interaction_only=self.interaction_only,
             include_bias=self.include_bias,
@@ -971,12 +1010,12 @@ class PolynomialFeatures(skdata.PolynomialFeatures):
             XP = X.pipe(self._transformer.transform)
             if self.preserve_dataframe:
                 columns = self._transformer.get_feature_names(X.columns)
-                XP = pd.DataFrame(data=XP, columns=columns)
+                XP = pd.DataFrame(data=XP, columns=columns, index=X.index)
         elif isinstance(X, dd.DataFrame):
             XP = X.map_partitions(self._transformer.transform)
             if self.preserve_dataframe:
                 columns = self._transformer.get_feature_names(X.columns)
-                XP = dd.from_dask_array(XP, columns)
+                XP = dd.from_dask_array(XP, columns, X.index)
         else:
             # typically X is instance of np.ndarray
             XP = self._transformer.transform(X)

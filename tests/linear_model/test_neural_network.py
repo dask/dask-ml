@@ -6,7 +6,7 @@ from dask_ml.utils import assert_estimator_equal
 
 
 @pytest.mark.filterwarnings("ignore::FutureWarning")
-class TestMLPClassifier(object):
+class TestMLPClassifier:
     @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_basic(self, single_chunk_classification):
         X, y = single_chunk_classification
@@ -20,7 +20,7 @@ class TestMLPClassifier(object):
 
 
 @pytest.mark.filterwarnings("ignore::FutureWarning")
-class TestMLPRegressor(object):
+class TestMLPRegressor:
     def test_basic(self, single_chunk_classification):
         X, y = single_chunk_classification
         a = nn.ParitalMLPRegressor(random_state=0)

@@ -1,13 +1,68 @@
 Changelog
 =========
 
+Version 1.3.0
+~~~~~~~~~~~~~
+
+- Added ``shuffle`` support to :func:`dask_ml.model_selection.train_test_split` for ``DataFrame`` input (:pr:`625`)
+- Improved performance of :class:`dask_ml.model_selection.GridSearchCV` by re-using cached tasks (:pr:`622`)
+- Add support for ``DataFrame`` to :class:`dask_ml.model_selection.GridSearchCV` (:pr:`612`)
+- Fixed :meth:`dask_ml.linear_model.LinearRegression.score` to use ``r2_score`` rather than ``mse`` (:pr:`614`)
+- Handle missing data in :class:`dask_ml.preprocessing.StandardScaler` (:pr:`608`)
+
+Version 1.2.0
+~~~~~~~~~~~~~
+
+- Changed the name of the second positional argument in :class:`model_selection.IncrementalSearchCV` from ``param_distribution``
+  to ``parameters`` to match the name of the base class.
+- Compatibility with scikit-learn 0.22.1.
+- Added :class:`dask_ml.preprocessing.BlockTransfomer` an extension of scikit-learn's `FunctionTransformer` (:issue:`366`).
+- Added :class:`dask_ml.feature_extraction.FeatureHasher` which is similar to scikit-learn's implementation.
+
+Version 1.1.1
+~~~~~~~~~~~~~
+
+- Fixed an issue with the 1.1.0 wheel (:issue:`575`)
+- Make svd_flip work even when arrays are read only (:issue:`592`)
+
+Version 1.1.0
+~~~~~~~~~~~~~
+
+- Non-arrays (e.g. Dask Bags and DataFrames) are now allowed in :class:`dask_ml.wrappers.Incremental`. This is useful for text classification pipelines (pr:`570`)
+- The index is now preserved in :class:`dask_ml.preprocessing.PolynomialFeatures` for DataFrame inputs (:pr:`563`)
+- :class:`dask_ml.decomposition.PCA` now works with DataFrame inputs (:pr:`543`)
+- :class:`dask_ml.cluster.KMeans` handles inputes where some blocks are length-0 (:pr:`559`)
+- Improved error reporting for mixed inputs to :func:`dask_ml.model_selection.train_test_split` (:pr:`552`)
+- Removed deprecated ``dask_ml.joblib`` module. Use ``joblib.parallel_backend`` instead (:pr:`545`)
+- :class:`dask_ml.preprocessing.QuantileTransformer` now handles DataFrame input (:pr:`533`)
+
+
+Version 1.0.0
+~~~~~~~~~~~~~
+
+- Added new hyperparameter search meta-estimators for hyperparameter search on distributed datasets: :class:`~dask_ml.model_selection.HyperbandSearchCV` and :class:`~dask_ml.model_selection.SuccessiveHalvingSearchCV`
+- Dropped Python 2 support (:pr:`500`)
+
+Version 0.13.0
+~~~~~~~~~~~~~~
+
+- Compatibility with scikit-learn 0.21.1
+- Cross-validation results in ``GridSearchCV`` and ``RandomizedSearchCV`` are now gathered as completed, in case a worker is lost (:issue:`433`)
+- Fixed bug in :func:`dask_ml.model_selection.train_test_split` when only one of train / test size is provided (:issue:`502`)
+- Consistent random state for :class:`dask_ml.model_selection.IncrementalSearchCV`
+- Fixed various issues with 32-bit Windows builds (:issue:`487`)
+
+.. note::
+
+   dask-ml 0.13.0 will be the last release to support Python 2.
+
 Version 0.12.0
 ~~~~~~~~~~~~~~
 
 API Breaking Changes
 --------------------
 
-- :class:`dask_ml.model_selection.IncrementalSearchCV` now returns Dask objects for post-fit methods like ``.predict``, etc (:issues:`423`).
+- :class:`dask_ml.model_selection.IncrementalSearchCV` now returns Dask objects for post-fit methods like ``.predict``, etc (:issue:`423`).
 
 
 Version 0.11.0

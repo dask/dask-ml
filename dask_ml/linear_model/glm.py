@@ -8,14 +8,12 @@ from dask_glm.utils import (
     add_intercept,
     dot,
     exp,
-    mean_squared_error,
     poisson_deviance,
     sigmoid,
 )
 from sklearn.base import BaseEstimator
 
-# Register multiple dispatch
-from . import utils  # noqa
+from ..metrics import r2_score
 from ..utils import check_array
 
 _base_doc = textwrap.dedent(
@@ -325,7 +323,7 @@ class LinearRegression(_GLM):
         score : float
             R^2 of self.predict(X) wrt. y.
         """
-        return mean_squared_error(y, self.predict(X))
+        return r2_score(y, self.predict(X))
 
 
 class PoissonRegression(_GLM):
