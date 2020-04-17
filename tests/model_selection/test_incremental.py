@@ -1,4 +1,5 @@
 import itertools
+import logging
 import random
 
 import dask.array as da
@@ -9,7 +10,12 @@ import pytest
 import scipy
 import toolz
 from dask.distributed import Future
-from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
+from distributed.utils_test import (  # noqa: F401
+    captured_logger,
+    cluster,
+    gen_cluster,
+    loop,
+)
 from sklearn.base import clone
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.linear_model import SGDClassifier
@@ -19,7 +25,7 @@ from tornado import gen
 
 from dask_ml._compat import DISTRIBUTED_2_5_0
 from dask_ml.datasets import make_classification
-from dask_ml.model_selection import IncrementalSearchCV
+from dask_ml.model_selection import HyperbandSearchCV, IncrementalSearchCV
 from dask_ml.model_selection._incremental import _partial_fit, _score, fit
 from dask_ml.model_selection.utils_test import LinearFunction, _MaybeLinearFunction
 from dask_ml.utils import ConstantFunction
@@ -647,6 +653,88 @@ def test_history(c, s, a, b):
         assert (np.diff(calls) >= 1).all() or len(calls) == 1
 
 
+@pytest.mark.parametrize("Search", [HyperbandSearchCV, IncrementalSearchCV])
+@pytest.mark.parametrize("verbose", [True, False])
+def test_verbosity(Search, verbose, capsys):
+    max_iter = 15
+
+    @gen_cluster(client=True)
+    def _test_verbosity(c, s, a, b):
+        X, y = make_classification(n_samples=10, n_features=4, chunks=10)
+        model = ConstantFunction()
+        params = {"value": scipy.stats.uniform(0, 1)}
+        search = Search(model, params, max_iter=max_iter, verbose=verbose)
+        yield search.fit(X, y)
+        return search
+
+    # IncrementalSearchCV always logs to INFO
+    with captured_logger(logging.getLogger("dask_ml.model_selection")) as logs:
+        search = _test_verbosity()
+        assert search.best_score_ > 0  # ensure search ran
+        messages = logs.getvalue().splitlines()
+
+    # Make sure we always log
+    assert any("score" in m for m in messages)
+
+    # If verbose=True, make sure logs to stdout
+    stdout = capsys.readouterr().out
+    stdout = [line for line in stdout.split("\n") if line]
+    if verbose:
+        assert len(stdout) >= 1
+        assert all(["CV" in line for line in stdout])
+    else:
+        assert not len(stdout)
+
+    if "Hyperband" in str(Search):
+        assert all("[CV, bracket=" in m for m in messages)
+    else:
+        assert all("[CV]" in m for m in messages)
+
+    brackets = 3 if "Hyperband" in str(Search) else 1
+    assert sum("examples in each chunk" in m for m in messages) == brackets
+    assert sum("creating" in m and "models" in m for m in messages) == brackets
+
+
+@gen_cluster(client=True)
+def test_verbosity_types(c, s, a, b):
+    X, y = make_classification(n_samples=10, n_features=4, chunks=10)
+    model = ConstantFunction()
+    params = {"value": scipy.stats.uniform(0, 1)}
+
+    for verbose in [-1.0, 1.2]:
+        search = IncrementalSearchCV(model, params, verbose=verbose)
+        with pytest.raises(ValueError, match="0 <= verbose <= 1"):
+            yield search.fit(X, y)
+
+    for verbose in [0.0, 0, 1, 1.0, True, False]:
+        search = IncrementalSearchCV(model, params, verbose=verbose)
+        yield search.fit(X, y)
+
+
+@pytest.mark.parametrize("verbose", [0, 0.0, 1 / 2, 1, 1.0, False, True])
+def test_verbosity_levels(capsys, verbose):
+    max_iter = 14
+
+    @gen_cluster(client=True)
+    def _test_verbosity(c, s, a, b):
+        X, y = make_classification(n_samples=10, n_features=4, chunks=10)
+        model = ConstantFunction()
+        params = {"value": scipy.stats.uniform(0, 1)}
+        search = IncrementalSearchCV(
+            model, params, max_iter=max_iter, verbose=verbose, decay_rate=0
+        )
+        yield search.fit(X, y)
+        return search
+
+    with captured_logger(logging.getLogger("dask_ml.model_selection")) as logs:
+        search = _test_verbosity()
+        assert search.best_score_ > 0  # ensure search ran
+        messages = logs.getvalue().splitlines()
+
+    factor = 1 if isinstance(verbose, bool) else verbose
+    assert len(messages) == pytest.approx(max_iter * factor + 2, abs=1)
+
+
 @gen_cluster(client=True)
 def test_search_patience_infeasible_tol(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
@@ -685,7 +773,7 @@ def test_search_basic_patience(c, s, a, b):
         tol=increase_after_patience,
         patience=patience,
         decay_rate=0,
-        scores_per_fit=3,
+        fits_per_score=3,
     )
     yield search.fit(X, y, classes=[0, 1])
 
@@ -704,7 +792,7 @@ def test_search_basic_patience(c, s, a, b):
         tol=increase_after_patience,
         patience=patience,
         decay_rate=0,
-        scores_per_fit=3,
+        fits_per_score=3,
     )
     yield search.fit(X, y, classes=[0, 1])
 
@@ -731,3 +819,15 @@ def test_search_invalid_patience(c, s, a, b):
     search = IncrementalSearchCV(model, params, patience=False, max_iter=10)
     yield search.fit(X, y, classes=[0, 1])
     assert search.history_
+
+
+@gen_cluster(client=True)
+def test_warns_scores_per_fit(c, s, a, b):
+    X, y = make_classification(n_samples=100, n_features=5, chunks=10)
+
+    params = {"value": np.random.RandomState(42).rand(1000)}
+    model = ConstantFunction()
+
+    search = IncrementalSearchCV(model, params, scores_per_fit=2)
+    with pytest.warns(UserWarning, match="deprecated since Dask-ML v1.4.0"):
+        yield search.fit(X, y)

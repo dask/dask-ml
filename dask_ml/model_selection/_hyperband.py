@@ -139,6 +139,17 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
 
         If None, the estimator's default scorer (if available) is used.
 
+    verbose : bool, float, int, optional, default: False
+        If False (default), don't print logs (or pipe them to stdout). However,
+        standard logging will still be used.
+
+        If True, print logs and use standard logging.
+
+        If float, print/log approximately ``verbose`` fraction of the time.
+
+    prefix : str, optional, default=""
+        While logging, add ``prefix`` to each message.
+
     Examples
     --------
     >>> import numpy as np
@@ -320,6 +331,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         test_size=None,
         random_state=None,
         scoring=None,
+        verbose=False,
+        prefix="",
     ):
         self.aggressiveness = aggressiveness
 
@@ -332,6 +345,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
             test_size=test_size,
             random_state=random_state,
             scoring=scoring,
+            verbose=verbose,
+            prefix=prefix,
         )
 
     def _get_SHAs(self, brackets):
@@ -345,8 +360,9 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         self._SHA_seed = seed_start
 
         # These brackets are ordered by adaptivity; bracket=0 is least adaptive
-        SHAs = {
-            b: SuccessiveHalvingSearchCV(
+        SHAs = {}
+        for b, (n, r) in brackets.items():
+            sha = SuccessiveHalvingSearchCV(
                 self.estimator,
                 self.parameters,
                 n_initial_parameters=n,
@@ -358,9 +374,10 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
                 test_size=self.test_size,
                 random_state=seed_start + b if b != 0 else self.random_state,
                 scoring=self.scoring,
+                verbose=self.verbose,
+                prefix=f"{self.prefix}, bracket={b}",
             )
-            for b, (n, r) in brackets.items()
-        }
+            SHAs[b] = sha
         return SHAs
 
     @gen.coroutine
