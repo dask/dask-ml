@@ -164,13 +164,7 @@ searches. However, the input parameters are a more difficult to configure:
 
 .. autosummary::
    dask_ml.model_selection.SuccessiveHalvingSearchCV
-   dask_ml.model_selection.IncrementalSearchCV
-
-To be useful for this case,
-:class:`~dask_ml.model_selection.IncrementalSearchCV` requires
-``decay_rate=1``. This doesn't have any formal justification but could possibly
-be useful. Details are in the "Notes" section of
-:class:`~dask_ml.model_selection.IncrementalSearchCV`.
+   dask_ml.model_selection.InverseDecaySearchCV
 
 All of these searches can reduce time to solution by (cleverly) deciding which
 parameters to evaluate. That is, these searches *adapt* to history to decide
@@ -201,7 +195,7 @@ Arrays/DataFrames `and` to decide which models to continue training.
 .. autosummary::
    dask_ml.model_selection.HyperbandSearchCV
    dask_ml.model_selection.SuccessiveHalvingSearchCV
-   dask_ml.model_selection.IncrementalSearchCV
+   dask_ml.model_selection.InverseDecaySearchCV
 
 These classes work well with data that does not fit in memory. They also reduce
 the computation required as described in ":ref:`hyperparameter.cpu-nmem`."
@@ -394,9 +388,11 @@ Incremental Hyperparameter Optimization
    dask_ml.model_selection.IncrementalSearchCV
    dask_ml.model_selection.HyperbandSearchCV
    dask_ml.model_selection.SuccessiveHalvingSearchCV
+   dask_ml.model_selection.InverseDecaySearchCV
 
-These estimators act identically. The example will use
-:class:`~dask_ml.model_selection.HyperbandSearchCV`.
+These estimators all handle Dask arrays/dataframe identically. The example will
+use :class:`~dask_ml.model_selection.HyperbandSearchCV`, but it can easily be
+generalized to any of the above estimators.
 
 .. note::
 
