@@ -660,6 +660,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         **fit_params
             Additional partial fit keyword arguments for the estimator.
         """
+
         if self.verbose:
             h = logging.StreamHandler(sys.stdout)
             context = LoggingContext(logger, level=logging.INFO, handler=h)
@@ -729,7 +730,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         If specified, training stops when the score does not increase by
         ``tol`` after ``patience`` calls to ``partial_fit``. Off by default.
 
-    fits_per_scores : int, optional, default=1
+    fits_per_score : int, optional, default=1
         If ``patience`` is used the maximum number of ``partial_fit`` calls
         between ``score`` calls.
 
@@ -985,7 +986,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
                 "not patience={} of type {}"
             )
             raise ValueError(msg.format(self.patience, type(self.patience)))
-        if not isinstance(self.patience, bool) and self.patience <= 1:
+        if self.patience and self.patience <= 1:
             raise ValueError(
                 "patience={}<=1 will always detect a plateau. "
                 "To resolve this,\n\n    * set patience >= 2"
@@ -1253,7 +1254,7 @@ class InverseDecaySearchCV(IncrementalSearchCV):
         patience=False,
         tol=0.001,
         fits_per_score=1,
-        max_iter=100,
+        max_iter=np.nan,
         random_state=None,
         scoring=None,
         verbose=False,
@@ -1279,38 +1280,39 @@ class InverseDecaySearchCV(IncrementalSearchCV):
 
     def _adapt(self, info):
         # First, have an adaptive algorithm
-        if self.n_initial_parameters == "grid":
-            start = len(ParameterGrid(self.parameters))
-        else:
-            start = self.n_initial_parameters
+        start = self.n_initial_parameters
 
         def inverse(time):
             """ Decrease target number of models inversely with time """
-            return int(start / (1 + time))
+            n_models = start / time
+            return np.round(n_models).astype(int)
 
         example = toolz.first(info.values())
-        time_step = example[-1]["partial_fit_calls"]
+        pf_calls = example[-1]["partial_fit_calls"]
+        current_n_models = len(info)
+        for k in itertools.count():
+            if k < self.fits_per_score:
+                continue
+            n_models = inverse(pf_calls + k)
 
-        current_time_step = time_step + 1
-        next_time_step = current_time_step
+            if current_n_models != n_models or k >= self.fits_per_score:
+                # patience is handled by _additional_calls
+                break
 
-        if inverse(current_time_step) == 0:
-            # we'll never get out of here
-            next_time_step = 1
+        next_pf_calls = pf_calls + k
 
-        while inverse(current_time_step) == inverse(next_time_step) and (
-            self.decay_rate
-            and not self.patience
-            or next_time_step - current_time_step < self.fits_per_score
-        ):
-            next_time_step += 1
+        if inverse(next_pf_calls) == 0:
+            best = toolz.topk(1, info, key=lambda k: info[k][-1]["score"])
+            [best] = best
+            return {best: 0}
 
-        target = max(1, inverse(next_time_step))
+        target = max(1, n_models)
         best = toolz.topk(target, info, key=lambda k: info[k][-1]["score"])
 
         if len(best) == 1:
             [best] = best
             return {best: 0}
-        steps = next_time_step - current_time_step
+
+        steps = next_pf_calls - pf_calls
         instructions = {b: steps for b in best}
         return instructions
