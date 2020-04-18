@@ -347,6 +347,7 @@ def test_same_random_state_same_params(c, s, a, b):
         random_state=seed,
         max_iter=2,
         n_initial_parameters=h.metadata["n_models"],
+        decay_rate=None,
     )
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
     yield h.fit(X, y)
