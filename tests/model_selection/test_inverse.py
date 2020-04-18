@@ -40,8 +40,8 @@ def test_inverse_decay(c, s, a, b):
     # Get cumulative number of models condiered at each time step
     n_models = n_models.sort_index(ascending=False).cumsum()
 
-    calls = n_models.index.to_numpy()
-    models = n_models.to_numpy()
+    calls = n_models.index.values
+    models = n_models.values
     assert np.abs(n_init / calls - models).max() <= 1
     assert models.min() == 2
 

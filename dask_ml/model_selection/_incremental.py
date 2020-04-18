@@ -1173,7 +1173,7 @@ class InverseDecaySearchCV(IncrementalSearchCV):
         Higher `decay_rate` will result in lower training times, at the cost
         of worse models.
 
-        The default ``decay_rate=1`` is chosen because it has some theoritical
+        The default ``decay_rate=1.0`` is chosen because it has some theoritical
         motivation [1]_.
 
     Attributes

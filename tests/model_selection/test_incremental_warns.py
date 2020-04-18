@@ -1,11 +1,12 @@
 import warnings
+
 import numpy as np
 import pytest
-from dask_ml.datasets import make_classification
-from dask_ml.utils import ConstantFunction
-from dask_ml.model_selection import IncrementalSearchCV, InverseDecaySearchCV
 from distributed.utils_test import gen_cluster
 
+from dask_ml.datasets import make_classification
+from dask_ml.model_selection import IncrementalSearchCV, InverseDecaySearchCV
+from dask_ml.utils import ConstantFunction
 
 
 @gen_cluster(client=True)
