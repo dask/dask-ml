@@ -343,7 +343,13 @@ def test_search_plateau_patience(c, s, a, b):
     model = ConstantClassifier()
 
     search = IncrementalSearchCV(
-        model, params, n_initial_parameters=10, patience=5, tol=0, max_iter=10, decay_rate=None
+        model,
+        params,
+        n_initial_parameters=10,
+        patience=5,
+        tol=0,
+        max_iter=10,
+        decay_rate=None,
     )
     yield search.fit(X, y, classes=[0, 1])
 
@@ -366,13 +372,17 @@ def test_search_plateau_tol(c, s, a, b):
     params = {"foo": np.linspace(0, 1)}
 
     # every 3 calls, score will increase by 3. tol=1: model did improved enough
-    search = IncrementalSearchCV(model, params, patience=3, tol=1, max_iter=10, decay_rate=None)
+    search = IncrementalSearchCV(
+        model, params, patience=3, tol=1, max_iter=10, decay_rate=None
+    )
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     yield search.fit(X, y)
     assert set(search.cv_results_["partial_fit_calls"]) == {10}
 
     # Every 3 calls, score increases by 3. tol=4: model didn't improve enough
-    search = IncrementalSearchCV(model, params, patience=3, tol=4, max_iter=10, decay_rate=None)
+    search = IncrementalSearchCV(
+        model, params, patience=3, tol=4, max_iter=10, decay_rate=None
+    )
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     yield search.fit(X, y)
     assert set(search.cv_results_["partial_fit_calls"]) == {3}
@@ -384,7 +394,9 @@ def test_search_max_iter(c, s, a, b):
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = {"alpha": np.logspace(-2, 10, 10), "l1_ratio": np.linspace(0.01, 1, 20)}
 
-    search = IncrementalSearchCV(model, params, n_initial_parameters=10, max_iter=1, decay_rate=None)
+    search = IncrementalSearchCV(
+        model, params, n_initial_parameters=10, max_iter=1, decay_rate=None
+    )
     yield search.fit(X, y, classes=[0, 1])
     for d in search.history_:
         assert d["partial_fit_calls"] <= 1
@@ -398,7 +410,9 @@ def test_gridsearch(c, s, a, b):
 
     params = {"alpha": np.logspace(-2, 10, 3), "l1_ratio": np.linspace(0.01, 1, 2)}
 
-    search = IncrementalSearchCV(model, params, n_initial_parameters="grid", decay_rate=None)
+    search = IncrementalSearchCV(
+        model, params, n_initial_parameters="grid", decay_rate=None
+    )
     yield search.fit(X, y, classes=[0, 1])
 
     assert {frozenset(d["params"].items()) for d in search.history_} == {
@@ -416,7 +430,9 @@ def test_numpy_array(c, s, a, b):
         "l1_ratio": np.linspace(0, 1, num=1000),
     }
 
-    search = IncrementalSearchCV(model, params, n_initial_parameters=10, decay_rate=None)
+    search = IncrementalSearchCV(
+        model, params, n_initial_parameters=10, decay_rate=None
+    )
     yield search.fit(X, y, classes=[0, 1])
     assert search.best_score_ > 0  # smoke test
 
@@ -426,7 +442,9 @@ def test_transform(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     model = MiniBatchKMeans(random_state=0)
     params = {"n_clusters": [3, 4, 5], "n_init": [1, 2]}
-    search = IncrementalSearchCV(model, params, n_initial_parameters="grid", decay_rate=None)
+    search = IncrementalSearchCV(
+        model, params, n_initial_parameters="grid", decay_rate=None
+    )
     yield search.fit(X, y)
     (X_,) = yield c.compute([X])
     result = search.transform(X_)
@@ -438,7 +456,9 @@ def test_small(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = {"alpha": [0.1, 0.5, 0.75, 1.0]}
-    search = IncrementalSearchCV(model, params, n_initial_parameters="grid", decay_rate=None)
+    search = IncrementalSearchCV(
+        model, params, n_initial_parameters="grid", decay_rate=None
+    )
     yield search.fit(X, y, classes=[0, 1])
     (X_,) = yield c.compute([X])
     search.predict(X_)
@@ -450,7 +470,9 @@ def test_smaller(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = {"alpha": [0.1, 0.5]}
-    search = IncrementalSearchCV(model, params, n_initial_parameters="grid", decay_rate=None)
+    search = IncrementalSearchCV(
+        model, params, n_initial_parameters="grid", decay_rate=None
+    )
     yield search.fit(X, y, classes=[0, 1])
     (X_,) = yield c.compute([X])
     search.predict(X_)
@@ -517,7 +539,8 @@ def test_high_performing_models_are_retained_with_patience(c, s, a, b):
         patience=2,
         tol=1e-3,  # only stop the constant functions
         n_initial_parameters="grid",
-        max_iter=20, decay_rate=None
+        max_iter=20,
+        decay_rate=None,
     )
 
     search._adapt = _remove_worst_performing_model
@@ -591,7 +614,9 @@ def test_history(c, s, a, b):
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
     model = ConstantFunction()
     params = {"value": scipy.stats.uniform(0, 1)}
-    alg = IncrementalSearchCV(model, params, max_iter=9, random_state=42, decay_rate=None)
+    alg = IncrementalSearchCV(
+        model, params, max_iter=9, random_state=42, decay_rate=None
+    )
     yield alg.fit(X, y)
     gt_zero = lambda x: x >= 0
     gt_one = lambda x: x >= 1
@@ -720,7 +745,9 @@ def test_verbosity_levels(capsys, verbose):
         X, y = make_classification(n_samples=10, n_features=4, chunks=10)
         model = ConstantFunction()
         params = {"value": scipy.stats.uniform(0, 1)}
-        search = IncrementalSearchCV(model, params, max_iter=max_iter, verbose=verbose, decay_rate=None)
+        search = IncrementalSearchCV(
+            model, params, max_iter=max_iter, verbose=verbose, decay_rate=None
+        )
         yield search.fit(X, y)
         return search
 
@@ -744,7 +771,12 @@ def test_search_patience_infeasible_tol(c, s, a, b):
     max_iter = 10
     score_increase = -10
     search = IncrementalSearchCV(
-        model, params, max_iter=max_iter, patience=3, tol=score_increase, decay_rate=None
+        model,
+        params,
+        max_iter=max_iter,
+        patience=3,
+        tol=score_increase,
+        decay_rate=None,
     )
     yield search.fit(X, y, classes=[0, 1])
 
@@ -805,16 +837,22 @@ def test_search_invalid_patience(c, s, a, b):
     params = {"value": np.random.RandomState(42).rand(1000)}
     model = ConstantFunction()
 
-    search = IncrementalSearchCV(model, params, patience=1, max_iter=10, decay_rate=None)
+    search = IncrementalSearchCV(
+        model, params, patience=1, max_iter=10, decay_rate=None
+    )
     with pytest.raises(ValueError, match="patience >= 2"):
         yield search.fit(X, y, classes=[0, 1])
 
-    search = IncrementalSearchCV(model, params, patience=2.0, max_iter=10, decay_rate=None)
+    search = IncrementalSearchCV(
+        model, params, patience=2.0, max_iter=10, decay_rate=None
+    )
     with pytest.raises(ValueError, match="patience must be an integer"):
         yield search.fit(X, y, classes=[0, 1])
 
     # Make sure this passes
-    search = IncrementalSearchCV(model, params, patience=False, max_iter=10, decay_rate=None)
+    search = IncrementalSearchCV(
+        model, params, patience=False, max_iter=10, decay_rate=None
+    )
     yield search.fit(X, y, classes=[0, 1])
     assert search.history_
 
