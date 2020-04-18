@@ -7,7 +7,6 @@ from sklearn.linear_model import SGDClassifier
 
 from dask_ml._compat import DISTRIBUTED_2_5_0
 from dask_ml.model_selection import InverseDecaySearchCV
-from dask_ml.utils import ConstantFunction
 
 pytestmark = pytest.mark.skipif(not DISTRIBUTED_2_5_0, reason="hangs")
 
@@ -101,4 +100,4 @@ def test_patience(patience):
     if patience:
         assert np.nanmax(waits) <= patience
     else:
-        assert np.nanmax(waits) == 10  # b/c specified fits_per_score=10
+        assert np.nanmax(waits) == n_models // 2  # b/c specified fits_per_score=10
