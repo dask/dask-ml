@@ -725,7 +725,6 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
         Alternatively, you can set this to ``"grid"`` to do a full grid search.
 
-
     patience : int, default False
         If specified, training stops when the score does not increase by
         ``tol`` after ``patience`` calls to ``partial_fit``. Off by default.
@@ -791,6 +790,14 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
     prefix : str, optional, default=""
         While logging, add ``prefix`` to each message.
+
+    decay_rate : float, default 1.0
+        How quickly to decrease the number partial future fit calls.
+
+        .. deprecated:: v1.4.0
+           This implementation of an adaptive algorithm that uses
+           ``decay_rate`` has moved to
+           :class:`~dask_ml.model_selection.InverseDecaySearchCV`.
 
     Attributes
     ----------
@@ -929,7 +936,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         verbose=False,
         prefix="",
         scores_per_fit=None,
-        decay_rate=1,
+        decay_rate=None,
     ):
 
         self.n_initial_parameters = n_initial_parameters
@@ -951,12 +958,25 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         )
 
     def fit(self, X, y=None, **fit_params):
-        if "IncrementalSearchCV" in str(type(self)) and self.decay_rate is not None:
-            warn(
-                "decay_rate has been deprecated in Dask-ML v1.4.0.\n\n"
-                "    * To remove this warning, specify decay_rate=None\n"
-                "    * To obtain the same behavior, use InverseDecaySearchCV\n"
-            )
+        if "IncrementalSearchCV" in str(type(self)):
+            if self.decay_rate is None:
+                warn(
+                    "decay_rate has been deprecated since Dask-ML v1.4.0.\n\n"
+                    "    * Use InverseDecaySearchCV for use of `decay_rate`\n"
+                    "    * To remove this warning, use this code:\n\n"
+                    "    >>> search = IncrementalSearchCV(...)\n"
+                    "    >>> import warnings\n"
+                    "    >>> with warnings.catch_warnings():\n"
+                    "    >>>     warnings.filterwarnings('ignore', "
+                    "category=FutureWarning, module='dask_ml')\n"
+                    "    >>>     search.fit(X, y, **fit_params)\n",
+                    FutureWarning,
+                )
+            else:
+                warn(
+                    "decay_rate is deprecated in InverseDecaySearchCV. "
+                    f"Use InverseDecaySearchCV to use decay_rate={self.decay_rate}",
+                )
         if self.scores_per_fit is not None and self.fits_per_score != 1:
             msg = "Specify fits_per_score, not scores_per_fit"
             raise ValueError(msg)
@@ -1097,9 +1117,6 @@ class InverseDecaySearchCV(IncrementalSearchCV):
         If ``patience`` is used the maximum number of ``partial_fit`` calls
         between ``score`` calls.
 
-        .. deprecated:: v1.4.0
-           Renamed to ``fits_per_score``.
-
     tol : float, default 0.001
         The required level of improvement to consider stopping training on
         that model. The most recent score must be at at most ``tol`` better
@@ -1154,10 +1171,9 @@ class InverseDecaySearchCV(IncrementalSearchCV):
     decay_rate : float, default 1.0
         How quickly to decrease the number partial future fit calls.
         Higher `decay_rate` will result in lower training times, at the cost
-        of worse models. This is best changed for compute bound model selection
-        problems.
+        of worse models.
 
-        If changed, note that ``decay_rate == 1`` has some theoritical
+        The default ``decay_rate=1`` is chosen because it has some theoritical
         motivation [1]_.
 
     Attributes
@@ -1284,7 +1300,7 @@ class InverseDecaySearchCV(IncrementalSearchCV):
 
         def inverse(time):
             """ Decrease target number of models inversely with time """
-            n_models = start / time
+            n_models = start / (time) ** self.decay_rate
             return np.round(n_models).astype(int)
 
         example = toolz.first(info.values())

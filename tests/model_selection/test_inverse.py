@@ -5,10 +5,7 @@ from distributed.utils_test import gen_cluster  # noqa: F401
 from sklearn.datasets import make_classification
 from sklearn.linear_model import SGDClassifier
 
-from dask_ml._compat import DISTRIBUTED_2_5_0
 from dask_ml.model_selection import InverseDecaySearchCV
-
-pytestmark = pytest.mark.skipif(not DISTRIBUTED_2_5_0, reason="hangs")
 
 
 @gen_cluster(client=True)
