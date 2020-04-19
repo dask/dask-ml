@@ -23,7 +23,7 @@ def test_warns_decay_rate(c, s, a, b):
 
     # Make sure the printed warning message works
     with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', category=FutureWarning, module='dask_ml')
+        warnings.filterwarnings("ignore", category=FutureWarning, module="dask_ml")
         yield search.fit(X, y)
 
 
@@ -34,7 +34,9 @@ def test_warns_decay_rate_wanted(c, s, a, b):
     params = {"value": np.random.RandomState(42).rand(1000)}
     model = ConstantFunction()
 
-    search = IncrementalSearchCV(model, params, max_iter=5, n_initial_parameters=5, decay_rate=1)
+    search = IncrementalSearchCV(
+        model, params, max_iter=5, n_initial_parameters=5, decay_rate=1
+    )
     match = "decay_rate is deprecated .* Use InverseDecaySearchCV"
     with pytest.warns(UserWarning, match=match):
         yield search.fit(X, y)
