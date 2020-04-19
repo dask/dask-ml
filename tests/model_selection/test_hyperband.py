@@ -326,7 +326,7 @@ def test_params_passed():
     seeds = [SHA_params["random_state"] for SHA_params in SHAs_params]
     assert len(set(seeds)) == len(seeds)
 
-
+@pytest.mark.filterwarnings("ignore:decay_rate")
 @gen_cluster(client=True, timeout=5000)
 def test_same_random_state_same_params(c, s, a, b):
     # This makes sure parameters are sampled correctly when random state is
@@ -347,7 +347,6 @@ def test_same_random_state_same_params(c, s, a, b):
         random_state=seed,
         max_iter=2,
         n_initial_parameters=h.metadata["n_models"],
-        decay_rate=None,
     )
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
     yield h.fit(X, y)
