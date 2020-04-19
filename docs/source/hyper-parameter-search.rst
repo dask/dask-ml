@@ -6,22 +6,25 @@ models using Dask, and to scale hyperparameter optimization to* **larger
 data and/or larger searches.**
 
 Hyperparameter searches are a required process in machine learning. Briefly,
-these searches require finding optimal values for a model that can not be found
-with the data. For more detail, see "`Tuning the hyper-parameters of an
-estimator <https://scikit-learn.org/stable/modules/grid_search.html>`_."
+machine learning models require certain "hyperparameters", model parameters
+that can be learned from the data. Finding these good values for these
+parameters is a "hyperparameter search" or an "hyperparameter optimization."
+For more detail, see "`Tuning the hyper-parameters of an estimator
+<https://scikit-learn.org/stable/modules/grid_search.html>`_."
 
-These searches can take an ample time (days or weeks), typically when searching
-for great performance or with massive datasets. This is common when preparing
-for production or a paper publication. The
-following section clarifies the issues that can occur:
+These searches can take an ample time (days or weeks), especially when good
+performance is desired and/or with massive datasets, which is common when
+preparing for production or a paper publication. The following section
+clarifies the issues that can occur:
 
 * ":ref:`hyperparameter.scaling`" mentions problems that often occur in
   hyperparameter optimization searches.
 
 Tools that address these problems are expanded upon in these sections:
 
-1. ":ref:`hyperparameter.drop-in`" details classes that are drop-in
-   replacements for Scikit-learn but work nicely with Dask objects and can offer better performance.
+1. ":ref:`hyperparameter.drop-in`" details classes that mirror the Scikit-learn
+   estimators but work nicely with Dask objects and can offer better
+   performance.
 2. ":ref:`hyperparameter.incremental`" details classes that work well with
    large datasets.
 3. ":ref:`hyperparameter.adaptive`" details classes that avoid extra
@@ -40,8 +43,8 @@ optimization, when the hyperparameter search is...
    larger-than-memory dataset after local development.
 2. "**compute constrained**". This happen when the computation takes too long
    even with data that can fit in memory.  This typically happens when many
-   hyperparameters need to be tuned, which especially common with neural
-   networks.
+   hyperparameters need to be tuned or the model requires a specialized
+   hardware (e.g., GPUs).
 
 "Memory constrained" searches happen when the data doesn't fit in the memory of
 a single machine:
@@ -112,9 +115,8 @@ works well with `Dask collections`_ (like Dask Arrays and Dask DataFrames):
    dask_ml.model_selection.GridSearchCV
    dask_ml.model_selection.RandomizedSearchCV
 
-The estimator above work well with Dask Arrays/DataFrames. By default, these
-estimators will efficiently pass the entire dataset to ``fit`` if a Dask
-Array/DataFrame is passed.  More detail is in
+By default, these estimators will efficiently pass the entire dataset to
+``fit`` if a Dask Array/DataFrame is passed.  More detail is in
 ":ref:`works-with-dask-collections`".
 
 These estimators above work especially well with models that have expensive
@@ -137,7 +139,7 @@ estimators does that:
 More detail on :class:`~dask_ml.model_selection.IncrementalSearchCV` is in
 ":ref:`hyperparameter.incremental`".
 
-:class:`~dask_ml.model_selection.GridSearchCV` and
+Dask's implementation of :class:`~dask_ml.model_selection.GridSearchCV` and
 :class:`~dask_ml.model_selection.RandomizedSearchCV` can to also call
 ``partial_fit`` on each chunk of a Dask array, as long as the model passed is
 wrapped with :class:`~dask_ml.wrappers.Incremental`.
@@ -148,23 +150,26 @@ Compute constrained, but not memory constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This case happens when the data fits on in the memory of one machine but when
-there are a lot of hyperparameters to search. The best class for this case is
+there are a lot of hyperparameters to search, or the models require specialized
+hardware like GPUs. The best class for this case is
 :class:`~dask_ml.model_selection.HyperbandSearchCV`:
 
 .. autosummary::
    dask_ml.model_selection.HyperbandSearchCV
 
-Briefly, this estimator is easy to use and performs remarkably well (more
-detail is in ":ref:`hyperparameter.adaptive`"). It's easy to use because
-there's a rule-of-thumb to determine the
-input parameters (more detail is in ":ref:`hyperparameter.hyperband-params`").
+Briefly, this estimator is easy to use, has strong mathematical motivation and
+performs remarkably well. For more detail, see
+":ref:`hyperparameter.hyperband-params`" and
+":ref:`hyperparameter.hyperband-perf`".
 
-Two other classes also address "compute constrained but not memory constrained"
-searches. However, the input parameters are a more difficult to configure:
+Two other adaptive hyperparameter optimization algorithms are implemented in these
+classes:
 
 .. autosummary::
    dask_ml.model_selection.SuccessiveHalvingSearchCV
    dask_ml.model_selection.InverseDecaySearchCV
+
+The input parameters for these classes are a more difficult to configure.
 
 All of these searches can reduce time to solution by (cleverly) deciding which
 parameters to evaluate. That is, these searches *adapt* to history to decide
