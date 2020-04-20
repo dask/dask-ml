@@ -69,10 +69,14 @@ class BlockTransformer(BaseEstimator, TransformerMixin):
         self.validate = validate
         self.kw_args = kw_args
 
-    def fit(self, X: Union[ArrayLike, DataFrameType], y: SeriesType = None):
+    def fit(
+        self, X: Union[ArrayLike, DataFrameType], y: SeriesType = None
+    ) -> BlockTransformer:
         return self
 
-    def transform(self, X: Union[ArrayLike, DataFrameType], y: SeriesType = None):
+    def transform(
+        self, X: Union[ArrayLike, DataFrameType], y: SeriesType = None
+    ) -> Union[ArrayLike, DataFrameType]:
         kwargs = self.kw_args if self.kw_args else {}
 
         if isinstance(X, da.Array):

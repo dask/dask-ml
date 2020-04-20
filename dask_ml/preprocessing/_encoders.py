@@ -146,7 +146,9 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
     def get_params(self, deep: bool = True):
         return super().get_params(deep)
 
-    def fit(self, X: Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None):
+    def fit(
+        self, X: Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None
+    ) -> OneHotEncoder:
         if self.handle_unknown == "ignore":
             raise NotImplementedError("handle_unkown='ignore' is not implemented yet.")
         if self.handle_unknown != "error":
@@ -215,15 +217,19 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
 
         self.categories_ = dask.compute(self.categories_)[0]
 
-    def transform(self, X: Union[ArrayLike, DataFrameType]):
+    def transform(
+        self, X: Union[ArrayLike, DataFrameType]
+    ) -> Union[ArrayLike, DataFrameType]:
         return self._transform(X)
 
-    def _transform_new(self, X: Union[ArrayLike, DataFrameType]):
+    def _transform_new(
+        self, X: Union[ArrayLike, DataFrameType]
+    ) -> Union[ArrayLike, DataFrameType]:
         return self._transform(X)
 
     def _transform(
         self, X: Union[ArrayLike, DataFrameType], handle_unknown: str = "error"
-    ):
+    ) -> Union[ArrayLike, DataFrameType]:
         X = check_array(
             X, accept_dask_dataframe=True, dtype=None, preserve_pandas_dataframe=True
         )
