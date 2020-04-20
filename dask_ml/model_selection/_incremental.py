@@ -1076,13 +1076,8 @@ class InverseDecaySearchCV(IncrementalSearchCV):
     continues training those models that seem to be performing well.
 
     This class will decay the number of parameters over time. At time step
-    ``k``, this class will consider
-
-    .. code::
-
-       n_initial_parameters / (k + 1)**decay_rate
-
-    models at time step ``k``.
+    ``k``, this class will retain :math:`\mathcal{O}(1/k)` of the highest
+    performing models.
 
     Parameters
     ----------
@@ -1270,7 +1265,7 @@ class InverseDecaySearchCV(IncrementalSearchCV):
         patience=False,
         tol=0.001,
         fits_per_score=1,
-        max_iter=np.nan,
+        max_iter=100,
         random_state=None,
         scoring=None,
         verbose=False,
@@ -1297,22 +1292,32 @@ class InverseDecaySearchCV(IncrementalSearchCV):
     def _adapt(self, info):
         # First, have an adaptive algorithm
         start = self.n_initial_parameters
-
-        def inverse(time):
-            """ Decrease target number of models inversely with time """
-            n_models = start / (time) ** self.decay_rate
-            return np.round(n_models).astype(int)
-
         example = toolz.first(info.values())
         pf_calls = example[-1]["partial_fit_calls"]
+
+        def inverse(time):
+            """ Decrease target number of models inversely with time/
+            partial_fit_calls
+
+            This function is congirued so inverse(max_iter) == 2.
+            """
+            time = np.linspace(1, self.n_initial_parameters / 2, num=self.max_iter)
+            n_models = start / (time ** self.decay_rate)
+            n_models = np.round(n_models).astype(int)
+            idx = pf_calls - 1
+            if idx < len(n_models):
+                return n_models[idx]
+            return int(2 / self.max_iter)
+
         current_n_models = len(info)
         for k in itertools.count():
             if k < self.fits_per_score:
                 continue
             n_models = inverse(pf_calls + k)
 
+            # Has the number of models that are retained changed? If so, break
             if current_n_models != n_models or k >= self.fits_per_score:
-                # patience is handled by _additional_calls
+                # don't need to worry about patience; it's handled by _additional_calls
                 break
 
         next_pf_calls = pf_calls + k

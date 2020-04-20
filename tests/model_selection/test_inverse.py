@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from distributed.utils_test import gen_cluster  # noqa: F401
+from scipy.optimize import curve_fit
 from sklearn.datasets import make_classification
 from sklearn.linear_model import SGDClassifier
 
@@ -9,12 +10,12 @@ from dask_ml.model_selection import InverseDecaySearchCV
 
 
 @gen_cluster(client=True)
-def test_basic_successive_halving(c, s, a, b):
+def test_basic_inverse(c, s, a, b):
     # Most of the basics are tested through Hyperband (which relies on
     # successive halving)
     model = SGDClassifier(tol=1e-3)
     params = {"alpha": np.logspace(-3, 0, num=1000)}
-    search = InverseDecaySearchCV(model, params, n_initial_parameters=5)
+    search = InverseDecaySearchCV(model, params, n_initial_parameters=5, max_iter=5)
 
     X, y = make_classification()
     yield search.fit(X, y, classes=np.unique(y))
@@ -27,7 +28,7 @@ def test_inverse_decay(c, s, a, b):
     model = SGDClassifier(tol=1e-3)
     params = {"alpha": np.logspace(-3, 0, num=1000)}
     n_init = 10
-    search = InverseDecaySearchCV(model, params, n_initial_parameters=n_init)
+    search = InverseDecaySearchCV(model, params, n_initial_parameters=n_init, max_iter=n_init)
 
     X, y = make_classification()
     yield search.fit(X, y, classes=np.unique(y))
@@ -42,7 +43,15 @@ def test_inverse_decay(c, s, a, b):
 
     calls = n_models.index.values
     models = n_models.values
-    assert np.abs(n_init / calls - models).max() <= 1
+
+    def inv(x, initial):
+        return initial / x
+
+    popt, pcov = curve_fit(inv, calls, models)
+    m_hat = inv(calls, *popt)
+    m_hat = np.round(m_hat).astype(int)
+
+    assert (m_hat != models).sum() <= 1 and len(models) == 6
     assert models.min() == 2
 
 
@@ -54,7 +63,8 @@ def test_fits_per_score(fits_per_score):
         params = {"alpha": np.logspace(-3, 0, num=1000)}
         n_init = 10
         search = InverseDecaySearchCV(
-            model, params, n_initial_parameters=n_init, fits_per_score=fits_per_score
+            model, params, n_initial_parameters=n_init, fits_per_score=fits_per_score,
+            max_iter=n_init,
         )
 
         X, y = make_classification()
@@ -82,6 +92,7 @@ def test_patience(patience):
             n_initial_parameters=n_init,
             patience=patience,
             fits_per_score=n_init // 2,
+            max_iter=1 * n_init,
         )
 
         X, y = make_classification()
