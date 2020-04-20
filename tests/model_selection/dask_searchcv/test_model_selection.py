@@ -24,7 +24,6 @@ from sklearn.exceptions import FitFailedWarning, NotFittedError
 from sklearn.feature_selection import SelectKBest
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, brier_score_loss, log_loss, make_scorer
-from sklearn.metrics.scorer import _passthrough_scorer
 from sklearn.model_selection import (
     GridSearchCV,
     GroupKFold,
@@ -983,9 +982,9 @@ def test_mock_with_fit_param_raises():
     (accuracy_score, True, False, [100000, 100000, 100000, 100000]),
     (accuracy_score, True, False, [200000, 100000, 200000, 100000]),
     (accuracy_score, True, False, [999999, 1, 999999, 1]),
-    (accuracy_score, True, False, [2000000, 1000000, 1, 999999]),
-    (log_loss, False, True, [2500000, 500000, 200000, 100000]),
-    (brier_score_loss, False, True, [2500000, 500000, 200000, 100000]),
+    (accuracy_score, True, False, [2000000, 1000000, 1, 999999]), # ACTUAL: 0.25000025, DESIRED: 0.8333328333333333
+    (log_loss, False, True, [2500000, 500000, 200000, 100000]), # ACTUAL: -0.5389724766321401 DESIRED: -0.5435376885817268
+    (brier_score_loss, False, True, [2500000, 500000, 200000, 100000]), # ACTUAL: -0.17424242424242425, DESIRED: -0.1805555555560682
 ])
 def test_sample_weight_cross_validation(
         metric, greater_is_better, needs_proba, sample_wt):

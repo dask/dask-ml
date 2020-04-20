@@ -82,7 +82,7 @@ def warn_fit_failure(error_score, e):
 
 
 class CVCache:
-    def __init__(self, splits, pairwise=False, cache=True, num_train_samples=None):
+    def __init__(self, splits, pairwise=False, cache=True, num_train_samples=None ):
         self.splits = splits
         self.pairwise = pairwise
         self.cache = {} if cache else None
@@ -95,7 +95,7 @@ class CVCache:
                 self.splits,
                 self.pairwise,
                 self.cache is not None,
-                self.num_train_samples,
+                self.num_train_samples
             ),
         )
 
@@ -113,14 +113,16 @@ class CVCache:
             return None
         return self._extract(X, y, n, is_x=False, is_train=is_train)
 
-    def extract_param(self, key, x, n):
-        if self.cache is not None and (n, key) in self.cache:
-            return self.cache[n, key]
-
-        out = _index_param_value(self.num_train_samples, x, self.splits[n][0])
+    def extract_param(self, key, x, n, is_train=True):
+        if self.cache is not None and (n, key, is_train) in self.cache:
+            return self.cache[n, key, is_train]
+        # is_train refers to the subsample of the train that is in the train folds
+        # train_samples refers to all folds . this is confusing
+        inds = self.splits[n][0] if is_train else self.splits[n][1]
+        out = _index_param_value( self.num_train_samples, x, inds)
 
         if self.cache is not None:
-            self.cache[n, key] = out
+            self.cache[n, key, is_train] = out
         return out
 
     def _extract(self, X, y, n, is_x=True, is_train=True):
@@ -166,8 +168,8 @@ def cv_extract(cvs, X, y, is_X, is_train, n):
     return cvs.extract(X, y, n, is_X, is_train)
 
 
-def cv_extract_params(cvs, keys, vals, n):
-    return {k: cvs.extract_param(tok, v, n) for (k, tok), v in zip(keys, vals)}
+def cv_extract_params(cvs, keys, vals, n, is_train):
+    return {k: cvs.extract_param(tok, v, n, is_train) for (k, tok), v in zip(keys, vals)}
 
 
 def _maybe_timed(x):
@@ -271,50 +273,6 @@ def fit_transform(
     return (est, fit_time), Xt
 
 
-def _get_fold_sample_weights(sample_weight, cv, n):
-    """Get the training and test sample weights for the ``n`` th fold using
-    ``cv``.
-
-    Parameters
-    ----------
-    sample_weight : array-like
-        sample weights.  Should contain all sample weights needed for
-        training and testing. May be None.
-
-    cv : Cross Validation object
-        cross validation object that can provide indices for training and
-        test.
-
-    n : int
-        The fold number
-
-    Returns
-    -------
-    train_sample_weight : array-like
-
-    test_sample_weight : array-like
-    """
-
-    # NOTE: train split is unnecessary if X_train is None b/c of the check in
-    #       ``score``.  That's an optimization that can be addressed later.
-    if sample_weight is None:
-        train_sample_weight = None
-        test_sample_weight = None
-    else:
-        # "0" is the train split, "1" is the test split.
-        train_sample_weight = safe_indexing(sample_weight, cv.splits[n][0])
-        test_sample_weight = safe_indexing(sample_weight, cv.splits[n][1])
-    return train_sample_weight, test_sample_weight
-
-
-def get_sample_weights(sample_weight, cv, n_splits):
-    w = []
-    for n in range(n_splits):
-        _, test_sample_weight = _get_fold_sample_weights(sample_weight, cv, n)
-        w.append(np.sum(test_sample_weight))
-    return np.array(w)
-
-
 def _apply_scorer(estimator, X, y, scorer, sample_weight):
     """Applies the scorer to the estimator, given the data and sample_weight.
 
@@ -382,7 +340,6 @@ def _apply_scorer(estimator, X, y, scorer, sample_weight):
                 raise e
     return score
 
-
 def _score(est, X, y, scorer, sample_weight):
     if est is FIT_FAILURE:
         return FIT_FAILURE
@@ -392,18 +349,17 @@ def _score(est, X, y, scorer, sample_weight):
         }
     return _apply_scorer(est, X, y, scorer, sample_weight)
 
-
 def score(
-    est_and_time,
-    X_test,
-    y_test,
-    X_train,
-    y_train,
-    scorer,
-    error_score,
-    test_sample_weight=None,
-    train_sample_weight=None,
-):
+     est_and_time,
+     X_test,
+     y_test,
+     X_train,
+     y_train,
+     scorer,
+     error_score,
+     test_sample_weight=None,
+     train_sample_weight=None,
+ ):
     est, fit_time = est_and_time
     start_time = default_timer()
     try:
@@ -432,33 +388,26 @@ def fit_and_score(
     fields=None,
     params=None,
     fit_params=None,
+    fit_test_params=None,
     return_train_score=True,
-    sample_weight=None,
 ):
     X_train = cv.extract(X, y, n, True, True)
     y_train = cv.extract(X, y, n, False, True)
     X_test = cv.extract(X, y, n, True, False)
     y_test = cv.extract(X, y, n, False, False)
-
-    train_sample_weight, test_sample_weight = _get_fold_sample_weights(
-        sample_weight, cv, n
-    )
-
     est_and_time = fit(est, X_train, y_train, error_score, fields, params, fit_params)
     if not return_train_score:
         X_train = y_train = None
 
-    return score(
-        est_and_time,
-        X_test,
-        y_test,
-        X_train,
-        y_train,
-        scorer,
-        error_score,
-        test_sample_weight,
-        train_sample_weight,
-    )
+    eval_sample_weight_train, eval_sample_weight_test = None, None
+    if fit_params is not None:
+        eval_weight_source = "eval_sample_weight" if "eval_sample_weight" in fit_params else "sample_weight"
+        if eval_weight_source in fit_params and fit_params[eval_weight_source] is not None:
+            eval_sample_weight_train = fit_params[eval_weight_source]
+        if eval_weight_source in fit_test_params and fit_test_params[eval_weight_source] is not None:
+            eval_sample_weight_test = fit_test_params[eval_weight_source]
+
+    return score(est_and_time, X_test, y_test, X_train, y_train, scorer, error_score, eval_sample_weight_train, eval_sample_weight_test)
 
 
 def _store(
@@ -549,7 +498,6 @@ def create_cv_results(
                 n_splits,
                 n_candidates,
                 splits=True,
-                weights=weights
             )
     else:
         for key in multimetric:
@@ -572,7 +520,6 @@ def create_cv_results(
                     n_splits,
                     n_candidates,
                     splits=True,
-                    weights=weights
                 )
 
     # Use one MaskedArray and mask all the places where the param is not

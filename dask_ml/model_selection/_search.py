@@ -52,8 +52,6 @@ from .methods import (
     fit_transform,
     pipeline,
     score,
-    _get_fold_sample_weights,
-    get_sample_weights
 )
 from .utils import DeprecationDict, is_dask_collection, to_indexable, to_keys, unzip
 
@@ -224,6 +222,12 @@ def build_cv_graph(
     cv_name = "cv-split-" + main_token
     dsk[cv_name] = (cv_split, cv, X_name, y_name, groups_name, is_pairwise, cache_cv)
 
+    if iid:
+        weights = "cv-n-samples-" + main_token
+        dsk[weights] = (cv_n_samples, cv_name)
+    else:
+        weights = None
+
     scores = do_fit_and_score(
         dsk,
         main_token,
@@ -242,37 +246,6 @@ def build_cv_graph(
     )
     keys = [weights] + scores if weights else scores
     return dsk, keys, n_splits, main_token
-'''
-    cv_results = "cv-results-" + main_token
-    candidate_params_name = "cv-parameters-" + main_token
-    dsk[candidate_params_name] = (decompress_params, fields, params)
-    if multimetric:
-        metrics = list(scorer.keys())
-    else:
-        metrics = None
-
-    if "sample_weight" in fit_params and fit_params["sample_weight"][1] is not None:
-        sample_weight = fit_params["sample_weight"][1]
-        weights = "cv-n-weights-" + main_token
-        dsk[weights] = (
-        get_sample_weights, sample_weight, cv_name, n_splits)
-    elif iid:
-        weights = "cv-n-samples-" + main_token
-        dsk[weights] = (cv_n_samples, cv_name)
-    else:
-        weights = None
-
-    dsk[cv_results] = (
-        create_cv_results,
-        scores,
-        candidate_params_name,
-        n_splits,
-        error_score,
-        weights,
-        metrics,
-    )
-    keys = [cv_results]
-'''
 
 
 def build_refit_graph(estimator, X, y, best_params, fit_params):
@@ -320,13 +293,13 @@ def normalize_params(params):
 
 def _get_fit_params(cv, fit_params, n_splits):
     if not fit_params:
-        return [(n, None) for n in range(n_splits)]
+        return [(n, (None,None)) for n in range(n_splits)]
     keys = []
     vals = []
     for name, (full_name, val) in fit_params.items():
         vals.append(val)
         keys.append((name, full_name))
-    return [(n, (cv_extract_params, cv, keys, vals, n)) for n in range(n_splits)]
+    return [(n, ( (cv_extract_params, cv, keys, vals, n, True), (cv_extract_params, cv, keys, vals, n, False)) ) for n in range(n_splits)]
 
 
 def _group_fit_params(steps, fit_params):
@@ -353,17 +326,6 @@ def do_fit_and_score(
     scorer,
     return_train_score,
 ):
-    if "sample_weight" in fit_params:
-        # This will likely get all sample weights but we might want to
-        # whittle this down since it'll ultimately be used to get the
-        # test sample weights.
-        #
-        # Each value in the fit_params dict is a 2-tuple where the
-        # data representation is in the second dimension (dim 1).
-        sample_weight = fit_params["sample_weight"][1]
-    else:
-        sample_weight = None
-
     if not isinstance(est, Pipeline):
         # Fitting and scoring can all be done as a single task
         n_and_fit_params = _get_fit_params(cv, fit_params, n_splits)
@@ -394,9 +356,9 @@ def do_fit_and_score(
                         error_score,
                         fields,
                         p,
-                        fit_params,
+                        fit_params[0],
+                        fit_params[1],
                         return_train_score,
-                        sample_weight,
                     )
                 seen[t] = (score_name, m)
                 out_append((score_name, m))
@@ -431,10 +393,6 @@ def do_fit_and_score(
         scores = []
         scores_append = scores.append
         for n in range(n_splits):
-            train_sample_weight, test_sample_weight = _get_fold_sample_weights(
-                sample_weight, cv, n
-            )
-
             if return_train_score:
                 xtrain = X_train + (n,)
                 ytrain = y_train + (n,)
@@ -454,8 +412,6 @@ def do_fit_and_score(
                     ytrain,
                     scorer,
                     error_score,
-                    test_sample_weight,
-                    train_sample_weight,
                 )
                 scores_append((score_name, m, n))
     return scores
@@ -522,7 +478,7 @@ def do_fit(
                         error_score,
                         fields,
                         p,
-                        fit_params,
+                        fit_params[0],
                     )
                 seen[(X, y, t)] = (fit_name, m)
                 out_append((fit_name, m))
@@ -609,7 +565,7 @@ def do_fit_transform(
                         error_score,
                         fields,
                         p,
-                        fit_params,
+                        fit_params[0],
                     )
                     dsk[(fit_name, m, n)] = (getitem, (fit_Xt_name, m, n), 0)
                     dsk[(Xt_name, m, n)] = (getitem, (fit_Xt_name, m, n), 1)
