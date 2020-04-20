@@ -1291,49 +1291,38 @@ class InverseDecaySearchCV(IncrementalSearchCV):
 
     def _adapt(self, info):
         # First, have an adaptive algorithm
-        start = self.n_initial_parameters
-        example = toolz.first(info.values())
-        pf_calls = example[-1]["partial_fit_calls"]
+        if self.n_initial_parameters == "grid":
+            start = len(ParameterGrid(self.parameters))
+        else:
+            start = self.n_initial_parameters
 
         def inverse(time):
-            """ Decrease target number of models inversely with time/
-            partial_fit_calls
+            """ Decrease target number of models inversely with time """
+            return int(start / (1 + time) ** self.decay_rate)
 
-            This function is congirued so inverse(max_iter) == 2.
-            """
-            time = np.linspace(1, self.n_initial_parameters / 2, num=self.max_iter)
-            n_models = start / (time ** self.decay_rate)
-            n_models = np.round(n_models).astype(int)
-            idx = pf_calls - 1
-            if idx < len(n_models):
-                return n_models[idx]
-            return int(2 / self.max_iter)
+        example = toolz.first(info.values())
+        time_step = example[-1]["partial_fit_calls"]
 
-        current_n_models = len(info)
-        for k in itertools.count():
-            if k < self.fits_per_score:
-                continue
-            n_models = inverse(pf_calls + k)
+        current_time_step = time_step + 1
+        next_time_step = current_time_step
 
-            # Has the number of models that are retained changed? If so, break
-            if current_n_models != n_models or k >= self.fits_per_score:
-                # don't need to worry about patience; it's handled by _additional_calls
-                break
+        if inverse(current_time_step) == 0:
+            # we'll never get out of here
+            next_time_step = 1
 
-        next_pf_calls = pf_calls + k
+        while inverse(current_time_step) == inverse(next_time_step) and (
+            self.decay_rate
+            and not self.patience
+            or next_time_step - current_time_step < self.fits_per_score
+        ):
+            next_time_step += 1
 
-        if inverse(next_pf_calls) == 0:
-            best = toolz.topk(1, info, key=lambda k: info[k][-1]["score"])
-            [best] = best
-            return {best: 0}
-
-        target = max(1, n_models)
+        target = max(1, inverse(next_time_step))
         best = toolz.topk(target, info, key=lambda k: info[k][-1]["score"])
 
         if len(best) == 1:
             [best] = best
             return {best: 0}
-
-        steps = next_pf_calls - pf_calls
+        steps = next_time_step - current_time_step
         instructions = {b: steps for b in best}
         return instructions
