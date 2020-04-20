@@ -27,6 +27,8 @@ WINDOWS = os.name == "nt"
 
 @contextlib.contextmanager
 def dummy_context(*args: Any, **kwargs: Any):
+    # Not needed if Python >= 3.7 is required
+    # https://docs.python.org/3/library/contextlib.html#contextlib.nullcontext
     yield
 
 

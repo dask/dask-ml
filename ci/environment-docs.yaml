@@ -32,7 +32,6 @@ dependencies:
   - sphinx==1.8.5
   - sphinx_rtd_theme
   - sphinx-gallery
-  - tensorflow
   - testpath<0.4
   - tornado
   - toolz
@@ -44,6 +43,5 @@ dependencies:
   - distributed
   - dask-xgboost
   - pip:
-    - git+https://github.com/dask/dask-tensorflow.git
     - dask_sphinx_theme >=1.1.0
     - graphviz

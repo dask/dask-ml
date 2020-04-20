@@ -131,7 +131,7 @@ We have some additional decisions to make in the dask context. Ideally
    the same type as the input. So if a ``dask.array`` is passed in, a
    ``dask.array`` with the same chunks should be returned.
 
-.. _estimator check: http://scikit-learn.org/stable/developers/contributing.html#rolling-your-own-estimator
+.. _estimator check: https://scikit-learn.org/stable/developers/develop.html#rolling-your-own-estimator
 
 Documentation
 ~~~~~~~~~~~~~

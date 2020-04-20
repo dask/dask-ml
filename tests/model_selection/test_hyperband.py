@@ -269,6 +269,8 @@ def test_correct_params(c, s, a, b):
         "tol",
         "random_state",
         "scoring",
+        "verbose",
+        "prefix",
     }
     assert set(search.get_params().keys()) == base.union({"aggressiveness"})
     meta = search.metadata
@@ -276,7 +278,13 @@ def test_correct_params(c, s, a, b):
         bracket["SuccessiveHalvingSearchCV params"] for bracket in meta["brackets"]
     ]
     SHA_params = base.union(
-        {"n_initial_parameters", "n_initial_iter", "aggressiveness", "max_iter"}
+        {
+            "n_initial_parameters",
+            "n_initial_iter",
+            "aggressiveness",
+            "max_iter",
+            "prefix",
+        }
     ) - {"estimator__sleep", "estimator__value", "estimator", "parameters"}
 
     assert all(set(SHA) == SHA_params for SHA in SHAs_params)
