@@ -2,6 +2,7 @@
 """Algorithms for spectral clustering
 """
 import logging
+from typing import Any, Callable, Dict, Optional, Union
 
 import dask.array as da
 import numpy as np
@@ -137,22 +138,22 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
 
     def __init__(
         self,
-        n_clusters=8,
-        eigen_solver=None,
-        random_state=None,
-        n_init=10,
-        gamma=1.0,
-        affinity="rbf",
-        n_neighbors=10,
-        eigen_tol=0.0,
-        assign_labels="kmeans",
-        degree=3,
-        coef0=1,
-        kernel_params=None,
-        n_jobs=1,
-        n_components=100,
-        persist_embedding=False,
-        kmeans_params=None,
+        n_clusters: int = 8,
+        eigen_solver: Any = None,
+        random_state: Optional[Union[int, np.random.RandomState]] = None,
+        n_init: int = 10,
+        gamma: float = 1.0,
+        affinity: str = "rbf",
+        n_neighbors: int = 10,
+        eigen_tol: float = 0.0,
+        assign_labels: Union[str, BaseEstimator] = "kmeans",
+        degree: int = 3,
+        coef0: float = 1,
+        kernel_params: Optional[Dict[str, Any]] = None,
+        n_jobs: int = 1,
+        n_components: int = 100,
+        persist_embedding: bool = False,
+        kmeans_params: Optional[Dict[str, Any]] = None,
     ):
         self.n_clusters = n_clusters
         self.eigen_solver = eigen_solver
@@ -171,13 +172,13 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         self.persist_embedding = persist_embedding
         self.kmeans_params = kmeans_params
 
-    def _check_array(self, X):
+    def _check_array(self, X: da.Array):
         logger.info("Starting check array")
         result = check_array(X, accept_dask_dataframe=False).astype(float)
         logger.info("Finished check array")
         return result
 
-    def fit(self, X, y=None):
+    def fit(self, X: da.Array, y: Optional[da.Array] = None):
         X = self._check_array(X)
         n_components = self.n_components
         metric = self.affinity
@@ -308,7 +309,13 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         return self
 
 
-def embed(X_keep, X_rest, n_components, metric, kernel_params):
+def embed(
+    X_keep: da.Array,
+    X_rest: da.Array,
+    n_components: int,
+    metric: Union[str, Callable],
+    kernel_params: Dict[str, Any],
+):
     if isinstance(metric, str):
         if metric not in PAIRWISE_KERNEL_FUNCTIONS:
             msg = "Unknown affinity metric name '{}'. Expected one " "of '{}'".format(
@@ -334,7 +341,12 @@ def embed(X_keep, X_rest, n_components, metric, kernel_params):
     return A, B
 
 
-def _slice_mostly_sorted(array, keep, rest, ind=None):
+def _slice_mostly_sorted(
+    array: da.Array,
+    keep: np.ndarray[int],
+    rest: np.ndarray[bool],
+    ind: np.ndarray[int] = None,
+):
     """Slice dask array `array` that is almost entirely sorted already.
 
     We perform approximately `2 * len(keep)` slices on `array`.
@@ -357,7 +369,7 @@ def _slice_mostly_sorted(array, keep, rest, ind=None):
         ind = np.arange(len(array))
     idx = np.argsort(np.concatenate([keep, ind[rest]]))
 
-    slices = []
+    slices: Any = []
     if keep[0] > 0:  # avoid creating empty slices
         slices.append(slice(None, keep[0]))
     slices.append([keep[0]])
