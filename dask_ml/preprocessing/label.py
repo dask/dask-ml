@@ -148,7 +148,8 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
         if isinstance(y, da.Array):
             return _encode_dask_array(y, self.classes_, encode=True)[1]
         elif isinstance(y, (pd.Series, dd.Series)):
-            assert y.dtype.categories.equals(self.dtype_.categories)
+            if self.dtype_ is not None:
+                assert y.dtype.categories.equals(self.dtype_.categories)
             return y.cat.codes.values
         else:
             return np.searchsorted(self.classes_, y)
@@ -160,12 +161,13 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
         if isinstance(y, da.Array):
             if getattr(self, "dtype_", None):
                 # -> Series[category]
-                result = (
-                    dd.from_dask_array(y)
-                    .astype("category")
-                    .cat.set_categories(np.arange(len(self.classes_)))
-                    .cat.rename_categories(self.dtype_.categories)
-                )
+                if self.dtype_ is not None:
+                    result = (
+                        dd.from_dask_array(y)
+                        .astype("category")
+                        .cat.set_categories(np.arange(len(self.classes_)))
+                        .cat.rename_categories(self.dtype_.categories)
+                    )
                 if self.dtype_.ordered:
                     result = result.cat.as_ordered()
                 return result
@@ -180,13 +182,14 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
         else:
             y = np.asarray(y)
             if getattr(self, "dtype_", None):
-                return pd.Series(
-                    pd.Categorical.from_codes(
-                        y,
-                        categories=self.dtype_.categories,
-                        ordered=self.dtype_.ordered,
+                if self.dtype_ is not None:
+                    return pd.Series(
+                        pd.Categorical.from_codes(
+                            y,
+                            categories=self.dtype_.categories,
+                            ordered=self.dtype_.ordered,
+                        )
                     )
-                )
             else:
                 return self.classes_[y]
 

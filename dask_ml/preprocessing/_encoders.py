@@ -1,4 +1,4 @@
-from typing import Any, Optional, Union
+from typing import Any, List, Optional, Union
 
 import dask
 import dask.array as da
@@ -189,7 +189,7 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
                 )
 
         self.categories_ = []
-        self.dtypes_: Optional[pd.Categorical] = []
+        self.dtypes_: List[Optional[pd.Categorical]] = []
 
         if is_array:
             for i in range(n_features):
