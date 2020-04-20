@@ -1076,7 +1076,7 @@ class InverseDecaySearchCV(IncrementalSearchCV):
     continues training those models that seem to be performing well.
 
     This class will decay the number of parameters over time. At time step
-    ``k``, this class will retain :math:`\mathcal{O}(1/k)` of the highest
+    ``k``, this class will retain ``1 / (k + 1)`` fraction of the highest
     performing models.
 
     Parameters
