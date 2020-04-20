@@ -415,11 +415,11 @@ def test_numpy_array(c, s, a, b):
     X, y = yield c.compute([X, y])
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = {
-        "alpha": np.logspace(-5, -3, num=1000),
-        "l1_ratio": np.linspace(0, 1, num=1000),
+        "alpha": np.logspace(-5, -3, 10),
+        "l1_ratio": np.linspace(0, 1, 20),
     }
 
-    search = IncrementalSearchCV(model, params, n_initial_parameters=10)
+    search = IncrementalSearchCV(model, params, n_initial_parameters=10, max_iter=10)
     yield search.fit(X, y, classes=[0, 1])
     assert search.best_score_ > 0  # smoke test
 
@@ -529,11 +529,10 @@ def test_high_performing_models_are_retained_with_patience(c, s, a, b):
 
 
 @gen_cluster(client=True)
-def test_param_random_determinism(c, s, a, b):
+def test_same_params_with_random_state(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=10, chunks=10, random_state=0)
-
     model = SGDClassifier(tol=1e-3, penalty="elasticnet", random_state=1)
-    params = {"l1_ratio": scipy.stats.uniform(0, 1)}
+    params = {"alpha": scipy.stats.uniform(1e-4, 1)}
 
     # Use InverseDecaySearchCV to decay the models and make sure the same ones
     # are selected
@@ -541,11 +540,11 @@ def test_param_random_determinism(c, s, a, b):
 
     search1 = InverseDecaySearchCV(clone(model), params, **kwargs)
     yield search1.fit(X, y, classes=[0, 1])
-    params1 = search1.cv_results_["param_l1_ratio"]
+    params1 = search1.cv_results_["param_alpha"]
 
     search2 = InverseDecaySearchCV(clone(model), params, **kwargs)
     yield search2.fit(X, y, classes=[0, 1])
-    params2 = search2.cv_results_["param_l1_ratio"]
+    params2 = search2.cv_results_["param_alpha"]
 
     assert np.allclose(params1, params2)
 
@@ -561,8 +560,8 @@ def test_model_random_determinism(c, s, a, b):
     params = {
         "loss": ["hinge", "log", "modified_huber", "squared_hinge", "perceptron"],
         "average": [True, False],
-        "alpha": np.logspace(-5, -3, num=1000),
-        "penalty": ["l2", "l1", "elasticnet"],
+        "learning_rate": ["constant", "invscaling", "optimal"],
+        "eta0": np.logspace(-2, 0, num=1000),
     }
 
     model = SGDClassifier(random_state=1)
@@ -702,14 +701,13 @@ def test_verbosity_types(c, s, a, b):
     model = ConstantFunction()
     params = {"value": scipy.stats.uniform(0, 1)}
 
-    kwargs = dict(max_iter=3)
     for verbose in [-1.0, 1.2]:
-        search = IncrementalSearchCV(model, params, verbose=verbose, **kwargs)
+        search = IncrementalSearchCV(model, params, verbose=verbose, max_iter=3)
         with pytest.raises(ValueError, match="0 <= verbose <= 1"):
             yield search.fit(X, y)
 
     for verbose in [0.0, 0, 1, 1.0, True, False]:
-        search = IncrementalSearchCV(model, params, verbose=verbose, **kwargs)
+        search = IncrementalSearchCV(model, params, verbose=verbose, max_iter=3)
         yield search.fit(X, y)
 
 

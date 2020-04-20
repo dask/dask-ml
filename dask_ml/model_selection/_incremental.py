@@ -725,6 +725,14 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
         Alternatively, you can set this to ``"grid"`` to do a full grid search.
 
+    decay_rate : float, default 1.0
+        How quickly to decrease the number partial future fit calls.
+
+        .. deprecated:: v1.4.0
+           This implementation of an adaptive algorithm that uses
+           ``decay_rate`` has moved to
+           :class:`~dask_ml.model_selection.InverseDecaySearchCV`.
+
     patience : int, default False
         If specified, training stops when the score does not increase by
         ``tol`` after ``patience`` calls to ``partial_fit``. Off by default.
@@ -790,14 +798,6 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
     prefix : str, optional, default=""
         While logging, add ``prefix`` to each message.
-
-    decay_rate : float, default 1.0
-        How quickly to decrease the number partial future fit calls.
-
-        .. deprecated:: v1.4.0
-           This implementation of an adaptive algorithm that uses
-           ``decay_rate`` has moved to
-           :class:`~dask_ml.model_selection.InverseDecaySearchCV`.
 
     Attributes
     ----------
@@ -912,13 +912,6 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
     after two consecutive calls to ``model.partial_fit`` without improvement,
     or when ``max_iter`` total calls to ``model.parital_fit`` are reached.
 
-    References
-    ----------
-    .. [1] Li, L., Jamieson, K., DeSalvo, G., Rostamizadeh, A., & Talwalkar, A.
-           (2017). Hyperband: A novel bandit-based approach to hyperparameter
-           optimization. The Journal of Machine Learning Research, 18(1),
-           6765-6816. http://www.jmlr.org/papers/volume18/16-558/16-558.pdf
-
     """
 
     def __init__(
@@ -926,6 +919,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         estimator,
         parameters,
         n_initial_parameters=10,
+        decay_rate=None,
         test_size=None,
         patience=False,
         tol=0.001,
@@ -936,13 +930,12 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         verbose=False,
         prefix="",
         scores_per_fit=None,
-        decay_rate=None,
     ):
 
         self.n_initial_parameters = n_initial_parameters
+        self.decay_rate = decay_rate
         self.fits_per_score = fits_per_score
         self.scores_per_fit = scores_per_fit
-        self.decay_rate = decay_rate
 
         super(IncrementalSearchCV, self).__init__(
             estimator,
@@ -1006,7 +999,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
                 "not patience={} of type {}"
             )
             raise ValueError(msg.format(self.patience, type(self.patience)))
-        if self.patience and self.patience <= 1:
+        if self.patience and self.patience <= 1:  # patience=0 => don't use patience
             raise ValueError(
                 "patience={}<=1 will always detect a plateau. "
                 "To resolve this,\n\n    * set patience >= 2"
