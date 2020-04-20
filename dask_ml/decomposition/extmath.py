@@ -14,8 +14,15 @@ Extended math utilities.
 import numpy as np
 from sklearn.utils.extmath import _safe_accumulator_op
 
+from .._typing import ArrayLike
 
-def _incremental_mean_and_var(X, last_mean, last_variance, last_sample_count):
+
+def _incremental_mean_and_var(
+    X: ArrayLike,
+    last_mean: ArrayLike,
+    last_variance: ArrayLike,
+    last_sample_count: ArrayLike,
+):
     """
     Note. Most of this script is taken from scikit-learn, except for the last line.
 
