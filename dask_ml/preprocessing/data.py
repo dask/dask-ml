@@ -463,7 +463,7 @@ class Categorizer(BaseEstimator, TransformerMixin):
         self.categories = categories
         self.columns = columns
 
-    def _check_array(self, X: Union[pd.Series, dd.Series, pd.DataFrame, dd.DataFrame]):
+    def _check_array(self, X: DataFrameType) -> DataFrameType:
         # TODO: refactor to check_array
         if not isinstance(X, (pd.DataFrame, dd.DataFrame)):
             raise TypeError(
