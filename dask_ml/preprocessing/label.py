@@ -1,7 +1,7 @@
 from __future__ import division
 
 from operator import getitem
-from typing import Optional
+from typing import Optional, Union
 
 import dask.array as da
 import dask.dataframe as dd
@@ -11,7 +11,7 @@ import scipy.sparse
 import sklearn.preprocessing
 
 from .._compat import check_is_fitted
-from .._typing import SeriesType
+from .._typing import ArrayLike, SeriesType
 
 
 class LabelEncoder(sklearn.preprocessing.LabelEncoder):
@@ -111,7 +111,7 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
                 y = y.to_dask_array(lengths=True)
         return y
 
-    def fit(self, y: SeriesType):
+    def fit(self, y: SeriesType) -> "LabelEncoder":
         y = self._check_array(y)
 
         if isinstance(y, da.Array):
@@ -127,7 +127,9 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
 
         return self
 
-    def fit_transform(self, y: SeriesType):
+    def fit_transform(
+        self, y: Union[ArrayLike, SeriesType]
+    ) -> Union[ArrayLike, SeriesType]:
         y = self._check_array(y)
 
         if isinstance(y, da.Array):
@@ -141,7 +143,7 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
 
         return y
 
-    def transform(self, y: SeriesType):
+    def transform(self, y: Union[ArrayLike, SeriesType]):
         check_is_fitted(self, "classes_")
         y = self._check_array(y)
 
@@ -154,7 +156,7 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
         else:
             return np.searchsorted(self.classes_, y)
 
-    def inverse_transform(self, y: SeriesType):
+    def inverse_transform(self, y: Union[ArrayLike, SeriesType]):
         check_is_fitted(self, "classes_")
         y = self._check_array(y)
 
@@ -323,7 +325,7 @@ def _encode(values, uniques=None, encode=False):
         raise ValueError("Unknown type {}".format(type(values)))
 
 
-def _is_categorical(y):
+def _is_categorical(y: SeriesType) -> bool:
     return isinstance(y, (dd.Series, pd.Series)) and pd.api.types.is_categorical_dtype(
         y
     )

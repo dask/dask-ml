@@ -71,7 +71,7 @@ class BlockTransformer(BaseEstimator, TransformerMixin):
 
     def fit(
         self, X: Union[ArrayLike, DataFrameType], y: SeriesType = None
-    ) -> BlockTransformer:
+    ) -> "BlockTransformer":
         return self
 
     def transform(

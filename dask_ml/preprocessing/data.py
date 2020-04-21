@@ -50,7 +50,9 @@ class StandardScaler(sklearn.preprocessing.StandardScaler):
 
     __doc__ = sklearn.preprocessing.StandardScaler.__doc__
 
-    def fit(self, X: Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None):
+    def fit(
+        self, X: Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None
+    ) -> "StandardScaler":
         self._reset()
         attributes = OrderedDict()
         if isinstance(X, (pd.DataFrame, dd.DataFrame)):
@@ -83,7 +85,7 @@ class StandardScaler(sklearn.preprocessing.StandardScaler):
         X: Union[ArrayLike, DataFrameType],
         y: Optional[SeriesType] = None,
         copy: Optional[bool] = None,
-    ):
+    ) -> Union[ArrayLike, DataFrameType]:
         if self.with_mean:
             X -= self.mean_
         if self.with_std:
@@ -92,7 +94,7 @@ class StandardScaler(sklearn.preprocessing.StandardScaler):
 
     def inverse_transform(
         self, X: Union[ArrayLike, DataFrameType], copy: Optional[bool] = None
-    ):
+    ) -> Union[ArrayLike, DataFrameType]:
         if self.with_std:
             X *= self.scale_
         if self.with_mean:
@@ -106,7 +108,7 @@ class MinMaxScaler(sklearn.preprocessing.MinMaxScaler):
 
     def fit(
         self, X: Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None
-    ) -> MinMaxScaler:
+    ) -> "MinMaxScaler":
         self._reset()
         attributes = OrderedDict()
         feature_range = self.feature_range
@@ -189,7 +191,7 @@ class RobustScaler(sklearn.preprocessing.RobustScaler):
 
     def fit(
         self, X: Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None
-    ) -> RobustScaler:
+    ) -> "RobustScaler":
         q_min, q_max = self.quantile_range
         if not 0 <= q_min <= q_max <= 100:
             raise ValueError("Invalid quantile range: %s" % str(self.quantile_range))
@@ -469,7 +471,7 @@ class Categorizer(BaseEstimator, TransformerMixin):
             )
         return X
 
-    def fit(self, X: DataFrameType, y: Optional[SeriesType] = None) -> Categorizer:
+    def fit(self, X: DataFrameType, y: Optional[SeriesType] = None) -> "Categorizer":
         """Find the categorical columns.
 
         Parameters
@@ -640,7 +642,7 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
         self.columns = columns
         self.drop_first = drop_first
 
-    def fit(self, X: DataFrameType, y: Optional[SeriesType] = None) -> DummyEncoder:
+    def fit(self, X: DataFrameType, y: Optional[SeriesType] = None) -> "DummyEncoder":
         """Determine the categorical columns to be dummy encoded.
 
         Parameters
@@ -876,7 +878,7 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
     def __init__(self, columns=None):
         self.columns = columns
 
-    def fit(self, X: DataFrameType, y: SeriesType = None) -> OrdinalEncoder:
+    def fit(self, X: DataFrameType, y: SeriesType = None) -> "OrdinalEncoder":
         """Determine the categorical columns to be encoded.
 
         Parameters
@@ -1036,7 +1038,7 @@ class PolynomialFeatures(sklearn.preprocessing.PolynomialFeatures):
 
     def fit(
         self, X: Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None
-    ) -> PolynomialFeatures:
+    ) -> "PolynomialFeatures":
         self._transformer = sklearn.preprocessing.PolynomialFeatures(
             degree=self.degree,
             interaction_only=self.interaction_only,

@@ -140,7 +140,7 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
         super(OneHotEncoder, self).__init__(**signature)
 
     @classmethod
-    def _get_param_names(cls: Any):
+    def _get_param_names(cls: Any) -> List[str]:
         return ["categories", "drop", "dtype", "sparse", "dtype", "handle_unknown"]
 
     def get_params(self, deep: bool = True):
@@ -148,7 +148,7 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
 
     def fit(
         self, X: Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None
-    ) -> OneHotEncoder:
+    ) -> "OneHotEncoder":
         if self.handle_unknown == "ignore":
             raise NotImplementedError("handle_unkown='ignore' is not implemented yet.")
         if self.handle_unknown != "error":
