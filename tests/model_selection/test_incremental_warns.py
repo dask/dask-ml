@@ -16,15 +16,15 @@ def test_warns_decay_rate(c, s, a, b):
     params = {"value": np.random.RandomState(42).rand(1000)}
     model = ConstantFunction()
 
-    search = IncrementalSearchCV(model, params, max_iter=5, n_initial_parameters=5)
+    kwargs = dict(max_iter=5, n_initial_parameters=5)
+    search = IncrementalSearchCV(model, params, **kwargs)
     match = r"deprecated since Dask-ML v1.4.0."
     with pytest.warns(FutureWarning, match=match):
         yield search.fit(X, y)
 
     # Make sure the printed warning message works
-    with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', 'decay_rate has been deprecated.*', module='dask_ml')
-        yield search.fit(X, y)
+    search = IncrementalSearchCV(model, params, decay_rate=None, **kwargs)
+    yield search.fit(X, y)
 
 
 @gen_cluster(client=True)

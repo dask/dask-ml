@@ -34,6 +34,8 @@ from ._split import train_test_split
 Results = namedtuple("Results", ["info", "models", "history", "best"])
 logger = logging.getLogger("dask_ml.model_selection")
 
+no_default = object()
+
 
 def _partial_fit(model_and_meta, X, y, fit_params):
     """
@@ -919,7 +921,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         estimator,
         parameters,
         n_initial_parameters=10,
-        decay_rate=None,
+        decay_rate=no_default,
         test_size=None,
         patience=False,
         tol=0.001,
@@ -950,22 +952,19 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
             prefix=prefix,
         )
 
+    def _warn_about_decay_rate(self):
+        return True
+
     def fit(self, X, y=None, **fit_params):
-        if "IncrementalSearchCV" in str(type(self)):
-            if self.decay_rate is None:
+        if self._warn_about_decay_rate():
+            if self.decay_rate is no_default:
                 warn(
                     "decay_rate has been deprecated since Dask-ML v1.4.0.\n\n"
-                    "    * Use InverseDecaySearchCV for use of `decay_rate`\n"
-                    "    * To remove this warning, use this code:\n\n"
-                    "    >>> search = IncrementalSearchCV(...)\n"
-                    "    >>> import warnings\n"
-                    "    >>> with warnings.catch_warnings():\n"
-                    "    >>>     warnings.filterwarnings('ignore', "
-                    "'decay_rate has been deprecated.*', module='dask_ml')\n"
-                    "    >>>     search.fit(X, y, **fit_params)\n",
+                    "    * Use InverseDecaySearchCV to use `decay_rate`\n"
+                    "    * Specify decay_rate=None\n\n",
                     FutureWarning,
                 )
-            else:
+            elif self.decay_rate is not None:
                 warn(
                     "decay_rate is deprecated in InverseDecaySearchCV. "
                     f"Use InverseDecaySearchCV to use decay_rate={self.decay_rate}",
@@ -1282,6 +1281,9 @@ class InverseDecaySearchCV(IncrementalSearchCV):
             prefix=prefix,
             decay_rate=decay_rate,
         )
+
+    def _warn_about_decay_rate(self):
+        return False
 
     def _adapt(self, info):
         # First, have an adaptive algorithm

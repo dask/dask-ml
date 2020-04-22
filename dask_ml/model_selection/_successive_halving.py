@@ -224,6 +224,7 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
             scoring=scoring,
             verbose=verbose,
             prefix=prefix,
+            decay_rate=None
         )
 
     def _adapt(self, info, first_step_completed=False):
