@@ -1,5 +1,3 @@
-import warnings
-
 import numpy as np
 import pytest
 from distributed.utils_test import gen_cluster
