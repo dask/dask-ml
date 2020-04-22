@@ -969,6 +969,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
                 warn(
                     "decay_rate is deprecated in InverseDecaySearchCV. "
                     f"Use InverseDecaySearchCV to use decay_rate={self.decay_rate}",
+                    FutureWarning,
                 )
         if self.scores_per_fit is not None and self.fits_per_score != 1:
             msg = "Specify fits_per_score, not scores_per_fit"

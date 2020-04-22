@@ -38,7 +38,7 @@ def test_warns_decay_rate_wanted(c, s, a, b):
         model, params, max_iter=5, n_initial_parameters=5, decay_rate=1
     )
     match = "decay_rate is deprecated .* Use InverseDecaySearchCV"
-    with pytest.warns(UserWarning, match=match):
+    with pytest.warns(FutureWarning, match=match):
         yield search.fit(X, y)
 
     # Make sure old behavior is retained w/o warning
