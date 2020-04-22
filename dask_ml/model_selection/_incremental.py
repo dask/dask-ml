@@ -952,11 +952,11 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
             prefix=prefix,
         )
 
-    def _warn_about_decay_rate(self):
+    def _decay_deprecated(self):
         return True
 
     def fit(self, X, y=None, **fit_params):
-        if self._warn_about_decay_rate():
+        if self._decay_deprecated():
             if self.decay_rate is no_default:
                 warn(
                     "decay_rate has been deprecated since Dask-ML v1.4.0.\n\n"
@@ -1282,7 +1282,7 @@ class InverseDecaySearchCV(IncrementalSearchCV):
             decay_rate=decay_rate,
         )
 
-    def _warn_about_decay_rate(self):
+    def _decay_deprecated(self):
         return False
 
     def _adapt(self, info):
