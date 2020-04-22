@@ -23,7 +23,7 @@ def test_warns_decay_rate(c, s, a, b):
 
     # Make sure the printed warning message works
     with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=FutureWarning, module="dask_ml")
+        warnings.filterwarnings('ignore', 'decay_rate has been deprecated.*', module='dask_ml')
         yield search.fit(X, y)
 
 

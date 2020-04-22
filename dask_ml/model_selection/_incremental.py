@@ -961,7 +961,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
                     "    >>> import warnings\n"
                     "    >>> with warnings.catch_warnings():\n"
                     "    >>>     warnings.filterwarnings('ignore', "
-                    "category=FutureWarning, module='dask_ml')\n"
+                    "'decay_rate has been deprecated.*', module='dask_ml')\n"
                     "    >>>     search.fit(X, y, **fit_params)\n",
                     FutureWarning,
                 )
