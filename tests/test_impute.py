@@ -2,7 +2,7 @@ import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
-import pandas.util.testing as tm
+import pandas.testing as tm
 import pytest
 import sklearn.impute
 
@@ -81,6 +81,15 @@ def test_array_median_raises():
 
     with pytest.raises(ValueError, match="Can only use"):
         imp.fit(dX)
+
+
+def test_simple_imputer_add_indicator_raises():
+    # https://github.com/dask/dask-ml/issues/494
+    pytest.importorskip("sklearn", minversion="0.21.dev0")
+    imputer = dask_ml.impute.SimpleImputer(add_indicator=True)
+
+    with pytest.raises(NotImplementedError):
+        imputer.fit(dX)
 
 
 @pytest.mark.parametrize("daskify", [True, False])

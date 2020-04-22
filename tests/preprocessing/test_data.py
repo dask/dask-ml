@@ -1,9 +1,11 @@
+from copy import copy
+
 import dask
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
-import pandas.util.testing as tm
+import pandas.testing as tm
 import pytest
 import sklearn.preprocessing as spp
 from dask import compute
@@ -49,7 +51,7 @@ def dask_df(pandas_df):
     return dd.from_pandas(pandas_df, npartitions=5)
 
 
-class TestStandardScaler(object):
+class TestStandardScaler:
     def test_basic(self):
         a = dpp.StandardScaler()
         b = spp.StandardScaler()
@@ -89,8 +91,17 @@ class TestStandardScaler(object):
         assert dask.is_dask_collection(result)
         assert_eq_ar(result, X)
 
+    def test_nan(self, pandas_df):
+        pandas_df = pandas_df.copy()
+        pandas_df.iloc[0] = np.nan
+        dask_nan_df = dd.from_pandas(pandas_df, npartitions=5)
+        a = dpp.StandardScaler()
+        a.fit(dask_nan_df.values)
+        assert np.isnan(a.mean_).sum() == 0
+        assert np.isnan(a.var_).sum() == 0
 
-class TestMinMaxScaler(object):
+
+class TestMinMaxScaler:
     def test_basic(self):
         a = dpp.MinMaxScaler()
         b = spp.MinMaxScaler()
@@ -123,8 +134,6 @@ class TestMinMaxScaler(object):
         for attr in ["data_min_", "data_max_", "data_range_", "scale_", "min_"]:
             assert_eq_ar(getattr(est1, attr), getattr(est2, attr).values)
 
-        assert_eq_ar(est1.transform(X), est2.transform(X))
-        assert_eq_ar(est1.transform(df).values, est2.transform(X))
         assert_eq_ar(est1.transform(X), est2.transform(df).values)
 
         if hasattr(result_df, "values"):
@@ -146,7 +155,7 @@ class TestMinMaxScaler(object):
         assert_eq_df(dfa.drop(mask, axis=1), df2.drop(mask, axis=1))
 
 
-class TestRobustScaler(object):
+class TestRobustScaler:
     def test_fit(self):
         a = dpp.RobustScaler()
         b = spp.RobustScaler()
@@ -207,41 +216,53 @@ class TestRobustScaler(object):
         assert_eq_ar(result_ar, result_df)
 
 
-class TestQuantileTransformer(object):
-    def test_basic(self):
+class TestQuantileTransformer:
+    @pytest.mark.parametrize("output_distribution", ["uniform", "normal"])
+    def test_basic(self, output_distribution):
         rs = da.random.RandomState(0)
-        a = dpp.QuantileTransformer()
-        b = spp.QuantileTransformer()
+        a = dpp.QuantileTransformer(output_distribution=output_distribution)
+        b = spp.QuantileTransformer(output_distribution=output_distribution)
 
-        X = rs.uniform(size=(100, 3), chunks=50)
+        X = rs.uniform(size=(1000, 3), chunks=50)
         a.fit(X)
         b.fit(X)
         assert_estimator_equal(a, b, atol=0.02)
 
         # set the quantiles, so that from here out, we're exact
         a.quantiles_ = b.quantiles_
-        assert_eq_ar(a.transform(X), b.transform(X))
+        assert_eq_ar(a.transform(X), b.transform(X), atol=1e-7)
         assert_eq_ar(X, a.inverse_transform(a.transform(X)))
 
     @pytest.mark.parametrize(
         "type_, kwargs",
         [
             (np.array, {}),
-            (da.from_array, {"chunks": 10}),
+            (da.from_array, {"chunks": 100}),
             (pd.DataFrame, {"columns": ["a", "b", "c"]}),
             (dd.from_array, {"columns": ["a", "b", "c"]}),
         ],
     )
     def test_types(self, type_, kwargs):
-        X = np.random.uniform(size=(20, 3))
+        X = np.random.uniform(size=(1000, 3))
         dX = type_(X, **kwargs)
         qt = spp.QuantileTransformer()
         qt.fit(X)
         dqt = dpp.QuantileTransformer()
         dqt.fit(dX)
 
+    def test_fit_transform_frame(self):
+        df = pd.DataFrame(np.random.randn(1000, 3))
+        ddf = dd.from_pandas(df, 2)
 
-class TestCategorizer(object):
+        a = spp.QuantileTransformer()
+        b = dpp.QuantileTransformer()
+
+        expected = a.fit_transform(df)
+        result = b.fit_transform(ddf)
+        assert_eq_ar(result, expected, rtol=1e-3, atol=1e-3)
+
+
+class TestCategorizer:
     def test_ce(self):
         ce = dpp.Categorizer()
         original = raw.copy()
@@ -249,7 +270,7 @@ class TestCategorizer(object):
         assert is_categorical_dtype(trn["A"])
         assert is_categorical_dtype(trn["B"])
         assert is_categorical_dtype(trn["C"])
-        assert trn["D"].dtype == int
+        assert trn["D"].dtype == np.dtype("int64")
         tm.assert_index_equal(ce.columns_, pd.Index(["A", "B", "C"]))
         tm.assert_frame_equal(raw, original)
 
@@ -269,7 +290,7 @@ class TestCategorizer(object):
         assert is_categorical_dtype(trn["A"])
         assert is_categorical_dtype(trn["B"])
         assert is_categorical_dtype(trn["C"])
-        assert trn["D"].dtype == int
+        assert trn["D"].dtype == np.dtype("int64")
         tm.assert_index_equal(ce.columns_, pd.Index(["A", "B", "C"]))
 
     def test_columns(self):
@@ -321,7 +342,7 @@ class TestDummyEncoder:
 
         expected = pd.DataFrame(
             {
-                "D": np.array([1, 2, 3, 4]),
+                "D": np.array([1, 2, 3, 4], dtype="int64"),
                 "A_a": np.array([1, 0, 0, 1], dtype="uint8"),
                 "A_b": np.array([0, 1, 0, 0], dtype="uint8"),
                 "A_c": np.array([0, 0, 1, 0], dtype="uint8"),
@@ -392,6 +413,13 @@ class TestDummyEncoder:
         result = de.fit_transform(a)
         assert isinstance(result, dd.DataFrame)
 
+    def test_transform_explicit_columns(self):
+        de = dpp.DummyEncoder(columns=["A", "B", "C"])
+        de.fit(dummy)
+        with pytest.raises(ValueError) as rec:
+            de.transform(dummy.drop("B", axis="columns"))
+        assert rec.match("Columns of 'X' do not match the training")
+
     def test_transform_raises(self):
         de = dpp.DummyEncoder()
         de.fit(dummy)
@@ -424,7 +452,10 @@ class TestOrdinalEncoder:
         trn = de.transform(df)
 
         expected = pd.DataFrame(
-            {"A": np.array([0, 1, 2, 0], dtype="int8"), "D": np.array([1, 2, 3, 4])},
+            {
+                "A": np.array([0, 1, 2, 0], dtype="int8"),
+                "D": np.array([1, 2, 3, 4], dtype="int64"),
+            },
             columns=["A", "D"],
         )
 
@@ -546,11 +577,12 @@ class TestPolynomialFeatures:
         res_df = a.fit_transform(frame)
         res_arr = b.fit_transform(frame)
         res_c = c.fit_transform(frame)
+
         if daskify:
             res_pandas = a.fit_transform(frame.compute())
             assert dask.is_dask_collection(res_df)
             assert dask.is_dask_collection(res_arr)
-            assert_eq_df(res_df.compute().reset_index(drop=True), res_pandas)
+            assert_eq_df(res_df, res_pandas)
         assert_eq_ar(res_df.values, res_c)
         assert_eq_ar(res_df.values, res_arr)
 
@@ -560,3 +592,14 @@ class TestPolynomialFeatures:
         assert pf._transformer.degree == pf.degree
         assert pf._transformer.interaction_only is pf.interaction_only
         assert pf._transformer.include_bias is pf.include_bias
+
+    @pytest.mark.parametrize("daskify", [True, False])
+    def test_df_transform_index(self, daskify):
+        frame = copy(df)
+        if not daskify:
+            frame = frame.compute()
+        frame = frame.sample(frac=1.0)
+        res_df = dpp.PolynomialFeatures(
+            preserve_dataframe=True, degree=1
+        ).fit_transform(frame)
+        assert_eq_df(res_df.iloc[:, 1:], frame, check_dtype=False)

@@ -6,7 +6,7 @@ import warnings
 import dask.array as da
 import numpy as np
 from dask import delayed
-from dask.array.random import doc_wraps
+from dask.utils import derived_from
 from sklearn import metrics
 from sklearn.metrics.pairwise import KERNEL_PARAMS
 
@@ -112,13 +112,13 @@ def check_pairwise_arrays(X, Y, precomputed=False):
 # ----------------
 
 
-@doc_wraps(metrics.pairwise.linear_kernel)
+@derived_from(metrics.pairwise)
 def linear_kernel(X, Y=None):
     X, Y = check_pairwise_arrays(X, Y)
     return da.dot(X, Y.T)
 
 
-@doc_wraps(metrics.pairwise.rbf_kernel)
+@derived_from(metrics.pairwise)
 def rbf_kernel(X, Y=None, gamma=None):
     X, Y = check_pairwise_arrays(X, Y)
     if gamma is None:
@@ -129,7 +129,7 @@ def rbf_kernel(X, Y=None, gamma=None):
     return K
 
 
-@doc_wraps(metrics.pairwise.polynomial_kernel)
+@derived_from(metrics.pairwise)
 def polynomial_kernel(X, Y=None, degree=3, gamma=None, coef0=1):
     X, Y = check_pairwise_arrays(X, Y)
     if gamma is None:
@@ -139,7 +139,7 @@ def polynomial_kernel(X, Y=None, degree=3, gamma=None, coef0=1):
     return K
 
 
-@doc_wraps(metrics.pairwise.sigmoid_kernel)
+@derived_from(metrics.pairwise)
 def sigmoid_kernel(X, Y=None, gamma=None, coef0=1):
     X, Y = check_pairwise_arrays(X, Y)
     if gamma is None:

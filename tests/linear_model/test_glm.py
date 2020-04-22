@@ -25,7 +25,7 @@ def regularizer(request):
     return request.param
 
 
-class DoNothingTransformer(object):
+class DoNothingTransformer:
     def fit(self, X, y=None):
         return self
 
@@ -63,6 +63,12 @@ def test_fit(fit_intercept, solver):
     "solver", ["admm", "newton", "lbfgs", "proximal_grad", "gradient_descent"]
 )
 def test_fit_solver(solver):
+    import dask_glm
+    from distutils.version import LooseVersion
+
+    if LooseVersion(dask_glm.__version__) <= "0.2.0":
+        pytest.skip("FutureWarning for dask config.")
+
     X, y = make_classification(n_samples=100, n_features=5, chunks=50)
     lr = LogisticRegression(solver=solver)
     lr.fit(X, y)
@@ -163,3 +169,10 @@ def test_add_intercept_raises_chunks():
         add_intercept(X)
 
     assert m.match("Chunking is only allowed")
+
+
+def test_lr_score():
+    X = da.from_array(np.arange(1000).reshape(1000, 1))
+    lr = LinearRegression()
+    lr.fit(X, X)
+    assert lr.score(X, X) == pytest.approx(1, 0.001)

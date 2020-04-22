@@ -1,0 +1,12 @@
+trigger:
+- master
+
+jobs:
+- template: ci/posix.yaml
+  parameters:
+    name: 'linux'
+    vmImage: 'ubuntu-16.04'
+- template: ci/windows.yaml
+  parameters:
+    name: 'win64'
+    vmImage: 'vs2017-win2016'

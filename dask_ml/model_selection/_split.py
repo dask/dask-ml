@@ -3,24 +3,23 @@
 import itertools
 import logging
 import numbers
+import warnings
 
 import dask
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import sklearn.model_selection as ms
-from sklearn.model_selection._split import (
-    BaseCrossValidator,
-    _validate_shuffle_split,
-    _validate_shuffle_split_init,
-)
+from sklearn.model_selection._split import BaseCrossValidator, _validate_shuffle_split
 from sklearn.utils import check_random_state
 
+from dask_ml._compat import DASK_2130, DASK_VERSION
 from dask_ml.utils import check_array, check_matching_blocks
 
 from .._utils import draw_seed
 
 logger = logging.getLogger(__name__)
+_I4MAX = np.iinfo("i4").max
 
 
 def _check_blockwise(blockwise):
@@ -54,7 +53,7 @@ def _maybe_normalize_split_sizes(train_size, test_size):
     if test_size is not None:
         if test_size < 0 or test_size > 1:
             raise ValueError(
-                "'test_size' be between 0 and 1. " "Got {}".format(test_size)
+                "'test_size' must be between 0 and 1. " "Got {}".format(test_size)
             )
 
         if train_size is None:
@@ -83,7 +82,6 @@ def _generate_idx(n, seed, n_train, n_test):
     Notes
     -----
     """
-    # type: (int, int, int) -> Tuple[ndarray, ndarray]
     idx = check_random_state(seed).permutation(n)
 
     ind_test = idx[:n_test]
@@ -143,7 +141,6 @@ class ShuffleSplit(BaseCrossValidator):
         blockwise=True,
         random_state=None,
     ):
-        _validate_shuffle_split_init(test_size, train_size)
         self.n_splits = n_splits
         self.test_size = test_size
         self.train_size = train_size
@@ -154,7 +151,7 @@ class ShuffleSplit(BaseCrossValidator):
         X = check_array(X)
         rng = check_random_state(self.random_state)
         for i in range(self.n_splits):
-            seeds = draw_seed(rng, 0, 2 ** 32 - 1, size=len(X.chunks[0]), dtype="uint")
+            seeds = draw_seed(rng, 0, _I4MAX, size=len(X.chunks[0]), dtype="uint")
             if self.blockwise:
                 yield self._split_blockwise(X, seeds)
             else:
@@ -177,7 +174,7 @@ class ShuffleSplit(BaseCrossValidator):
         offsets = np.hstack([0, np.cumsum(chunks)])
         train_idx = da.concatenate(
             [
-                da.from_delayed(x + offset, (train_size,), "i8")
+                da.from_delayed(x + offset, (train_size,), np.dtype("int"))
                 for x, chunksize, (train_size, _), offset in zip(
                     train_objs, chunks, sizes, offsets
                 )
@@ -185,7 +182,7 @@ class ShuffleSplit(BaseCrossValidator):
         )
         test_idx = da.concatenate(
             [
-                da.from_delayed(x + offset, (test_size,), "i8")
+                da.from_delayed(x + offset, (test_size,), np.dtype("int"))
                 for x, chunksize, (_, test_size), offset in zip(
                     test_objs, chunks, sizes, offsets
                 )
@@ -251,7 +248,7 @@ class KFold(BaseCrossValidator):
         seeds = [None] * len(chunks)
         if self.shuffle:
             rng = check_random_state(self.random_state)
-            seeds = draw_seed(rng, 0, 2 ** 32 - 1, size=len(chunks), dtype="uint")
+            seeds = draw_seed(rng, 0, _I4MAX, size=len(chunks), dtype="uint")
 
         test_current = 0
         for fold_size in fold_sizes:
@@ -301,14 +298,14 @@ class KFold(BaseCrossValidator):
 
         train_idx = da.concatenate(
             [
-                da.from_delayed(obj, (train_size,), "i8")
+                da.from_delayed(obj, (train_size,), np.dtype("int"))
                 for obj, train_size in zip(train_objs, train_sizes)
             ]
         )
 
         test_idx = da.concatenate(
             [
-                da.from_delayed(obj, (test_size,), "i8")
+                da.from_delayed(obj, (test_size,), np.dtype("int"))
                 for obj, test_size in zip(test_objs, test_sizes)
             ]
         )
@@ -361,20 +358,31 @@ def _blockwise_slice(arr, idx):
     return sliced
 
 
-def train_test_split(*arrays, **options):
+def train_test_split(
+    *arrays,
+    test_size=None,
+    train_size=None,
+    random_state=None,
+    shuffle=None,
+    blockwise=None,
+    convert_mixed_types=False,
+    **options,
+):
     """Split arrays into random train and test matricies.
 
     Parameters
     ----------
-    *arrays : Sequence of Dask Arrays
-    test_size : float or int, defualt 0.1
-    train_size: float or int, optional
+    *arrays : Sequence of Dask Arrays, DataFrames, or Series
+        Non-dask objects will be passed through to
+        :func:`sklearn.model_selection.train_test_split`.
+    test_size : float or int, default 0.1
+    train_size : float or int, optional
     random_state : int, RandomState instance or None, optional (default=None)
         If int, random_state is the seed used by the random number generator;
         If RandomState instance, random_state is the random number generator;
         If None, the random number generator is the RandomState instance used
         by `np.random`.
-    shuffle : bool, default True
+    shuffle : bool, default None
         Whether to shuffle the data before splitting.
     blockwise : bool, optional.
         Whether to shuffle data only within blocks (True), or allow data to
@@ -386,6 +394,11 @@ def train_test_split(*arrays, **options):
         DataFrames, the default and only allowed value is False (data are
         shuffled between blocks).
 
+    convert_mixed_types : bool, default False
+        Whether to convert dask DataFrames and Series to dask Arrays when
+        arrays contains a mixiture of types. This results in some computation
+        to determine the length of each block.
+
     Returns
     -------
     splitting : list, length=2 * len(arrays)
@@ -393,8 +406,8 @@ def train_test_split(*arrays, **options):
 
     Examples
     --------
-    import dask.array as da
-    from dask_ml.datasets import make_regression
+    >>> import dask.array as da
+    >>> from dask_ml.datasets import make_regression
 
     >>> X, y = make_regression(n_samples=125, n_features=4, chunks=50,
     ...                    random_state=0)
@@ -406,37 +419,79 @@ def train_test_split(*arrays, **options):
     array([[ 0.12372191,  0.58222459,  0.92950511, -2.09460307],
            [ 0.99439439, -0.70972797, -0.27567053,  1.73887268]])
     """
-    test_size = options.pop("test_size", None)
-    train_size = options.pop("train_size", None)
-    random_state = options.pop("random_state", None)
-    shuffle = options.pop("shuffle", True)
-    blockwise = options.pop("blockwise", None)
-
     if train_size is None and test_size is None:
         # all other validation dones elsewhere.
         test_size = 0.1
 
+    if train_size is None and test_size is not None:
+        train_size = 1 - test_size
+    if test_size is None and train_size is not None:
+        test_size = 1 - train_size
+
     if options:
         raise TypeError("Unexpected options {}".format(options))
 
-    if not shuffle:
-        raise NotImplementedError("'shuffle=False' is not currently supported.")
+    types = set(type(arr) for arr in arrays)
+
+    if da.Array in types and types & {dd.Series, dd.DataFrame}:
+        if convert_mixed_types:
+            arrays = tuple(
+                x.to_dask_array(lengths=True)
+                if isinstance(x, (dd.Series, dd.DataFrame))
+                else x
+                for x in arrays
+            )
+        else:
+            raise TypeError(
+                "Got mixture of dask DataFrames and Arrays. Specify "
+                "'convert_mixed_types=True'"
+            )
 
     if all(isinstance(arr, (dd.Series, dd.DataFrame)) for arr in arrays):
         check_matching_blocks(*arrays)
-        if blockwise is None:
-            blockwise = False
+        if blockwise is False:
+            raise NotImplementedError(
+                "'blockwise=False' is not currently supported for dask DataFrames."
+            )
 
         rng = check_random_state(random_state)
-        rng = draw_seed(rng, 0, 2 ** 32 - 1, dtype="uint")
+        rng = draw_seed(rng, 0, _I4MAX, dtype="uint")
+        if DASK_2130:
+            if shuffle is None:
+                shuffle = False
+                warnings.warn(
+                    message="The default value for 'shuffle' must be specified"
+                    " when splitting DataFrames. In the future"
+                    " DataFrames will automatically be shuffled within"
+                    " blocks prior to splitting. Specify 'shuffle=True'"
+                    " to adopt the future behavior now, or 'shuffle=False'"
+                    " to retain the previous behavior.",
+                    category=FutureWarning,
+                )
+            kwargs = {"shuffle": shuffle}
+        else:
+            if shuffle is None:
+                shuffle = True
+            if not shuffle:
+                raise NotImplementedError(
+                    f"'shuffle=False' is not supported for DataFrames in"
+                    f" dask versions<2.13.0. Current version is {DASK_VERSION}."
+                )
+            kwargs = {}
         return list(
             itertools.chain.from_iterable(
-                arr.random_split([train_size, test_size], random_state=rng)
+                arr.random_split([train_size, test_size], random_state=rng, **kwargs)
                 for arr in arrays
             )
         )
 
     elif all(isinstance(arr, da.Array) for arr in arrays):
+        if shuffle is None:
+            shuffle = True
+        if not shuffle:
+            raise NotImplementedError(
+                "'shuffle=False' is not currently supported for dask Arrays."
+            )
         if blockwise is None:
             blockwise = True
 
@@ -456,11 +511,10 @@ def train_test_split(*arrays, **options):
 
         return list(itertools.chain.from_iterable(train_test_pairs))
     else:
-        logger.warning("Mixture of types in 'arrays'. Falling back to scikit-learn.")
         return ms.train_test_split(
             *arrays,
             test_size=test_size,
             train_size=train_size,
             random_state=random_state,
-            shuffle=shuffle
+            shuffle=shuffle,
         )
