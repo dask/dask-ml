@@ -82,7 +82,7 @@ def warn_fit_failure(error_score, e):
 
 
 class CVCache:
-    def __init__(self, splits, pairwise=False, cache=True, num_train_samples=None ):
+    def __init__(self, splits, pairwise=False, cache=True, num_train_samples=None):
         self.splits = splits
         self.pairwise = pairwise
         self.cache = {} if cache else None
@@ -95,7 +95,7 @@ class CVCache:
                 self.splits,
                 self.pairwise,
                 self.cache is not None,
-                self.num_train_samples
+                self.num_train_samples,
             ),
         )
 
@@ -355,19 +355,18 @@ def _score(est, X, y, scorer, sample_weight):
 
 
 def score(
-     est_and_time,
-     X_test,
-     y_test,
-     X_train,
-     y_train,
-     scorer,
-     error_score,
-     sample_weight=None,
-     eval_sample_weight=None,
+    est_and_time,
+    X_test,
+    y_test,
+    X_train,
+    y_train,
+    scorer,
+    error_score,
+    sample_weight=None,
+    eval_sample_weight=None,
 ):
     est, fit_time = est_and_time
     start_time = default_timer()
-
     try:
         test_score = _score(est, X_test, y_test, scorer, eval_sample_weight)
     except Exception:
