@@ -346,12 +346,14 @@ def _check_fit_params_key_used(fp,key):
 
         return bool status of fit parameter
     '''
+    # if key is not in fit parameters then key is not being used
     if key in fp:
-        # if key is empty it is not populated
+        # if value for key is empty then not used
         if fp[key] is None:
             return False
-        # check map_fit_params fit_params object of {key: (key,value)} format .
-        # if value in map is empty then not populated
+        # check mapped fit_params object format
+        # map_fit_params outputs {key: (key,value)} format
+        # if value in map is empty then key not actually used
         elif isinstance(fp[key],tuple) and fp[key][1] is None:
             return False
         return True
