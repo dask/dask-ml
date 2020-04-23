@@ -434,7 +434,7 @@ def do_fit(
     n_splits,
     error_score,
 ):
-    if isinstance(est, Pipeline) and params is not None:
+    if issubclass(type(est), Pipeline) and params is not None:
         return _do_pipeline(
             dsk,
             next_token,
@@ -504,7 +504,7 @@ def do_fit_transform(
     n_splits,
     error_score,
 ):
-    if isinstance(est, Pipeline) and params is not None:
+    if issubclass(type(est), Pipeline) and params is not None:
         return _do_pipeline(
             dsk,
             next_token,
@@ -520,7 +520,7 @@ def do_fit_transform(
             error_score,
             True,
         )
-    elif isinstance(est, FeatureUnion) and params is not None:
+    elif issubclass(type(est), FeatureUnion) and params is not None:
         return _do_featureunion(
             dsk,
             next_token,
