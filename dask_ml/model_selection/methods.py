@@ -418,7 +418,7 @@ def fit_and_score(
         Set the test set to the corresponding part of the eval set with the test folds index.
         Without this you can only use a set of corresponding size to train folds as eval_data_set requiring more data in the fit function. 
     '''
-    if 'eval_set' in fit_params:
+    if fit_params is not None and 'eval_set' in fit_params:
         fit_params['eval_set'] = test_fit_params['eval_set']
         fit_params['eval_names'] = test_fit_params['eval_names']
         fit_params['eval_sample_weight'] = test_fit_params['eval_sample_weight']

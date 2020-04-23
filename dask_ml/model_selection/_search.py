@@ -327,6 +327,27 @@ def _generate_fit_params_key_vals(fit_params, keys_filtered=None):
         keys.append((name, full_name))
     return keys, vals
 
+def _check_fit_params_key_used(fp,key):
+    '''
+        _check_fit_params_key_used checks a fit_parameter is actually available
+        and not None.
+
+        fp: Dict[str,Any] fit_params
+        key: str fit parameter name
+
+        return bool status of fit parameter
+    '''
+    if key in fp:
+        # if key is empty it is not populated
+        if fp[key] is None:
+            return False
+        # check map_fit_params fit_params object of {key: (key,value)} format .
+        # if value in map is empty then not populated
+        elif isinstance(fp[key],tuple) and fp[key][1] is None:
+            return False
+        return True
+    return False
+
 def _get_weights_source(fit_params):
     '''
         _get_weights_source returns the weights source string.
@@ -337,6 +358,7 @@ def _get_weights_source(fit_params):
 
         fit_params: dict[str,Any] fit params dictionary from input to fit() call
         returns: str of source of test folds weights in fit_params dictionary
+                returns None if no actual data in fit_params weight source as well
     '''
     eval_weight_source = None
     if fit_params is None:
@@ -344,12 +366,13 @@ def _get_weights_source(fit_params):
 
     # sklearn subscripting adds __ scores to step variables
     for candidate_param in fit_params:
-        if "eval_sample_weight" in candidate_param:
+        if "eval_sample_weight" in candidate_param and _check_fit_params_key_used(fit_params,candidate_param):
             eval_weight_source = candidate_param
             break
-        elif "sample_weight" in candidate_param:
+        elif "sample_weight" in candidate_param and _check_fit_params_key_used(fit_params,candidate_param):
             eval_weight_source = candidate_param
             break
+
     return eval_weight_source
 
 
@@ -1375,9 +1398,9 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             # reduce weights in folds to support cross fold averaging
             if eval_weight_source is not None:
                 weights = np.array([np.sum(x[eval_weight_source]) for x in weights])
-            # output distribution warning as suggested if eval_sample_weight is not explicitly provided
-            if not "eval_sample_weight" in eval_weight_source:
-                logger.warning(distribution_warning)
+                # output distribution warning as suggested if eval_sample_weight is not explicitly provided
+                if not "eval_sample_weight" in eval_weight_source:
+                    logger.warning(distribution_warning)
         else:
             weights = None
             scores = out
