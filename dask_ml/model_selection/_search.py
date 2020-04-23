@@ -116,6 +116,37 @@ def map_fit_params(dsk, fit_params):
     return fit_params
 
 
+def _update_scheduler_w_weight_task(dsk, main_token, cv_name, fit_params, n_splits, iid):
+    '''
+        _update_scheduler_w_weight_task updates the scheduler with tasks for weights calculation
+        and returns this task name
+
+        dsk: Dict[str,Any] dictionary of dask scheduler tasks
+        main_token: str that marks this group of tasks uniquely
+        cv_name: str for cv task name
+        fit_params: Dict[str,Any] fit params
+        n_splits: int for n splits
+        iid: bool for iid parameter see: https://ml.dask.org/modules/generated/dask_ml.model_selection.GridSearchCV.html
+
+        return: str task name for weights calculation
+
+    '''
+    weights_task_name = None
+    eval_weight_source = _get_weights_source(fit_params)
+
+    if eval_weight_source is not None :
+        weights_task_name = "cv-n-weights-" + main_token
+        # get all folds fit params info
+        folds_fp = _get_n_folds_fit_params(cv_name, fit_params, n_splits, keys_filtered=[eval_weight_source])
+        # 1 index of fld is a tuple of fit_params with train folds and test fold
+        test_fold_weights = [fld[1][1] for fld in folds_fp]
+        dsk[weights_task_name] = test_fold_weights
+    elif iid:
+        weights_task_name = "cv-n-samples-" + main_token
+        dsk[weights_task_name] = (cv_n_samples, cv_name)
+
+    return weights_task_name
+
 def build_graph(
     estimator,
     cv,
@@ -155,20 +186,8 @@ def build_graph(
     cv_name = "cv-split-" + main_token
 
     ## DO WE NEED TO ADD SUPPORT FOR TPOP AND PATCH?
-    eval_weight_source = _get_weights_source(fit_params)
-    if eval_weight_source is not None :
-        weights = "cv-n-weights-" + main_token
-        # get all folds fit params info
-        folds_fp = _get_n_folds_fit_params( cv_name, fit_params, n_splits, keys_filtered=[eval_weight_source])
-        # 1 index is the tuple of fit_params of train folds and test fold
-        test_fold_weights = [ fld[1][1] for fld in folds_fp ]
-        dsk[weights] = test_fold_weights
-    elif iid:
-        weights = "cv-n-samples-" + main_token
-        dsk[weights] = (cv_n_samples, cv_name)
-        scores = keys[1:]
-    else:
-        scores = keys
+    weights = _update_scheduler_w_weight_task(dsk,main_token,cv_name,fit_params,n_splits,iid)
+    scores = keys if weights is None else keys[1:]
 
     cv_results = "cv-results-" + main_token
     candidate_params_name = "cv-parameters-" + main_token
@@ -188,6 +207,8 @@ def build_graph(
     )
     keys = [cv_results]
     return dsk, keys, n_splits
+
+
 
 
 def build_cv_graph(
@@ -232,19 +253,7 @@ def build_cv_graph(
     cv_name = "cv-split-" + main_token
     dsk[cv_name] = (cv_split, cv, X_name, y_name, groups_name, is_pairwise, cache_cv)
 
-    eval_weight_source = _get_weights_source(fit_params)
-    if eval_weight_source is not None :
-        weights = "cv-n-weights-" + main_token
-        # get all folds fit params info
-        folds_fp = _get_n_folds_fit_params(cv_name, fit_params, n_splits, keys_filtered=[eval_weight_source])
-        # 1 index is the tuple of fit_params of train folds and test fold
-        test_fold_weights = [fld[1][1] for fld in folds_fp]
-        dsk[weights] = test_fold_weights
-    elif iid:
-        weights = "cv-n-samples-" + main_token
-        dsk[weights] = (cv_n_samples, cv_name)
-    else:
-        weights = None
+    weights = _update_scheduler_w_weight_task(dsk, main_token, cv_name, fit_params, n_splits, iid)
 
     scores = do_fit_and_score(
         dsk,
@@ -360,20 +369,17 @@ def _get_weights_source(fit_params):
         returns: str of source of test folds weights in fit_params dictionary
                 returns None if no actual data in fit_params weight source as well
     '''
-    eval_weight_source = None
     if fit_params is None:
-        return eval_weight_source
+        return None
 
     # sklearn subscripting adds __ scores to step variables
     for candidate_param in fit_params:
         if "eval_sample_weight" in candidate_param and _check_fit_params_key_used(fit_params,candidate_param):
-            eval_weight_source = candidate_param
-            break
+            return candidate_param
         elif "sample_weight" in candidate_param and _check_fit_params_key_used(fit_params,candidate_param):
-            eval_weight_source = candidate_param
-            break
+            return candidate_param
 
-    return eval_weight_source
+    return None
 
 
 def _get_n_folds_fit_params(cv, fit_params, n_splits, keys_filtered=None):
