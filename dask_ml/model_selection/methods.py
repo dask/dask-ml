@@ -117,6 +117,8 @@ class CVCache:
         '''
             extract_param extracts the fit_params associated with a set of folds either train folds or test fold.
             Also supports caching similar to other extraction methods
+
+            returns: corresponding slice of fit_params for input key,value corresponding to nth train folds or test folds based on is_train_folds
         '''
         if self.cache is not None and (n, key, is_train_folds) in self.cache:
             return self.cache[n, key, is_train_folds]
@@ -174,6 +176,14 @@ def cv_extract(cvs, X, y, is_X, is_train_folds, n):
 def cv_extract_params(cvs, keys, vals, n, is_train_folds):
     '''
         cv_extract_params the fit parameters of the fold sets (train folds or test fold)
+
+        cvs: (CVCache): CV cache for CV information of folds
+        keys: ((str,str)) fit params (name,full_name) key tuple
+        vals: (Any) the values for the given fit_params key
+        n: (int) fold number
+        is_train_folds : (bool) True if retrieving for train folds and False for test fold
+
+        returns: Dict[(str,str),Any)dictionary of fit_params for just the train folds or just the test folds
     '''
     return {k: cvs.extract_param(tok, v, n, is_train_folds) for (k, tok), v in zip(keys, vals)}
 
