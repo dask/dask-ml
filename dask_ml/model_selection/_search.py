@@ -370,7 +370,15 @@ def _get_n_folds_fit_params(cv, fit_params, n_splits, keys_filtered=None):
     if not fit_params:
         return [(n, (None,None)) for n in range(n_splits)]
     keys, vals = _generate_fit_params_key_vals(fit_params, keys_filtered=keys_filtered)
-    return [(n, ( (cv_extract_params, cv, keys, vals, n, True), (cv_extract_params, cv, keys, vals, n, False)) ) for n in range(n_splits)]
+    return [
+        (
+            n, # fold index
+            (
+                (cv_extract_params, cv, keys, vals, n, True), # train folds fit params
+                (cv_extract_params, cv, keys, vals, n, False) # test fold fit params
+            )
+        ) for n in range(n_splits)
+    ]
 
 
 def _group_fit_params(steps, fit_params):
