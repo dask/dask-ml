@@ -305,6 +305,14 @@ def normalize_params(params):
     return fields, tokens, params2
 
 def _generate_fit_params_key_vals(fit_params, keys_filtered=None):
+    '''
+        _generate_fit_params_key_vals returns keys and values in (name,full_name) and values format expected in CVcache functions
+
+        fit_params: dict[str,Any] fit params dictionary from input to fit() call
+        keys_filtered: list[str] keys to filter from fit_params from output
+
+        returns: ( (fit_parameter_name,fit_parameter_full_name), fit_param_value )
+    '''
     keys = []
     vals = []
     for name, (full_name, val) in fit_params.items():
@@ -316,8 +324,11 @@ def _generate_fit_params_key_vals(fit_params, keys_filtered=None):
 
 def _get_weights_source(fit_params):
     '''
-        _get_weights_source returns the weights source. sklearn pipelines subscript the parameter names such that a "samples_weight" parameter must be resolved
+        _get_weights_source returns the weights source string. sklearn pipelines subscript the parameter names such that a "samples_weight" parameter must be resolved
         to "clf__samples_weight" for some classifier "clf" in an sklearn pipeline. Also support eval_sample_weight as a priority source.
+
+        fit_params: dict[str,Any] fit params dictionary from input to fit() call
+        returns: str of source of test folds weights in fit_params dictionary
     '''
     eval_weight_source = None
     if fit_params is None:
@@ -338,11 +349,15 @@ def _get_n_folds_fit_params(cv, fit_params, n_splits, keys_filtered=None):
     '''
         _get_n_folds_fit_params gets index given by fold number and the fit_params for that folds train folds and test fold
 
-        cv: cv  dask task name,
-        fit_params: keys of fit params in (name, full_name) format
-        vals: values of fit params
-        n_splits: fold index
-        keys_filtered:
+        cv: (str) cv dask task name string,
+        fit_params: dict[str,Any] fit params dictionary from input to fit() call
+        n_splits: int: fold index
+        keys_filtered: list[str] keys to filter from fit_params from output
+
+        returns:
+            list( (int, tuple(Any) )
+            list of tuples of fold number and set of dask task that extracts that folds fit parameters for train folds and test folds
+            These tasks will be evaluated by scheduler later
     '''
     if not fit_params:
         return [(n, (None,None)) for n in range(n_splits)]
@@ -446,11 +461,12 @@ def do_fit_and_score(
 
         for n in range(n_splits):
             if eval_weight_source is not None:
-                # format to keys with full information compatible with cv_extract functions
+                # format keys with full information compatible with cv_extract functions
                 keys, vals = _generate_fit_params_key_vals(fit_params, keys_filtered=[eval_weight_source])
                 # dask evaluation requires wrapping into function to allow the function to be evaluated once cv object is resolved
                 def extract_param(cvs,k,v,n,fld):
                     return cvs.extract_param(k,v,n,fld)
+                # create the proper dask tasks to generate the train objects when computing. Dask tasks are tuples with function followed by arguments
                 w_train, w_test = (extract_param, cv, keys[0], vals[0], n,True), (extract_param, cv, keys[0], vals[0], n,False)
 
             if return_train_score:
@@ -1303,6 +1319,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         if scheduler is dask.threaded.get and n_jobs == 1:
             scheduler = dask.local.get_sync
 
+        # evaluation happens here such that out contains evaluated output from scheduler
         if "Client" in type(getattr(scheduler, "__self__", None)).__name__:
             futures = scheduler(
                 dsk, keys, allow_other_workers=True, num_workers=n_jobs, sync=False
@@ -1336,6 +1353,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             # reduce weights in folds to support cross fold averaging
             if eval_weight_source is not None:
                 weights = np.array([np.sum(x[eval_weight_source]) for x in weights])
+            # output distribution warning as suggested if eval_sample_weight is not explicitly provided
             if not "eval_sample_weight" in eval_weight_source:
                 logger.warning(distribution_warning)
         else:
