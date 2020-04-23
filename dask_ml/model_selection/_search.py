@@ -158,9 +158,11 @@ def build_graph(
     eval_weight_source = _get_weights_source(fit_params)
     if eval_weight_source is not None :
         weights = "cv-n-weights-" + main_token
-        # get test fold weights for all folds
-        fold_weights = [fld[1][1] for fld in _get_n_folds_fit_params(cv_name, fit_params, n_splits, keys_filtered=[eval_weight_source])]
-        dsk[weights] = fold_weights
+        # get all folds fit params info
+        folds_fp = _get_n_folds_fit_params( cv_name, fit_params, n_splits, keys_filtered=[eval_weight_source])
+        # 1 index is the tuple of fit_params of train folds and test fold
+        test_fold_weights = [ fld[1][1] for fld in folds_fp ]
+        dsk[weights] = test_fold_weights
     elif iid:
         weights = "cv-n-samples-" + main_token
         dsk[weights] = (cv_n_samples, cv_name)
@@ -233,9 +235,11 @@ def build_cv_graph(
     eval_weight_source = _get_weights_source(fit_params)
     if eval_weight_source is not None :
         weights = "cv-n-weights-" + main_token
-        # get test fold weights for all folds
-        fold_weights = [fld[1][1] for fld in _get_n_folds_fit_params(cv_name, fit_params, n_splits, keys_filtered=[eval_weight_source])]
-        dsk[weights] = fold_weights
+        # get all folds fit params info
+        folds_fp = _get_n_folds_fit_params(cv_name, fit_params, n_splits, keys_filtered=[eval_weight_source])
+        # 1 index is the tuple of fit_params of train folds and test fold
+        test_fold_weights = [fld[1][1] for fld in folds_fp]
+        dsk[weights] = test_fold_weights
     elif iid:
         weights = "cv-n-samples-" + main_token
         dsk[weights] = (cv_n_samples, cv_name)
@@ -306,7 +310,8 @@ def normalize_params(params):
 
 def _generate_fit_params_key_vals(fit_params, keys_filtered=None):
     '''
-        _generate_fit_params_key_vals returns keys and values in (name,full_name) and values format expected in CVcache functions
+        _generate_fit_params_key_vals returns keys and values in (name,full_name)
+        and values format expected in CVcache functions
 
         fit_params: dict[str,Any] fit params dictionary from input to fit() call
         keys_filtered: list[str] keys to filter from fit_params from output
@@ -324,8 +329,11 @@ def _generate_fit_params_key_vals(fit_params, keys_filtered=None):
 
 def _get_weights_source(fit_params):
     '''
-        _get_weights_source returns the weights source string. sklearn pipelines subscript the parameter names such that a "samples_weight" parameter must be resolved
-        to "clf__samples_weight" for some classifier "clf" in an sklearn pipeline. Also support eval_sample_weight as a priority source.
+        _get_weights_source returns the weights source string.
+
+        sklearn pipelines subscript the parameter names such that a "samples_weight" parameter must be resolved
+        to "clf__samples_weight" for some classifier "clf" in an sklearn pipeline.
+        Also support eval_sample_weight as a priority source.
 
         fit_params: dict[str,Any] fit params dictionary from input to fit() call
         returns: str of source of test folds weights in fit_params dictionary
@@ -463,11 +471,14 @@ def do_fit_and_score(
             if eval_weight_source is not None:
                 # format keys with full information compatible with cv_extract functions
                 keys, vals = _generate_fit_params_key_vals(fit_params, keys_filtered=[eval_weight_source])
-                # dask evaluation requires wrapping into function to allow the function to be evaluated once cv object is resolved
+                # dask evaluation requires wrapping into function
+                # this allows the function to be evaluated once cv object is resolved
                 def extract_param(cvs,k,v,n,fld):
                     return cvs.extract_param(k,v,n,fld)
-                # create the proper dask tasks to generate the train objects when computing. Dask tasks are tuples with function followed by arguments
-                w_train, w_test = (extract_param, cv, keys[0], vals[0], n,True), (extract_param, cv, keys[0], vals[0], n,False)
+                # create the proper dask tasks to generate the train objects when computing.
+                # Dask tasks are tuples of function followed by arguments
+                w_train = (extract_param, cv, keys[0], vals[0], n, True)
+                w_test = (extract_param, cv, keys[0], vals[0], n, False)
 
             if return_train_score:
                 xtrain = X_train + (n,)
@@ -1340,10 +1351,13 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         else:
             out = scheduler(dsk, keys, num_workers=n_jobs)
 
-        distribution_warning = ' No explicit "eval_sample_weight" using sample_weights (if available or) equal / no weights. ' \
-                               'No weights is only appropriate if train data is representative of test and holdout data without any weighting. ' \
-                               'Sampling_weight as eval_sample_weight is only appropriate ' \
-                               'if the sampling weigths adjust data to match test/holdout distribution.'
+        distribution_warning = (
+            'No explicit "eval_sample_weight" using sample_weights (if available or) equal / no weights. '
+            'No weights should only be appropriate if train data is representative of'
+            'test and holdout data without any weighting. ' 
+            'Sampling_weight as eval_sample_weight is only appropriate ' 
+            'if the sampling weights adjust data to match test/holdout distribution.'
+        )
 
         eval_weight_source = _get_weights_source(fit_params)
 

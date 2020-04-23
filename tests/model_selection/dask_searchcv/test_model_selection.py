@@ -976,21 +976,33 @@ def test_mock_with_fit_param_raises():
         clf.fit(X, y)
 
 
+IMP_WT_LOG_REG_PARAMS = {
+    "solver":         ["lbfgs"],
+    "penalty":        ["l2"],
+    "tol":            [1e-6],
+    "max_iter":       [10000],
+    "fit_intercept":  [False],
+    "random_state":   [15432]
+}
+LOG_REG_PIPELINE = Pipeline([("clf", LogisticRegression())])
+IMP_WT_PIPE_LOG_REG_PARAMS = {"clf__"+k: v for k, v in IMP_WT_LOG_REG_PARAMS.items()}
+
 @pytest.mark.parametrize("metric,greater_is_better,needs_proba,estimator,estimator_params,sample_wt", [
-    (accuracy_score, True, False, LogisticRegression(), {"random_state": [15432], "solver": ["lbfgs"]}, [1, 999999, 1, 999999]),
-    (accuracy_score, True, False, LogisticRegression(), {"random_state": [15432], "solver": ["lbfgs"]}, [100000, 200000, 100000, 200000]),
-    (accuracy_score, True, False, LogisticRegression(), {"random_state": [15432], "solver": ["lbfgs"]}, [100000, 100000, 100000, 100000]),
-    (accuracy_score, True, False, LogisticRegression(), {"random_state": [15432], "solver": ["lbfgs"]}, [200000, 100000, 200000, 100000]),
-    (accuracy_score, True, False, LogisticRegression(), {"random_state": [15432], "solver": ["lbfgs"]}, [999999, 1, 999999, 1]),
-    (accuracy_score, True, False, LogisticRegression(), {"random_state": [15432], "solver": ["lbfgs"]}, [2000000, 1000000, 1, 999999]),
-    (accuracy_score, True, False, Pipeline([("clf", LogisticRegression())]), {"clf__random_state": [15432], "clf__solver": ["lbfgs"]}, [2000000, 1000000, 1, 999999]),
-    (log_loss, False, True, LogisticRegression(), {"random_state": [15432], "solver": ["lbfgs"]}, [2500000, 500000, 200000, 100000]),
-    (brier_score_loss, False, True, LogisticRegression(), {"random_state": [15432], "solver": ["lbfgs"]}, [2500000, 500000, 200000, 100000]),
+    (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [1, 999999, 1, 999999]),
+    (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [100000, 200000, 100000, 200000]),
+    (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [100000, 100000, 100000, 100000]),
+    (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [200000, 100000, 200000, 100000]),
+    (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [999999, 1, 999999, 1]),
+    (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [2000000, 1000000, 1, 999999]),
+    (accuracy_score, True, False, LOG_REG_PIPELINE, IMP_WT_PIPE_LOG_REG_PARAMS, [2000000, 1000000, 1, 999999]),
+    (log_loss, False, True, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [2500000, 500000, 200000, 100000]),
+    (brier_score_loss, False, True, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [2500000, 500000, 200000, 100000]),
 ])
 def test_sample_weight_cross_validation(
         metric, greater_is_better, needs_proba, estimator, estimator_params, sample_wt):
     # Test that cross validation properly uses sample_weight from fit_params
     # when calculating the desired metrics.
+    LOG_REG_DEC_TOL = 5 # Tolerance for decimal points in logisitic regression
 
     # this is train and predict at once
     def train(y, norm1_wt, needs_proba):
@@ -1039,7 +1051,7 @@ def test_sample_weight_cross_validation(
 
     best_score = gscv.best_score_
 
-    np.testing.assert_almost_equal(exp_cv_score, best_score, decimal=5)
+    np.testing.assert_almost_equal(exp_cv_score, best_score, decimal=LOG_REG_DEC_TOL)
 
     # Assert that sample_weight for each fold is normalized by the L1 norm.
     np.testing.assert_almost_equal(np.sum(norm1_wt_f1), 1)
