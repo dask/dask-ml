@@ -1388,14 +1388,9 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         else:
             out = scheduler(dsk, keys, num_workers=n_jobs)
 
-        distribution_warning = (
+        base_distribution_warning = (
             'No explicit "eval_sample_weight" using sample_weights (if available or) equal / no weights. '
-            'No weights should only be appropriate if train data is representative of'
-            'test and holdout data without any weighting. ' 
-            'Sampling_weight as eval_sample_weight is only appropriate ' 
-            'if the sampling weights adjust data to match test/holdout distribution.'
         )
-
         eval_weight_source = _get_weights_source(fit_params)
 
         if eval_weight_source is not None or self.iid:
@@ -1403,14 +1398,22 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             scores = out[1:]
             # reduce weights in folds to support cross fold averaging
             if eval_weight_source is not None:
+                sample_wt_distribution_warning = (
+                    'Sampling_weight as eval_sample_weight is only appropriate '
+                    'if the sampling weights adjust data to match test/holdout distribution.'
+                )
                 weights = np.array([np.sum(x[eval_weight_source]) for x in weights])
                 # output distribution warning as suggested if eval_sample_weight is not explicitly provided
                 if not "eval_sample_weight" in eval_weight_source:
-                    logger.warning(distribution_warning)
+                    logger.warning(base_distribution_warning + sample_wt_distribution_warning)
         else:
+            no_weight_distribution_warning = (
+                'No weights should only be appropriate if train data is representative of'
+                'test and holdout data without any weighting. '
+            )
             weights = None
             scores = out
-            logger.warning(distribution_warning)
+            logger.warning(base_distribution_warning + no_weight_distribution_warning)
 
         if multimetric:
             metrics = list(scorer.keys())
