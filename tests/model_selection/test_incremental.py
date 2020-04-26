@@ -110,8 +110,8 @@ async def test_basic(c, s, a, b):
 
     # smoke test for ndarray X_test and y_test
     #  X_test, y_test = await c.compute([X_test, y_test])
-    X_test  = await c.compute(X_test)
-    y_test  = await c.compute(y_test)
+    X_test = await c.compute(X_test)
+    y_test = await c.compute(y_test)
     info, models, history, best = await fit(
         model,
         param_list,
