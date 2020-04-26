@@ -35,7 +35,7 @@ pytestmark = pytest.mark.skipif(not DISTRIBUTED_2_5_0, reason="hangs")
 
 
 @gen_cluster(client=True, timeout=500)
-def test_basic(c, s, a, b):
+async def test_basic(c, s, a, b):
     X, y = make_classification(n_samples=1000, n_features=5, chunks=100)
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
 
@@ -59,7 +59,7 @@ def test_basic(c, s, a, b):
         del ret[random.choice(list(some_keys))]
         return ret
 
-    info, models, history, best = yield fit(
+    info, models, history, best = await fit(
         model,
         param_list,
         X_train,
@@ -77,10 +77,12 @@ def test_basic(c, s, a, b):
 
     for model in models.values():
         assert isinstance(model, Future)
-        model2 = yield model
+        model2 = await model
         assert isinstance(model2, SGDClassifier)
-    XX_test, yy_test = yield c.compute([X_test, y_test])
-    model = yield models[0]
+    #  XX_test, yy_test = yield c.compute([X_test, y_test])
+    XX_test = await c.compute(X_test)
+    yy_test = await c.compute(y_test)
+    model = await models[0]
     assert model.score(XX_test, yy_test) == info[0][-1]["score"]
 
     # `<` not `==` because we randomly dropped one model
@@ -104,11 +106,13 @@ def test_basic(c, s, a, b):
         del models[key]
 
     while c.futures or s.tasks:  # Cleans up cleanly after running
-        yield gen.sleep(0.01)
+        await gen.sleep(0.01)
 
     # smoke test for ndarray X_test and y_test
-    X_test, y_test = yield c.compute([X_test, y_test])
-    info, models, history, best = yield fit(
+    #  X_test, y_test = await c.compute([X_test, y_test])
+    X_test  = await c.compute(X_test)
+    y_test  = await c.compute(y_test)
+    info, models, history, best = await fit(
         model,
         param_list,
         X_train,
