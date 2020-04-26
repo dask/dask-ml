@@ -9,6 +9,7 @@ import scipy.stats
 from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
 from sklearn.linear_model import SGDClassifier
 
+from dask_ml._compat import DISTRIBUTED_2_5_0
 from dask_ml.datasets import make_classification
 from dask_ml.model_selection import (
     HyperbandSearchCV,
@@ -18,6 +19,8 @@ from dask_ml.model_selection import (
 from dask_ml.model_selection._hyperband import _get_hyperband_params
 from dask_ml.utils import ConstantFunction
 from dask_ml.wrappers import Incremental
+
+pytestmark = pytest.mark.skipif(not DISTRIBUTED_2_5_0, reason="hangs")
 
 
 @pytest.mark.parametrize(
@@ -266,6 +269,8 @@ def test_correct_params(c, s, a, b):
         "tol",
         "random_state",
         "scoring",
+        "verbose",
+        "prefix",
     }
     assert set(search.get_params().keys()) == base.union({"aggressiveness"})
     meta = search.metadata
@@ -273,7 +278,13 @@ def test_correct_params(c, s, a, b):
         bracket["SuccessiveHalvingSearchCV params"] for bracket in meta["brackets"]
     ]
     SHA_params = base.union(
-        {"n_initial_parameters", "n_initial_iter", "aggressiveness", "max_iter"}
+        {
+            "n_initial_parameters",
+            "n_initial_iter",
+            "aggressiveness",
+            "max_iter",
+            "prefix",
+        }
     ) - {"estimator__sleep", "estimator__value", "estimator", "parameters"}
 
     assert all(set(SHA) == SHA_params for SHA in SHAs_params)

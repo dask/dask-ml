@@ -139,6 +139,17 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
 
         If None, the estimator's default scorer (if available) is used.
 
+    verbose : bool, float, int, optional, default: False
+        If False (default), don't print logs (or pipe them to stdout). However,
+        standard logging will still be used.
+
+        If True, print logs and use standard logging.
+
+        If float, print/log approximately ``verbose`` fraction of the time.
+
+    prefix : str, optional, default=""
+        While logging, add ``prefix`` to each message.
+
     Examples
     --------
     >>> import numpy as np
@@ -284,11 +295,28 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
     Let's decide to provide ``81 * len(X)`` examples and to sample 243
     parameters. Then each chunk will be 1/3rd the dataset and ``max_iter=243``.
 
+    If you use ``HyperbandSearchCV``, please use the citation for [2]_
+
+    .. code-block:: tex
+
+        @InProceedings{sievert2019better,
+            author    = {Scott Sievert and Tom Augspurger and Matthew Rocklin},
+            title     = {{B}etter and faster hyperparameter optimization with {D}ask},
+            booktitle = {{P}roceedings of the 18th {P}ython in {S}cience {C}onference},
+            pages     = {118 - 125},
+            year      = {2019},
+            editor    = {Chris Calloway and David Lippa and Dillon Niederhut and David Shupe},  # noqa
+            doi       = {10.25080/Majora-7ddc1dd1-011}
+          }
+
     References
     ----------
     .. [1] "Hyperband: A novel bandit-based approach to hyperparameter
            optimization", 2016 by L. Li, K. Jamieson, G. DeSalvo, A.
            Rostamizadeh, and A. Talwalkar.  https://arxiv.org/abs/1603.06560
+    .. [2] "Better and faster hyperparameter optimization with Dask", 2018 by
+           S. Sievert, T. Augspurger, M. Rocklin.
+           https://doi.org/10.25080/Majora-7ddc1dd1-011
 
     """
 
@@ -303,6 +331,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         test_size=None,
         random_state=None,
         scoring=None,
+        verbose=False,
+        prefix="",
     ):
         self.aggressiveness = aggressiveness
 
@@ -315,6 +345,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
             test_size=test_size,
             random_state=random_state,
             scoring=scoring,
+            verbose=verbose,
+            prefix=prefix,
         )
 
     def _get_SHAs(self, brackets):
@@ -328,8 +360,9 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         self._SHA_seed = seed_start
 
         # These brackets are ordered by adaptivity; bracket=0 is least adaptive
-        SHAs = {
-            b: SuccessiveHalvingSearchCV(
+        SHAs = {}
+        for b, (n, r) in brackets.items():
+            sha = SuccessiveHalvingSearchCV(
                 self.estimator,
                 self.parameters,
                 n_initial_parameters=n,
@@ -341,9 +374,10 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
                 test_size=self.test_size,
                 random_state=seed_start + b if b != 0 else self.random_state,
                 scoring=self.scoring,
+                verbose=self.verbose,
+                prefix=f"{self.prefix}, bracket={b}",
             )
-            for b, (n, r) in brackets.items()
-        }
+            SHAs[b] = sha
         return SHAs
 
     @gen.coroutine

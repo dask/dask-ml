@@ -131,12 +131,18 @@ We have some additional decisions to make in the dask context. Ideally
    the same type as the input. So if a ``dask.array`` is passed in, a
    ``dask.array`` with the same chunks should be returned.
 
-.. _estimator check: http://scikit-learn.org/stable/developers/contributing.html#rolling-your-own-estimator
+.. _estimator check: https://scikit-learn.org/stable/developers/develop.html#rolling-your-own-estimator
 
 Documentation
 ~~~~~~~~~~~~~
 
 We use `numpydoc <http://numpydoc.readthedocs.io/en/latest/format.html>`_ for our docstrings.
+
+Building the docs is possible with
+
+.. code-block:: none
+
+   $ conda env create -f ci/environment-docs.yaml --name=dask-ml-dev-docs
 
 Examples are written as Jupyter notebooks with their output stripped, either
 manually or using `nbstripout <https://github.com/kynan/nbstripout>`_. We want

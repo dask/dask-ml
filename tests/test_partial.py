@@ -1,12 +1,16 @@
 import dask
 import dask.array as da
+import dask.bag as db
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import pytest
+from dask.delayed import Delayed
 from sklearn.base import clone
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import SGDClassifier
 
+import dask_ml.feature_extraction.text
 from dask_ml._partial import fit, predict
 from dask_ml.datasets import make_classification
 from dask_ml.wrappers import Incremental
@@ -32,6 +36,13 @@ def test_fit():
         result = predict(sgd, Z)
         assert result.chunks == ((2, 2),)
         assert result.compute().tolist() == sol.tolist()
+
+
+def test_no_compute():
+    sgd = SGDClassifier(max_iter=5, tol=1e-3)
+
+    result = fit(sgd, X, Y, classes=np.array([-1, 0, 1]), compute=False)
+    assert isinstance(result, Delayed)
 
 
 def test_fit_rechunking():
@@ -91,3 +102,17 @@ def test_dataframes():
         result = predict(sgd, ddf[["x"]])
 
         da.utils.assert_eq(sol, result)
+
+
+def test_bag():
+    x = db.from_sequence(range(10), npartitions=2)
+    vect = dask_ml.feature_extraction.text.HashingVectorizer()
+    vect = fit(vect, x, None)
+    y = vect.transform(x)
+    assert y.shape[1] == vect.n_features
+
+
+def test_no_partial_fit_raises():
+    X, y = make_classification(chunks=50)
+    with pytest.raises(ValueError, match="RandomForestClassifier"):
+        fit(RandomForestClassifier(), X, y)

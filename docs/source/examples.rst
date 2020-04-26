@@ -4,39 +4,17 @@
 Examples
 ========
 
-`dask-examples`_ contains a set of runnable examples.
-Here are some machine-learning focused examples:
+`dask-examples`_ contains a set of runnable examples:
 
-Scaling Scikit-Learn
---------------------
+* The `basic machine learning example`_ gives an overview and many specific
+  examples are listed in the table of contents on the main page.
+* The `machine learning section`_ gives more examples of using Dask for machine
+  learning with other libraries or for particular machine learning use cases.
 
-.. toctree::
-   :maxdepth: 1
+Dask-ML can be used with XGBoost, PyTorch and TPOT, and can be used for
+hyperparameter optimization. These are some of the examples that
+`dask-examples`_ includes.
 
-   examples/scale-scikit-learn
-   examples/parallel-prediction
-   examples/voting-classifier
-   examples/text-vectorization
-
-Training on Large Datasets
---------------------------
-
-.. toctree::
-   :maxdepth: 1
-
-   examples/training-on-large-datasets
-   examples/incremental
-
-Integrations with Other Libraries
----------------------------------
-
-.. toctree::
-   :maxdepth: 1
-
-   examples/xgboost
-   examples/tpot
-
-We also have sets of Dask-ML performance benchmarks in the `dask-ml-benchmarks`_ repository.
-
-.. _dask-examples: https://www.github.com/dask/dask-examples
-.. _dask-ml-benchmarks: https://dask-ml-benchmarks.readthedocs.io
+.. _machine learning section: https://examples.dask.org/#machine-learning
+.. _dask-examples: https://examples.dask.org
+.. _basic machine learning example: https://examples.dask.org/machine-learning.html

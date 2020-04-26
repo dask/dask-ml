@@ -11,12 +11,12 @@ with open(os.path.join(here, "README.rst"), encoding="utf-8") as f:
     long_description = f.read()
 
 install_requires = [
-    "dask[array,dataframe]>=1.0.0",
-    "distributed>=1.25.0",
+    "dask[array,dataframe]>=2.4.0",
+    "distributed>=2.4.0",
     "numba",
-    "numpy",
+    "numpy>=1.17.3",
     "pandas>=0.23.4",
-    "scikit-learn>=0.20",
+    "scikit-learn>=0.21",
     "scipy",
     "dask-glm>=0.2.0",
     "multipledispatch>=0.4.9",
@@ -35,15 +35,13 @@ test_requires = [
     "pytest-mock",
 ]
 dev_requires = doc_requires + test_requires
-tensorflow_requires = ["dask-tensorflow", "tensorflow"]
 xgboost_requires = ["dask-xgboost", "xgboost"]
-complete_requires = tensorflow_requires + xgboost_requires
+complete_requires = xgboost_requires
 
 extras_require = {
     "docs": doc_requires,
     "test": test_requires,
     "dev": dev_requires,
-    "tensorflow": tensorflow_requires,
     "xgboost": xgboost_requires,
     "complete": complete_requires,
 }

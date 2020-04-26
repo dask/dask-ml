@@ -63,7 +63,7 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
         else:
             statistics = np.full(X.shape[1], self.fill_value, dtype=X.dtype)
 
-        self.statistics_, = da.compute(statistics)
+        (self.statistics_,) = da.compute(statistics)
 
     def _fit_frame(self, X):
         if self.strategy == "mean":

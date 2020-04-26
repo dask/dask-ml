@@ -60,6 +60,6 @@ continues on as normal.
 This work was a collaboration with XGBoost and SKLearn maintainers.  See
 relevant GitHub issue here: `dmlc/xgboost #2032 <https://github.com/dmlc/xgboost/issues/2032>`_
 
-- :doc:`examples/xgboost`
+See the ":doc:`Dask-ML examples <examples>`" for an example usage.
 
 .. _XGBoost: https://xgboost.readthedocs.io/

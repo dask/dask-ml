@@ -2,13 +2,16 @@ import dask
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
+import pandas as pd
 import pytest
 import sklearn.datasets
 import sklearn.model_selection
 from dask.array.utils import assert_eq
 from sklearn.base import clone
 from sklearn.linear_model import SGDClassifier, SGDRegressor
+from sklearn.pipeline import make_pipeline
 
+import dask_ml.feature_extraction.text
 import dask_ml.metrics
 from dask_ml._compat import SK_022
 from dask_ml.metrics.scorer import check_scoring
@@ -187,3 +190,28 @@ def test_replace_scoring(estimator, fit_kwargs, scoring, xy_classification, mock
 
     assert patch.call_count == 1
     patch.assert_called_with(scoring, compute=True)
+
+
+@pytest.mark.parametrize("container", ["bag", "series"])
+def test_incremental_text_pipeline(container):
+    X = pd.Series(["a list", "of words", "for classification"] * 100)
+    X = dd.from_pandas(X, npartitions=3)
+
+    if container == "bag":
+        X = X.to_bag()
+
+    y = da.from_array(np.array([0, 0, 1] * 100), chunks=(100,) * 3)
+
+    assert tuple(X.map_partitions(len).compute()) == y.chunks[0]
+
+    sgd = SGDClassifier(max_iter=5, tol=1e-3)
+    clf = Incremental(sgd, scoring="accuracy", assume_equal_chunks=True)
+    vect = dask_ml.feature_extraction.text.HashingVectorizer()
+    pipe = make_pipeline(vect, clf)
+
+    pipe.fit(X, y, incremental__classes=[0, 1])
+    X2 = pipe.steps[0][1].transform(X)
+    assert hasattr(clf, "coef_")
+
+    X2.compute_chunk_sizes()
+    assert X2.shape == (300, vect.n_features)

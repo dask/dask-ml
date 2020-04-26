@@ -50,9 +50,8 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         Ignored for ``affinity='nearest_neighbors'``.
 
     affinity : string, array-like or callable, default 'rbf'
-        If a string, this may be one of 'nearest_neighbors', 'precomputed',
-        'rbf' or one of the kernels supported by
-        `sklearn.metrics.pairwise_kernels`.
+        It may be 'precomputed' or one of the kernels supported by
+        `metrics.pairwise.PAIRWISE_KERNEL_FUNCTIONS`.
 
         Only kernels that produce similarity scores (non-negative values that
         increase with similarity) should be used. This property is not checked

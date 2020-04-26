@@ -145,6 +145,21 @@ with Dask Arrays or DataFrames.
    preprocessing.OrdinalEncoder
    preprocessing.LabelEncoder
    preprocessing.PolynomialFeatures
+   preprocessing.BlockTransformer
+
+:mod:`dask_ml.feature_extraction.text`: Feature extraction
+==========================================================
+
+
+.. automodule:: dask_ml.preprocessing.text:
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   feature_extraction.text.HashingVectorizer
+   feature_extraction.text.FeatureHasher
+
    
 :mod:`dask_ml.compose`: Composite Estimators
 ============================================
@@ -209,20 +224,6 @@ Classification Metrics
 
    metrics.accuracy_score
    metrics.log_loss
-
-
-:mod:`dask_ml.tensorflow`: Tensorflow
-=====================================
-
-.. automodule:: dask_ml.tensorflow
-
-.. currentmodule:: dask_ml.tensorflow
-
-.. autosummary::
-   :toctree: generated/
-
-   start_tensorflow
-
 
 
 :mod:`dask_ml.xgboost`: XGBoost
