@@ -177,13 +177,14 @@ def test_lr_score():
     lr.fit(X, X)
     assert lr.score(X, X) == pytest.approx(1, 0.001)
 
-def test_dataframe_warns_about_chunks():
+@pytest.mark.parametrize("fit_intercept", [True, False])
+def test_dataframe_warns_about_chunks(fit_intercept):
     rng = np.random.RandomState(42)
     n, d = 20, 5
-    kwargs = dict(npartitions=5)
+    kwargs = dict(npartitions=4)
     X = dd.from_pandas(pd.DataFrame(rng.uniform(size=(n, d))), **kwargs)
     y = dd.from_pandas(pd.Series(rng.choice(2, size=n)), **kwargs)
-    clf = LogisticRegression(fit_intercept=True)
+    clf = LogisticRegression(fit_intercept=fit_intercept)
     msg = "does not support dask dataframes.*might be resolved with"
     with pytest.raises(TypeError, match=msg):
         clf.fit(X, y)
