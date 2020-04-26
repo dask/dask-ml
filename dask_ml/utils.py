@@ -180,6 +180,7 @@ def check_array(
                 "    1. ddf.to_dask_array()\n"
                 "    2. ddf.to_dask_array(lengths=True)\n"
             )
+        # TODO: sample?
         return array
     elif isinstance(array, pd.DataFrame) and preserve_pandas_dataframe:
         # TODO: validation?
