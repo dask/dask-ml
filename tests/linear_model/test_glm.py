@@ -177,6 +177,7 @@ def test_lr_score():
     lr.fit(X, X)
     assert lr.score(X, X) == pytest.approx(1, 0.001)
 
+
 @pytest.mark.parametrize("fit_intercept", [True, False])
 def test_dataframe_warns_about_chunks(fit_intercept):
     rng = np.random.RandomState(42)
