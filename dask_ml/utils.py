@@ -177,8 +177,9 @@ def check_array(
             raise TypeError(
                 "This estimator does not support dask dataframes. "
                 "This might be resolved with one of\n\n"
-                "    1. ddf.to_dask_array()\n"
-                "    2. ddf.to_dask_array(lengths=True)\n"
+                "    1. ddf.to_dask_array(lengths=True)\n"
+                "    2. ddf.to_dask_array()  # may cause other issues because "
+                "of unknown chunk sizes"
             )
         # TODO: sample?
         return array
