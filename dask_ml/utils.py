@@ -174,8 +174,12 @@ def check_array(
 
     elif isinstance(array, dd.DataFrame):
         if not accept_dask_dataframe:
-            raise TypeError("This estimator does not support dask dataframes.")
-        # TODO: sample?
+            raise TypeError(
+                "This estimator does not support dask dataframes. "
+                "This might be resolved with one of\n\n"
+                "    1. ddf.to_dask_array()\n"
+                "    2. ddf.to_dask_array(lengths=True)\n"
+            )
         return array
     elif isinstance(array, pd.DataFrame) and preserve_pandas_dataframe:
         # TODO: validation?
