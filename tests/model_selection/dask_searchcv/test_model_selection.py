@@ -994,6 +994,8 @@ IMP_WT_PIPE_LOG_REG_PARAMS = {"clf__"+k: v for k, v in IMP_WT_LOG_REG_PARAMS.ite
     (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [200000, 100000, 200000, 100000]),
     (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [999999, 1, 999999, 1]),
     (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [2000000, 1000000, 1, 999999]),
+    (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [4000000, 2000000, 2, 2*999999]),
+    # ZEFR Use-Case. Delete this note if making this into more general release.
     (accuracy_score, True, False, LOG_REG_PIPELINE, IMP_WT_PIPE_LOG_REG_PARAMS, [2000000, 1000000, 1, 999999]),
     (log_loss, False, True, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [2500000, 500000, 200000, 100000]),
     (brier_score_loss, False, True, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [2500000, 500000, 200000, 100000]),

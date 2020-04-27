@@ -507,14 +507,15 @@ def do_fit_and_score(
         eval_weight_source = _get_weights_source(fit_params)
         w_train, w_test = None, None
 
+        # dask evaluation requires wrapping into function
+        # this allows the function to be evaluated once cv object is resolved
+        def extract_param(cvs, k, v, n, fld):
+            return cvs.extract_param(k, v, n, fld)
+
         for n in range(n_splits):
             if eval_weight_source is not None:
                 # format keys with full information compatible with cv_extract functions
                 keys, vals = _generate_fit_params_key_vals(fit_params, keys_filtered=[eval_weight_source])
-                # dask evaluation requires wrapping into function
-                # this allows the function to be evaluated once cv object is resolved
-                def extract_param(cvs,k,v,n,fld):
-                    return cvs.extract_param(k,v,n,fld)
                 # create the proper dask tasks to generate the train objects when computing.
                 # Dask tasks are tuples of function followed by arguments
                 w_train = (extract_param, cv, keys[0], vals[0], n, True)
