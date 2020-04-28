@@ -519,7 +519,7 @@ def do_fit_transform(
             n_splits,
             error_score,
             True,
-        )
+        ), ys
     elif issubclass(type(est), FeatureUnion) and params is not None:
         return _do_featureunion(
             dsk,
@@ -534,7 +534,7 @@ def do_fit_transform(
             fit_params,
             n_splits,
             error_score,
-        )
+        ), ys
     else:
         n_and_fit_params = _get_fit_params(cv, fit_params, n_splits)
 
@@ -951,7 +951,7 @@ def _do_featureunion(
             seen[steps, wt] = m
             out_append(m)
             m += 1
-    return [(fit_name, i) for i in out], [(tr_name, i) for i in out], None
+    return [(fit_name, i) for i in out], [(tr_name, i) for i in out]
 
 
 # ------------ #
