@@ -951,7 +951,7 @@ def _do_featureunion(
             seen[steps, wt] = m
             out_append(m)
             m += 1
-    return [(fit_name, i) for i in out], [(tr_name, i) for i in out]
+    return [(fit_name, i) for i in out], [(tr_name, i) for i in out], None
 
 
 # ------------ #
