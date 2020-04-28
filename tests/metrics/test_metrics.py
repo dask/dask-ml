@@ -168,9 +168,9 @@ def test_log_loss_scoring(y):
             n_jobs=1, solver="lbfgs", multi_class="auto"
         )
     )
-    clf.fit(X, y)
+    clf.fit(*dask.compute(X, y))
 
     result = b_scorer(clf, X, y)
-    expected = a_scorer(clf, X, y)
+    expected = a_scorer(clf, *dask.compute(X, y))
 
     assert_eq(result, expected)

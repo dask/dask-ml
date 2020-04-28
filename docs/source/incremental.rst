@@ -4,7 +4,7 @@ Incremental Learning
 ====================
 
 Some estimators can be trained incrementally -- without seeing the entire
-dataset at once. Scikit-Learn provdes the ``partial_fit`` API to stream batches
+dataset at once. Scikit-Learn provides the ``partial_fit`` API to stream batches
 of data to an estimator that can be fit in batches.
 
 Normally, if you pass a Dask Array to an estimator expecting a NumPy array,

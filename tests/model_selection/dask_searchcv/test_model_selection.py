@@ -7,6 +7,7 @@ from multiprocessing import cpu_count
 
 import dask
 import dask.array as da
+import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import pytest
@@ -14,6 +15,8 @@ from dask.base import tokenize
 from dask.callbacks import Callback
 from dask.delayed import delayed
 from dask.utils import tmpdir
+from distributed import Client, Nanny, Variable
+from distributed.utils_test import cluster, loop  # noqa
 from sklearn.datasets import load_iris, make_classification
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
@@ -21,7 +24,6 @@ from sklearn.exceptions import FitFailedWarning, NotFittedError
 from sklearn.feature_selection import SelectKBest
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, brier_score_loss, log_loss, make_scorer
-from sklearn.metrics.scorer import _passthrough_scorer
 from sklearn.model_selection import (
     GridSearchCV,
     GroupKFold,
@@ -42,10 +44,12 @@ from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.svm import SVC
 
 import dask_ml.model_selection as dcv
+from dask_ml._compat import DISTRIBUTED_2_11_0, SK_022, WINDOWS
 from dask_ml.model_selection import check_cv, compute_n_splits
 from dask_ml.model_selection._search import _normalize_n_jobs
 from dask_ml.model_selection.methods import CVCache
 from dask_ml.model_selection.utils_test import (
+    AsCompletedEstimator,
     CheckXClassifier,
     FailingClassifier,
     MockClassifier,
@@ -53,14 +57,16 @@ from dask_ml.model_selection.utils_test import (
     ScalingTransformer,
 )
 
-try:
-    from distributed import Client
-    from distributed.utils_test import cluster, loop
+if SK_022:
+    # deprecated in 0.22
+    iid = {}
+else:
+    iid = {"iid": True}
 
-    has_distributed = True
-except ImportError:
-    loop = pytest.fixture(lambda: None)
-    has_distributed = False
+
+def _passthrough_scorer(estimator, *args, **kwargs):
+    """Function that wraps estimator.score"""
+    return estimator.score(*args, **kwargs)
 
 
 class assert_dask_compute(Callback):
@@ -139,8 +145,8 @@ def test_kfolds(cls, has_shuffle):
             cls(shuffle=True, random_state=2, n_splits=3)
         )
 
-        assert tokenize(cls(shuffle=False, random_state=0, n_splits=3)) == tokenize(
-            cls(shuffle=False, random_state=2, n_splits=3)
+        assert tokenize(cls(shuffle=False, random_state=None, n_splits=3)) == tokenize(
+            cls(shuffle=False, random_state=None, n_splits=3)
         )
 
     cv = cls(n_splits=3)
@@ -326,13 +332,36 @@ def test_grid_search_dask_inputs():
         np.testing.assert_allclose(sol, gs.best_estimator_.support_vectors_)
 
 
+def test_grid_search_dask_dataframe():
+    iris = load_iris()
+    X = iris.data
+    y = iris.target
+
+    df = pd.DataFrame(X)
+    ddf = dd.from_pandas(df, 2)
+
+    dy = pd.Series(y)
+    ddy = dd.from_pandas(dy, 2)
+
+    clf = LogisticRegression(multi_class="auto", solver="lbfgs", max_iter=200)
+
+    param_grid = {"C": [0.1, 1, 10]}
+    gs = GridSearchCV(clf, param_grid, cv=5)
+    dgs = dcv.GridSearchCV(clf, param_grid, cv=5)
+    gs.fit(df, dy)
+    dgs.fit(ddf, ddy)
+
+    assert gs.best_params_ == dgs.best_params_
+
+
 def test_pipeline_feature_union():
     iris = load_iris()
     X, y = iris.data, iris.target
 
     pca = PCA(random_state=0)
     kbest = SelectKBest()
-    empty_union = FeatureUnion([("first", None), ("second", None)])
+
+    empty_union = FeatureUnion([("first", "drop"), ("second", "drop")])
     empty_pipeline = Pipeline([("first", None), ("second", None)])
     scaling = Pipeline([("transform", ScalingTransformer())])
     svc = SVC(kernel="linear", random_state=0)
@@ -347,7 +376,7 @@ def test_pipeline_feature_union():
                 FeatureUnion(
                     [
                         ("pca", pca),
-                        ("missing", None),
+                        ("missing", "drop"),
                         ("kbest", kbest),
                         ("empty_union", empty_union),
                     ],
@@ -365,7 +394,7 @@ def test_pipeline_feature_union():
         svc__C=[0.1, 1, 10],
     )
 
-    gs = GridSearchCV(pipe, param_grid=param_grid, cv=3, iid=True)
+    gs = GridSearchCV(pipe, param_grid=param_grid, cv=3, **iid)
     gs.fit(X, y)
     dgs = dcv.GridSearchCV(pipe, param_grid=param_grid, scheduler="sync", cv=3)
     dgs.fit(X, y)
@@ -423,9 +452,7 @@ def test_pipeline_sub_estimators():
         },
     ]
 
-    gs = GridSearchCV(
-        pipe, param_grid=param_grid, return_train_score=True, cv=3, iid=True
-    )
+    gs = GridSearchCV(pipe, param_grid=param_grid, return_train_score=True, cv=3, **iid)
     gs.fit(X, y)
     dgs = dcv.GridSearchCV(
         pipe, param_grid=param_grid, scheduler="sync", return_train_score=True, cv=3
@@ -446,7 +473,9 @@ def test_pipeline_sub_estimators():
     skip = ["mean_fit_time", "std_fit_time", "mean_score_time", "std_score_time"]
     res = res.drop(skip, axis=1)
     sol = sol.drop(skip, axis=1)
-    assert res.equals(sol)
+    pd.util.testing.assert_frame_equal(
+        res, sol, check_exact=False, check_less_precise=1
+    )
 
     # Check SVC coefs match
     np.testing.assert_allclose(
@@ -594,7 +623,7 @@ def test_failing_classifier_fails():
 
     X, y = make_classification()
 
-    with pytest.raises(ValueError, message="Failing during score"):
+    with pytest.raises(ValueError, match="Failing"):
         clf.fit(X, y)
 
     clf = clf.set_params(error_score=-1)
@@ -710,7 +739,11 @@ class CountTakes(np.ndarray):
 
     def take(self, *args, **kwargs):
         self.count += 1
-        return super(CountTakes, self).take(*args, **kwargs)
+        return super().take(*args, **kwargs)
+
+    def __getitem__(self, *args, **kwargs):
+        self.count += 1
+        return super().__getitem__(*args, **kwargs)
 
 
 def test_cache_cv():
@@ -786,8 +819,7 @@ def test_scheduler_param(scheduler, n_jobs):
     gs.fit(X, y)
 
 
-@pytest.mark.skipif("not has_distributed")
-def test_scheduler_param_distributed(loop):
+def test_scheduler_param_distributed(loop):  # noqa
     X, y = make_classification(n_samples=100, n_features=10, random_state=0)
     with cluster() as (s, [a, b]):
         with Client(s["address"], loop=loop) as client:
@@ -800,6 +832,57 @@ def test_scheduler_param_distributed(loop):
             assert client.run_on_scheduler(f)  # some work happened on cluster
 
 
+@pytest.mark.skipif(
+    WINDOWS, reason="https://github.com/dask/dask-ml/issues/611 TimeoutError"
+)
+def test_as_completed_distributed(loop):  # noqa
+    cluster_kwargs = dict(active_rpc_timeout=10, nanny=Nanny)
+    if DISTRIBUTED_2_11_0:
+        cluster_kwargs["disconnect_timeout"] = 10
+    with cluster(**cluster_kwargs) as (s, [a, b]):
+        with Client(s["address"], loop=loop) as c:
+            counter_name = "counter_name"
+            counter = Variable(counter_name, client=c)
+            counter.set(0)
+            lock_name = "lock"
+
+            killed_workers_name = "killed_workers"
+            killed_workers = Variable(killed_workers_name, client=c)
+            killed_workers.set({})
+
+            X, y = make_classification(n_samples=100, n_features=10, random_state=0)
+            gs = dcv.GridSearchCV(
+                AsCompletedEstimator(killed_workers_name, lock_name, counter_name, 7),
+                param_grid={"foo_param": [0, 1, 2]},
+                cv=3,
+                refit=False,
+                cache_cv=False,
+                scheduler=c,
+            )
+            gs.fit(X, y)
+
+            def f(dask_scheduler):
+                return dask_scheduler.transition_log
+
+            def check_reprocess(transition_log):
+                finished = set()
+                for transition in transition_log:
+                    key, start_state, end_state = (
+                        transition[0],
+                        transition[1],
+                        transition[2],
+                    )
+                    assert key not in finished
+                    if (
+                        "score" in key
+                        and start_state == "memory"
+                        and end_state == "forgotten"
+                    ):
+                        finished.add(key)
+
+            check_reprocess(c.run_on_scheduler(f))
+
+
 def test_cv_multiplemetrics():
     X, y = make_classification(random_state=0)
 
@@ -810,7 +893,7 @@ def test_cv_multiplemetrics():
         refit="score1",
         scoring={"score1": "accuracy", "score2": "accuracy"},
         cv=3,
-        iid=True,
+        **iid,
     )
     b = GridSearchCV(
         RandomForestClassifier(n_estimators=10),
@@ -818,7 +901,7 @@ def test_cv_multiplemetrics():
         refit="score1",
         scoring={"score1": "accuracy", "score2": "accuracy"},
         cv=3,
-        iid=True,
+        **iid,
     )
     a.fit(X, y)
     b.fit(X, y)
@@ -874,13 +957,11 @@ def test_gridsearch_with_arraylike_fit_param(cache_cv):
         MockClassifierWithFitParam(),
         param_grid,
         cv=3,
-        iid=False,
+        **iid,
         refit=False,
         cache_cv=cache_cv,
     )
-    b = GridSearchCV(
-        MockClassifierWithFitParam(), param_grid, cv=3, iid=False, refit=False
-    )
+    b = GridSearchCV(MockClassifierWithFitParam(), param_grid, cv=3, **iid, refit=False)
 
     b.fit(X, y, mock_fit_param=[0, 1])
     a.fit(X, y, mock_fit_param=[0, 1])
@@ -895,21 +976,37 @@ def test_mock_with_fit_param_raises():
         clf.fit(X, y)
 
 
-@pytest.mark.parametrize("metric,greater_is_better,needs_proba,sample_wt", [
-    (accuracy_score, True, False, [1, 999999, 1, 999999]),
-    (accuracy_score, True, False, [100000, 200000, 100000, 200000]),
-    (accuracy_score, True, False, [100000, 100000, 100000, 100000]),
-    (accuracy_score, True, False, [200000, 100000, 200000, 100000]),
-    (accuracy_score, True, False, [999999, 1, 999999, 1]),
-    (accuracy_score, True, False, [2000000, 1000000, 1, 999999]),
-    (log_loss, False, True, [2500000, 500000, 200000, 100000]),
-    (brier_score_loss, False, True, [2500000, 500000, 200000, 100000]),
+IMP_WT_LOG_REG_PARAMS = {
+    "solver":         ["lbfgs"],
+    "penalty":        ["l2"],
+    "tol":            [1e-6],
+    "max_iter":       [10000],
+    "fit_intercept":  [False],
+    "random_state":   [15432]
+}
+LOG_REG_PIPELINE = Pipeline([("clf", LogisticRegression())])
+IMP_WT_PIPE_LOG_REG_PARAMS = {"clf__"+k: v for k, v in IMP_WT_LOG_REG_PARAMS.items()}
+
+@pytest.mark.parametrize("metric,greater_is_better,needs_proba,estimator,estimator_params,sample_wt", [
+    (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [1, 999999, 1, 999999]),
+    (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [100000, 200000, 100000, 200000]),
+    (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [100000, 100000, 100000, 100000]),
+    (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [200000, 100000, 200000, 100000]),
+    (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [999999, 1, 999999, 1]),
+    (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [2000000, 1000000, 1, 999999]),
+    (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [4000000, 2000000, 2, 2*999999]),
+    # ZEFR Use-Case. Delete this note if making this into more general release.
+    (accuracy_score, True, False, LOG_REG_PIPELINE, IMP_WT_PIPE_LOG_REG_PARAMS, [2000000, 1000000, 1, 999999]),
+    (log_loss, False, True, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [2500000, 500000, 200000, 100000]),
+    (brier_score_loss, False, True, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [2500000, 500000, 200000, 100000]),
 ])
 def test_sample_weight_cross_validation(
-        metric, greater_is_better, needs_proba, sample_wt):
+        metric, greater_is_better, needs_proba, estimator, estimator_params, sample_wt):
     # Test that cross validation properly uses sample_weight from fit_params
     # when calculating the desired metrics.
+    LOG_REG_DEC_TOL = 5 # Tolerance for decimal points in logisitic regression
 
+    # this is train and predict at once
     def train(y, norm1_wt, needs_proba):
         m = [np.dot(y, norm1_wt)] * len(y)
         return m if needs_proba else np.round(m)
@@ -942,16 +1039,21 @@ def test_sample_weight_cross_validation(
 
     # There's nothing special about GridSearchCV. Could be RandomizedSearchCV.
     gscv = dcv.GridSearchCV(
-        LogisticRegression(),
-        {"random_state": [15432], "solver": ["lbfgs"]},  # parameters
+        estimator,
+        estimator_params,  # parameters
         scoring=make_scorer(metric, greater_is_better, needs_proba),
         cv=2,
         return_train_score=True
     )
 
-    gscv.fit(X, y, sample_weight=sample_weight)
+    if isinstance(estimator, Pipeline):
+        gscv.fit(X, y, clf__sample_weight=sample_weight)
+    else:
+        gscv.fit(X, y, sample_weight=sample_weight)
+
     best_score = gscv.best_score_
-    np.testing.assert_almost_equal(exp_cv_score, best_score, decimal=5)
+
+    np.testing.assert_almost_equal(exp_cv_score, best_score, decimal=LOG_REG_DEC_TOL)
 
     # Assert that sample_weight for each fold is normalized by the L1 norm.
     np.testing.assert_almost_equal(np.sum(norm1_wt_f1), 1)

@@ -3,10 +3,10 @@ import dask.dataframe as dd
 import numpy as np
 import pandas as pd
 import pytest
-import six
 from sklearn.datasets import fetch_20newsgroups, make_regression
 
 import dask_ml.model_selection
+from dask_ml._compat import DASK_2130
 
 X, y = make_regression(n_samples=110, n_features=5)
 dX = da.from_array(X, 50)
@@ -20,7 +20,7 @@ def test_20_newsgroups():
     X_train, X_test, y_train, y_test = r
     for X in [X_train, X_test]:
         assert isinstance(X, list)
-        assert isinstance(X[0], six.string_types)
+        assert isinstance(X[0], str)
     for y in [y_train, y_test]:
         assert isinstance(y, np.ndarray)
         assert y.dtype == int
@@ -68,10 +68,9 @@ def test_blockwise_shufflesplit_rng():
 
     # Test that splitting is reproducible
     n_splits = 2
-
     split1 = dask_ml.model_selection.ShuffleSplit(n_splits=n_splits, random_state=0)
-
     split2 = dask_ml.model_selection.ShuffleSplit(n_splits=n_splits, random_state=0)
+
     for (train_1, test_1), (train_2, test_2) in zip(split1.split(dX), split2.split(dX)):
         da.utils.assert_eq(train_1, train_2)
         da.utils.assert_eq(test_1, test_2)
@@ -119,9 +118,7 @@ def test_kfold(shuffle):
 
 
 def test_train_test_split():
-    X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(
-        dX, dy, random_state=10
-    )
+    X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(dX, dy)
 
     assert len(X_train) == 99
     assert len(X_test) == 11
@@ -134,6 +131,36 @@ def test_train_test_split_test_size():
     X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(
         dX, dy, random_state=10, test_size=0.8
     )
+
+
+def test_train_test_split_shuffle_array():
+    with pytest.raises(NotImplementedError):
+        dask_ml.model_selection.train_test_split(dX, dy, shuffle=False)
+
+
+@pytest.mark.xfail(
+    not DASK_2130, reason="DataFrame blockwise shuffling implemented in dask2.13.0."
+)
+def test_train_test_split_shuffle_dataframe(xy_classification_pandas):
+    X, y = xy_classification_pandas
+    X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(
+        X, y, random_state=42, shuffle=True
+    )
+    with pytest.raises(AssertionError):
+        np.testing.assert_array_equal(X_train.index, sorted(X_train.index))
+
+    X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(
+        X, y, random_state=42, shuffle=False
+    )
+    np.testing.assert_array_equal(X_train.index, sorted(X_train.index))
+
+
+def test_train_test_split_blockwise_dataframe(xy_classification_pandas):
+    X, y = xy_classification_pandas
+    with pytest.raises(NotImplementedError):
+        dask_ml.model_selection.train_test_split(
+            X, y, random_state=42, shuffle=False, blockwise=False
+        )
 
 
 @pytest.mark.parametrize(
@@ -166,25 +193,50 @@ def test_complement():
     assert test_size == 0.2
 
 
-def test_train_test_split_dask_dataframe(xy_classification_pandas):
+@pytest.mark.parametrize(
+    "train_size, test_size", [(None, None), (0.9, None), (None, 0.1), (0.9, 0.1)]
+)
+def test_train_test_split_dask_dataframe(
+    xy_classification_pandas, train_size, test_size
+):
     X, y = xy_classification_pandas
+    kwargs = {"shuffle": True} if DASK_2130 else {}
 
     X_train, X_test, y_train, y_test = dask_ml.model_selection.train_test_split(
-        X, y, train_size=0.25, test_size=0.75
+        X, y, train_size=train_size, test_size=test_size, **kwargs
     )
     assert isinstance(X_train, dd.DataFrame)
     assert isinstance(y_train, dd.Series)
 
+    assert (y_train.size + y_test.size).compute() == len(y)
+
 
 def test_train_test_split_dask_dataframe_rng(xy_classification_pandas):
     X, y = xy_classification_pandas
+    kwargs = {"shuffle": True} if DASK_2130 else {}
 
     split1 = dask_ml.model_selection.train_test_split(
-        X, y, train_size=0.25, test_size=0.75, random_state=0
+        X, y, train_size=0.25, test_size=0.75, random_state=0, **kwargs
     )
 
     split2 = dask_ml.model_selection.train_test_split(
-        X, y, train_size=0.25, test_size=0.75, random_state=0
+        X, y, train_size=0.25, test_size=0.75, random_state=0, **kwargs
     )
     for a, b in zip(split1, split2):
         dd.utils.assert_eq(a, b)
+
+
+def test_split_mixed():
+    y_series = dd.from_dask_array(dy)
+
+    with pytest.raises(TypeError, match="convert_mixed_types"):
+        dask_ml.model_selection.train_test_split(dX, y_series)
+
+    expected = dask_ml.model_selection.train_test_split(dX, dy, random_state=0)
+    results = dask_ml.model_selection.train_test_split(
+        dX, y_series, random_state=0, convert_mixed_types=True
+    )
+
+    assert len(expected) == len(results)
+    for a, b in zip(expected, results):
+        da.utils.assert_eq(a, b)
