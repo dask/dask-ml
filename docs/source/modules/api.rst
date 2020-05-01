@@ -54,6 +54,7 @@ provides the following:
    model_selection.IncrementalSearchCV
    model_selection.HyperbandSearchCV
    model_selection.SuccessiveHalvingSearchCV
+   model_selection.InverseDecaySearchCV
 
 
 :mod:`dask_ml.linear_model`: Generalized Linear Models

@@ -1181,6 +1181,14 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             train/test set.
         **fit_params
             Parameters passed to the ``fit`` method of the estimator
+
+        Notes
+        -----
+        This class performs best when each cross validation split fits into
+        RAM because ``fit`` is called on each cross validation split. For
+        example, if using :class:`~sklearn.model_selection.KFold` with k
+        chunks, a :math:`1 - 1/k` fraction of the dataset should fit into RAM.
+
         """
         estimator = self.estimator
         from .._compat import _check_multimetric_scoring

@@ -327,6 +327,7 @@ def test_params_passed():
     assert len(set(seeds)) == len(seeds)
 
 
+@pytest.mark.filterwarnings("ignore:decay_rate")
 @gen_cluster(client=True, timeout=5000)
 def test_same_random_state_same_params(c, s, a, b):
     # This makes sure parameters are sampled correctly when random state is

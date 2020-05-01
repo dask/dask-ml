@@ -660,6 +660,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         **fit_params
             Additional partial fit keyword arguments for the estimator.
         """
+
         if self.verbose:
             h = logging.StreamHandler(sys.stdout)
             context = LoggingContext(logger, level=logging.INFO, handler=h)
@@ -701,19 +702,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
     model on many hyper-parameters on a small amount of data, and then only
     continues training those models that seem to be performing well.
 
-    The number of actively trained hyper-parameter combinations decays
-    with an inverse decay given by the initial number of parameters and the
-    decay rate:
-
-    .. code-block:: pytho
-
-        n_models = n_initial_parameters * (n_batches ** -decay_rate)
-
-    With ``decay_rate=1``, this class is a contiuous time approximation to
-    the quantized inverse decay in
-    :class:`~dask_ml.model_selection.SuccessiveHalvingSearchCV`.
-
-    Usage details are in the :ref:`User Guide <hyperparameter.incremental>`.
+    See the :ref:`User Guide <hyperparameter.incremental>` for more.
 
     Parameters
     ----------
@@ -738,14 +727,17 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
     decay_rate : float, default 1.0
         How quickly to decrease the number partial future fit calls.
-        Higher `decay_rate` will result in lower training times, at the cost
-        of worse models.
+
+        .. deprecated:: v1.4.0
+           This implementation of an adaptive algorithm that uses
+           ``decay_rate`` has moved to
+           :class:`~dask_ml.model_selection.InverseDecaySearchCV`.
 
     patience : int, default False
         If specified, training stops when the score does not increase by
         ``tol`` after ``patience`` calls to ``partial_fit``. Off by default.
 
-    fits_per_scores : int, optional, default=1
+    fits_per_score : int, optional, default=1
         If ``patience`` is used the maximum number of ``partial_fit`` calls
         between ``score`` calls.
 
@@ -919,6 +911,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
     For example, setting ``tol=0`` and ``patience=2`` means training will stop
     after two consecutive calls to ``model.partial_fit`` without improvement,
     or when ``max_iter`` total calls to ``model.parital_fit`` are reached.
+
     """
 
     def __init__(
@@ -926,7 +919,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         estimator,
         parameters,
         n_initial_parameters=10,
-        decay_rate=1.0,
+        decay_rate=None,
         test_size=None,
         patience=False,
         tol=0.001,
@@ -958,6 +951,25 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         )
 
     def fit(self, X, y=None, **fit_params):
+        if "IncrementalSearchCV" in str(type(self)):
+            if self.decay_rate is None:
+                warn(
+                    "decay_rate has been deprecated since Dask-ML v1.4.0.\n\n"
+                    "    * Use InverseDecaySearchCV for use of `decay_rate`\n"
+                    "    * To remove this warning, use this code:\n\n"
+                    "    >>> search = IncrementalSearchCV(...)\n"
+                    "    >>> import warnings\n"
+                    "    >>> with warnings.catch_warnings():\n"
+                    "    >>>     warnings.filterwarnings('ignore', "
+                    "category=FutureWarning, module='dask_ml')\n"
+                    "    >>>     search.fit(X, y, **fit_params)\n",
+                    FutureWarning,
+                )
+            else:
+                warn(
+                    "decay_rate is deprecated in InverseDecaySearchCV. "
+                    f"Use InverseDecaySearchCV to use decay_rate={self.decay_rate}",
+                )
         if self.scores_per_fit is not None and self.fits_per_score != 1:
             msg = "Specify fits_per_score, not scores_per_fit"
             raise ValueError(msg)
@@ -987,7 +999,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
                 "not patience={} of type {}"
             )
             raise ValueError(msg.format(self.patience, type(self.patience)))
-        if not isinstance(self.patience, bool) and self.patience <= 1:
+        if self.patience and self.patience <= 1:  # patience=0 => don't use patience
             raise ValueError(
                 "patience={}<=1 will always detect a plateau. "
                 "To resolve this,\n\n    * set patience >= 2"
@@ -1021,42 +1033,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         return out
 
     def _adapt(self, info):
-        # First, have an adaptive algorithm
-        if self.n_initial_parameters == "grid":
-            start = len(ParameterGrid(self.parameters))
-        else:
-            start = self.n_initial_parameters
-
-        def inverse(time):
-            """ Decrease target number of models inversely with time """
-            return int(start / (1 + time) ** self.decay_rate)
-
-        example = toolz.first(info.values())
-        time_step = example[-1]["partial_fit_calls"]
-
-        current_time_step = time_step + 1
-        next_time_step = current_time_step
-
-        if inverse(current_time_step) == 0:
-            # we'll never get out of here
-            next_time_step = 1
-
-        while inverse(current_time_step) == inverse(next_time_step) and (
-            self.decay_rate
-            and not self.patience
-            or next_time_step - current_time_step < self.fits_per_score
-        ):
-            next_time_step += 1
-
-        target = max(1, inverse(next_time_step))
-        best = toolz.topk(target, info, key=lambda k: info[k][-1]["score"])
-
-        if len(best) == 1:
-            [best] = best
-            return {best: 0}
-        steps = next_time_step - current_time_step
-        instructions = {b: steps for b in best}
-        return instructions
+        return {k: self.fits_per_score for k in info}
 
     def _stop_on_plateau(self, instructions, info):
         # Second, stop on plateau if any models have already converged
@@ -1081,3 +1058,275 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
             else:
                 out[k] = steps
         return out
+
+
+class InverseDecaySearchCV(IncrementalSearchCV):
+    """
+    Incrementally search for hyper-parameters on models that support partial_fit
+
+    This incremental hyper-parameter optimization class starts training the
+    model on many hyper-parameters on a small amount of data, and then only
+    continues training those models that seem to be performing well.
+
+    This class will decay the number of parameters over time. At time step
+    ``k``, this class will retain ``1 / (k + 1)`` fraction of the highest
+    performing models.
+
+    Parameters
+    ----------
+    estimator : estimator object.
+        A object of that type is instantiated for each initial hyperparameter
+        combination. This is assumed to implement the scikit-learn estimator
+        interface. Either estimator needs to provide a `score`` function,
+        or ``scoring`` must be passed. The estimator must implement
+        ``partial_fit``, ``set_params``, and work well with ``clone``.
+
+    parameters : dict
+        Dictionary with parameters names (string) as keys and distributions
+        or lists of parameters to try. Distributions must provide a ``rvs``
+        method for sampling (such as those from scipy.stats.distributions).
+        If a list is given, it is sampled uniformly.
+
+    n_initial_parameters : int, default=10
+        Number of parameter settings that are sampled.
+        This trades off runtime vs quality of the solution.
+
+        Alternatively, you can set this to ``"grid"`` to do a full grid search.
+
+    patience : int, default False
+        If specified, training stops when the score does not increase by
+        ``tol`` after ``patience`` calls to ``partial_fit``. Off by default.
+
+    fits_per_scores : int, optional, default=1
+        If ``patience`` is used the maximum number of ``partial_fit`` calls
+        between ``score`` calls.
+
+    scores_per_fit : int, default 1
+        If ``patience`` is used the maximum number of ``partial_fit`` calls
+        between ``score`` calls.
+
+    tol : float, default 0.001
+        The required level of improvement to consider stopping training on
+        that model. The most recent score must be at at most ``tol`` better
+        than the all of the previous ``patience`` scores for that model.
+        Increasing ``tol`` will tend to reduce training time, at the cost
+        of worse models.
+
+    max_iter : int, default 100
+        Maximum number of partial fit calls per model.
+
+    test_size : float
+        Fraction of the dataset to hold out for computing test scores.
+        Defaults to the size of a single partition of the input training set
+
+        .. note::
+
+           The training dataset should fit in memory on a single machine.
+           Adjust the ``test_size`` parameter as necessary to achieve this.
+
+    random_state : int, RandomState instance or None, optional, default: None
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`.
+
+    scoring : string, callable, list/tuple, dict or None, default: None
+        A single string (see :ref:`scoring_parameter`) or a callable
+        (see :ref:`scoring`) to evaluate the predictions on the test set.
+
+        For evaluating multiple metrics, either give a list of (unique) strings
+        or a dict with names as keys and callables as values.
+
+        NOTE that when using custom scorers, each scorer should return a single
+        value. Metric functions returning a list/array of values can be wrapped
+        into multiple scorers that return one value each.
+
+        See :ref:`multimetric_grid_search` for an example.
+
+        If None, the estimator's default scorer (if available) is used.
+
+    verbose : bool, float, int, optional, default: False
+        If False (default), don't print logs (or pipe them to stdout). However,
+        standard logging will still be used.
+
+        If True, print logs and use standard logging.
+
+        If float, print/log approximately ``verbose`` fraction of the time.
+
+    prefix : str, optional, default=""
+        While logging, add ``prefix`` to each message.
+
+    decay_rate : float, default 1.0
+        How quickly to decrease the number partial future fit calls.
+        Higher `decay_rate` will result in lower training times, at the cost
+        of worse models.
+
+        The default ``decay_rate=1.0`` is chosen because it has some theoritical
+        motivation [1]_.
+
+    Attributes
+    ----------
+    cv_results_ : dict of np.ndarrays
+        This dictionary has keys
+
+        * ``mean_partial_fit_time``
+        * ``mean_score_time``
+        * ``std_partial_fit_time``
+        * ``std_score_time``
+        * ``test_score``
+        * ``rank_test_score``
+        * ``model_id``
+        * ``partial_fit_calls``
+        * ``params``
+        * ``param_{key}``, where ``key`` is every key in ``params``.
+
+        The values in the ``test_score`` key correspond to the last score a model
+        received on the hold out dataset. The key ``model_id`` corresponds with
+        ``history_``. This dictionary can be imported into Pandas.
+
+    model_history_ : dict of lists of dict
+        A dictionary of each models history. This is a reorganization of
+        ``history_``: the same information is present but organized per model.
+
+        This data has the structure  ``{model_id: hist}`` where ``hist`` is a
+        subset of ``history_`` and ``model_id`` are model identifiers.
+
+    history_ : list of dicts
+        Information about each model after each ``partial_fit`` call. Each dict
+        the keys
+
+        * ``partial_fit_time``
+        * ``score_time``
+        * ``score``
+        * ``model_id``
+        * ``params``
+        * ``partial_fit_calls``
+        * ``elapsed_wall_time``
+
+        The key ``model_id`` corresponds to the ``model_id`` in ``cv_results_``.
+        This list of dicts can be imported into Pandas.
+
+    best_estimator_ : BaseEstimator
+        The model with the highest validation score among all the models
+        retained by the "inverse decay" algorithm.
+
+    best_score_ : float
+        Score achieved by ``best_estimator_`` on the vaidation set after the
+        final call to ``partial_fit``.
+
+    best_index_ : int
+        Index indicating which estimator in ``cv_results_`` corresponds to
+        the highest score.
+
+    best_params_ : dict
+        Dictionary of best parameters found on the hold-out data.
+
+    scorer_ :
+        The function used to score models, which has a call signature of
+        ``scorer_(estimator, X, y)``.
+
+    n_splits_ : int
+        Number of cross validation splits.
+
+    multimetric_ : bool
+        Whether this cross validation search uses multiple metrics.
+
+    Notes
+    -----
+    When ``decay_rate==1``, this class approximates the
+    number of ``partial_fit`` calls that :class:`SuccesiveHalvingSearchCV`
+    performs. If ``n_initial_parameters`` is configured properly with
+    ``decay_rate=1``, it's possible this class will mirror the most aggressive
+    bracket of :class:`HyperbandSearchCV`. This might yield good results
+    and/or find good models, but is untested.
+
+    References
+    ----------
+    .. [1] Li, L., Jamieson, K., DeSalvo, G., Rostamizadeh, A., & Talwalkar, A.
+           (2017). Hyperband: A novel bandit-based approach to hyperparameter
+           optimization. The Journal of Machine Learning Research, 18(1),
+           6765-6816. http://www.jmlr.org/papers/volume18/16-558/16-558.pdf
+
+    """
+
+    def __init__(
+        self,
+        estimator,
+        parameters,
+        n_initial_parameters=10,
+        test_size=None,
+        patience=False,
+        tol=0.001,
+        fits_per_score=1,
+        max_iter=100,
+        random_state=None,
+        scoring=None,
+        verbose=False,
+        prefix="",
+        decay_rate=1.0,
+    ):
+        self.decay_rate = decay_rate
+        super(InverseDecaySearchCV, self).__init__(
+            estimator,
+            parameters,
+            n_initial_parameters=n_initial_parameters,
+            test_size=test_size,
+            patience=patience,
+            tol=tol,
+            fits_per_score=fits_per_score,
+            max_iter=max_iter,
+            random_state=random_state,
+            scoring=scoring,
+            verbose=verbose,
+            prefix=prefix,
+            decay_rate=decay_rate,
+        )
+
+    def _adapt(self, info):
+        # First, have an adaptive algorithm
+        start = self.n_initial_parameters
+        example = toolz.first(info.values())
+        pf_calls = example[-1]["partial_fit_calls"]
+
+        def inverse(time):
+            """ Decrease target number of models inversely with time/
+            partial_fit_calls
+
+            This function is congirued so inverse(max_iter) == 2.
+            """
+            time = np.linspace(1, self.n_initial_parameters / 2, num=self.max_iter)
+            n_models = start / (time ** self.decay_rate)
+            n_models = np.round(n_models).astype(int)
+            idx = pf_calls - 1
+            if idx < len(n_models):
+                return n_models[idx]
+            return int(2 / self.max_iter)
+
+        current_n_models = len(info)
+        for k in itertools.count():
+            if k < self.fits_per_score:
+                continue
+            n_models = inverse(pf_calls + k)
+
+            # Has the number of models that are retained changed? If so, break
+            if current_n_models != n_models or k >= self.fits_per_score:
+                # don't need to worry about patience; it's handled by _additional_calls
+                break
+
+        next_pf_calls = pf_calls + k
+
+        if inverse(next_pf_calls) == 0:
+            best = toolz.topk(1, info, key=lambda k: info[k][-1]["score"])
+            [best] = best
+            return {best: 0}
+
+        target = max(1, n_models)
+        best = toolz.topk(target, info, key=lambda k: info[k][-1]["score"])
+
+        if len(best) == 1:
+            [best] = best
+            return {best: 0}
+
+        steps = next_pf_calls - pf_calls
+        instructions = {b: steps for b in best}
+        return instructions
