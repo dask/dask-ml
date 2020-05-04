@@ -37,7 +37,7 @@ from dask_ml.utils import ConstantFunction
 pytestmark = [
     pytest.mark.skipif(not DISTRIBUTED_2_5_0, reason="hangs"),
     pytest.mark.filterwarnings("ignore:decay_rate"),
-]
+]  # decay_rate warnings are tested in test_incremental_warns.py
 
 
 @gen_cluster(client=True, timeout=500)
@@ -421,7 +421,9 @@ def test_numpy_array(c, s, a, b):
 
     search = IncrementalSearchCV(model, params, n_initial_parameters=10, max_iter=10)
     yield search.fit(X, y, classes=[0, 1])
-    assert search.best_score_ > 0  # smoke test
+
+    # smoke test to ensure search completed successfully
+    assert search.best_score_ > 0
 
 
 @gen_cluster(client=True)
