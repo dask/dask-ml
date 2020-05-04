@@ -2,7 +2,7 @@ import contextlib
 import datetime
 import functools
 import logging
-from collections import Sequence
+from collections.abc import Sequence
 from multiprocessing import cpu_count
 from numbers import Integral
 from timeit import default_timer as tic
