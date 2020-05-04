@@ -88,7 +88,7 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
         self.use_categorical = use_categorical
         super(LabelEncoder, self).__init__()
 
-    def _check_array(self, y: SeriesType):
+    def _check_array(self, y: Union[ArrayLike, SeriesType]):
         if isinstance(y, (dd.Series, pd.DataFrame)):
             y = y.squeeze()
 
@@ -111,7 +111,7 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
                 y = y.to_dask_array(lengths=True)
         return y
 
-    def fit(self, y: SeriesType) -> "LabelEncoder":
+    def fit(self, y: Union[ArrayLike, SeriesType]) -> "LabelEncoder":
         y = self._check_array(y)
 
         if isinstance(y, da.Array):
@@ -239,7 +239,6 @@ def _construct(x: np.ndarray, categories: np.ndarray) -> scipy.sparse.csr_matrix
            [0., 1.],
            [1., 0.]])
     """
-    # type : (np.ndarray, np.ndarray) -> scipy.sparse.csr_matrix
     data = np.ones(len(x))
     rows = np.arange(len(x))
     columns = x.ravel()
@@ -325,7 +324,7 @@ def _encode(values, uniques=None, encode=False):
         raise ValueError("Unknown type {}".format(type(values)))
 
 
-def _is_categorical(y: SeriesType) -> bool:
+def _is_categorical(y: Union[ArrayLike, SeriesType]) -> bool:
     return isinstance(y, (dd.Series, pd.Series)) and pd.api.types.is_categorical_dtype(
         y
     )

@@ -70,12 +70,12 @@ class BlockTransformer(BaseEstimator, TransformerMixin):
         self.kw_args = kw_args
 
     def fit(
-        self, X: Union[ArrayLike, DataFrameType], y: SeriesType = None
+        self, X: Union[ArrayLike, DataFrameType], y: Union[ArrayLike, SeriesType] = None
     ) -> "BlockTransformer":
         return self
 
     def transform(
-        self, X: Union[ArrayLike, DataFrameType], y: SeriesType = None
+        self, X: Union[ArrayLike, DataFrameType], y: Union[ArrayLike, SeriesType] = None
     ) -> Union[ArrayLike, DataFrameType]:
         kwargs = self.kw_args if self.kw_args else {}
 

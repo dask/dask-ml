@@ -147,7 +147,9 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
         return super().get_params(deep)
 
     def fit(
-        self, X: Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None
+        self,
+        X: Union[ArrayLike, DataFrameType],
+        y: Optional[Union[ArrayLike, SeriesType]] = None,
     ) -> "OneHotEncoder":
         if self.handle_unknown == "ignore":
             raise NotImplementedError("handle_unkown='ignore' is not implemented yet.")
@@ -189,7 +191,7 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
                 )
 
         self.categories_ = []
-        self.dtypes_: List[Optional[pd.Categorical]] = []
+        self.dtypes_: List[Optional[pd.CategoricalDtype]] = []
 
         if is_array:
             for i in range(n_features):

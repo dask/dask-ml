@@ -51,7 +51,9 @@ class StandardScaler(sklearn.preprocessing.StandardScaler):
     __doc__ = sklearn.preprocessing.StandardScaler.__doc__
 
     def fit(
-        self, X: Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None
+        self,
+        X: Union[ArrayLike, DataFrameType],
+        y: Optional[Union[ArrayLike, SeriesType]] = None,
     ) -> "StandardScaler":
         self._reset()
         attributes = OrderedDict()
@@ -76,14 +78,16 @@ class StandardScaler(sklearn.preprocessing.StandardScaler):
         return self
 
     def partial_fit(
-        self, X: Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None
+        self,
+        X: Union[ArrayLike, DataFrameType],
+        y: Optional[Union[ArrayLike, SeriesType]] = None,
     ):
         raise NotImplementedError()
 
     def transform(
         self,
         X: Union[ArrayLike, DataFrameType],
-        y: Optional[SeriesType] = None,
+        y: Optional[Union[ArrayLike, SeriesType]] = None,
         copy: Optional[bool] = None,
     ) -> Union[ArrayLike, DataFrameType]:
         if self.with_mean:
@@ -107,7 +111,9 @@ class MinMaxScaler(sklearn.preprocessing.MinMaxScaler):
     __doc__ = sklearn.preprocessing.MinMaxScaler.__doc__
 
     def fit(
-        self, X: Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None
+        self,
+        X: Union[ArrayLike, DataFrameType],
+        y: Optional[Union[ArrayLike, SeriesType]] = None,
     ) -> "MinMaxScaler":
         self._reset()
         attributes = OrderedDict()
@@ -138,14 +144,16 @@ class MinMaxScaler(sklearn.preprocessing.MinMaxScaler):
         return self
 
     def partial_fit(
-        self, X: Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None
+        self,
+        X: Union[ArrayLike, DataFrameType],
+        y: Optional[Union[ArrayLike, SeriesType]] = None,
     ):
         raise NotImplementedError()
 
     def transform(
         self,
         X: Union[ArrayLike, DataFrameType],
-        y: Optional[SeriesType] = None,
+        y: Optional[Union[ArrayLike, SeriesType]] = None,
         copy: Optional[bool] = None,
     ) -> Union[ArrayLike, DataFrameType]:
         # Workaround for https://github.com/dask/dask/issues/2840
@@ -159,7 +167,7 @@ class MinMaxScaler(sklearn.preprocessing.MinMaxScaler):
     def inverse_transform(
         self,
         X: Union[ArrayLike, DataFrameType],
-        y: Optional[SeriesType] = None,
+        y: Optional[Union[ArrayLike, SeriesType]] = None,
         copy: Optional[bool] = None,
     ) -> Union[ArrayLike, DataFrameType]:
         if not hasattr(self, "scale_"):
@@ -190,7 +198,9 @@ class RobustScaler(sklearn.preprocessing.RobustScaler):
         return X
 
     def fit(
-        self, X: Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None
+        self,
+        X: Union[ArrayLike, DataFrameType],
+        y: Optional[Union[ArrayLike, SeriesType]] = None,
     ) -> "RobustScaler":
         q_min, q_max = self.quantile_range
         if not 0 <= q_min <= q_max <= 100:
@@ -471,7 +481,9 @@ class Categorizer(BaseEstimator, TransformerMixin):
             )
         return X
 
-    def fit(self, X: DataFrameType, y: Optional[SeriesType] = None) -> "Categorizer":
+    def fit(
+        self, X: DataFrameType, y: Optional[Union[ArrayLike, SeriesType]] = None
+    ) -> "Categorizer":
         """Find the categorical columns.
 
         Parameters
@@ -525,7 +537,9 @@ class Categorizer(BaseEstimator, TransformerMixin):
         df = X.categorize(columns=columns, index=False)
         return self._fit(df)
 
-    def transform(self, X: DataFrameType, y=None) -> DataFrameType:
+    def transform(
+        self, X: DataFrameType, y: Optional[Union[ArrayLike, SeriesType]] = None
+    ) -> DataFrameType:
         """Transform the columns in ``X`` according to ``self.categories_``.
 
         Parameters
@@ -642,7 +656,9 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
         self.columns = columns
         self.drop_first = drop_first
 
-    def fit(self, X: DataFrameType, y: Optional[SeriesType] = None) -> "DummyEncoder":
+    def fit(
+        self, X: DataFrameType, y: Optional[Union[ArrayLike, SeriesType]] = None
+    ) -> "DummyEncoder":
         """Determine the categorical columns to be dummy encoded.
 
         Parameters
@@ -692,7 +708,7 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
         return self
 
     def transform(
-        self, X: DataFrameType, y: Optional[SeriesType] = None
+        self, X: DataFrameType, y: Optional[Union[ArrayLike, SeriesType]] = None
     ) -> DataFrameType:
         """Dummy encode the categorical columns in X
 
@@ -878,7 +894,9 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
     def __init__(self, columns=None):
         self.columns = columns
 
-    def fit(self, X: DataFrameType, y: SeriesType = None) -> "OrdinalEncoder":
+    def fit(
+        self, X: DataFrameType, y: Optional[Union[ArrayLike, SeriesType]] = None
+    ) -> "OrdinalEncoder":
         """Determine the categorical columns to be encoded.
 
         Parameters
@@ -911,7 +929,9 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
 
         return self
 
-    def transform(self, X: DataFrameType, y: SeriesType = None) -> DataFrameType:
+    def transform(
+        self, X: DataFrameType, y: Optional[Union[ArrayLike, SeriesType]] = None
+    ) -> DataFrameType:
         """Ordinal encode the categorical columns in X
 
         Parameters
@@ -1037,7 +1057,9 @@ class PolynomialFeatures(sklearn.preprocessing.PolynomialFeatures):
         self.preserve_dataframe = preserve_dataframe
 
     def fit(
-        self, X: Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None
+        self,
+        X: Union[ArrayLike, DataFrameType],
+        y: Optional[Union[ArrayLike, SeriesType]] = None,
     ) -> "PolynomialFeatures":
         self._transformer = sklearn.preprocessing.PolynomialFeatures(
             degree=self.degree,
@@ -1056,7 +1078,9 @@ class PolynomialFeatures(sklearn.preprocessing.PolynomialFeatures):
         return self
 
     def transform(
-        self, X: Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None
+        self,
+        X: Union[ArrayLike, DataFrameType],
+        y: Optional[Union[ArrayLike, SeriesType]] = None,
     ) -> Union[ArrayLike, DataFrameType]:
         if isinstance(X, da.Array):
             n_cols = len(self._transformer.get_feature_names())
