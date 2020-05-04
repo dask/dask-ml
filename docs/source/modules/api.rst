@@ -56,6 +56,23 @@ provides the following:
    model_selection.SuccessiveHalvingSearchCV
 
 
+:mod:`dask_ml.ensemble`: Ensemble Methods
+=========================================
+
+.. automodule:: dask_ml.ensemble
+   :no-members:
+   :no-inherited-members:
+
+.. currentmodule:: dask_ml
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   ensemble.BlockwiseVotingClassifier
+   ensemble.BlockwiseVotingRegressor
+
+
 :mod:`dask_ml.linear_model`: Generalized Linear Models
 ======================================================
 
