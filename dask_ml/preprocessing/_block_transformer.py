@@ -64,7 +64,13 @@ class BlockTransformer(BaseEstimator, TransformerMixin):
     Dask Name: hash_pandas_object, 60 tasks
     """
 
-    def __init__(self, func: Callable, *, validate: bool = False, **kw_args: Any):
+    def __init__(
+        self,
+        func: Callable[..., Union[ArrayLike, DataFrameType]],
+        *,
+        validate: bool = False,
+        **kw_args: Any
+    ):
         self.func = func
         self.validate = validate
         self.kw_args = kw_args
