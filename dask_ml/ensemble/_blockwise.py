@@ -6,6 +6,7 @@ import sklearn.base
 from sklearn.utils.validation import check_is_fitted
 
 from ..base import ClassifierMixin, RegressorMixin
+from ..utils import check_array
 
 
 class BlockwiseBase(sklearn.base.BaseEstimator):
@@ -13,7 +14,12 @@ class BlockwiseBase(sklearn.base.BaseEstimator):
         self.estimator = estimator
 
     def _check_array(self, X):
-        return X
+        return check_array(
+            X,
+            accept_dask_dataframe=True,
+            accept_unknown_chunks=True,
+            preserve_pandas_dataframe=True,
+        )
 
     def fit(self, X, y, **kwargs):
         X = self._check_array(X)
@@ -121,7 +127,8 @@ class BlockwiseVotingClassifier(ClassifierMixin, BlockwiseBase):
         self.classes_ = np.array(classes)
 
     def predict(self, X):
-        check_is_fitted(self)
+        check_is_fitted(self, attributes=["estimators_"])
+        X = self._check_array(X)
         # TODO: check for just row-wise partition!
         if self.voting == "soft":
             maj = np.argmax(self.predict_proba(X), axis=1)
@@ -142,7 +149,8 @@ class BlockwiseVotingClassifier(ClassifierMixin, BlockwiseBase):
         return self._predict_proba
 
     def _predict_proba(self, X):
-        check_is_fitted(self)
+        check_is_fitted(self, attributes=["estimators_"])
+        X = self._check_array(X)
         avg = np.average(self._collect_probas(X), axis=0)
         return avg
 
@@ -206,7 +214,7 @@ class BlockwiseVotingRegressor(RegressorMixin, BlockwiseBase):
     """
 
     def predict(self, X):
-        check_is_fitted(self)
+        check_is_fitted(self, attributes=["estimators_"])
         return np.average(self._predict(X), axis=1)
 
 

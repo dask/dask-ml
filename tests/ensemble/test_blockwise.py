@@ -13,7 +13,7 @@ class TestBlockwiseVotingClassifier:
     def test_hard_voting_array(self):
         X, y = dask_ml.datasets.make_classification(chunks=25)
         clf = dask_ml.ensemble.BlockwiseVotingClassifier(
-            sklearn.linear_model.LogisticRegression(), classes=[0, 1],
+            sklearn.linear_model.LogisticRegression(solver="lbfgs"), classes=[0, 1],
         )
         clf.fit(X, y)
         assert len(clf.estimators_) == 4
@@ -44,6 +44,17 @@ class TestBlockwiseVotingClassifier:
         assert result.shape == (len(y),)
         score2 = clf.score(X3, y3)
         assert score == score2
+
+    def test_bad_chunking_raises(self):
+        X = da.ones((10, 5), chunks=3)
+        y = da.ones(10, chunks=3)
+        clf = dask_ml.ensemble.BlockwiseVotingClassifier(
+            sklearn.linear_model.LogisticRegression(solver="lbfgs"), classes=[0, 1],
+        )
+
+        with pytest.raises(TypeError):
+            # this should *really* be a ValueError...
+            clf.fit(X, y)
 
     def test_hard_voting_frame(self):
         X, y = dask_ml.datasets.make_classification(chunks=25)
@@ -117,7 +128,9 @@ class TestBlockwiseVotingClassifier:
         y = dd.from_dask_array(y)
 
         clf = dask_ml.ensemble.BlockwiseVotingClassifier(
-            sklearn.linear_model.LogisticRegression(), voting="soft", classes=[0, 1],
+            sklearn.linear_model.LogisticRegression(solver="lbfgs"),
+            voting="soft",
+            classes=[0, 1],
         )
         clf.fit(X, y)
         assert len(clf.estimators_) == 4
@@ -159,7 +172,7 @@ class TestBlockwiseVotingClassifier:
     def test_no_classes_raises(self):
         X, y = dask_ml.datasets.make_classification(chunks=25)
         clf = dask_ml.ensemble.BlockwiseVotingClassifier(
-            sklearn.linear_model.LogisticRegression(),
+            sklearn.linear_model.LogisticRegression(solver="lbfgs"),
         )
         with pytest.raises(ValueError, match="classes"):
             clf.fit(X, y)
