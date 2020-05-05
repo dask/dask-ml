@@ -7,8 +7,8 @@ import dask_ml  # noqa
 
 
 def test_normalize_estimator():
-    m1 = sklearn.linear_model.LogisticRegression()
-    m2 = sklearn.linear_model.LogisticRegression()
+    m1 = sklearn.linear_model.LogisticRegression(solver="lbfgs")
+    m2 = sklearn.linear_model.LogisticRegression(solver="lbfgs")
 
     assert dask.base.tokenize(m1) == dask.base.tokenize(m2)
     m1.fit(*sklearn.datasets.make_classification())
@@ -19,7 +19,7 @@ def test_normalize_estimator():
 
 def test_normalize_estimator_cv():
     param_grid = {"C": [0.01]}
-    a = sklearn.linear_model.LogisticRegression(random_state=0)
+    a = sklearn.linear_model.LogisticRegression(random_state=0, solver="lbfgs")
     m1 = sklearn.model_selection.GridSearchCV(a, param_grid)
     m2 = sklearn.model_selection.GridSearchCV(a, param_grid)
 
