@@ -254,6 +254,7 @@ def fit_transform(
 ):
     yt = y
 
+    print(est, type(est))
     print((X.shape, y.shape))
 
     if X is FIT_FAILURE:
