@@ -1,3 +1,5 @@
+from typing import Any, List, Optional, Union
+
 import dask
 import dask.array as da
 import numpy as np
@@ -6,6 +8,7 @@ import pandas as pd
 import sklearn.preprocessing
 
 from .._compat import SK_022, SK_VERSION
+from .._typing import ArrayLike, DataFrameType, SeriesType
 from ..utils import check_array
 from .label import _encode, _encode_dask_array
 
@@ -109,13 +112,13 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
 
     def __init__(
         self,
-        n_values=None,
-        categorical_features=None,
-        categories="auto",
-        drop=None,
-        sparse=True,
-        dtype=np.float64,
-        handle_unknown="error",
+        n_values: Optional[int] = None,
+        categorical_features: Optional[pd.Categorical] = None,
+        categories: Union[str, ArrayLike] = "auto",
+        drop: Optional[bool] = None,
+        sparse: bool = True,
+        dtype: np.dtype = np.float64,
+        handle_unknown: str = "error",
     ):
         if drop is not None:
             raise NotImplementedError("drop != None is not implemented yet.")
@@ -137,13 +140,17 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
         super(OneHotEncoder, self).__init__(**signature)
 
     @classmethod
-    def _get_param_names(cls):
+    def _get_param_names(cls: Any) -> List[str]:
         return ["categories", "drop", "dtype", "sparse", "dtype", "handle_unknown"]
 
-    def get_params(self, deep=True):
+    def get_params(self, deep: bool = True):
         return super().get_params(deep)
 
-    def fit(self, X, y=None):
+    def fit(
+        self,
+        X: Union[ArrayLike, DataFrameType],
+        y: Optional[Union[ArrayLike, SeriesType]] = None,
+    ) -> "OneHotEncoder":
         if self.handle_unknown == "ignore":
             raise NotImplementedError("handle_unkown='ignore' is not implemented yet.")
         if self.handle_unknown != "error":
@@ -159,7 +166,7 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
 
         return self
 
-    def _fit(self, X, handle_unknown="error"):
+    def _fit(self, X: Union[ArrayLike, DataFrameType], handle_unknown: str = "error"):
         X = check_array(
             X, accept_dask_dataframe=True, dtype=None, preserve_pandas_dataframe=True
         )
@@ -184,7 +191,7 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
                 )
 
         self.categories_ = []
-        self.dtypes_ = []
+        self.dtypes_: List[Optional[pd.CategoricalDtype]] = []
 
         if is_array:
             for i in range(n_features):
@@ -212,13 +219,19 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
 
         self.categories_ = dask.compute(self.categories_)[0]
 
-    def transform(self, X):
+    def transform(
+        self, X: Union[ArrayLike, DataFrameType]
+    ) -> Union[ArrayLike, DataFrameType]:
         return self._transform(X)
 
-    def _transform_new(self, X):
+    def _transform_new(
+        self, X: Union[ArrayLike, DataFrameType]
+    ) -> Union[ArrayLike, DataFrameType]:
         return self._transform(X)
 
-    def _transform(self, X, handle_unknown="error"):
+    def _transform(
+        self, X: Union[ArrayLike, DataFrameType], handle_unknown: str = "error"
+    ) -> Union[ArrayLike, DataFrameType]:
         X = check_array(
             X, accept_dask_dataframe=True, dtype=None, preserve_pandas_dataframe=True
         )

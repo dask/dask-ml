@@ -1,6 +1,7 @@
 import contextlib
 import os
 from collections.abc import Mapping  # noqa
+from typing import Any, List, Optional, Union
 
 import dask
 import dask.array as da
@@ -25,7 +26,7 @@ WINDOWS = os.name == "nt"
 
 
 @contextlib.contextmanager
-def dummy_context(*args, **kwargs):
+def dummy_context(*args: Any, **kwargs: Any):
     # Not needed if Python >= 3.7 is required
     # https://docs.python.org/3/library/contextlib.html#contextlib.nullcontext
     yield
@@ -34,9 +35,9 @@ def dummy_context(*args, **kwargs):
 blockwise = da.blockwise
 
 
-def check_is_fitted(est, attributes=None):
+def check_is_fitted(est, attributes: Optional[Union[str, List[str]]] = None):
     if SK_022:
-        args = ()
+        args: Any = ()
     else:
         args = (attributes,)
 

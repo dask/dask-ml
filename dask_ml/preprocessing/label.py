@@ -1,6 +1,7 @@
 from __future__ import division
 
 from operator import getitem
+from typing import Optional, Union
 
 import dask.array as da
 import dask.dataframe as dd
@@ -10,6 +11,7 @@ import scipy.sparse
 import sklearn.preprocessing
 
 from .._compat import check_is_fitted
+from .._typing import ArrayLike, SeriesType
 
 
 class LabelEncoder(sklearn.preprocessing.LabelEncoder):
@@ -82,11 +84,11 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
     array([0, 0, 1], dtype=int8)
     """
 
-    def __init__(self, use_categorical=True):
+    def __init__(self, use_categorical: bool = True):
         self.use_categorical = use_categorical
         super(LabelEncoder, self).__init__()
 
-    def _check_array(self, y):
+    def _check_array(self, y: Union[ArrayLike, SeriesType]):
         if isinstance(y, (dd.Series, pd.DataFrame)):
             y = y.squeeze()
 
@@ -109,13 +111,13 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
                 y = y.to_dask_array(lengths=True)
         return y
 
-    def fit(self, y):
+    def fit(self, y: Union[ArrayLike, SeriesType]) -> "LabelEncoder":
         y = self._check_array(y)
 
         if isinstance(y, da.Array):
             classes_ = _encode_dask_array(y)
             self.classes_ = classes_.compute()
-            self.dtype_ = None
+            self.dtype_: Optional[pd.CategoricalDtype] = None
         elif _is_categorical(y):
             self.classes_ = _encode_categorical(y)
             self.dtype_ = y.dtype
@@ -125,7 +127,9 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
 
         return self
 
-    def fit_transform(self, y):
+    def fit_transform(
+        self, y: Union[ArrayLike, SeriesType]
+    ) -> Union[ArrayLike, SeriesType]:
         y = self._check_array(y)
 
         if isinstance(y, da.Array):
@@ -139,31 +143,33 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
 
         return y
 
-    def transform(self, y):
+    def transform(self, y: Union[ArrayLike, SeriesType]):
         check_is_fitted(self, "classes_")
         y = self._check_array(y)
 
         if isinstance(y, da.Array):
             return _encode_dask_array(y, self.classes_, encode=True)[1]
         elif isinstance(y, (pd.Series, dd.Series)):
-            assert y.dtype.categories.equals(self.dtype_.categories)
+            if self.dtype_ is not None:
+                assert y.dtype.categories.equals(self.dtype_.categories)
             return y.cat.codes.values
         else:
             return np.searchsorted(self.classes_, y)
 
-    def inverse_transform(self, y):
+    def inverse_transform(self, y: Union[ArrayLike, SeriesType]):
         check_is_fitted(self, "classes_")
         y = self._check_array(y)
 
         if isinstance(y, da.Array):
             if getattr(self, "dtype_", None):
                 # -> Series[category]
-                result = (
-                    dd.from_dask_array(y)
-                    .astype("category")
-                    .cat.set_categories(np.arange(len(self.classes_)))
-                    .cat.rename_categories(self.dtype_.categories)
-                )
+                if self.dtype_ is not None:
+                    result = (
+                        dd.from_dask_array(y)
+                        .astype("category")
+                        .cat.set_categories(np.arange(len(self.classes_)))
+                        .cat.rename_categories(self.dtype_.categories)
+                    )
                 if self.dtype_.ordered:
                     result = result.cat.as_ordered()
                 return result
@@ -178,18 +184,21 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
         else:
             y = np.asarray(y)
             if getattr(self, "dtype_", None):
-                return pd.Series(
-                    pd.Categorical.from_codes(
-                        y,
-                        categories=self.dtype_.categories,
-                        ordered=self.dtype_.ordered,
+                if self.dtype_ is not None:
+                    return pd.Series(
+                        pd.Categorical.from_codes(
+                            y,
+                            categories=self.dtype_.categories,
+                            ordered=self.dtype_.ordered,
+                        )
                     )
-                )
             else:
                 return self.classes_[y]
 
 
-def _encode_categorical(values, uniques=None, encode=False):
+def _encode_categorical(
+    values: np.ndarray, uniques: np.ndarray = None, encode: bool = False
+):
     new_uniques = np.asarray(values.cat.categories)
 
     if uniques is not None:
@@ -222,7 +231,7 @@ def _check_and_search_block(arr, uniques, onehot_dtype=None, block_info=None):
         return label_encoded
 
 
-def _construct(x, categories):
+def _construct(x: np.ndarray, categories: np.ndarray) -> scipy.sparse.csr_matrix:
     """Make a sparse matrix from an encoded array.
 
     >>> construct(np.array([0, 1, 0]), np.array([0, 1])).toarray()
@@ -230,7 +239,6 @@ def _construct(x, categories):
            [0., 1.],
            [1., 0.]])
     """
-    # type: (np.ndarray, np.ndarray) -> scipy.sparse.csr_matrix
     data = np.ones(len(x))
     rows = np.arange(len(x))
     columns = x.ravel()
@@ -239,7 +247,12 @@ def _construct(x, categories):
     )
 
 
-def _encode_dask_array(values, uniques=None, encode=False, onehot_dtype=None):
+def _encode_dask_array(
+    values: da.Array,
+    uniques: Optional[np.ndarray] = None,
+    encode: bool = False,
+    onehot_dtype: Optional[np.dtype] = None,
+):
     """One-hot or label encode a dask array.
 
     Parameters
@@ -280,7 +293,7 @@ def _encode_dask_array(values, uniques=None, encode=False, onehot_dtype=None):
     if encode:
         if onehot_dtype:
             dtype = onehot_dtype
-            new_axis = 1
+            new_axis: Optional[int] = 1
             chunks = values.chunks + (len(uniques),)
         else:
             dtype = np.dtype("int")
@@ -311,7 +324,7 @@ def _encode(values, uniques=None, encode=False):
         raise ValueError("Unknown type {}".format(type(values)))
 
 
-def _is_categorical(y):
+def _is_categorical(y: Union[ArrayLike, SeriesType]) -> bool:
     return isinstance(y, (dd.Series, pd.Series)) and pd.api.types.is_categorical_dtype(
         y
     )
