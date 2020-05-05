@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.3.1.dev12+ge6fd1b5
+                1.3.1.dev13+gfbcfdf7
               </div>
             
           
@@ -608,7 +608,7 @@ see <a class="reference external" href="https://scikit-learn.org/stable/auto_exa
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler.fit" title="dask_ml.preprocessing.StandardScaler.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler.fit" title="dask_ml.preprocessing.StandardScaler.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X,&nbsp;pandas.core.frame.DataFrame,&nbsp;…)</td>
 <td>Compute the mean and std to be used for later scaling.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler.fit_transform" title="dask_ml.preprocessing.StandardScaler.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
@@ -617,23 +617,23 @@ see <a class="reference external" href="https://scikit-learn.org/stable/auto_exa
 <tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler.get_params" title="dask_ml.preprocessing.StandardScaler.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler.inverse_transform" title="dask_ml.preprocessing.StandardScaler.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(self,&nbsp;X[,&nbsp;copy])</td>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler.inverse_transform" title="dask_ml.preprocessing.StandardScaler.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
 <td>Scale back the data to the original representation</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler.partial_fit" title="dask_ml.preprocessing.StandardScaler.partial_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler.partial_fit" title="dask_ml.preprocessing.StandardScaler.partial_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_fit</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
 <td>Online computation of mean and std on X for later scaling.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler.set_params" title="dask_ml.preprocessing.StandardScaler.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler.transform" title="dask_ml.preprocessing.StandardScaler.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X[,&nbsp;y,&nbsp;copy])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler.transform" title="dask_ml.preprocessing.StandardScaler.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
 <td>Perform standardization by centering and scaling</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="dask_ml.preprocessing.StandardScaler.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; 'StandardScaler'<a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the mean and std to be used for later scaling.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -717,7 +717,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.StandardScaler.inverse_transform">
-<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>copy=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.inverse_transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], copy:Union[bool, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.inverse_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Scale back the data to the original representation</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -746,7 +746,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.StandardScaler.partial_fit">
-<code class="descname">partial_fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.partial_fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">partial_fit</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.partial_fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Online computation of mean and std on X for later scaling.</p>
 <p>All of X is processed as a single batch. This is intended for cases
 when <a class="reference internal" href="generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler.fit" title="dask_ml.preprocessing.StandardScaler.fit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code></a> is not feasible due to very large number of
@@ -813,7 +813,7 @@ component of a nested object.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.StandardScaler.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>copy=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transform</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None, copy:Union[bool, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform standardization by centering and scaling</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -947,7 +947,7 @@ see <a class="reference external" href="https://scikit-learn.org/stable/auto_exa
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.fit" title="dask_ml.preprocessing.MinMaxScaler.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.fit" title="dask_ml.preprocessing.MinMaxScaler.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X,&nbsp;pandas.core.frame.DataFrame,&nbsp;…)</td>
 <td>Compute the minimum and maximum to be used for later scaling.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.fit_transform" title="dask_ml.preprocessing.MinMaxScaler.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
@@ -956,23 +956,23 @@ see <a class="reference external" href="https://scikit-learn.org/stable/auto_exa
 <tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.get_params" title="dask_ml.preprocessing.MinMaxScaler.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.inverse_transform" title="dask_ml.preprocessing.MinMaxScaler.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(self,&nbsp;X[,&nbsp;y,&nbsp;copy])</td>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.inverse_transform" title="dask_ml.preprocessing.MinMaxScaler.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
 <td>Undo the scaling of X according to feature_range.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.partial_fit" title="dask_ml.preprocessing.MinMaxScaler.partial_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.partial_fit" title="dask_ml.preprocessing.MinMaxScaler.partial_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_fit</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
 <td>Online computation of min and max on X for later scaling.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.set_params" title="dask_ml.preprocessing.MinMaxScaler.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.transform" title="dask_ml.preprocessing.MinMaxScaler.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X[,&nbsp;y,&nbsp;copy])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.transform" title="dask_ml.preprocessing.MinMaxScaler.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
 <td>Scale features of X according to feature_range.</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="dask_ml.preprocessing.MinMaxScaler.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; 'MinMaxScaler'<a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the minimum and maximum to be used for later scaling.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1063,7 +1063,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.MinMaxScaler.inverse_transform">
-<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>copy=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler.inverse_transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None, copy:Union[bool, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler.inverse_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Undo the scaling of X according to feature_range.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1089,7 +1089,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.MinMaxScaler.partial_fit">
-<code class="descname">partial_fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler.partial_fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">partial_fit</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler.partial_fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Online computation of min and max on X for later scaling.</p>
 <p>All of X is processed as a single batch. This is intended for cases
 when <a class="reference internal" href="generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler.fit" title="dask_ml.preprocessing.MinMaxScaler.fit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code></a> is not feasible due to very large number of
@@ -1152,7 +1152,7 @@ component of a nested object.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.MinMaxScaler.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>copy=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler.transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transform</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None, copy:Union[bool, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Scale features of X according to feature_range.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1280,7 +1280,7 @@ see <a class="reference external" href="https://scikit-learn.org/stable/auto_exa
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.RobustScaler.html#dask_ml.preprocessing.RobustScaler.fit" title="dask_ml.preprocessing.RobustScaler.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.RobustScaler.html#dask_ml.preprocessing.RobustScaler.fit" title="dask_ml.preprocessing.RobustScaler.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X,&nbsp;pandas.core.frame.DataFrame,&nbsp;…)</td>
 <td>Compute the median and quantiles to be used for scaling.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.RobustScaler.html#dask_ml.preprocessing.RobustScaler.fit_transform" title="dask_ml.preprocessing.RobustScaler.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
@@ -1289,20 +1289,20 @@ see <a class="reference external" href="https://scikit-learn.org/stable/auto_exa
 <tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.RobustScaler.html#dask_ml.preprocessing.RobustScaler.get_params" title="dask_ml.preprocessing.RobustScaler.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.RobustScaler.html#dask_ml.preprocessing.RobustScaler.inverse_transform" title="dask_ml.preprocessing.RobustScaler.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(self,&nbsp;X)</td>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.RobustScaler.html#dask_ml.preprocessing.RobustScaler.inverse_transform" title="dask_ml.preprocessing.RobustScaler.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
 <td>Scale back the data to the original representation</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.RobustScaler.html#dask_ml.preprocessing.RobustScaler.set_params" title="dask_ml.preprocessing.RobustScaler.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.RobustScaler.html#dask_ml.preprocessing.RobustScaler.transform" title="dask_ml.preprocessing.RobustScaler.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X)</td>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.RobustScaler.html#dask_ml.preprocessing.RobustScaler.transform" title="dask_ml.preprocessing.RobustScaler.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
 <td>Center and scale the data.</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="dask_ml.preprocessing.RobustScaler.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.RobustScaler.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; 'RobustScaler'<a class="headerlink" href="#dask_ml.preprocessing.RobustScaler.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the median and quantiles to be used for scaling.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1383,7 +1383,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.RobustScaler.inverse_transform">
-<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.RobustScaler.inverse_transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]</em><span class="sig-paren">)</span> &#x2192; Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.RobustScaler.inverse_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Scale back the data to the original representation</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1438,7 +1438,7 @@ component of a nested object.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.RobustScaler.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.RobustScaler.transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transform</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]</em><span class="sig-paren">)</span> &#x2192; Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.RobustScaler.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Center and scale the data.</p>
 <p>Can be called on sparse input, provided that <code class="docutils literal notranslate"><span class="pre">RobustScaler</span></code> has been
 fitted to dense input and <code class="docutils literal notranslate"><span class="pre">with_centering=False</span></code>.</p>
@@ -1781,7 +1781,7 @@ nonnegative if <cite>ignore_implicit_zeros</cite> is False.</p>
 
 <dl class="class">
 <dt id="dask_ml.preprocessing.Categorizer">
-<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">Categorizer</code><span class="sig-paren">(</span><em>categories=None</em>, <em>columns=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.Categorizer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">Categorizer</code><span class="sig-paren">(</span><em>categories: Optional[dict] = None</em>, <em>columns: pandas.core.indexes.base.Index = None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.Categorizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform columns of a DataFrame to categorical dtype.</p>
 <p>This is a useful pre-processing step for dummy, one-hot, or
 categorical encoding.</p>
@@ -1852,7 +1852,7 @@ this behavior.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer.fit" title="dask_ml.preprocessing.Categorizer.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer.fit" title="dask_ml.preprocessing.Categorizer.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X,&nbsp;dask.dataframe.core.DataFrame],&nbsp;…)</td>
 <td>Find the categorical columns.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer.fit_transform" title="dask_ml.preprocessing.Categorizer.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
@@ -1864,14 +1864,14 @@ this behavior.</p>
 <tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer.set_params" title="dask_ml.preprocessing.Categorizer.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer.transform" title="dask_ml.preprocessing.Categorizer.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer.transform" title="dask_ml.preprocessing.Categorizer.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
 <td>Transform the columns in <code class="docutils literal notranslate"><span class="pre">X</span></code> according to <code class="docutils literal notranslate"><span class="pre">self.categories_</span></code>.</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="dask_ml.preprocessing.Categorizer.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.Categorizer.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>self, X:Union[pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; 'Categorizer'<a class="headerlink" href="#dask_ml.preprocessing.Categorizer.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the categorical columns.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1988,7 +1988,7 @@ component of a nested object.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.Categorizer.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.Categorizer.transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transform</code><span class="sig-paren">(</span><em>self, X:Union[pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; Union[pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.Categorizer.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform the columns in <code class="docutils literal notranslate"><span class="pre">X</span></code> according to <code class="docutils literal notranslate"><span class="pre">self.categories_</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2018,7 +2018,7 @@ be converted to categorical dtype.</p>
 
 <dl class="class">
 <dt id="dask_ml.preprocessing.DummyEncoder">
-<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">DummyEncoder</code><span class="sig-paren">(</span><em>columns=None</em>, <em>drop_first=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.DummyEncoder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">DummyEncoder</code><span class="sig-paren">(</span><em>columns: Optional[Sequence[Any]] = None</em>, <em>drop_first: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.DummyEncoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dummy (one-hot) encode categorical columns.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2119,7 +2119,7 @@ DataFrames, all of your categoricals should be known.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.DummyEncoder.html#dask_ml.preprocessing.DummyEncoder.fit" title="dask_ml.preprocessing.DummyEncoder.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.DummyEncoder.html#dask_ml.preprocessing.DummyEncoder.fit" title="dask_ml.preprocessing.DummyEncoder.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X,&nbsp;dask.dataframe.core.DataFrame],&nbsp;…)</td>
 <td>Determine the categorical columns to be dummy encoded.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.DummyEncoder.html#dask_ml.preprocessing.DummyEncoder.fit_transform" title="dask_ml.preprocessing.DummyEncoder.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
@@ -2128,20 +2128,20 @@ DataFrames, all of your categoricals should be known.</p>
 <tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.DummyEncoder.html#dask_ml.preprocessing.DummyEncoder.get_params" title="dask_ml.preprocessing.DummyEncoder.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.DummyEncoder.html#dask_ml.preprocessing.DummyEncoder.inverse_transform" title="dask_ml.preprocessing.DummyEncoder.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(self,&nbsp;X)</td>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.DummyEncoder.html#dask_ml.preprocessing.DummyEncoder.inverse_transform" title="dask_ml.preprocessing.DummyEncoder.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
 <td>Inverse dummy-encode the columns in <cite>X</cite></td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.DummyEncoder.html#dask_ml.preprocessing.DummyEncoder.set_params" title="dask_ml.preprocessing.DummyEncoder.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.DummyEncoder.html#dask_ml.preprocessing.DummyEncoder.transform" title="dask_ml.preprocessing.DummyEncoder.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.DummyEncoder.html#dask_ml.preprocessing.DummyEncoder.transform" title="dask_ml.preprocessing.DummyEncoder.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
 <td>Dummy encode the categorical columns in X</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="dask_ml.preprocessing.DummyEncoder.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.DummyEncoder.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>self, X:Union[pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; 'DummyEncoder'<a class="headerlink" href="#dask_ml.preprocessing.DummyEncoder.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine the categorical columns to be dummy encoded.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2228,7 +2228,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.DummyEncoder.inverse_transform">
-<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.DummyEncoder.inverse_transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]</em><span class="sig-paren">)</span> &#x2192; Union[pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.DummyEncoder.inverse_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Inverse dummy-encode the columns in <cite>X</cite></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2285,7 +2285,7 @@ component of a nested object.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.DummyEncoder.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.DummyEncoder.transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transform</code><span class="sig-paren">(</span><em>self, X:Union[pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; Union[pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.DummyEncoder.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dummy encode the categorical columns in X</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2400,7 +2400,7 @@ DataFrames, all of your categoricals should be known.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder.fit" title="dask_ml.preprocessing.OrdinalEncoder.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder.fit" title="dask_ml.preprocessing.OrdinalEncoder.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X,&nbsp;dask.dataframe.core.DataFrame],&nbsp;…)</td>
 <td>Determine the categorical columns to be encoded.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder.fit_transform" title="dask_ml.preprocessing.OrdinalEncoder.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
@@ -2409,20 +2409,20 @@ DataFrames, all of your categoricals should be known.</p>
 <tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder.get_params" title="dask_ml.preprocessing.OrdinalEncoder.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder.inverse_transform" title="dask_ml.preprocessing.OrdinalEncoder.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(self,&nbsp;X)</td>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder.inverse_transform" title="dask_ml.preprocessing.OrdinalEncoder.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
 <td>Inverse ordinal-encode the columns in <cite>X</cite></td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder.set_params" title="dask_ml.preprocessing.OrdinalEncoder.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder.transform" title="dask_ml.preprocessing.OrdinalEncoder.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder.transform" title="dask_ml.preprocessing.OrdinalEncoder.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
 <td>Ordinal encode the categorical columns in X</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="dask_ml.preprocessing.OrdinalEncoder.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OrdinalEncoder.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>self, X:Union[pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; 'OrdinalEncoder'<a class="headerlink" href="#dask_ml.preprocessing.OrdinalEncoder.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine the categorical columns to be encoded.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2509,7 +2509,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.OrdinalEncoder.inverse_transform">
-<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OrdinalEncoder.inverse_transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]</em><span class="sig-paren">)</span> &#x2192; Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.OrdinalEncoder.inverse_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Inverse ordinal-encode the columns in <cite>X</cite></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2566,7 +2566,7 @@ component of a nested object.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.OrdinalEncoder.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OrdinalEncoder.transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transform</code><span class="sig-paren">(</span><em>self, X:Union[pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; Union[pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.OrdinalEncoder.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Ordinal encode the categorical columns in X</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2595,7 +2595,7 @@ component of a nested object.</p>
 
 <dl class="class">
 <dt id="dask_ml.preprocessing.LabelEncoder">
-<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">LabelEncoder</code><span class="sig-paren">(</span><em>use_categorical=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">LabelEncoder</code><span class="sig-paren">(</span><em>use_categorical: bool = True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encode labels with value between 0 and n_classes-1.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -2680,29 +2680,29 @@ enables a faster <cite>transform</cite> algorithm.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder.fit" title="dask_ml.preprocessing.LabelEncoder.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;y)</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder.fit" title="dask_ml.preprocessing.LabelEncoder.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;y,&nbsp;dask.dataframe.core.Series,&nbsp;…)</td>
 <td>Fit label encoder</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder.fit_transform" title="dask_ml.preprocessing.LabelEncoder.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;y)</td>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder.fit_transform" title="dask_ml.preprocessing.LabelEncoder.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;y,&nbsp;…)</td>
 <td>Fit label encoder and return encoded labels</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder.get_params" title="dask_ml.preprocessing.LabelEncoder.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder.inverse_transform" title="dask_ml.preprocessing.LabelEncoder.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(self,&nbsp;y)</td>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder.inverse_transform" title="dask_ml.preprocessing.LabelEncoder.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(self,&nbsp;y,&nbsp;…)</td>
 <td>Transform labels back to original encoding.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder.set_params" title="dask_ml.preprocessing.LabelEncoder.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder.transform" title="dask_ml.preprocessing.LabelEncoder.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;y)</td>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder.transform" title="dask_ml.preprocessing.LabelEncoder.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;y,&nbsp;…)</td>
 <td>Transform labels to normalized encoding.</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="dask_ml.preprocessing.LabelEncoder.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>self, y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series]</em><span class="sig-paren">)</span> &#x2192; 'LabelEncoder'<a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit label encoder</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2727,7 +2727,7 @@ enables a faster <cite>transform</cite> algorithm.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.LabelEncoder.fit_transform">
-<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>self</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder.fit_transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>self, y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series]</em><span class="sig-paren">)</span> &#x2192; Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series]<a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder.fit_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit label encoder and return encoded labels</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2779,7 +2779,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.LabelEncoder.inverse_transform">
-<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>self</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder.inverse_transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>self, y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series]</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder.inverse_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform labels back to original encoding.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2834,7 +2834,7 @@ component of a nested object.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.LabelEncoder.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>self</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder.transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transform</code><span class="sig-paren">(</span><em>self, y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series]</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.LabelEncoder.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform labels to normalized encoding.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2861,7 +2861,7 @@ component of a nested object.</p>
 
 <dl class="class">
 <dt id="dask_ml.preprocessing.OneHotEncoder">
-<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">OneHotEncoder</code><span class="sig-paren">(</span><em>n_values=None</em>, <em>categorical_features=None</em>, <em>categories='auto'</em>, <em>drop=None</em>, <em>sparse=True</em>, <em>dtype=&lt;class 'numpy.float64'&gt;</em>, <em>handle_unknown='error'</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OneHotEncoder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">OneHotEncoder</code><span class="sig-paren">(</span><em>n_values: Optional[int] = None</em>, <em>categorical_features: Optional[pandas.core.arrays.categorical.Categorical] = None</em>, <em>categories: Union[str</em>, <em>ArrayLike] = 'auto'</em>, <em>drop: Optional[bool] = None</em>, <em>sparse: bool = True</em>, <em>dtype: numpy.dtype = &lt;class 'numpy.float64'&gt;</em>, <em>handle_unknown: str = 'error'</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OneHotEncoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encode categorical integer features as a one-hot numeric array.</p>
 <div class="versionadded">
 <p><span class="versionmodified">New in version 0.8.0.</span></p>
@@ -2966,7 +2966,7 @@ values per feature and transform the data to a binary one-hot encoding.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.OneHotEncoder.fit" title="dask_ml.preprocessing.OneHotEncoder.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.OneHotEncoder.fit" title="dask_ml.preprocessing.OneHotEncoder.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X,&nbsp;pandas.core.frame.DataFrame,&nbsp;…)</td>
 <td>Fit OneHotEncoder to X.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.OneHotEncoder.fit_transform" title="dask_ml.preprocessing.OneHotEncoder.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
@@ -2975,7 +2975,7 @@ values per feature and transform the data to a binary one-hot encoding.</p>
 <tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.OneHotEncoder.get_feature_names" title="dask_ml.preprocessing.OneHotEncoder.get_feature_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_feature_names</span></code></a>(self[,&nbsp;input_features])</td>
 <td>Return feature names for output features.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.OneHotEncoder.get_params" title="dask_ml.preprocessing.OneHotEncoder.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.OneHotEncoder.get_params" title="dask_ml.preprocessing.OneHotEncoder.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self,&nbsp;deep)</td>
 <td>Get parameters for this estimator.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.OneHotEncoder.inverse_transform" title="dask_ml.preprocessing.OneHotEncoder.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(self,&nbsp;X)</td>
@@ -2984,14 +2984,14 @@ values per feature and transform the data to a binary one-hot encoding.</p>
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.OneHotEncoder.set_params" title="dask_ml.preprocessing.OneHotEncoder.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.OneHotEncoder.transform" title="dask_ml.preprocessing.OneHotEncoder.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.OneHotEncoder.transform" title="dask_ml.preprocessing.OneHotEncoder.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
 <td>Transform X using one-hot encoding.</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="dask_ml.preprocessing.OneHotEncoder.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OneHotEncoder.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; 'OneHotEncoder'<a class="headerlink" href="#dask_ml.preprocessing.OneHotEncoder.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit OneHotEncoder to X.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -3078,7 +3078,7 @@ values per feature and transform the data to a binary one-hot encoding.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.OneHotEncoder.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OneHotEncoder.get_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep:bool=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OneHotEncoder.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get parameters for this estimator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -3163,7 +3163,7 @@ component of a nested object.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.OneHotEncoder.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OneHotEncoder.transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transform</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]</em><span class="sig-paren">)</span> &#x2192; Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.OneHotEncoder.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform X using one-hot encoding.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -3191,7 +3191,7 @@ component of a nested object.</p>
 
 <dl class="class">
 <dt id="dask_ml.preprocessing.PolynomialFeatures">
-<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">PolynomialFeatures</code><span class="sig-paren">(</span><em>degree=2</em>, <em>interaction_only=False</em>, <em>include_bias=True</em>, <em>preserve_dataframe=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">PolynomialFeatures</code><span class="sig-paren">(</span><em>degree: int = 2</em>, <em>interaction_only: bool = False</em>, <em>include_bias: bool = True</em>, <em>preserve_dataframe: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate polynomial and interaction features.</p>
 <p>Generate a new feature matrix consisting of all polynomial combinations
 of the features with degree less than or equal to the specified degree.
@@ -3279,7 +3279,7 @@ exponentially in the degree. High degrees can cause overfitting.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.PolynomialFeatures.html#dask_ml.preprocessing.PolynomialFeatures.fit" title="dask_ml.preprocessing.PolynomialFeatures.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.PolynomialFeatures.html#dask_ml.preprocessing.PolynomialFeatures.fit" title="dask_ml.preprocessing.PolynomialFeatures.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X,&nbsp;pandas.core.frame.DataFrame,&nbsp;…)</td>
 <td>Compute number of output features.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.PolynomialFeatures.html#dask_ml.preprocessing.PolynomialFeatures.fit_transform" title="dask_ml.preprocessing.PolynomialFeatures.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
@@ -3294,14 +3294,14 @@ exponentially in the degree. High degrees can cause overfitting.</p>
 <tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.PolynomialFeatures.html#dask_ml.preprocessing.PolynomialFeatures.set_params" title="dask_ml.preprocessing.PolynomialFeatures.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.PolynomialFeatures.html#dask_ml.preprocessing.PolynomialFeatures.transform" title="dask_ml.preprocessing.PolynomialFeatures.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.PolynomialFeatures.html#dask_ml.preprocessing.PolynomialFeatures.transform" title="dask_ml.preprocessing.PolynomialFeatures.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
 <td>Transform data to polynomial features</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="dask_ml.preprocessing.PolynomialFeatures.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; 'PolynomialFeatures'<a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute number of output features.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -3443,7 +3443,7 @@ component of a nested object.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.PolynomialFeatures.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transform</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform data to polynomial features</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -3483,7 +3483,7 @@ features generated from the combination of inputs.</p>
 
 <dl class="class">
 <dt id="dask_ml.preprocessing.BlockTransformer">
-<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">BlockTransformer</code><span class="sig-paren">(</span><em>func</em>, <em>*</em>, <em>validate=False</em>, <em>**kw_args</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.BlockTransformer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">BlockTransformer</code><span class="sig-paren">(</span><em>func: Callable[..., Union[ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]], *, validate: bool = False, **kw_args</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.BlockTransformer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct a transformer from a an arbitrary callable</p>
 <p>The BlockTransformer forwards the blocks of the X arguments to a user-defined
 callable and returns the result of this operation.
@@ -3689,22 +3689,22 @@ component of a nested object.</p>
 <tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler" title="dask_ml.preprocessing.StandardScaler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.StandardScaler</span></code></a>([copy,&nbsp;…])</td>
 <td>Standardize features by removing the mean and scaling to unit variance</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer" title="dask_ml.preprocessing.Categorizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.Categorizer</span></code></a>([categories,&nbsp;columns])</td>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer" title="dask_ml.preprocessing.Categorizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.Categorizer</span></code></a>(categories,&nbsp;columns)</td>
 <td>Transform columns of a DataFrame to categorical dtype.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.DummyEncoder.html#dask_ml.preprocessing.DummyEncoder" title="dask_ml.preprocessing.DummyEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.DummyEncoder</span></code></a>([columns,&nbsp;drop_first])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.DummyEncoder.html#dask_ml.preprocessing.DummyEncoder" title="dask_ml.preprocessing.DummyEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.DummyEncoder</span></code></a>(columns,&nbsp;drop_first)</td>
 <td>Dummy (one-hot) encode categorical columns.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.OrdinalEncoder.html#dask_ml.preprocessing.OrdinalEncoder" title="dask_ml.preprocessing.OrdinalEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.OrdinalEncoder</span></code></a>([columns])</td>
 <td>Ordinal (integer) encode categorical columns.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder" title="dask_ml.preprocessing.LabelEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.LabelEncoder</span></code></a>([use_categorical])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.LabelEncoder.html#dask_ml.preprocessing.LabelEncoder" title="dask_ml.preprocessing.LabelEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.LabelEncoder</span></code></a>(use_categorical)</td>
 <td>Encode labels with value between 0 and n_classes-1.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.PolynomialFeatures.html#dask_ml.preprocessing.PolynomialFeatures" title="dask_ml.preprocessing.PolynomialFeatures"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.PolynomialFeatures</span></code></a>([degree,&nbsp;…])</td>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.PolynomialFeatures.html#dask_ml.preprocessing.PolynomialFeatures" title="dask_ml.preprocessing.PolynomialFeatures"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.PolynomialFeatures</span></code></a>(degree,&nbsp;…)</td>
 <td>Generate polynomial and interaction features.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.BlockTransformer.html#dask_ml.preprocessing.BlockTransformer" title="dask_ml.preprocessing.BlockTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.BlockTransformer</span></code></a>(func,&nbsp;*[,&nbsp;…])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.BlockTransformer.html#dask_ml.preprocessing.BlockTransformer" title="dask_ml.preprocessing.BlockTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.BlockTransformer</span></code></a>(func,&nbsp;…)</td>
 <td>Construct a transformer from a an arbitrary callable</td>
 </tr>
 </tbody>

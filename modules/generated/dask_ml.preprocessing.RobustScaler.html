@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.3.1.dev12+ge6fd1b5
+                1.3.1.dev13+gfbcfdf7
               </div>
             
           
@@ -379,7 +379,7 @@ see <a class="reference external" href="https://scikit-learn.org/stable/auto_exa
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.RobustScaler.fit" title="dask_ml.preprocessing.RobustScaler.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.RobustScaler.fit" title="dask_ml.preprocessing.RobustScaler.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X,&nbsp;pandas.core.frame.DataFrame,&nbsp;…)</td>
 <td>Compute the median and quantiles to be used for scaling.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.RobustScaler.fit_transform" title="dask_ml.preprocessing.RobustScaler.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
@@ -388,13 +388,13 @@ see <a class="reference external" href="https://scikit-learn.org/stable/auto_exa
 <tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.RobustScaler.get_params" title="dask_ml.preprocessing.RobustScaler.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.RobustScaler.inverse_transform" title="dask_ml.preprocessing.RobustScaler.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(self,&nbsp;X)</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.RobustScaler.inverse_transform" title="dask_ml.preprocessing.RobustScaler.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
 <td>Scale back the data to the original representation</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.RobustScaler.set_params" title="dask_ml.preprocessing.RobustScaler.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.RobustScaler.transform" title="dask_ml.preprocessing.RobustScaler.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X)</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.RobustScaler.transform" title="dask_ml.preprocessing.RobustScaler.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
 <td>Center and scale the data.</td>
 </tr>
 </tbody>
@@ -407,7 +407,7 @@ see <a class="reference external" href="https://scikit-learn.org/stable/auto_exa
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.RobustScaler.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.RobustScaler.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; 'RobustScaler'<a class="headerlink" href="#dask_ml.preprocessing.RobustScaler.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the median and quantiles to be used for scaling.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -488,7 +488,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.RobustScaler.inverse_transform">
-<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.RobustScaler.inverse_transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]</em><span class="sig-paren">)</span> &#x2192; Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.RobustScaler.inverse_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Scale back the data to the original representation</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -543,7 +543,7 @@ component of a nested object.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.RobustScaler.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.RobustScaler.transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transform</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]</em><span class="sig-paren">)</span> &#x2192; Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.RobustScaler.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Center and scale the data.</p>
 <p>Can be called on sparse input, provided that <code class="docutils literal notranslate"><span class="pre">RobustScaler</span></code> has been
 fitted to dense input and <code class="docutils literal notranslate"><span class="pre">with_centering=False</span></code>.</p>

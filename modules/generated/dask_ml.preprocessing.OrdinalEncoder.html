@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.3.1.dev12+ge6fd1b5
+                1.3.1.dev13+gfbcfdf7
               </div>
             
           
@@ -365,7 +365,7 @@ DataFrames, all of your categoricals should be known.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.OrdinalEncoder.fit" title="dask_ml.preprocessing.OrdinalEncoder.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.OrdinalEncoder.fit" title="dask_ml.preprocessing.OrdinalEncoder.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X,&nbsp;dask.dataframe.core.DataFrame],&nbsp;…)</td>
 <td>Determine the categorical columns to be encoded.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.OrdinalEncoder.fit_transform" title="dask_ml.preprocessing.OrdinalEncoder.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
@@ -374,13 +374,13 @@ DataFrames, all of your categoricals should be known.</p>
 <tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.OrdinalEncoder.get_params" title="dask_ml.preprocessing.OrdinalEncoder.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.OrdinalEncoder.inverse_transform" title="dask_ml.preprocessing.OrdinalEncoder.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(self,&nbsp;X)</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.OrdinalEncoder.inverse_transform" title="dask_ml.preprocessing.OrdinalEncoder.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
 <td>Inverse ordinal-encode the columns in <cite>X</cite></td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.OrdinalEncoder.set_params" title="dask_ml.preprocessing.OrdinalEncoder.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.OrdinalEncoder.transform" title="dask_ml.preprocessing.OrdinalEncoder.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.OrdinalEncoder.transform" title="dask_ml.preprocessing.OrdinalEncoder.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
 <td>Ordinal encode the categorical columns in X</td>
 </tr>
 </tbody>
@@ -393,7 +393,7 @@ DataFrames, all of your categoricals should be known.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.OrdinalEncoder.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OrdinalEncoder.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>self, X:Union[pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; 'OrdinalEncoder'<a class="headerlink" href="#dask_ml.preprocessing.OrdinalEncoder.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine the categorical columns to be encoded.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -480,7 +480,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.OrdinalEncoder.inverse_transform">
-<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OrdinalEncoder.inverse_transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]</em><span class="sig-paren">)</span> &#x2192; Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.OrdinalEncoder.inverse_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Inverse ordinal-encode the columns in <cite>X</cite></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -537,7 +537,7 @@ component of a nested object.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.OrdinalEncoder.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OrdinalEncoder.transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transform</code><span class="sig-paren">(</span><em>self, X:Union[pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; Union[pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.OrdinalEncoder.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Ordinal encode the categorical columns in X</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

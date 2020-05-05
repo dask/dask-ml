@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.3.1.dev12+ge6fd1b5
+                1.3.1.dev13+gfbcfdf7
               </div>
             
           
@@ -389,7 +389,7 @@ see <a class="reference external" href="https://scikit-learn.org/stable/auto_exa
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.MinMaxScaler.fit" title="dask_ml.preprocessing.MinMaxScaler.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.MinMaxScaler.fit" title="dask_ml.preprocessing.MinMaxScaler.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X,&nbsp;pandas.core.frame.DataFrame,&nbsp;…)</td>
 <td>Compute the minimum and maximum to be used for later scaling.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.MinMaxScaler.fit_transform" title="dask_ml.preprocessing.MinMaxScaler.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
@@ -398,16 +398,16 @@ see <a class="reference external" href="https://scikit-learn.org/stable/auto_exa
 <tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.MinMaxScaler.get_params" title="dask_ml.preprocessing.MinMaxScaler.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.MinMaxScaler.inverse_transform" title="dask_ml.preprocessing.MinMaxScaler.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(self,&nbsp;X[,&nbsp;y,&nbsp;copy])</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.MinMaxScaler.inverse_transform" title="dask_ml.preprocessing.MinMaxScaler.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
 <td>Undo the scaling of X according to feature_range.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.MinMaxScaler.partial_fit" title="dask_ml.preprocessing.MinMaxScaler.partial_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.MinMaxScaler.partial_fit" title="dask_ml.preprocessing.MinMaxScaler.partial_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_fit</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
 <td>Online computation of min and max on X for later scaling.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.MinMaxScaler.set_params" title="dask_ml.preprocessing.MinMaxScaler.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.MinMaxScaler.transform" title="dask_ml.preprocessing.MinMaxScaler.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X[,&nbsp;y,&nbsp;copy])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.MinMaxScaler.transform" title="dask_ml.preprocessing.MinMaxScaler.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
 <td>Scale features of X according to feature_range.</td>
 </tr>
 </tbody>
@@ -420,7 +420,7 @@ see <a class="reference external" href="https://scikit-learn.org/stable/auto_exa
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.MinMaxScaler.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; 'MinMaxScaler'<a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the minimum and maximum to be used for later scaling.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -511,7 +511,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.MinMaxScaler.inverse_transform">
-<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>copy=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler.inverse_transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None, copy:Union[bool, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler.inverse_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Undo the scaling of X according to feature_range.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -537,7 +537,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.MinMaxScaler.partial_fit">
-<code class="descname">partial_fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler.partial_fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">partial_fit</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler.partial_fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Online computation of min and max on X for later scaling.</p>
 <p>All of X is processed as a single batch. This is intended for cases
 when <a class="reference internal" href="#dask_ml.preprocessing.MinMaxScaler.fit" title="dask_ml.preprocessing.MinMaxScaler.fit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code></a> is not feasible due to very large number of
@@ -600,7 +600,7 @@ component of a nested object.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.MinMaxScaler.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>copy=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler.transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transform</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None, copy:Union[bool, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Scale features of X according to feature_range.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
