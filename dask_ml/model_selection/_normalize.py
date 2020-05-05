@@ -32,7 +32,7 @@ def normalize_estimator(est):
             continue
         try:
             val = getattr(est, attr)
-        except sklearn.exceptions.NotFittedError:
+        except (sklearn.exceptions.NotFittedError, AttributeError):
             continue
         base.append(val)
     return tuple(base)
