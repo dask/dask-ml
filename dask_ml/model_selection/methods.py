@@ -254,6 +254,8 @@ def fit_transform(
 ):
     yt = y
 
+    print((X.shape, y.shape))
+
     if X is FIT_FAILURE:
         est, fit_time, Xt = FIT_FAILURE, 0.0, FIT_FAILURE
     else:
@@ -267,8 +269,8 @@ def fit_transform(
             elif hasattr(est, "fit_resample"):
                 Xt, yt = est.fit_resample(X, y, **fit_params)
             else:
-               est.fit(X, y, **fit_params)
-               Xt = est.transform(X)
+                est.fit(X, y, **fit_params)
+                Xt = est.transform(X)
         except Exception as e:
             if error_score == "raise":
                 raise
