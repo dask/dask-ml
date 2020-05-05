@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
 import numpy as np
+import sklearn.exceptions
 from dask.base import normalize_token
 from sklearn.base import BaseEstimator
 from sklearn.model_selection._split import (
@@ -21,7 +22,20 @@ def normalize_estimator(est):
 
     Note: Since scikit-learn requires duck-typing, but not sub-typing from
     ``BaseEstimator``, we sometimes need to call this function directly."""
-    return type(est).__name__, normalize_token(est.get_params())
+    base = [type(est).__name__, normalize_token(est.get_params())]
+    # fitted attributes: https://github.com/dask/dask-ml/issues/658
+    attrs = [x for x in dir(est) if x.endswith("_") and not x.startswith("_")]
+    exclude = {"cv_results_", "model_history_", "history_", "refit_time_"}
+
+    for attr in attrs:
+        if attr in exclude:
+            continue
+        try:
+            val = getattr(est, attr)
+        except sklearn.exceptions.NotFittedError:
+            continue
+        base.append(val)
+    return tuple(base)
 
 
 def normalize_random_state(random_state):
