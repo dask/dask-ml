@@ -50,22 +50,20 @@ class BlockwiseBase(sklearn.base.BaseEstimator):
             dtype = "float"
 
         if isinstance(X, da.Array):
-            results = [
-                X.map_blocks(_predict, dtype=dtype, estimator=estimator, drop_axis=1)
-                for estimator in self.estimators_
-            ]
-            combined = da.vstack(results).T.rechunk({1: -1})
+            chunks = (X.chunks[0], len(self.estimators_))
+            combined = X.map_blocks(
+                _predict_stack,
+                estimators=self.estimators_,
+                dtype=np.dtype(dtype),
+                chunks=chunks,
+            )
         elif isinstance(X, dd._Frame):
-            results = [
-                X.map_partitions(
-                    _predict, estimator=estimator, meta=np.array([], dtype=dtype)
-                )
-                for estimator in self.estimators_
-            ]
-            combined = da.vstack(results, allow_unknown_chunksizes=True).T.rechunk(
-                {1: -1}
+            meta = np.empty((0, len(self.classes_)), dtype=dtype)
+            combined = X.map_partitions(
+                _predict_stack, estimators=self.estimators_, meta=meta
             )
         else:
+            # TODO: this should be done in parallel?
             combined = np.vstack(
                 [estimator.predict(X) for estimator in self.estimators_]
             ).T
@@ -156,16 +154,27 @@ class BlockwiseVotingClassifier(ClassifierMixin, BlockwiseBase):
 
     def _collect_probas(self, X):
         if isinstance(X, da.Array):
-            chunks = X.chunks[0], len(self.classes_)
-            probas = [
-                X.map_blocks(
-                    _predict_proba, dtype="float", estimator=estimator, chunks=chunks
-                )
-                for estimator in self.estimators_
-            ]
-            combined = da.stack(probas)  # (n_estimators, len(X), n_classses)
+            chunks = (len(self.estimators_), X.chunks[0], len(self.classes_))
+            meta = np.array([], dtype="float64")
+            # (n_estimators, len(X), n_classses)
+            combined = X.map_blocks(
+                _predict_proba_stack,
+                estimators=self.estimators_,
+                chunks=chunks,
+                meta=meta,
+            )
         elif isinstance(X, dd._Frame):
-            meta = np.empty((0, len(self.classes_)), dtype="float")
+            # TODO: replace with a _predict_proba_stack version.
+            # This current raises; dask.dataframe doesn't like map_partitions that
+            # return new axes.
+            # meta = np.empty((len(self.estimators_), 0, len(self.classes_)),
+            #                 dtype="float64")
+            # combined = X.map_partitions(_predict_proba_stack, meta=meta,
+            #                             estimators=self.estimators_)
+            # combined._chunks = ((len(self.estimators_),),
+            #                     (np.nan,) * X.npartitions,
+            #                     (len(X.columns),))
+            meta = np.empty((0, len(self.classes_)), dtype="float64")
             probas = [
                 X.map_partitions(_predict_proba, meta=meta, estimator=estimator)
                 for estimator in self.estimators_
@@ -224,10 +233,6 @@ def fit(estimator, x, y):
     return estimator
 
 
-def _predict(part, estimator):
-    return estimator.predict(part)
-
-
 def _predict_proba(part, estimator):
     return estimator.predict_proba(part)
 
@@ -238,3 +243,15 @@ def _vote(x):
 
 def _vote_block(block):
     return np.apply_along_axis(_vote, 1, block)
+
+
+def _predict_stack(part, estimators):
+    # predict for a batch of estimators and stack up the results.
+    batches = [estimator.predict(part) for estimator in estimators]
+    return np.vstack(batches).T
+
+
+def _predict_proba_stack(part, estimators):
+    # predict for a batch of estimators and stack up the results.
+    batches = [estimator.predict_proba(part) for estimator in estimators]
+    return np.stack(batches)
