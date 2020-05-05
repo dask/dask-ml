@@ -37,11 +37,9 @@ class TestBlockwiseVotingClassifier:
 
         # ndarray
         X3, y3 = dask.compute(X2, y2)
-
-        result = clf.predict(X3)
-        assert isinstance(result, np.ndarray)
-        assert result.dtype == "int"
-        assert result.shape == (len(y),)
+        result2 = clf.predict(X3)
+        assert isinstance(result2, np.ndarray)
+        da.utils.assert_eq(result, result2)
         score2 = clf.score(X3, y3)
         assert score == score2
 
@@ -88,11 +86,9 @@ class TestBlockwiseVotingClassifier:
 
         # ndarray
         X3, y3 = dask.compute(X2, y2)
-
-        result = clf.predict(X3)
-        assert isinstance(result, np.ndarray)
-        assert result.dtype == "int"
-        assert result.shape == (len(y),)
+        result2 = clf.predict(X3)
+        assert isinstance(result2, np.ndarray)
+        da.utils.assert_eq(result, result2)
         # TODO: accuracy score raising for pandas.
         # score2 = clf.score(X3, y3)
         # assert score == score2
@@ -148,23 +144,21 @@ class TestBlockwiseVotingClassifier:
         assert result_.dtype == result.dtype
         assert result_.shape == (len(y2),)
 
-        result = clf.predict_proba(X)
+        result = clf.predict_proba(X2)
         assert result.dtype == "float"
         assert len(result.shape) == 2
         assert np.isnan(result.shape[0])
         assert result.shape[1] == 2
-        assert result.numblocks == (4, 1)
+        assert result.numblocks == (5, 1)
 
         score = clf.score(X, y)
         assert isinstance(score, float)
 
         # ndarray
         X3, y3 = dask.compute(X2, y2)
-
-        result = clf.predict(X3)
-        assert isinstance(result, np.ndarray)
-        assert result.dtype == "int"
-        assert result.shape == (len(y),)
+        result2 = clf.predict_proba(X3)
+        assert isinstance(result2, np.ndarray)
+        da.utils.assert_eq(result, result2)
         # TODO: accuracy score raising for pandas.
         # score2 = clf.score(X3, y3)
         # assert score == score2
@@ -198,11 +192,9 @@ class TestBlockwiseVotingRegressor:
 
         # ndarray
         X3, y3 = dask.compute(X2, y2)
-
-        result = est.predict(X3)
-        assert isinstance(result, np.ndarray)
-        assert result.dtype == "float"
-        assert result.shape == (len(y),)
+        result2 = est.predict(X3)
+        assert isinstance(result2, np.ndarray)
+        da.utils.assert_eq(result, result2)
         # TODO: r2_score raising for ndarray
         # score2 = est.score(X3, y3)
         # assert score == score2
@@ -229,11 +221,9 @@ class TestBlockwiseVotingRegressor:
 
         # ndarray
         X3, y3 = dask.compute(X2, y2)
-
-        result = est.predict(X3)
-        assert isinstance(result, np.ndarray)
-        assert result.dtype == "float"
-        assert result.shape == (len(y),)
+        result2 = est.predict(X3)
+        assert isinstance(result2, np.ndarray)
+        da.utils.assert_eq(result, result2)
         # TODO: r2_score raising for ndarray
         # score2 = est.score(X3, y3)
         # assert score == score2
