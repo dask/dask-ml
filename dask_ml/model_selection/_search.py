@@ -749,7 +749,7 @@ def _do_fit_step(
                 n_splits,
                 error_score,
             )
-    return (fits, Xs, ys) if is_transform else (fits, None, ys)
+    return (fits, Xs, ys) if is_transform else (fits, None, None)
 
 
 def _do_pipeline(
