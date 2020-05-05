@@ -1,5 +1,7 @@
 from __future__ import absolute_import, division, print_function
 
+import warnings
+
 import numpy as np
 import sklearn.exceptions
 from dask.base import normalize_token
@@ -27,14 +29,16 @@ def normalize_estimator(est):
     attrs = [x for x in dir(est) if x.endswith("_") and not x.startswith("_")]
     exclude = {"cv_results_", "model_history_", "history_", "refit_time_"}
 
-    for attr in attrs:
-        if attr in exclude:
-            continue
-        try:
-            val = getattr(est, attr)
-        except (sklearn.exceptions.NotFittedError, AttributeError):
-            continue
-        base.append(val)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", FutureWarning)
+        for attr in attrs:
+            if attr in exclude:
+                continue
+            try:
+                val = getattr(est, attr)
+            except (sklearn.exceptions.NotFittedError, AttributeError):
+                continue
+            base.append(val)
     return tuple(base)
 
 
