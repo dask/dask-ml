@@ -22,7 +22,7 @@ class TestBlockwiseVotingClassifier:
 
         result = clf.predict(X2)
         assert isinstance(result, da.Array)
-        assert result.dtype == "int"
+        assert result.dtype == np.dtype("int64")
         assert result.shape == (len(y),)
         assert result.numblocks == y2.numblocks
         result_ = result.compute()
@@ -71,7 +71,7 @@ class TestBlockwiseVotingClassifier:
 
         result = clf.predict(X2)
         assert isinstance(result, da.Array)  # TODO(pandas-IO)
-        assert result.dtype == "int"
+        assert result.dtype == np.dtype("int64")
         assert len(result.shape) == 1 and np.isnan(result.shape[0])
         assert result.numblocks == (y2.npartitions,)
         result_ = result.compute()
@@ -104,14 +104,14 @@ class TestBlockwiseVotingClassifier:
 
         result = clf.predict(X)
         assert isinstance(result, da.Array)
-        assert result.dtype == "int"
+        assert result.dtype == np.dtype("int64")
         assert result.shape == (len(X),)
         result_ = result.compute()
         assert result_.dtype == result.dtype
         assert result_.shape == result.shape
 
         result = clf.predict_proba(X)
-        assert result.dtype == "float"
+        assert result.dtype == np.dtype("float64")
         assert result.shape == (len(X), 2)  # 2 classes
         assert result.numblocks == (4, 1)
 
@@ -137,7 +137,7 @@ class TestBlockwiseVotingClassifier:
 
         result = clf.predict(X2)
         assert isinstance(result, da.Array)  # TODO(pandas-IO)
-        assert result.dtype == "int"
+        assert result.dtype == np.dtype("int64")
         assert len(result.shape) == 1 and np.isnan(result.shape[0])
         assert result.numblocks == (y2.npartitions,)
         result_ = result.compute()
@@ -145,7 +145,7 @@ class TestBlockwiseVotingClassifier:
         assert result_.shape == (len(y2),)
 
         result = clf.predict_proba(X2)
-        assert result.dtype == "float"
+        assert result.dtype == np.dtype("float64")
         assert len(result.shape) == 2
         assert np.isnan(result.shape[0])
         assert result.shape[1] == 2
@@ -183,7 +183,7 @@ class TestBlockwiseVotingRegressor:
 
         X2, y2 = dask_ml.datasets.make_regression(n_features=20, chunks=20)
         result = est.predict(X2)
-        assert result.dtype == "float"
+        assert result.dtype == np.dtype("float64")
         assert result.shape == y2.shape
         assert result.numblocks == y2.numblocks
 
@@ -212,7 +212,7 @@ class TestBlockwiseVotingRegressor:
 
         X2, y2 = dask_ml.datasets.make_regression(n_features=20, chunks=20)
         result = est.predict(X2)
-        assert result.dtype == "float"
+        assert result.dtype == np.dtype("float64")
         assert result.shape == y2.shape
         assert result.numblocks == y2.numblocks
 
