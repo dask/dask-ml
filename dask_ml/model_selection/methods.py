@@ -258,7 +258,9 @@ def fit_transform(
     yt = y
 
     print(est, type(est))
-    print((X.shape, y.shape))
+    print(type(X), type(y))
+    print(X, y)
+    # print((X.shape, y.shape))
 
     if X is FIT_FAILURE:
         est, fit_time, Xt = FIT_FAILURE, 0.0, FIT_FAILURE
