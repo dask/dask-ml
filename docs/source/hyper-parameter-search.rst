@@ -1,3 +1,5 @@
+.. _hyper-parameter-search:
+
 Hyper Parameter Search
 ======================
 

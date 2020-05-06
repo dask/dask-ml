@@ -82,7 +82,9 @@ class BlockwiseVotingClassifier(ClassifierMixin, BlockwiseBase):
 
     This classifier trains on blocks / partitions of Dask Arrays or DataFrames.
     A cloned version of `estimator` will be fit *independently* on each block
-    or partition of the Dask collection.
+    or partition of the Dask collection. This is useful when the sub estimator
+    only works on small in-memory data structures like a NumPy array or pandas
+    DataFrame.
 
     Prediction is done by the *ensemble* of learned models.
 
@@ -112,6 +114,20 @@ class BlockwiseVotingClassifier(ClassifierMixin, BlockwiseBase):
 
     classes_ : array-like, shape (n_predictions,)
         The class labels.
+
+    Examples
+    --------
+    >>> import dask_ml.datasets
+    >>> import dask_ml.ensemble
+    >>> import sklearn.linear_model
+    >>> X, y = dask_ml.datasets.make_classification(n_samples=100_000,
+    >>> ...                                         chunks=10_000)
+    >>> subestimator = sklearn.linear_model.RidgeClassifier(random_state=0)
+    >>> clf = dask_ml.ensemble.BlockwiseVotingClassifier(
+    >>> ...     subestimator,
+    >>> ...     classes=[0, 1]
+    >>> ... )
+    >>> clf.fit(X, y)
     """
 
     def __init__(self, estimator, voting="hard", classes=None):
@@ -225,6 +241,19 @@ class BlockwiseVotingRegressor(RegressorMixin, BlockwiseBase):
     estimators_ : list of regressors
         The collection of fitted sub-estimators that are `estimator` fitted
         on each partition / block of the inputs.
+
+    Examples
+    --------
+    >>> import dask_ml.datasets
+    >>> import dask_ml.ensemble
+    >>> import sklearn.linear_model
+    >>> X, y = dask_ml.datasets.make_regression(n_samples=100_000,
+    ...                                         chunks=10_000)
+    >>> subestimator = sklearn.linear_model.LinearRegression()
+    >>> clf = dask_ml.ensemble.BlockwiseVotingRegressor(
+    ...     subestimator,
+    ... )
+    >>> clf.fit(X, y)
     """
 
     def predict(self, X):
