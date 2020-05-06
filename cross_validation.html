@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.3.1.dev14+gb812fe5
+                1.3.1.dev15+gc535a51
               </div>
             
           
@@ -251,7 +251,7 @@
 <h1>Cross Validation<a class="headerlink" href="#cross-validation" title="Permalink to this headline">¶</a></h1>
 <p>See the <a class="reference external" href="http:/scikit-learn.org/stable/modules/cross_validation.html">scikit-learn cross validation documentation</a> for a fuller discussion of cross validation.
 This document only describes the extensions made to support Dask arrays.</p>
-<p>The simplest way to split one or more Dask arrays is with <a class="reference internal" href="modules/generated/dask_ml.model_selection.train_test_split.html#dask_ml.model_selection.train_test_split" title="dask_ml.model_selection.train_test_split"><code class="xref py py-func docutils literal notranslate"><span class="pre">dask_ml.model_selection.train_test_split()</span></code></a>.</p>
+<p>The simplest way to split one or more Dask arrays is with <a class="reference internal" href="modules/generated/dask_ml.model_selection.train_test_split.html#dask_ml.model_selection.train_test_split" title="dask_ml.model_selection.train_test_split"><code class="xref py py-func docutils literal notranslate"><span class="pre">dask_ml.model_selection.train_test_split()</span></code></a>:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">import</span> <span class="nn">dask.array</span> <span class="k">as</span> <span class="nn">da</span>
 
 <span class="gp">In [2]: </span><span class="kn">from</span> <span class="nn">dask_ml.datasets</span> <span class="kn">import</span> <span class="n">make_regression</span>
@@ -272,14 +272,14 @@ This document only describes the extensions made to support Dask arrays.</p>
 
 <span class="gp">In [8]: </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="gh">Out[8]: </span><span class="go"></span>
-<span class="go">array([[-0.3122028 , -0.88191003, -0.00495866,  0.91761886],</span>
-<span class="go">       [ 0.0245364 , -0.43393144,  1.62149195, -0.5357923 ],</span>
-<span class="go">       [-0.91167124, -1.49118942, -0.04353167, -0.59867598]])</span>
+<span class="go">array([[-0.10656729, -0.19912227, -1.29342938,  0.67371525],</span>
+<span class="go">       [ 0.12590048, -0.69540901, -1.18976616, -1.07897621],</span>
+<span class="go">       [-2.48417857, -1.51302803,  1.18438   ,  0.64385103]])</span>
 </pre></div>
 </div>
 <p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v0.22)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
-using the Dask version for performance reasons. There are two major difference that let make the Dask version
-faster.</p>
+using the Dask version for performance reasons: the Dask version is faster
+for two reasons:</p>
 <p>First, <strong>the Dask version shuffles blockwise</strong>.
 In a distributed setting, shuffling <em>between</em> blocks may require sending large amounts of data between machines, which can be slow.
 However, if there’s a strong pattern in your data, you’ll want to perform a full shuffle.</p>

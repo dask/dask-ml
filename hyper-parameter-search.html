@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.3.1.dev14+gb812fe5
+                1.3.1.dev15+gc535a51
               </div>
             
           
@@ -167,13 +167,28 @@
 <li class="toctree-l1"><a class="reference internal" href="preprocessing.html">Preprocessing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cross_validation.html">Cross Validation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Hyper Parameter Search</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#scaling-hyperparameter-searches">Scaling hyperparameter searches</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#neither-compute-nor-memory-constrained">Neither compute nor memory constrained</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#memory-constrained-but-not-compute-constrained">Memory constrained, but not compute constrained</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compute-constrained-but-not-memory-constrained">Compute constrained, but not memory constrained</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compute-and-memory-constrained">Compute and memory constrained</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#drop-in-replacements-for-scikit-learn">Drop-In Replacements for Scikit-Learn</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#flexible-backends">Flexible Backends</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#works-well-with-dask-collections">Works Well With Dask Collections</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#avoid-repeated-work">Avoid Repeated Work</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#incremental-hyperparameter-optimization">Incremental Hyperparameter Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#incremental-hyperparameter-optimization">Incremental Hyperparameter Optimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-use">Basic use</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#adaptive-hyperparameter-optimization">Adaptive Hyperparameter Optimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#hyperband-parameters-rule-of-thumb">Hyperband parameters: rule-of-thumb</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hyperband-performance">Hyperband Performance</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="compose.html">Pipelines and Composite Estimators</a></li>
@@ -258,21 +273,93 @@
             
   <div class="section" id="hyper-parameter-search">
 <h1>Hyper Parameter Search<a class="headerlink" href="#hyper-parameter-search" title="Permalink to this headline">¶</a></h1>
-<p><em>Tools for performing hyperparameter optimization of Scikit-Learn API-compatible models using Dask</em>.</p>
-<p>There are two kinds of hyperparameter optimization estimators
-in Dask-ML. The appropriate one to use depends on the size of your dataset and
-whether the underlying estimator implements the <cite>partial_fit</cite> method.</p>
-<p>If your dataset is relatively small or the underlying estimator doesn’t implement
-<code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>, you can use <a class="reference internal" href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV" title="dask_ml.model_selection.GridSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.model_selection.GridSearchCV</span></code></a> or
-<a class="reference internal" href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV" title="dask_ml.model_selection.RandomizedSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.model_selection.RandomizedSearchCV</span></code></a>.
-These are drop-in replacements for their scikit-learn counterparts, that should offer better performance and handling of Dask Arrays and DataFrames.
-The underlying estimator will need to be able to train on each cross-validation split of the data.
-See <a class="reference internal" href="#hyperparameter-drop-in"><span class="std std-ref">Drop-In Replacements for Scikit-Learn</span></a> for more.</p>
-<p>If your data is large and the underlying estimator implements <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>, you can
-Dask-ML’s <a class="reference internal" href="#hyperparameter-incremental"><span class="std std-ref">*incremental* hyperparameter optimizers</span></a>.</p>
-<div class="section" id="drop-in-replacements-for-scikit-learn">
-<span id="hyperparameter-drop-in"></span><h2>Drop-In Replacements for Scikit-Learn<a class="headerlink" href="#drop-in-replacements-for-scikit-learn" title="Permalink to this headline">¶</a></h2>
-<p>Dask-ML implements GridSearchCV and RandomizedSearchCV.</p>
+<p><em>Tools to perform hyperparameter optimizaiton of Scikit-Learn API-compatible
+models using Dask, and to scale hyperparameter optimization to</em> <strong>larger
+data and/or larger searches.</strong></p>
+<p>Hyperparameter searches are a required process in machine learning. Briefly,
+machine learning models require certain “hyperparameters”, model parameters
+that can be learned from the data. Finding these good values for these
+parameters is a “hyperparameter search” or an “hyperparameter optimization.”
+For more detail, see “<a class="reference external" href="https://scikit-learn.org/stable/modules/grid_search.html">Tuning the hyper-parameters of an estimator</a>.”</p>
+<p>These searches can take an ample time (days or weeks), especially when good
+performance is desired and/or with massive datasets, which is common when
+preparing for production or a paper publication. The following section
+clarifies the issues that can occur:</p>
+<ul class="simple">
+<li>“<a class="reference internal" href="#hyperparameter-scaling"><span class="std std-ref">Scaling hyperparameter searches</span></a>” mentions problems that often occur in
+hyperparameter optimization searches.</li>
+</ul>
+<p>Tools that address these problems are expanded upon in these sections:</p>
+<ol class="arabic simple">
+<li>“<a class="reference internal" href="#hyperparameter-drop-in"><span class="std std-ref">Drop-In Replacements for Scikit-Learn</span></a>” details classes that mirror the Scikit-learn
+estimators but work nicely with Dask objects and can offer better
+performance.</li>
+<li>“<a class="reference internal" href="#hyperparameter-incremental"><span class="std std-ref">Incremental Hyperparameter Optimization</span></a>” details classes that work well with
+large datasets.</li>
+<li>“<a class="reference internal" href="#hyperparameter-adaptive"><span class="std std-ref">Adaptive Hyperparameter Optimization</span></a>” details classes that avoid extra
+computation and find high-performing hyperparameters more quickly.</li>
+</ol>
+<div class="section" id="scaling-hyperparameter-searches">
+<span id="hyperparameter-scaling"></span><h2>Scaling hyperparameter searches<a class="headerlink" href="#scaling-hyperparameter-searches" title="Permalink to this headline">¶</a></h2>
+<p>Dask-ML provides classes to avoid the two most common issues in hyperparameter
+optimization, when the hyperparameter search is…</p>
+<ol class="arabic simple">
+<li>“<strong>memory constrained”</strong>. This happens when the dataset size is too large to
+fit in memory.  This typically happens when a model needs to be tuned for a
+larger-than-memory dataset after local development.</li>
+<li>“<strong>compute constrained</strong>”. This happen when the computation takes too long
+even with data that can fit in memory.  This typically happens when many
+hyperparameters need to be tuned or the model requires a specialized
+hardware (e.g., GPUs).</li>
+</ol>
+<p>“Memory constrained” searches happen when the data doesn’t fit in the memory of
+a single machine:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">## not memory constrained</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;data/0.parquet&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(30000, 200)  # =&gt; 23MB</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">## memory constrained</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Read 1000 of the above dataframes (=&gt; 22GB of data)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ddf</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s2">&quot;data/*.parquet&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>“Compute constrained” is when the hyperparameter search takes too long even if
+the data fits in memory. There might a lot of hyperparameters to search, or the
+model may require specialized hardware like GPUs:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span><span class="p">,</span> <span class="n">loguniform</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">SGDClasifier</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s2">&quot;data/0.parquet&quot;</span><span class="p">)</span>  <span class="c1"># data to train on; 23MB as above</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">SGDClasifier</span><span class="p">()</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># not compute constrained</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;l1_ratio&quot;</span><span class="p">:</span> <span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)}</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># compute constrained</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s2">&quot;l1_ratio&quot;</span><span class="p">:</span> <span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="n">loguniform</span><span class="p">(</span><span class="mf">1e-5</span><span class="p">,</span> <span class="mf">1e-1</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s2">&quot;penalty&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;l2&quot;</span><span class="p">,</span> <span class="s2">&quot;l1&quot;</span><span class="p">,</span> <span class="s2">&quot;elasticnet&quot;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;invscaling&quot;</span><span class="p">,</span> <span class="s2">&quot;adaptive&quot;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s2">&quot;power_t&quot;</span><span class="p">:</span> <span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s2">&quot;average&quot;</span><span class="p">:</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>These issues are independent and both can happen the same time. Dask-ML has
+tools to address all 4 combinations. Let’s look at each case.</p>
+<div class="section" id="neither-compute-nor-memory-constrained">
+<h3>Neither compute nor memory constrained<a class="headerlink" href="#neither-compute-nor-memory-constrained" title="Permalink to this headline">¶</a></h3>
+<p>This case happens when there aren’t many hyperparameters to tune and the data
+fits in memory. This is common when the search doesn’t take too long to run.</p>
+<p>Scikit-learn can handle this case:</p>
 <table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
@@ -282,11 +369,174 @@ Dask-ML’s <a class="reference internal" href="#hyperparameter-incremental"><sp
 <tr class="row-odd"><td><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v0.22)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>(…[,&nbsp;…])</td>
 <td>Exhaustive search over specified parameter values for an estimator.</td>
 </tr>
+<tr class="row-even"><td><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v0.22)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.RandomizedSearchCV</span></code></a>(…)</td>
+<td>Randomized search on hyper parameters.</td>
+</tr>
+</tbody>
+</table>
+<p>Dask-ML also has some drop in replacements for the Scikit-learn versions that
+works well with <a class="reference external" href="https://docs.dask.org/en/latest/user-interfaces.html#high-level-collections">Dask collections</a> (like Dask Arrays and Dask DataFrames):</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV" title="dask_ml.model_selection.GridSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.GridSearchCV</span></code></a>(…[,&nbsp;…])</td>
+<td>Exhaustive search over specified parameter values for an estimator.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV" title="dask_ml.model_selection.RandomizedSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.RandomizedSearchCV</span></code></a>(…)</td>
+<td>Randomized search on hyper parameters.</td>
+</tr>
+</tbody>
+</table>
+<p>By default, these estimators will efficiently pass the entire dataset to
+<code class="docutils literal notranslate"><span class="pre">fit</span></code> if a Dask Array/DataFrame is passed.  More detail is in
+“<a class="reference internal" href="#works-with-dask-collections"><span class="std std-ref">Works Well With Dask Collections</span></a>”.</p>
+<p>These estimators above work especially well with models that have expensive
+preprocessing, which is common in natural language processing (NLP). More
+detail is in “<a class="reference internal" href="#hyperparameter-cpu-nmem"><span class="std std-ref">Compute constrained, but not memory constrained</span></a>” and “<a class="reference internal" href="#avoid-repeated-work"><span class="std std-ref">Avoid Repeated Work</span></a>”.</p>
+</div>
+<div class="section" id="memory-constrained-but-not-compute-constrained">
+<span id="hyperparameter-mem-ncpu"></span><h3>Memory constrained, but not compute constrained<a class="headerlink" href="#memory-constrained-but-not-compute-constrained" title="Permalink to this headline">¶</a></h3>
+<p>This case happens when the data doesn’t fit in memory but there aren’t many
+hyperparameters to search over. The data doesn’t fit in memory, so it makes
+sense to call <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> on each chunk of a Dask Array/Dataframe. This
+estimators does that:</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV" title="dask_ml.model_selection.IncrementalSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearchCV</span></code></a>(…)</td>
+<td>Incrementally search for hyper-parameters on models that support partial_fit</td>
+</tr>
+</tbody>
+</table>
+<p>More detail on <a class="reference internal" href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV" title="dask_ml.model_selection.IncrementalSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">IncrementalSearchCV</span></code></a> is in
+“<a class="reference internal" href="#hyperparameter-incremental"><span class="std std-ref">Incremental Hyperparameter Optimization</span></a>”.</p>
+<p>Dask’s implementation of <a class="reference internal" href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV" title="dask_ml.model_selection.GridSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">GridSearchCV</span></code></a> and
+<a class="reference internal" href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV" title="dask_ml.model_selection.RandomizedSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomizedSearchCV</span></code></a> can to also call
+<code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> on each chunk of a Dask array, as long as the model passed is
+wrapped with <a class="reference internal" href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental" title="dask_ml.wrappers.Incremental"><code class="xref py py-class docutils literal notranslate"><span class="pre">Incremental</span></code></a>.</p>
+</div>
+<div class="section" id="compute-constrained-but-not-memory-constrained">
+<span id="hyperparameter-cpu-nmem"></span><h3>Compute constrained, but not memory constrained<a class="headerlink" href="#compute-constrained-but-not-memory-constrained" title="Permalink to this headline">¶</a></h3>
+<p>This case happens when the data fits on in the memory of one machine but when
+there are a lot of hyperparameters to search, or the models require specialized
+hardware like GPUs. The best class for this case is
+<a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a>:</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.HyperbandSearchCV</span></code></a>(…)</td>
+<td>Find the best parameters for a particular model with an adaptive cross-validation algorithm.</td>
+</tr>
+</tbody>
+</table>
+<p>Briefly, this estimator is easy to use, has strong mathematical motivation and
+performs remarkably well. For more detail, see
+“<a class="reference internal" href="#hyperparameter-hyperband-params"><span class="std std-ref">Hyperband parameters: rule-of-thumb</span></a>” and
+“<a class="reference internal" href="#hyperparameter-hyperband-perf"><span class="std std-ref">Hyperband Performance</span></a>”.</p>
+<p>Two other adaptive hyperparameter optimization algorithms are implemented in these
+classes:</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV" title="dask_ml.model_selection.SuccessiveHalvingSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.SuccessiveHalvingSearchCV</span></code></a>(…)</td>
+<td>Perform the successive halving algorithm <a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#r424ea1a907b1-1" id="id1">[R424ea1a907b1-1]</a>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.InverseDecaySearchCV.html#dask_ml.model_selection.InverseDecaySearchCV" title="dask_ml.model_selection.InverseDecaySearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.InverseDecaySearchCV</span></code></a>(…)</td>
+<td>Incrementally search for hyper-parameters on models that support partial_fit</td>
+</tr>
+</tbody>
+</table>
+<p>The input parameters for these classes are a more difficult to configure.</p>
+<p>All of these searches can reduce time to solution by (cleverly) deciding which
+parameters to evaluate. That is, these searches <em>adapt</em> to history to decide
+which parameters to continue evaluating.  All of these estimators support
+ignoring models models with decreasing score via the <code class="docutils literal notranslate"><span class="pre">patience</span></code> and <code class="docutils literal notranslate"><span class="pre">tol</span></code>
+parameters.</p>
+<p>Another way to limit computation is to avoid repeated work during during the
+searches. This is especially useful with expensive preprocessing, which is
+common in natural language processing (NLP).</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV" title="dask_ml.model_selection.RandomizedSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.RandomizedSearchCV</span></code></a>(…)</td>
+<td>Randomized search on hyper parameters.</td>
+</tr>
 <tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV" title="dask_ml.model_selection.GridSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.GridSearchCV</span></code></a>(…[,&nbsp;…])</td>
 <td>Exhaustive search over specified parameter values for an estimator.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v0.22)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.RandomizedSearchCV</span></code></a>(…)</td>
-<td>Randomized search on hyper parameters.</td>
+</tbody>
+</table>
+<p>Avoiding repeated work with this class relies on the model being an instance of
+Scikit-learn’s <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.22)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></a>.  See
+“<a class="reference internal" href="#avoid-repeated-work"><span class="std std-ref">Avoid Repeated Work</span></a>” for more detail.</p>
+</div>
+<div class="section" id="compute-and-memory-constrained">
+<h3>Compute and memory constrained<a class="headerlink" href="#compute-and-memory-constrained" title="Permalink to this headline">¶</a></h3>
+<p>This case happens when the dataset is larger than memory and there are many
+parameters to search. In this case, it’s useful to have strong support for Dask
+Arrays/DataFrames <cite>and</cite> to decide which models to continue training.</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.HyperbandSearchCV</span></code></a>(…)</td>
+<td>Find the best parameters for a particular model with an adaptive cross-validation algorithm.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV" title="dask_ml.model_selection.SuccessiveHalvingSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.SuccessiveHalvingSearchCV</span></code></a>(…)</td>
+<td>Perform the successive halving algorithm <a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#r424ea1a907b1-1" id="id2">[R424ea1a907b1-1]</a>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.InverseDecaySearchCV.html#dask_ml.model_selection.InverseDecaySearchCV" title="dask_ml.model_selection.InverseDecaySearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.InverseDecaySearchCV</span></code></a>(…)</td>
+<td>Incrementally search for hyper-parameters on models that support partial_fit</td>
+</tr>
+</tbody>
+</table>
+<p>These classes work well with data that does not fit in memory. They also reduce
+the computation required as described in “<a class="reference internal" href="#hyperparameter-cpu-nmem"><span class="std std-ref">Compute constrained, but not memory constrained</span></a>.”</p>
+<hr class="docutils" />
+<p>Now, let’s look at these classes in-depth.</p>
+<ol class="arabic simple">
+<li>“<a class="reference internal" href="#hyperparameter-drop-in"><span class="std std-ref">Drop-In Replacements for Scikit-Learn</span></a>” details
+<a class="reference internal" href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV" title="dask_ml.model_selection.RandomizedSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomizedSearchCV</span></code></a> and
+<a class="reference internal" href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV" title="dask_ml.model_selection.GridSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">GridSearchCV</span></code></a>.</li>
+<li>“<a class="reference internal" href="#hyperparameter-incremental"><span class="std std-ref">Incremental Hyperparameter Optimization</span></a>” details
+<a class="reference internal" href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV" title="dask_ml.model_selection.IncrementalSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">IncrementalSearchCV</span></code></a> and all it’s
+subclasses (one of which is
+<a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a>).</li>
+<li>“<a class="reference internal" href="#hyperparameter-adaptive"><span class="std std-ref">Adaptive Hyperparameter Optimization</span></a>” details usage and performance of
+<a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a>.</li>
+</ol>
+</div>
+</div>
+<div class="section" id="drop-in-replacements-for-scikit-learn">
+<span id="hyperparameter-drop-in"></span><h2>Drop-In Replacements for Scikit-Learn<a class="headerlink" href="#drop-in-replacements-for-scikit-learn" title="Permalink to this headline">¶</a></h2>
+<p>Dask-ML implements drop-in replacements for
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v0.22)"><code class="xref py py-class docutils literal notranslate"><span class="pre">GridSearchCV</span></code></a> and
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v0.22)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomizedSearchCV</span></code></a>.</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV" title="dask_ml.model_selection.GridSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.GridSearchCV</span></code></a>(…[,&nbsp;…])</td>
+<td>Exhaustive search over specified parameter values for an estimator.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV" title="dask_ml.model_selection.RandomizedSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.RandomizedSearchCV</span></code></a>(…)</td>
 <td>Randomized search on hyper parameters.</td>
@@ -302,16 +552,16 @@ optimization can be done in parallel using threads, processes, or distributed
 across a cluster.</li>
 <li><a class="reference internal" href="#works-with-dask-collections"><span class="std std-ref">Works well with Dask collections</span></a>. Dask
 arrays, dataframes, and delayed can be passed to <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</li>
-<li><a class="reference internal" href="#avoid-repeated-work"><span class="std std-ref">Avoid repeated work</span></a>. Candidate estimators with
+<li><a class="reference internal" href="#avoid-repeated-work"><span class="std std-ref">Avoid repeated work</span></a>. Candidate models with
 identical parameters and inputs will only be fit once. For
-composite-estimators such as <code class="docutils literal notranslate"><span class="pre">Pipeline</span></code> this can be significantly more
+composite-models such as <code class="docutils literal notranslate"><span class="pre">Pipeline</span></code> this can be significantly more
 efficient as it can avoid expensive repeated computations.</li>
 </ul>
-<p>Both scikit-learn’s and Dask-ML’s model selection meta-estimators can be used
+<p>Both Scikit-learn’s and Dask-ML’s model selection meta-estimators can be used
 with Dask’s <a class="reference internal" href="joblib.html#joblib"><span class="std std-ref">joblib backend</span></a>.</p>
 <div class="section" id="flexible-backends">
-<span id="id1"></span><h3>Flexible Backends<a class="headerlink" href="#flexible-backends" title="Permalink to this headline">¶</a></h3>
-<p>Dask-ml can use any of the dask schedulers. By default the threaded
+<span id="id3"></span><h3>Flexible Backends<a class="headerlink" href="#flexible-backends" title="Permalink to this headline">¶</a></h3>
+<p>Dask-ML can use any of the dask schedulers. By default the threaded
 scheduler is used, but this can easily be swapped out for the multiprocessing
 or distributed scheduler:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Distribute grid-search across a cluster</span>
@@ -343,15 +593,17 @@ to pull it locally to your computer:</p>
 <span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;x2&#39;</span><span class="p">]],</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
+<p>This example will compute each CV split and store it on a single machine so
+<code class="docutils literal notranslate"><span class="pre">fit</span></code> can be called.</p>
 </div>
 <div class="section" id="avoid-repeated-work">
-<span id="id2"></span><h3>Avoid Repeated Work<a class="headerlink" href="#avoid-repeated-work" title="Permalink to this headline">¶</a></h3>
-<p>When searching over composite estimators like <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code> or
+<span id="id4"></span><h3>Avoid Repeated Work<a class="headerlink" href="#avoid-repeated-work" title="Permalink to this headline">¶</a></h3>
+<p>When searching over composite models like <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code> or
 <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.FeatureUnion</span></code>, Dask-ML will avoid fitting the same
-estimator + parameter + data combination more than once. For pipelines with
+model + parameter + data combination more than once. For pipelines with
 expensive early steps this can be faster, as repeated work is avoided.</p>
 <p>For example, given the following 3-stage pipeline and grid (modified from <a class="reference external" href="http://scikit-learn.org/stable/auto_examples/model_selection/grid_search_text_feature_extraction.html">this
-scikit-learn example</a>).</p>
+Scikit-learn example</a>).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">CountVectorizer</span><span class="p">,</span> <span class="n">TfidfTransformer</span>
 <span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">SGDClassifier</span>
 <span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
@@ -382,7 +634,7 @@ scikit-learn example</a>).</p>
 </div>
 <p>As a directed acyclic graph, this might look like:</p>
 <div class="figure align-center">
-<img alt="&quot;scikit-learn grid-search directed acyclic graph&quot;" src="_images/unmerged_grid_search_graph.svg" /></div>
+<img alt="&quot;Scikit-learn grid-search directed acyclic graph&quot;" src="_images/unmerged_grid_search_graph.svg" /></div>
 <p>In contrast, the dask version looks more like:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">ngram_range</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;vect__ngram_range&#39;</span><span class="p">]:</span>
@@ -405,15 +657,12 @@ scikit-learn example</a>).</p>
 earlier steps in the pipeline multiple times with the same parameters and data.
 Due to the increased flexibility of Dask over Joblib, we’re able to merge these
 tasks in the graph and only perform the fit step once for any
-parameter/data/estimator combination. For pipelines that have relatively
+parameter/data/model combination. For pipelines that have relatively
 expensive early steps, this can be a big win when performing a grid search.</p>
 </div>
 </div>
 <div class="section" id="incremental-hyperparameter-optimization">
 <span id="hyperparameter-incremental"></span><h2>Incremental Hyperparameter Optimization<a class="headerlink" href="#incremental-hyperparameter-optimization" title="Permalink to this headline">¶</a></h2>
-<p>The second category of hyperparameter optimization uses <em>incremental</em>
-hyperparameter optimization. These should be used when your full dataset doesn’t
-fit in memory on a single machine.</p>
 <table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
@@ -423,130 +672,291 @@ fit in memory on a single machine.</p>
 <tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV" title="dask_ml.model_selection.IncrementalSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearchCV</span></code></a>(…)</td>
 <td>Incrementally search for hyper-parameters on models that support partial_fit</td>
 </tr>
+<tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.HyperbandSearchCV</span></code></a>(…)</td>
+<td>Find the best parameters for a particular model with an adaptive cross-validation algorithm.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV" title="dask_ml.model_selection.SuccessiveHalvingSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.SuccessiveHalvingSearchCV</span></code></a>(…)</td>
+<td>Perform the successive halving algorithm <a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#r424ea1a907b1-1" id="id5">[R424ea1a907b1-1]</a>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.InverseDecaySearchCV.html#dask_ml.model_selection.InverseDecaySearchCV" title="dask_ml.model_selection.InverseDecaySearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.InverseDecaySearchCV</span></code></a>(…)</td>
+<td>Incrementally search for hyper-parameters on models that support partial_fit</td>
+</tr>
 </tbody>
 </table>
-<p>Broadly speaking, incremental optimization starts with a batch of models (underlying
-estimators and hyperparameter combinations) and repeatedly calls the underlying estimator’s
-<code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> method with batches of data.</p>
+<p>These estimators all handle Dask arrays/dataframe identically. The example will
+use <a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a>, but it can easily be
+generalized to any of the above estimators.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">These estimators require the optional <code class="docutils literal notranslate"><span class="pre">distributed</span></code> library.</p>
+<p class="last">These estimators require that the model implement <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code></p>
 </div>
-<p>Here’s an example training on a “large” dataset (a Dask array) with the
-<code class="docutils literal notranslate"><span class="pre">IncrementalSearchCV</span></code>.</p>
+<p>By default, these class will call <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> on each chunk of the data.
+These classes can stop training any models if their score stops increasing
+(via <code class="docutils literal notranslate"><span class="pre">patience</span></code> and <code class="docutils literal notranslate"><span class="pre">tol</span></code>). They even get one step fancier, and can choose
+which models to call <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> on.</p>
+<p>First, let’s look at basic usage. “<a class="reference internal" href="#hyperparameter-adaptive"><span class="std std-ref">Adaptive Hyperparameter Optimization</span></a>” details
+estimators that reduce the amount of computation required.</p>
+<div class="section" id="basic-use">
+<h3>Basic use<a class="headerlink" href="#basic-use" title="Permalink to this headline">¶</a></h3>
+<p>This section uses <a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a>, but it can
+also be applied to to <a class="reference internal" href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV" title="dask_ml.model_selection.IncrementalSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">IncrementalSearchCV</span></code></a> too.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">from</span> <span class="nn">dask.distributed</span> <span class="kn">import</span> <span class="n">Client</span>
 
-<span class="gp">In [2]: </span><span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">()</span>
+<span class="gp">In [2]: </span><span class="kn">from</span> <span class="nn">dask_ml.datasets</span> <span class="kn">import</span> <span class="n">make_classification</span>
 
-<span class="gp">In [3]: </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">In [3]: </span><span class="kn">from</span> <span class="nn">dask_ml.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
 
-<span class="gp">In [4]: </span><span class="kn">from</span> <span class="nn">dask_ml.datasets</span> <span class="kn">import</span> <span class="n">make_classification</span>
+<span class="gp">In [4]: </span><span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">()</span>
 
-<span class="gp">In [5]: </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_classification</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">5000000</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-<span class="gp">   ...: </span>                           <span class="n">chunks</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="gp">   ...: </span>
+<span class="gp">In [5]: </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_classification</span><span class="p">(</span><span class="n">chunks</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="gp">In [6]: </span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Our underlying estimator is an SGDClassifier. We specify a few parameters
-common to each clone of the estimator:</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [6]: </span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">SGDClassifier</span>
+<p>Our underlying model is an <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.linear_model.SGDClasifier</span></code>. We
+specify a few parameters common to each clone of the model:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [7]: </span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">SGDClassifier</span>
 
-<span class="gp">In [7]: </span><span class="n">model</span> <span class="o">=</span> <span class="n">SGDClassifier</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">penalty</span><span class="o">=</span><span class="s1">&#39;elasticnet&#39;</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">In [8]: </span><span class="n">clf</span> <span class="o">=</span> <span class="n">SGDClassifier</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">penalty</span><span class="o">=</span><span class="s1">&#39;elasticnet&#39;</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>We also define the distribution of parameters from which we will sample:</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [8]: </span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
-<span class="gp">   ...: </span>          <span class="s1">&#39;l1_ratio&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
-<span class="gp">   ...: </span>          <span class="s1">&#39;average&#39;</span><span class="p">:</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]}</span>
-<span class="gp">   ...: </span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span><span class="p">,</span> <span class="n">loguniform</span>
+
+<span class="gp">In [10]: </span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">loguniform</span><span class="p">(</span><span class="mf">1e-2</span><span class="p">,</span> <span class="mf">1e0</span><span class="p">),</span>  <span class="c1"># or np.logspace</span>
+<span class="gp">   ....: </span>          <span class="s1">&#39;l1_ratio&#39;</span><span class="p">:</span> <span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)}</span>  <span class="c1"># or np.linspace</span>
+<span class="gp">   ....: </span>
 </pre></div>
 </div>
 <p>Finally we create many random models in this parameter space and
 train-and-score them until we find the best one.</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="kn">from</span> <span class="nn">dask_ml.model_selection</span> <span class="kn">import</span> <span class="n">IncrementalSearchCV</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [11]: </span><span class="kn">from</span> <span class="nn">dask_ml.model_selection</span> <span class="kn">import</span> <span class="n">HyperbandSearchCV</span>
 
-<span class="gp">In [10]: </span><span class="n">search</span> <span class="o">=</span> <span class="n">IncrementalSearchCV</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">In [12]: </span><span class="n">search</span> <span class="o">=</span> <span class="n">HyperbandSearchCV</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">81</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-<span class="gp">In [11]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-<span class="gh">Out[11]: </span><span class="go"></span>
-<span class="go">IncrementalSearchCV(decay_rate=1.0,</span>
-<span class="go">                    estimator=SGDClassifier(alpha=0.0001, average=False,</span>
-<span class="go">                                            class_weight=None,</span>
-<span class="go">                                            early_stopping=False, epsilon=0.1,</span>
-<span class="go">                                            eta0=0.0, fit_intercept=True,</span>
-<span class="go">                                            l1_ratio=0.15,</span>
-<span class="go">                                            learning_rate=&#39;optimal&#39;,</span>
-<span class="go">                                            loss=&#39;hinge&#39;, max_iter=1000,</span>
-<span class="go">                                            n_iter_no_change=5, n_jobs=None,</span>
-<span class="go">                                            penalty=&#39;elasticnet&#39;, power_t=0.5,</span>
-<span class="go">                                            random_state=0, shuffle=True,</span>
-<span class="go">                                            tol=0.001, validation_fractio...</span>
-<span class="go">       0.97597598, 0.97697698, 0.97797798, 0.97897898, 0.97997998,</span>
-<span class="go">       0.98098098, 0.98198198, 0.98298298, 0.98398398, 0.98498498,</span>
-<span class="go">       0.98598599, 0.98698699, 0.98798799, 0.98898899, 0.98998999,</span>
-<span class="go">       0.99099099, 0.99199199, 0.99299299, 0.99399399, 0.99499499,</span>
-<span class="go">       0.995996  , 0.996997  , 0.997998  , 0.998999  , 1.        ])},</span>
-<span class="go">                    patience=False, prefix=&#39;&#39;, random_state=0,</span>
-<span class="go">                    scores_per_fit=None, scoring=None, test_size=None,</span>
-<span class="go">                    tol=0.001, verbose=False)</span>
+<span class="gp">In [13]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
+
+<span class="gp">In [14]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span>
+<span class="gh">Out[14]: </span><span class="go">{&#39;alpha&#39;: 0.026372606296535494, &#39;l1_ratio&#39;: 0.22615162496164476}</span>
+
+<span class="gp">In [15]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_score_</span>
+<span class="gh">Out[15]: </span><span class="go">0.65</span>
+
+<span class="gp">In [16]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+<span class="gh">Out[16]: </span><span class="go">0.4</span>
 </pre></div>
 </div>
 <p>Note that when you do post-fit tasks like <code class="docutils literal notranslate"><span class="pre">search.score</span></code>, the underlying
-estimator’s score method is used. If that is unable to handle a
+model’s score method is used. If that is unable to handle a
 larger-than-memory Dask Array, you’ll exhaust your machines memory. If you plan
 to use post-estimation features like scoring or prediction, we recommend using
 <a class="reference internal" href="modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit" title="dask_ml.wrappers.ParallelPostFit"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.wrappers.ParallelPostFit</span></code></a>.</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [12]: </span><span class="kn">from</span> <span class="nn">dask_ml.wrappers</span> <span class="kn">import</span> <span class="n">ParallelPostFit</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [17]: </span><span class="kn">from</span> <span class="nn">dask_ml.wrappers</span> <span class="kn">import</span> <span class="n">ParallelPostFit</span>
 
-<span class="gp">In [13]: </span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;estimator__alpha&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
-<span class="gp">   ....: </span>          <span class="s1">&#39;estimator__l1_ratio&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">1000</span><span class="p">),</span>
-<span class="gp">   ....: </span>          <span class="s1">&#39;estimator__average&#39;</span><span class="p">:</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">]}</span>
+<span class="gp">In [18]: </span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;estimator__alpha&#39;</span><span class="p">:</span> <span class="n">loguniform</span><span class="p">(</span><span class="mf">1e-2</span><span class="p">,</span> <span class="mf">1e0</span><span class="p">),</span>
+<span class="gp">   ....: </span>          <span class="s1">&#39;estimator__l1_ratio&#39;</span><span class="p">:</span> <span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)}</span>
 <span class="gp">   ....: </span>
 
-<span class="gp">In [14]: </span><span class="n">model</span> <span class="o">=</span> <span class="n">ParallelPostFit</span><span class="p">(</span><span class="n">SGDClassifier</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
-<span class="gp">   ....: </span>                                      <span class="n">penalty</span><span class="o">=</span><span class="s2">&quot;elasticnet&quot;</span><span class="p">,</span>
-<span class="gp">   ....: </span>                                      <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
-<span class="gp">   ....: </span>
+<span class="gp">In [19]: </span><span class="n">est</span> <span class="o">=</span> <span class="n">ParallelPostFit</span><span class="p">(</span><span class="n">SGDClassifier</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
 
-<span class="gp">In [15]: </span><span class="n">search</span> <span class="o">=</span> <span class="n">IncrementalSearchCV</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">In [20]: </span><span class="n">search</span> <span class="o">=</span> <span class="n">HyperbandSearchCV</span><span class="p">(</span><span class="n">est</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-<span class="gp">In [16]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-<span class="gh">Out[16]: </span><span class="go"></span>
-<span class="go">IncrementalSearchCV(decay_rate=1.0,</span>
-<span class="go">                    estimator=ParallelPostFit(estimator=SGDClassifier(alpha=0.0001,</span>
-<span class="go">                                                                      average=False,</span>
-<span class="go">                                                                      class_weight=None,</span>
-<span class="go">                                                                      early_stopping=False,</span>
-<span class="go">                                                                      epsilon=0.1,</span>
-<span class="go">                                                                      eta0=0.0,</span>
-<span class="go">                                                                      fit_intercept=True,</span>
-<span class="go">                                                                      l1_ratio=0.15,</span>
-<span class="go">                                                                      learning_rate=&#39;optimal&#39;,</span>
-<span class="go">                                                                      loss=&#39;hinge&#39;,</span>
-<span class="go">                                                                      max_iter=1000,</span>
-<span class="go">                                                                      n_iter_no_change=5,</span>
-<span class="go">                                                                      n_jobs=None,</span>
-<span class="go">                                                                      penalty=&#39;elasticnet&#39;,</span>
-<span class="go">                                                                      power_t=0.5,</span>
-<span class="go">                                                                      random_state=0,</span>
-<span class="go">                                                                      shuffle=True,</span>
-<span class="go">                                                                      to...</span>
-<span class="go">       0.97597598, 0.97697698, 0.97797798, 0.97897898, 0.97997998,</span>
-<span class="go">       0.98098098, 0.98198198, 0.98298298, 0.98398398, 0.98498498,</span>
-<span class="go">       0.98598599, 0.98698699, 0.98798799, 0.98898899, 0.98998999,</span>
-<span class="go">       0.99099099, 0.99199199, 0.99299299, 0.99399399, 0.99499499,</span>
-<span class="go">       0.995996  , 0.996997  , 0.997998  , 0.998999  , 1.        ])},</span>
-<span class="go">                    patience=False, prefix=&#39;&#39;, random_state=0,</span>
-<span class="go">                    scores_per_fit=None, scoring=None, test_size=None,</span>
-<span class="go">                    tol=0.001, verbose=False)</span>
+<span class="gp">In [21]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
-<span class="gp">In [17]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gh">Out[17]: </span><span class="go">0.5864312</span>
+<span class="gp">In [22]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+<span class="gh">Out[22]: </span><span class="go">0.3</span>
 </pre></div>
 </div>
-<p>Note that the parameter names include the <code class="docutils literal notranslate"><span class="pre">estimator__</span></code> prefix,
-as we’re tuning the hyperparameters of the <code class="docutils literal notranslate"><span class="pre">SGDClassifier</span></code> that’s
-underlying the <code class="docutils literal notranslate"><span class="pre">ParallelPostFit</span></code>.</p>
+<p>Note that the parameter names include the <code class="docutils literal notranslate"><span class="pre">estimator__</span></code> prefix, as we’re
+tuning the hyperparameters of the <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.linear_model.SGDClasifier</span></code>
+that’s underlying the <a class="reference internal" href="modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit" title="dask_ml.wrappers.ParallelPostFit"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.wrappers.ParallelPostFit</span></code></a>.</p>
+</div>
+</div>
+<div class="section" id="adaptive-hyperparameter-optimization">
+<span id="hyperparameter-adaptive"></span><h2>Adaptive Hyperparameter Optimization<a class="headerlink" href="#adaptive-hyperparameter-optimization" title="Permalink to this headline">¶</a></h2>
+<p>Dask-ML has these estimators that <cite>adapt</cite> to historical data to determine which
+models to continue training. This means high scoring models can be found with
+fewer cumulative calls to <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>.</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.HyperbandSearchCV</span></code></a>(…)</td>
+<td>Find the best parameters for a particular model with an adaptive cross-validation algorithm.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV" title="dask_ml.model_selection.SuccessiveHalvingSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.SuccessiveHalvingSearchCV</span></code></a>(…)</td>
+<td>Perform the successive halving algorithm <a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#r424ea1a907b1-1" id="id6">[R424ea1a907b1-1]</a>.</td>
+</tr>
+</tbody>
+</table>
+<p><a class="reference internal" href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV" title="dask_ml.model_selection.IncrementalSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">IncrementalSearchCV</span></code></a> also fits in this class
+when <code class="docutils literal notranslate"><span class="pre">decay_rate=1</span></code>. All of these estimators require an implementation of
+<code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>, and they all work with larger-than-memory datasets as
+mentioned in “<a class="reference internal" href="#hyperparameter-incremental"><span class="std std-ref">Incremental Hyperparameter Optimization</span></a>”.</p>
+<p><a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a> has several niceties
+mentioned in the following sections:</p>
+<ul class="simple">
+<li><a class="reference internal" href="#hyperparameter-hyperband-params"><span class="std std-ref">Hyperband parameters: rule-of-thumb</span></a>: a good rule-of-thumb to determine
+<a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a>’s input parameters.</li>
+<li><a class="reference internal" href="#hyperparameter-hyperband-perf"><span class="std std-ref">Hyperband Performance</span></a>: how quickly
+<a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a> will find high performing
+models.</li>
+</ul>
+<p>Let’s see how well Hyperband does when the inputs are chosen with the provided
+rule-of-thumb.</p>
+<div class="section" id="hyperband-parameters-rule-of-thumb">
+<span id="hyperparameter-hyperband-params"></span><h3>Hyperband parameters: rule-of-thumb<a class="headerlink" href="#hyperband-parameters-rule-of-thumb" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a> has two inputs:</p>
+<ol class="arabic simple">
+<li><code class="docutils literal notranslate"><span class="pre">max_iter</span></code>, which determines how many times to call <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code></li>
+<li>the chunk size of the Dask array, which determines how many data each
+<code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> call receives.</li>
+</ol>
+<p>These fall out pretty naturally once it’s known how long to train the best
+model and very approximately how many parameters to sample:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [23]: </span><span class="n">n_examples</span> <span class="o">=</span> <span class="mi">20</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>  <span class="c1"># 20 passes through dataset for best model</span>
+
+<span class="gp">In [24]: </span><span class="n">n_params</span> <span class="o">=</span> <span class="mi">94</span>  <span class="c1"># sample approximately 100 parameters; more than 94 will be sampled</span>
+</pre></div>
+</div>
+<p>With this, it’s easy use a rule-of-thumb to compute the inputs to Hyperband:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [25]: </span><span class="n">max_iter</span> <span class="o">=</span> <span class="n">n_params</span>
+
+<span class="gp">In [26]: </span><span class="n">chunk_size</span> <span class="o">=</span> <span class="n">n_examples</span> <span class="o">//</span> <span class="n">n_params</span>  <span class="c1"># implicit</span>
+</pre></div>
+</div>
+<p>Now that we’ve determined the inputs, let’s create our search object and
+rechunk the Dask array:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [27]: </span><span class="n">clf</span> <span class="o">=</span> <span class="n">SGDClassifier</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">penalty</span><span class="o">=</span><span class="s1">&#39;elasticnet&#39;</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="gp">In [28]: </span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">loguniform</span><span class="p">(</span><span class="mf">1e-2</span><span class="p">,</span> <span class="mf">1e0</span><span class="p">),</span>  <span class="c1"># or np.logspace</span>
+<span class="gp">   ....: </span>          <span class="s1">&#39;l1_ratio&#39;</span><span class="p">:</span> <span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)}</span>  <span class="c1"># or np.linspace</span>
+<span class="gp">   ....: </span>
+
+<span class="gp">In [29]: </span><span class="n">search</span> <span class="o">=</span> <span class="n">HyperbandSearchCV</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="n">max_iter</span><span class="p">,</span> <span class="n">aggressiveness</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="gp">In [30]: </span><span class="n">X_train</span> <span class="o">=</span> <span class="n">X_train</span><span class="o">.</span><span class="n">rechunk</span><span class="p">((</span><span class="n">chunk_size</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="gp">In [31]: </span><span class="n">y_train</span> <span class="o">=</span> <span class="n">y_train</span><span class="o">.</span><span class="n">rechunk</span><span class="p">(</span><span class="n">chunk_size</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We used <code class="docutils literal notranslate"><span class="pre">aggressiveness=4</span></code> because this is an initial search. I don’t know
+much about the data, model or hyperparameters. If I had at least some sense of
+what hyperparameters to use, I would specify <code class="docutils literal notranslate"><span class="pre">aggressiveness=3</span></code>, the default.</p>
+<p>The inputs to this rule-of-thumb are exactly what the user cares about:</p>
+<ul class="simple">
+<li>A measure of how complex the search space is (via <code class="docutils literal notranslate"><span class="pre">n_params</span></code>)</li>
+<li>How long to train the best model (via <code class="docutils literal notranslate"><span class="pre">n_examples</span></code>)</li>
+<li>How confident they are in the hyperparameters (via <code class="docutils literal notranslate"><span class="pre">aggressiveness</span></code>).</li>
+</ul>
+<p>Notably, there’s no tradeoff between <code class="docutils literal notranslate"><span class="pre">n_examples</span></code> and <code class="docutils literal notranslate"><span class="pre">n_params</span></code> like with
+<a class="reference internal" href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV" title="dask_ml.model_selection.RandomizedSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomizedSearchCV</span></code></a> because <code class="docutils literal notranslate"><span class="pre">n_examples</span></code> is
+only for <em>some</em> models, not for <em>all</em> models. There’s more details on this
+rule-of-thumb in the “Notes” section of
+<a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a></p>
+<p>However, this does not explicitly mention the amount of computation performed
+– it’s only an approximation. The amount of computation can be viewed like so:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [32]: </span><span class="n">search</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;partial_fit_calls&quot;</span><span class="p">]</span>  <span class="c1"># best model will see `max_iter` chunks</span>
+<span class="gh">Out[32]: </span><span class="go">1151</span>
+
+<span class="gp">In [33]: </span><span class="n">search</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;n_models&quot;</span><span class="p">]</span>  <span class="c1"># actual number of parameters to sample</span>
+<span class="gh">Out[33]: </span><span class="go">98</span>
+</pre></div>
+</div>
+<p>This samples many more hyperparameters than <code class="docutils literal notranslate"><span class="pre">RandomizedSearchCV</span></code>, which would
+only sample about 12 hyperparameters (or initialize 12 models) for the same
+amount of computation.  Let’s fit
+<a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a> with these different
+chunks:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [34]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
+
+<span class="gp">In [35]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span>
+<span class="gh">Out[35]: </span><span class="go">{&#39;alpha&#39;: 0.05582987260639136, &#39;l1_ratio&#39;: 0.9722834598215799}</span>
+</pre></div>
+</div>
+<p>To be clear, this is a very small toy example: there are only 100 examples and
+20 features for each example. Let’s see how the performance scales with a more
+realistic example.</p>
+</div>
+<div class="section" id="hyperband-performance">
+<span id="hyperparameter-hyperband-perf"></span><h3>Hyperband Performance<a class="headerlink" href="#hyperband-performance" title="Permalink to this headline">¶</a></h3>
+<p>This performance comparison will briefly summarize an experiment to find
+performance results. This is similar to the case above, and complete details
+can be found in the Dask blog post “<a class="reference external" href="https://blog.dask.org/2019/09/30/dask-hyperparam-opt">Better and faster hyperparameter
+optimization with Dask</a>”.</p>
+<p>It will use these estimators with the following inputs:</p>
+<ul class="simple">
+<li>Model: Scikit-learn’s <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html#sklearn.neural_network.MLPClassifier" title="(in scikit-learn v0.22)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLPClassifier</span></code></a> with 12
+neurons</li>
+<li>Dataset: A simple synthetic dataset with 4 classes and 6 features (2
+meaningful features and 4 random features):</li>
+</ul>
+<div class="figure align-center" id="id8">
+<a class="reference internal image-reference" href="_images/synthetic-dataset.png"><img alt="_images/synthetic-dataset.png" src="_images/synthetic-dataset.png" style="width: 30%;" /></a>
+<p class="caption"><span class="caption-text">The training dataset with 60,000 data. The 4 classes are shown with
+different colors, and in addition to the two features shown (on the x/y
+axes) there are also 4 other usefuless features.</span></p>
+</div>
+<p>Let’s search for the best model to classify this dataset. Let’s search over
+these parameters:</p>
+<ul class="simple">
+<li>One hyperparameters that control optimal model architecture:
+<code class="docutils literal notranslate"><span class="pre">hidden_layer_sizes</span></code>. This can take values that have 12 neurons; for
+example, 6 neurons in two layers or 4 neurons in 3 layers.</li>
+<li>Six hyperparameters that control finding the optimal model of a particular
+architecture. This includes hyperparameters like weight decay and various
+optimization parameters (including batch size, learning rate and momentum).</li>
+</ul>
+<p>Here’s how we’ll configure the two different estimators:</p>
+<ol class="arabic simple">
+<li>“Hyperband” is configured with rule-of-thumb above with <code class="docutils literal notranslate"><span class="pre">n_params</span> <span class="pre">=</span>
+<span class="pre">299</span></code> <a class="footnote-reference" href="#f1" id="id7">[1]</a> and <code class="docutils literal notranslate"><span class="pre">n_examples</span> <span class="pre">=</span> <span class="pre">50</span> <span class="pre">*</span> <span class="pre">len(X_train)</span></code>.</li>
+<li>“Incremental” is configured to do the same amount of work as Hyperband
+with <code class="docutils literal notranslate"><span class="pre">IncrementalSearchCV(...,</span> <span class="pre">n_initial_parameters=19,</span> <span class="pre">decay_rate=0)</span></code></li>
+</ol>
+<p>These two estimators are configured do the same amount of computation, the
+equivalent of fitting about 19 models. With this amount of computation, how do
+the final accuracies look?</p>
+<div class="figure align-center" id="id9">
+<a class="reference internal image-reference" href="_images/synthetic-final-acc.svg"><img alt="_images/synthetic-final-acc.svg" src="_images/synthetic-final-acc.svg" width="60%" /></a>
+<p class="caption"><span class="caption-text">The final validation accuracy over 200 different runs of the estimators
+above. Out of the 200 runs, the <cite>worst</cite> <a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a> run performed
+better than 99 of the <code class="xref py py-class docutils literal notranslate"><span class="pre">IncrementalSearchCV</span></code> runs.</span></p>
+</div>
+<p>This is great – <a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a> looks to
+be a lot more confident than
+<a class="reference internal" href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV" title="dask_ml.model_selection.IncrementalSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">IncrementalSearchCV</span></code></a>. But how fast do these
+searches find models of (say) 85% accuracy? Experimentally, Hyperband reaches
+84% accuracy at about 350 passes through the dataset, and Incremental requires
+900 passes through the dataset:</p>
+<div class="figure align-center" id="id10">
+<a class="reference internal image-reference" href="_images/synthetic-val-acc.svg"><img alt="_images/synthetic-val-acc.svg" src="_images/synthetic-val-acc.svg" width="60%" /></a>
+<p class="caption"><span class="caption-text">The average accuracy obtained by each search after a certain number of
+passes through the dataset. The green line is passes through the data
+required to train 4 models to completion.</span></p>
+</div>
+<p>“Passes through the dataset” is a good proxy for “time to solution” in this
+case because only 4 Dask workers are used, and they’re all busy for the vast
+majority of the search. How does this change with the number of workers?</p>
+<p>To see this, let’s analyze how the time-to-completion for Hyperband varies with
+the number of Dask workers in a seperate experiment.</p>
+<div class="figure align-center" id="id11">
+<a class="reference internal image-reference" href="_images/scaling-patience-true.svg"><img alt="_images/scaling-patience-true.svg" src="_images/scaling-patience-true.svg" width="60%" /></a>
+<p class="caption"><span class="caption-text">The time-to-completion for a single run of Hyperband as the number of Dask
+workers vary. The solid white line is the time required to train one model.</span></p>
+</div>
+<p>It looks like the speedup starts to saturate around 24 Dask workers. This
+number will increase if the search space becomes larger or if model evaluation
+takes longer.</p>
+<table class="docutils footnote" frame="void" id="f1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id7">[1]</a></td><td>Approximately 300 parameters were desired; 299 was chosen to make the Dask array chunk evenly</td></tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 

@@ -1,0 +1,16 @@
+:mod:`dask_ml.model_selection`.InverseDecaySearchCV
+==========================================================
+
+.. currentmodule:: dask_ml.model_selection
+
+.. autoclass:: InverseDecaySearchCV
+
+   
+   .. automethod:: __init__
+   
+
+.. include:: dask_ml.model_selection.InverseDecaySearchCV.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>

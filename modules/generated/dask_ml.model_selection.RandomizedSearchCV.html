@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.3.1.dev14+gb812fe5
+                1.3.1.dev15+gc535a51
               </div>
             
           
@@ -184,6 +184,7 @@
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.IncrementalSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.IncrementalSearchCV</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.HyperbandSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.HyperbandSearchCV</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.SuccessiveHalvingSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.SuccessiveHalvingSearchCV</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.InverseDecaySearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.InverseDecaySearchCV</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.ensemble"><code class="docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code>: Ensemble Methods</a></li>
@@ -650,6 +651,12 @@ train/test set.</p>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Notes</p>
+<p>This class performs best when each cross validation split fits into
+RAM because the model’s <code class="docutils literal notranslate"><span class="pre">fit</span></code> method is called on each cross
+validation split. For example, if using
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.KFold.html#sklearn.model_selection.KFold" title="(in scikit-learn v0.22)"><code class="xref py py-class docutils literal notranslate"><span class="pre">KFold</span></code></a> with <span class="math notranslate nohighlight">\(k\)</span>
+chunks, a <span class="math notranslate nohighlight">\(1 - 1/k\)</span> fraction of the dataset should fit into RAM.</p>
 </dd></dl>
 
 <dl class="method">

@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.3.1.dev14+gb812fe5
+                1.3.1.dev15+gc535a51
               </div>
             
           
@@ -184,6 +184,7 @@
 <li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.IncrementalSearchCV</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.HyperbandSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.HyperbandSearchCV</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.SuccessiveHalvingSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.SuccessiveHalvingSearchCV</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.InverseDecaySearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.InverseDecaySearchCV</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.ensemble"><code class="docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code>: Ensemble Methods</a></li>
@@ -277,21 +278,12 @@
 <h1><a class="reference internal" href="../api.html#module-dask_ml.model_selection" title="dask_ml.model_selection"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code></a>.IncrementalSearchCV<a class="headerlink" href="#dask-ml-model-selection-incrementalsearchcv" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="dask_ml.model_selection.IncrementalSearchCV">
-<em class="property">class </em><code class="descclassname">dask_ml.model_selection.</code><code class="descname">IncrementalSearchCV</code><span class="sig-paren">(</span><em>estimator</em>, <em>parameters</em>, <em>n_initial_parameters=10</em>, <em>decay_rate=1.0</em>, <em>test_size=None</em>, <em>patience=False</em>, <em>tol=0.001</em>, <em>fits_per_score=1</em>, <em>max_iter=100</em>, <em>random_state=None</em>, <em>scoring=None</em>, <em>verbose=False</em>, <em>prefix=''</em>, <em>scores_per_fit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.model_selection.</code><code class="descname">IncrementalSearchCV</code><span class="sig-paren">(</span><em>estimator</em>, <em>parameters</em>, <em>n_initial_parameters=10</em>, <em>decay_rate=&lt;object object&gt;</em>, <em>test_size=None</em>, <em>patience=False</em>, <em>tol=0.001</em>, <em>fits_per_score=1</em>, <em>max_iter=100</em>, <em>random_state=None</em>, <em>scoring=None</em>, <em>verbose=False</em>, <em>prefix=''</em>, <em>scores_per_fit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV" title="Permalink to this definition">¶</a></dt>
 <dd><p>Incrementally search for hyper-parameters on models that support partial_fit</p>
 <p>This incremental hyper-parameter optimization class starts training the
 model on many hyper-parameters on a small amount of data, and then only
 continues training those models that seem to be performing well.</p>
-<p>The number of actively trained hyper-parameter combinations decays
-with an inverse decay given by the initial number of parameters and the
-decay rate:</p>
-<div class="highlight-pytho notranslate"><div class="highlight"><pre><span></span>n_models = n_initial_parameters * (n_batches ** -decay_rate)
-</pre></div>
-</div>
-<p>With <code class="docutils literal notranslate"><span class="pre">decay_rate=1</span></code>, this class is a contiuous time approximation to
-the quantized inverse decay in
-<a class="reference internal" href="dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV" title="dask_ml.model_selection.SuccessiveHalvingSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">SuccessiveHalvingSearchCV</span></code></a>.</p>
-<p>Usage details are in the <a class="reference internal" href="../../hyper-parameter-search.html#hyperparameter-incremental"><span class="std std-ref">User Guide</span></a>.</p>
+<p>See the <a class="reference internal" href="../../hyper-parameter-search.html#hyperparameter-incremental"><span class="std std-ref">User Guide</span></a> for more.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -316,15 +308,18 @@ This trades off runtime vs quality of the solution.</p>
 <p class="last">Alternatively, you can set this to <code class="docutils literal notranslate"><span class="pre">&quot;grid&quot;</span></code> to do a full grid search.</p>
 </dd>
 <dt><strong>decay_rate</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, default 1.0</span></dt>
-<dd><p class="first last">How quickly to decrease the number partial future fit calls.
-Higher <cite>decay_rate</cite> will result in lower training times, at the cost
-of worse models.</p>
+<dd><p class="first">How quickly to decrease the number partial future fit calls.</p>
+<div class="last deprecated">
+<p><span class="versionmodified">Deprecated since version v1.4.0: </span>This implementation of an adaptive algorithm that uses
+<code class="docutils literal notranslate"><span class="pre">decay_rate</span></code> has moved to
+<a class="reference internal" href="dask_ml.model_selection.InverseDecaySearchCV.html#dask_ml.model_selection.InverseDecaySearchCV" title="dask_ml.model_selection.InverseDecaySearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">InverseDecaySearchCV</span></code></a>.</p>
+</div>
 </dd>
 <dt><strong>patience</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default False</span></dt>
 <dd><p class="first last">If specified, training stops when the score does not increase by
 <code class="docutils literal notranslate"><span class="pre">tol</span></code> after <code class="docutils literal notranslate"><span class="pre">patience</span></code> calls to <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>. Off by default.</p>
 </dd>
-<dt><strong>fits_per_scores</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional, default=1</span></dt>
+<dt><strong>fits_per_score</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional, default=1</span></dt>
 <dd><p class="first last">If <code class="docutils literal notranslate"><span class="pre">patience</span></code> is used the maximum number of <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> calls
 between <code class="docutils literal notranslate"><span class="pre">score</span></code> calls.</p>
 </dd>
@@ -549,7 +544,7 @@ or when <code class="docutils literal notranslate"><span class="pre">max_iter</s
 </table>
 <dl class="method">
 <dt id="dask_ml.model_selection.IncrementalSearchCV.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>estimator</em>, <em>parameters</em>, <em>n_initial_parameters=10</em>, <em>decay_rate=1.0</em>, <em>test_size=None</em>, <em>patience=False</em>, <em>tol=0.001</em>, <em>fits_per_score=1</em>, <em>max_iter=100</em>, <em>random_state=None</em>, <em>scoring=None</em>, <em>verbose=False</em>, <em>prefix=''</em>, <em>scores_per_fit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>estimator</em>, <em>parameters</em>, <em>n_initial_parameters=10</em>, <em>decay_rate=&lt;object object at 0x2acc2f9947c0&gt;</em>, <em>test_size=None</em>, <em>patience=False</em>, <em>tol=0.001</em>, <em>fits_per_score=1</em>, <em>max_iter=100</em>, <em>random_state=None</em>, <em>scoring=None</em>, <em>verbose=False</em>, <em>prefix=''</em>, <em>scores_per_fit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.IncrementalSearchCV.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 

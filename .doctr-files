@@ -1,4 +1,8 @@
 ./_images/merged_grid_search_graph.svg
+./_images/scaling-patience-true.svg
+./_images/synthetic-dataset.png
+./_images/synthetic-final-acc.svg
+./_images/synthetic-val-acc.svg
 ./_images/unmerged_grid_search_graph.svg
 ./_sources/changelog.rst.txt
 ./_sources/clustering.rst.txt
@@ -35,6 +39,7 @@
 ./_sources/modules/generated/dask_ml.model_selection.GridSearchCV.rst.txt
 ./_sources/modules/generated/dask_ml.model_selection.HyperbandSearchCV.rst.txt
 ./_sources/modules/generated/dask_ml.model_selection.IncrementalSearchCV.rst.txt
+./_sources/modules/generated/dask_ml.model_selection.InverseDecaySearchCV.rst.txt
 ./_sources/modules/generated/dask_ml.model_selection.KFold.rst.txt
 ./_sources/modules/generated/dask_ml.model_selection.RandomizedSearchCV.rst.txt
 ./_sources/modules/generated/dask_ml.model_selection.ShuffleSplit.rst.txt
@@ -158,6 +163,7 @@
 ./modules/generated/dask_ml.model_selection.GridSearchCV.html
 ./modules/generated/dask_ml.model_selection.HyperbandSearchCV.html
 ./modules/generated/dask_ml.model_selection.IncrementalSearchCV.html
+./modules/generated/dask_ml.model_selection.InverseDecaySearchCV.html
 ./modules/generated/dask_ml.model_selection.KFold.html
 ./modules/generated/dask_ml.model_selection.RandomizedSearchCV.html
 ./modules/generated/dask_ml.model_selection.ShuffleSplit.html
