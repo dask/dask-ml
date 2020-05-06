@@ -27,4 +27,4 @@ class TestPassiveAggressiveRegressor:
         b = lm_.PassiveAggressiveRegressor(random_state=0, max_iter=100, tol=1e-3)
         a.fit(X, y)
         b.partial_fit(*dask.compute(X, y))
-        assert_estimator_equal(a, b, exclude=["loss_function_"])
+        assert_estimator_equal(a, b, exclude=["loss_function_", "standard_coef_"])

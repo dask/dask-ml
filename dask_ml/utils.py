@@ -88,9 +88,12 @@ def assert_estimator_equal(left, right, exclude=None, **kwargs):
     else:
         exclude = set(exclude)
 
-    assert (set(left_attrs) - exclude) == set(right_attrs) - exclude
+    left_attrs2 = set(left_attrs) - exclude
+    right_attrs2 = set(right_attrs) - exclude
 
-    for attr in set(left_attrs) - exclude:
+    assert left_attrs2 == right_attrs2, left_attrs2 ^ right_attrs2
+
+    for attr in left_attrs2:
         l = getattr(left, attr)
         r = getattr(right, attr)
         _assert_eq(l, r, **kwargs)
