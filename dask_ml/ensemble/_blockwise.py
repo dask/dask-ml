@@ -50,9 +50,9 @@ class BlockwiseBase(sklearn.base.BaseEstimator):
     def _predict(self, X):
         """Collect results from many predict calls"""
         if isinstance(self, ClassifierMixin):
-            dtype = "int"
+            dtype = "int64"
         else:
-            dtype = "float"
+            dtype = "float64"
 
         if isinstance(X, da.Array):
             chunks = (X.chunks[0], len(self.estimators_))
@@ -138,7 +138,7 @@ class BlockwiseVotingClassifier(ClassifierMixin, BlockwiseBase):
         else:  # 'hard' voting
             predictions = self._predict(X)  # (N, n_estimators)  ensure chunking!
             if isinstance(predictions, da.Array):
-                maj = predictions.map_blocks(_vote_block, dtype="int", drop_axis=1)
+                maj = predictions.map_blocks(_vote_block, dtype="int64", drop_axis=1)
             else:
                 maj = _vote_block(predictions)
         return maj
