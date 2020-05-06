@@ -388,7 +388,7 @@ def do_fit_and_score(
             y_trains,
             fit_params,
             n_splits,
-            error_score
+            error_score,
         )
 
         score_name = "score-" + main_token

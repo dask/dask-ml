@@ -210,6 +210,7 @@ def feature_union_concat(Xs, nsamples, weights):
         return np.zeros((nsamples, 0))
     if any(sparse.issparse(f) for f in Xs):
         return sparse.hstack(Xs).tocsr()
+    print("np.hstack(Xs).shape:", np.hstack(Xs).shape)
     return np.hstack(Xs)
 
 
