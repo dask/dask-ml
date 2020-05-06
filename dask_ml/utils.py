@@ -2,7 +2,7 @@ import contextlib
 import datetime
 import functools
 import logging
-from collections import Sequence
+from collections.abc import Sequence
 from multiprocessing import cpu_count
 from numbers import Integral
 from timeit import default_timer as tic
@@ -174,7 +174,13 @@ def check_array(
 
     elif isinstance(array, dd.DataFrame):
         if not accept_dask_dataframe:
-            raise TypeError("This estimator does not support dask dataframes.")
+            raise TypeError(
+                "This estimator does not support dask dataframes. "
+                "This might be resolved with one of\n\n"
+                "    1. ddf.to_dask_array(lengths=True)\n"
+                "    2. ddf.to_dask_array()  # may cause other issues because "
+                "of unknown chunk sizes"
+            )
         # TODO: sample?
         return array
     elif isinstance(array, pd.DataFrame) and preserve_pandas_dataframe:
