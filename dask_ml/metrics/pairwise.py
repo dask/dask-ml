@@ -22,7 +22,7 @@ def pairwise_distances_argmin_min(
     metric: Union[str, Callable[[ArrayLike, ArrayLike], float]] = "euclidean",
     batch_size: Optional[int] = None,
     metric_kwargs: Optional[Dict[str, Any]] = None,
-):
+) -> Tuple[ArrayLike, ArrayLike]:
     if batch_size is not None:
         msg = "'batch_size' is deprecated. Use sklearn.config_context instead.'"
         warnings.warn(msg, FutureWarning)

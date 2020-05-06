@@ -1,6 +1,7 @@
 import logging
 from multiprocessing import cpu_count
 from numbers import Integral
+from typing import Optional, Union
 
 import dask.array as da
 import dask.dataframe as dd
@@ -18,6 +19,7 @@ from ..metrics import (
     pairwise_distances,
     pairwise_distances_argmin_min,
 )
+from .._typing import ArrayLike, DataFrameType, SeriesType
 from ..utils import _timed, _timer, check_array, row_norms
 from ._compat import _k_init
 
@@ -131,17 +133,17 @@ class KMeans(TransformerMixin, BaseEstimator):
 
     def __init__(
         self,
-        n_clusters=8,
-        init="k-means||",
-        oversampling_factor=2,
-        max_iter=300,
-        tol=0.0001,
-        precompute_distances="auto",
-        random_state=None,
-        copy_x=True,
-        n_jobs=1,
-        algorithm="full",
-        init_max_iter=None,
+        n_clusters: int = 8,
+        init: Union[np.ndarray, str] = "k-means||",
+        oversampling_factor: int = 2,
+        max_iter: int = 300,
+        tol: float = 0.0001,
+        precompute_distances: str = "auto",
+        random_state: Optional[Union[int, np.random.RandomState]] = None,
+        copy_x: bool = True,
+        n_jobs: int = 1,
+        algorithm: str = "full",
+        init_max_iter: Optional[int] = None,
     ):
         self.n_clusters = n_clusters
         self.init = init
@@ -156,7 +158,9 @@ class KMeans(TransformerMixin, BaseEstimator):
         self.copy_x = copy_x
 
     @_timed(_logger=logger)
-    def _check_array(self, X):
+    def _check_array(
+        self, X: Union[ArrayLike, DataFrameType]
+    ) -> Union[ArrayLike, DataFrameType]:
         if isinstance(X, pd.DataFrame):
             X = X.values
 
@@ -188,7 +192,9 @@ class KMeans(TransformerMixin, BaseEstimator):
             raise ValueError(msg)
         return X
 
-    def fit(self, X, y=None):
+    def fit(
+        self, X: Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None
+    ) -> "KMeans":
         X = self._check_array(X)
         labels, centroids, inertia, n_iter = k_means(
             X,
@@ -207,12 +213,14 @@ class KMeans(TransformerMixin, BaseEstimator):
         self.n_iter_ = n_iter
         return self
 
-    def transform(self, X, y=None):
+    def transform(
+        self, X: Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None
+    ) -> ArrayLike:
         check_is_fitted(self, "cluster_centers_")
         X = self._check_array(X)
         return euclidean_distances(X, self.cluster_centers_)
 
-    def predict(self, X):
+    def predict(self, X: Union[ArrayLike, DataFrameType]) -> ArrayLike:
         """Predict the closest cluster each sample in X belongs to.
         In the vector quantization literature, `cluster_centers_` is called
         the code book and each value returned by `predict` is the index of
@@ -237,21 +245,21 @@ class KMeans(TransformerMixin, BaseEstimator):
 
 
 def k_means(
-    X,
-    n_clusters,
-    init="k-means||",
-    precompute_distances="auto",
-    n_init=1,
-    max_iter=300,
-    verbose=False,
-    tol=1e-4,
-    random_state=None,
-    copy_x=True,
-    n_jobs=-1,
-    algorithm="full",
-    return_n_iter=False,
-    oversampling_factor=2,
-    init_max_iter=None,
+    X: Union[ArrayLike, DataFrameType],
+    n_clusters: int,
+    init: Union[str, np.ndarray] = "k-means||",
+    precompute_distances: str = "auto",
+    n_init: int = 1,
+    max_iter: int = 300,
+    verbose: bool = False,
+    tol: float = 1e-4,
+    random_state: Optional[Union[int, np.random.RandomState]] = None,
+    copy_x: bool = True,
+    n_jobs: int = -1,
+    algorithm: str = "full",
+    return_n_iter: bool = False,
+    oversampling_factor: int = 2,
+    init_max_iter: Optional[int] = None,
 ):
     """K-means algorithm for clustering
 
@@ -278,7 +286,9 @@ def k_means(
         return labels, centers, inertia
 
 
-def compute_inertia(X, labels, centers):
+def compute_inertia(
+    X: Union[ArrayLike, DataFrameType], labels, centers
+) -> Union[ArrayLike, DataFrameType]:
     reindexed = labels.map_blocks(
         lambda x: centers[x], dtype=centers.dtype, chunks=X.chunks, new_axis=1
     )
@@ -292,12 +302,12 @@ def compute_inertia(X, labels, centers):
 
 
 def k_init(
-    X,
-    n_clusters,
-    init="k-means||",
-    random_state=None,
-    max_iter=None,
-    oversampling_factor=2,
+    X: Union[ArrayLike, DataFrameType],
+    n_clusters: int,
+    init: Union[str, np.ndarray] = "k-means||",
+    random_state: Optional[Union[int, np.random.RandomState]] = None,
+    max_iter: Optional[int] = None,
+    oversampling_factor: int = 2,
 ):
     """Choose the initial centers for K-Means.
 
@@ -372,7 +382,11 @@ def k_init(
         raise ValueError("'init' must be one of {}, got {}".format(valid, init))
 
 
-def init_pp(X, n_clusters, random_state):
+def init_pp(
+    X: Union[ArrayLike, DataFrameType],
+    n_clusters: int,
+    random_state: Optional[Union[int, np.random.RandomState]],
+) -> Union[ArrayLike, DataFrameType]:
     """K-means initialization using k-means++
 
     This uses scikit-learn's implementation.
@@ -389,7 +403,11 @@ def init_pp(X, n_clusters, random_state):
 
 
 @_timed(_logger=logger)
-def init_random(X, n_clusters, random_state):
+def init_random(
+    X: Union[ArrayLike, DataFrameType],
+    n_clusters: int,
+    random_state: Optional[Union[int, np.random.RandomState]],
+) -> Union[ArrayLike, DataFrameType]:
     """K-means initialization using randomly chosen points"""
     logger.info("Initializing randomly")
     idx = sorted(draw_seed(random_state, 0, len(X), size=n_clusters))
@@ -399,8 +417,12 @@ def init_random(X, n_clusters, random_state):
 
 @_timed(_logger=logger)
 def init_scalable(
-    X, n_clusters, random_state=None, max_iter=None, oversampling_factor=2
-):
+    X: Union[ArrayLike, DataFrameType],
+    n_clusters: int,
+    random_state: Optional[Union[int, np.random.RandomState]] = None,
+    max_iter: Optional[int] = None,
+    oversampling_factor: int = 2,
+) -> Union[ArrayLike, DataFrameType]:
     """K-Means initialization using k-means||
 
     This is algorithm 2 in Scalable K-Means++ (2012).
@@ -450,34 +472,41 @@ def init_scalable(
         logger.warning("Found fewer than %d clusters in init.", n_clusters)
         # supplement with random
         need = n_clusters - len(centers)
-        locs = sorted(
-            random_state.choice(
-                np.arange(0, len(X)), size=need, replace=False, chunks=len(X)
+        if isinstance(random_state, np.random.RandomState):
+            locs = sorted(
+                random_state.choice(
+                    np.arange(0, len(X)), size=need, replace=False, chunks=len(X)
+                )
             )
-        )
-        extra = X[locs].compute()
-        return np.vstack([centers, extra])
+            extra = X[locs].compute()
+            return np.vstack([centers, extra])
     else:
         # Step 7, 8 without weights
         # dask RandomState objects aren't valid for scikit-learn
-        rng2 = (
-            random_state.randint(0, np.iinfo("i4").max - 1, chunks=())
-            .compute(scheduler="single-threaded")
-            .item()
-        )
-        km = sklearn.cluster.KMeans(n_clusters, random_state=rng2)
-        km.fit(centers)
+        if isinstance(random_state, np.random.RandomState):
+            rng2 = (
+                random_state.randint(0, np.iinfo("i4").max - 1, chunks=())
+                .compute(scheduler="single-threaded")
+                .item()
+            )
+            km = sklearn.cluster.KMeans(n_clusters, random_state=rng2)
+            km.fit(centers)
 
     return km.cluster_centers_
 
 
-def evaluate_cost(X, centers):
-    # type: (da.Array, np.array) -> float
+def evaluate_cost(X: da.Array, centers: np.ndarray) -> float:
+    # type : (da.Array, np.ndarray) -> float
     # parallel for dask arrays
     return (pairwise_distances(X, centers).min(1) ** 2).sum()
 
 
-def _sample_points(X, centers, oversampling_factor, random_state):
+def _sample_points(
+    X: da.Array,
+    centers: np.ndarray,
+    oversampling_factor: int,
+    random_state: Optional[Union[int, np.random.RandomState]],
+) -> da.Array:
     r"""
     Sample points independently with probability
 
@@ -492,7 +521,8 @@ def _sample_points(X, centers, oversampling_factor, random_state):
     denom = distances.sum()
     p = oversampling_factor * distances / denom
 
-    draws = random_state.uniform(size=len(p), chunks=p.chunks)
+    if isinstance(random_state, np.random.RandomState):
+        draws = random_state.uniform(size=len(p), chunks=p.chunks)
     picked = p > draws
 
     (new_idxs,) = da.where(picked)
@@ -505,17 +535,17 @@ def _sample_points(X, centers, oversampling_factor, random_state):
 
 
 def _kmeans_single_lloyd(
-    X,
-    n_clusters,
-    max_iter=300,
-    init="k-means||",
-    verbose=False,
-    x_squared_norms=None,
-    random_state=None,
-    tol=1e-4,
-    precompute_distances=True,
-    oversampling_factor=2,
-    init_max_iter=None,
+    X: da.Array,
+    n_clusters: int,
+    max_iter: int = 300,
+    init: Union[str, np.ndarray] = "k-means||",
+    verbose: bool = False,
+    x_squared_norms: Optional[da.Array] = None,
+    random_state: Optional[int] = None,
+    tol: float = 1e-4,
+    precompute_distances: bool = True,
+    oversampling_factor: int = 2,
+    init_max_iter: Optional[int] = None,
 ):
     centers = k_init(
         X,
@@ -577,7 +607,7 @@ def _kmeans_single_lloyd(
 
 
 @numba.njit(nogil=True, fastmath=True)
-def _centers_dense(X, labels, n_clusters):
+def _centers_dense(X: da.Array, labels: da.Array, n_clusters: int):
     n_samples = X.shape[0]
     n_features = X.shape[1]
     centers = np.zeros((n_clusters, n_features), dtype=np.float64)
