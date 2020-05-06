@@ -43,6 +43,10 @@ class TestBlockwiseVotingClassifier:
         score2 = clf.score(X3, y3)
         assert score == score2
 
+        _, y4 = dask_ml.datasets.make_classification(chunks=20)
+        with pytest.raises(ValueError, match="4 != 5"):
+            clf.fit(X, y4)
+
     def test_bad_chunking_raises(self):
         X = da.ones((10, 5), chunks=3)
         y = da.ones(10, chunks=3)

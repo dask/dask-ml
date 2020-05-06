@@ -32,6 +32,11 @@ class BlockwiseBase(sklearn.base.BaseEstimator):
         if isinstance(y, da.Array):
             ys = ys.flatten()
 
+        if len(Xs) != len(ys):
+            raise ValueError(
+                f"The number of blocks in X and y must match. {len(Xs)} != {len(ys)}"
+            )
+
         estimators = [
             dask.delayed(sklearn.base.clone)(estimatord) for _ in range(len(Xs))
         ]
