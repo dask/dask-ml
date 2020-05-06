@@ -14,7 +14,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Hyper Parameter Search &mdash; dask-ml 1.3.1 documentation</title>
+  <title>Hyper Parameter Search &mdash; dask-ml 1.4.0 documentation</title>
   
 
   
@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.3.1.dev15+gc535a51
+                1.4.0
               </div>
             
           
@@ -272,7 +272,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="hyper-parameter-search">
-<h1>Hyper Parameter Search<a class="headerlink" href="#hyper-parameter-search" title="Permalink to this headline">¶</a></h1>
+<span id="id1"></span><h1>Hyper Parameter Search<a class="headerlink" href="#hyper-parameter-search" title="Permalink to this headline">¶</a></h1>
 <p><em>Tools to perform hyperparameter optimizaiton of Scikit-Learn API-compatible
 models using Dask, and to scale hyperparameter optimization to</em> <strong>larger
 data and/or larger searches.</strong></p>
@@ -451,7 +451,7 @@ classes:</p>
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV" title="dask_ml.model_selection.SuccessiveHalvingSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.SuccessiveHalvingSearchCV</span></code></a>(…)</td>
-<td>Perform the successive halving algorithm <a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#r424ea1a907b1-1" id="id1">[R424ea1a907b1-1]</a>.</td>
+<td>Perform the successive halving algorithm <a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#r424ea1a907b1-1" id="id2">[R424ea1a907b1-1]</a>.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.InverseDecaySearchCV.html#dask_ml.model_selection.InverseDecaySearchCV" title="dask_ml.model_selection.InverseDecaySearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.InverseDecaySearchCV</span></code></a>(…)</td>
 <td>Incrementally search for hyper-parameters on models that support partial_fit</td>
@@ -500,7 +500,7 @@ Arrays/DataFrames <cite>and</cite> to decide which models to continue training.<
 <td>Find the best parameters for a particular model with an adaptive cross-validation algorithm.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV" title="dask_ml.model_selection.SuccessiveHalvingSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.SuccessiveHalvingSearchCV</span></code></a>(…)</td>
-<td>Perform the successive halving algorithm <a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#r424ea1a907b1-1" id="id2">[R424ea1a907b1-1]</a>.</td>
+<td>Perform the successive halving algorithm <a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#r424ea1a907b1-1" id="id3">[R424ea1a907b1-1]</a>.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.InverseDecaySearchCV.html#dask_ml.model_selection.InverseDecaySearchCV" title="dask_ml.model_selection.InverseDecaySearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.InverseDecaySearchCV</span></code></a>(…)</td>
 <td>Incrementally search for hyper-parameters on models that support partial_fit</td>
@@ -560,7 +560,7 @@ efficient as it can avoid expensive repeated computations.</li>
 <p>Both Scikit-learn’s and Dask-ML’s model selection meta-estimators can be used
 with Dask’s <a class="reference internal" href="joblib.html#joblib"><span class="std std-ref">joblib backend</span></a>.</p>
 <div class="section" id="flexible-backends">
-<span id="id3"></span><h3>Flexible Backends<a class="headerlink" href="#flexible-backends" title="Permalink to this headline">¶</a></h3>
+<span id="id4"></span><h3>Flexible Backends<a class="headerlink" href="#flexible-backends" title="Permalink to this headline">¶</a></h3>
 <p>Dask-ML can use any of the dask schedulers. By default the threaded
 scheduler is used, but this can easily be swapped out for the multiprocessing
 or distributed scheduler:</p>
@@ -597,7 +597,7 @@ to pull it locally to your computer:</p>
 <code class="docutils literal notranslate"><span class="pre">fit</span></code> can be called.</p>
 </div>
 <div class="section" id="avoid-repeated-work">
-<span id="id4"></span><h3>Avoid Repeated Work<a class="headerlink" href="#avoid-repeated-work" title="Permalink to this headline">¶</a></h3>
+<span id="id5"></span><h3>Avoid Repeated Work<a class="headerlink" href="#avoid-repeated-work" title="Permalink to this headline">¶</a></h3>
 <p>When searching over composite models like <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code> or
 <code class="docutils literal notranslate"><span class="pre">sklearn.pipeline.FeatureUnion</span></code>, Dask-ML will avoid fitting the same
 model + parameter + data combination more than once. For pipelines with
@@ -676,7 +676,7 @@ expensive early steps, this can be a big win when performing a grid search.</p>
 <td>Find the best parameters for a particular model with an adaptive cross-validation algorithm.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV" title="dask_ml.model_selection.SuccessiveHalvingSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.SuccessiveHalvingSearchCV</span></code></a>(…)</td>
-<td>Perform the successive halving algorithm <a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#r424ea1a907b1-1" id="id5">[R424ea1a907b1-1]</a>.</td>
+<td>Perform the successive halving algorithm <a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#r424ea1a907b1-1" id="id6">[R424ea1a907b1-1]</a>.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.InverseDecaySearchCV.html#dask_ml.model_selection.InverseDecaySearchCV" title="dask_ml.model_selection.InverseDecaySearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.InverseDecaySearchCV</span></code></a>(…)</td>
 <td>Incrementally search for hyper-parameters on models that support partial_fit</td>
@@ -737,10 +737,10 @@ train-and-score them until we find the best one.</p>
 <span class="gp">In [13]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [14]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span>
-<span class="gh">Out[14]: </span><span class="go">{&#39;alpha&#39;: 0.026372606296535494, &#39;l1_ratio&#39;: 0.22615162496164476}</span>
+<span class="gh">Out[14]: </span><span class="go">{&#39;alpha&#39;: 0.01391539738060324, &#39;l1_ratio&#39;: 0.12536333427149637}</span>
 
 <span class="gp">In [15]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_score_</span>
-<span class="gh">Out[15]: </span><span class="go">0.65</span>
+<span class="gh">Out[15]: </span><span class="go">0.7</span>
 
 <span class="gp">In [16]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
 <span class="gh">Out[16]: </span><span class="go">0.4</span>
@@ -764,7 +764,7 @@ to use post-estimation features like scoring or prediction, we recommend using
 <span class="gp">In [21]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [22]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
-<span class="gh">Out[22]: </span><span class="go">0.3</span>
+<span class="gh">Out[22]: </span><span class="go">0.6</span>
 </pre></div>
 </div>
 <p>Note that the parameter names include the <code class="docutils literal notranslate"><span class="pre">estimator__</span></code> prefix, as we’re
@@ -787,7 +787,7 @@ fewer cumulative calls to <code class="docutils literal notranslate"><span class
 <td>Find the best parameters for a particular model with an adaptive cross-validation algorithm.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV" title="dask_ml.model_selection.SuccessiveHalvingSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.SuccessiveHalvingSearchCV</span></code></a>(…)</td>
-<td>Perform the successive halving algorithm <a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#r424ea1a907b1-1" id="id6">[R424ea1a907b1-1]</a>.</td>
+<td>Perform the successive halving algorithm <a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#r424ea1a907b1-1" id="id7">[R424ea1a907b1-1]</a>.</td>
 </tr>
 </tbody>
 </table>
@@ -873,7 +873,7 @@ chunks:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [34]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [35]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span>
-<span class="gh">Out[35]: </span><span class="go">{&#39;alpha&#39;: 0.05582987260639136, &#39;l1_ratio&#39;: 0.9722834598215799}</span>
+<span class="gh">Out[35]: </span><span class="go">{&#39;alpha&#39;: 0.5812259613138682, &#39;l1_ratio&#39;: 0.8139944487915117}</span>
 </pre></div>
 </div>
 <p>To be clear, this is a very small toy example: there are only 100 examples and
@@ -893,7 +893,7 @@ neurons</li>
 <li>Dataset: A simple synthetic dataset with 4 classes and 6 features (2
 meaningful features and 4 random features):</li>
 </ul>
-<div class="figure align-center" id="id8">
+<div class="figure align-center" id="id9">
 <a class="reference internal image-reference" href="_images/synthetic-dataset.png"><img alt="_images/synthetic-dataset.png" src="_images/synthetic-dataset.png" style="width: 30%;" /></a>
 <p class="caption"><span class="caption-text">The training dataset with 60,000 data. The 4 classes are shown with
 different colors, and in addition to the two features shown (on the x/y
@@ -912,14 +912,14 @@ optimization parameters (including batch size, learning rate and momentum).</li>
 <p>Here’s how we’ll configure the two different estimators:</p>
 <ol class="arabic simple">
 <li>“Hyperband” is configured with rule-of-thumb above with <code class="docutils literal notranslate"><span class="pre">n_params</span> <span class="pre">=</span>
-<span class="pre">299</span></code> <a class="footnote-reference" href="#f1" id="id7">[1]</a> and <code class="docutils literal notranslate"><span class="pre">n_examples</span> <span class="pre">=</span> <span class="pre">50</span> <span class="pre">*</span> <span class="pre">len(X_train)</span></code>.</li>
+<span class="pre">299</span></code> <a class="footnote-reference" href="#f1" id="id8">[1]</a> and <code class="docutils literal notranslate"><span class="pre">n_examples</span> <span class="pre">=</span> <span class="pre">50</span> <span class="pre">*</span> <span class="pre">len(X_train)</span></code>.</li>
 <li>“Incremental” is configured to do the same amount of work as Hyperband
 with <code class="docutils literal notranslate"><span class="pre">IncrementalSearchCV(...,</span> <span class="pre">n_initial_parameters=19,</span> <span class="pre">decay_rate=0)</span></code></li>
 </ol>
 <p>These two estimators are configured do the same amount of computation, the
 equivalent of fitting about 19 models. With this amount of computation, how do
 the final accuracies look?</p>
-<div class="figure align-center" id="id9">
+<div class="figure align-center" id="id10">
 <a class="reference internal image-reference" href="_images/synthetic-final-acc.svg"><img alt="_images/synthetic-final-acc.svg" src="_images/synthetic-final-acc.svg" width="60%" /></a>
 <p class="caption"><span class="caption-text">The final validation accuracy over 200 different runs of the estimators
 above. Out of the 200 runs, the <cite>worst</cite> <a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a> run performed
@@ -931,7 +931,7 @@ be a lot more confident than
 searches find models of (say) 85% accuracy? Experimentally, Hyperband reaches
 84% accuracy at about 350 passes through the dataset, and Incremental requires
 900 passes through the dataset:</p>
-<div class="figure align-center" id="id10">
+<div class="figure align-center" id="id11">
 <a class="reference internal image-reference" href="_images/synthetic-val-acc.svg"><img alt="_images/synthetic-val-acc.svg" src="_images/synthetic-val-acc.svg" width="60%" /></a>
 <p class="caption"><span class="caption-text">The average accuracy obtained by each search after a certain number of
 passes through the dataset. The green line is passes through the data
@@ -942,7 +942,7 @@ case because only 4 Dask workers are used, and they’re all busy for the vast
 majority of the search. How does this change with the number of workers?</p>
 <p>To see this, let’s analyze how the time-to-completion for Hyperband varies with
 the number of Dask workers in a seperate experiment.</p>
-<div class="figure align-center" id="id11">
+<div class="figure align-center" id="id12">
 <a class="reference internal image-reference" href="_images/scaling-patience-true.svg"><img alt="_images/scaling-patience-true.svg" src="_images/scaling-patience-true.svg" width="60%" /></a>
 <p class="caption"><span class="caption-text">The time-to-completion for a single run of Hyperband as the number of Dask
 workers vary. The solid white line is the time required to train one model.</span></p>
@@ -953,7 +953,7 @@ takes longer.</p>
 <table class="docutils footnote" frame="void" id="f1" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id7">[1]</a></td><td>Approximately 300 parameters were desired; 299 was chosen to make the Dask array chunk evenly</td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id8">[1]</a></td><td>Approximately 300 parameters were desired; 299 was chosen to make the Dask array chunk evenly</td></tr>
 </tbody>
 </table>
 </div>

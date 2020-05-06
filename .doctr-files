@@ -21,6 +21,7 @@
 ./_sources/modules/api.rst.txt
 ./_sources/modules/generated/dask_ml.cluster.KMeans.rst.txt
 ./_sources/modules/generated/dask_ml.cluster.SpectralClustering.rst.txt
+./_sources/modules/generated/dask_ml.decomposition.IncrementalPCA.rst.txt
 ./_sources/modules/generated/dask_ml.decomposition.PCA.rst.txt
 ./_sources/modules/generated/dask_ml.decomposition.TruncatedSVD.rst.txt
 ./_sources/modules/generated/dask_ml.ensemble.BlockwiseVotingClassifier.rst.txt
@@ -145,6 +146,7 @@
 ./modules/api.html
 ./modules/generated/dask_ml.cluster.KMeans.html
 ./modules/generated/dask_ml.cluster.SpectralClustering.html
+./modules/generated/dask_ml.decomposition.IncrementalPCA.html
 ./modules/generated/dask_ml.decomposition.PCA.html
 ./modules/generated/dask_ml.decomposition.TruncatedSVD.html
 ./modules/generated/dask_ml.ensemble.BlockwiseVotingClassifier.html

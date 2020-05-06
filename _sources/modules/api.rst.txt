@@ -138,6 +138,7 @@ with Dask Arrays or DataFrames.
    :toctree: generated/
    :template: class.rst
 
+   decomposition.IncrementalPCA
    decomposition.PCA
    decomposition.TruncatedSVD
 

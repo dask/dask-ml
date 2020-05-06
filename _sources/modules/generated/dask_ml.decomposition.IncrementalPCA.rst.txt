@@ -1,0 +1,16 @@
+:mod:`dask_ml.decomposition`.IncrementalPCA
+==================================================
+
+.. currentmodule:: dask_ml.decomposition
+
+.. autoclass:: IncrementalPCA
+
+   
+   .. automethod:: __init__
+   
+
+.. include:: dask_ml.decomposition.IncrementalPCA.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>
