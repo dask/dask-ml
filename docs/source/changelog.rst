@@ -6,7 +6,8 @@ Version 1.4.0
 
 * Added :class:`dask_ml.decomposition.IncrementalPCA` for out-of-core / distributed incremental PCA (:pr:`619`)
 * Improved logging and monitoring in incremental model selection (:pr:`528`)
-* added :class:`dask_ml.ensemble.BlockwiseVotingClassifier` and :class:`dask_ml.ensemble.BlockwiseVotingRegressor` for blockwise training and ensemble prediction (:pr:`657`)
+* Added :class:`dask_ml.ensemble.BlockwiseVotingClassifier` and :class:`dask_ml.ensemble.BlockwiseVotingRegressor` for blockwise training and ensemble prediction (:pr:`657`)
+* Improved documentation for :ref:`hyper-parameter-search` (:pr:`432`)
 
 Version 1.3.0
 ~~~~~~~~~~~~~
