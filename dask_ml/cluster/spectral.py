@@ -2,7 +2,7 @@
 """Algorithms for spectral clustering
 """
 import logging
-from typing import Any, Callable, Dict, Optional, Union
+from typing import Any, Callable, Dict, Optional, Tuple, Union
 
 import dask.array as da
 import numpy as np
@@ -172,13 +172,13 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         self.persist_embedding = persist_embedding
         self.kmeans_params = kmeans_params
 
-    def _check_array(self, X: da.Array):
+    def _check_array(self, X: da.Array) -> da.Array:
         logger.info("Starting check array")
         result = check_array(X, accept_dask_dataframe=False).astype(float)
         logger.info("Finished check array")
         return result
 
-    def fit(self, X: da.Array, y: Optional[da.Array] = None):
+    def fit(self, X: da.Array, y: Optional[da.Array] = None) -> "SpectralClustering":
         X = self._check_array(X)
         n_components = self.n_components
         metric = self.affinity
@@ -315,7 +315,7 @@ def embed(
     n_components: int,
     metric: Union[str, Callable],
     kernel_params: Dict[str, Any],
-):
+) -> Tuple[da.Array, da.Array]:
     if isinstance(metric, str):
         if metric not in PAIRWISE_KERNEL_FUNCTIONS:
             msg = "Unknown affinity metric name '{}'. Expected one " "of '{}'".format(
@@ -346,7 +346,7 @@ def _slice_mostly_sorted(
     keep: np.ndarray[int],
     rest: np.ndarray[bool],
     ind: np.ndarray[int] = None,
-):
+) -> da.Array:
     """Slice dask array `array` that is almost entirely sorted already.
 
     We perform approximately `2 * len(keep)` slices on `array`.

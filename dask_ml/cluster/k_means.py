@@ -158,7 +158,9 @@ class KMeans(TransformerMixin, BaseEstimator):
         self.copy_x = copy_x
 
     @_timed(_logger=logger)
-    def _check_array(self, X: Union[ArrayLike, DataFrameType]):
+    def _check_array(
+        self, X: Union[ArrayLike, DataFrameType]
+    ) -> Union[ArrayLike, DataFrameType]:
         if isinstance(X, pd.DataFrame):
             X = X.values
 
@@ -190,7 +192,9 @@ class KMeans(TransformerMixin, BaseEstimator):
             raise ValueError(msg)
         return X
 
-    def fit(self, X: Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None):
+    def fit(
+        self, X: Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None
+    ) -> "KMeans":
         X = self._check_array(X)
         labels, centroids, inertia, n_iter = k_means(
             X,
@@ -211,12 +215,12 @@ class KMeans(TransformerMixin, BaseEstimator):
 
     def transform(
         self, X: Union[ArrayLike, DataFrameType], y: Optional[SeriesType] = None
-    ):
+    ) -> ArrayLike:
         check_is_fitted(self, "cluster_centers_")
         X = self._check_array(X)
         return euclidean_distances(X, self.cluster_centers_)
 
-    def predict(self, X: Union[ArrayLike, DataFrameType]):
+    def predict(self, X: Union[ArrayLike, DataFrameType]) -> ArrayLike:
         """Predict the closest cluster each sample in X belongs to.
         In the vector quantization literature, `cluster_centers_` is called
         the code book and each value returned by `predict` is the index of
@@ -282,7 +286,9 @@ def k_means(
         return labels, centers, inertia
 
 
-def compute_inertia(X: Union[ArrayLike, DataFrameType], labels, centers):
+def compute_inertia(
+    X: Union[ArrayLike, DataFrameType], labels, centers
+) -> Union[ArrayLike, DataFrameType]:
     reindexed = labels.map_blocks(
         lambda x: centers[x], dtype=centers.dtype, chunks=X.chunks, new_axis=1
     )
@@ -380,7 +386,7 @@ def init_pp(
     X: Union[ArrayLike, DataFrameType],
     n_clusters: int,
     random_state: Optional[Union[int, np.random.RandomState]],
-):
+) -> Union[ArrayLike, DataFrameType]:
     """K-means initialization using k-means++
 
     This uses scikit-learn's implementation.
@@ -401,7 +407,7 @@ def init_random(
     X: Union[ArrayLike, DataFrameType],
     n_clusters: int,
     random_state: Optional[Union[int, np.random.RandomState]],
-):
+) -> Union[ArrayLike, DataFrameType]:
     """K-means initialization using randomly chosen points"""
     logger.info("Initializing randomly")
     idx = sorted(draw_seed(random_state, 0, len(X), size=n_clusters))
@@ -416,7 +422,7 @@ def init_scalable(
     random_state: Optional[Union[int, np.random.RandomState]] = None,
     max_iter: Optional[int] = None,
     oversampling_factor: int = 2,
-):
+) -> Union[ArrayLike, DataFrameType]:
     """K-Means initialization using k-means||
 
     This is algorithm 2 in Scalable K-Means++ (2012).
@@ -500,7 +506,7 @@ def _sample_points(
     centers: np.ndarray,
     oversampling_factor: int,
     random_state: Optional[Union[int, np.random.RandomState]],
-):
+) -> da.Array:
     r"""
     Sample points independently with probability
 

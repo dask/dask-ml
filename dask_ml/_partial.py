@@ -3,6 +3,8 @@ from __future__ import absolute_import, division, print_function
 import logging
 import os
 import warnings
+from typing import Optional, Any, Tuple
+
 
 import dask
 import numpy as np
@@ -25,10 +27,10 @@ _partial_deprecation = (
 class _BigPartialFitMixin:
     """ Wraps a partial_fit enabled estimator for use with Dask arrays """
 
-    _init_kwargs = []
-    _fit_kwargs = []
+    _init_kwargs: Any = []
+    _fit_kwargs: Any = []
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         self._deprecated()
         missing = set(self._init_kwargs) - set(kwargs)
 
@@ -38,10 +40,11 @@ class _BigPartialFitMixin:
             )
         for kwarg in self._init_kwargs:
             setattr(self, kwarg, kwargs.pop(kwarg))
-        super(_BigPartialFitMixin, self).__init__(**kwargs)
+        # mypy issue: https://github.com/python/mypy/issues/5887
+        super(_BigPartialFitMixin, self).__init__(**kwargs)  # type: ignore
 
     @classmethod
-    def _deprecated(cls):
+    def _deprecated(cls: Any):
         for base in cls.mro():
             if base.__module__.startswith("sklearn"):
                 break
@@ -49,7 +52,7 @@ class _BigPartialFitMixin:
         warnings.warn(_partial_deprecation.format(cls=cls, base=base), FutureWarning)
 
     @classmethod
-    def _get_param_names(cls):
+    def _get_param_names(cls: Any):
         # Evil hack to make sure repr, get_params work
         # We could also try rewriting __init__ once the class is created
         bases = cls.mro()
@@ -73,7 +76,7 @@ class _BigPartialFitMixin:
         return result
 
     def predict(self, X, dtype=None):
-        predict = super(_BigPartialFitMixin, self).predict
+        predict = super(_BigPartialFitMixin, self).predict  # type: ignore
         if dtype is None:
             dtype = self._get_predict_dtype(X)
         if isinstance(X, np.ndarray):
@@ -82,7 +85,7 @@ class _BigPartialFitMixin:
 
     def _get_predict_dtype(self, X):
         xx = np.zeros((1, X.shape[1]), dtype=X.dtype)
-        return super(_BigPartialFitMixin, self).predict(xx).dtype
+        return super(_BigPartialFitMixin, self).predict(xx).dtype  # type: ignore
 
 
 def _partial_fit(model, x, y, kwargs=None):
@@ -175,7 +178,7 @@ def fit(
     name = "fit-" + dask.base.tokenize(model, x, y, kwargs, order)
 
     if hasattr(x, "chunks") and x.ndim > 1:
-        x_extra = (0,)
+        x_extra: Tuple[Optional[int], ...] = (0,)
     else:
         x_extra = ()
 
