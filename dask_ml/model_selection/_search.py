@@ -1185,8 +1185,9 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         Notes
         -----
         This class performs best when each cross validation split fits into
-        RAM because ``fit`` is called on each cross validation split. For
-        example, if using :class:`~sklearn.model_selection.KFold` with k
+        RAM because the model's ``fit`` method is called on each cross
+        validation split. For example, if using
+        :class:`~sklearn.model_selection.KFold` with :math:`k`
         chunks, a :math:`1 - 1/k` fraction of the dataset should fit into RAM.
 
         """
