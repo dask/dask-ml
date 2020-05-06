@@ -653,8 +653,10 @@ def _do_fit_step(
                 if is_transform:
                     if none_passthrough:
                         new_Xs.update(zip(ids, get(ids, Xs)))
+                        new_ys.update(zip(ids, get(ids, ys)))
                     else:
                         new_Xs.update(nones)
+                        new_ys.update(nones)
             else:
                 # Extract the proper subset of Xs, ys
                 sub_Xs = get(ids, Xs)
@@ -749,7 +751,7 @@ def _do_fit_step(
                 n_splits,
                 error_score,
             )
-    return (fits, Xs, ys) if is_transform else (fits, None, None)
+    return (fits, Xs, ys) if is_transform else (fits, None, ys)
 
 
 def _do_pipeline(
