@@ -14,7 +14,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.metrics.mean_squared_error &mdash; dask-ml 1.3.1 documentation</title>
+  <title>dask_ml.ensemble.BlockwiseVotingRegressor &mdash; dask-ml 1.3.1 documentation</title>
   
 
   
@@ -47,8 +47,8 @@
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="dask_ml.metrics.r2_score" href="dask_ml.metrics.r2_score.html" />
-    <link rel="prev" title="dask_ml.metrics.mean_absolute_error" href="dask_ml.metrics.mean_absolute_error.html" />
+    <link rel="next" title="dask_ml.linear_model.LinearRegression" href="dask_ml.linear_model.LinearRegression.html" />
+    <link rel="prev" title="dask_ml.ensemble.BlockwiseVotingClassifier" href="dask_ml.ensemble.BlockwiseVotingClassifier.html" />
     <link rel="shortcut icon" href="../../_static/images/favicon.ico"/>
   
 </head>
@@ -176,7 +176,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../xgboost.html">XGBoost</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.model_selection"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>: Model Selection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.ensemble"><code class="docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code>: Ensemble Methods</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#module-dask_ml.ensemble"><code class="docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code>: Ensemble Methods</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="dask_ml.ensemble.BlockwiseVotingClassifier.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code>.BlockwiseVotingClassifier</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code>.BlockwiseVotingRegressor</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.linear_model"><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>: Generalized Linear Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-wrappers-meta-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.wrappers</span></code>: Meta-Estimators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.cluster"><code class="docutils literal notranslate"><span class="pre">dask_ml.cluster</span></code>: Clustering</a></li>
@@ -185,16 +189,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-feature-extraction-text-feature-extraction"><code class="docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>: Feature extraction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-compose-composite-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.compose</span></code>: Composite Estimators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.impute"><code class="docutils literal notranslate"><span class="pre">dask_ml.impute</span></code>: Imputing Missing Data</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="../api.html#dask-ml-metrics-metrics"><code class="docutils literal notranslate"><span class="pre">dask_ml.metrics</span></code>: Metrics</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="../api.html#regression-metrics">Regression Metrics</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="dask_ml.metrics.mean_absolute_error.html">dask_ml.metrics.mean_absolute_error</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">dask_ml.metrics.mean_squared_error</a></li>
-<li class="toctree-l4"><a class="reference internal" href="dask_ml.metrics.r2_score.html">dask_ml.metrics.r2_score</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../api.html#classification-metrics">Classification Metrics</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-metrics-metrics"><code class="docutils literal notranslate"><span class="pre">dask_ml.metrics</span></code>: Metrics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.xgboost"><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code>: XGBoost</a></li>
 </ul>
 </li>
@@ -253,13 +248,13 @@
         
           <li><a href="../api.html">API Reference</a> &raquo;</li>
         
-      <li>dask_ml.metrics.mean_squared_error</li>
+      <li><code class="docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code>.BlockwiseVotingRegressor</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../../_sources/modules/generated/dask_ml.metrics.mean_squared_error.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/modules/generated/dask_ml.ensemble.BlockwiseVotingRegressor.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -272,81 +267,183 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="dask-ml-metrics-mean-squared-error">
-<h1>dask_ml.metrics.mean_squared_error<a class="headerlink" href="#dask-ml-metrics-mean-squared-error" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
-<dt id="dask_ml.metrics.mean_squared_error">
-<code class="descclassname">dask_ml.metrics.</code><code class="descname">mean_squared_error</code><span class="sig-paren">(</span><em>y_true:~ArrayLike</em>, <em>y_pred:~ArrayLike</em>, <em>sample_weight:Union[~ArrayLike</em>, <em>NoneType]=None</em>, <em>multioutput:Union[str</em>, <em>NoneType]='uniform_average'</em>, <em>compute:bool=True</em><span class="sig-paren">)</span> &#x2192; ~ArrayLike<a class="headerlink" href="#dask_ml.metrics.mean_squared_error" title="Permalink to this definition">¶</a></dt>
-<dd><p>Mean squared error regression loss</p>
-<p>This docstring was copied from sklearn.metrics.mean_squared_error.</p>
-<p>Some inconsistencies with the Dask version may exist.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#mean-squared-error" title="(in scikit-learn v0.22)"><span class="xref std std-ref">User Guide</span></a>.</p>
+  <div class="section" id="dask-ml-ensemble-blockwisevotingregressor">
+<h1><a class="reference internal" href="../api.html#module-dask_ml.ensemble" title="dask_ml.ensemble"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code></a>.BlockwiseVotingRegressor<a class="headerlink" href="#dask-ml-ensemble-blockwisevotingregressor" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="dask_ml.ensemble.BlockwiseVotingRegressor">
+<em class="property">class </em><code class="descclassname">dask_ml.ensemble.</code><code class="descname">BlockwiseVotingRegressor</code><span class="sig-paren">(</span><em>estimator</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.ensemble.BlockwiseVotingRegressor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Blockwise training and ensemble voting regressor.</p>
+<p>This regressor trains on blocks / partitions of Dask Arrays or DataFrames.
+A cloned version of <cite>estimator</cite> will be fit <em>independently</em> on each block
+or partition of the Dask collection.</p>
+<p>Prediction is done by the <em>ensemble</em> of learned models.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Ensure that your data are sufficiently shuffled prior to training!
+If the values of the various blocks / partitions of your dataset are not
+distributed similarly, the regressor will give poor results.</p>
+</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>y_true</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,) or (n_samples, n_outputs)</span></dt>
-<dd><p class="first last">Ground truth (correct) target values.</p>
-</dd>
-<dt><strong>y_pred</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,) or (n_samples, n_outputs)</span></dt>
-<dd><p class="first last">Estimated target values.</p>
-</dd>
-<dt><strong>sample_weight</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,), optional</span></dt>
-<dd><p class="first last">Sample weights.</p>
-</dd>
-<dt><strong>multioutput</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string in [‘raw_values’, ‘uniform_average’]</span></dt>
-<dd><p class="first">or array-like of shape (n_outputs)
-Defines aggregating of multiple output values.
-Array-like value defines weights used to average errors.</p>
-<dl class="last docutils">
-<dt>‘raw_values’ :</dt>
-<dd><p class="first last">Returns a full set of errors in case of multioutput input.</p>
-</dd>
-<dt>‘uniform_average’ :</dt>
-<dd><p class="first last">Errors of all outputs are averaged with uniform weight.</p>
-</dd>
-</dl>
-</dd>
-<dt><strong>squared</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean value, optional (default = True)  (Not supported in Dask)</span></dt>
-<dd><p class="first last">If True returns MSE value, if False returns RMSE value.</p>
-</dd>
+<dt><strong>estimator</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Estimator</span></dt>
+<dd></dd>
 </dl>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>loss</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or ndarray of floats</span></dt>
-<dd><p class="first last">A non-negative floating point value (the best value is 0.0), or an
-array of floating point values, one for each individual target.</p>
+<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>estimators_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of regressors</span></dt>
+<dd><p class="first last">The collection of fitted sub-estimators that are <cite>estimator</cite> fitted
+on each partition / block of the inputs.</p>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_squared_error</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">y_true</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">y_pred</span> <span class="o">=</span> <span class="p">[</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="go">0.375</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">y_true</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">y_pred</span> <span class="o">=</span> <span class="p">[</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">squared</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="go">0.612...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">y_true</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],[</span><span class="mi">7</span><span class="p">,</span> <span class="o">-</span><span class="mi">6</span><span class="p">]]</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">y_pred</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],[</span><span class="mi">8</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">]]</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="go">0.708...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">multioutput</span><span class="o">=</span><span class="s1">&#39;raw_values&#39;</span><span class="p">)</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="go">array([0.41666667, 1.        ])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">multioutput</span><span class="o">=</span><span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">])</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="go">0.825...</span>
-</pre></div>
-</div>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.ensemble.BlockwiseVotingRegressor.get_params" title="dask_ml.ensemble.BlockwiseVotingRegressor.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
+<td>Get parameters for this estimator.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.ensemble.BlockwiseVotingRegressor.score" title="dask_ml.ensemble.BlockwiseVotingRegressor.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(self,&nbsp;X,&nbsp;y[,&nbsp;sample_weight])</td>
+<td>Return the mean accuracy on the given test data and labels.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.ensemble.BlockwiseVotingRegressor.set_params" title="dask_ml.ensemble.BlockwiseVotingRegressor.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
+<td>Set the parameters of this estimator.</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="52%" />
+<col width="48%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>fit</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>predict</strong></td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="dask_ml.ensemble.BlockwiseVotingRegressor.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>estimator</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.ensemble.BlockwiseVotingRegressor.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
-</div>
+<dl class="method">
+<dt id="dask_ml.ensemble.BlockwiseVotingRegressor.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.ensemble.BlockwiseVotingRegressor.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get parameters for this estimator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default=True</span></dt>
+<dd><p class="first last">If True, will return the parameters for this estimator and
+contained subobjects that are estimators.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">mapping of string to any</span></dt>
+<dd><p class="first last">Parameter names mapped to their values.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.ensemble.BlockwiseVotingRegressor.score">
+<code class="descname">score</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.ensemble.BlockwiseVotingRegressor.score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the mean accuracy on the given test data and labels.</p>
+<p>In multi-label classification, this is the subset accuracy
+which is a harsh metric since you require for each sample that
+each label set be correctly predicted.</p>
+<p>This matches the scikit-learn implementation with the differences
+that</p>
+<ul class="simple">
+<li><a class="reference internal" href="dask_ml.metrics.accuracy_score.html#dask_ml.metrics.accuracy_score" title="dask_ml.metrics.accuracy_score"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dask_ml.metrics.accuracy_score()</span></code></a> is used rather than
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">sklearn.metrics.accuracy_score()</span></code>.</li>
+<li>The <code class="docutils literal notranslate"><span class="pre">'uniform_average'</span></code> method is used for multioutput results
+rather than <code class="docutils literal notranslate"><span class="pre">'variance_weighted'</span></code>.</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples, n_features)</span></dt>
+<dd><p class="first last">Test samples.</p>
+</dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,) or (n_samples, n_outputs)</span></dt>
+<dd><p class="first last">True labels for X.</p>
+</dd>
+<dt><strong>sample_weight</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,), default=None</span></dt>
+<dd><p class="first last">Sample weights.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>score</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Mean accuracy of self.predict(X) wrt. y.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.ensemble.BlockwiseVotingRegressor.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.ensemble.BlockwiseVotingRegressor.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters of this estimator.</p>
+<p>The method works on simple estimators as well as on nested objects
+(such as pipelines). The latter have parameters of the form
+<code class="docutils literal notranslate"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it’s possible to update each
+component of a nested object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>**params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">Estimator parameters.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd><p class="first last">Estimator instance.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<div class="clearer"></div></div>
 
 
            </div>
@@ -356,10 +453,10 @@ array of floating point values, one for each individual target.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="dask_ml.metrics.r2_score.html" class="btn btn-neutral float-right" title="dask_ml.metrics.r2_score" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="dask_ml.linear_model.LinearRegression.html" class="btn btn-neutral float-right" title="dask_ml.linear_model.LinearRegression" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="dask_ml.metrics.mean_absolute_error.html" class="btn btn-neutral float-left" title="dask_ml.metrics.mean_absolute_error" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="dask_ml.ensemble.BlockwiseVotingClassifier.html" class="btn btn-neutral float-left" title="dask_ml.ensemble.BlockwiseVotingClassifier" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

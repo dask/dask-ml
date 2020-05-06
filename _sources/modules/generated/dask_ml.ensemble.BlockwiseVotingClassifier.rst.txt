@@ -1,0 +1,16 @@
+:mod:`dask_ml.ensemble`.BlockwiseVotingClassifier
+========================================================
+
+.. currentmodule:: dask_ml.ensemble
+
+.. autoclass:: BlockwiseVotingClassifier
+
+   
+   .. automethod:: __init__
+   
+
+.. include:: dask_ml.ensemble.BlockwiseVotingClassifier.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>

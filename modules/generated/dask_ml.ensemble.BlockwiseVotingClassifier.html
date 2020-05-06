@@ -14,7 +14,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.feature_extraction.text.FeatureHasher &mdash; dask-ml 1.3.1 documentation</title>
+  <title>dask_ml.ensemble.BlockwiseVotingClassifier &mdash; dask-ml 1.3.1 documentation</title>
   
 
   
@@ -47,8 +47,8 @@
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="dask_ml.compose.ColumnTransformer" href="../generted/dask_ml.compose.ColumnTransformer.html" />
-    <link rel="prev" title="dask_ml.feature_extraction.text.HashingVectorizer" href="dask_ml.feature_extraction.text.HashingVectorizer.html" />
+    <link rel="next" title="dask_ml.ensemble.BlockwiseVotingRegressor" href="dask_ml.ensemble.BlockwiseVotingRegressor.html" />
+    <link rel="prev" title="dask_ml.model_selection.SuccessiveHalvingSearchCV" href="dask_ml.model_selection.SuccessiveHalvingSearchCV.html" />
     <link rel="shortcut icon" href="../../_static/images/favicon.ico"/>
   
 </head>
@@ -176,17 +176,17 @@
 <li class="toctree-l1"><a class="reference internal" href="../../xgboost.html">XGBoost</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.model_selection"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>: Model Selection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.ensemble"><code class="docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code>: Ensemble Methods</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#module-dask_ml.ensemble"><code class="docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code>: Ensemble Methods</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code>.BlockwiseVotingClassifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dask_ml.ensemble.BlockwiseVotingRegressor.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code>.BlockwiseVotingRegressor</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.linear_model"><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>: Generalized Linear Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-wrappers-meta-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.wrappers</span></code>: Meta-Estimators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.cluster"><code class="docutils literal notranslate"><span class="pre">dask_ml.cluster</span></code>: Clustering</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.decomposition"><code class="docutils literal notranslate"><span class="pre">dask_ml.decomposition</span></code>: Matrix Decomposition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.preprocessing"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>: Preprocessing Data</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="../api.html#dask-ml-feature-extraction-text-feature-extraction"><code class="docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>: Feature extraction</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.feature_extraction.text.HashingVectorizer.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>.HashingVectorizer</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>.FeatureHasher</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-feature-extraction-text-feature-extraction"><code class="docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>: Feature extraction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-compose-composite-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.compose</span></code>: Composite Estimators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.impute"><code class="docutils literal notranslate"><span class="pre">dask_ml.impute</span></code>: Imputing Missing Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-metrics-metrics"><code class="docutils literal notranslate"><span class="pre">dask_ml.metrics</span></code>: Metrics</a></li>
@@ -248,13 +248,13 @@
         
           <li><a href="../api.html">API Reference</a> &raquo;</li>
         
-      <li><code class="docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>.FeatureHasher</li>
+      <li><code class="docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code>.BlockwiseVotingClassifier</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../../_sources/modules/generated/dask_ml.feature_extraction.text.FeatureHasher.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/modules/generated/dask_ml.ensemble.BlockwiseVotingClassifier.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -267,81 +267,55 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="dask-ml-feature-extraction-text-featurehasher">
-<h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>.FeatureHasher<a class="headerlink" href="#dask-ml-feature-extraction-text-featurehasher" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="dask-ml-ensemble-blockwisevotingclassifier">
+<h1><a class="reference internal" href="../api.html#module-dask_ml.ensemble" title="dask_ml.ensemble"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code></a>.BlockwiseVotingClassifier<a class="headerlink" href="#dask-ml-ensemble-blockwisevotingclassifier" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="dask_ml.feature_extraction.text.FeatureHasher">
-<em class="property">class </em><code class="descclassname">dask_ml.feature_extraction.text.</code><code class="descname">FeatureHasher</code><span class="sig-paren">(</span><em>n_features=1048576</em>, <em>input_type='dict'</em>, <em>dtype=&lt;class 'numpy.float64'&gt;</em>, <em>alternate_sign=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.FeatureHasher" title="Permalink to this definition">¶</a></dt>
-<dd><p>Implements feature hashing, aka the hashing trick.</p>
-<p>This class turns sequences of symbolic feature names (strings) into
-scipy.sparse matrices, using a hash function to compute the matrix column
-corresponding to a name. The hash function employed is the signed 32-bit
-version of Murmurhash3.</p>
-<p>Feature names of type byte string are used as-is. Unicode strings are
-converted to UTF-8 first, but no Unicode normalization is done.
-Feature values must be (finite) numbers.</p>
-<p>This class is a low-memory alternative to DictVectorizer and
-CountVectorizer, intended for large-scale (online) learning and situations
-where memory is tight, e.g. when running prediction code on embedded
-devices.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#feature-hashing" title="(in scikit-learn v0.22)"><span class="xref std std-ref">User Guide</span></a>.</p>
-<div class="versionadded">
-<p><span class="versionmodified">New in version 0.13.</span></p>
+<dt id="dask_ml.ensemble.BlockwiseVotingClassifier">
+<em class="property">class </em><code class="descclassname">dask_ml.ensemble.</code><code class="descname">BlockwiseVotingClassifier</code><span class="sig-paren">(</span><em>estimator</em>, <em>voting='hard'</em>, <em>classes=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.ensemble.BlockwiseVotingClassifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Blockwise training and ensemble voting classifier.</p>
+<p>This classifier trains on blocks / partitions of Dask Arrays or DataFrames.
+A cloned version of <cite>estimator</cite> will be fit <em>independently</em> on each block
+or partition of the Dask collection.</p>
+<p>Prediction is done by the <em>ensemble</em> of learned models.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Ensure that your data are sufficiently shuffled prior to training!
+If the values of the various blocks / partitions of your dataset are not
+distributed similarly, the classifier will give poor results.</p>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>n_features</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
-<dd><p class="first last">The number of features (columns) in the output matrices. Small numbers
-of features are likely to cause hash collisions, but large numbers
-will cause larger coefficient dimensions in linear learners.</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>estimator</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Estimator</span></dt>
+<dd></dd>
+<dt><strong>voting</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, {‘hard’, ‘soft’} (default=’hard’)</span></dt>
+<dd><p class="first last">If ‘hard’, uses predicted class labels for majority rule voting.
+Else if ‘soft’, predicts the class label based on the argmax of
+the sums of the predicted probabilities, which is recommended for
+an ensemble of well-calibrated classifiers.</p>
 </dd>
-<dt><strong>input_type</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, optional, default “dict”</span></dt>
-<dd><p class="first last">Either “dict” (the default) to accept dictionaries over
-(feature_name, value); “pair” to accept pairs of (feature_name, value);
-or “string” to accept single strings.
-feature_name should be a string, while value should be a number.
-In the case of “string”, a value of 1 is implied.
-The feature_name is hashed to find the appropriate column for the
-feature. The value’s sign might be flipped in the output (but see
-non_negative, below).</p>
+<dt><strong>classes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list-like, optional</span></dt>
+<dd><p class="first last">The set of classes that <cite>y</cite> can take. This can also be provided as
+a fit param if the underlying estimator requires <cite>classes</cite> at fit time.</p>
 </dd>
-<dt><strong>dtype</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy type, optional, default np.float64</span></dt>
-<dd><p class="first last">The type of feature values. Passed to scipy.sparse matrix constructors
-as the dtype argument. Do not set this to bool, np.boolean or any
-unsigned integer type.</p>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>estimators_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of classifiers</span></dt>
+<dd><p class="first last">The collection of fitted sub-estimators that are <cite>estimator</cite> fitted
+on each partition / block of the inputs.</p>
 </dd>
-<dt><strong>alternate_sign</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional, default True</span></dt>
-<dd><p class="first last">When True, an alternating sign is added to the features as to
-approximately conserve the inner product in the hashed space even for
-small n_features. This approach is similar to sparse random projection.</p>
+<dt><strong>classes_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape (n_predictions,)</span></dt>
+<dd><p class="first last">The class labels.</p>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
-<div class="admonition seealso">
-<p class="first admonition-title">See also</p>
-<dl class="last docutils">
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">DictVectorizer</span></code></dt>
-<dd>vectorizes string-valued features using a hash table.</dd>
-<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html#sklearn.preprocessing.OneHotEncoder" title="(in scikit-learn v0.22)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.preprocessing.OneHotEncoder</span></code></a></dt>
-<dd>handles nominal/categorical features.</dd>
-</dl>
-</div>
-<p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.feature_extraction</span> <span class="kn">import</span> <span class="n">FeatureHasher</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">h</span> <span class="o">=</span> <span class="n">FeatureHasher</span><span class="p">(</span><span class="n">n_features</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">D</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;dog&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;cat&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;elephant&#39;</span><span class="p">:</span><span class="mi">4</span><span class="p">},{</span><span class="s1">&#39;dog&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;run&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">}]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">h</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
-<span class="go">array([[ 0.,  0., -4., -1.,  0.,  0.,  0.,  0.,  0.,  2.],</span>
-<span class="go">       [ 0.,  0.,  0., -2., -5.,  0.,  0.,  0.,  0.,  0.]])</span>
-</pre></div>
-</div>
 <p class="rubric">Methods</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -349,100 +323,40 @@ small n_features. This approach is similar to sparse random projection.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.FeatureHasher.fit" title="dask_ml.feature_extraction.text.FeatureHasher.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self[,&nbsp;X,&nbsp;y])</td>
-<td>No-op.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.FeatureHasher.fit_transform" title="dask_ml.feature_extraction.text.FeatureHasher.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
-<td>Fit to data, then transform it.</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.FeatureHasher.get_params" title="dask_ml.feature_extraction.text.FeatureHasher.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.ensemble.BlockwiseVotingClassifier.get_params" title="dask_ml.ensemble.BlockwiseVotingClassifier.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.feature_extraction.text.FeatureHasher.set_params" title="dask_ml.feature_extraction.text.FeatureHasher.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.ensemble.BlockwiseVotingClassifier.score" title="dask_ml.ensemble.BlockwiseVotingClassifier.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(self,&nbsp;X,&nbsp;y[,&nbsp;sample_weight])</td>
+<td>Return the mean accuracy on the given test data and labels.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.ensemble.BlockwiseVotingClassifier.set_params" title="dask_ml.ensemble.BlockwiseVotingClassifier.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
 </tbody>
 </table>
 <table border="1" class="docutils">
 <colgroup>
-<col width="57%" />
-<col width="43%" />
+<col width="52%" />
+<col width="48%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><strong>transform</strong></td>
+<tr class="row-odd"><td><strong>fit</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>predict</strong></td>
 <td>&#160;</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
-<dt id="dask_ml.feature_extraction.text.FeatureHasher.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>n_features=1048576</em>, <em>input_type='dict'</em>, <em>dtype=&lt;class 'numpy.float64'&gt;</em>, <em>alternate_sign=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.FeatureHasher.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.ensemble.BlockwiseVotingClassifier.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>estimator</em>, <em>voting='hard'</em>, <em>classes=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.ensemble.BlockwiseVotingClassifier.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.feature_extraction.text.FeatureHasher.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X=None</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.FeatureHasher.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>No-op.</p>
-<p>This method doesn’t do anything. It exists purely for compatibility
-with the scikit-learn transformer API.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like</span></dt>
-<dd></dd>
-</dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">FeatureHasher</span></dt>
-<dd></dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="dask_ml.feature_extraction.text.FeatureHasher.fit_transform">
-<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>**fit_params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.FeatureHasher.fit_transform" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fit to data, then transform it.</p>
-<p>Fits transformer to X and y with optional parameters fit_params
-and returns a transformed version of X.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features]</span></dt>
-<dd><p class="first last">Training set.</p>
-</dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples]</span></dt>
-<dd><p class="first last">Target values.</p>
-</dd>
-<dt><strong>**fit_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">Additional fit parameters.</p>
-</dd>
-</dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features_new]</span></dt>
-<dd><p class="first last">Transformed array.</p>
-</dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="dask_ml.feature_extraction.text.FeatureHasher.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.FeatureHasher.get_params" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.ensemble.BlockwiseVotingClassifier.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.ensemble.BlockwiseVotingClassifier.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get parameters for this estimator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -468,8 +382,46 @@ contained subobjects that are estimators.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.feature_extraction.text.FeatureHasher.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.FeatureHasher.set_params" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.ensemble.BlockwiseVotingClassifier.score">
+<code class="descname">score</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.ensemble.BlockwiseVotingClassifier.score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the mean accuracy on the given test data and labels.</p>
+<p>In multi-label classification, this is the subset accuracy
+which is a harsh metric since you require for each sample that
+each label set be correctly predicted.</p>
+<p>This matches the scikit-learn implementation with the difference
+that <a class="reference internal" href="dask_ml.metrics.accuracy_score.html#dask_ml.metrics.accuracy_score" title="dask_ml.metrics.accuracy_score"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dask_ml.metrics.accuracy_score()</span></code></a> is used rather than
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">sklearn.metrics.accuracy_score()</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples, n_features)</span></dt>
+<dd><p class="first last">Test samples.</p>
+</dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,) or (n_samples, n_outputs)</span></dt>
+<dd><p class="first last">True labels for X.</p>
+</dd>
+<dt><strong>sample_weight</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,), default=None</span></dt>
+<dd><p class="first last">Sample weights.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>score</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Mean accuracy of self.predict(X) wrt. y.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.ensemble.BlockwiseVotingClassifier.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.ensemble.BlockwiseVotingClassifier.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
 (such as pipelines). The latter have parameters of the form
@@ -509,10 +461,10 @@ component of a nested object.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../generted/dask_ml.compose.ColumnTransformer.html" class="btn btn-neutral float-right" title="dask_ml.compose.ColumnTransformer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="dask_ml.ensemble.BlockwiseVotingRegressor.html" class="btn btn-neutral float-right" title="dask_ml.ensemble.BlockwiseVotingRegressor" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="dask_ml.feature_extraction.text.HashingVectorizer.html" class="btn btn-neutral float-left" title="dask_ml.feature_extraction.text.HashingVectorizer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="dask_ml.model_selection.SuccessiveHalvingSearchCV.html" class="btn btn-neutral float-left" title="dask_ml.model_selection.SuccessiveHalvingSearchCV" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

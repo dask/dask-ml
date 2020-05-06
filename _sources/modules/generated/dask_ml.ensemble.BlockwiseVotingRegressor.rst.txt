@@ -1,0 +1,16 @@
+:mod:`dask_ml.ensemble`.BlockwiseVotingRegressor
+=======================================================
+
+.. currentmodule:: dask_ml.ensemble
+
+.. autoclass:: BlockwiseVotingRegressor
+
+   
+   .. automethod:: __init__
+   
+
+.. include:: dask_ml.ensemble.BlockwiseVotingRegressor.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>
