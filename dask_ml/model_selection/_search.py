@@ -954,7 +954,7 @@ def _do_featureunion(
                 )
                 dsk[(yt_name, m, n)] = (
                     feature_union_y, 
-                    ys[0]
+                    [None if y is None else y + (n,) for x in ys]
                 )
             seen[steps, wt] = m
             out_append(m)
