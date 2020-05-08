@@ -50,6 +50,7 @@ from .methods import (
     cv_split,
     feature_union,
     feature_union_concat,
+    feature_union_y,
     fit,
     fit_and_score,
     fit_best,
@@ -951,10 +952,13 @@ def _do_featureunion(
                     nsamp + (n,),
                     wl,
                 )
-                dsk[(yt_name, m, n)] = ys[0]
+                dsk[(yt_name, m, n)] = (
+                    feature_union_y, 
+                    ys[0]
+                )
             seen[steps, wt] = m
             out_append(m)
-            m += 1
+            m += 1,
     return [(fit_name, i) for i in out], [(tr_name, i) for i in out], [(yt_name, i) for i in out]
 
 

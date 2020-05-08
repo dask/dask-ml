@@ -216,6 +216,10 @@ def feature_union_concat(Xs, nsamples, weights):
     return np.hstack(Xs)
 
 
+def feature_union_y(ys):
+    """Pass ys"""
+    return ys
+
 # Current set_params isn't threadsafe
 SET_PARAMS_LOCK = Lock()
 
