@@ -218,7 +218,7 @@ def feature_union_concat(Xs, nsamples, weights):
 
 def feature_union_y(ys):
     """Pass ys"""
-    return ys
+    return ys[0]
 
 # Current set_params isn't threadsafe
 SET_PARAMS_LOCK = Lock()
