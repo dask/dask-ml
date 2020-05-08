@@ -951,7 +951,12 @@ def _do_featureunion(
                     nsamp + (n,),
                     wl,
                 )
-                dsk[(yt_name, m, n)] = ys
+                dsk[(yt_name, m, n)] = (
+                    feature_union_concat,
+                    [None if y is None else y + (n,) for y in ys],
+                    nsamp + (n,),
+                    wl,
+                )
             seen[steps, wt] = m
             out_append(m)
             m += 1
