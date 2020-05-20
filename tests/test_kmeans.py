@@ -24,7 +24,7 @@ from dask_ml.utils import assert_estimator_equal, row_norms
 def test_check_estimator():
     with warnings.catch_warnings(record=True):
         warnings.simplefilter("ignore", RuntimeWarning)
-        check_estimator(DKKMeans)
+        check_estimator(DKKMeans())
 
 
 def test_row_norms(X_blobs):

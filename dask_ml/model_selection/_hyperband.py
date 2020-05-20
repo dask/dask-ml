@@ -70,7 +70,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
     to train the best performing estimator via ``max_iter``.
     The other implicit input (the Dask array chuck size) requires
     a rough estimate of how many parameters to sample. Specification details
-    are in :ref:`Notes`.
+    are in :ref:`Notes <hyperband-notes>`.
 
     .. [*] After :math:`N` ``partial_fit`` calls the estimator Hyperband
        produces will be close to the best possible estimator that :math:`N`
@@ -95,7 +95,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
     max_iter : int
         The maximum number of partial_fit calls to any one model. This should
         be the number of ``partial_fit`` calls required for the model to
-        converge. See :ref:`Notes` for details on setting this parameter.
+        converge. See :ref:`Notes <hyperband-notes>` for details on
+        setting this parameter.
 
     aggressiveness : int, default=3
         How aggressive to be in culling off the different estimators. Higher
@@ -268,6 +269,9 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
 
     Notes
     -----
+
+    .. _hyperband-notes:
+
     To set ``max_iter`` and the chunk size for ``X`` and ``y``, it is required
     to estimate
 

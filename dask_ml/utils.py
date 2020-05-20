@@ -2,7 +2,7 @@ import contextlib
 import datetime
 import functools
 import logging
-from collections import Sequence
+from collections.abc import Sequence
 from multiprocessing import cpu_count
 from numbers import Integral
 from timeit import default_timer as tic
@@ -88,9 +88,12 @@ def assert_estimator_equal(left, right, exclude=None, **kwargs):
     else:
         exclude = set(exclude)
 
-    assert (set(left_attrs) - exclude) == set(right_attrs) - exclude
+    left_attrs2 = set(left_attrs) - exclude
+    right_attrs2 = set(right_attrs) - exclude
 
-    for attr in set(left_attrs) - exclude:
+    assert left_attrs2 == right_attrs2, left_attrs2 ^ right_attrs2
+
+    for attr in left_attrs2:
         l = getattr(left, attr)
         r = getattr(right, attr)
         _assert_eq(l, r, **kwargs)
@@ -174,7 +177,13 @@ def check_array(
 
     elif isinstance(array, dd.DataFrame):
         if not accept_dask_dataframe:
-            raise TypeError("This estimator does not support dask dataframes.")
+            raise TypeError(
+                "This estimator does not support dask dataframes. "
+                "This might be resolved with one of\n\n"
+                "    1. ddf.to_dask_array(lengths=True)\n"
+                "    2. ddf.to_dask_array()  # may cause other issues because "
+                "of unknown chunk sizes"
+            )
         # TODO: sample?
         return array
     elif isinstance(array, pd.DataFrame) and preserve_pandas_dataframe:

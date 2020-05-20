@@ -54,6 +54,24 @@ provides the following:
    model_selection.IncrementalSearchCV
    model_selection.HyperbandSearchCV
    model_selection.SuccessiveHalvingSearchCV
+   model_selection.InverseDecaySearchCV
+
+
+:mod:`dask_ml.ensemble`: Ensemble Methods
+=========================================
+
+.. automodule:: dask_ml.ensemble
+   :no-members:
+   :no-inherited-members:
+
+.. currentmodule:: dask_ml
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   ensemble.BlockwiseVotingClassifier
+   ensemble.BlockwiseVotingRegressor
 
 
 :mod:`dask_ml.linear_model`: Generalized Linear Models
@@ -120,6 +138,7 @@ with Dask Arrays or DataFrames.
    :toctree: generated/
    :template: class.rst
 
+   decomposition.IncrementalPCA
    decomposition.PCA
    decomposition.TruncatedSVD
 
