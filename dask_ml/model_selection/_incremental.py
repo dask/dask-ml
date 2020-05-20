@@ -36,8 +36,23 @@ logger = logging.getLogger("dask_ml.model_selection")
 
 no_default = object()
 
+from typing import Dict, Union, Any, Tuple, Callable, Optional
+from .._typing import ArrayLike
 
-def _partial_fit(model_and_meta, X, y, fit_params):
+Params = Dict[str, Any]
+Meta = Dict[str, Union[int, str, float, Params]]
+from sklearn.base import Estimator
+from sklearn.linear_model import SGDClassifier
+
+Model = Union[Estimator, SGDClassifier]
+
+
+def _partial_fit(
+    model_and_meta: Tuple[Model, Meta],
+    X: ArrayLike,
+    y: ArrayLike,
+    fit_params: Dict[str, Any],
+) -> Tuple[Model, Meta]:
     """
     Call partial_fit on a classifiers with training data X and y
 
@@ -96,7 +111,12 @@ def _partial_fit(model_and_meta, X, y, fit_params):
         return model, meta
 
 
-def _score(model_and_meta, X, y, scorer):
+def _score(
+    model_and_meta: Tuple[Model, Meta],
+    X: ArrayLike,
+    y: ArrayLike,
+    scorer: Optional[Callable[[Model, ArrayLike, ArrayLike], float]],
+) -> Meta:
     start = time()
     model, meta = model_and_meta
     if scorer:
@@ -109,7 +129,7 @@ def _score(model_and_meta, X, y, scorer):
     return meta
 
 
-def _create_model(model, ident, **params):
+def _create_model(model: Model, ident: int, **params) -> Model:
     """ Create a model by cloning and then setting params """
     with log_errors(pdb=True):
         model = clone(model).set_params(**params)
