@@ -7,7 +7,7 @@ import sys
 from collections import defaultdict, namedtuple
 from copy import deepcopy
 from time import time
-from typing import Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 from warnings import warn
 
 import dask
@@ -18,7 +18,8 @@ import scipy.stats
 import toolz
 from dask.distributed import Future, default_client, futures_of, wait
 from distributed.utils import log_errors
-from sklearn.base import clone
+from sklearn.base import BaseEstimator, clone
+from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import check_scoring
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
@@ -26,25 +27,23 @@ from sklearn.utils.metaestimators import if_delegate_has_method
 from tornado import gen
 
 from .._compat import check_is_fitted, dummy_context
+from .._typing import ArrayLike, Number, Int
 from .._utils import LoggingContext
 from ..utils import check_array
 from ..wrappers import ParallelPostFit
 from ._split import train_test_split
 
-Results = namedtuple("Results", ["info", "models", "history", "best"])
 logger = logging.getLogger("dask_ml.model_selection")
 
 no_default = object()
 
-from typing import Dict, Union, Any, Tuple, Callable, Optional
-from .._typing import ArrayLike
-
+Results = namedtuple("Results", ["info", "models", "history", "best"])
 Params = Dict[str, Any]
-Meta = Dict[str, Union[int, str, float, Params]]
-from sklearn.base import Estimator
-from sklearn.linear_model import SGDClassifier
-
-Model = Union[Estimator, SGDClassifier]
+Meta = Dict[str, Any]  # really Dict[str, Union[int, float, str, Params]]
+Model = Union[BaseEstimator, SGDClassifier]
+History = List[Meta]
+Info = Dict[Int, History]
+Instructions = Dict[Int, Int]
 
 
 def _partial_fit(
@@ -129,8 +128,12 @@ def _score(
     return meta
 
 
-def _create_model(model: Model, ident: int, **params) -> Model:
+def _create_model(model: Model, ident: Int, **params: Params) -> Tuple[Model, Meta]:
     """ Create a model by cloning and then setting params """
+    assert isinstance(model, BaseEstimator)
+    assert isinstance(ident, int)
+    assert isinstance(params, dict)
+    assert all(isinstance(k, str) for k in params)
     with log_errors(pdb=True):
         model = clone(model).set_params(**params)
         return model, {"model_id": ident, "params": params, "partial_fit_calls": 0}
@@ -138,19 +141,28 @@ def _create_model(model: Model, ident: int, **params) -> Model:
 
 @gen.coroutine
 def _fit(
-    model,
-    params,
-    X_train,
-    y_train,
-    X_test,
-    y_test,
-    additional_calls,
-    fit_params=None,
-    scorer=None,
+    model: Model,
+    params: Union[List[Params], ParameterSampler, ParameterGrid],
+    X_train: ArrayLike,
+    y_train: ArrayLike,
+    X_test: ArrayLike,
+    y_test: ArrayLike,
+    additional_calls: Callable[[Info], Instructions],
+    fit_params: Dict[str, Any]=None,
+    scorer: Callable[[Model, ArrayLike, ArrayLike], float]=None,
     random_state=None,
-    verbose: Union[bool, int, float] = False,
-    prefix="",
-):
+    verbose: Union[bool, Int, float] = False,
+    prefix: str="",
+) -> Results:
+    assert isinstance(X_train, (np.ndarray, da.Array))
+    assert isinstance(model, BaseEstimator)
+    assert isinstance(params, (list, ParameterSampler, ParameterGrid))
+    assert all(isinstance(p, dict) for p in params)
+    assert isinstance(fit_params, dict)
+    assert all(isinstance(k, str) for k in fit_params)
+    assert isinstance(verbose, (bool, int, float))
+    assert isinstance(prefix, str)
+
     if isinstance(verbose, bool):
         verbose = 1.0
     if not 0 <= verbose <= 1:
@@ -164,15 +176,20 @@ def _fit(
     client = default_client()
     rng = check_random_state(random_state)
 
-    info = {}
-    models = {}
-    scores = {}
+    info: Dict[int, History] = {}
+    models: Dict[int, Tuple[Model, Meta]] = {}
+    scores: Dict[int, Meta] = {}
 
     logger.info("[CV%s] creating %d models", prefix, len(params))
     for ident, param in enumerate(params):
         model = client.submit(_create_model, original_model, ident, **param)
         info[ident] = []
         models[ident] = model
+    for ident in info:
+        assert isinstance(ident, int)
+        m, m2 = yield models[ident].result()
+        assert isinstance(m, BaseEstimator)
+        assert isinstance(m2, dict)
 
     # assume everything in fit_params is small and make it concrete
     fit_params = yield client.compute(fit_params)
@@ -220,9 +237,9 @@ def _fit(
     # Submit initial partial_fit and score computations on first batch of data
     X_future, y_future = get_futures(0)
     X_future_2, y_future_2 = get_futures(1)
-    _models = {}
-    _scores = {}
-    _specs = {}
+    _models: Dict[int, Tuple[Model, Meta]] = {}
+    _scores: Dict[int, Meta] = {}
+    _specs: Dict[int, Tuple[Model, Meta]] = {}
 
     d_partial_fit = dask.delayed(_partial_fit)
     d_score = dask.delayed(_score)
@@ -265,7 +282,22 @@ def _fit(
             info[ident].append(meta)
             history.append(meta)
 
+        assert isinstance(info[ident], list)
+        assert all(isinstance(v, dict) for v in info[ident])
         instructions = additional_calls(info)
+        assert isinstance(instructions, dict)
+        assert all(isinstance(v, (int, np.int64)) for v in instructions.values())
+        assert all(isinstance(v, int) for v in instructions.keys())
+        _mm = yield client.compute(_models)
+        assert all(isinstance(v[0], BaseEstimator) for v in _mm.values())
+        assert all(isinstance(v[1], dict) for v in _mm.values())
+
+        _s1 = yield client.compute(_scores)
+        assert all(isinstance(v, dict) for v in _s1.values())
+        _s2 = yield client.compute(_specs)
+        assert all(isinstance(v[0], BaseEstimator) for v in _s2.values())
+        assert all(isinstance(v[1], dict) for v in _s2.values())
+
         bad = set(models) - set(instructions)
 
         # Delete the futures of bad models.  This cancels speculative tasks
@@ -315,6 +347,8 @@ def _fit(
     models = {k: client.submit(operator.getitem, v, 0) for k, v in models.items()}
     yield wait(models)
     scores = yield client.gather(scores)
+    assert all(isinstance(s, dict) for s in scores.values())
+    assert all(isinstance(s, int) for s in scores.keys())
     best = max(scores.items(), key=lambda x: x[1]["score"])
 
     info = defaultdict(list)
@@ -574,16 +608,16 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         """
         return ParameterGrid(self.parameters)
 
-    def _get_cv_results(self, history, model_hist):
-        cv_results = {}
+    def _get_cv_results(self, model_hist: Dict[int, List[Meta]]) -> Dict[str, List[Any]]:
+        _cv_results = {}
         best_scores = {}
         best_scores = {k: hist[-1]["score"] for k, hist in model_hist.items()}
 
-        cv_results = {}
+        _cv_results = {}
         for k, hist in model_hist.items():
             pf_times = list(toolz.pluck("partial_fit_time", hist))
             score_times = list(toolz.pluck("score_time", hist))
-            cv_results[k] = {
+            _cv_results[k] = {
                 "mean_partial_fit_time": np.mean(pf_times),
                 "mean_score_time": np.mean(score_times),
                 "std_partial_fit_time": np.std(pf_times),
@@ -593,8 +627,8 @@ class BaseIncrementalSearchCV(ParallelPostFit):
                 "params": hist[0]["params"],
                 "partial_fit_calls": hist[-1]["partial_fit_calls"],
             }
-        cv_results = list(cv_results.values())  # list of dicts
-        cv_results = {k: [res[k] for res in cv_results] for k in cv_results[0]}
+        _cv_results2: List[Dict[str, Any]] = list(_cv_results.values())
+        cv_results = {k: [res[k] for res in _cv_results2] for k in _cv_results2[0]}
 
         # Every model will have the same params because this class uses either
         # ParameterSampler or ParameterGrid
@@ -612,7 +646,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         ).astype(int)
         return cv_results
 
-    def _process_results(self, results):
+    def _process_results(self, results: Results):
         """Called with the output of `fit` immediately after it finishes.
 
         Subclasses may update the results here, before further results are
@@ -647,7 +681,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         results = self._process_results(results)
         model_history, models, history, bst = results
 
-        cv_results = self._get_cv_results(history, model_history)
+        cv_results = self._get_cv_results(model_history)
         best_idx = bst[0]
         best_estimator = yield models[best_idx]
 
@@ -707,7 +741,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         self._check_is_fitted("inverse_transform")
         return self.best_estimator_.transform(Xt)
 
-    def score(self, X, y=None):
+    def score(self, X, y=None) -> float:
         if self.scorer_ is None:
             raise ValueError(
                 "No score function explicitly defined, "
@@ -1012,7 +1046,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
                 random_state=self.random_state,
             )
 
-    def _additional_calls(self, info):
+    def _additional_calls(self, info: Dict[int, List[Meta]]) -> Instructions:
         if not isinstance(self.patience, int):
             msg = (
                 "patience must be an integer (or a subclass like boolean), "
