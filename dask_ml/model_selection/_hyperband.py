@@ -2,12 +2,12 @@ from __future__ import division
 
 import logging
 import math
+from typing import Any, Callable, Dict, Iterable, List, Tuple, Union
 from warnings import warn
 
 import numpy as np
 from sklearn.utils import check_random_state
 from tornado import gen
-from typing import Dict, Any, Union, List, Callable, Iterable, Tuple
 
 from ._incremental import BaseIncrementalSearchCV
 from ._successive_halving import SuccessiveHalvingSearchCV

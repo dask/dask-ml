@@ -27,7 +27,7 @@ from sklearn.utils.metaestimators import if_delegate_has_method
 from tornado import gen
 
 from .._compat import check_is_fitted, dummy_context
-from .._typing import ArrayLike, Number, Int
+from .._typing import ArrayLike, Int, Number
 from .._utils import LoggingContext
 from ..utils import check_array
 from ..wrappers import ParallelPostFit
@@ -148,11 +148,11 @@ def _fit(
     X_test: ArrayLike,
     y_test: ArrayLike,
     additional_calls: Callable[[Info], Instructions],
-    fit_params: Dict[str, Any]=None,
-    scorer: Callable[[Model, ArrayLike, ArrayLike], float]=None,
+    fit_params: Dict[str, Any] = None,
+    scorer: Callable[[Model, ArrayLike, ArrayLike], float] = None,
     random_state=None,
     verbose: Union[bool, Int, float] = False,
-    prefix: str="",
+    prefix: str = "",
 ) -> Results:
     assert isinstance(X_train, (np.ndarray, da.Array))
     assert isinstance(model, BaseEstimator)
@@ -608,7 +608,9 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         """
         return ParameterGrid(self.parameters)
 
-    def _get_cv_results(self, model_hist: Dict[int, List[Meta]]) -> Dict[str, List[Any]]:
+    def _get_cv_results(
+        self, model_hist: Dict[int, List[Meta]]
+    ) -> Dict[str, List[Any]]:
         _cv_results = {}
         best_scores = {}
         best_scores = {k: hist[-1]["score"] for k, hist in model_hist.items()}
