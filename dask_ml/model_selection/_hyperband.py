@@ -7,11 +7,14 @@ from warnings import warn
 import numpy as np
 from sklearn.utils import check_random_state
 from tornado import gen
+from typing import Dict, Any, Union, List, Callable, Iterable, Tuple
 
 from ._incremental import BaseIncrementalSearchCV
 from ._successive_halving import SuccessiveHalvingSearchCV
 
 logger = logging.getLogger(__name__)
+
+BracketInfo = Dict[str, Any]
 
 
 def _get_hyperband_params(R, eta=3):
@@ -474,7 +477,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         raise gen.Return(self)
 
     @property
-    def metadata(self):
+    def metadata(self) -> Dict[str, Union[int, List[BracketInfo]]]:
         bracket_info = _hyperband_paper_alg(self.max_iter, eta=self.aggressiveness)
         num_models = sum(b["n_models"] for b in bracket_info)
         for bracket in bracket_info:
@@ -497,7 +500,23 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         return info
 
 
-def _get_meta(hists, brackets, SHAs, key):
+def _get_meta(
+    hists: Dict[int, List[Dict[str, Any]]],
+    brackets: Iterable[int],
+    SHAs: Dict[int, SuccessiveHalvingSearchCV],
+    key: Callable[[int, int], str],
+) -> Tuple[List[Dict[str, Any]], Dict[str, List[Dict[str, Any]]]]:
+    assert isinstance(hists, dict)
+    assert all(isinstance(k, int) for k in hists)
+    assert all(isinstance(v, list) for v in hists.values())
+    assert all(isinstance(vi, dict) for v in hists.values() for vi in v)
+
+    assert hasattr(brackets, "__iter__")
+    assert all(isinstance(k, int) for k in brackets)
+
+    assert all(isinstance(sha, SuccessiveHalvingSearchCV) for sha in SHAs.values())
+    assert all(isinstance(k, int) for k in SHAs.keys())
+
     meta_ = []
     history_ = {}
     for bracket in brackets:
