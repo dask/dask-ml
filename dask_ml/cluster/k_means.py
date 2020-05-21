@@ -11,7 +11,7 @@ from dask import compute
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.extmath import squared_norm
 
-from .._compat import SK_024, blockwise, check_is_fitted
+from .._compat import SK_023, blockwise, check_is_fitted
 from .._utils import draw_seed
 from ..metrics import (
     euclidean_distances,
@@ -204,7 +204,7 @@ class KMeans(TransformerMixin, BaseEstimator):
         self.cluster_centers_ = centroids
         self.labels_ = labels
         self.inertia_ = inertia.compute()
-        if SK_024:
+        if SK_023:
             self.inertia_ = self.inertia_.item()
         self.n_iter_ = n_iter
         self.n_features_in_ = X.shape[1]

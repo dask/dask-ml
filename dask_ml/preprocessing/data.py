@@ -17,7 +17,7 @@ from scipy import stats
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_random_state
 
-from dask_ml._compat import SK_022, SK_024, blockwise, check_is_fitted
+from dask_ml._compat import SK_022, SK_023, blockwise, check_is_fitted
 from dask_ml._utils import copy_learned_attributes
 from dask_ml.utils import check_array, handle_zeros_in_scale
 
@@ -313,7 +313,7 @@ class QuantileTransformer(sklearn.preprocessing.QuantileTransformer):
         kwargs = {}
         if SK_022:
             kwargs["copy"] = copy
-        if SK_024:
+        if SK_023:
             kwargs["in_fit"] = in_fit
 
         if isinstance(X, (pd.DataFrame, dd.DataFrame)):

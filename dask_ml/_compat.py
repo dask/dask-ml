@@ -18,6 +18,7 @@ DISTRIBUTED_VERSION = packaging.version.parse(distributed.__version__)
 
 SK_022 = SK_VERSION >= packaging.version.parse("0.22")
 SK_0221 = SK_VERSION >= packaging.version.parse("0.22.1")
+SK_023 = SK_VERSION >= packaging.version.parse("0.23.0")
 SK_024 = SK_VERSION >= packaging.version.parse("0.24.0.dev0")
 DASK_240 = DASK_VERSION >= packaging.version.parse("2.4.0")
 DASK_2130 = DASK_VERSION >= packaging.version.parse("2.13.0")
