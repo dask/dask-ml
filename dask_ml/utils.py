@@ -88,6 +88,9 @@ def assert_estimator_equal(left, right, exclude=None, **kwargs):
     else:
         exclude = set(exclude)
 
+    # if not SK_024:
+    #     exclude.add("n_features_in_")
+
     left_attrs2 = set(left_attrs) - exclude
     right_attrs2 = set(right_attrs) - exclude
 
