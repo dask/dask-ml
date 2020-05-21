@@ -35,12 +35,12 @@ blockwise = da.blockwise
 
 
 def check_is_fitted(est, attributes: Optional[Union[str, List[str]]] = None):
-    args = (attributes,)
+    args: Any = ()
 
     return sklearn.utils.validation.check_is_fitted(est, *args)
 
 
 def _check_multimetric_scoring(estimator, scoring=None):
-    from sklearn.metrics.scorer import _check_multimetric_scoring
+    from sklearn.metrics._scorer import _check_multimetric_scoring
 
     return _check_multimetric_scoring(estimator, scoring)

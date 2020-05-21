@@ -97,7 +97,7 @@ def test_in_gridsearch(scheduler, xy_classification):
     X, y = xy_classification
     clf = Incremental(SGDClassifier(random_state=0, tol=1e-3))
     param_grid = {"estimator__alpha": [0.1, 10]}
-    gs = sklearn.model_selection.GridSearchCV(clf, param_grid, cv=3, iid=False)
+    gs = sklearn.model_selection.GridSearchCV(clf, param_grid, cv=3)
 
     with scheduler() as (s, [a, b]):
         gs.fit(X, y, classes=[0, 1])
