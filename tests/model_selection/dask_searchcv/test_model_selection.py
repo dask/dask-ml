@@ -43,7 +43,7 @@ from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.svm import SVC
 
 import dask_ml.model_selection as dcv
-from dask_ml._compat import DISTRIBUTED_2_11_0, SK_022, WINDOWS
+from dask_ml._compat import DISTRIBUTED_2_11_0, WINDOWS
 from dask_ml.model_selection import check_cv, compute_n_splits
 from dask_ml.model_selection._search import _normalize_n_jobs
 from dask_ml.model_selection.methods import CVCache
@@ -55,12 +55,6 @@ from dask_ml.model_selection.utils_test import (
     MockClassifierWithFitParam,
     ScalingTransformer,
 )
-
-if SK_022:
-    # deprecated in 0.22
-    iid = {}
-else:
-    iid = {"iid": True}
 
 
 def _passthrough_scorer(estimator, *args, **kwargs):
@@ -393,7 +387,7 @@ def test_pipeline_feature_union():
         svc__C=[0.1, 1, 10],
     )
 
-    gs = GridSearchCV(pipe, param_grid=param_grid, cv=3, **iid)
+    gs = GridSearchCV(pipe, param_grid=param_grid, cv=3, iid=True)
     gs.fit(X, y)
     dgs = dcv.GridSearchCV(pipe, param_grid=param_grid, scheduler="sync", cv=3)
     dgs.fit(X, y)
@@ -451,7 +445,9 @@ def test_pipeline_sub_estimators():
         },
     ]
 
-    gs = GridSearchCV(pipe, param_grid=param_grid, return_train_score=True, cv=3, **iid)
+    gs = GridSearchCV(
+        pipe, param_grid=param_grid, return_train_score=True, cv=3, iid=True
+    )
     gs.fit(X, y)
     dgs = dcv.GridSearchCV(
         pipe, param_grid=param_grid, scheduler="sync", return_train_score=True, cv=3
@@ -894,7 +890,7 @@ def test_cv_multiplemetrics():
         refit="score1",
         scoring={"score1": "accuracy", "score2": "accuracy"},
         cv=3,
-        **iid,
+        iid=True,
     )
     b = GridSearchCV(
         RandomForestClassifier(n_estimators=10),
@@ -902,7 +898,7 @@ def test_cv_multiplemetrics():
         refit="score1",
         scoring={"score1": "accuracy", "score2": "accuracy"},
         cv=3,
-        **iid,
+        iid=True,
     )
     a.fit(X, y)
     b.fit(X, y)
@@ -958,11 +954,13 @@ def test_gridsearch_with_arraylike_fit_param(cache_cv):
         MockClassifierWithFitParam(),
         param_grid,
         cv=3,
-        **iid,
+        iid=True,
         refit=False,
         cache_cv=cache_cv,
     )
-    b = GridSearchCV(MockClassifierWithFitParam(), param_grid, cv=3, **iid, refit=False)
+    b = GridSearchCV(
+        MockClassifierWithFitParam(), param_grid, cv=3, iid=True, refit=False
+    )
 
     b.fit(X, y, mock_fit_param=[0, 1])
     a.fit(X, y, mock_fit_param=[0, 1])

@@ -17,7 +17,7 @@ from scipy import stats
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_random_state
 
-from dask_ml._compat import SK_022, SK_023, blockwise, check_is_fitted
+from dask_ml._compat import blockwise, check_is_fitted
 from dask_ml._utils import copy_learned_attributes
 from dask_ml.utils import check_array, handle_zeros_in_scale
 
@@ -310,12 +310,6 @@ class QuantileTransformer(sklearn.preprocessing.QuantileTransformer):
         copy: bool = False,
         in_fit: bool = True,
     ) -> Union[ArrayLike, DataFrameType]:
-        kwargs = {}
-        if SK_022:
-            kwargs["copy"] = copy
-        if SK_023:
-            kwargs["in_fit"] = in_fit
-
         if isinstance(X, (pd.DataFrame, dd.DataFrame)):
             X = X.values
         if isinstance(X, np.ndarray):
@@ -328,7 +322,10 @@ class QuantileTransformer(sklearn.preprocessing.QuantileTransformer):
         # TODO: mix of sparse, dense?
         sample = rng.uniform(size=(5, X.shape[1])).astype(X.dtype)
         super(QuantileTransformer, self)._check_inputs(
-            sample, accept_sparse_negative=accept_sparse_negative, **kwargs
+            sample,
+            accept_sparse_negative=accept_sparse_negative,
+            copy=copy,
+            in_fit=in_fit,
         )
         return X
 
