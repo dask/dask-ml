@@ -343,7 +343,7 @@ async def _fit(
     return Results(info, models, history, best)
 
 
-def fit(
+async def fit(
     model,
     params,
     X_train,
@@ -470,8 +470,7 @@ def fit(
     history : List[Dict]
         A history of all models scores over time
     """
-    return default_client().sync(
-        _fit,
+    return await _fit(
         model,
         params,
         X_train,
@@ -642,12 +641,11 @@ class BaseIncrementalSearchCV(ParallelPostFit):
     def _check_is_fitted(self, method_name):
         return check_is_fitted(self, "best_estimator_")
 
-    @gen.coroutine
-    def _fit(self, X, y, **fit_params):
+    async def _fit(self, X, y, **fit_params):
         X, y, scorer = self._validate_parameters(X, y)
         X_train, X_test, y_train, y_test = self._get_train_test_split(X, y)
 
-        results = yield fit(
+        results = await fit(
             self.estimator,
             self._get_params(),
             X_train,
@@ -666,7 +664,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
 
         cv_results = self._get_cv_results(history, model_history)
         best_idx = bst[0]
-        best_estimator = yield models[best_idx]
+        best_estimator = await models[best_idx]
 
         # Clean up models we're hanging onto
         ids = list(results.models)
@@ -688,7 +686,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         # at each scoring, but one score is needed to choose the better of two
         # models
         self.multimetric_ = False
-        raise gen.Return(self)
+        return self
 
     def fit(self, X, y=None, **fit_params):
         """Find the best parameters for a particular model.
@@ -1359,3 +1357,67 @@ class InverseDecaySearchCV(IncrementalSearchCV):
         steps = next_time_step - current_time_step
         instructions = {b: steps for b in best}
         return instructions
+
+from asyncio import coroutines
+from asyncio import events
+from asyncio import tasks
+
+
+def run(main, *, debug=False):
+    """Execute the coroutine and return the result.
+    This function runs the passed coroutine, taking care of
+    managing the asyncio event loop and finalizing asynchronous
+    generators.
+    This function cannot be called when another asyncio event loop is
+    running in the same thread.
+    If debug is True, the event loop will be run in debug mode.
+    This function always creates a new event loop and closes it at the end.
+    It should be used as a main entry point for asyncio programs, and should
+    ideally only be called once.
+    Example:
+        async def main():
+            await asyncio.sleep(1)
+            print('hello')
+        asyncio.run(main())
+    """
+    if events._get_running_loop() is not None:
+        raise RuntimeError(
+            "asyncio.run() cannot be called from a running event loop")
+
+    if not coroutines.iscoroutine(main):
+        raise ValueError("a coroutine was expected, got {!r}".format(main))
+
+    loop = events.new_event_loop()
+    try:
+        events.set_event_loop(loop)
+        loop.set_debug(debug)
+        return loop.run_until_complete(main)
+    finally:
+        try:
+            _cancel_all_tasks(loop)
+            loop.run_until_complete(loop.shutdown_asyncgens())
+        finally:
+            events.set_event_loop(None)
+            loop.close()
+
+
+def _cancel_all_tasks(loop):
+    to_cancel = tasks.all_tasks(loop)
+    if not to_cancel:
+        return
+
+    for task in to_cancel:
+        task.cancel()
+
+    loop.run_until_complete(
+        tasks.gather(*to_cancel, loop=loop, return_exceptions=True))
+
+    for task in to_cancel:
+        if task.cancelled():
+            continue
+        if task.exception() is not None:
+            loop.call_exception_handler({
+                'message': 'unhandled exception during asyncio.run() shutdown',
+                'exception': task.exception(),
+                'task': task,
+            })

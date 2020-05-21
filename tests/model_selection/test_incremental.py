@@ -665,17 +665,18 @@ def test_verbosity(Search, verbose, capsys):
     max_iter = 15
 
     @gen_cluster(client=True)
-    def _test_verbosity(c, s, a, b):
+    async def _test_verbosity(c, s, a, b):
         X, y = make_classification(n_samples=10, n_features=4, chunks=10)
         model = ConstantFunction()
         params = {"value": scipy.stats.uniform(0, 1)}
         search = Search(model, params, max_iter=max_iter, verbose=verbose)
-        yield search.fit(X, y)
+        await search.fit(X, y)
         assert search.best_score_ > 0  # ensure search ran
         return search
 
     # IncrementalSearchCV always logs to INFO
-    with captured_logger(logging.getLogger("dask_ml.model_selection")) as logs:
+    logger = logging.getLogger("dask_ml.model_selection")
+    with captured_logger(logger) as logs:
         search = _test_verbosity()
         messages = logs.getvalue().splitlines()
 
