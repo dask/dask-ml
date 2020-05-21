@@ -5,6 +5,14 @@ from sklearn import linear_model as lm_
 from dask_ml import linear_model as lm
 from dask_ml.utils import assert_estimator_equal
 
+exclude = [
+    "loss_function_",
+    "average_coef_",
+    "average_intercept_",
+    "standard_intercept_",
+    "standard_coef_",
+]
+
 
 @pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")
 class TestPassiveAggressiveClassifier:
@@ -16,7 +24,7 @@ class TestPassiveAggressiveClassifier:
         b = lm_.PassiveAggressiveClassifier(random_state=0, max_iter=100, tol=1e-3)
         a.fit(X, y)
         b.partial_fit(*dask.compute(X, y), classes=[0, 1])
-        assert_estimator_equal(a, b, exclude=["loss_function_"])
+        assert_estimator_equal(a, b, exclude=exclude)
 
 
 @pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")
@@ -27,4 +35,4 @@ class TestPassiveAggressiveRegressor:
         b = lm_.PassiveAggressiveRegressor(random_state=0, max_iter=100, tol=1e-3)
         a.fit(X, y)
         b.partial_fit(*dask.compute(X, y))
-        assert_estimator_equal(a, b, exclude=["loss_function_", "standard_coef_"])
+        assert_estimator_equal(a, b, exclude=exclude)

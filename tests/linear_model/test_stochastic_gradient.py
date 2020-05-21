@@ -6,6 +6,14 @@ from sklearn import linear_model as lm_
 from dask_ml import linear_model as lm
 from dask_ml.utils import assert_estimator_equal
 
+exclude = [
+    "loss_function_",
+    "average_coef_",
+    "average_intercept_",
+    "standard_intercept_",
+    "standard_coef_",
+]
+
 
 @pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")
 class TestStochasticGradientClassifier:
@@ -19,7 +27,7 @@ class TestStochasticGradientClassifier:
 
         a.fit(X, y)
         b.partial_fit(*dask.compute(X, y), classes=[0, 1])
-        assert_estimator_equal(a, b, exclude="loss_function_")
+        assert_estimator_equal(a, b, exclude=exclude)
 
     def test_numpy_arrays(self, single_chunk_classification):
         # fit with dask arrays, test with numpy arrays
@@ -45,7 +53,7 @@ class TestStochasticGradientRegressor:
 
         a.fit(X, y)
         b.partial_fit(*dask.compute(X, y))
-        assert_estimator_equal(a, b)
+        assert_estimator_equal(a, b, exclude=exclude)
 
     def test_numpy_arrays(self, single_chunk_regression):
         X, y = single_chunk_regression
