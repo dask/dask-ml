@@ -16,6 +16,7 @@ from sklearn.cluster import KMeans as SKKMeans
 from sklearn.utils.estimator_checks import check_estimator
 
 import dask_ml.cluster
+from dask_ml._compat import SK_024
 from dask_ml.cluster import KMeans as DKKMeans, k_means
 from dask_ml.cluster._compat import _k_init
 from dask_ml.utils import assert_estimator_equal, row_norms
@@ -98,7 +99,7 @@ class TestKMeans:
         skkm = SKKMeans(3, init=init, random_state=0, n_init=1)
         dkkm.fit(X)
         skkm.fit(X_)
-        assert_eq(dkkm.inertia_, skkm.inertia_)
+        assert abs(skkm.inertia_ - dkkm.inertia_) < 0.001
 
     def test_kmeanspp_init(self, Xl_blobs_easy):
         X, y = Xl_blobs_easy
@@ -173,7 +174,8 @@ class TestKMeans:
             a.fit(xx)
             b.fit(xx)
             assert a.cluster_centers_.dtype == b.cluster_centers_.dtype
-            assert a.inertia_.dtype == b.inertia_.dtype
+            if not SK_024:
+                assert a.inertia_.dtype == b.inertia_.dtype
             assert a.labels_.dtype == b.labels_.dtype
             assert a.transform(xx).dtype == b.transform(xx).dtype
             assert a.transform(yy).dtype == b.transform(yy).dtype
