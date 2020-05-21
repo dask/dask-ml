@@ -17,7 +17,7 @@ from scipy import stats
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_random_state
 
-from dask_ml._compat import SK_022, blockwise, check_is_fitted
+from dask_ml._compat import SK_022, SK_024, blockwise, check_is_fitted
 from dask_ml._utils import copy_learned_attributes
 from dask_ml.utils import check_array, handle_zeros_in_scale
 
@@ -75,6 +75,7 @@ class StandardScaler(sklearn.preprocessing.StandardScaler):
         values = compute(*attributes.values())
         for k, v in zip(attributes, values):
             setattr(self, k, v)
+        self.n_features_in_ = X.shape[1]
         return self
 
     def partial_fit(
@@ -141,6 +142,7 @@ class MinMaxScaler(sklearn.preprocessing.MinMaxScaler):
         values = compute(*attributes.values())
         for k, v in zip(attributes, values):
             setattr(self, k, v)
+        self.n_features_in_ = X.shape[1]
         return self
 
     def partial_fit(
@@ -225,6 +227,7 @@ class RobustScaler(sklearn.preprocessing.RobustScaler):
         self.center_: List[float] = quantiles[:, 1]
         self.scale_: List[float] = quantiles[:, 2] - quantiles[:, 0]
         self.scale_ = _handle_zeros_in_scale(self.scale_, copy=False)
+        self.n_features_in_ = X.shape[1]
         return self
 
     def transform(
@@ -305,10 +308,13 @@ class QuantileTransformer(sklearn.preprocessing.QuantileTransformer):
         X: Union[ArrayLike, DataFrameType],
         accept_sparse_negative: bool = False,
         copy: bool = False,
+        in_fit: bool = True,
     ) -> Union[ArrayLike, DataFrameType]:
         kwargs = {}
         if SK_022:
             kwargs["copy"] = copy
+        if SK_024:
+            kwargs["in_fit"] = in_fit
 
         if isinstance(X, (pd.DataFrame, dd.DataFrame)):
             X = X.values
@@ -1053,7 +1059,9 @@ class PolynomialFeatures(sklearn.preprocessing.PolynomialFeatures):
         include_bias: bool = True,
         preserve_dataframe: bool = False,
     ):
-        super(PolynomialFeatures, self).__init__(degree, interaction_only, include_bias)
+        super(PolynomialFeatures, self).__init__(
+            degree=degree, interaction_only=interaction_only, include_bias=include_bias
+        )
         self.preserve_dataframe = preserve_dataframe
 
     def fit(

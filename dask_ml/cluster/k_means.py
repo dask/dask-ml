@@ -205,6 +205,7 @@ class KMeans(TransformerMixin, BaseEstimator):
         self.labels_ = labels
         self.inertia_ = inertia.compute()
         self.n_iter_ = n_iter
+        self.n_features_in_ = X.shape[1]
         return self
 
     def transform(self, X, y=None):
