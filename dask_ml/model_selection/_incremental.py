@@ -1,5 +1,6 @@
 from __future__ import division
 
+import asyncio
 import itertools
 import logging
 import operator
@@ -131,6 +132,7 @@ async def _fit(
     prefix="",
 ):
     if isinstance(verbose, bool):
+        # Always log for loggers that are otherwise configured
         verbose = 1.0
     if not 0 <= verbose <= 1:
         raise ValueError(
@@ -288,6 +290,7 @@ async def _fit(
 
         model_scores = {ident: info[ident][-1]["score"] for ident in instructions}
         _sched_info = client._scheduler_identity
+
         num_workers = len(_sched_info["workers"])
         priorities = _get_priorities(model_scores, num_workers=num_workers)
 

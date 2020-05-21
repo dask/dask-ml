@@ -671,20 +671,22 @@ def test_verbosity(Search, verbose, capsys):
         params = {"value": scipy.stats.uniform(0, 1)}
         search = Search(model, params, max_iter=max_iter, verbose=verbose)
         yield search.fit(X, y)
+        assert search.best_score_ > 0  # ensure search ran
         return search
 
     # IncrementalSearchCV always logs to INFO
     with captured_logger(logging.getLogger("dask_ml.model_selection")) as logs:
         search = _test_verbosity()
-        assert search.best_score_ > 0  # ensure search ran
         messages = logs.getvalue().splitlines()
 
     # Make sure we always log
+    assert messages
     assert any("score" in m for m in messages)
 
     # If verbose=True, make sure logs to stdout
-    stdout = capsys.readouterr().out
-    stdout = [line for line in stdout.split("\n") if line]
+    search = _test_verbosity()
+    std = capsys.readouterr()
+    stdout = [line for line in std.out.split("\n") if line]
     if verbose:
         assert len(stdout) >= 1
         assert all(["CV" in line for line in stdout])
