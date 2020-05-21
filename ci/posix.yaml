@@ -8,8 +8,11 @@ jobs:
     vmImage: ${{ parameters.vmImage }}
   strategy:
     matrix:
-      linux:
+      linux37:
         envFile: 'ci/environment-3.7.yaml'
+        SKLARN_DEV: "no"
+      linux38:
+        envFile: 'ci/environment-3.8.yaml'
         SKLARN_DEV: "no"
       earliest:
         envFile: 'ci/environment-3.6.yaml'
