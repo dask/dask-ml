@@ -99,10 +99,12 @@ def _partial_fit(model_and_meta, X, y, fit_params):
 def _score(model_and_meta, X, y, scorer):
     start = time()
     model, meta = model_and_meta
-    if scorer:
-        score = scorer(model, X, y)
-    else:
-        score = model.score(X, y)
+
+    with log_errors():
+        if scorer:
+            score = scorer(model, X, y)
+        else:
+            score = model.score(X, y)
 
     meta = dict(meta)
     meta.update(score=score, score_time=time() - start)
