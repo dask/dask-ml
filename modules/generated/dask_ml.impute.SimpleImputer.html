@@ -14,7 +14,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.impute.SimpleImputer &mdash; dask-ml 1.4.0 documentation</title>
+  <title>dask_ml.impute.SimpleImputer &mdash; dask-ml 1.4.1 documentation</title>
   
 
   
@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.4.0
+                1.4.1.dev1+g682da8f
               </div>
             
           
@@ -270,7 +270,7 @@
 <h1><a class="reference internal" href="../api.html#module-dask_ml.impute" title="dask_ml.impute"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.impute</span></code></a>.SimpleImputer<a class="headerlink" href="#dask-ml-impute-simpleimputer" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="dask_ml.impute.SimpleImputer">
-<em class="property">class </em><code class="descclassname">dask_ml.impute.</code><code class="descname">SimpleImputer</code><span class="sig-paren">(</span><em>missing_values=nan</em>, <em>strategy='mean'</em>, <em>fill_value=None</em>, <em>verbose=0</em>, <em>copy=True</em>, <em>add_indicator=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.impute.SimpleImputer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.impute.</code><code class="descname">SimpleImputer</code><span class="sig-paren">(</span><em>*</em>, <em>missing_values=nan</em>, <em>strategy='mean'</em>, <em>fill_value=None</em>, <em>verbose=0</em>, <em>copy=True</em>, <em>add_indicator=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.impute.SimpleImputer" title="Permalink to this definition">¶</a></dt>
 <dd><p class="rubric">Methods</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -297,7 +297,7 @@
 </table>
 <dl class="method">
 <dt id="dask_ml.impute.SimpleImputer.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>missing_values=nan</em>, <em>strategy='mean'</em>, <em>fill_value=None</em>, <em>verbose=0</em>, <em>copy=True</em>, <em>add_indicator=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.impute.SimpleImputer.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>*</em>, <em>missing_values=nan</em>, <em>strategy='mean'</em>, <em>fill_value=None</em>, <em>verbose=0</em>, <em>copy=True</em>, <em>add_indicator=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.impute.SimpleImputer.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -338,10 +338,9 @@ and returns a transformed version of X.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features]</span></dt>
-<dd><p class="first last">Training set.</p>
-</dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples]</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{array-like, sparse matrix, dataframe} of shape                 (n_samples, n_features)</span></dt>
+<dd></dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of shape (n_samples,), default=None</span></dt>
 <dd><p class="first last">Target values.</p>
 </dd>
 <dt><strong>**fit_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
@@ -351,7 +350,7 @@ and returns a transformed version of X.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features_new]</span></dt>
+<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray array of shape (n_samples, n_features_new)</span></dt>
 <dd><p class="first last">Transformed array.</p>
 </dd>
 </dl>

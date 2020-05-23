@@ -14,7 +14,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.preprocessing.MinMaxScaler &mdash; dask-ml 1.4.0 documentation</title>
+  <title>dask_ml.preprocessing.MinMaxScaler &mdash; dask-ml 1.4.1 documentation</title>
   
 
   
@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.4.0
+                1.4.1.dev1+g682da8f
               </div>
             
           
@@ -280,7 +280,7 @@
 <h1><a class="reference internal" href="../api.html#module-dask_ml.preprocessing" title="dask_ml.preprocessing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code></a>.MinMaxScaler<a class="headerlink" href="#dask-ml-preprocessing-minmaxscaler" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="dask_ml.preprocessing.MinMaxScaler">
-<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">MinMaxScaler</code><span class="sig-paren">(</span><em>feature_range=(0</em>, <em>1)</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">MinMaxScaler</code><span class="sig-paren">(</span><em>feature_range=(0</em>, <em>1)</em>, <em>*</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform features by scaling each feature to a given range.</p>
 <p>This estimator scales and translates each feature individually such
 that it is in the given range on the training set, e.g. between
@@ -291,14 +291,9 @@ zero and one.</p>
 </pre></div>
 </div>
 <p>where min, max = feature_range.</p>
-<p>The transformation is calculated as:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">X_scaled</span> <span class="o">=</span> <span class="n">scale</span> <span class="o">*</span> <span class="n">X</span> <span class="o">+</span> <span class="nb">min</span> <span class="o">-</span> <span class="n">X</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span>
-<span class="n">where</span> <span class="n">scale</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span> <span class="o">-</span> <span class="nb">min</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">X</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
-</pre></div>
-</div>
 <p>This transformation is often used as an alternative to zero mean,
 unit variance scaling.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.22)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.23)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -365,7 +360,7 @@ It will be reset on new calls to fit, but increments across
 <p>NaNs are treated as missing values: disregarded in fit, and maintained in
 transform.</p>
 <p>For a comparison of the different scalers, transformers, and normalizers,
-see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.22)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
+see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.23)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">MinMaxScaler</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">[[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">18</span><span class="p">]]</span>
@@ -415,7 +410,7 @@ see <a class="reference external" href="https://scikit-learn.org/stable/auto_exa
 </table>
 <dl class="method">
 <dt id="dask_ml.preprocessing.MinMaxScaler.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>feature_range=(0</em>, <em>1)</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>feature_range=(0</em>, <em>1)</em>, <em>*</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -460,10 +455,9 @@ and returns a transformed version of X.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features]</span></dt>
-<dd><p class="first last">Training set.</p>
-</dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples]</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{array-like, sparse matrix, dataframe} of shape                 (n_samples, n_features)</span></dt>
+<dd></dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of shape (n_samples,), default=None</span></dt>
 <dd><p class="first last">Target values.</p>
 </dd>
 <dt><strong>**fit_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
@@ -473,7 +467,7 @@ and returns a transformed version of X.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features_new]</span></dt>
+<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray array of shape (n_samples, n_features_new)</span></dt>
 <dd><p class="first last">Transformed array.</p>
 </dd>
 </dl>

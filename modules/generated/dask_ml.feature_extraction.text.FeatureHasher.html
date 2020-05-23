@@ -14,7 +14,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.feature_extraction.text.FeatureHasher &mdash; dask-ml 1.4.0 documentation</title>
+  <title>dask_ml.feature_extraction.text.FeatureHasher &mdash; dask-ml 1.4.1 documentation</title>
   
 
   
@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.4.0
+                1.4.1.dev1+g682da8f
               </div>
             
           
@@ -271,7 +271,7 @@
 <h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>.FeatureHasher<a class="headerlink" href="#dask-ml-feature-extraction-text-featurehasher" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="dask_ml.feature_extraction.text.FeatureHasher">
-<em class="property">class </em><code class="descclassname">dask_ml.feature_extraction.text.</code><code class="descname">FeatureHasher</code><span class="sig-paren">(</span><em>n_features=1048576</em>, <em>input_type='dict'</em>, <em>dtype=&lt;class 'numpy.float64'&gt;</em>, <em>alternate_sign=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.FeatureHasher" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.feature_extraction.text.</code><code class="descname">FeatureHasher</code><span class="sig-paren">(</span><em>n_features=1048576</em>, <em>*</em>, <em>input_type='dict'</em>, <em>dtype=&lt;class 'numpy.float64'&gt;</em>, <em>alternate_sign=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.FeatureHasher" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implements feature hashing, aka the hashing trick.</p>
 <p>This class turns sequences of symbolic feature names (strings) into
 scipy.sparse matrices, using a hash function to compute the matrix column
@@ -284,7 +284,7 @@ Feature values must be (finite) numbers.</p>
 CountVectorizer, intended for large-scale (online) learning and situations
 where memory is tight, e.g. when running prediction code on embedded
 devices.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#feature-hashing" title="(in scikit-learn v0.22)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#feature-hashing" title="(in scikit-learn v0.23)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <div class="versionadded">
 <p><span class="versionmodified">New in version 0.13.</span></p>
 </div>
@@ -293,12 +293,12 @@ devices.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>n_features</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
+<dt><strong>n_features</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default=2**20</span></dt>
 <dd><p class="first last">The number of features (columns) in the output matrices. Small numbers
 of features are likely to cause hash collisions, but large numbers
 will cause larger coefficient dimensions in linear learners.</p>
 </dd>
-<dt><strong>input_type</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, optional, default “dict”</span></dt>
+<dt><strong>input_type</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{“dict”, “pair”}, default=”dict”</span></dt>
 <dd><p class="first last">Either “dict” (the default) to accept dictionaries over
 (feature_name, value); “pair” to accept pairs of (feature_name, value);
 or “string” to accept single strings.
@@ -308,15 +308,19 @@ The feature_name is hashed to find the appropriate column for the
 feature. The value’s sign might be flipped in the output (but see
 non_negative, below).</p>
 </dd>
-<dt><strong>dtype</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy type, optional, default np.float64</span></dt>
+<dt><strong>dtype</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy dtype, default=np.float64</span></dt>
 <dd><p class="first last">The type of feature values. Passed to scipy.sparse matrix constructors
 as the dtype argument. Do not set this to bool, np.boolean or any
 unsigned integer type.</p>
 </dd>
-<dt><strong>alternate_sign</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional, default True</span></dt>
+<dt><strong>alternate_sign</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default=True</span></dt>
 <dd><p class="first last">When True, an alternating sign is added to the features as to
 approximately conserve the inner product in the hashed space even for
 small n_features. This approach is similar to sparse random projection.</p>
+</dd>
+<dt><strong>.. versionchanged:: 0.19</strong></dt>
+<dd><p class="first last"><code class="docutils literal notranslate"><span class="pre">alternate_sign</span></code> replaces the now deprecated <code class="docutils literal notranslate"><span class="pre">non_negative</span></code>
+parameter.</p>
 </dd>
 </dl>
 </td>
@@ -328,7 +332,7 @@ small n_features. This approach is similar to sparse random projection.</p>
 <dl class="last docutils">
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">DictVectorizer</span></code></dt>
 <dd>vectorizes string-valued features using a hash table.</dd>
-<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html#sklearn.preprocessing.OneHotEncoder" title="(in scikit-learn v0.22)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.preprocessing.OneHotEncoder</span></code></a></dt>
+<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html#sklearn.preprocessing.OneHotEncoder" title="(in scikit-learn v0.23)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.preprocessing.OneHotEncoder</span></code></a></dt>
 <dd>handles nominal/categorical features.</dd>
 </dl>
 </div>
@@ -376,7 +380,7 @@ small n_features. This approach is similar to sparse random projection.</p>
 </table>
 <dl class="method">
 <dt id="dask_ml.feature_extraction.text.FeatureHasher.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>n_features=1048576</em>, <em>input_type='dict'</em>, <em>dtype=&lt;class 'numpy.float64'&gt;</em>, <em>alternate_sign=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.FeatureHasher.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>n_features=1048576</em>, <em>*</em>, <em>input_type='dict'</em>, <em>dtype=&lt;class 'numpy.float64'&gt;</em>, <em>alternate_sign=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.FeatureHasher.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -391,7 +395,7 @@ with the scikit-learn transformer API.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray</span></dt>
 <dd></dd>
 </dl>
 </td>
@@ -417,10 +421,9 @@ and returns a transformed version of X.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features]</span></dt>
-<dd><p class="first last">Training set.</p>
-</dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples]</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{array-like, sparse matrix, dataframe} of shape                 (n_samples, n_features)</span></dt>
+<dd></dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of shape (n_samples,), default=None</span></dt>
 <dd><p class="first last">Target values.</p>
 </dd>
 <dt><strong>**fit_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
@@ -430,7 +433,7 @@ and returns a transformed version of X.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features_new]</span></dt>
+<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray array of shape (n_samples, n_features_new)</span></dt>
 <dd><p class="first last">Transformed array.</p>
 </dd>
 </dl>

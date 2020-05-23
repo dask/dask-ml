@@ -14,7 +14,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>API Reference &mdash; dask-ml 1.4.0 documentation</title>
+  <title>API Reference &mdash; dask-ml 1.4.1 documentation</title>
   
 
   
@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.4.0
+                1.4.1.dev1+g682da8f
               </div>
             
           
@@ -518,7 +518,7 @@ with Dask Arrays or DataFrames.</p>
 <p>Utilties for Preprocessing data.</p>
 <dl class="class">
 <dt id="dask_ml.preprocessing.StandardScaler">
-<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">StandardScaler</code><span class="sig-paren">(</span><em>copy=True</em>, <em>with_mean=True</em>, <em>with_std=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.StandardScaler" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">StandardScaler</code><span class="sig-paren">(</span><em>*</em>, <em>copy=True</em>, <em>with_mean=True</em>, <em>with_std=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.StandardScaler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Standardize features by removing the mean and scaling to unit variance</p>
 <p>The standard score of a sample <cite>x</cite> is calculated as:</p>
 <blockquote>
@@ -543,7 +543,7 @@ that others, it might dominate the objective function and make the
 estimator unable to learn from other features correctly as expected.</p>
 <p>This scaler can also be applied to sparse CSR or CSC matrices by passing
 <cite>with_mean=False</cite> to avoid breaking the sparsity structure of the data.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.22)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.23)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -602,7 +602,7 @@ Will be reset on new calls to fit, but increments across
 <dl class="last docutils">
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">scale</span></code></dt>
 <dd>Equivalent function without the estimator API.</dd>
-<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html#sklearn.decomposition.PCA" title="(in scikit-learn v0.22)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.decomposition.PCA</span></code></a></dt>
+<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html#sklearn.decomposition.PCA" title="(in scikit-learn v0.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.decomposition.PCA</span></code></a></dt>
 <dd>Further removes the linear correlation across features with ‘whiten=True’.</dd>
 </dl>
 </div>
@@ -613,7 +613,7 @@ transform.</p>
 <cite>numpy.std(x, ddof=0)</cite>. Note that the choice of <cite>ddof</cite> is unlikely to
 affect model performance.</p>
 <p>For a comparison of the different scalers, transformers, and normalizers,
-see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.22)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
+see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.23)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
@@ -695,10 +695,9 @@ and returns a transformed version of X.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features]</span></dt>
-<dd><p class="first last">Training set.</p>
-</dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples]</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{array-like, sparse matrix, dataframe} of shape                 (n_samples, n_features)</span></dt>
+<dd></dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of shape (n_samples,), default=None</span></dt>
 <dd><p class="first last">Target values.</p>
 </dd>
 <dt><strong>**fit_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
@@ -708,7 +707,7 @@ and returns a transformed version of X.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features_new]</span></dt>
+<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray array of shape (n_samples, n_features_new)</span></dt>
 <dd><p class="first last">Transformed array.</p>
 </dd>
 </dl>
@@ -867,7 +866,7 @@ component of a nested object.</p>
 
 <dl class="class">
 <dt id="dask_ml.preprocessing.MinMaxScaler">
-<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">MinMaxScaler</code><span class="sig-paren">(</span><em>feature_range=(0</em>, <em>1)</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">MinMaxScaler</code><span class="sig-paren">(</span><em>feature_range=(0</em>, <em>1)</em>, <em>*</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.MinMaxScaler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform features by scaling each feature to a given range.</p>
 <p>This estimator scales and translates each feature individually such
 that it is in the given range on the training set, e.g. between
@@ -878,14 +877,9 @@ zero and one.</p>
 </pre></div>
 </div>
 <p>where min, max = feature_range.</p>
-<p>The transformation is calculated as:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">X_scaled</span> <span class="o">=</span> <span class="n">scale</span> <span class="o">*</span> <span class="n">X</span> <span class="o">+</span> <span class="nb">min</span> <span class="o">-</span> <span class="n">X</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span>
-<span class="n">where</span> <span class="n">scale</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span> <span class="o">-</span> <span class="nb">min</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">X</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
-</pre></div>
-</div>
 <p>This transformation is often used as an alternative to zero mean,
 unit variance scaling.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.22)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.23)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -952,7 +946,7 @@ It will be reset on new calls to fit, but increments across
 <p>NaNs are treated as missing values: disregarded in fit, and maintained in
 transform.</p>
 <p>For a comparison of the different scalers, transformers, and normalizers,
-see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.22)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
+see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.23)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">MinMaxScaler</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">[[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">18</span><span class="p">]]</span>
@@ -1041,10 +1035,9 @@ and returns a transformed version of X.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features]</span></dt>
-<dd><p class="first last">Training set.</p>
-</dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples]</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{array-like, sparse matrix, dataframe} of shape                 (n_samples, n_features)</span></dt>
+<dd></dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of shape (n_samples,), default=None</span></dt>
 <dd><p class="first last">Target values.</p>
 </dd>
 <dt><strong>**fit_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
@@ -1054,7 +1047,7 @@ and returns a transformed version of X.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features_new]</span></dt>
+<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray array of shape (n_samples, n_features_new)</span></dt>
 <dd><p class="first last">Transformed array.</p>
 </dd>
 </dl>
@@ -1210,7 +1203,7 @@ component of a nested object.</p>
 
 <dl class="class">
 <dt id="dask_ml.preprocessing.RobustScaler">
-<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">RobustScaler</code><span class="sig-paren">(</span><em>with_centering=True</em>, <em>with_scaling=True</em>, <em>quantile_range=(25.0</em>, <em>75.0)</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.RobustScaler" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">RobustScaler</code><span class="sig-paren">(</span><em>*</em>, <em>with_centering=True</em>, <em>with_scaling=True</em>, <em>quantile_range=(25.0</em>, <em>75.0)</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.RobustScaler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Scale features using statistics that are robust to outliers.</p>
 <p>This Scaler removes the median and scales the data according to
 the quantile range (defaults to IQR: Interquartile Range).
@@ -1228,7 +1221,7 @@ the interquartile range often give better results.</p>
 <div class="versionadded">
 <p><span class="versionmodified">New in version 0.17.</span></p>
 </div>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.22)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v0.23)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1280,13 +1273,13 @@ returned.</p>
 <dl class="last docutils">
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">robust_scale</span></code></dt>
 <dd>Equivalent function without the estimator API.</dd>
-<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html#sklearn.decomposition.PCA" title="(in scikit-learn v0.22)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.decomposition.PCA</span></code></a></dt>
+<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html#sklearn.decomposition.PCA" title="(in scikit-learn v0.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.decomposition.PCA</span></code></a></dt>
 <dd>Further removes the linear correlation across features with ‘whiten=True’.</dd>
 </dl>
 </div>
 <p class="rubric">Notes</p>
 <p>For a comparison of the different scalers, transformers, and normalizers,
-see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.22)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
+see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.23)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
 <p><a class="reference external" href="https://en.wikipedia.org/wiki/Median">https://en.wikipedia.org/wiki/Median</a>
 <a class="reference external" href="https://en.wikipedia.org/wiki/Interquartile_range">https://en.wikipedia.org/wiki/Interquartile_range</a></p>
 <p class="rubric">Examples</p>
@@ -1361,10 +1354,9 @@ and returns a transformed version of X.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features]</span></dt>
-<dd><p class="first last">Training set.</p>
-</dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples]</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{array-like, sparse matrix, dataframe} of shape                 (n_samples, n_features)</span></dt>
+<dd></dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of shape (n_samples,), default=None</span></dt>
 <dd><p class="first last">Target values.</p>
 </dd>
 <dt><strong>**fit_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
@@ -1374,7 +1366,7 @@ and returns a transformed version of X.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features_new]</span></dt>
+<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray array of shape (n_samples, n_features_new)</span></dt>
 <dd><p class="first last">Transformed array.</p>
 </dd>
 </dl>
@@ -1497,7 +1489,7 @@ fitted to dense input and <code class="docutils literal notranslate"><span class
 
 <dl class="class">
 <dt id="dask_ml.preprocessing.QuantileTransformer">
-<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">QuantileTransformer</code><span class="sig-paren">(</span><em>n_quantiles=1000</em>, <em>output_distribution='uniform'</em>, <em>ignore_implicit_zeros=False</em>, <em>subsample=100000</em>, <em>random_state=None</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">QuantileTransformer</code><span class="sig-paren">(</span><em>*</em>, <em>n_quantiles=1000</em>, <em>output_distribution='uniform'</em>, <em>ignore_implicit_zeros=False</em>, <em>subsample=100000</em>, <em>random_state=None</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transforms features using quantile information.</p>
 <p>This implementation differs from the scikit-learn implementation
 by using approximate quantiles. The scikit-learn docstring follows.</p>
@@ -1514,7 +1506,7 @@ below or above the fitted range will be mapped to the bounds of the output
 distribution. Note that this transform is non-linear. It may distort linear
 correlations between variables measured at the same scale but renders
 variables measured at different scales more directly comparable.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-transformer" title="(in scikit-learn v0.22)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-transformer" title="(in scikit-learn v0.23)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <div class="versionadded">
 <p><span class="versionmodified">New in version 0.19.</span></p>
 </div>
@@ -1546,11 +1538,11 @@ computational efficiency. Note that the subsampling procedure may
 differ for value-identical sparse and dense matrices.</p>
 </dd>
 <dt><strong>random_state</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, RandomState instance or None, optional (default=None)</span></dt>
-<dd><p class="first last">If int, random_state is the seed used by the random number generator;
-If RandomState instance, random_state is the random number generator;
-If None, the random number generator is the RandomState instance used
-by np.random. Note that this is used by subsampling and smoothing
-noise.</p>
+<dd><p class="first last">Determines random number generation for subsampling and smoothing
+noise.
+Please see <code class="docutils literal notranslate"><span class="pre">subsample</span></code> for more details.
+Pass an int for reproducible results across multiple function calls.
+See <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-random-state" title="(in scikit-learn v0.23)"><span class="xref std std-term">Glossary</span></a></p>
 </dd>
 <dt><strong>copy</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional, (default=True)</span></dt>
 <dd><p class="first last">Set to False to perform inplace transformation and avoid a copy (if the
@@ -1592,7 +1584,7 @@ distribution function.</p>
 <p>NaNs are treated as missing values: disregarded in fit, and maintained in
 transform.</p>
 <p>For a comparison of the different scalers, transformers, and normalizers,
-see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.22)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
+see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v0.23)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">QuantileTransformer</span>
@@ -1669,10 +1661,9 @@ and returns a transformed version of X.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features]</span></dt>
-<dd><p class="first last">Training set.</p>
-</dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples]</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{array-like, sparse matrix, dataframe} of shape                 (n_samples, n_features)</span></dt>
+<dd></dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of shape (n_samples,), default=None</span></dt>
 <dd><p class="first last">Target values.</p>
 </dd>
 <dt><strong>**fit_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
@@ -1682,7 +1673,7 @@ and returns a transformed version of X.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features_new]</span></dt>
+<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray array of shape (n_samples, n_features_new)</span></dt>
 <dd><p class="first last">Transformed array.</p>
 </dd>
 </dl>
@@ -1936,10 +1927,9 @@ and returns a transformed version of X.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features]</span></dt>
-<dd><p class="first last">Training set.</p>
-</dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples]</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{array-like, sparse matrix, dataframe} of shape                 (n_samples, n_features)</span></dt>
+<dd></dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of shape (n_samples,), default=None</span></dt>
 <dd><p class="first last">Target values.</p>
 </dd>
 <dt><strong>**fit_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
@@ -1949,7 +1939,7 @@ and returns a transformed version of X.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features_new]</span></dt>
+<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray array of shape (n_samples, n_features_new)</span></dt>
 <dd><p class="first last">Transformed array.</p>
 </dd>
 </dl>
@@ -2206,10 +2196,9 @@ and returns a transformed version of X.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features]</span></dt>
-<dd><p class="first last">Training set.</p>
-</dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples]</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{array-like, sparse matrix, dataframe} of shape                 (n_samples, n_features)</span></dt>
+<dd></dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of shape (n_samples,), default=None</span></dt>
 <dd><p class="first last">Target values.</p>
 </dd>
 <dt><strong>**fit_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
@@ -2219,7 +2208,7 @@ and returns a transformed version of X.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features_new]</span></dt>
+<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray array of shape (n_samples, n_features_new)</span></dt>
 <dd><p class="first last">Transformed array.</p>
 </dd>
 </dl>
@@ -2487,10 +2476,9 @@ and returns a transformed version of X.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features]</span></dt>
-<dd><p class="first last">Training set.</p>
-</dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples]</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{array-like, sparse matrix, dataframe} of shape                 (n_samples, n_features)</span></dt>
+<dd></dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of shape (n_samples,), default=None</span></dt>
 <dd><p class="first last">Target values.</p>
 </dd>
 <dt><strong>**fit_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
@@ -2500,7 +2488,7 @@ and returns a transformed version of X.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features_new]</span></dt>
+<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray array of shape (n_samples, n_features_new)</span></dt>
 <dd><p class="first last">Transformed array.</p>
 </dd>
 </dl>
@@ -2915,7 +2903,7 @@ and returns a sparse matrix or dense array.</p>
 estimators, notably linear models and SVMs with the standard kernels.</p>
 <p>Note: a one-hot encoding of y labels should use a LabelBinarizer
 instead.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-categorical-features" title="(in scikit-learn v0.22)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-categorical-features" title="(in scikit-learn v0.23)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -3033,7 +3021,7 @@ values per feature and transform the data to a binary one-hot encoding.</p>
 </dd>
 <dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">None</span></dt>
 <dd><p class="first last">Ignored. This parameter exists only for compatibility with
-<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.22)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a>.</p>
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a>.</p>
 </dd>
 </dl>
 </td>
@@ -3063,7 +3051,7 @@ values per feature and transform the data to a binary one-hot encoding.</p>
 </dd>
 <dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">None</span></dt>
 <dd><p class="first last">Ignored. This parameter exists only for compatibility with
-<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.22)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a>.</p>
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a>.</p>
 </dd>
 </dl>
 </td>
@@ -3281,7 +3269,7 @@ of input features.</p>
 <p>Be aware that the number of features in the output array scales
 polynomially in the number of features of the input array, and
 exponentially in the degree. High degrees can cause overfitting.</p>
-<p>See <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/linear_model/plot_polynomial_interpolation.html#sphx-glr-auto-examples-linear-model-plot-polynomial-interpolation-py" title="(in scikit-learn v0.22)"><span class="xref std std-ref">examples/linear_model/plot_polynomial_interpolation.py</span></a></p>
+<p>See <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/linear_model/plot_polynomial_interpolation.html#sphx-glr-auto-examples-linear-model-plot-polynomial-interpolation-py" title="(in scikit-learn v0.23)"><span class="xref std std-ref">examples/linear_model/plot_polynomial_interpolation.py</span></a></p>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">PolynomialFeatures</span>
@@ -3365,10 +3353,9 @@ and returns a transformed version of X.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features]</span></dt>
-<dd><p class="first last">Training set.</p>
-</dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples]</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{array-like, sparse matrix, dataframe} of shape                 (n_samples, n_features)</span></dt>
+<dd></dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of shape (n_samples,), default=None</span></dt>
 <dd><p class="first last">Target values.</p>
 </dd>
 <dt><strong>**fit_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
@@ -3378,7 +3365,7 @@ and returns a transformed version of X.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features_new]</span></dt>
+<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray array of shape (n_samples, n_features_new)</span></dt>
 <dd><p class="first last">Transformed array.</p>
 </dd>
 </dl>
@@ -3616,10 +3603,9 @@ and returns a transformed version of X.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features]</span></dt>
-<dd><p class="first last">Training set.</p>
-</dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples]</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{array-like, sparse matrix, dataframe} of shape                 (n_samples, n_features)</span></dt>
+<dd></dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of shape (n_samples,), default=None</span></dt>
 <dd><p class="first last">Target values.</p>
 </dd>
 <dt><strong>**fit_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
@@ -3629,7 +3615,7 @@ and returns a transformed version of X.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features_new]</span></dt>
+<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray array of shape (n_samples, n_features_new)</span></dt>
 <dd><p class="first last">Transformed array.</p>
 </dd>
 </dl>
@@ -3704,19 +3690,19 @@ component of a nested object.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler" title="dask_ml.preprocessing.StandardScaler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.StandardScaler</span></code></a>([copy,&nbsp;…])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler" title="dask_ml.preprocessing.StandardScaler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.StandardScaler</span></code></a>(*[,&nbsp;copy,&nbsp;…])</td>
 <td>Standardize features by removing the mean and scaling to unit variance</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.RobustScaler.html#dask_ml.preprocessing.RobustScaler" title="dask_ml.preprocessing.RobustScaler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.RobustScaler</span></code></a>([with_centering,&nbsp;…])</td>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.RobustScaler.html#dask_ml.preprocessing.RobustScaler" title="dask_ml.preprocessing.RobustScaler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.RobustScaler</span></code></a>(*[,&nbsp;…])</td>
 <td>Scale features using statistics that are robust to outliers.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler" title="dask_ml.preprocessing.MinMaxScaler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.MinMaxScaler</span></code></a>([feature_range,&nbsp;copy])</td>
 <td>Transform features by scaling each feature to a given range.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.QuantileTransformer.html#dask_ml.preprocessing.QuantileTransformer" title="dask_ml.preprocessing.QuantileTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.QuantileTransformer</span></code></a>([…])</td>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.QuantileTransformer.html#dask_ml.preprocessing.QuantileTransformer" title="dask_ml.preprocessing.QuantileTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.QuantileTransformer</span></code></a>(*[,&nbsp;…])</td>
 <td>Transforms features using quantile information.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler" title="dask_ml.preprocessing.StandardScaler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.StandardScaler</span></code></a>([copy,&nbsp;…])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.preprocessing.StandardScaler.html#dask_ml.preprocessing.StandardScaler" title="dask_ml.preprocessing.StandardScaler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.StandardScaler</span></code></a>(*[,&nbsp;copy,&nbsp;…])</td>
 <td>Standardize features by removing the mean and scaling to unit variance</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.preprocessing.Categorizer.html#dask_ml.preprocessing.Categorizer" title="dask_ml.preprocessing.Categorizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing.Categorizer</span></code></a>(categories,&nbsp;columns)</td>
@@ -3748,7 +3734,7 @@ component of a nested object.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.feature_extraction.text.HashingVectorizer.html#dask_ml.feature_extraction.text.HashingVectorizer" title="dask_ml.feature_extraction.text.HashingVectorizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">feature_extraction.text.HashingVectorizer</span></code></a>([…])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.feature_extraction.text.HashingVectorizer.html#dask_ml.feature_extraction.text.HashingVectorizer" title="dask_ml.feature_extraction.text.HashingVectorizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">feature_extraction.text.HashingVectorizer</span></code></a>(*)</td>
 <td>Convert a collection of text documents to a matrix of token occurrences</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.feature_extraction.text.FeatureHasher.html#dask_ml.feature_extraction.text.FeatureHasher" title="dask_ml.feature_extraction.text.FeatureHasher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">feature_extraction.text.FeatureHasher</span></code></a>([…])</td>
@@ -3773,7 +3759,7 @@ to be transformed separately and the results combined into a single
 feature space.
 This is useful for heterogeneous or columnar data, to combine several
 feature extraction mechanisms or transformations into a single transformer.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/compose.html#column-transformer" title="(in scikit-learn v0.22)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/compose.html#column-transformer" title="(in scikit-learn v0.23)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <div class="versionadded">
 <p><span class="versionmodified">New in version 0.9.0.</span></p>
 </div>
@@ -3835,7 +3821,7 @@ keyword will be ignored.</p>
 <dt><strong>n_jobs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int or None, optional (default=None)</span></dt>
 <dd><p class="first last">Number of jobs to run in parallel.
 <code class="docutils literal notranslate"><span class="pre">None</span></code> means 1 unless in a <code class="xref py py-obj docutils literal notranslate"><span class="pre">joblib.parallel_backend</span></code> context.
-<code class="docutils literal notranslate"><span class="pre">-1</span></code> means using all processors. See <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-n-jobs" title="(in scikit-learn v0.22)"><span class="xref std std-term">Glossary</span></a>
+<code class="docutils literal notranslate"><span class="pre">-1</span></code> means using all processors. See <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-n-jobs" title="(in scikit-learn v0.23)"><span class="xref std std-term">Glossary</span></a>
 for more details.</p>
 </dd>
 <dt><strong>transformer_weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict, optional</span></dt>
@@ -3947,11 +3933,11 @@ are added at the right to the output of the transformers.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like or DataFrame of shape [n_samples, n_features]</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{array-like, dataframe} of shape (n_samples, n_features)</span></dt>
 <dd><p class="first last">Input data, of which specified subsets are used to fit the
 transformers.</p>
 </dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape (n_samples, …), optional</span></dt>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,…), default=None</span></dt>
 <dd><p class="first last">Targets for supervised learning.</p>
 </dd>
 </dl>
@@ -3977,18 +3963,18 @@ transformers.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like or DataFrame of shape [n_samples, n_features]</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{array-like, dataframe} of shape (n_samples, n_features)</span></dt>
 <dd><p class="first last">Input data, of which specified subsets are used to fit the
 transformers.</p>
 </dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape (n_samples, …), optional</span></dt>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,), default=None</span></dt>
 <dd><p class="first last">Targets for supervised learning.</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X_t</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like or sparse matrix, shape (n_samples, sum_n_components)</span></dt>
+<dt><strong>X_t</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{array-like, sparse matrix} of                 shape (n_samples, sum_n_components)</span></dt>
 <dd><p class="first last">hstack of results of transformers. sum_n_components is the
 sum of n_components (output dimension) over transformers. If
 any result is a sparse matrix, everything will be converted to
@@ -4029,7 +4015,7 @@ sparse matrices.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional</span></dt>
+<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default=True</span></dt>
 <dd><p class="first last">If True, will return the parameters for this estimator and
 contained subobjects that are estimators.</p>
 </dd>
@@ -4037,7 +4023,7 @@ contained subobjects that are estimators.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">mapping of string to any</span></dt>
+<dt><strong>params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
 <dd><p class="first last">Parameter names mapped to their values.</p>
 </dd>
 </dl>
@@ -4084,14 +4070,14 @@ objects.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like or DataFrame of shape [n_samples, n_features]</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{array-like, dataframe} of shape (n_samples, n_features)</span></dt>
 <dd><p class="first last">The data to be transformed by subset.</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X_t</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like or sparse matrix, shape (n_samples, sum_n_components)</span></dt>
+<dt><strong>X_t</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{array-like, sparse matrix} of                 shape (n_samples, sum_n_components)</span></dt>
 <dd><p class="first last">hstack of results of transformers. sum_n_components is the
 sum of n_components (output dimension) over transformers. If
 any result is a sparse matrix, everything will be converted to
@@ -4114,34 +4100,35 @@ sparse matrices.</p>
 require, and does not permit, naming the transformers. Instead, they will
 be given names automatically based on their types. It also does not allow
 weighting with <code class="docutils literal notranslate"><span class="pre">transformer_weights</span></code>.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/compose.html#make-column-transformer" title="(in scikit-learn v0.22)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/compose.html#make-column-transformer" title="(in scikit-learn v0.23)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>*transformers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuples</span></dt>
-<dd><p class="first">Tuples of the form (transformer, column(s)) specifying the
+<dd><p class="first">Tuples of the form (transformer, columns) specifying the
 transformer objects to be applied to subsets of the data.</p>
 <dl class="last docutils">
-<dt>transformer <span class="classifier-delimiter">:</span> <span class="classifier">estimator or {‘passthrough’, ‘drop’}</span></dt>
-<dd><p class="first last">Estimator must support <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v0.22)"><span class="xref std std-term">fit</span></a> and <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-transform" title="(in scikit-learn v0.22)"><span class="xref std std-term">transform</span></a>.
+<dt>transformer <span class="classifier-delimiter">:</span> <span class="classifier">{‘drop’, ‘passthrough’} or estimator</span></dt>
+<dd><p class="first last">Estimator must support <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v0.23)"><span class="xref std std-term">fit</span></a> and <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-transform" title="(in scikit-learn v0.23)"><span class="xref std std-term">transform</span></a>.
 Special-cased strings ‘drop’ and ‘passthrough’ are accepted as
 well, to indicate to drop the columns or to pass them through
 untransformed, respectively.</p>
 </dd>
-<dt>column(s) <span class="classifier-delimiter">:</span> <span class="classifier">string or int, array-like of string or int, slice, boolean mask array or callable</span></dt>
+<dt>columns <span class="classifier-delimiter">:</span> <span class="classifier">str,  array-like of str, int, array-like of int, slice,                 array-like of bool or callable</span></dt>
 <dd><p class="first last">Indexes the data on its second axis. Integers are interpreted as
 positional columns, while strings can reference DataFrame columns
 by name. A scalar string or int should be used where
 <code class="docutils literal notranslate"><span class="pre">transformer</span></code> expects X to be a 1d array-like (vector),
 otherwise a 2d array will be passed to the transformer.
 A callable is passed the input data <cite>X</cite> and can return any of the
-above.</p>
+above. To select multiple columns by name or dtype, you can use
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">make_column_selector</span></code>.</p>
 </dd>
 </dl>
 </dd>
-<dt><strong>remainder</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘drop’, ‘passthrough’} or estimator, default ‘drop’</span></dt>
+<dt><strong>remainder</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘drop’, ‘passthrough’} or estimator, default=’drop’</span></dt>
 <dd><p class="first last">By default, only the specified columns in <cite>transformers</cite> are
 transformed and combined in the output, and the non-specified
 columns are dropped. (default of <code class="docutils literal notranslate"><span class="pre">'drop'</span></code>).
@@ -4151,9 +4138,9 @@ through. This subset of columns is concatenated with the output of
 the transformers.
 By setting <code class="docutils literal notranslate"><span class="pre">remainder</span></code> to be an estimator, the remaining
 non-specified columns will use the <code class="docutils literal notranslate"><span class="pre">remainder</span></code> estimator. The
-estimator must support <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v0.22)"><span class="xref std std-term">fit</span></a> and <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-transform" title="(in scikit-learn v0.22)"><span class="xref std std-term">transform</span></a>.</p>
+estimator must support <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v0.23)"><span class="xref std std-term">fit</span></a> and <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-transform" title="(in scikit-learn v0.23)"><span class="xref std std-term">transform</span></a>.</p>
 </dd>
-<dt><strong>sparse_threshold</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, default = 0.3</span></dt>
+<dt><strong>sparse_threshold</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, default=0.3</span></dt>
 <dd><p class="first last">If the transformed output consists of a mix of sparse and dense data,
 it will be stacked as a sparse matrix if the density is lower than this
 value. Use <code class="docutils literal notranslate"><span class="pre">sparse_threshold=0</span></code> to always return dense.
@@ -4161,13 +4148,13 @@ When the transformed output consists of all sparse or all dense data,
 the stacked result will be sparse or dense, respectively, and this
 keyword will be ignored.</p>
 </dd>
-<dt><strong>n_jobs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int or None, optional (default=None)</span></dt>
+<dt><strong>n_jobs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default=None</span></dt>
 <dd><p class="first last">Number of jobs to run in parallel.
 <code class="docutils literal notranslate"><span class="pre">None</span></code> means 1 unless in a <code class="xref py py-obj docutils literal notranslate"><span class="pre">joblib.parallel_backend</span></code> context.
-<code class="docutils literal notranslate"><span class="pre">-1</span></code> means using all processors. See <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-n-jobs" title="(in scikit-learn v0.22)"><span class="xref std std-term">Glossary</span></a>
+<code class="docutils literal notranslate"><span class="pre">-1</span></code> means using all processors. See <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-n-jobs" title="(in scikit-learn v0.23)"><span class="xref std std-term">Glossary</span></a>
 for more details.</p>
 </dd>
-<dt><strong>verbose</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional(default=False)</span></dt>
+<dt><strong>verbose</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default=False</span></dt>
 <dd><p class="first last">If True, the time elapsed while fitting each transformer will be
 printed as it is completed.</p>
 </dd>
@@ -4185,7 +4172,7 @@ printed as it is completed.</p>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <dl class="last docutils">
-<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.compose.ColumnTransformer.html#sklearn.compose.ColumnTransformer" title="(in scikit-learn v0.22)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.compose.ColumnTransformer</span></code></a></dt>
+<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.compose.ColumnTransformer.html#sklearn.compose.ColumnTransformer" title="(in scikit-learn v0.23)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.compose.ColumnTransformer</span></code></a></dt>
 <dd>Class that allows combining the outputs of multiple transformer objects used on column subsets of the data into a single feature space.</dd>
 </dl>
 </div>
@@ -4230,7 +4217,7 @@ printed as it is completed.</p>
 <span id="dask-ml-impute-imputing-missing-data"></span><h2><a class="reference internal" href="#module-dask_ml.impute" title="dask_ml.impute"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.impute</span></code></a>: Imputing Missing Data<a class="headerlink" href="#module-dask_ml.impute" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="dask_ml.impute.SimpleImputer">
-<em class="property">class </em><code class="descclassname">dask_ml.impute.</code><code class="descname">SimpleImputer</code><span class="sig-paren">(</span><em>missing_values=nan</em>, <em>strategy='mean'</em>, <em>fill_value=None</em>, <em>verbose=0</em>, <em>copy=True</em>, <em>add_indicator=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.impute.SimpleImputer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.impute.</code><code class="descname">SimpleImputer</code><span class="sig-paren">(</span><em>*</em>, <em>missing_values=nan</em>, <em>strategy='mean'</em>, <em>fill_value=None</em>, <em>verbose=0</em>, <em>copy=True</em>, <em>add_indicator=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.impute.SimpleImputer" title="Permalink to this definition">¶</a></dt>
 <dd><p class="rubric">Methods</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -4292,10 +4279,9 @@ and returns a transformed version of X.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features]</span></dt>
-<dd><p class="first last">Training set.</p>
-</dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples]</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{array-like, sparse matrix, dataframe} of shape                 (n_samples, n_features)</span></dt>
+<dd></dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of shape (n_samples,), default=None</span></dt>
 <dd><p class="first last">Target values.</p>
 </dd>
 <dt><strong>**fit_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
@@ -4305,7 +4291,7 @@ and returns a transformed version of X.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array of shape [n_samples, n_features_new]</span></dt>
+<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray array of shape (n_samples, n_features_new)</span></dt>
 <dd><p class="first last">Transformed array.</p>
 </dd>
 </dl>
@@ -4399,7 +4385,7 @@ component of a nested object.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.impute.SimpleImputer.html#dask_ml.impute.SimpleImputer" title="dask_ml.impute.SimpleImputer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">impute.SimpleImputer</span></code></a>([missing_values,&nbsp;…])</td>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.impute.SimpleImputer.html#dask_ml.impute.SimpleImputer" title="dask_ml.impute.SimpleImputer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">impute.SimpleImputer</span></code></a>(*[,&nbsp;missing_values,&nbsp;…])</td>
 <td><p class="rubric">Methods</p>
 </td>
 </tr>

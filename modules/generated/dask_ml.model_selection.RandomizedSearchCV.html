@@ -14,7 +14,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.model_selection.RandomizedSearchCV &mdash; dask-ml 1.4.0 documentation</title>
+  <title>dask_ml.model_selection.RandomizedSearchCV &mdash; dask-ml 1.4.1 documentation</title>
   
 
   
@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.4.0
+                1.4.1.dev1+g682da8f
               </div>
             
           
@@ -655,7 +655,7 @@ train/test set.</p>
 <p>This class performs best when each cross validation split fits into
 RAM because the model’s <code class="docutils literal notranslate"><span class="pre">fit</span></code> method is called on each cross
 validation split. For example, if using
-<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.KFold.html#sklearn.model_selection.KFold" title="(in scikit-learn v0.22)"><code class="xref py py-class docutils literal notranslate"><span class="pre">KFold</span></code></a> with <span class="math notranslate nohighlight">\(k\)</span>
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.KFold.html#sklearn.model_selection.KFold" title="(in scikit-learn v0.23)"><code class="xref py py-class docutils literal notranslate"><span class="pre">KFold</span></code></a> with <span class="math notranslate nohighlight">\(k\)</span>
 chunks, a <span class="math notranslate nohighlight">\(1 - 1/k\)</span> fraction of the dataset should fit into RAM.</p>
 </dd></dl>
 
@@ -799,7 +799,7 @@ underlying estimator.</p>
 <dd><p class="first last">Input data, where n_samples is the number of samples and
 n_features is the number of features.</p>
 </dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples, n_output) or (n_samples,), optional</span></dt>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples, n_output)             or (n_samples,), default=None</span></dt>
 <dd><p class="first last">Target relative to X for classification or regression;
 None for unsupervised learning.</p>
 </dd>

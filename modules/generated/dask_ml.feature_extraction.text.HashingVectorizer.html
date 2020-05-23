@@ -14,7 +14,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.feature_extraction.text.HashingVectorizer &mdash; dask-ml 1.4.0 documentation</title>
+  <title>dask_ml.feature_extraction.text.HashingVectorizer &mdash; dask-ml 1.4.1 documentation</title>
   
 
   
@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.4.0
+                1.4.1.dev1+g682da8f
               </div>
             
           
@@ -271,7 +271,7 @@
 <h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>.HashingVectorizer<a class="headerlink" href="#dask-ml-feature-extraction-text-hashingvectorizer" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="dask_ml.feature_extraction.text.HashingVectorizer">
-<em class="property">class </em><code class="descclassname">dask_ml.feature_extraction.text.</code><code class="descname">HashingVectorizer</code><span class="sig-paren">(</span><em>input='content'</em>, <em>encoding='utf-8'</em>, <em>decode_error='strict'</em>, <em>strip_accents=None</em>, <em>lowercase=True</em>, <em>preprocessor=None</em>, <em>tokenizer=None</em>, <em>stop_words=None</em>, <em>token_pattern='(?u)\b\w\w+\b'</em>, <em>ngram_range=(1</em>, <em>1)</em>, <em>analyzer='word'</em>, <em>n_features=1048576</em>, <em>binary=False</em>, <em>norm='l2'</em>, <em>alternate_sign=True</em>, <em>dtype=&lt;class 'numpy.float64'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.feature_extraction.text.</code><code class="descname">HashingVectorizer</code><span class="sig-paren">(</span><em>*</em>, <em>input='content'</em>, <em>encoding='utf-8'</em>, <em>decode_error='strict'</em>, <em>strip_accents=None</em>, <em>lowercase=True</em>, <em>preprocessor=None</em>, <em>tokenizer=None</em>, <em>stop_words=None</em>, <em>token_pattern='(?u)\b\w\w+\b'</em>, <em>ngram_range=(1</em>, <em>1)</em>, <em>analyzer='word'</em>, <em>n_features=1048576</em>, <em>binary=False</em>, <em>norm='l2'</em>, <em>alternate_sign=True</em>, <em>dtype=&lt;class 'numpy.float64'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a collection of text documents to a matrix of token occurrences</p>
 <p>It turns a collection of text documents into a scipy.sparse matrix holding
 token occurrence counts (or binary occurrence information), possibly
@@ -300,13 +300,13 @@ is large enough (e.g. 2 ** 18 for text classification problems).</li>
 <li>no IDF weighting as this would render the transformer stateful.</li>
 </ul>
 <p>The hash function employed is the signed 32-bit version of Murmurhash3.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#text-feature-extraction" title="(in scikit-learn v0.22)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#text-feature-extraction" title="(in scikit-learn v0.23)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>input</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string {‘filename’, ‘file’, ‘content’}</span></dt>
+<dt><strong>input</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string {‘filename’, ‘file’, ‘content’}, default=’content’</span></dt>
 <dd><p class="first">If ‘filename’, the sequence passed as an argument to fit is
 expected to be a list of filenames that need reading to fetch
 the raw content to analyze.</p>
@@ -319,13 +319,13 @@ can be of type string or byte.</p>
 <dd><p class="first last">If bytes or files are given to analyze, this encoding is used to
 decode.</p>
 </dd>
-<dt><strong>decode_error</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘strict’, ‘ignore’, ‘replace’}</span></dt>
+<dt><strong>decode_error</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘strict’, ‘ignore’, ‘replace’}, default=’strict’</span></dt>
 <dd><p class="first last">Instruction on what to do if a byte sequence is given to analyze that
 contains characters not of the given <cite>encoding</cite>. By default, it is
 ‘strict’, meaning that a UnicodeDecodeError will be raised. Other
 values are ‘ignore’ and ‘replace’.</p>
 </dd>
-<dt><strong>strip_accents</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘ascii’, ‘unicode’, None}</span></dt>
+<dt><strong>strip_accents</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘ascii’, ‘unicode’}, default=None</span></dt>
 <dd><p class="first">Remove accents and perform other character normalization
 during the preprocessing step.
 ‘ascii’ is a fast method that only works on characters that have
@@ -335,23 +335,23 @@ None (default) does nothing.</p>
 <p class="last">Both ‘ascii’ and ‘unicode’ use NFKD normalization from
 <a class="reference external" href="https://docs.python.org/3.6/library/unicodedata.html#unicodedata.normalize" title="(in Python v3.6)"><code class="xref py py-func docutils literal notranslate"><span class="pre">unicodedata.normalize()</span></code></a>.</p>
 </dd>
-<dt><strong>lowercase</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, default=True</span></dt>
+<dt><strong>lowercase</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default=True</span></dt>
 <dd><p class="first last">Convert all characters to lowercase before tokenizing.</p>
 </dd>
-<dt><strong>preprocessor</strong> <span class="classifier-delimiter">:</span> <span class="classifier">callable or None (default)</span></dt>
+<dt><strong>preprocessor</strong> <span class="classifier-delimiter">:</span> <span class="classifier">callable, default=None</span></dt>
 <dd><p class="first last">Override the preprocessing (string transformation) stage while
 preserving the tokenizing and n-grams generation steps.
 Only applies if <code class="docutils literal notranslate"><span class="pre">analyzer</span> <span class="pre">is</span> <span class="pre">not</span> <span class="pre">callable</span></code>.</p>
 </dd>
-<dt><strong>tokenizer</strong> <span class="classifier-delimiter">:</span> <span class="classifier">callable or None (default)</span></dt>
+<dt><strong>tokenizer</strong> <span class="classifier-delimiter">:</span> <span class="classifier">callable, default=None</span></dt>
 <dd><p class="first last">Override the string tokenization step while preserving the
 preprocessing and n-grams generation steps.
 Only applies if <code class="docutils literal notranslate"><span class="pre">analyzer</span> <span class="pre">==</span> <span class="pre">'word'</span></code>.</p>
 </dd>
-<dt><strong>stop_words</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string {‘english’}, list, or None (default)</span></dt>
+<dt><strong>stop_words</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string {‘english’}, list, default=None</span></dt>
 <dd><p class="first">If ‘english’, a built-in stop word list for English is used.
 There are several known issues with ‘english’ and you should
-consider an alternative (see <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#stop-words" title="(in scikit-learn v0.22)"><span>Using stop words</span></a>).</p>
+consider an alternative (see <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#stop-words" title="(in scikit-learn v0.23)"><span>Using stop words</span></a>).</p>
 <p class="last">If a list, that list is assumed to contain stop words, all of which
 will be removed from the resulting tokens.
 Only applies if <code class="docutils literal notranslate"><span class="pre">analyzer</span> <span class="pre">==</span> <span class="pre">'word'</span></code>.</p>
@@ -370,7 +370,7 @@ unigrams, <code class="docutils literal notranslate"><span class="pre">(1,</span
 only bigrams.
 Only applies if <code class="docutils literal notranslate"><span class="pre">analyzer</span> <span class="pre">is</span> <span class="pre">not</span> <span class="pre">callable</span></code>.</p>
 </dd>
-<dt><strong>analyzer</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, {‘word’, ‘char’, ‘char_wb’} or callable</span></dt>
+<dt><strong>analyzer</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, {‘word’, ‘char’, ‘char_wb’} or callable,             default=’word’</span></dt>
 <dd><p class="first">Whether the feature should be made of word or character n-grams.
 Option ‘char_wb’ creates character n-grams only from text inside
 word boundaries; n-grams at the edges of words are padded with space.</p>
@@ -383,20 +383,20 @@ out of the raw, unprocessed input.</p>
 first read from the file and then passed to the given callable
 analyzer.</p>
 </dd>
-<dt><strong>n_features</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, default=(2 ** 20)</span></dt>
+<dt><strong>n_features</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default=(2 ** 20)</span></dt>
 <dd><p class="first last">The number of features (columns) in the output matrices. Small numbers
 of features are likely to cause hash collisions, but large numbers
 will cause larger coefficient dimensions in linear learners.</p>
 </dd>
-<dt><strong>binary</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, default=False.</span></dt>
+<dt><strong>binary</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default=False.</span></dt>
 <dd><p class="first last">If True, all non zero counts are set to 1. This is useful for discrete
 probabilistic models that model binary events rather than integer
 counts.</p>
 </dd>
-<dt><strong>norm</strong> <span class="classifier-delimiter">:</span> <span class="classifier">‘l1’, ‘l2’ or None, optional</span></dt>
+<dt><strong>norm</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘l1’, ‘l2’}, default=’l2’</span></dt>
 <dd><p class="first last">Norm used to normalize term vectors. None for no normalization.</p>
 </dd>
-<dt><strong>alternate_sign</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional, default True</span></dt>
+<dt><strong>alternate_sign</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default=True</span></dt>
 <dd><p class="first">When True, an alternating sign is added to the features as to
 approximately conserve the inner product in the hashed space even for
 small n_features. This approach is similar to sparse random projection.</p>
@@ -404,7 +404,7 @@ small n_features. This approach is similar to sparse random projection.</p>
 <p><span class="versionmodified">New in version 0.19.</span></p>
 </div>
 </dd>
-<dt><strong>dtype</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type, optional</span></dt>
+<dt><strong>dtype</strong> <span class="classifier-delimiter">:</span> <span class="classifier">type, default=np.float64</span></dt>
 <dd><p class="first last">Type of the matrix returned by fit_transform() or transform().</p>
 </dd>
 </dl>
@@ -477,7 +477,7 @@ small n_features. This approach is similar to sparse random projection.</p>
 </table>
 <dl class="method">
 <dt id="dask_ml.feature_extraction.text.HashingVectorizer.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>input='content'</em>, <em>encoding='utf-8'</em>, <em>decode_error='strict'</em>, <em>strip_accents=None</em>, <em>lowercase=True</em>, <em>preprocessor=None</em>, <em>tokenizer=None</em>, <em>stop_words=None</em>, <em>token_pattern='(?u)\b\w\w+\b'</em>, <em>ngram_range=(1</em>, <em>1)</em>, <em>analyzer='word'</em>, <em>n_features=1048576</em>, <em>binary=False</em>, <em>norm='l2'</em>, <em>alternate_sign=True</em>, <em>dtype=&lt;class 'numpy.float64'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>*</em>, <em>input='content'</em>, <em>encoding='utf-8'</em>, <em>decode_error='strict'</em>, <em>strip_accents=None</em>, <em>lowercase=True</em>, <em>preprocessor=None</em>, <em>tokenizer=None</em>, <em>stop_words=None</em>, <em>token_pattern='(?u)\b\w\w+\b'</em>, <em>ngram_range=(1</em>, <em>1)</em>, <em>analyzer='word'</em>, <em>n_features=1048576</em>, <em>binary=False</em>, <em>norm='l2'</em>, <em>alternate_sign=True</em>, <em>dtype=&lt;class 'numpy.float64'&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
@@ -576,7 +576,7 @@ and n-grams generation.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape [n_samples, n_features]</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of shape [n_samples, n_features]</span></dt>
 <dd><p class="first last">Training data.</p>
 </dd>
 </dl>
@@ -675,7 +675,7 @@ can work in a streaming setup.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape [n_samples, n_features]</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of shape [n_samples, n_features]</span></dt>
 <dd><p class="first last">Training data.</p>
 </dd>
 </dl>

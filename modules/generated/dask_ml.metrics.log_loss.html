@@ -14,7 +14,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.metrics.log_loss &mdash; dask-ml 1.4.0 documentation</title>
+  <title>dask_ml.metrics.log_loss &mdash; dask-ml 1.4.1 documentation</title>
   
 
   
@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.4.0
+                1.4.1.dev1+g682da8f
               </div>
             
           
@@ -279,13 +279,14 @@
 <dd><p>Log loss, aka logistic loss or cross-entropy loss.</p>
 <p>This is the loss function used in (multinomial) logistic regression
 and extensions of it such as neural networks, defined as the negative
-log-likelihood of the true labels given a probabilistic classifier’s
-predictions. The log loss is only defined for two or more labels.
+log-likelihood of a logistic model that returns <code class="docutils literal notranslate"><span class="pre">y_pred</span></code> probabilities
+for its training data <code class="docutils literal notranslate"><span class="pre">y_true</span></code>.
+The log loss is only defined for two or more labels.
 For a single sample with true label yt in {0,1} and
 estimated probability yp that yt = 1, the log loss is</p>
 <blockquote>
 <div>-log P(yt|yp) = -(yt log(yp) + (1 - yt) log(1 - yp))</div></blockquote>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#log-loss" title="(in scikit-learn v0.22)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#log-loss" title="(in scikit-learn v0.23)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -314,10 +315,12 @@ Otherwise, return the sum of the per-sample losses.</p>
 <dd><p class="first last">Sample weights.</p>
 </dd>
 <dt><strong>labels</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, optional (default=None)</span></dt>
-<dd><p class="first last">If not provided, labels will be inferred from y_true. If <code class="docutils literal notranslate"><span class="pre">labels</span></code>
+<dd><p class="first">If not provided, labels will be inferred from y_true. If <code class="docutils literal notranslate"><span class="pre">labels</span></code>
 is <code class="docutils literal notranslate"><span class="pre">None</span></code> and <code class="docutils literal notranslate"><span class="pre">y_pred</span></code> has shape (n_samples,) the labels are
-assumed to be binary and are inferred from <code class="docutils literal notranslate"><span class="pre">y_true</span></code>.
-.. versionadded:: 0.18</p>
+assumed to be binary and are inferred from <code class="docutils literal notranslate"><span class="pre">y_true</span></code>.</p>
+<div class="last versionadded">
+<p><span class="versionmodified">New in version 0.18.</span></p>
+</div>
 </dd>
 </dl>
 </td>
