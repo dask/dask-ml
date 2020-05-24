@@ -5,6 +5,7 @@ import itertools
 import logging
 import operator
 import sys
+from asyncio import coroutines, events, tasks
 from collections import defaultdict, namedtuple
 from copy import deepcopy
 from time import time
@@ -1362,9 +1363,6 @@ class InverseDecaySearchCV(IncrementalSearchCV):
         return instructions
 
 
-from asyncio import coroutines
-from asyncio import events
-from asyncio import tasks
 
 
 def run(main, *, debug=False):

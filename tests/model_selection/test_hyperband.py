@@ -7,13 +7,12 @@ import numpy as np
 import pandas as pd
 import pytest
 import scipy.stats
-from distributed.utils_test import (
+from distributed.utils_test import (  # noqa: F401
+    captured_logger,
     cluster,
     gen_cluster,
     loop,
-    captured_logger,
-)  # noqa: F401
-
+)
 from sklearn.linear_model import SGDClassifier
 
 from dask_ml._compat import DISTRIBUTED_2_5_0
