@@ -7,7 +7,6 @@ from warnings import warn
 
 import numpy as np
 from sklearn.utils import check_random_state
-from tornado import gen
 
 from ._incremental import BaseIncrementalSearchCV
 from ._successive_halving import SuccessiveHalvingSearchCV

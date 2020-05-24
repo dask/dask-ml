@@ -677,7 +677,7 @@ def test_verbosity(Search, verbose, capsys):
     # IncrementalSearchCV always logs to INFO
     logger = logging.getLogger("dask_ml.model_selection")
     with captured_logger(logger) as logs:
-        search = _test_verbosity()
+        _test_verbosity()
         messages = logs.getvalue().splitlines()
 
     # Make sure we always log
@@ -685,7 +685,7 @@ def test_verbosity(Search, verbose, capsys):
     assert any("score" in m for m in messages)
 
     # If verbose=True, make sure logs to stdout
-    search = _test_verbosity()
+    _test_verbosity()
     std = capsys.readouterr()
     stdout = [line for line in std.out.split("\n") if line]
     if verbose:

@@ -1,6 +1,5 @@
 from __future__ import division
 
-import asyncio
 import itertools
 import logging
 import operator
@@ -25,7 +24,6 @@ from sklearn.metrics import check_scoring
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
 from sklearn.utils.metaestimators import if_delegate_has_method
-from tornado import gen
 
 from .._compat import check_is_fitted, dummy_context
 from .._utils import LoggingContext
