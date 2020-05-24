@@ -176,8 +176,12 @@ def _fit(
     assert len(X_train) == len(y_train)
 
     train_eg = yield client.map(len, y_train)
-    msg = "[CV%s] For training there are between %d and %d examples in each chunk"
-    logger.info(msg, prefix, min(train_eg), max(train_eg))
+    msg = (
+        "[CV%s] For chunk passed to partial_fit,"
+        "there are between %d and %d examples in each chunk. The median chunk"
+        "size is %d."
+    )
+    logger.info(msg, prefix, min(train_eg), max(train_eg), np.median(train_eg))
 
     # Order by which we process training data futures
     order = []
