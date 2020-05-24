@@ -79,7 +79,11 @@ class LoggingContext:
         if self.level is not None:
             self.old_level = self.logger.level
             self.logger.setLevel(self.level)
-        if self.handler:
+
+        # The reasonsing behind the last part of the below if statement:
+        # What if this context is called multiple times with the same logger?
+        # Then only add loggers if they have different output streams
+        if self.handler and not any(h.stream == self.handler.stream for h in self.logger.handlers):
             self.logger.addHandler(self.handler)
 
     def __exit__(self, et, ev, tb):

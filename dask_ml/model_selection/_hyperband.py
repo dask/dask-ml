@@ -396,7 +396,6 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         # (though it doesn't matter a ton; _fit prioritizes high scores
         _brackets_ids = list(reversed(sorted(SHAs)))
 
-        # _fit is run in parallel because it's also a tornado coroutine
         _SHAs = await asyncio.gather(*[SHAs[b]._fit(X, y, **fit_params) for b in _brackets_ids])
         SHAs = {b: SHA for b, SHA in zip(_brackets_ids, _SHAs)}
 

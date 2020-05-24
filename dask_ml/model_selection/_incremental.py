@@ -642,23 +642,31 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         return check_is_fitted(self, "best_estimator_")
 
     async def _fit(self, X, y, **fit_params):
+        if not hasattr(self, "_context"):
+            if self.verbose:
+                h = logging.StreamHandler(sys.stdout)
+                self._context = LoggingContext(logger, level=logging.INFO, handler=h)
+            else:
+                self._context = dummy_context()
+
         X, y, scorer = self._validate_parameters(X, y)
         X_train, X_test, y_train, y_test = self._get_train_test_split(X, y)
 
-        results = await fit(
-            self.estimator,
-            self._get_params(),
-            X_train,
-            y_train,
-            X_test,
-            y_test,
-            additional_calls=self._additional_calls,
-            fit_params=fit_params,
-            scorer=scorer,
-            random_state=self.random_state,
-            verbose=self.verbose,
-            prefix=self.prefix,
-        )
+        with self._context:
+            results = await fit(
+                self.estimator,
+                self._get_params(),
+                X_train,
+                y_train,
+                X_test,
+                y_test,
+                additional_calls=self._additional_calls,
+                fit_params=fit_params,
+                scorer=scorer,
+                random_state=self.random_state,
+                verbose=self.verbose,
+                prefix=self.prefix,
+            )
         results = self._process_results(results)
         model_history, models, history, bst = results
 
@@ -697,15 +705,10 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         **fit_params
             Additional partial fit keyword arguments for the estimator.
         """
-
-        if self.verbose:
-            h = logging.StreamHandler(sys.stdout)
-            context = LoggingContext(logger, level=logging.INFO, handler=h)
-        else:
-            context = dummy_context()
-
-        with context:
-            return default_client().sync(self._fit, X, y, **fit_params)
+        client = default_client()
+        if not client.asynchronous:
+            return client.sync(self._fit, X, y, **fit_params)
+        return self._fit(X, y, **fit_params)
 
     @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
     def decision_function(self, X):
