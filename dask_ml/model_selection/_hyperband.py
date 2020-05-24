@@ -396,7 +396,9 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         # (though it doesn't matter a ton; _fit prioritizes high scores
         _brackets_ids = list(reversed(sorted(SHAs)))
 
-        _SHAs = await asyncio.gather(*[SHAs[b]._fit(X, y, **fit_params) for b in _brackets_ids])
+        _SHAs = await asyncio.gather(
+            *[SHAs[b]._fit(X, y, **fit_params) for b in _brackets_ids]
+        )
         SHAs = {b: SHA for b, SHA in zip(_brackets_ids, _SHAs)}
 
         # This for-loop rename estimator IDs and pulls out wall times
