@@ -130,7 +130,7 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         computation that will be performed, and ``metadata_`` describes the
         computation that has been performed. Both dictionaries have keys
 
-        * ``n_models``: the number of models for this run of successive halving
+        * ``n_params``: the number of models for this run of successive halving
         * ``max_iter``: the maximum number of times ``partial_fit`` is called.
           At least one model will have this many ``partial_fit`` calls.
         * ``partial_fit_calls``: the total number of ``partial_fit`` calls.
@@ -261,7 +261,7 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         meta = _simulate_sha(n, r, self.aggressiveness, max_iter=self.max_iter)
         return {
             "partial_fit_calls": meta["total_calls"],
-            "n_models": self.n_initial_parameters,
+            "n_params": self.n_initial_parameters,
             "max_iter": meta["max_iter"],
         }
 
@@ -271,7 +271,7 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         calls = [v[-1]["partial_fit_calls"] for v in self.model_history_.values()]
         return {
             "partial_fit_calls": sum(calls),
-            "n_models": self.n_initial_parameters,
+            "n_params": self.n_initial_parameters,
             "max_iter": max(calls),
         }
 
