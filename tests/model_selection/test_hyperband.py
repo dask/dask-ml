@@ -432,3 +432,14 @@ def test_history(c, s, a, b):
     for model_hist in alg.model_history_.values():
         calls = [h["partial_fit_calls"] for h in model_hist]
         assert (np.diff(calls) >= 1).all() or len(calls) == 1
+
+@gen_cluster(client=True, timeout=5000)
+def test_unbalanced_warns(c, s, a, b):
+    X, y = make_classification(n_samples=40, n_features=4, chunks=((10, 10, 10, 4, 6), 4))
+    model = ConstantFunction()
+    params = {"value": scipy.stats.uniform(0, 1)}
+    alg = HyperbandSearchCV(model, params, max_iter=9, random_state=42)
+
+    match = "The number of examples for each partial_fit call is unbalanced"
+    with pytest.warns(UserWarning, match=match):
+        yield alg.fit(X, y)

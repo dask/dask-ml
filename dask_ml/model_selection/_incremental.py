@@ -182,6 +182,13 @@ def _fit(
         "size is %d."
     )
     logger.info(msg, prefix, min(train_eg), max(train_eg), np.median(train_eg))
+    if min(train_eg) <= 0.5 * max(train_eg):
+        msg = (
+            "The number of examples for each partial_fit call is unbalanced. "
+            "Between {} and {} examples are in each chunk. The median chunk"
+            "size is {}."
+        )
+        warn(msg.format(min(train_eg), max(train_eg), np.median(train_eg)))
 
     # Order by which we process training data futures
     order = []
