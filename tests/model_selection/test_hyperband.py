@@ -134,13 +134,21 @@ def test_hyperband_mirrors_paper_and_metadata(max_iter, aggressiveness):
         assert alg.metadata == alg.metadata_
 
         assert isinstance(alg.metadata["brackets"], list)
-        assert set(alg.metadata.keys()) == {"n_models", "partial_fit_calls", "brackets"}
+        assert set(alg.metadata.keys()) == {
+            "n_params_actual",
+            "total_partial_fit_calls",
+            "brackets",
+            "random_search_comparison"
+        }
+        assert set(alg.metadata["random_search_comparison"].keys()) == {
+            "meta", "n_params", "total_partial_fit_calls"
+        }
 
         # Looping over alg.metadata["bracketes"] is okay because alg.metadata
         # == alg.metadata_
         for bracket in alg.metadata["brackets"]:
             assert set(bracket.keys()) == {
-                "n_models",
+                "n_params",
                 "partial_fit_calls",
                 "bracket",
                 "SuccessiveHalvingSearchCV params",
@@ -182,7 +190,10 @@ def test_hyperband_patience(c, s, a, b):
         # This makes sure models aren't trained for too long
         assert all(x <= alg_patience + 1 for x in actual_iter)
 
-    assert alg.metadata_["partial_fit_calls"] <= alg.metadata["partial_fit_calls"]
+    assert (
+        alg.metadata_["total_partial_fit_calls"]
+        <= alg.metadata["total_partial_fit_calls"]
+    )
     assert alg.best_score_ >= 0.9
 
     max_iter = 6
@@ -240,9 +251,9 @@ def test_successive_halving_params(c, s, a, b):
     metadata = alg.metadata["brackets"]
     for k, (true_meta, SHA) in enumerate(zip(metadata, SHAs)):
         yield SHA.fit(X, y)
-        n_models = len(SHA.model_history_)
+        n_params = len(SHA.model_history_)
         pf_calls = [v[-1]["partial_fit_calls"] for v in SHA.model_history_.values()]
-        assert true_meta["n_models"] == n_models
+        assert true_meta["n_params"] == n_params
         assert true_meta["partial_fit_calls"] == sum(pf_calls)
 
 
@@ -348,7 +359,7 @@ def test_same_random_state_same_params(c, s, a, b):
         {"value": values},
         random_state=seed,
         max_iter=2,
-        n_initial_parameters=h.metadata["n_models"],
+        n_initial_parameters=h.metadata["n_params_actual"],
     )
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
     yield h.fit(X, y)
@@ -366,7 +377,7 @@ def test_same_random_state_same_params(c, s, a, b):
     # Getting the `value`s that are the same for both searches
     same = set(v_passive).intersection(set(v_h))
 
-    passive_models = h.metadata["brackets"][0]["n_models"]
+    passive_models = h.metadata["brackets"][0]["n_params"]
     assert len(same) == passive_models
 
 
@@ -432,3 +443,17 @@ def test_history(c, s, a, b):
     for model_hist in alg.model_history_.values():
         calls = [h["partial_fit_calls"] for h in model_hist]
         assert (np.diff(calls) >= 1).all() or len(calls) == 1
+
+
+@gen_cluster(client=True, timeout=5000)
+def test_unbalanced_warns(c, s, a, b):
+    X, y = make_classification(
+        n_samples=40, n_features=4, chunks=((10, 10, 10, 4, 6), 4)
+    )
+    model = ConstantFunction()
+    params = {"value": scipy.stats.uniform(0, 1)}
+    alg = HyperbandSearchCV(model, params, max_iter=9, random_state=42)
+
+    match = "The number of examples for each partial_fit call is unbalanced"
+    with pytest.warns(UserWarning, match=match):
+        yield alg.fit(X, y)
