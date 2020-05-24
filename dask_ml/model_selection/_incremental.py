@@ -1363,8 +1363,6 @@ class InverseDecaySearchCV(IncrementalSearchCV):
         return instructions
 
 
-
-
 def run(main, *, debug=False):
     """Execute the coroutine and return the result.
     This function runs the passed coroutine, taking care of
