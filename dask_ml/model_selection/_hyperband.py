@@ -464,10 +464,12 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
             {b: SHA.history_ for b, SHA in SHAs.items()}, brackets.keys(), SHAs, key
         )
 
+        total_pf_calls = sum(m["partial_fit_calls"] for m in meta)
         self.metadata_ = {
             "n_params_actual": sum(m["n_params"] for m in meta),
-            "total_partial_fit_calls": sum(m["partial_fit_calls"] for m in meta),
+            "total_partial_fit_calls": total_pf_calls,
             "brackets": meta,
+            "random_search_comparison": self._get_random_comparison(total_pf_calls, self.max_iter)
         }
 
         self.best_index_ = int(best_index)
@@ -504,8 +506,21 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
             "total_partial_fit_calls": num_partial_fit,
             "n_params_actual": num_models,
             "brackets": bracket_info,
+            "random_search_comparison": self._get_random_comparison(num_partial_fit, self.max_iter)
         }
         return info
+
+    def _get_random_comparison(self, total_pf_calls, model_pf_calls):
+        return {
+            "meta": (
+                "Assume random search (e.g, RandomizedSearchCV) does the "
+                "same amount of work as this HyperbandSearchCV (or does "
+                "the same number of total partial fit calls). How many "
+                "parameters can be sampled in this case?"
+            ),
+            "n_params": total_pf_calls / model_pf_calls,
+            "total_partial_fit_calls": total_pf_calls,
+        }
 
 
 def _get_meta(hists, brackets, SHAs, key):

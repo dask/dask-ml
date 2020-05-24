@@ -134,7 +134,15 @@ def test_hyperband_mirrors_paper_and_metadata(max_iter, aggressiveness):
         assert alg.metadata == alg.metadata_
 
         assert isinstance(alg.metadata["brackets"], list)
-        assert set(alg.metadata.keys()) == {"n_params_actual", "total_partial_fit_calls", "brackets"}
+        assert set(alg.metadata.keys()) == {
+            "n_params_actual",
+            "total_partial_fit_calls",
+            "brackets",
+            "random_search_comparison"
+        }
+        assert set(alg.metadata["random_search_comparison"].keys()) == {
+            "meta", "n_params", "total_partial_fit_calls"
+        }
 
         # Looping over alg.metadata["bracketes"] is okay because alg.metadata
         # == alg.metadata_
@@ -182,7 +190,10 @@ def test_hyperband_patience(c, s, a, b):
         # This makes sure models aren't trained for too long
         assert all(x <= alg_patience + 1 for x in actual_iter)
 
-    assert alg.metadata_["total_partial_fit_calls"] <= alg.metadata["total_partial_fit_calls"]
+    assert (
+        alg.metadata_["total_partial_fit_calls"]
+        <= alg.metadata["total_partial_fit_calls"]
+    )
     assert alg.best_score_ >= 0.9
 
     max_iter = 6
@@ -433,9 +444,12 @@ def test_history(c, s, a, b):
         calls = [h["partial_fit_calls"] for h in model_hist]
         assert (np.diff(calls) >= 1).all() or len(calls) == 1
 
+
 @gen_cluster(client=True, timeout=5000)
 def test_unbalanced_warns(c, s, a, b):
-    X, y = make_classification(n_samples=40, n_features=4, chunks=((10, 10, 10, 4, 6), 4))
+    X, y = make_classification(
+        n_samples=40, n_features=4, chunks=((10, 10, 10, 4, 6), 4)
+    )
     model = ConstantFunction()
     params = {"value": scipy.stats.uniform(0, 1)}
     alg = HyperbandSearchCV(model, params, max_iter=9, random_state=42)
