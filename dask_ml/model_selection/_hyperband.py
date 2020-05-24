@@ -26,7 +26,7 @@ def _get_hyperband_params(R, eta=3):
     Returns
     -------
     brackets : Dict[int, Tuple[int, int]]
-        A dictionary of the form {bracket_id: (n_models, n_initial_iter)}
+        A dictionary of the form {bracket_id: (n_params, n_initial_iter)}
 
     Notes
     -----
@@ -177,12 +177,12 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         before computation happens with ``metadata`` or after computation
         happens with ``metadata_``. These dictionaries both have keys
 
-        * ``n_models``, an int representing how many models will be/is created.
+        * ``n_params``, an int representing how many models will be/is created.
         * ``partial_fit_calls``, an int representing how many times
            ``partial_fit`` will be/is called.
         * ``brackets``, a list of the brackets that Hyperband runs. Each
           bracket has different values for training time importance and
-          hyperparameter importance. In addition to ``n_models`` and
+          hyperparameter importance. In addition to ``n_params`` and
           ``partial_fit_calls``, each element in this list has keys
             * ``bracket``, an int the bracket ID. Each bracket corresponds to
               a different levels of training time importance.
@@ -280,16 +280,22 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
       the longest trained model, ``n_examples = 10 * len(X)``.
     * how many hyper-parameter combinations to sample (``n_params``)
 
-    These can be rough guesses. To determine the chunk size and ``max_iter``,
+    These can be rough guesses. More parameters than ``n_params`` will be sampled; if necessary, see
+    :func:`~dask_ml.model_selection.HyperbandSearchCV.metadata`
+    to see exact number of sampled parameters.
+
+    With these constrains, let's define the inputs of Hyperband to be the following:
 
     1. Let the chunks size be ``chunk_size = n_examples / n_params``
     2. Let ``max_iter = n_params``
 
     Then, every estimator sees no
     more than ``max_iter * chunk_size = n_examples`` examples.
-    Hyperband will actually sample some more hyper-parameter combinations than
-    ``n_examples`` (which is why rough guesses are adequate). For example,
-    let's say
+    One feature of Hyperband and the underlying mathematics is that the
+    iteration count ``max_iter`` determines the number of parameters that
+    need to be sampled (which is why ``max_iter == n_params``).
+
+    For example, let's say
 
     * about 200 or 300 hyper-parameters need to be tested to effectively
       search the possible hyper-parameters
@@ -298,6 +304,11 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
 
     Let's decide to provide ``81 * len(X)`` examples and to sample 243
     parameters. Then each chunk will be 1/3rd the dataset and ``max_iter=243``.
+
+    These chunk size should be specified to make sure that array
+    is evenly chunked; there shouldn't be any chunks with e.g. 2
+    examples. Specyfing ``verbose=True`` will display some information about
+    the chunk sizes.
 
     If you use ``HyperbandSearchCV``, please use the citation for [2]_
 
@@ -454,8 +465,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         )
 
         self.metadata_ = {
-            "n_models": sum(m["n_models"] for m in meta),
-            "partial_fit_calls": sum(m["partial_fit_calls"] for m in meta),
+            "n_params_actual": sum(m["n_params"] for m in meta),
+            "total_partial_fit_calls": sum(m["partial_fit_calls"] for m in meta),
             "brackets": meta,
         }
 
@@ -476,7 +487,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
     @property
     def metadata(self):
         bracket_info = _hyperband_paper_alg(self.max_iter, eta=self.aggressiveness)
-        num_models = sum(b["n_models"] for b in bracket_info)
+        num_models = sum(b["n_params"] for b in bracket_info)
         for bracket in bracket_info:
             bracket["decisions"] = sorted(list(bracket["decisions"]))
         num_partial_fit = sum(b["partial_fit_calls"] for b in bracket_info)
@@ -490,8 +501,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
 
         bracket_info = sorted(bracket_info, key=lambda x: x["bracket"])
         info = {
-            "partial_fit_calls": num_partial_fit,
-            "n_models": num_models,
+            "total_partial_fit_calls": num_partial_fit,
+            "n_params_actual": num_models,
             "brackets": bracket_info,
         }
         return info
@@ -516,7 +527,7 @@ def _get_meta(hists, brackets, SHAs, key):
         meta_.append(
             {
                 "decisions": sorted(list(decisions)),
-                "n_models": len(hist),
+                "n_params": len(hist),
                 "bracket": bracket,
                 "partial_fit_calls": sum(calls.values()),
                 "SuccessiveHalvingSearchCV params": _get_SHA_params(SHAs[bracket]),
@@ -600,7 +611,7 @@ def _hyperband_paper_alg(R, eta=3):
     info = [
         {
             "bracket": k,
-            "n_models": hist["num_estimators"],
+            "n_params": hist["num_estimators"],
             "partial_fit_calls": sum(hist["estimators"].values()),
             "decisions": {int(h) for h in hist["decisions"]},
         }
