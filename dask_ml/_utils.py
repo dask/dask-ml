@@ -82,7 +82,7 @@ class LoggingContext:
 
         # The reasonsing behind the last part of the below if statement:
         # What if this context is called multiple times with the same logger?
-        # Then only add loggers if they have different output streams
+        # Then, only add loggers if they have different output streams
         if self.handler and not any(
             h.stream == self.handler.stream for h in self.logger.handlers
         ):
