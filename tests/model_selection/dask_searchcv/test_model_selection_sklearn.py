@@ -736,7 +736,14 @@ def test_grid_search_cv_results():
         )
 
 
-def test_random_search_cv_results():
+@pytest.mark.parametrize(
+    "params",
+    [
+        {"C": expon(scale=10), "gamma": expon(scale=0.1)},
+        [{"C": 0.1, "gamma": 0.1}, {"C": 0.2, "gamma": 0.2}],
+    ],
+)
+def test_random_search_cv_results(params):
     # Make a dataset with a lot of noise to get various kind of prediction
     # errors across CV folds and parameter settings
     X, y = make_classification(
@@ -748,7 +755,6 @@ def test_random_search_cv_results():
     # random_search alone should not depend on randomization.
     n_splits = 3
     n_search_iter = 30
-    params = dict(C=expon(scale=10), gamma=expon(scale=0.1))
     random_search = dcv.RandomizedSearchCV(
         SVC(),
         n_iter=n_search_iter,

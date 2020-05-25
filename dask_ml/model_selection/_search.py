@@ -1224,9 +1224,12 @@ estimator used.
 Parameters
 ----------
 estimator : estimator object.
-    This is assumed to implement the scikit-learn estimator interface.
-    Either estimator needs to provide a ``score`` function,
-    or ``scoring`` must be passed.
+    A object of this type is instantiated for each parameter. This is
+    assumed to implement the scikit-learn estimator interface. Either
+    estimator needs to provide a ``score`` function, or ``scoring``
+    must be passed. If a list of dicts is given, first a dict is
+    sampled uniformly, and then a parameter is sampled using that dict
+    as above.
 
 {parameters}
 
@@ -1289,6 +1292,11 @@ error_score : 'raise' (default) or numeric
 return_train_score : boolean, default=True
     If ``'False'``, the ``cv_results_`` attribute will not include training
     scores.
+    Computing training scores is used to get insights on how different
+    parameter settings impact the overfitting/underfitting trade-off.
+    However computing the scores on the training set can be
+    computationally expensive and is not strictly required to select
+    the parameters that yield the best generalization performance.
 
     Note that for scikit-learn >= 0.19.1, the default of ``True`` is
     deprecated, and a warning will be raised when accessing train score results
@@ -1506,6 +1514,9 @@ class GridSearchCV(StaticDaskSearchMixin, DaskBaseSearchCV):
 
 _randomized_oneliner = "Randomized search on hyper parameters."
 _randomized_description = """\
+The parameters of the estimator used to apply these methods are optimized
+by cross-validated search over parameter settings.
+
 In contrast to GridSearchCV, not all parameter values are tried out, but
 rather a fixed number of parameter settings is sampled from the specified
 distributions. The number of parameter settings that are tried is
@@ -1530,6 +1541,8 @@ n_iter : int, default=10
 random_state : int or RandomState
     Pseudo random number generator state used for random uniform sampling
     from lists of possible values instead of scipy.stats distributions.\
+    Pass an int for reproducible output across multiple function calls.
+
 """
 _randomized_example = """\
 >>> import dask_ml.model_selection as dcv
