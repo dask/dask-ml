@@ -225,8 +225,6 @@ def test_explicit(c, s, a, b):
 
 @gen_cluster(client=True)
 def test_search_basic(c, s, a, b):
-
-    _loop = asyncio.get_event_loop()
     for decay_rate, input_type, memory in itertools.product(
         {0, 1}, ["array", "dataframe"], ["distributed"]
     ):
