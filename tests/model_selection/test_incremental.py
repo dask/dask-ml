@@ -22,6 +22,7 @@ from sklearn.cluster import MiniBatchKMeans
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
+from tornado import gen
 
 from dask_ml._compat import DISTRIBUTED_2_5_0
 from dask_ml.datasets import make_classification
