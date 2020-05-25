@@ -1,9 +1,11 @@
+from copy import copy
+
 import dask
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
-import pandas.util.testing as tm
+import pandas.testing as tm
 import pytest
 import sklearn.preprocessing as spp
 from dask import compute
@@ -49,7 +51,7 @@ def dask_df(pandas_df):
     return dd.from_pandas(pandas_df, npartitions=5)
 
 
-class TestStandardScaler(object):
+class TestStandardScaler:
     def test_basic(self):
         a = dpp.StandardScaler()
         b = spp.StandardScaler()
@@ -89,8 +91,17 @@ class TestStandardScaler(object):
         assert dask.is_dask_collection(result)
         assert_eq_ar(result, X)
 
+    def test_nan(self, pandas_df):
+        pandas_df = pandas_df.copy()
+        pandas_df.iloc[0] = np.nan
+        dask_nan_df = dd.from_pandas(pandas_df, npartitions=5)
+        a = dpp.StandardScaler()
+        a.fit(dask_nan_df.values)
+        assert np.isnan(a.mean_).sum() == 0
+        assert np.isnan(a.var_).sum() == 0
 
-class TestMinMaxScaler(object):
+
+class TestMinMaxScaler:
     def test_basic(self):
         a = dpp.MinMaxScaler()
         b = spp.MinMaxScaler()
@@ -144,7 +155,7 @@ class TestMinMaxScaler(object):
         assert_eq_df(dfa.drop(mask, axis=1), df2.drop(mask, axis=1))
 
 
-class TestRobustScaler(object):
+class TestRobustScaler:
     def test_fit(self):
         a = dpp.RobustScaler()
         b = spp.RobustScaler()
@@ -205,7 +216,7 @@ class TestRobustScaler(object):
         assert_eq_ar(result_ar, result_df)
 
 
-class TestQuantileTransformer(object):
+class TestQuantileTransformer:
     @pytest.mark.parametrize("output_distribution", ["uniform", "normal"])
     def test_basic(self, output_distribution):
         rs = da.random.RandomState(0)
@@ -239,8 +250,19 @@ class TestQuantileTransformer(object):
         dqt = dpp.QuantileTransformer()
         dqt.fit(dX)
 
+    def test_fit_transform_frame(self):
+        df = pd.DataFrame(np.random.randn(1000, 3))
+        ddf = dd.from_pandas(df, 2)
 
-class TestCategorizer(object):
+        a = spp.QuantileTransformer()
+        b = dpp.QuantileTransformer()
+
+        expected = a.fit_transform(df)
+        result = b.fit_transform(ddf)
+        assert_eq_ar(result, expected, rtol=1e-3, atol=1e-3)
+
+
+class TestCategorizer:
     def test_ce(self):
         ce = dpp.Categorizer()
         original = raw.copy()
@@ -390,6 +412,13 @@ class TestDummyEncoder:
         de = dpp.DummyEncoder()
         result = de.fit_transform(a)
         assert isinstance(result, dd.DataFrame)
+
+    def test_transform_explicit_columns(self):
+        de = dpp.DummyEncoder(columns=["A", "B", "C"])
+        de.fit(dummy)
+        with pytest.raises(ValueError) as rec:
+            de.transform(dummy.drop("B", axis="columns"))
+        assert rec.match("Columns of 'X' do not match the training")
 
     def test_transform_raises(self):
         de = dpp.DummyEncoder()
@@ -548,11 +577,12 @@ class TestPolynomialFeatures:
         res_df = a.fit_transform(frame)
         res_arr = b.fit_transform(frame)
         res_c = c.fit_transform(frame)
+
         if daskify:
             res_pandas = a.fit_transform(frame.compute())
             assert dask.is_dask_collection(res_df)
             assert dask.is_dask_collection(res_arr)
-            assert_eq_df(res_df.compute().reset_index(drop=True), res_pandas)
+            assert_eq_df(res_df, res_pandas)
         assert_eq_ar(res_df.values, res_c)
         assert_eq_ar(res_df.values, res_arr)
 
@@ -562,3 +592,14 @@ class TestPolynomialFeatures:
         assert pf._transformer.degree == pf.degree
         assert pf._transformer.interaction_only is pf.interaction_only
         assert pf._transformer.include_bias is pf.include_bias
+
+    @pytest.mark.parametrize("daskify", [True, False])
+    def test_df_transform_index(self, daskify):
+        frame = copy(df)
+        if not daskify:
+            frame = frame.compute()
+        frame = frame.sample(frac=1.0)
+        res_df = dpp.PolynomialFeatures(
+            preserve_dataframe=True, degree=1
+        ).fit_transform(frame)
+        assert_eq_df(res_df.iloc[:, 1:], frame, check_dtype=False)

@@ -12,12 +12,11 @@ from scipy import sparse
 from scipy.stats import rankdata
 from sklearn.exceptions import FitFailedWarning
 from sklearn.pipeline import FeatureUnion, Pipeline
-from sklearn.utils import safe_indexing
 from sklearn.utils.validation import check_consistent_length
 from toolz import pluck
 
 from .._compat import Mapping
-from .utils import _index_param_value, _num_samples, copy_estimator
+from .utils import _index_param_value, _num_samples, _safe_indexing, copy_estimator
 
 # Copied from scikit-learn/sklearn/utils/fixes.py, can be removed once we drop
 # support for scikit-learn < 0.18.1 or numpy < 1.12.0.
@@ -82,7 +81,7 @@ def warn_fit_failure(error_score, e):
 # ----------------------- #
 
 
-class CVCache(object):
+class CVCache:
     def __init__(self, splits, pairwise=False, cache=True, num_train_samples=None):
         self.splits = splits
         self.pairwise = pairwise
@@ -129,7 +128,7 @@ class CVCache(object):
             return self.cache[n, is_x, is_train]
 
         inds = self.splits[n][0] if is_train else self.splits[n][1]
-        result = safe_indexing(X if is_x else y, inds)
+        result = _safe_indexing(X if is_x else y, inds)
 
         if self.cache is not None:
             self.cache[n, is_x, is_train] = result
@@ -169,10 +168,6 @@ def cv_extract(cvs, X, y, is_X, is_train, n):
 
 def cv_extract_params(cvs, keys, vals, n):
     return {k: cvs.extract_param(tok, v, n) for (k, tok), v in zip(keys, vals)}
-
-
-def decompress_params(fields, params):
-    return [{k: v for k, v in zip(fields, p) if v is not MISSING} for p in params]
 
 
 def _maybe_timed(x):
@@ -450,11 +445,6 @@ def create_cv_results(
 
     results.update(param_results)
     return results
-
-
-def get_best_params(candidate_params, cv_results, scorer):
-    best_index = np.flatnonzero(cv_results["rank_test_{}".format(scorer)] == 1)[0]
-    return candidate_params[best_index]
 
 
 def fit_best(estimator, params, X, y, fit_params):

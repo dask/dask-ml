@@ -10,7 +10,6 @@ import numpy as np
 import packaging.version
 import pytest
 import scipy.sparse as sp
-import six
 import sklearn.metrics
 from numpy.testing import (
     assert_almost_equal,
@@ -985,7 +984,7 @@ def test_search_cv_results_none_param():
     X, y = [[1], [2], [3], [4], [5]], [0, 0, 0, 0, 1]
     estimators = (DecisionTreeRegressor(), DecisionTreeClassifier())
     est_parameters = {"random_state": [0, None]}
-    cv = KFold(random_state=0, n_splits=2)
+    cv = KFold(random_state=0, n_splits=2, shuffle=True)
 
     for est in estimators:
         grid_search = dcv.GridSearchCV(est, est_parameters, cv=cv).fit(X, y)
@@ -1060,7 +1059,7 @@ def test_grid_search_with_multioutput_data():
     X, y = make_multilabel_classification(return_indicator=True, random_state=0)
 
     est_parameters = {"max_depth": [1, 2, 3, 4]}
-    cv = KFold(random_state=0, n_splits=3)
+    cv = KFold(random_state=0, n_splits=3, shuffle=True)
 
     estimators = [
         DecisionTreeRegressor(random_state=0),
@@ -1170,10 +1169,7 @@ def test_grid_search_failing_classifier():
         error_score=float("nan"),
     )
 
-    if not six.PY2:
-        with pytest.warns(FitFailedWarning):
-            gs.fit(X, y)
-    else:
+    with pytest.warns(FitFailedWarning):
         gs.fit(X, y)
 
     n_candidates = len(gs.cv_results_["params"])

@@ -4,14 +4,15 @@ channels:
   - defaults
 dependencies:
   - black
-  - codecov
   - coverage
+  - codecov
   - dask
-  - dask-glm
+  - dask-glm >=0.2.0
   - distributed
   - flake8
   - isort
   - multipledispatch >=0.4.9
+  - mypy
   - numba
   - numpy >=1.16.3
   - numpydoc
@@ -24,8 +25,8 @@ dependencies:
   - python=3.7.*
   - scikit-learn>=0.20.0
   - scipy
-  - six
   - sparse
   - toolz
+  - pip
   - pip:
     - pytest-azurepipelines

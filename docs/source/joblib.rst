@@ -28,7 +28,7 @@ code with ``joblib.parallel_backend('dask')``.
 .. code-block:: python
 
    from dask.distributed import Client
-   from sklearn.externals import joblib
+   import joblib
 
    client = Client(processes=False)             # create local cluster
    # client = Client("scheduler-address:8786")  # or connect to remote cluster
@@ -44,7 +44,7 @@ search as follows:
    import numpy as np
    from dask.distributed import Client
 
-   from sklearn.externals import joblib
+   import joblib
    from sklearn.datasets import load_digits
    from sklearn.model_selection import RandomizedSearchCV
    from sklearn.svm import SVC

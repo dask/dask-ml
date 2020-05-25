@@ -1,14 +1,19 @@
+import dask
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
+import pandas as pd
 import pytest
 import sklearn.datasets
 import sklearn.model_selection
 from dask.array.utils import assert_eq
 from sklearn.base import clone
 from sklearn.linear_model import SGDClassifier, SGDRegressor
+from sklearn.pipeline import make_pipeline
 
+import dask_ml.feature_extraction.text
 import dask_ml.metrics
+from dask_ml._compat import SK_022
 from dask_ml.metrics.scorer import check_scoring
 from dask_ml.wrappers import Incremental
 
@@ -57,7 +62,9 @@ def test_incremental_basic(scheduler, dataframes):
             y = y.to_dask_array(lengths=True)
 
         for slice_ in da.core.slices_from_chunks(X.chunks):
-            est2.partial_fit(X[slice_], y[slice_[0]], classes=[0, 1])
+            est2.partial_fit(
+                X[slice_].compute(), y[slice_[0]].compute(), classes=[0, 1]
+            )
 
         assert isinstance(result.estimator_.coef_, np.ndarray)
         rel_error = np.linalg.norm(clf.coef_ - est2.coef_)
@@ -79,7 +86,7 @@ def test_incremental_basic(scheduler, dataframes):
 
         # score
         result = clf.score(X, y)
-        expected = est2.score(X, y)
+        expected = est2.score(*dask.compute(X, y))
         assert abs(result - expected) < 0.1
 
         clf = Incremental(SGDClassifier(random_state=0, tol=1e-3, average=True))
@@ -91,7 +98,11 @@ def test_in_gridsearch(scheduler, xy_classification):
     X, y = xy_classification
     clf = Incremental(SGDClassifier(random_state=0, tol=1e-3))
     param_grid = {"estimator__alpha": [0.1, 10]}
-    gs = sklearn.model_selection.GridSearchCV(clf, param_grid, iid=False, cv=3)
+    if SK_022:
+        kwargs = {}
+    else:
+        kwargs = {"iid": False}
+    gs = sklearn.model_selection.GridSearchCV(clf, param_grid, cv=3, **kwargs)
 
     with scheduler() as (s, [a, b]):
         gs.fit(X, y, classes=[0, 1])
@@ -159,7 +170,7 @@ def test_score(xy_classification):
     with client:
         inc.fit(X, y, classes=[0, 1])
         result = inc.score(X, y)
-        expected = inc.estimator_.score(X, y)
+        expected = inc.estimator_.score(*dask.compute(X, y))
 
     assert result == expected
 
@@ -179,3 +190,28 @@ def test_replace_scoring(estimator, fit_kwargs, scoring, xy_classification, mock
 
     assert patch.call_count == 1
     patch.assert_called_with(scoring, compute=True)
+
+
+@pytest.mark.parametrize("container", ["bag", "series"])
+def test_incremental_text_pipeline(container):
+    X = pd.Series(["a list", "of words", "for classification"] * 100)
+    X = dd.from_pandas(X, npartitions=3)
+
+    if container == "bag":
+        X = X.to_bag()
+
+    y = da.from_array(np.array([0, 0, 1] * 100), chunks=(100,) * 3)
+
+    assert tuple(X.map_partitions(len).compute()) == y.chunks[0]
+
+    sgd = SGDClassifier(max_iter=5, tol=1e-3)
+    clf = Incremental(sgd, scoring="accuracy", assume_equal_chunks=True)
+    vect = dask_ml.feature_extraction.text.HashingVectorizer()
+    pipe = make_pipeline(vect, clf)
+
+    pipe.fit(X, y, incremental__classes=[0, 1])
+    X2 = pipe.steps[0][1].transform(X)
+    assert hasattr(clf, "coef_")
+
+    X2.compute_chunk_sizes()
+    assert X2.shape == (300, vect.n_features)

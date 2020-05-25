@@ -45,13 +45,33 @@ These are appropriate for datasets where the CV splits fit in memory.
    model_selection.RandomizedSearchCV
 
 For hyperparameter optimization on larger-than-memory datasets, Dask-ML
-provides the follwoing:
+provides the following:
 
 .. autosummary::
    :toctree: generated/
    :template: class.rst
 
    model_selection.IncrementalSearchCV
+   model_selection.HyperbandSearchCV
+   model_selection.SuccessiveHalvingSearchCV
+   model_selection.InverseDecaySearchCV
+
+
+:mod:`dask_ml.ensemble`: Ensemble Methods
+=========================================
+
+.. automodule:: dask_ml.ensemble
+   :no-members:
+   :no-inherited-members:
+
+.. currentmodule:: dask_ml
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   ensemble.BlockwiseVotingClassifier
+   ensemble.BlockwiseVotingRegressor
 
 
 :mod:`dask_ml.linear_model`: Generalized Linear Models
@@ -118,6 +138,7 @@ with Dask Arrays or DataFrames.
    :toctree: generated/
    :template: class.rst
 
+   decomposition.IncrementalPCA
    decomposition.PCA
    decomposition.TruncatedSVD
 
@@ -143,6 +164,21 @@ with Dask Arrays or DataFrames.
    preprocessing.OrdinalEncoder
    preprocessing.LabelEncoder
    preprocessing.PolynomialFeatures
+   preprocessing.BlockTransformer
+
+:mod:`dask_ml.feature_extraction.text`: Feature extraction
+==========================================================
+
+
+.. automodule:: dask_ml.preprocessing.text:
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   feature_extraction.text.HashingVectorizer
+   feature_extraction.text.FeatureHasher
+
    
 :mod:`dask_ml.compose`: Composite Estimators
 ============================================
@@ -207,20 +243,6 @@ Classification Metrics
 
    metrics.accuracy_score
    metrics.log_loss
-
-
-:mod:`dask_ml.tensorflow`: Tensorflow
-=====================================
-
-.. automodule:: dask_ml.tensorflow
-
-.. currentmodule:: dask_ml.tensorflow
-
-.. autosummary::
-   :toctree: generated/
-
-   start_tensorflow
-
 
 
 :mod:`dask_ml.xgboost`: XGBoost

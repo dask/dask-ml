@@ -7,10 +7,10 @@ import dask.delayed
 import numpy as np
 import sklearn.base
 import sklearn.metrics
-from sklearn.utils.validation import check_is_fitted
 
 from dask_ml.utils import _timer
 
+from ._compat import check_is_fitted
 from ._partial import fit
 from ._utils import copy_learned_attributes
 from .metrics import check_scoring, get_scorer
@@ -368,7 +368,8 @@ class Incremental(ParallelPostFit):
 
        This meta-estimator is not appropriate for hyperparameter optimization
        on larger-than-memory datasets. For that, see
-       :class:dask_ml.model_selection.IncrementalSearch`.
+       :class:`~dask_ml.model_selection.IncrementalSearchCV` or
+       :class:`~dask_ml.model_selection.HyperbandSearchCV`.
 
     See the `list of incremental learners`_ in the scikit-learn documentation
     for a list of estimators that implement the ``partial_fit`` API. Note that
@@ -429,7 +430,7 @@ class Incremental(ParallelPostFit):
     See Also
     --------
     ParallelPostFit
-    dask_ml.model_selection.IncrementalSearch
+    dask_ml.model_selection.IncrementalSearchCV
 
     Examples
     --------
@@ -451,10 +452,16 @@ class Incremental(ParallelPostFit):
     """
 
     def __init__(
-        self, estimator=None, scoring=None, shuffle_blocks=True, random_state=None
+        self,
+        estimator=None,
+        scoring=None,
+        shuffle_blocks=True,
+        random_state=None,
+        assume_equal_chunks=True,
     ):
         self.shuffle_blocks = shuffle_blocks
         self.random_state = random_state
+        self.assume_equal_chunks = assume_equal_chunks
         super(Incremental, self).__init__(estimator=estimator, scoring=scoring)
 
     @property
@@ -473,6 +480,7 @@ class Incremental(ParallelPostFit):
                 y,
                 random_state=self.random_state,
                 shuffle_blocks=self.shuffle_blocks,
+                assume_equal_chunks=self.assume_equal_chunks,
                 **fit_kwargs
             )
 

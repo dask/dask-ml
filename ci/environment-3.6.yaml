@@ -4,16 +4,17 @@ channels:
   - defaults
 dependencies:
   - black
-  - codecov
   - coverage
-  - dask =1.0.0
-  - dask-glm
-  - distributed
+  - dask ==2.4.0
+  - dask-glm >=0.2.0
+  - distributed ==2.4.0
   - flake8
   - isort
-  - multipledispatch ==0.4.9
+  - msgpack-python ==0.6.2
+  - multipledispatch
+  - mypy
   - numba
-  - numpy ==1.15.4
+  - numpy ==1.17.3
   - numpydoc
   - packaging
   - pandas =0.23.4
@@ -22,10 +23,10 @@ dependencies:
   - pytest-cov
   - pytest-mock
   - python=3.6.*
-  - scikit-learn ==0.20.0
+  - scikit-learn =0.21.*
   - scipy
-  - six
   - sparse
   - toolz
+  - pip
   - pip:
     - pytest-azurepipelines
