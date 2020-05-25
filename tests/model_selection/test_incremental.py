@@ -228,7 +228,7 @@ def test_search_basic(c, s, a, b):
 
     _loop = asyncio.get_event_loop()
     for decay_rate, input_type, memory in itertools.product(
-            {0, 1}, ["array", "dataframe"], ["distributed"]
+        {0, 1}, ["array", "dataframe"], ["distributed"]
     ):
         success = yield _test_search_basic(decay_rate, input_type, memory, c, s, a, b)
         assert success
