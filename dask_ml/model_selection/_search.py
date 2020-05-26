@@ -959,7 +959,7 @@ def check_cv(cv=3, y=None, classifier=False):
     # If ``cv`` is not an integer, the scikit-learn implementation doesn't
     # touch the ``y`` object, so passing on a dask object is fine
     if not is_dask_collection(y) or not isinstance(cv, numbers.Integral):
-        return model_selection.check_cv(cv, y, classifier)
+        return model_selection.check_cv(cv, y, classifier=classifier)
 
     if classifier:
         # ``y`` is a dask object. We need to compute the target type

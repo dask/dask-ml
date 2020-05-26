@@ -203,8 +203,9 @@ class KMeans(TransformerMixin, BaseEstimator):
         )
         self.cluster_centers_ = centroids
         self.labels_ = labels
-        self.inertia_ = inertia.compute()
+        self.inertia_ = inertia.compute().item()
         self.n_iter_ = n_iter
+        self.n_features_in_ = X.shape[1]
         return self
 
     def transform(self, X, y=None):

@@ -3,11 +3,9 @@ from typing import Any, List, Optional, Union
 import dask
 import dask.array as da
 import numpy as np
-import packaging.version
 import pandas as pd
 import sklearn.preprocessing
 
-from .._compat import SK_022, SK_VERSION
 from .._typing import ArrayLike, DataFrameType, SeriesType
 from ..utils import check_array
 from .label import _encode, _encode_dask_array
@@ -122,22 +120,12 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
     ):
         if drop is not None:
             raise NotImplementedError("drop != None is not implemented yet.")
-        signature = {
-            "n_values": n_values,
-            "categorical_features": categorical_features,
-            "categories": categories,
-            "drop": drop,
-            "sparse": sparse,
-            "dtype": dtype,
-            "handle_unknown": handle_unknown,
-        }
-        if SK_VERSION < packaging.version.parse("0.21.0"):
-            del signature["drop"]
-        if SK_022:
-            del signature["n_values"]
-            del signature["categorical_features"]
-
-        super(OneHotEncoder, self).__init__(**signature)
+        super(OneHotEncoder, self).__init__(
+            categories=categories,
+            sparse=sparse,
+            dtype=dtype,
+            handle_unknown=handle_unknown,
+        )
 
     @classmethod
     def _get_param_names(cls: Any) -> List[str]:
