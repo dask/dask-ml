@@ -51,6 +51,7 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
             self._fit_array(X)
         else:
             self._fit_frame(X)
+        self.n_features_in_ = X.shape[1]
         return self
 
     def _fit_array(self, X):

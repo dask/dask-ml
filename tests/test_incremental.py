@@ -13,7 +13,6 @@ from sklearn.pipeline import make_pipeline
 
 import dask_ml.feature_extraction.text
 import dask_ml.metrics
-from dask_ml._compat import SK_022
 from dask_ml.metrics.scorer import check_scoring
 from dask_ml.wrappers import Incremental
 
@@ -98,11 +97,7 @@ def test_in_gridsearch(scheduler, xy_classification):
     X, y = xy_classification
     clf = Incremental(SGDClassifier(random_state=0, tol=1e-3))
     param_grid = {"estimator__alpha": [0.1, 10]}
-    if SK_022:
-        kwargs = {}
-    else:
-        kwargs = {"iid": False}
-    gs = sklearn.model_selection.GridSearchCV(clf, param_grid, cv=3, **kwargs)
+    gs = sklearn.model_selection.GridSearchCV(clf, param_grid, cv=3)
 
     with scheduler() as (s, [a, b]):
         gs.fit(X, y, classes=[0, 1])

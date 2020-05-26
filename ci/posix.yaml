@@ -8,8 +8,11 @@ jobs:
     vmImage: ${{ parameters.vmImage }}
   strategy:
     matrix:
-      linux:
+      linux37:
         envFile: 'ci/environment-3.7.yaml'
+        SKLARN_DEV: "no"
+      linux38:
+        envFile: 'ci/environment-3.8.yaml'
         SKLARN_DEV: "no"
       earliest:
         envFile: 'ci/environment-3.6.yaml'
@@ -33,7 +36,7 @@ jobs:
   - script: |
       source activate dask-ml-test
       conda uninstall -y --force scikit-learn
-      pip install --pre -f https://sklearn-nightly.scdn8.secure.raxcdn.com scikit-learn
+      pip install -i https://pypi.anaconda.org/scipy-wheels-nightly/simple scikit-learn
     displayName: "Install scikit-learn dev."
     condition: eq(variables.SKLEARN_DEV, 'yes')
 

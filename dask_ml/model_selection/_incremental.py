@@ -110,7 +110,7 @@ def _score(model_and_meta, X, y, scorer):
 
 def _create_model(model, ident, **params):
     """ Create a model by cloning and then setting params """
-    with log_errors(pdb=True):
+    with log_errors():
         model = clone(model).set_params(**params)
         return model, {"model_id": ident, "params": params, "partial_fit_calls": 0}
 
