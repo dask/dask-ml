@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Version 1.5.0
+~~~~~~~~~~~~~
+
+* Support for Python 3.8 (:pr:`669`)
+* Compatibility with Scikit-Learn 0.23.0 (:pr:`669`)
+* Scikit-Learn 0.23.0 or newer is now required (:pr:`669`)
+* Removed previously deprecated Partial classes. Use :class:`dask_ml.wrappers.Incremental` instead (:pr:`674`)
+
 Version 1.4.0
 ~~~~~~~~~~~~~
 
