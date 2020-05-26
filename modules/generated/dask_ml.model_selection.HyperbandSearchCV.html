@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.4.1.dev2+g9b600ab
+                1.4.1.dev3+g25beabe
               </div>
             
           
@@ -283,7 +283,7 @@
 cross-validation algorithm.</p>
 <p>Hyperband will find close to the best possible parameters with
 the given computational budget <a class="footnote-reference" href="#id3" id="id1">[*]</a> by spending more time training
-high-performing estimators <a class="reference internal" href="#r6ef2b88ca647-1" id="id2">[R6ef2b88ca647-1]</a>. This means that Hyperband stops training
+high-performing estimators <a class="reference internal" href="#r6ef2b88ca647-1" id="id2">[1]</a>. This means that Hyperband stops training
 estimators that perform poorly – at it’s core, Hyperband is an early
 stopping scheme for RandomizedSearchCV.</p>
 <p>Hyperband does not require a trade-off between “evaluate many parameters
@@ -516,7 +516,7 @@ search the possible hyper-parameters</li>
 </ul>
 <p>Let’s decide to provide <code class="docutils literal notranslate"><span class="pre">81</span> <span class="pre">*</span> <span class="pre">len(X)</span></code> examples and to sample 243
 parameters. Then each chunk will be 1/3rd the dataset and <code class="docutils literal notranslate"><span class="pre">max_iter=243</span></code>.</p>
-<p>If you use <code class="docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code>, please use the citation for <a class="reference internal" href="#r6ef2b88ca647-2" id="id4">[R6ef2b88ca647-2]</a></p>
+<p>If you use <code class="docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code>, please use the citation for <a class="reference internal" href="#r6ef2b88ca647-2" id="id4">[2]</a></p>
 <div class="highlight-tex notranslate"><div class="highlight"><pre><span></span>@InProceedings<span class="nb">{</span>sievert2019better,
     author    = <span class="nb">{</span>Scott Sievert and Tom Augspurger and Matthew Rocklin<span class="nb">}</span>,
     title     = <span class="nb">{{</span>B<span class="nb">}</span>etter and faster hyperparameter optimization with <span class="nb">{</span>D<span class="nb">}</span>ask<span class="nb">}</span>,
@@ -532,7 +532,7 @@ parameters. Then each chunk will be 1/3rd the dataset and <code class="docutils 
 <table class="docutils citation" frame="void" id="r6ef2b88ca647-1" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id2">[R6ef2b88ca647-1]</a></td><td>“Hyperband: A novel bandit-based approach to hyperparameter
+<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td>“Hyperband: A novel bandit-based approach to hyperparameter
 optimization”, 2016 by L. Li, K. Jamieson, G. DeSalvo, A.
 Rostamizadeh, and A. Talwalkar.  <a class="reference external" href="https://arxiv.org/abs/1603.06560">https://arxiv.org/abs/1603.06560</a></td></tr>
 </tbody>
@@ -540,7 +540,7 @@ Rostamizadeh, and A. Talwalkar.  <a class="reference external" href="https://arx
 <table class="docutils citation" frame="void" id="r6ef2b88ca647-2" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id4">[R6ef2b88ca647-2]</a></td><td>“Better and faster hyperparameter optimization with Dask”, 2018 by
+<tr><td class="label"><a class="fn-backref" href="#id4">[2]</a></td><td>“Better and faster hyperparameter optimization with Dask”, 2018 by
 S. Sievert, T. Augspurger, M. Rocklin.
 <a class="reference external" href="https://doi.org/10.25080/Majora-7ddc1dd1-011">https://doi.org/10.25080/Majora-7ddc1dd1-011</a></td></tr>
 </tbody>
@@ -594,7 +594,7 @@ S. Sievert, T. Augspurger, M. Rocklin.
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.model_selection.HyperbandSearchCV.score" title="dask_ml.model_selection.HyperbandSearchCV.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
 <td>Returns the score on the given data.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.HyperbandSearchCV.set_params" title="dask_ml.model_selection.HyperbandSearchCV.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;\*\*params)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.HyperbandSearchCV.set_params" title="dask_ml.model_selection.HyperbandSearchCV.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;**params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
 <tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(self,&nbsp;X)</td>
