@@ -43,7 +43,7 @@ from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.svm import SVC
 
 import dask_ml.model_selection as dcv
-from dask_ml._compat import DISTRIBUTED_2_11_0, WINDOWS
+from dask_ml._compat import DISTRIBUTED_2_11_0, SK_024, WINDOWS
 from dask_ml.model_selection import check_cv, compute_n_splits
 from dask_ml.model_selection._search import _normalize_n_jobs
 from dask_ml.model_selection.methods import CVCache
@@ -488,6 +488,7 @@ def check_scores_all_nan(gs, bad_param, score_key="score"):
     )
 
 
+@pytest.mark.xfail(SK_024, reason="https://github.com/dask/dask-ml/issues/672")
 @pytest.mark.parametrize(
     "weights", [None, (None, {"tr0": 2, "tr2": 3}, {"tr0": 2, "tr2": 4})]
 )
