@@ -97,7 +97,6 @@ class KMeans(TransformerMixin, BaseEstimator):
 
     See Also
     --------
-    PartialMiniBatchKMeans
     sklearn.cluster.MiniBatchKMeans
     sklearn.cluster.KMeans
 
