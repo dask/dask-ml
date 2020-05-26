@@ -1,6 +1,7 @@
 import itertools
 import logging
 import random
+import sys
 
 import dask.array as da
 import dask.dataframe as dd
@@ -394,6 +395,11 @@ def test_search_max_iter(c, s, a, b):
 
 
 @gen_cluster(client=True)
+@pytest.mark.xfail(
+    sys.platform == "win32",
+    reason="https://github.com/dask/dask-ml/issues/673",
+    strict=False,
+)
 def test_gridsearch(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
 
@@ -427,6 +433,11 @@ def test_numpy_array(c, s, a, b):
 
 
 @gen_cluster(client=True)
+@pytest.mark.xfail(
+    sys.platform == "win32",
+    reason="https://github.com/dask/dask-ml/issues/673",
+    strict=False,
+)
 def test_transform(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     model = MiniBatchKMeans(random_state=0)
