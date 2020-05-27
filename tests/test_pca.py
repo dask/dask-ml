@@ -1,4 +1,3 @@
-import warnings
 from itertools import product
 
 import dask.array as da
@@ -9,20 +8,12 @@ import pytest
 import scipy as sp
 import sklearn.decomposition as sd
 from dask.array.utils import assert_eq
+from numpy.testing import assert_almost_equal, assert_array_almost_equal, assert_raises
 from sklearn import datasets
 from sklearn.utils import check_random_state as sk_check_random_state
 
 import dask_ml.decomposition as dd
 from dask_ml.utils import assert_estimator_equal, svd_flip
-
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore", FutureWarning)
-    from sklearn.utils.testing import (
-        assert_almost_equal,
-        assert_array_almost_equal,
-        assert_raises,
-    )
-
 
 iris = datasets.load_iris()
 solver_list = ["full", "randomized", "auto", "tsqr"]

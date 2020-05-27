@@ -199,6 +199,7 @@ class PCA(sklearn.decomposition.PCA):
         if not dask.is_dask_collection(X):
             raise TypeError(_TYPE_MSG.format(type(X)))
         self._fit(X)
+        self.n_features_in_ = X.shape[1]
         return self
 
     def _get_solver(self, X, n_components):
