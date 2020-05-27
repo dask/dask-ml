@@ -320,7 +320,6 @@ async def _fit(
             k: v if isinstance(v, Future) else list(v.dask.values())[0]
             for k, v in _models2.items()
         }
-
         models.update(_models2)
         scores.update(_scores2)
         speculative = _specs2
