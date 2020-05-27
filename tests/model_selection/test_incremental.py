@@ -25,7 +25,6 @@ from sklearn.cluster import MiniBatchKMeans
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
-from tornado import gen
 
 from dask_ml._compat import DISTRIBUTED_2_5_0
 from dask_ml.datasets import make_classification
@@ -44,7 +43,7 @@ pytestmark = [
 ]  # decay_rate warnings are tested in test_incremental_warns.py
 
 
-@gen_cluster(client=True, timeout=1000)
+@gen_cluster(client=True, timeout=None)
 async def test_basic(c, s, a, b):
     def _additional_calls(info):
         pf_calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
@@ -162,8 +161,8 @@ def test_partial_fit_doesnt_mutate_inputs():
     assert new_meta2 != new_meta
 
 
-@gen_cluster(client=True, timeout=500)
-def test_explicit(c, s, a, b):
+@gen_cluster(client=True, timeout=1000)
+async def test_explicit(c, s, a, b):
     X, y = make_classification(n_samples=1000, n_features=10, chunks=(200, 10))
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = [{"alpha": 0.1}, {"alpha": 0.2}]
@@ -194,7 +193,7 @@ def test_explicit(c, s, a, b):
         else:
             raise Exception()
 
-    info, models, history, best = yield fit(
+    info, models, history, best = await fit(
         model,
         params,
         X,
@@ -207,7 +206,7 @@ def test_explicit(c, s, a, b):
     )
     assert all(model.done() for model in models.values())
 
-    models = yield models
+    models = await c.compute(models)
     model = models[0]
     meta = info[0][-1]
 
@@ -223,20 +222,19 @@ def test_explicit(c, s, a, b):
     del models[0]
 
     while s.tasks or c.futures:  # all data clears out
-        yield gen.sleep(0.01)
+        await asyncio.sleep(0.1)
 
 
 @gen_cluster(client=True)
-def test_search_basic(c, s, a, b):
+async def test_search_basic(c, s, a, b):
     for decay_rate, input_type, memory in itertools.product(
         {0, 1}, ["array", "dataframe"], ["distributed"]
     ):
-        success = yield _test_search_basic(decay_rate, input_type, memory, c, s, a, b)
+        success = await _test_search_basic(decay_rate, input_type, memory, c, s, a, b)
         assert success
 
 
-@gen.coroutine
-def _test_search_basic(decay_rate, input_type, memory, c, s, a, b):
+async def _test_search_basic(decay_rate, input_type, memory, c, s, a, b):
     X, y = make_classification(n_samples=1000, n_features=5, chunks=(100, 5))
     assert isinstance(X, da.Array)
     if memory == "distributed" and input_type == "dataframe":
@@ -244,7 +242,7 @@ def _test_search_basic(decay_rate, input_type, memory, c, s, a, b):
         y = dd.from_array(y)
         assert isinstance(X, dd.DataFrame)
     elif memory == "local":
-        X, y = yield c.compute([X, y])
+        X, y = await c.compute([X, y])
         assert isinstance(X, np.ndarray)
         if input_type == "dataframe":
             X, y = pd.DataFrame(X), pd.DataFrame(y)
@@ -263,11 +261,12 @@ def _test_search_basic(decay_rate, input_type, memory, c, s, a, b):
         raise ValueError()
     if memory == "distributed" and input_type == "dataframe":
         with pytest.raises(TypeError, match=r"to_dask_array\(lengths=True\)"):
-            yield search.fit(X, y, classes=[0, 1])
-        return True  # exit the test; some test difficulties with below statements
-        #  yield X.to_dask_array(lengths=True)
-        #  yield y.to_dask_array(lengths=True)
-    yield search.fit(X, y, classes=[0, 1])
+            await search.fit(X, y, classes=[0, 1])
+
+        # Dask-ML raised a type error; let's implement the suggestion
+        X = await c.compute(c.submit(X.to_dask_array, lengths=True))
+        y = await c.compute(c.submit(y.to_dask_array, lengths=True))
+    await search.fit(X, y, classes=[0, 1])
 
     assert search.history_
     for d in search.history_:
@@ -318,7 +317,7 @@ def _test_search_basic(decay_rate, input_type, memory, c, s, a, b):
     }
 
     # Dask Objects are lazy
-    (X_,) = yield c.compute([X])
+    X_ = await c.compute(X)
 
     proba = search.predict_proba(X)
     log_proba = search.predict_log_proba(X)
