@@ -46,6 +46,17 @@ pytestmark = [
 
 @gen_cluster(client=True, timeout=500)
 async def test_basic(c, s, a, b):
+    def _additional_calls(info):
+        pf_calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
+        ret = {k: int(calls < 10) for k, calls in pf_calls.items()}
+        if len(ret) == 1:
+            return {list(ret)[0]: 0}
+
+        # Don't train one model (but keep model 0)
+        some_keys = set(ret.keys()) - {0}
+        key_to_drop = random.choice(list(some_keys))
+        return {k: v for k, v in ret.items() if k != key_to_drop}
+
     X, y = make_classification(n_samples=1000, n_features=5, chunks=100)
     model = ConstantFunction()
 
@@ -58,16 +69,6 @@ async def test_basic(c, s, a, b):
     n_parameters = 5
     param_list = list(ParameterSampler(params, n_parameters))
 
-    def additional_calls(info):
-        pf_calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
-        ret = {k: int(calls < 10) for k, calls in pf_calls.items()}
-        if len(ret) == 1:
-            return {list(ret)[0]: 0}
-
-        # Don't train one model (but keep model 0)
-        some_keys = set(ret.keys()) - {0}
-        key_to_drop = random.choice(list(some_keys))
-        return {k: v for k, v in ret.items() if k != key_to_drop}
 
     info, models, history, best = await fit(
         model,
@@ -76,7 +77,7 @@ async def test_basic(c, s, a, b):
         y_train,
         X_test,
         y_test,
-        additional_calls,
+        _additional_calls,
         fit_params={"classes": [0, 1]},
     )
 
@@ -128,7 +129,7 @@ async def test_basic(c, s, a, b):
         y_train,
         X_test,
         y_test,
-        additional_calls,
+        _additional_calls,
         fit_params={"classes": [0, 1]},
     )
     assert True  # smoke test to make sure reached
