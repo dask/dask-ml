@@ -449,12 +449,16 @@ def test_explore(explore):
         model_ids = [h["model_id"] for h in alg.history_]
         brackets = [h["bracket"] for h in alg.history_]
         assert all("bracket=" in m for m in model_ids)
-        bracket_repeat = [m.split("=")[-1] for m in model_ids]
-        brackets = [b_r.split(".")[0] for b_r in bracket_repeat]
-        repeats = [b_r.split(".")[1] for b_r in bracket_repeat]
+        bracket_repeat = [m.split("=")[-1].split("-")[0] for m in model_ids]
+        brackets_aggressiveness = [b_r.split(".")[0] for b_r in bracket_repeat]
+        bracket_repeats = [b_r.split(".")[1] for b_r in bracket_repeat]
         if isinstance(explore, int):
-            assert len(np.unique(brackets)) == 1
+            assert len(set(brackets_aggressiveness)) == 1
+            assert len(set(bracket_repeat)) == explore
+        #  else:
+        assert alg.metadata == alg.metadata_
 
-        assert False
+
+        #  assert False
 
     _test_explore()

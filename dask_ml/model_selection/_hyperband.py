@@ -2,6 +2,7 @@ from __future__ import division
 
 import logging
 import math
+from copy import copy
 from warnings import warn
 
 import numpy as np
@@ -405,12 +406,12 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
                 # TODO: add InverseDecaySearchCV in here
                 n_repeats = min(len(brackets), 2)
                 out = {
-                    float(f"{b}.{k}"): SHA.set_params(random_state=seed_start + k)
+                    float(f"{b}.{k}"): copy(SHA).set_params(random_state=seed_start + k)
                     for k in range(n_repeats)
                 }
             elif isinstance(self.explore, int):
                 out = {
-                    float(f"{b}.{k}"): SHA.set_params(random_state=seed_start + k)
+                    float(f"{b}.{k}"): copy(SHA).set_params(random_state=seed_start + k)
                     for k in range(self.explore)
                 }
             else:
@@ -435,10 +436,9 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         _SHAs = yield [SHAs[b]._fit(X, y, **fit_params) for b in _brackets_ids]
         SHAs = {b: SHA for b, SHA in zip(_brackets_ids, _SHAs)}
 
-        # This for-loop rename estimator IDs and pulls out wall times
-        key = "bracket={}-{}".format
-        for b, SHA in SHAs.items():
+        def _rename_model_ids(SHA, b, key=lambda x: x):
             new_ids = {old: key(b, old) for old in SHA.cv_results_["model_id"]}
+
             SHA.cv_results_["model_id"] = np.array(
                 [new_ids[old] for old in SHA.cv_results_["model_id"]]
             )
@@ -449,10 +449,15 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
                 for h in hist:
                     h["model_id"] = new_ids[h["model_id"]]
                     h["bracket"] = b
+            return SHA
+
+        key = "bracket={}-{}".format
+        SHAs = {b: _rename_model_ids(SHA, b, key=key) for b, SHA in SHAs.items()}
 
         for b, SHA in SHAs.items():
             n = len(SHA.cv_results_["model_id"])
-            SHA.cv_results_["bracket"] = np.ones(n, dtype=type(b)) * b
+            arr = np.ones(n, dtype=type(b)) * b
+            SHA.cv_results_["bracket"] = arr
 
         cv_keys = {k for SHA in SHAs.values() for k in SHA.cv_results_.keys()}
 
@@ -519,11 +524,26 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
 
         brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
         SHAs = self._get_SHAs(brackets)
-        for bracket in bracket_info:
-            b = bracket["bracket"]
+        for b in SHAs.keys():
             bracket["SuccessiveHalvingSearchCV params"] = _get_SHA_params(SHAs[b])
 
         bracket_info = sorted(bracket_info, key=lambda x: x["bracket"])
+        if self.explore:
+            b_info = {
+                b["bracket"]: copy(b)
+                for b in bracket_info
+                if any(abs(b["bracket"] - k) < 1 for k in SHAs)
+            }
+            sha_info = {k: copy(b_info[int(k)]) for k in SHAs}
+
+            for sha_b, info in sha_info.items():
+                print(sha_b)
+                info["bracket"] = sha_b
+                info["SuccessiveHalvingSearchCV params"] = _get_SHA_params(SHAs[sha_b])
+
+            bracket_info = list(sorted(sha_info.values(), key=lambda b: b["bracket"]))
+            num_partial_fit = sum(b["partial_fit_calls"] for b in bracket_info)
+            num_models = sum(b["n_models"] for b in bracket_info)
         info = {
             "partial_fit_calls": num_partial_fit,
             "n_models": num_models,
