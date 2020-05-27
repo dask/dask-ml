@@ -366,20 +366,25 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
             for b, (n, r) in brackets.items()
         }
         if self.explore:
-            if isinstance(self.explore, int):
-                b = max(brackets)
-                SHA = SHAs[b]
-                out = {b + f"-{k}": SHA.set_params(seed_start + k) for k in range(self.explore)}
-            elif isinstance(self.explore, bool):
+            b = max(brackets)
+            SHA = SHAs[b]
+            if isinstance(self.explore, bool):
                 # TODO: add InverseDecaySearchCV in here
-                b = max(brackets)
                 n_repeats = min(len(brackets), 2)
-                out = {b + f"-{k}": SHA.set_params(seed_start + k) for k in range(n_repeats)}
+                out = {
+                    float(f"{b}.{k}"): SHA.set_params(random_state=seed_start + k)
+                    for k in range(n_repeats)
+                }
+            elif isinstance(self.explore, int):
+                out = {
+                    float(f"{b}.{k}"): SHA.set_params(random_state=seed_start + k)
+                    for k in range(self.explore)
+                }
             else:
                 raise ValueError("explore={self.explore} is not a boolean or integer")
         else:
             out = SHAs
-        return SHAs
+        return out
 
     @gen.coroutine
     def _fit(self, X, y, **fit_params):
@@ -414,7 +419,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
 
         for b, SHA in SHAs.items():
             n = len(SHA.cv_results_["model_id"])
-            SHA.cv_results_["bracket"] = np.ones(n, dtype=int) * b
+            SHA.cv_results_["bracket"] = np.ones(n, dtype=type(b)) * b
 
         cv_keys = {k for SHA in SHAs.values() for k in SHA.cv_results_.keys()}
 

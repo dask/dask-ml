@@ -419,3 +419,29 @@ def test_history(c, s, a, b):
     for model_hist in alg.model_history_.values():
         calls = [h["partial_fit_calls"] for h in model_hist]
         assert (np.diff(calls) >= 1).all() or len(calls) == 1
+
+
+@pytest.mark.parametrize("explore", [2, 1, True])
+def test_explore(explore):
+
+    @gen_cluster(client=True, timeout=5000)
+    def _test_explore(c, s, a, b):
+        X, y = make_classification(n_samples=10, n_features=4, chunks=10)
+        model = ConstantFunction()
+        params = {"value": scipy.stats.uniform(0, 1)}
+        alg = HyperbandSearchCV(model, params, max_iter=27, random_state=42, explore=explore)
+        yield alg.fit(X, y)
+
+        brackets1 = alg.cv_results_["bracket"]
+        model_ids = [h["model_id"] for h in alg.history_]
+        brackets = [h["bracket"] for h in alg.history_]
+        assert all("bracket=" in m for m in model_ids)
+        bracket_repeat = [m.split("=")[-1] for m in model_ids]
+        brackets = [b_r.split(".")[0] for b_r in bracket_repeat]
+        repeats = [b_r.split(".")[1] for b_r in bracket_repeat]
+        if isinstance(explore, int):
+            assert len(np.unique(brackets)) == 1
+
+        assert False
+
+    _test_explore()
