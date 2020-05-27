@@ -19,6 +19,7 @@ from distributed.utils_test import (  # noqa: F401
     gen_cluster,
     loop,
 )
+from scipy.stats import uniform
 from sklearn.base import clone
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.linear_model import SGDClassifier
@@ -46,9 +47,9 @@ pytestmark = [
 @gen_cluster(client=True, timeout=500)
 async def test_basic(c, s, a, b):
     X, y = make_classification(n_samples=1000, n_features=5, chunks=100)
-    model = SGDClassifier(tol=1e-3, penalty="elasticnet")
+    model = ConstantFunction()
 
-    params = {"alpha": np.logspace(-2, 1, num=50), "l1_ratio": [0.01, 1.0]}
+    params = {"value": uniform(0, 1)}
 
     X_test, y_test = X[:100], y[:100]
     X_train = X[100:]
@@ -65,8 +66,8 @@ async def test_basic(c, s, a, b):
 
         # Don't train one model
         some_keys = set(ret.keys()) - {0}
-        del ret[random.choice(list(some_keys))]
-        return ret
+        key_to_drop = random.choice(list(some_keys))
+        return {k: v for k, v in ret.items() if k != key_to_drop}
 
     info, models, history, best = await fit(
         model,
@@ -87,8 +88,8 @@ async def test_basic(c, s, a, b):
     for model in models.values():
         assert isinstance(model, Future)
         model2 = await model
-        assert isinstance(model2, SGDClassifier)
-    #  XX_test, yy_test = yield c.compute([X_test, y_test])
+        assert isinstance(model2, ConstantFunction)
+
     XX_test = await c.compute(X_test)
     yy_test = await c.compute(y_test)
     model = await models[0]
@@ -115,10 +116,9 @@ async def test_basic(c, s, a, b):
         del models[key]
 
     while c.futures or s.tasks:  # Cleans up cleanly after running
-        await asyncio.sleep(0.01)
+        await asyncio.sleep(0.1)
 
     # smoke test for ndarray X_test and y_test
-    #  X_test, y_test = await c.compute([X_test, y_test])
     X_test = await c.compute(X_test)
     y_test = await c.compute(y_test)
     info, models, history, best = await fit(
