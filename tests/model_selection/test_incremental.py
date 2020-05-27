@@ -69,7 +69,6 @@ async def test_basic(c, s, a, b):
     n_parameters = 5
     param_list = list(ParameterSampler(params, n_parameters))
 
-
     info, models, history, best = await fit(
         model,
         param_list,
