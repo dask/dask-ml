@@ -419,14 +419,3 @@ def test_history(c, s, a, b):
     for model_hist in alg.model_history_.values():
         calls = [h["partial_fit_calls"] for h in model_hist]
         assert (np.diff(calls) >= 1).all() or len(calls) == 1
-
-
-@gen_cluster(client=True, timeout=5000)
-def test_patience_brackets(c, s, a, b):
-    X, y = make_classification(n_samples=10, n_features=4, chunks=10)
-    model = ConstantFunction()
-    params = {"value": scipy.stats.uniform(0, 1)}
-    search = HyperbandSearchCV(model, params, max_iter=9, patience=True)
-    yield search.fit(X, y)
-
-    assert all("bracket=0" not in h for h in search.history_)

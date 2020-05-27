@@ -317,7 +317,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
             scoring=scoring,
         )
 
-    def _get_SHAs(self, brackets, all_shas=False):
+    def _get_SHAs(self, brackets):
         patience = _get_patience(
             self.patience, self.max_iter, self.aggressiveness, self.tol
         )
@@ -330,9 +330,6 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         # These brackets are ordered by adaptivity; bracket=0 is least adaptive
         SHAs = {}
         for b, (n, r) in brackets.items():
-            if not all_shas and b == 0 and patience:
-                continue
-
             SHA = SuccessiveHalvingSearchCV(
                 self.estimator,
                 self.parameters,
@@ -448,7 +445,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         bracket_info = list(reversed(sorted(bracket_info, key=lambda x: x["bracket"])))
 
         brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
-        SHAs = self._get_SHAs(brackets, all_shas=True)
+        SHAs = self._get_SHAs(brackets)
         for bracket in bracket_info:
             b = bracket["bracket"]
             bracket["SuccessiveHalvingSearchCV params"] = _get_SHA_params(SHAs[b])
