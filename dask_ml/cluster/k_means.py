@@ -4,16 +4,14 @@ from numbers import Integral
 
 import dask.array as da
 import dask.dataframe as dd
-import numba
 import numpy as np
 import pandas as pd
+import sklearn.cluster
 from dask import compute
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.cluster import k_means_ as sk_k_means
 from sklearn.utils.extmath import squared_norm
-from sklearn.utils.validation import check_is_fitted
 
-from .._compat import blockwise
+from .._compat import blockwise, check_is_fitted
 from .._utils import draw_seed
 from ..metrics import (
     euclidean_distances,
@@ -21,6 +19,10 @@ from ..metrics import (
     pairwise_distances_argmin_min,
 )
 from ..utils import _timed, _timer, check_array, row_norms
+from ._compat import _k_init
+
+import numba  # isort:skip (see https://github.com/dask/dask-ml/pull/577)
+
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +36,7 @@ class KMeans(TransformerMixin, BaseEstimator):
     n_clusters : int, default 8
         Number of clusters to end up with
     init : {'k-means||', 'k-means++' or ndarray}
-        Method for center initialization, defualts to 'k-means||'.
+        Method for center initialization, defaults to 'k-means||'.
 
         'k-means||' : selects the the gg
 
@@ -95,7 +97,6 @@ class KMeans(TransformerMixin, BaseEstimator):
 
     See Also
     --------
-    PartialMiniBatchKMeans
     sklearn.cluster.MiniBatchKMeans
     sklearn.cluster.KMeans
 
@@ -166,6 +167,7 @@ class KMeans(TransformerMixin, BaseEstimator):
             accept_dask_dataframe=False,
             accept_unknown_chunks=False,
             accept_sparse=False,
+            remove_zero_chunks=True,
         )
 
         if X.dtype == "int32":
@@ -200,8 +202,9 @@ class KMeans(TransformerMixin, BaseEstimator):
         )
         self.cluster_centers_ = centroids
         self.labels_ = labels
-        self.inertia_ = inertia.compute()
+        self.inertia_ = inertia.compute().item()
         self.n_iter_ = n_iter
+        self.n_features_in_ = X.shape[1]
         return self
 
     def transform(self, X, y=None):
@@ -377,7 +380,8 @@ def init_pp(X, n_clusters, random_state):
     x_squared_norms = row_norms(X, squared=True).compute()
     logger.info("Initializing with k-means++")
     with _timer("initialization of %2d centers" % n_clusters, _logger=logger):
-        centers = sk_k_means._k_init(
+        # XXX: Using a private scikit-learn API
+        centers = _k_init(
             X, n_clusters, random_state=random_state, x_squared_norms=x_squared_norms
         )
 
@@ -409,7 +413,7 @@ def init_scalable(
     c_idx = {idx}
 
     # Step 2: Initialize cost
-    cost, = compute(evaluate_cost(X, centers))
+    (cost,) = compute(evaluate_cost(X, centers))
 
     if cost == 0:
         n_iter = 0
@@ -461,7 +465,7 @@ def init_scalable(
             .compute(scheduler="single-threaded")
             .item()
         )
-        km = sk_k_means.KMeans(n_clusters, random_state=rng2)
+        km = sklearn.cluster.KMeans(n_clusters, random_state=rng2)
         km.fit(centers)
 
     return km.cluster_centers_
@@ -491,7 +495,7 @@ def _sample_points(X, centers, oversampling_factor, random_state):
     draws = random_state.uniform(size=len(p), chunks=p.chunks)
     picked = p > draws
 
-    new_idxs, = da.where(picked)
+    (new_idxs,) = da.where(picked)
     return new_idxs
 
 
@@ -541,7 +545,6 @@ def _kmeans_single_lloyd(
                 "i",
                 n_clusters,
                 None,
-                distances.astype(X.dtype),
                 "i",
                 adjust_chunks={"i": n_clusters, "j": P},
                 dtype=X.dtype,
@@ -553,7 +556,7 @@ def _kmeans_single_lloyd(
             # Require at least one per bucket, to avoid division by 0.
             counts = da.maximum(counts, 1)
             new_centers = new_centers / counts[:, None]
-            new_centers, = compute(new_centers)
+            (new_centers,) = compute(new_centers)
 
             # Convergence check
             shift = squared_norm(centers - new_centers)
@@ -574,7 +577,7 @@ def _kmeans_single_lloyd(
 
 
 @numba.njit(nogil=True, fastmath=True)
-def _centers_dense(X, labels, n_clusters, distances):
+def _centers_dense(X, labels, n_clusters):
     n_samples = X.shape[0]
     n_features = X.shape[1]
     centers = np.zeros((n_clusters, n_features), dtype=np.float64)

@@ -79,10 +79,10 @@ algorithms easily.  This is employed for :doc:`linear models <glm>`, :doc:`pre-p
 Partner with other distributed libraries
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Other machine learning libraries like XGBoost and TensorFlow already have
+Other machine learning libraries like XGBoost already have
 distributed solutions that work quite well.  Dask-ML makes no attempt to
 re-implement these systems.  Instead, Dask-ML makes it easy to use normal Dask
-workflows to prepare and set up data, then it deploys XGBoost or Tensorflow
+workflows to prepare and set up data, then it deploys XGBoost
 *alongside* Dask, and hands the data over.
 
 .. code-block:: python
@@ -92,8 +92,7 @@ workflows to prepare and set up data, then it deploys XGBoost or Tensorflow
    est = XGBRegressor(...)
    est.fit(train, train_labels)
 
-See :doc:`Dask-ML + XGBoost <xgboost>` or :doc:`Dask-ML + TensorFlow
-<tensorflow>` documentation for more information.
+See :doc:`Dask-ML + XGBoost <xgboost>` for more information.
 
 
 Scikit-Learn API
@@ -126,7 +125,6 @@ Scikit-Learn should feel at home with Dask-ML.
    incremental.rst
    clustering.rst
    xgboost.rst
-   tensorflow.rst
    modules/api.rst
 
 .. toctree::

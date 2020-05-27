@@ -11,14 +11,14 @@ with open(os.path.join(here, "README.rst"), encoding="utf-8") as f:
     long_description = f.read()
 
 install_requires = [
-    "dask[array]>=1.0.0",
-    "distributed>=1.25.0",
+    "dask[array,dataframe]>=2.4.0",
+    "distributed>=2.4.0",
     "numba",
-    "numpy",
+    "numpy>=1.17.3",
     "pandas>=0.23.4",
-    "scikit-learn>=0.20",
+    "scikit-learn>=0.23",
     "scipy",
-    "dask-glm",
+    "dask-glm>=0.2.0",
     "multipledispatch>=0.4.9",
     "packaging",
 ]
@@ -35,15 +35,13 @@ test_requires = [
     "pytest-mock",
 ]
 dev_requires = doc_requires + test_requires
-tensorflow_requires = ["dask-tensorflow", "tensorflow"]
 xgboost_requires = ["dask-xgboost", "xgboost"]
-complete_requires = tensorflow_requires + xgboost_requires
+complete_requires = xgboost_requires
 
 extras_require = {
     "docs": doc_requires,
     "test": test_requires,
     "dev": dev_requires,
-    "tensorflow": tensorflow_requires,
     "xgboost": xgboost_requires,
     "complete": complete_requires,
 }
@@ -64,6 +62,7 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
     ],
     packages=find_packages(exclude=["docs", "tests", "tests.*", "docs.*"]),
     use_scm_version=True,

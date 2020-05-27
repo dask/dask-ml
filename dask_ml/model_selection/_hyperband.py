@@ -70,7 +70,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
     to train the best performing estimator via ``max_iter``.
     The other implicit input (the Dask array chuck size) requires
     a rough estimate of how many parameters to sample. Specification details
-    are in :ref:`Notes`.
+    are in :ref:`Notes <hyperband-notes>`.
 
     .. [*] After :math:`N` ``partial_fit`` calls the estimator Hyperband
        produces will be close to the best possible estimator that :math:`N`
@@ -95,7 +95,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
     max_iter : int
         The maximum number of partial_fit calls to any one model. This should
         be the number of ``partial_fit`` calls required for the model to
-        converge. See :ref:`Notes` for details on setting this parameter.
+        converge. See :ref:`Notes <hyperband-notes>` for details on
+        setting this parameter.
 
     aggressiveness : int, default=3
         How aggressive to be in culling off the different estimators. Higher
@@ -110,6 +111,21 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         ``tol`` after ``patience`` calls to ``partial_fit``. Off by default.
         A ``patience`` value is automatically selected if ``patience=True`` to
         work well with the Hyperband model selection algorithm.
+
+    explore : bool, int, default=False
+        This controls if the search is exploratory. This is typically used
+        if not much is known about the hyperparameters and how the related to
+        the model.
+
+        If ``explore == True``, run a custom exploratory search aimed at
+        finding high performing hyperparameters with less computation than
+        Hyperband. If ``explore`` is an integer, repeat the most exploratory
+        bracket ``explore`` times.
+
+        .. note::
+
+           It is recommended to set ``patience=True`` and ``aggressiveness=4``
+           if ``explore`` is specified.
 
     tol : float, default 0.001
         The required level of improvement to consider stopping training on
@@ -138,20 +154,16 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         (see :ref:`scoring`) to evaluate the predictions on the test set.
 
         If None, the estimator's default scorer (if available) is used.
+    verbose : bool, float, int, optional, default: False
+        If False (default), don't print logs (or pipe them to stdout). However,
+        standard logging will still be used.
 
-    explore : bool, int, default=False
-        This controls if the search is exploratory. This is typically used
-        if not much is known about the hyperparameters and how the related to
-        the model.
+        If True, print logs and use standard logging.
 
-        If ``explore == True``, run a custom exploratory search aimed at
-        finding high performing hyperparameters with less computation than
-        Hyperband. If ``explore`` is an integer, repeat the most exploratory
-        bracket ``explore`` times.
+        If float, print/log approximately ``verbose`` fraction of the time.
 
-        .. note::
-
-           It is recommended to set ``patience=4`` if ``explore`` is specified.
+    prefix : str, optional, default=""
+        While logging, add ``prefix`` to each message.
 
     Examples
     --------
@@ -271,6 +283,9 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
 
     Notes
     -----
+
+    .. _hyperband-notes:
+
     To set ``max_iter`` and the chunk size for ``X`` and ``y``, it is required
     to estimate
 
@@ -298,11 +313,28 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
     Let's decide to provide ``81 * len(X)`` examples and to sample 243
     parameters. Then each chunk will be 1/3rd the dataset and ``max_iter=243``.
 
+    If you use ``HyperbandSearchCV``, please use the citation for [2]_
+
+    .. code-block:: tex
+
+        @InProceedings{sievert2019better,
+            author    = {Scott Sievert and Tom Augspurger and Matthew Rocklin},
+            title     = {{B}etter and faster hyperparameter optimization with {D}ask},
+            booktitle = {{P}roceedings of the 18th {P}ython in {S}cience {C}onference},
+            pages     = {118 - 125},
+            year      = {2019},
+            editor    = {Chris Calloway and David Lippa and Dillon Niederhut and David Shupe},  # noqa
+            doi       = {10.25080/Majora-7ddc1dd1-011}
+          }
+
     References
     ----------
     .. [1] "Hyperband: A novel bandit-based approach to hyperparameter
            optimization", 2016 by L. Li, K. Jamieson, G. DeSalvo, A.
            Rostamizadeh, and A. Talwalkar.  https://arxiv.org/abs/1603.06560
+    .. [2] "Better and faster hyperparameter optimization with Dask", 2018 by
+           S. Sievert, T. Augspurger, M. Rocklin.
+           https://doi.org/10.25080/Majora-7ddc1dd1-011
 
     """
 
@@ -312,12 +344,14 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         parameters,
         max_iter=81,
         aggressiveness=3,
+        explore=False,
         patience=False,
         tol=1e-3,
         test_size=None,
         random_state=None,
         scoring=None,
-        explore=False,
+        verbose=False,
+        prefix="",
     ):
         self.aggressiveness = aggressiveness
         self.explore = explore
@@ -331,6 +365,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
             test_size=test_size,
             random_state=random_state,
             scoring=scoring,
+            verbose=verbose,
+            prefix=prefix,
         )
 
     def _get_SHAs(self, brackets):
@@ -357,6 +393,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
                 test_size=self.test_size,
                 random_state=seed_start + b if b != 0 else self.random_state,
                 scoring=self.scoring,
+                verbose=self.verbose,
+                prefix=f"{self.prefix}, bracket={b}",
             )
             for b, (n, r) in brackets.items()
         }
