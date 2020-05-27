@@ -14,7 +14,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dask_ml.model_selection.RandomizedSearchCV &mdash; dask-ml 1.5.0 documentation</title>
+  <title>dask_ml.model_selection.RandomizedSearchCV &mdash; dask-ml 1.5.1 documentation</title>
   
 
   
@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.5.0
+                1.5.1.dev1+g0f4efe8
               </div>
             
           
@@ -284,6 +284,8 @@
 It also implements “predict”, “predict_proba”, “decision_function”,
 “transform” and “inverse_transform” if they are implemented in the
 estimator used.</p>
+<p>The parameters of the estimator used to apply these methods are optimized
+by cross-validated search over parameter settings.</p>
 <p>In contrast to GridSearchCV, not all parameter values are tried out, but
 rather a fixed number of parameter settings is sampled from the specified
 distributions. The number of parameter settings that are tried is
@@ -298,9 +300,12 @@ distributions for continuous parameters.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>estimator</strong> <span class="classifier-delimiter">:</span> <span class="classifier">estimator object.</span></dt>
-<dd><p class="first last">This is assumed to implement the scikit-learn estimator interface.
-Either estimator needs to provide a <code class="docutils literal notranslate"><span class="pre">score</span></code> function,
-or <code class="docutils literal notranslate"><span class="pre">scoring</span></code> must be passed.</p>
+<dd><p class="first last">A object of this type is instantiated for each parameter. This is
+assumed to implement the scikit-learn estimator interface. Either
+estimator needs to provide a <code class="docutils literal notranslate"><span class="pre">score</span></code> function, or <code class="docutils literal notranslate"><span class="pre">scoring</span></code>
+must be passed. If a list of dicts is given, first a dict is
+sampled uniformly, and then a parameter is sampled using that dict
+as above.</p>
 </dd>
 <dt><strong>param_distributions</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
 <dd><p class="first last">Dictionary with parameters names (string) as keys and distributions
@@ -314,7 +319,7 @@ off runtime vs quality of the solution.</p>
 </dd>
 <dt><strong>random_state</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int or RandomState</span></dt>
 <dd><p class="first last">Pseudo random number generator state used for random uniform sampling
-from lists of possible values instead of scipy.stats distributions.</p>
+from lists of possible values instead of scipy.stats distributions.    Pass an int for reproducible output across multiple function calls.</p>
 </dd>
 <dt><strong>scoring</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, callable, list/tuple, dict or None, default: None</span></dt>
 <dd><p class="first">A single string or a callable to evaluate the predictions on the test
@@ -339,7 +344,7 @@ Possible inputs for cv are:</p>
 <li>None, to use the default 3-fold cross validation,</li>
 <li>integer, to specify the number of folds in a <code class="docutils literal notranslate"><span class="pre">(Stratified)KFold</span></code>,</li>
 <li>An object to be used as a cross-validation generator.</li>
-<li>An iterable yielding train, test splits.</li>
+<li>An iterable yielding (train, test) splits as arrays of indices.</li>
 </ul>
 </div></blockquote>
 <p class="last">For integer/None inputs, if the estimator is a classifier and <code class="docutils literal notranslate"><span class="pre">y</span></code> is
@@ -370,7 +375,12 @@ step, which will always raise the error.</p>
 </dd>
 <dt><strong>return_train_score</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, default=True</span></dt>
 <dd><p class="first">If <code class="docutils literal notranslate"><span class="pre">'False'</span></code>, the <code class="docutils literal notranslate"><span class="pre">cv_results_</span></code> attribute will not include training
-scores.</p>
+scores.
+Computing training scores is used to get insights on how different
+parameter settings impact the overfitting/underfitting trade-off.
+However computing the scores on the training set can be
+computationally expensive and is not strictly required to select
+the parameters that yield the best generalization performance.</p>
 <p class="last">Note that for scikit-learn &gt;= 0.19.1, the default of <code class="docutils literal notranslate"><span class="pre">True</span></code> is
 deprecated, and a warning will be raised when accessing train score results
 without explicitly asking for train scores.</p>
