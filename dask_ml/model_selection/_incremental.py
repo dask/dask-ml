@@ -130,7 +130,7 @@ async def _fit(
     prefix="",
 ):
     if isinstance(verbose, bool):
-        # Always log for loggers that are otherwise configured
+        # Always log (other loggers might configured differently)
         verbose = 1.0
     if not 0 <= verbose <= 1:
         raise ValueError(
