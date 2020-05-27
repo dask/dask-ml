@@ -739,7 +739,10 @@ def test_grid_search_cv_results():
     "params",
     [
         {"C": expon(scale=10), "gamma": expon(scale=0.1)},
-        [{"C": 0.1, "gamma": 0.1}, {"C": 0.2, "gamma": 0.2}],
+        [
+            {"C": expon(scale=10), "gamma": expon(scale=0.1)},
+            {"C": expon(scale=20), "gamma": expon(scale=0.2)}
+        ],
     ],
 )
 def test_random_search_cv_results(params):
