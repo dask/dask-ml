@@ -730,7 +730,7 @@ def test_grid_search_cv_results():
         {"C": expon(scale=10), "gamma": expon(scale=0.1)},
         [
             {"C": expon(scale=10), "gamma": expon(scale=0.1)},
-            {"C": expon(scale=20), "gamma": expon(scale=0.2)}
+            {"C": expon(scale=20), "gamma": expon(scale=0.2)},
         ],
     ],
 )
