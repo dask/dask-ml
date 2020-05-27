@@ -149,11 +149,6 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         Hyperband. If ``explore`` is an integer, repeat the most exploratory
         bracket ``explore`` times.
 
-        .. warning::
-
-           ``explore`` is still experimental. The underlying computation can
-           change without warning.
-
         .. note::
 
            It is recommended to set ``patience=4`` if ``explore`` is specified.
