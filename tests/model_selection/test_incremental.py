@@ -64,7 +64,7 @@ async def test_basic(c, s, a, b):
         if len(ret) == 1:
             return {list(ret)[0]: 0}
 
-        # Don't train one model
+        # Don't train one model (but keep model 0)
         some_keys = set(ret.keys()) - {0}
         key_to_drop = random.choice(list(some_keys))
         return {k: v for k, v in ret.items() if k != key_to_drop}
@@ -95,7 +95,7 @@ async def test_basic(c, s, a, b):
     model = await models[0]
     assert model.score(XX_test, yy_test) == info[0][-1]["score"]
 
-    # `<` not `==` because we randomly dropped one model
+    # `<` not `==` because we randomly dropped one model every iteration
     assert len(history) < n_parameters * 10
     for h in history:
         assert {
