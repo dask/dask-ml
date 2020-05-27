@@ -139,6 +139,20 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
 
         If None, the estimator's default scorer (if available) is used.
 
+    explore : bool, int, default=False
+        This controls if the search is exploratory. This is typically used
+        if not much is known about the hyperparameters and how the related to
+        the model.
+
+        If ``explore == True``, run a custom exploratory search aimed at
+        finding high performing hyperparameters with less computation than
+        Hyperband. If ``explore`` is an integer, repeat the most exploratory
+        bracket ``explore`` times.
+
+        .. note::
+
+           It is recommended to set ``patience=4`` if ``explore`` is specified.
+
     Examples
     --------
     >>> import numpy as np
@@ -303,8 +317,10 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         test_size=None,
         random_state=None,
         scoring=None,
+        explore=False,
     ):
         self.aggressiveness = aggressiveness
+        self.explore = explore
 
         super(HyperbandSearchCV, self).__init__(
             estimator,
@@ -328,9 +344,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         self._SHA_seed = seed_start
 
         # These brackets are ordered by adaptivity; bracket=0 is least adaptive
-        SHAs = {}
-        for b, (n, r) in brackets.items():
-            SHA = SuccessiveHalvingSearchCV(
+        SHAs = {
+            b: SuccessiveHalvingSearchCV(
                 self.estimator,
                 self.parameters,
                 n_initial_parameters=n,
@@ -343,7 +358,22 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
                 random_state=seed_start + b if b != 0 else self.random_state,
                 scoring=self.scoring,
             )
-            SHAs[b] = SHA
+            for b, (n, r) in brackets.items()
+        }
+        if self.explore:
+            if isinstance(self.explore, int):
+                b = max(brackets)
+                SHA = SHAs[b]
+                out = {b + f"-{k}": SHA.set_params(seed_start + k) for k in range(self.explore)}
+            elif isinstance(self.explore, bool):
+                # TODO: add InverseDecaySearchCV in here
+                b = max(brackets)
+                n_repeats = min(len(brackets), 2)
+                out = {b + f"-{k}": SHA.set_params(seed_start + k) for k in range(n_repeats)}
+            else:
+                raise ValueError("explore={self.explore} is not a boolean or integer")
+        else:
+            out = SHAs
         return SHAs
 
     @gen.coroutine
