@@ -115,7 +115,7 @@ async def test_basic(c, s, a, b):
     for key in keys:
         del models[key]
 
-    while c.futures or s.tasks:  # Cleans up cleanly after running
+    while c.futures or s.tasks:  # Make sure cleans up cleanly after running
         await asyncio.sleep(0.1)
 
     # smoke test for ndarray X_test and y_test
@@ -131,6 +131,7 @@ async def test_basic(c, s, a, b):
         additional_calls,
         fit_params={"classes": [0, 1]},
     )
+    assert True  # smoke test to make sure reached
 
 
 def test_partial_fit_doesnt_mutate_inputs():
