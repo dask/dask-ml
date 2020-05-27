@@ -231,7 +231,7 @@ async def test_search_basic(c, s, a, b):
         {0, 1}, ["array", "dataframe"], ["distributed"]
     ):
         success = await _test_search_basic(decay_rate, input_type, memory, c, s, a, b)
-        assert success
+        assert isinstance(success, bool) and success, "Did the test run?"
 
 
 async def _test_search_basic(decay_rate, input_type, memory, c, s, a, b):
