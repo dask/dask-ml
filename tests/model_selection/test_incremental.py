@@ -44,7 +44,7 @@ pytestmark = [
 ]  # decay_rate warnings are tested in test_incremental_warns.py
 
 
-@gen_cluster(client=True, timeout=500)
+@gen_cluster(client=True, timeout=1000)
 async def test_basic(c, s, a, b):
     def _additional_calls(info):
         pf_calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
