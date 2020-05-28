@@ -472,6 +472,7 @@ def test_explore(explore):
 
     _test_explore()
 
+
 @gen_cluster(client=True, timeout=5000)
 def test_logs_dont_repeat(c, s, a, b):
     # This test is necessary to make sure the dask_ml.model_selection logger
