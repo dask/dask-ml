@@ -1,9 +1,9 @@
-from __future__ import division
-
+import asyncio
 import itertools
 import logging
 import operator
 import sys
+from asyncio import CancelledError, TimeoutError
 from collections import defaultdict, namedtuple
 from copy import deepcopy
 from time import time
@@ -18,6 +18,8 @@ import scipy.stats
 import toolz
 from dask.distributed import Future, default_client, futures_of, wait
 from distributed.utils import log_errors
+from distributed.compatibility import get_running_loop
+from distributed.scheduler import KilledWorker
 from sklearn.base import clone
 from sklearn.metrics import check_scoring
 from sklearn.model_selection import ParameterGrid, ParameterSampler
@@ -128,6 +130,7 @@ async def _fit(
     random_state=None,
     verbose: Union[bool, int, float] = False,
     prefix="",
+    interrupt=None,
 ):
     if isinstance(verbose, bool):
         # Always log (other loggers might configured differently)
@@ -227,9 +230,25 @@ async def _fit(
     history = []
     start_time = time()
 
+    async def _get_meta(new_scores, interrupt):
+        while True:
+            try:
+                metas = await asyncio.wait_for(asyncio.gather(*new_scores), timeout=1)
+                break
+            #  except:  # this still doesn't catch the IndexError?
+            except (TimeoutError, CancelledError, IndexError, KilledWorker):
+                if interrupt and interrupt.is_set():
+                    logger.info("[CV%s] Timeout recieved; breaking now", prefix)
+                    raise KeyboardInterrupt
+        return metas
+
+
     # async for future, result in seq:
     for _i in itertools.count():
-        metas = await client.gather(new_scores)
+        try:
+            metas = await _get_meta(new_scores, interrupt)
+        except KeyboardInterrupt:
+            break
 
         if log_delay and _i % int(log_delay) == 0:
             idx = np.argmax([m["score"] for m in metas])
@@ -319,6 +338,7 @@ async def fit(
     random_state=None,
     verbose: Union[bool, int] = False,
     prefix="",
+    interrupt=None
 ):
     """ Find a good model and search among a space of hyper-parameters
 
@@ -446,6 +466,7 @@ async def fit(
         random_state=random_state,
         verbose=verbose,
         prefix=prefix,
+        interrupt=interrupt,
     )
 
 
@@ -604,7 +625,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
     def _check_is_fitted(self, method_name):
         return check_is_fitted(self, "best_estimator_")
 
-    async def _fit(self, X, y, **fit_params):
+    async def _fit(self, X, y, interrupt, **fit_params):
         if self.verbose:
             h = logging.StreamHandler(sys.stdout)
             context = LoggingContext(logger, level=logging.INFO, handler=h)
@@ -614,21 +635,31 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         X, y, scorer = self._validate_parameters(X, y)
         X_train, X_test, y_train, y_test = self._get_train_test_split(X, y)
 
-        with context:
-            results = await fit(
-                self.estimator,
-                self._get_params(),
-                X_train,
-                y_train,
-                X_test,
-                y_test,
-                additional_calls=self._additional_calls,
-                fit_params=fit_params,
-                scorer=scorer,
-                random_state=self.random_state,
-                verbose=self.verbose,
-                prefix=self.prefix,
+        r = fit(
+            self.estimator,
+            self._get_params(),
+            X_train,
+            y_train,
+            X_test,
+            y_test,
+            additional_calls=self._additional_calls,
+            fit_params=fit_params,
+            scorer=scorer,
+            random_state=self.random_state,
+            verbose=self.verbose,
+            prefix=self.prefix,
+            interrupt=interrupt,
+        )
+        try:
+            with context:
+                results = await r
+        except KeyboardInterrupt:
+            logger.info(
+                "[CV%s] Interrupt received on client; sending message"
+                "to workers to cleanly break"
             )
+            results = await r
+
         results = self._process_results(results)
         model_history, models, history, bst = results
 
@@ -667,10 +698,18 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         **fit_params
             Additional partial fit keyword arguments for the estimator.
         """
+
+        interrupt = asyncio.Event()
+        def shutdown(signal, loop):
+            logger.warning("Signal received! Shutting down")
+            interrupt.set()
+
+        loop = get_running_loop()
+        loop.set_exception_handler(shutdown)
         client = default_client()
         if not client.asynchronous:
-            return client.sync(self._fit, X, y, **fit_params)
-        return self._fit(X, y, **fit_params)
+            return client.sync(self._fit, X, y, interrupt=interrupt, **fit_params)
+        return self._fit(X, y, interrupt=interrupt, **fit_params)
 
     @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
     def decision_function(self, X):
