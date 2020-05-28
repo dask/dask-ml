@@ -233,6 +233,7 @@ async def _fit(
         ----------
         model_scores : Dict[Any, float]
             Dictionary of model identities and scores
+
         num_workers : int
             The number of workers.
 
