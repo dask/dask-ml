@@ -605,17 +605,16 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         return check_is_fitted(self, "best_estimator_")
 
     async def _fit(self, X, y, **fit_params):
-        if not hasattr(self, "_context"):
-            if self.verbose:
-                h = logging.StreamHandler(sys.stdout)
-                self._context = LoggingContext(logger, level=logging.INFO, handler=h)
-            else:
-                self._context = dummy_context()
+        if self.verbose:
+            h = logging.StreamHandler(sys.stdout)
+            context = LoggingContext(logger, level=logging.INFO, handler=h)
+        else:
+            context = dummy_context()
 
         X, y, scorer = self._validate_parameters(X, y)
         X_train, X_test, y_train, y_test = self._get_train_test_split(X, y)
 
-        with self._context:
+        with context:
             results = await fit(
                 self.estimator,
                 self._get_params(),

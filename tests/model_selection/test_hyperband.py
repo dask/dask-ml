@@ -461,6 +461,7 @@ def test_logs_dont_repeat(c, s, a, b):
 
     bracket_models = [b["n_models"] for b in search.metadata["brackets"]]
     assert len(bracket_models) == len(set(bracket_models))
+
     # Make sure only one model creation message is printed per bracket
     # (all brackets have unique n_models as asserted above)
     assert len(n_models) == len(set(n_models))
