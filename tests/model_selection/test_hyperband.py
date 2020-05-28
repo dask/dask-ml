@@ -437,13 +437,14 @@ def test_history(c, s, a, b):
 
 @pytest.mark.parametrize("explore", [2, 1, True])
 def test_explore(explore):
-
     @gen_cluster(client=True, timeout=5000)
     def _test_explore(c, s, a, b):
         X, y = make_classification(n_samples=10, n_features=4, chunks=10)
         model = ConstantFunction()
         params = {"value": scipy.stats.uniform(0, 1)}
-        alg = HyperbandSearchCV(model, params, max_iter=27, random_state=42, explore=explore)
+        alg = HyperbandSearchCV(
+            model, params, max_iter=27, random_state=42, explore=explore
+        )
         yield alg.fit(X, y)
 
         brackets1 = alg.cv_results_["bracket"]
@@ -455,7 +456,9 @@ def test_explore(explore):
         bracket_repeats = [b_r.split(".")[1] for b_r in bracket_repeat]
         if isinstance(explore, bool):
             alg2 = clone(alg).set_params(explore=False)
-            assert alg.metadata["partial_fit_calls"] < alg2.metadata["partial_fit_calls"]
+            assert (
+                alg.metadata["partial_fit_calls"] < alg2.metadata["partial_fit_calls"]
+            )
         else:
             assert len(set(chosen_brackets)) == 1
             assert len(set(bracket_repeat)) == explore
