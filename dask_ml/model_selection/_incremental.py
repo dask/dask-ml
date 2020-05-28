@@ -23,7 +23,6 @@ from sklearn.metrics import check_scoring
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
 from sklearn.utils.metaestimators import if_delegate_has_method
-from tornado import gen
 
 from .._compat import check_is_fitted, dummy_context
 from .._utils import LoggingContext
@@ -116,8 +115,7 @@ def _create_model(model, ident, **params):
         return model, {"model_id": ident, "params": params, "partial_fit_calls": 0}
 
 
-@gen.coroutine
-def _fit(
+async def _fit(
     model,
     params,
     X_train,
@@ -132,6 +130,7 @@ def _fit(
     prefix="",
 ):
     if isinstance(verbose, bool):
+        # Always log (other loggers might configured differently)
         verbose = 1.0
     if not 0 <= verbose <= 1:
         raise ValueError(
@@ -155,18 +154,18 @@ def _fit(
         models[ident] = model
 
     # assume everything in fit_params is small and make it concrete
-    fit_params = yield client.compute(fit_params)
+    fit_params = await client.compute(fit_params)
 
     # Convert testing data into a single element on the cluster
     # This assumes that it fits into memory on a single worker
     if isinstance(X_test, da.Array):
         X_test = client.compute(X_test)
     else:
-        X_test = yield client.scatter(X_test)
+        X_test = await client.scatter(X_test)
     if isinstance(y_test, da.Array):
         y_test = client.compute(y_test)
     else:
-        y_test = yield client.scatter(y_test)
+        y_test = await client.scatter(y_test)
 
     # Convert to batches of delayed objects of numpy arrays
     X_train, y_train = dask.persist(X_train, y_train)
@@ -174,7 +173,7 @@ def _fit(
     y_train = sorted(futures_of(y_train), key=lambda f: f.key)
     assert len(X_train) == len(y_train)
 
-    train_eg = yield client.map(len, y_train)
+    train_eg = await client.gather(client.map(len, y_train))
     msg = "[CV%s] For training there are between %d and %d examples in each chunk"
     logger.info(msg, prefix, min(train_eg), max(train_eg))
 
@@ -230,7 +229,7 @@ def _fit(
 
     # async for future, result in seq:
     for _i in itertools.count():
-        metas = yield client.gather(new_scores)
+        metas = await client.gather(new_scores)
 
         if log_delay and _i % int(log_delay) == 0:
             idx = np.argmax([m["score"] for m in metas])
@@ -263,6 +262,7 @@ def _fit(
 
         for ident, k in instructions.items():
             start = info[ident][-1]["partial_fit_calls"] + 1
+
             if k:
                 k -= 1
                 model = speculative.pop(ident)
@@ -293,8 +293,8 @@ def _fit(
         new_scores = list(_scores2.values())
 
     models = {k: client.submit(operator.getitem, v, 0) for k, v in models.items()}
-    yield wait(models)
-    scores = yield client.gather(scores)
+    await wait(models)
+    scores = await client.gather(scores)
     best = max(scores.items(), key=lambda x: x[1]["score"])
 
     info = defaultdict(list)
@@ -303,10 +303,10 @@ def _fit(
         info[h["model_id"]].append(h)
     info = dict(info)
 
-    raise gen.Return(Results(info, models, history, best))
+    return Results(info, models, history, best)
 
 
-def fit(
+async def fit(
     model,
     params,
     X_train,
@@ -433,8 +433,7 @@ def fit(
     history : List[Dict]
         A history of all models scores over time
     """
-    return default_client().sync(
-        _fit,
+    return await _fit(
         model,
         params,
         X_train,
@@ -605,31 +604,37 @@ class BaseIncrementalSearchCV(ParallelPostFit):
     def _check_is_fitted(self, method_name):
         return check_is_fitted(self, "best_estimator_")
 
-    @gen.coroutine
-    def _fit(self, X, y, **fit_params):
+    async def _fit(self, X, y, **fit_params):
+        if self.verbose:
+            h = logging.StreamHandler(sys.stdout)
+            context = LoggingContext(logger, level=logging.INFO, handler=h)
+        else:
+            context = dummy_context()
+
         X, y, scorer = self._validate_parameters(X, y)
         X_train, X_test, y_train, y_test = self._get_train_test_split(X, y)
 
-        results = yield fit(
-            self.estimator,
-            self._get_params(),
-            X_train,
-            y_train,
-            X_test,
-            y_test,
-            additional_calls=self._additional_calls,
-            fit_params=fit_params,
-            scorer=scorer,
-            random_state=self.random_state,
-            verbose=self.verbose,
-            prefix=self.prefix,
-        )
+        with context:
+            results = await fit(
+                self.estimator,
+                self._get_params(),
+                X_train,
+                y_train,
+                X_test,
+                y_test,
+                additional_calls=self._additional_calls,
+                fit_params=fit_params,
+                scorer=scorer,
+                random_state=self.random_state,
+                verbose=self.verbose,
+                prefix=self.prefix,
+            )
         results = self._process_results(results)
         model_history, models, history, bst = results
 
         cv_results = self._get_cv_results(history, model_history)
         best_idx = bst[0]
-        best_estimator = yield models[best_idx]
+        best_estimator = await models[best_idx]
 
         # Clean up models we're hanging onto
         ids = list(results.models)
@@ -651,7 +656,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         # at each scoring, but one score is needed to choose the better of two
         # models
         self.multimetric_ = False
-        raise gen.Return(self)
+        return self
 
     def fit(self, X, y=None, **fit_params):
         """Find the best parameters for a particular model.
@@ -662,15 +667,10 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         **fit_params
             Additional partial fit keyword arguments for the estimator.
         """
-
-        if self.verbose:
-            h = logging.StreamHandler(sys.stdout)
-            context = LoggingContext(logger, level=logging.INFO, handler=h)
-        else:
-            context = dummy_context()
-
-        with context:
-            return default_client().sync(self._fit, X, y, **fit_params)
+        client = default_client()
+        if not client.asynchronous:
+            return client.sync(self._fit, X, y, **fit_params)
+        return self._fit(X, y, **fit_params)
 
     @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
     def decision_function(self, X):

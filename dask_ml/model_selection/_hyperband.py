@@ -1,12 +1,12 @@
 from __future__ import division
 
+import asyncio
 import logging
 import math
 from warnings import warn
 
 import numpy as np
 from sklearn.utils import check_random_state
-from tornado import gen
 
 from ._incremental import BaseIncrementalSearchCV
 from ._successive_halving import SuccessiveHalvingSearchCV
@@ -384,8 +384,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
             SHAs[b] = sha
         return SHAs
 
-    @gen.coroutine
-    def _fit(self, X, y, **fit_params):
+    async def _fit(self, X, y, **fit_params):
         X, y, scorer = self._validate_parameters(X, y)
 
         brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
@@ -396,8 +395,9 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         # (though it doesn't matter a ton; _fit prioritizes high scores
         _brackets_ids = list(reversed(sorted(SHAs)))
 
-        # _fit is run in parallel because it's also a tornado coroutine
-        _SHAs = yield [SHAs[b]._fit(X, y, **fit_params) for b in _brackets_ids]
+        _SHAs = await asyncio.gather(
+            *[SHAs[b]._fit(X, y, **fit_params) for b in _brackets_ids]
+        )
         SHAs = {b: SHA for b, SHA in zip(_brackets_ids, _SHAs)}
 
         # This for-loop rename estimator IDs and pulls out wall times
@@ -471,7 +471,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
 
         self.multimetric_ = SHAs[best_bracket].multimetric_
         self._SuccessiveHalvings_ = SHAs
-        raise gen.Return(self)
+        return self
 
     @property
     def metadata(self):
