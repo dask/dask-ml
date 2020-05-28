@@ -506,16 +506,6 @@ def _get_meta(
     SHAs: Dict[int, SuccessiveHalvingSearchCV],
     key: Callable[[int, int], str],
 ) -> Tuple[List[Dict[str, Any]], Dict[str, List[Dict[str, Any]]]]:
-    assert isinstance(hists, dict)
-    assert all(isinstance(k, int) for k in hists)
-    assert all(isinstance(v, list) for v in hists.values())
-    assert all(isinstance(vi, dict) for v in hists.values() for vi in v)
-
-    assert hasattr(brackets, "__iter__")
-    assert all(isinstance(k, int) for k in brackets)
-
-    assert all(isinstance(sha, SuccessiveHalvingSearchCV) for sha in SHAs.values())
-    assert all(isinstance(k, int) for k in SHAs.keys())
 
     meta_ = []
     history_ = {}

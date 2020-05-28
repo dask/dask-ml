@@ -266,15 +266,10 @@ async def _fit(
             history.append(meta)
 
         instructions = additional_calls(info)
-        _mm = await client.compute(_models)
+        fired = set(models) - set(instructions)
 
-        _s1 = await client.compute(_scores)
-        _s2 = await client.compute(_specs)
-
-        bad = set(models) - set(instructions)
-
-        # Delete the futures of bad models.  This cancels speculative tasks
-        for ident in bad:
+        # Delete the futures of bad/fired models.  This cancels speculative tasks
+        for ident in fired:
             del models[ident]
             del scores[ident]
             del info[ident]
