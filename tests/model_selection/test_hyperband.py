@@ -7,6 +7,7 @@ import pandas as pd
 import pytest
 import scipy.stats
 from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
+from sklearn.base import clone
 from sklearn.linear_model import SGDClassifier
 
 from dask_ml._compat import DISTRIBUTED_2_5_0
@@ -450,15 +451,14 @@ def test_explore(explore):
         brackets = [h["bracket"] for h in alg.history_]
         assert all("bracket=" in m for m in model_ids)
         bracket_repeat = [m.split("=")[-1].split("-")[0] for m in model_ids]
-        brackets_aggressiveness = [b_r.split(".")[0] for b_r in bracket_repeat]
+        chosen_brackets = [b_r.split(".")[0] for b_r in bracket_repeat]
         bracket_repeats = [b_r.split(".")[1] for b_r in bracket_repeat]
-        if isinstance(explore, int):
-            assert len(set(brackets_aggressiveness)) == 1
+        if isinstance(explore, bool):
+            alg2 = clone(alg).set_params(explore=False)
+            assert alg.metadata["partial_fit_calls"] < alg2.metadata["partial_fit_calls"]
+        else:
+            assert len(set(chosen_brackets)) == 1
             assert len(set(bracket_repeat)) == explore
-        #  else:
         assert alg.metadata == alg.metadata_
-
-
-        #  assert False
 
     _test_explore()
