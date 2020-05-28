@@ -524,11 +524,12 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
 
         brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
         SHAs = self._get_SHAs(brackets)
-        for b in SHAs.keys():
-            bracket["SuccessiveHalvingSearchCV params"] = _get_SHA_params(SHAs[b])
-
-        bracket_info = sorted(bracket_info, key=lambda x: x["bracket"])
-        if self.explore:
+        if not self.explore:
+            for bracket in bracket_info:
+                b = bracket["bracket"]
+                bracket["SuccessiveHalvingSearchCV params"] = _get_SHA_params(SHAs[b])
+            bracket_info = sorted(bracket_info, key=lambda x: x["bracket"])
+        else:
             b_info = {
                 b["bracket"]: copy(b)
                 for b in bracket_info
@@ -537,7 +538,6 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
             sha_info = {k: copy(b_info[int(k)]) for k in SHAs}
 
             for sha_b, info in sha_info.items():
-                print(sha_b)
                 info["bracket"] = sha_b
                 info["SuccessiveHalvingSearchCV params"] = _get_SHA_params(SHAs[sha_b])
 
@@ -566,7 +566,7 @@ def _get_meta(hists, brackets, SHAs, key):
 
         calls = {k: max(hi["partial_fit_calls"] for hi in h) for k, h in hist.items()}
         decisions = {hi["partial_fit_calls"] for h in hist.values() for hi in h}
-        if bracket != max(brackets):
+        if abs(bracket - max(brackets)) >= 1:
             decisions.discard(1)
         meta_.append(
             {
