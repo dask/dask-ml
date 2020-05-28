@@ -107,12 +107,6 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         optimal. ``aggressiveness=4`` has higher confidence that is likely
         suitable for initial exploration.
 
-    patience : int, default False
-        If specified, training stops when the score does not increase by
-        ``tol`` after ``patience`` calls to ``partial_fit``. Off by default.
-        A ``patience`` value is automatically selected if ``patience=True`` to
-        work well with the Hyperband model selection algorithm.
-
     explore : bool, int, default=False
         If ``explore=True`` is specified, run a custom exploratory search aimed
         at replicating Hyperband's performance with less computation.
@@ -139,6 +133,11 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
            ``tol`` if you're unsure about the number of ``partial_fit``
            calls required for convergence.
 
+    patience : int, default False
+        If specified, training stops when the score does not increase by
+        ``tol`` after ``patience`` calls to ``partial_fit``. Off by default.
+        A ``patience`` value is automatically selected if ``patience=True`` to
+        work well with the Hyperband model selection algorithm.
 
     tol : float, default 0.001
         The required level of improvement to consider stopping training on
