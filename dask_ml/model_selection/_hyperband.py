@@ -510,10 +510,10 @@ def _get_meta(
     meta_ = []
     history_ = {}
     for bracket in brackets:
-        hist = hists[bracket]
+        _hist = hists[bracket]
 
-        info_hist = {key(bracket, h["model_id"]): [] for h in hist}
-        for h in hist:
+        info_hist = {key(bracket, h["model_id"]): [] for h in _hist}
+        for h in _hist:
             info_hist[key(bracket, h["model_id"])] += [h]
         hist = info_hist
         history_.update(hist)
