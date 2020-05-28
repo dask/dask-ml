@@ -121,7 +121,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         If ``explore == True``, run a custom exploratory search aimed at
         finding high performing hyperparameters with less computation than
         Hyperband. If ``explore`` is an integer, repeat the most exploratory
-        bracket ``explore`` times.
+        bracket ``explore`` times. Li et. set ``explore==len(self.metadata["brackets"])`` [1]_.
 
         .. note::
 
