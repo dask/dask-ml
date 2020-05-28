@@ -278,6 +278,7 @@ def test_correct_params(c, s, a, b):
         "scoring",
         "verbose",
         "prefix",
+        "explore",
     }
     assert set(search.get_params().keys()) == base.union({"aggressiveness"})
     meta = search.metadata
@@ -292,7 +293,7 @@ def test_correct_params(c, s, a, b):
             "max_iter",
             "prefix",
         }
-    ) - {"estimator__sleep", "estimator__value", "estimator", "parameters"}
+    ) - {"estimator__sleep", "estimator__value", "estimator", "parameters", "explore"}
 
     assert all(set(SHA) == SHA_params for SHA in SHAs_params)
 
