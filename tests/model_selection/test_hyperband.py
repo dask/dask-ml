@@ -453,13 +453,10 @@ def test_explore(explore):
         )
         yield alg.fit(X, y)
 
-        brackets1 = alg.cv_results_["bracket"]
         model_ids = [h["model_id"] for h in alg.history_]
-        brackets = [h["bracket"] for h in alg.history_]
         assert all("bracket=" in m for m in model_ids)
         bracket_repeat = [m.split("=")[-1].split("-")[0] for m in model_ids]
         chosen_brackets = [b_r.split(".")[0] for b_r in bracket_repeat]
-        bracket_repeats = [b_r.split(".")[1] for b_r in bracket_repeat]
         if isinstance(explore, bool):
             alg2 = clone(alg).set_params(explore=False)
             assert (
