@@ -115,18 +115,24 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
 
     explore : bool, int, default=False
         This controls if the search is exploratory. This is typically used
-        if not much is known about the hyperparameters and how the related to
-        the model.
+        if not much is known about the hyperparameters and/or model.
 
-        If ``explore == True``, run a custom exploratory search aimed at
-        finding high performing hyperparameters with less computation than
-        Hyperband. If ``explore`` is an integer, repeat the most exploratory
-        bracket ``explore`` times. Li et. set ``explore==len(self.metadata["brackets"])`` [1]_.
+        If ``explore=True`` is specified, run a custom exploratory search aimed
+        at replicating Hyperband's performance with less computation.
+        If ``explore`` is an integer, repeat the most exploratory bracket
+        ``explore`` times.  Li et. set
+        ``explore == len(self.metadata["brackets"])`` [1]_.
 
         .. note::
 
-           It is recommended to set ``patience=True`` and ``aggressiveness=4``
-           if ``explore`` is specified.
+           When ``explore`` is specified, ``patience=True`` only stops
+           high performing models if they've converged (Hyperband's most
+           exploratory bracket will stop low performing models).
+
+           It's recommended to set ``patience=True`` if you're
+           unsure about the number of ``partial_fit`` calls required for
+           convergence.
+
 
     tol : float, default 0.001
         The required level of improvement to consider stopping training on
