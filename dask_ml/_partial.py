@@ -2,7 +2,6 @@ from __future__ import absolute_import, division, print_function
 
 import logging
 import os
-import warnings
 
 import dask
 import numpy as np
@@ -10,79 +9,7 @@ import sklearn.utils
 from dask.delayed import Delayed
 from toolz import partial
 
-from ._utils import copy_learned_attributes
-
 logger = logging.getLogger(__name__)
-
-
-_partial_deprecation = (
-    "'{cls.__name__}' is deprecated. Use "
-    "'dask_ml.wrappers.Incremental({base.__name__}(), **kwargs)' "
-    "instead."
-)
-
-
-class _BigPartialFitMixin:
-    """ Wraps a partial_fit enabled estimator for use with Dask arrays """
-
-    _init_kwargs = []
-    _fit_kwargs = []
-
-    def __init__(self, **kwargs):
-        self._deprecated()
-        missing = set(self._init_kwargs) - set(kwargs)
-
-        if missing:
-            raise TypeError(
-                "{} requires the keyword arguments {}".format(type(self), missing)
-            )
-        for kwarg in self._init_kwargs:
-            setattr(self, kwarg, kwargs.pop(kwarg))
-        super(_BigPartialFitMixin, self).__init__(**kwargs)
-
-    @classmethod
-    def _deprecated(cls):
-        for base in cls.mro():
-            if base.__module__.startswith("sklearn"):
-                break
-
-        warnings.warn(_partial_deprecation.format(cls=cls, base=base), FutureWarning)
-
-    @classmethod
-    def _get_param_names(cls):
-        # Evil hack to make sure repr, get_params work
-        # We could also try rewriting __init__ once the class is created
-        bases = cls.mro()
-        # walk bases until you hit an sklearn class.
-        for base in bases:
-            if base.__module__.startswith("sklearn"):
-                break
-
-        # merge the inits
-        my_init = cls._init_kwargs
-        their_init = base._get_param_names()
-        return my_init + their_init
-
-    def fit(self, X, y=None, compute=True):
-        fit_kwargs = {k: getattr(self, k) for k in self._fit_kwargs}
-        result = fit(self, X, y, compute=compute, **fit_kwargs)
-
-        if compute:
-            copy_learned_attributes(result, self)
-            return self
-        return result
-
-    def predict(self, X, dtype=None):
-        predict = super(_BigPartialFitMixin, self).predict
-        if dtype is None:
-            dtype = self._get_predict_dtype(X)
-        if isinstance(X, np.ndarray):
-            return predict(X)
-        return X.map_blocks(predict, dtype=dtype, drop_axis=1)
-
-    def _get_predict_dtype(self, X):
-        xx = np.zeros((1, X.shape[1]), dtype=X.dtype)
-        return super(_BigPartialFitMixin, self).predict(xx).dtype
 
 
 def _partial_fit(model, x, y, kwargs=None):

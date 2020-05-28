@@ -374,31 +374,20 @@ def test_grid_search_bad_param_grid():
     param_dict = {"C": 1.0}
     clf = SVC()
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError):
         dcv.GridSearchCV(clf, param_dict)
-    assert (
-        "Parameter values for parameter (C) need to be a sequence"
-        "(but not a string) or np.ndarray."
-    ) in str(exc.value)
 
     param_dict = {"C": []}
     clf = SVC()
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError):
         dcv.GridSearchCV(clf, param_dict)
-    assert (
-        "Parameter values for parameter (C) need to be a non-empty " "sequence."
-    ) in str(exc.value)
 
     param_dict = {"C": "1,2,3"}
     clf = SVC()
 
-    with pytest.raises(ValueError) as exc:
+    with pytest.raises(ValueError):
         dcv.GridSearchCV(clf, param_dict)
-    assert (
-        "Parameter values for parameter (C) need to be a sequence"
-        "(but not a string) or np.ndarray."
-    ) in str(exc.value)
 
     param_dict = {"C": np.ones(6).reshape(3, 2)}
     clf = SVC()
@@ -735,7 +724,17 @@ def test_grid_search_cv_results():
         )
 
 
-def test_random_search_cv_results():
+@pytest.mark.parametrize(
+    "params",
+    [
+        {"C": expon(scale=10), "gamma": expon(scale=0.1)},
+        [
+            {"C": expon(scale=10), "gamma": expon(scale=0.1)},
+            {"C": expon(scale=20), "gamma": expon(scale=0.2)},
+        ],
+    ],
+)
+def test_random_search_cv_results(params):
     # Make a dataset with a lot of noise to get various kind of prediction
     # errors across CV folds and parameter settings
     X, y = make_classification(
@@ -747,7 +746,6 @@ def test_random_search_cv_results():
     # random_search alone should not depend on randomization.
     n_splits = 3
     n_search_iter = 30
-    params = dict(C=expon(scale=10), gamma=expon(scale=0.1))
     random_search = dcv.RandomizedSearchCV(
         SVC(),
         n_iter=n_search_iter,

@@ -1,3 +1,4 @@
+import logging
 import math
 import warnings
 
@@ -6,7 +7,12 @@ import numpy as np
 import pandas as pd
 import pytest
 import scipy.stats
-from distributed.utils_test import cluster, gen_cluster, loop  # noqa: F401
+from distributed.utils_test import (  # noqa: F401
+    captured_logger,
+    cluster,
+    gen_cluster,
+    loop,
+)
 from sklearn.linear_model import SGDClassifier
 
 from dask_ml._compat import DISTRIBUTED_2_5_0
@@ -432,3 +438,30 @@ def test_history(c, s, a, b):
     for model_hist in alg.model_history_.values():
         calls = [h["partial_fit_calls"] for h in model_hist]
         assert (np.diff(calls) >= 1).all() or len(calls) == 1
+
+
+@gen_cluster(client=True, timeout=5000)
+def test_logs_dont_repeat(c, s, a, b):
+    # This test is necessary to make sure the dask_ml.model_selection logger
+    # isn't piped to stdout repeatedly.
+    #
+    # I developed this test to protect against this case:
+    # getLogger("dask_ml.model_selection") is piped to stdout whenever a
+    # bracket of Hyperband starts/each time SHA._fit is called
+    X, y = make_classification(n_samples=10, n_features=4, chunks=10)
+    model = ConstantFunction()
+    params = {"value": scipy.stats.uniform(0, 1)}
+    search = HyperbandSearchCV(model, params, max_iter=9, random_state=42)
+    with captured_logger(logging.getLogger("dask_ml.model_selection")) as logs:
+        yield search.fit(X, y)
+        assert search.best_score_ > 0  # ensure search ran
+        messages = logs.getvalue().splitlines()
+    model_creation_msgs = [m for m in messages if "creating" in m]
+    n_models = [m.split(" ")[-2] for m in model_creation_msgs]
+
+    bracket_models = [b["n_models"] for b in search.metadata["brackets"]]
+    assert len(bracket_models) == len(set(bracket_models))
+
+    # Make sure only one model creation message is printed per bracket
+    # (all brackets have unique n_models as asserted above)
+    assert len(n_models) == len(set(n_models))

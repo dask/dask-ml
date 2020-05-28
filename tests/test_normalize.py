@@ -4,13 +4,6 @@ import sklearn.linear_model
 import sklearn.model_selection
 
 import dask_ml  # noqa
-from dask_ml._compat import SK_022
-
-if SK_022:
-    # deprecated in 0.22
-    iid = {}
-else:
-    iid = {"iid": True}
 
 
 def test_normalize_estimator():
@@ -27,8 +20,8 @@ def test_normalize_estimator():
 def test_normalize_estimator_cv():
     param_grid = {"C": [0.01]}
     a = sklearn.linear_model.LogisticRegression(random_state=0, solver="lbfgs")
-    m1 = sklearn.model_selection.GridSearchCV(a, param_grid, cv=3, **iid)
-    m2 = sklearn.model_selection.GridSearchCV(a, param_grid, cv=3, **iid)
+    m1 = sklearn.model_selection.GridSearchCV(a, param_grid, cv=3)
+    m2 = sklearn.model_selection.GridSearchCV(a, param_grid, cv=3)
 
     assert dask.base.tokenize(m1) == dask.base.tokenize(m2)
     X, y = sklearn.datasets.make_classification()

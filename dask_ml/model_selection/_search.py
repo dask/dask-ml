@@ -959,7 +959,7 @@ def check_cv(cv=3, y=None, classifier=False):
     # If ``cv`` is not an integer, the scikit-learn implementation doesn't
     # touch the ``y`` object, so passing on a dask object is fine
     if not is_dask_collection(y) or not isinstance(cv, numbers.Integral):
-        return model_selection.check_cv(cv, y, classifier)
+        return model_selection.check_cv(cv, y, classifier=classifier)
 
     if classifier:
         # ``y`` is a dask object. We need to compute the target type
@@ -1319,9 +1319,12 @@ estimator used.
 Parameters
 ----------
 estimator : estimator object.
-    This is assumed to implement the scikit-learn estimator interface.
-    Either estimator needs to provide a ``score`` function,
-    or ``scoring`` must be passed.
+    A object of this type is instantiated for each parameter. This is
+    assumed to implement the scikit-learn estimator interface. Either
+    estimator needs to provide a ``score`` function, or ``scoring``
+    must be passed. If a list of dicts is given, first a dict is
+    sampled uniformly, and then a parameter is sampled using that dict
+    as above.
 
 {parameters}
 
@@ -1349,7 +1352,7 @@ cv : int, cross-validation generator or an iterable, optional
         - None, to use the default 3-fold cross validation,
         - integer, to specify the number of folds in a ``(Stratified)KFold``,
         - An object to be used as a cross-validation generator.
-        - An iterable yielding train, test splits.
+        - An iterable yielding (train, test) splits as arrays of indices.
 
     For integer/None inputs, if the estimator is a classifier and ``y`` is
     either binary or multiclass, ``StratifiedKFold`` is used. In all
@@ -1384,6 +1387,11 @@ error_score : 'raise' (default) or numeric
 return_train_score : boolean, default=True
     If ``'False'``, the ``cv_results_`` attribute will not include training
     scores.
+    Computing training scores is used to get insights on how different
+    parameter settings impact the overfitting/underfitting trade-off.
+    However computing the scores on the training set can be
+    computationally expensive and is not strictly required to select
+    the parameters that yield the best generalization performance.
 
     Note that for scikit-learn >= 0.19.1, the default of ``True`` is
     deprecated, and a warning will be raised when accessing train score results
@@ -1601,6 +1609,9 @@ class GridSearchCV(StaticDaskSearchMixin, DaskBaseSearchCV):
 
 _randomized_oneliner = "Randomized search on hyper parameters."
 _randomized_description = """\
+The parameters of the estimator used to apply these methods are optimized
+by cross-validated search over parameter settings.
+
 In contrast to GridSearchCV, not all parameter values are tried out, but
 rather a fixed number of parameter settings is sampled from the specified
 distributions. The number of parameter settings that are tried is
@@ -1625,6 +1636,8 @@ n_iter : int, default=10
 random_state : int or RandomState
     Pseudo random number generator state used for random uniform sampling
     from lists of possible values instead of scipy.stats distributions.\
+    Pass an int for reproducible output across multiple function calls.
+
 """
 _randomized_example = """\
 >>> import dask_ml.model_selection as dcv

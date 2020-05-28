@@ -43,7 +43,7 @@ from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.svm import SVC
 
 import dask_ml.model_selection as dcv
-from dask_ml._compat import DISTRIBUTED_2_11_0, SK_022, WINDOWS
+from dask_ml._compat import DISTRIBUTED_2_11_0, SK_024, WINDOWS
 from dask_ml.model_selection import check_cv, compute_n_splits
 from dask_ml.model_selection._search import _normalize_n_jobs
 from dask_ml.model_selection.methods import CVCache
@@ -55,12 +55,6 @@ from dask_ml.model_selection.utils_test import (
     MockClassifierWithFitParam,
     ScalingTransformer,
 )
-
-if SK_022:
-    # deprecated in 0.22
-    iid = {}
-else:
-    iid = {"iid": True}
 
 
 def _passthrough_scorer(estimator, *args, **kwargs):
@@ -93,7 +87,7 @@ def test_visualize():
     X, y = make_classification(n_samples=100, n_classes=2, flip_y=0.2, random_state=0)
     clf = SVC(random_state=0, gamma="auto")
     grid = {"C": [0.1, 0.5, 0.9]}
-    gs = dcv.GridSearchCV(clf, grid).fit(X, y)
+    gs = dcv.GridSearchCV(clf, param_grid=grid).fit(X, y)
 
     assert hasattr(gs, "dask_graph_")
 
@@ -102,7 +96,7 @@ def test_visualize():
         assert os.path.exists(os.path.join(d, "mydask.png"))
 
     # Doesn't work if not fitted
-    gs = dcv.GridSearchCV(clf, grid)
+    gs = dcv.GridSearchCV(clf, param_grid=grid)
     with pytest.raises(NotFittedError):
         gs.visualize()
 
@@ -321,7 +315,7 @@ def test_grid_search_dask_inputs():
     for X, y, groups in product(
         [np_X, da_X, del_X], [np_y, da_y, del_y], [np_groups, da_groups, del_groups]
     ):
-        gs = dcv.GridSearchCV(clf, grid, cv=cv)
+        gs = dcv.GridSearchCV(clf, param_grid=grid, cv=cv)
 
         with pytest.raises(ValueError) as exc:
             gs.fit(X, y)
@@ -393,7 +387,7 @@ def test_pipeline_feature_union():
         svc__C=[0.1, 1, 10],
     )
 
-    gs = GridSearchCV(pipe, param_grid=param_grid, cv=3, **iid)
+    gs = GridSearchCV(pipe, param_grid=param_grid, cv=3)
     gs.fit(X, y)
     dgs = dcv.GridSearchCV(pipe, param_grid=param_grid, scheduler="sync", cv=3)
     dgs.fit(X, y)
@@ -451,7 +445,7 @@ def test_pipeline_sub_estimators():
         },
     ]
 
-    gs = GridSearchCV(pipe, param_grid=param_grid, return_train_score=True, cv=3, **iid)
+    gs = GridSearchCV(pipe, param_grid=param_grid, return_train_score=True, cv=3,)
     gs.fit(X, y)
     dgs = dcv.GridSearchCV(
         pipe, param_grid=param_grid, scheduler="sync", return_train_score=True, cv=3
@@ -494,6 +488,7 @@ def check_scores_all_nan(gs, bad_param, score_key="score"):
     )
 
 
+@pytest.mark.xfail(SK_024, reason="https://github.com/dask/dask-ml/issues/672")
 @pytest.mark.parametrize(
     "weights", [None, (None, {"tr0": 2, "tr2": 3}, {"tr0": 2, "tr2": 4})]
 )
@@ -539,7 +534,7 @@ def test_feature_union(weights):
     )
 
     pipe = Pipeline([("union", union), ("est", CheckXClassifier())])
-    gs = dcv.GridSearchCV(pipe, grid, refit=False, cv=2, n_jobs=1)
+    gs = dcv.GridSearchCV(pipe, param_grid=grid, refit=False, cv=2, n_jobs=1)
 
     gs.fit(X, y)
 
@@ -561,7 +556,7 @@ def test_feature_union_fit_failure():
     )
 
     grid = {"union__bad__parameter": [0, 1, 2]}
-    gs = dcv.GridSearchCV(pipe, grid, refit=False, scoring=None)
+    gs = dcv.GridSearchCV(pipe, param_grid=grid, refit=False, scoring=None)
 
     # Check that failure raises if error_score is `'raise'`
     with pytest.raises(ValueError):
@@ -592,7 +587,7 @@ def test_feature_union_fit_failure_multiple_metrics():
     )
 
     grid = {"union__bad__parameter": [0, 1, 2]}
-    gs = dcv.GridSearchCV(pipe, grid, refit=False, scoring=scoring)
+    gs = dcv.GridSearchCV(pipe, param_grid=grid, refit=False, scoring=scoring)
 
     # Check that failure raises if error_score is `'raise'`
     with pytest.raises(ValueError):
@@ -653,7 +648,7 @@ def test_pipeline_fit_failure():
             FailingClassifier.FAILING_SCORE_PARAMETER,
         ]
     }
-    gs = dcv.GridSearchCV(pipe, grid, refit=False)
+    gs = dcv.GridSearchCV(pipe, param_grid=grid, refit=False)
 
     # Check that failure raises if error_score is `'raise'`
     with pytest.raises(ValueError):
@@ -686,7 +681,9 @@ def test_estimator_predict_failure(in_pipeline):
             FailingClassifier.FAILING_SCORE_PARAMETER,
         ]
     }
-    gs = dcv.GridSearchCV(clf, grid, refit=False, error_score=float("nan"), cv=2)
+    gs = dcv.GridSearchCV(
+        clf, param_grid=grid, refit=False, error_score=float("nan"), cv=2
+    )
     gs.fit(X, y)
 
 
@@ -696,12 +693,12 @@ def test_pipeline_raises():
     pipe = Pipeline([("step1", MockClassifier()), ("step2", MockClassifier())])
 
     grid = {"step3__parameter": [0, 1, 2]}
-    gs = dcv.GridSearchCV(pipe, grid, refit=False)
+    gs = dcv.GridSearchCV(pipe, param_grid=grid, refit=False)
     with pytest.raises(ValueError):
         gs.fit(X, y)
 
     grid = {"steps": [[("one", MockClassifier()), ("two", MockClassifier())]]}
-    gs = dcv.GridSearchCV(pipe, grid, refit=False)
+    gs = dcv.GridSearchCV(pipe, param_grid=grid, refit=False)
     with pytest.raises(NotImplementedError):
         gs.fit(X, y)
 
@@ -713,12 +710,12 @@ def test_feature_union_raises():
     pipe = Pipeline([("union", union), ("est", MockClassifier())])
 
     grid = {"union__tr2__parameter": [0, 1, 2]}
-    gs = dcv.GridSearchCV(pipe, grid, refit=False)
+    gs = dcv.GridSearchCV(pipe, param_grid=grid, refit=False)
     with pytest.raises(ValueError):
         gs.fit(X, y)
 
     grid = {"union__transformer_list": [[("one", MockClassifier())]]}
-    gs = dcv.GridSearchCV(pipe, grid, refit=False)
+    gs = dcv.GridSearchCV(pipe, param_grid=grid, refit=False)
     with pytest.raises(NotImplementedError):
         gs.fit(X, y)
 
@@ -892,7 +889,6 @@ def test_cv_multiplemetrics():
         refit="score1",
         scoring={"score1": "accuracy", "score2": "accuracy"},
         cv=3,
-        **iid,
     )
     b = GridSearchCV(
         RandomForestClassifier(n_estimators=10),
@@ -900,7 +896,6 @@ def test_cv_multiplemetrics():
         refit="score1",
         scoring={"score1": "accuracy", "score2": "accuracy"},
         cv=3,
-        **iid,
     )
     a.fit(X, y)
     b.fit(X, y)
@@ -953,14 +948,9 @@ def test_gridsearch_with_arraylike_fit_param(cache_cv):
     param_grid = {"foo_param": [0.0001, 0.1]}
 
     a = dcv.GridSearchCV(
-        MockClassifierWithFitParam(),
-        param_grid,
-        cv=3,
-        **iid,
-        refit=False,
-        cache_cv=cache_cv,
+        MockClassifierWithFitParam(), param_grid, cv=3, refit=False, cache_cv=cache_cv,
     )
-    b = GridSearchCV(MockClassifierWithFitParam(), param_grid, cv=3, **iid, refit=False)
+    b = GridSearchCV(MockClassifierWithFitParam(), param_grid, cv=3, refit=False)
 
     b.fit(X, y, mock_fit_param=[0, 1])
     a.fit(X, y, mock_fit_param=[0, 1])
