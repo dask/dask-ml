@@ -108,10 +108,15 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         suitable for initial exploration.
 
     explore : bool, int, default=False
+        Run a search geared towards an initial exploratory search if this
+        parameter is specified.
+
         If ``explore=True`` is specified, run a custom exploratory search aimed
         at replicating Hyperband's performance with less computation.
         If ``explore`` is an integer, repeat the most exploratory bracket
-        ``explore`` times.
+        ``explore`` times. If it's negative, run the most exploratory bracket
+        ``len(self.metadata["brackets"]) - explore + 1`` times (which mirrors
+        list indexing).
 
         This parameter is typically used
         if not much is known about the hyperparameters and/or model.
