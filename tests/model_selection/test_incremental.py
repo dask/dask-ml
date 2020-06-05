@@ -4,7 +4,6 @@ import itertools
 import logging
 import random
 import sys
-from time import time
 
 import dask.array as da
 import dask.dataframe as dd
