@@ -4,6 +4,7 @@ import itertools
 import logging
 import random
 import sys
+from time import time
 
 import dask.array as da
 import dask.dataframe as dd
@@ -114,7 +115,8 @@ async def test_basic(c, s, a, b):
     for key in keys:
         del models[key]
 
-    while c.futures or s.tasks:  # Make sure cleans up cleanly after running
+    # Make sure cleans up cleanly after running
+    while c.futures or s.tasks:
         await asyncio.sleep(0.1)
 
     # smoke test for ndarray X_test and y_test
