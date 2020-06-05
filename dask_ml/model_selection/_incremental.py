@@ -242,7 +242,7 @@ async def _fit(
         priorities
             The ranks of the scores. This is set the models score except
             for the bottom `num_workers` priorities (which are set to the
-            same priority).
+            same priority for performance reasons).
 
         """
         models = [k for k in model_scores]
