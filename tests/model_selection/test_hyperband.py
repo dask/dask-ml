@@ -488,6 +488,29 @@ def test_explore(explore):
     _test_explore()
 
 
+@pytest.mark.parametrize("max_iter", [2, 3, 9, 27])
+def test_hyperband_bracket_ordered_correctly(max_iter):
+    """This test for the following:
+
+    1. That 0 is the least adaptive bracket and -1 is the most adaptive bracket
+    2. That the number of brackets is as-expected (useful for explore and
+       how many exploratory brackets to run).
+    """
+    # Some basic testing to make sure brackets ordered correctly
+    X, y = make_classification(n_samples=10, n_features=4, chunks=10)
+    model = ConstantFunction()
+    params = {"value": scipy.stats.uniform(0, 1)}
+    search = HyperbandSearchCV(model, params, max_iter=max_iter)
+    meta = search.metadata["brackets"]
+    assert meta[0]["bracket"] == 0
+    n_brackets = {27: 4, 9: 3, 3: 2, 2: 1}
+    assert meta[-1]["bracket"] == n_brackets[max_iter] - 1
+    assert len(meta) == n_brackets[max_iter]
+    if max_iter >= 3:
+        assert len(meta[0]["decisions"]) < len(meta[-1]["decisions"])
+        assert meta[0]["n_models"] < meta[-1]["n_models"]
+
+
 @gen_cluster(client=True, timeout=5000)
 def test_explore_eq_0_valid(c, s, a, b):
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)

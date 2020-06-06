@@ -110,17 +110,18 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         optimal. ``aggressiveness=4`` has higher confidence that is likely
         suitable for initial exploration.
 
-    explore : int, default=None
+    explore : int, bool, default=False
         Run a search geared towards an initial exploratory search if this
-        parameter is specified.
+        parameter is specified. ``explore`` is typically specified when
+        not much is known about the hyperparameters and/or model.
 
+        If ``explore`` is a bool, run a search aimed at finding the same
+        validation accuracy as Hyperband with ``explore=False`` but with much
+        less computation.
         If ``explore`` is an integer, repeat the most exploratory bracket
         ``explore`` times. If it's negative, run the most exploratory bracket
-        ``len(self.metadata["brackets"]) - explore + 1`` times (which mirrors
-        list indexing).
-
-        This parameter is typically used
-        if not much is known about the hyperparameters and/or model.
+        ``len(self.metadata["brackets"]) + explore + 1`` times (which mirrors
+        negative list indexing).
 
         When ``explore == -1``, this class
         will perform the same amount of computation as when
@@ -419,28 +420,26 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         ]
 
         if self.explore:
-            # b is the key/index of the most aggressive bracket
-            b = len(brackets) - 1
-            SHA = SHAs[-1]
 
-            if self.explore is not None and self.explore > 0:
+            if isinstance(self.explore, bool):
+                n_repeats = max(2, len(SHAs) // 2)
+            elif isinstance(self.explore, int) and self.explore > 0:
                 n_repeats = self.explore
-                out = {
-                    float(f"{b}.{k}"): clone(SHA).set_params(
-                        random_state=seed_start + k
-                    )
-                    for k in range(n_repeats)
-                }
-            elif self.explore is not None and self.explore < 0:
+            elif isinstance(self.explore, int) and self.explore < 0:
                 n_repeats = len(SHAs) + self.explore + 1
-                out = {
-                    float(f"{b}.{k}"): clone(SHA).set_params(
-                        random_state=seed_start + k
-                    )
-                    for k in range(n_repeats)
-                }
             else:
                 raise ValueError("explore={self.explore} is not an integer")
+
+            # b is the key/index of the most aggressive bracket
+            b = len(brackets) - 1
+            SHA = SHAs[-1]  # the most exploratory bracket
+
+            out = {
+                float(f"{b}.{k}"): clone(SHA).set_params(
+                    random_state=seed_start + k
+                )
+                for k in range(n_repeats)
+            }
         else:
             out = {b: SHA for b, SHA in enumerate(SHAs)}
         return out
