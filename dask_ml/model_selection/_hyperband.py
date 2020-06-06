@@ -131,10 +131,6 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
 
         .. note::
 
-           Use of ``explore=2`` or ``explore=3`` is recommended.
-
-        .. note::
-
            When ``explore`` is specified, ``patience=True`` only stops
            high performing models if they've converged (Hyperband's most
            exploratory bracket will stop low performing models).
