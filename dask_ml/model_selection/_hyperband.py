@@ -435,9 +435,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
             SHA = SHAs[-1]  # the most exploratory bracket
 
             out = {
-                float(f"{b}.{k}"): clone(SHA).set_params(
-                    random_state=seed_start + k
-                )
+                float(f"{b}.{k}"): clone(SHA).set_params(random_state=seed_start + k)
                 for k in range(n_repeats)
             }
         else:
