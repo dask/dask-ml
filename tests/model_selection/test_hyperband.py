@@ -13,7 +13,6 @@ from distributed.utils_test import (  # noqa: F401
     gen_cluster,
     loop,
 )
-from sklearn.base import clone
 from sklearn.linear_model import SGDClassifier
 
 from dask_ml._compat import DISTRIBUTED_2_5_0

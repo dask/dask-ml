@@ -7,6 +7,7 @@ from copy import copy
 from warnings import warn
 
 import numpy as np
+from sklearn.base import clone
 from sklearn.utils import check_random_state
 
 from ._incremental import BaseIncrementalSearchCV
@@ -429,13 +430,17 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
             if self.explore is not None and self.explore > 0:
                 n_repeats = self.explore
                 out = {
-                    float(f"{b}.{k}"): copy(SHA).set_params(random_state=seed_start + k)
+                    float(f"{b}.{k}"): clone(SHA).set_params(
+                        random_state=seed_start + k
+                    )
                     for k in range(n_repeats)
                 }
             elif self.explore is not None and self.explore < 0:
                 n_repeats = len(SHAs) + self.explore + 1
                 out = {
-                    float(f"{b}.{k}"): copy(SHA).set_params(random_state=seed_start + k)
+                    float(f"{b}.{k}"): clone(SHA).set_params(
+                        random_state=seed_start + k
+                    )
                     for k in range(n_repeats)
                 }
             else:
