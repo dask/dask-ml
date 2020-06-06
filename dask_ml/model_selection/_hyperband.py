@@ -26,8 +26,10 @@ def _get_hyperband_params(R, eta=3):
 
     Returns
     -------
-    brackets : Dict[int, Tuple[int, int]]
-        A dictionary of the form {bracket_id: (n_models, n_initial_iter)}
+    brackets : List[Tuple[int, int]]
+        Bracket information. Each item is (n_models, n_initial_iter) for each
+        bracket. ``brackets[0]`` is the least adaptive. ``brackets[-1]`` is the
+        has the most aggressive early stopping condition.
 
     Notes
     -----
@@ -47,10 +49,10 @@ def _get_hyperband_params(R, eta=3):
     s_max = math.floor(math.log(R, eta))
     B = (s_max + 1) * R
 
-    brackets = list(reversed(range(int(s_max + 1))))
+    brackets = list(range(int(s_max + 1)))
     N = [int(math.ceil(B / R * eta ** s / (s + 1))) for s in brackets]
     R = [int(R * eta ** -s) for s in brackets]
-    return {b: (n, r) for b, n, r in zip(brackets, N, R)}
+    return [(n, r) for n, r in zip(N, R)]
 
 
 class HyperbandSearchCV(BaseIncrementalSearchCV):
@@ -107,12 +109,10 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         optimal. ``aggressiveness=4`` has higher confidence that is likely
         suitable for initial exploration.
 
-    explore : bool, int, default=False
+    explore : int, default=None
         Run a search geared towards an initial exploratory search if this
         parameter is specified.
 
-        If ``explore=True`` is specified, run a custom exploratory search aimed
-        at replicating Hyperband's performance with less computation.
         If ``explore`` is an integer, repeat the most exploratory bracket
         ``explore`` times. If it's negative, run the most exploratory bracket
         ``len(self.metadata["brackets"]) - explore + 1`` times (which mirrors
@@ -121,12 +121,16 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         This parameter is typically used
         if not much is known about the hyperparameters and/or model.
 
-        When ``explore == len(self.metadata["brackets"])``, this class
+        When ``explore == -1``, this class
         will perform the same amount of computation as when
-        ``explore == False`` and find higher cross-validation scores [1]_.
+        ``explore == None`` and find higher cross-validation scores [1]_.
         When ``explore in [2, 3]`` and there are 5 brackets, this class will
-        mirror performance when ``explore == False`` and perform 40% or 60%
+        mirror performance when ``explore == None`` and perform 40% or 60%
         of the computation respectively.
+
+        .. note::
+
+           Use of ``explore=2`` or ``explore=3`` is recommended.
 
         .. note::
 
@@ -397,8 +401,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         self._SHA_seed = seed_start
 
         # These brackets are ordered by adaptivity; bracket=0 is least adaptive
-        SHAs = {
-            b: SuccessiveHalvingSearchCV(
+        SHAs = [
+            SuccessiveHalvingSearchCV(
                 self.estimator,
                 self.parameters,
                 n_initial_parameters=n,
@@ -413,27 +417,30 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
                 verbose=self.verbose,
                 prefix=f"{self.prefix}, bracket={b}",
             )
-            for b, (n, r) in brackets.items()
-        }
+            for b, (n, r) in enumerate(brackets)
+        ]
+
         if self.explore:
-            b = max(brackets)
-            SHA = SHAs[b]
-            if isinstance(self.explore, bool):
-                # TODO: add InverseDecaySearchCV in here
-                n_repeats = min(len(brackets), 2)
+            # b is the key/index of the most aggressive bracket
+            b = len(brackets) - 1
+            SHA = SHAs[-1]
+
+            if self.explore is not None and self.explore > 0:
+                n_repeats = self.explore
                 out = {
                     float(f"{b}.{k}"): copy(SHA).set_params(random_state=seed_start + k)
                     for k in range(n_repeats)
                 }
-            elif isinstance(self.explore, int):
+            elif self.explore is not None and self.explore < 0:
+                n_repeats = len(SHAs) + self.explore + 1
                 out = {
                     float(f"{b}.{k}"): copy(SHA).set_params(random_state=seed_start + k)
-                    for k in range(self.explore)
+                    for k in range(n_repeats)
                 }
             else:
-                raise ValueError("explore={self.explore} is not a boolean or integer")
+                raise ValueError("explore={self.explore} is not an integer")
         else:
-            out = SHAs
+            out = {b: SHA for b, SHA in enumerate(SHAs)}
         return out
 
     async def _fit(self, X, y, **fit_params):

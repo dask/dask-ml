@@ -442,34 +442,53 @@ def test_history(c, s, a, b):
         assert (np.diff(calls) >= 1).all() or len(calls) == 1
 
 
-@pytest.mark.parametrize("explore", [2, 1, True])
+@pytest.mark.parametrize("explore", [2, 1, -1, -2])
 def test_explore(explore):
     @gen_cluster(client=True, timeout=5000)
     def _test_explore(c, s, a, b):
         X, y = make_classification(n_samples=10, n_features=4, chunks=10)
         model = ConstantFunction()
         params = {"value": scipy.stats.uniform(0, 1)}
-        alg = HyperbandSearchCV(
-            model, params, max_iter=27, random_state=42, explore=explore
-        )
-        yield alg.fit(X, y)
+        kwargs = dict(max_iter=27, random_state=42)
+        search = HyperbandSearchCV(model, params, explore=explore, **kwargs)
+        yield search.fit(X, y)
 
-        model_ids = [h["model_id"] for h in alg.history_]
+        model_ids = [h["model_id"] for h in search.history_]
         assert all("bracket=" in m for m in model_ids)
-        bracket_repeat = [m.split("=")[-1].split("-")[0] for m in model_ids]
-        chosen_brackets = [b_r.split(".")[0] for b_r in bracket_repeat]
-        if isinstance(explore, bool):
-            alg2 = clone(alg).set_params(explore=False)
-            assert (
-                alg.metadata["partial_fit_calls"] < alg2.metadata["partial_fit_calls"]
-            )
-        else:
-            assert len(set(chosen_brackets)) == 1
-            assert len(set(bracket_repeat)) == explore
-        assert alg.metadata == alg.metadata_
+
+        # Which bracket is repeated? The bracket IDs are 'bracket=3.1' for
+        # "this is the 3rd most aggressive bracket on the 2nd repeat"
+        bracket_repeat = {m.split("=")[-1].split("-")[0] for m in model_ids}
+        which_bracket = {b_r.split(".")[0] for b_r in bracket_repeat}
+        which_repeat = {b_r.split(".")[1] for b_r in bracket_repeat}
+
+        if explore > 0:
+            assert len(which_bracket) == 1
+            assert len(which_repeat) == explore
+        elif explore < 0:
+            reg_search = HyperbandSearchCV(model, params, **kwargs)
+            total_brackets = len(reg_search.metadata["brackets"])
+            # 5 total bracket and explore == -2? Run 4 repeats.
+            assert 4 == 5 + (-2) + 1
+            assert len(bracket_repeat) == total_brackets + explore + 1
+
+        assert search.metadata == search.metadata_
 
     _test_explore()
 
+@gen_cluster(client=True, timeout=5000)
+def test_explore_eq_0_valid(c, s, a, b):
+    X, y = make_classification(n_samples=10, n_features=4, chunks=10)
+    model = ConstantFunction()
+    params = {"value": scipy.stats.uniform(0, 1)}
+    search = HyperbandSearchCV(
+        model, params, max_iter=27, random_state=42, explore=0
+    )
+    yield search.fit(X, y)
+
+
+    model_ids = [h["model_id"] for h in search.history_]
+    assert all("bracket=" in m for m in model_ids)
 
 @gen_cluster(client=True, timeout=5000)
 def test_logs_dont_repeat(c, s, a, b):
