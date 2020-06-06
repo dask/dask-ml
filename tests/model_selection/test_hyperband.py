@@ -285,15 +285,27 @@ def test_correct_params(c, s, a, b):
     SHAs_params = [
         bracket["SuccessiveHalvingSearchCV params"] for bracket in meta["brackets"]
     ]
-    SHA_params = base.union(
-        {
-            "n_initial_parameters",
-            "n_initial_iter",
-            "aggressiveness",
-            "max_iter",
-            "prefix",
-        }
-    ) - {"estimator__sleep", "estimator__value", "estimator", "parameters", "explore"}
+
+    # These parameters are specific to the model/param space, or Hyperband
+    hyperband_params = {
+        "estimator__sleep",
+        "estimator__value",
+        "estimator",
+        "parameters",
+        "explore",
+    }
+    SHA_params = (
+        base.union(
+            {
+                "n_initial_parameters",
+                "n_initial_iter",
+                "aggressiveness",
+                "max_iter",
+                "prefix",
+            }
+        )
+        - hyperband_params
+    )
 
     assert all(set(SHA) == SHA_params for SHA in SHAs_params)
 
@@ -476,19 +488,18 @@ def test_explore(explore):
 
     _test_explore()
 
+
 @gen_cluster(client=True, timeout=5000)
 def test_explore_eq_0_valid(c, s, a, b):
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
     model = ConstantFunction()
     params = {"value": scipy.stats.uniform(0, 1)}
-    search = HyperbandSearchCV(
-        model, params, max_iter=27, random_state=42, explore=0
-    )
+    search = HyperbandSearchCV(model, params, max_iter=27, random_state=42, explore=0)
     yield search.fit(X, y)
-
 
     model_ids = [h["model_id"] for h in search.history_]
     assert all("bracket=" in m for m in model_ids)
+
 
 @gen_cluster(client=True, timeout=5000)
 def test_logs_dont_repeat(c, s, a, b):

@@ -175,6 +175,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         (see :ref:`scoring`) to evaluate the predictions on the test set.
 
         If None, the estimator's default scorer (if available) is used.
+
     verbose : bool, float, int, optional, default: False
         If False (default), don't print logs (or pipe them to stdout). However,
         standard logging will still be used.
