@@ -127,8 +127,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         will perform the same amount of computation as when
         ``explore == None`` and find higher cross-validation scores [1]_.
         When ``explore in [2, 3]`` and there are 5 brackets, this class will
-        mirror performance when ``explore == None`` and perform 40% or 60%
-        of the computation respectively.
+        mirror performance when ``explore == None`` and perform about 40% or
+        60% of the computation respectively.
 
         .. note::
 
