@@ -4,6 +4,8 @@
 #         Giorgio Patrini
 # License: BSD 3 clause
 
+from typing import Optional, Tuple
+
 import dask
 import numpy as np
 from dask import array as da, compute, delayed
@@ -16,9 +18,10 @@ from .._utils import draw_seed
 from ..utils import _svd_flip_copy, check_array
 from . import pca
 from .extmath import _incremental_mean_and_var
+from ._typing import ArrayLike
 
 
-def svd_flip(u, v):
+def svd_flip(u: ArrayLike, v: ArrayLike) -> Tuple[ArrayLike, ArrayLike]:
     """
     This is a replicate of svd_flip() which calls svd_flip_fixed()
     instead of skm.svd_flip()
@@ -121,13 +124,13 @@ class IncrementalPCA(pca.PCA):
 
     def __init__(
         self,
-        n_components=None,
-        whiten=False,
-        copy=True,
-        batch_size=None,
-        svd_solver="auto",
-        iterated_power=0,
-        random_state=None,
+        n_components: Optional[int] = None,
+        whiten: bool = False,
+        copy: bool = True,
+        batch_size: Optional[int] = None,
+        svd_solver: str = "auto",
+        iterated_power: int = 0,
+        random_state: Optional[int] = None,
     ):
         self.n_components = n_components
         self.whiten = whiten
@@ -137,7 +140,7 @@ class IncrementalPCA(pca.PCA):
         self.iterated_power = iterated_power
         self.random_state = random_state
 
-    def _fit(self, X, y=None):
+    def _fit(self, X: ArrayLike, y: Optional[ArrayLike] = None) -> "IncrementalPCA":
         """Fit the model with X, using minibatches of size batch_size.
 
         Parameters
@@ -189,7 +192,9 @@ class IncrementalPCA(pca.PCA):
 
         return self
 
-    def fit_transform(self, X, y=None):
+    def fit_transform(
+        self, X: ArrayLike, y: Optional[ArrayLike] = None
+    ) -> "IncrementalPCA":
         """Fit the model with X and apply the dimensionality reduction on X.
 
         Parameters
@@ -216,7 +221,9 @@ class IncrementalPCA(pca.PCA):
             # fit method of arity 2 (supervised transformation)
             return self.fit(X, y).transform(X)
 
-    def partial_fit(self, X, y=None, check_input=True):
+    def partial_fit(
+        self, X: ArrayLike, y: Optional[ArrayLike] = None, check_input: bool = True
+    ) -> "IncrementalPCA":
         """Incremental fit with X. All of X is processed as a single batch.
 
         Parameters

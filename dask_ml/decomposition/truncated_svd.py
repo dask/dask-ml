@@ -1,13 +1,21 @@
+from typing import Optional
+
 import dask.array as da
 from dask import compute
 from sklearn.base import BaseEstimator, TransformerMixin
 
+from .._typing import ArrayLike
 from ..utils import svd_flip
 
 
 class TruncatedSVD(BaseEstimator, TransformerMixin):
     def __init__(
-        self, n_components=2, algorithm="tsqr", n_iter=5, random_state=None, tol=0.0
+        self,
+        n_components: int = 2,
+        algorithm: str = "tsqr",
+        n_iter: int = 5,
+        random_state=None,
+        tol: float = 0.0,
     ):
         """Dimensionality reduction using truncated SVD (aka LSA).
 
@@ -115,7 +123,7 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
         self.random_state = random_state
         self.tol = tol
 
-    def fit(self, X, y=None):
+    def fit(self, X: ArrayLike, y: Optional[ArrayLike] = None) -> "TruncatedSVD":
         """Fit truncated SVD on training data X
 
         Parameters
@@ -133,7 +141,7 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
         self.fit_transform(X)
         return self
 
-    def _check_array(self, X):
+    def _check_array(self, X: ArrayLike) -> ArrayLike:
         if self.n_components >= X.shape[1]:
             raise ValueError(
                 "n_components must be < n_features; "
@@ -141,7 +149,7 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
             )
         return X
 
-    def fit_transform(self, X, y=None):
+    def fit_transform(self, X: ArrayLike, y: Optional[ArrayLike] = None) -> ArrayLike:
         """Fit model to X and perform dimensionality reduction on X.
 
         Parameters
@@ -186,7 +194,7 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
         self.n_features_in_ = X.shape[1]
         return X_transformed
 
-    def transform(self, X, y=None):
+    def transform(self, X: ArrayLike, y: Optional[ArrayLike] = None) -> ArrayLike:
         """Perform dimensionality reduction on X.
 
         Parameters
@@ -206,7 +214,7 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
         """
         return X.dot(self.components_.T)
 
-    def inverse_transform(self, X):
+    def inverse_transform(self, X: ArrayLike) -> ArrayLike:
         """Transform X back to its original space.
 
         Returns an array X_original whose transform would be X.

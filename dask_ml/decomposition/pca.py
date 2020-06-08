@@ -1,4 +1,5 @@
 import numbers
+from typing import List, Optional, Tuple, Union
 
 import dask
 import dask.array as da
@@ -10,6 +11,7 @@ from sklearn.utils.extmath import fast_logdet
 from sklearn.utils.validation import check_random_state
 
 from .._compat import check_is_fitted
+from .._typing import ArrayLike, DataFrameType
 from .._utils import draw_seed
 from ..utils import svd_flip
 
@@ -179,13 +181,13 @@ class PCA(sklearn.decomposition.PCA):
 
     def __init__(
         self,
-        n_components=None,
-        copy=True,
-        whiten=False,
+        n_components: Optional[int] = None,
+        copy: bool = True,
+        whiten: bool = False,
         svd_solver="auto",
-        tol=0.0,
-        iterated_power=0,
-        random_state=None,
+        tol: float = 0.0,
+        iterated_power: int = 0,
+        random_state: Optional[Union[int, np.random.RandomState]] = None,
     ):
         self.n_components = n_components
         self.copy = copy
@@ -195,14 +197,14 @@ class PCA(sklearn.decomposition.PCA):
         self.iterated_power = iterated_power
         self.random_state = random_state
 
-    def fit(self, X, y=None):
+    def fit(self, X: da.Array, y: da.Array = None) -> "PCA":
         if not dask.is_dask_collection(X):
             raise TypeError(_TYPE_MSG.format(type(X)))
         self._fit(X)
         self.n_features_in_ = X.shape[1]
         return self
 
-    def _get_solver(self, X, n_components):
+    def _get_solver(self, X: da.Array, n_components: int) -> str:
         n_samples, n_features = X.shape
         solvers = {"full", "auto", "tsqr", "randomized"}
         solver = self.svd_solver
@@ -249,7 +251,9 @@ class PCA(sklearn.decomposition.PCA):
             raise ValueError(msg)
         return solver
 
-    def _fit(self, X):
+    def _fit(
+        self, X: Union[ArrayLike, DataFrameType]
+    ) -> Tuple[ArrayLike, ArrayLike, ArrayLike]:
         if isinstance(X, dd.DataFrame):
             X = X.values
 
@@ -365,7 +369,7 @@ class PCA(sklearn.decomposition.PCA):
 
         return U, S, V
 
-    def transform(self, X):
+    def transform(self, X: ArrayLike) -> ArrayLike:
         """Apply dimensionality reduction on X.
 
         X is projected on the first principal components previous extracted
@@ -392,7 +396,7 @@ class PCA(sklearn.decomposition.PCA):
             X_transformed /= np.sqrt(self.explained_variance_)
         return X_transformed
 
-    def fit_transform(self, X, y=None):
+    def fit_transform(self, X: ArrayLike, y: Optional[ArrayLike] = None) -> ArrayLike:
         """Fit the model with X and apply the dimensionality reduction on X.
 
         Parameters
@@ -423,7 +427,7 @@ class PCA(sklearn.decomposition.PCA):
 
         return U
 
-    def inverse_transform(self, X):
+    def inverse_transform(self, X: ArrayLike) -> ArrayLike:
         """Transform data back to its original space.
 
         Returns an array X_original whose transform would be X.
@@ -456,7 +460,7 @@ class PCA(sklearn.decomposition.PCA):
         else:
             return da.dot(X, self.components_) + self.mean_
 
-    def score_samples(self, X):
+    def score_samples(self, X: ArrayLike) -> ArrayLike:
         """Return the log-likelihood of each sample.
 
         See. "Pattern Recognition and Machine Learning"
@@ -483,7 +487,7 @@ class PCA(sklearn.decomposition.PCA):
         log_like -= 0.5 * (n_features * da.log(2.0 * np.pi) - fast_logdet(precision))
         return log_like
 
-    def score(self, X, y=None):
+    def score(self, X: ArrayLike, y: Optional[ArrayLike] = None):
         """Return the average log-likelihood of all samples.
 
         See. "Pattern Recognition and Machine Learning"
@@ -505,5 +509,5 @@ class PCA(sklearn.decomposition.PCA):
         return da.mean(self.score_samples(X))
 
 
-def _known_shape(shape):
+def _known_shape(shape: List[int]):
     return all(isinstance(x, numbers.Integral) for x in shape)
