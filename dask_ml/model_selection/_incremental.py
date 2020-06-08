@@ -236,18 +236,22 @@ async def _fit(
                 metas = await asyncio.wait_for(asyncio.gather(*new_scores), timeout=1)
                 break
             #  except:  # this still doesn't catch the IndexError?
-            except (TimeoutError, CancelledError, IndexError, KilledWorker):
+            except (TimeoutError, CancelledError, IndexError, KilledWorker, AssertionError):
                 if interrupt and interrupt.is_set():
                     logger.info("[CV%s] Timeout recieved; breaking now", prefix)
                     raise KeyboardInterrupt
         return metas
-
 
     # async for future, result in seq:
     for _i in itertools.count():
         try:
             metas = await _get_meta(new_scores, interrupt)
         except KeyboardInterrupt:
+            # Cancel any futures in score/models
+            for futures in [models.values(), scores.values()]:
+                for future in futures:
+                    if not future.done():
+                        del future
             break
 
         if log_delay and _i % int(log_delay) == 0:
@@ -313,6 +317,11 @@ async def _fit(
 
     models = {k: client.submit(operator.getitem, v, 0) for k, v in models.items()}
     await wait(models)
+
+    # Protect against case when keyboard interrupt raised
+    scores = {k: v for k, v in scores.items() if client.who_has(futures=v) and v.done()}
+    models = {k: v for k, v in models.items() if client.who_has(futures=v) and v.done()}
+
     scores = await client.gather(scores)
     best = max(scores.items(), key=lambda x: x[1]["score"])
 
@@ -338,7 +347,7 @@ async def fit(
     random_state=None,
     verbose: Union[bool, int] = False,
     prefix="",
-    interrupt=None
+    interrupt=None,
 ):
     """ Find a good model and search among a space of hyper-parameters
 
@@ -700,8 +709,12 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         """
 
         interrupt = asyncio.Event()
+
         def shutdown(signal, loop):
-            logger.warning("Signal received! Shutting down")
+            logger.warning(
+                "\nRequest to cancel model selection search received! "
+                "Beginning shutdown proces..."
+            )
             interrupt.set()
 
         loop = get_running_loop()
