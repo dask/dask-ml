@@ -14,7 +14,7 @@ import pytest
 import scipy
 import toolz
 from dask.distributed import Future
-from distributed.diagnostics.plugin import SchedulerPlugin, WorkerPlugin
+from distributed.diagnostics.plugin import SchedulerPlugin
 from distributed.utils_test import (  # noqa: F401
     captured_logger,
     cluster,
