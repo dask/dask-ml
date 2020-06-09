@@ -4,6 +4,7 @@ import itertools
 import logging
 import random
 import sys
+from collections import defaultdict
 
 import dask.array as da
 import dask.dataframe as dd
@@ -13,6 +14,7 @@ import pytest
 import scipy
 import toolz
 from dask.distributed import Future
+from distributed.diagnostics.plugin import SchedulerPlugin, WorkerPlugin
 from distributed.utils_test import (  # noqa: F401
     captured_logger,
     cluster,
@@ -22,6 +24,7 @@ from distributed.utils_test import (  # noqa: F401
 from scipy.stats import uniform
 from sklearn.base import clone
 from sklearn.cluster import MiniBatchKMeans
+from sklearn.datasets import make_classification as sk_make_classification
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
@@ -858,3 +861,56 @@ def test_warns_scores_per_fit(c, s, a, b):
     search = IncrementalSearchCV(model, params, scores_per_fit=2)
     with pytest.warns(UserWarning, match="deprecated since Dask-ML v1.4.0"):
         yield search.fit(X, y)
+
+@gen_cluster(client=True, nthreads=[("127.0.0.1", 1)])
+async def test_priorities(c, s, w):
+    """
+    Test to make sure models are ordered by priority.
+
+    In this case with one workers and 4 models, the ordering should be
+    exact because there's only one worker. If there are ``n_workers``
+    workers, the bottom ``n_workers`` models will be unordered and have
+    the same priority.
+    """
+    class PriorityChecker(SchedulerPlugin):
+        def __init__(self):
+            self.hist = []
+            self.hist2 = []
+            self.counter = 0
+
+        def transition(self, key, start, finish, *args, **kwargs):
+            self.hist2.append((start == "waiting", finish == "processing", "partial_fit" in key))
+            if (start == "processing") and (finish == "memory") and ("partial_fit" in key):
+                self.counter += 1
+                model, meta = w.data[key]
+                if meta["partial_fit_calls"] > 1:
+                    self.hist.append(meta)
+
+    X, y = sk_make_classification(n_samples=100, n_features=5)
+    checker = PriorityChecker()
+    s.add_plugin(checker)
+
+    params = {"value": uniform(0, 1)}
+    model = ConstantFunction(sleep=10e-3)
+
+    search = IncrementalSearchCV(model, params, max_iter=15, fits_per_score=1, decay_rate=None, n_initial_parameters=4, random_state=42)
+    await search.fit(X, y)
+    assert search.best_score_ > 0
+
+    history = defaultdict(list)
+    for h in checker.hist:
+        history[h["partial_fit_calls"]].append(h["params"]["value"])
+
+    def is_descending(l):
+        return all(a >= b for a, b in zip(l, l[1:]))
+
+    # Ideally, every partial_fit call should ordered
+    is_sorted = {k: is_descending(v) for k, v in history.items()}
+
+    # But beginning partial_fit calls don't exactly order the model
+    # fittings (or at least they're not put into memory in order)
+    assert np.mean(list(is_sorted.values())) >= 0.9
+
+    # Make sure all the later partial_fit calls are exactly ordered
+    final_keys = [k for k in history if k >= 4]
+    assert all(is_sorted[k] for k in final_keys)
