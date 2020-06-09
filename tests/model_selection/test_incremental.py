@@ -24,7 +24,6 @@ from distributed.utils_test import (  # noqa: F401
 from scipy.stats import uniform
 from sklearn.base import clone
 from sklearn.cluster import MiniBatchKMeans
-from sklearn.datasets import make_classification as sk_make_classification
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
@@ -117,8 +116,7 @@ async def test_basic(c, s, a, b):
     for key in keys:
         del models[key]
 
-    # Make sure cleans up cleanly after running
-    while c.futures or s.tasks:
+    while c.futures or s.tasks:  # Make sure cleans up cleanly after running
         await asyncio.sleep(0.1)
 
     # smoke test for ndarray X_test and y_test
@@ -894,7 +892,7 @@ async def test_priorities(c, s, w):
                 if meta["partial_fit_calls"] > 1:
                     self.hist.append(meta)
 
-    X, y = sk_make_classification(n_samples=100, n_features=5)
+    X, y = make_classification(n_samples=100, n_features=5, chunks=20)
     checker = PriorityChecker()
     s.add_plugin(checker)
 
@@ -925,8 +923,10 @@ async def test_priorities(c, s, w):
 
     # But beginning partial_fit calls don't exactly order the model
     # fittings (or at least they're not put into memory in order)
-    assert np.mean(list(is_sorted.values())) >= 0.9
+    assert np.mean(list(is_sorted.values())) >= 0.75
 
     # Make sure all the later partial_fit calls are exactly ordered
-    final_keys = [k for k in history if k >= 4]
+    final_keys = [k for k in history if k >= 6]
+    # (6 is chosen conservatively; most of the times 3 or 4 works, but it
+    # can fail inconsistently)
     assert all(is_sorted[k] for k in final_keys)
