@@ -314,9 +314,13 @@ async def _fit(
                 _scores[ident] = score
                 _specs[ident] = spec
 
-        # Give speculative models lower priority, but still some priority
+        # Give speculative models a lower priority and keep them
+        # ordered so better models finish more quickly.
+        spec_priority = {
+            k: v * 0.75 if v >= 0 else v * 4 / 3 for k, v in priorities.items()
+        }
         _models2, _scores2, _specs2 = dask.persist(
-            _models, _scores, _specs, priority={k: v / 2 for k, v in priorities.items()}
+            _models, _scores, _specs, priority=spec_priority
         )
         _models2 = {
             k: v if isinstance(v, Future) else list(v.dask.values())[0]

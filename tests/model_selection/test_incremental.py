@@ -862,6 +862,7 @@ def test_warns_scores_per_fit(c, s, a, b):
     with pytest.warns(UserWarning, match="deprecated since Dask-ML v1.4.0"):
         yield search.fit(X, y)
 
+
 @gen_cluster(client=True, nthreads=[("127.0.0.1", 1)])
 async def test_priorities(c, s, w):
     """
@@ -872,6 +873,7 @@ async def test_priorities(c, s, w):
     workers, the bottom ``n_workers`` models will be unordered and have
     the same priority.
     """
+
     class PriorityChecker(SchedulerPlugin):
         def __init__(self):
             self.hist = []
@@ -879,8 +881,14 @@ async def test_priorities(c, s, w):
             self.counter = 0
 
         def transition(self, key, start, finish, *args, **kwargs):
-            self.hist2.append((start == "waiting", finish == "processing", "partial_fit" in key))
-            if (start == "processing") and (finish == "memory") and ("partial_fit" in key):
+            self.hist2.append(
+                (start == "waiting", finish == "processing", "partial_fit" in key)
+            )
+            if (
+                (start == "processing")
+                and (finish == "memory")
+                and ("partial_fit" in key)
+            ):
                 self.counter += 1
                 model, meta = w.data[key]
                 if meta["partial_fit_calls"] > 1:
@@ -893,7 +901,15 @@ async def test_priorities(c, s, w):
     params = {"value": uniform(0, 1)}
     model = ConstantFunction(sleep=10e-3)
 
-    search = IncrementalSearchCV(model, params, max_iter=15, fits_per_score=1, decay_rate=None, n_initial_parameters=4, random_state=42)
+    search = IncrementalSearchCV(
+        model,
+        params,
+        max_iter=15,
+        fits_per_score=1,
+        decay_rate=None,
+        n_initial_parameters=4,
+        random_state=42,
+    )
     await search.fit(X, y)
     assert search.best_score_ > 0
 
