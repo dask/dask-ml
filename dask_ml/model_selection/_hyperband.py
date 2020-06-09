@@ -116,7 +116,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         not much is known about the hyperparameters and/or model.
 
         If ``explore`` is a bool, run a search aimed at finding the same
-        validation accuracy as Hyperband with ``explore=False`` but with much
+        validation accuracy as Hyperband with ``explore=False`` but with
         less computation.
         If ``explore`` is an integer, repeat the most exploratory bracket
         ``explore`` times. If it's negative, run the most exploratory bracket
@@ -125,10 +125,10 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
 
         When ``explore == -1``, this class
         will perform the same amount of computation as when
-        ``explore == None`` and find higher cross-validation scores [1]_.
-        When ``explore in [2, 3]`` and there are 5 brackets, this class will
-        mirror performance when ``explore == None`` and perform about 40% or
-        60% of the computation respectively.
+        ``explore`` isn't specified and find higher cross-validation
+        scores [1]_.  When ``explore == 3`` and there are 5 brackets,
+        this class will mirror performance when ``explore``
+        isn't specified and perform about 60% of the computation.
 
         .. note::
 
@@ -137,7 +137,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
            exploratory bracket will stop low performing models).
 
            It's recommended to set ``patience=True`` with an appropriate
-           ``tol`` if you're unsure about the number of ``partial_fit``
+           ``tol`` only if you're unsure about the number of ``partial_fit``
            calls required for convergence.
 
     patience : int, default False
