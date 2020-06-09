@@ -217,7 +217,7 @@ async def _fit(
         _scores[ident] = score
         _specs[ident] = spec
     _models, _scores, _specs = dask.persist(
-        _models, _scores, _specs, priority={tuple(_specs.values()): -np.inf}
+        _models, _scores, _specs, priority={tuple(_specs.values()): -1}
     )
     models.update(_models)
     scores.update(_scores)
@@ -314,8 +314,9 @@ async def _fit(
                 _scores[ident] = score
                 _specs[ident] = spec
 
+        # Give speculative models lower priority, but still some priority
         _models2, _scores2, _specs2 = dask.persist(
-            _models, _scores, _specs, priority={tuple(_specs.values()): -np.inf}
+            _models, _scores, _specs, priority={k: v / 2 for k, v in priorities.items()}
         )
         _models2 = {
             k: v if isinstance(v, Future) else list(v.dask.values())[0]
