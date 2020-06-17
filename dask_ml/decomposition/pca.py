@@ -250,7 +250,9 @@ class PCA(sklearn.decomposition.PCA):
         return solver
 
     def _fit(self, X):
+        n_samples, n_features = X.shape
         if isinstance(X, dd.DataFrame):
+            n_samples = len(X)
             X = X.values
 
         # Handle n_components==None
@@ -264,7 +266,6 @@ class PCA(sklearn.decomposition.PCA):
         else:
             n_components = self.n_components
 
-        n_samples, n_features = X.shape
         solver = self._get_solver(X, n_components)
 
         self.mean_ = X.mean(0)
