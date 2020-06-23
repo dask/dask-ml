@@ -67,7 +67,7 @@ def _add_intercept(x):
 
 
 @dispatch(da.Array)  # noqa: F811
-def add_intercept(X):
+def add_intercept(X):  # noqa: F811
     if X.ndim != 2:
         raise ValueError("'X' should have 2 dimensions, not {}".format(X.ndim))
 
@@ -84,7 +84,7 @@ def add_intercept(X):
 
 
 @dispatch(dd.DataFrame)  # noqa: F811
-def add_intercept(X):
+def add_intercept(X):  # noqa: F811
     columns = X.columns
     if "intercept" in columns:
         raise ValueError("'intercept' column already in 'X'")

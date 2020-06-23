@@ -15,6 +15,7 @@ from dask.array.utils import assert_eq
 from sklearn.cluster import KMeans as SKKMeans
 from sklearn.utils.estimator_checks import check_estimator
 
+import dask_ml.cluster
 from dask_ml.cluster import KMeans as DKKMeans, k_means
 from dask_ml.cluster._compat import _k_init
 from dask_ml.utils import assert_estimator_equal, row_norms
@@ -23,7 +24,7 @@ from dask_ml.utils import assert_estimator_equal, row_norms
 def test_check_estimator():
     with warnings.catch_warnings(record=True):
         warnings.simplefilter("ignore", RuntimeWarning)
-        check_estimator(DKKMeans)
+        check_estimator(DKKMeans())
 
 
 def test_row_norms(X_blobs):
@@ -98,7 +99,7 @@ class TestKMeans:
         skkm = SKKMeans(3, init=init, random_state=0, n_init=1)
         dkkm.fit(X)
         skkm.fit(X_)
-        assert_eq(dkkm.inertia_, skkm.inertia_)
+        assert abs(skkm.inertia_ - dkkm.inertia_) < 0.001
 
     def test_kmeanspp_init(self, Xl_blobs_easy):
         X, y = Xl_blobs_easy
@@ -174,7 +175,6 @@ class TestKMeans:
             a.fit(xx)
             b.fit(xx)
             assert a.cluster_centers_.dtype == b.cluster_centers_.dtype
-            assert a.inertia_.dtype == b.inertia_.dtype
             assert a.labels_.dtype == b.labels_.dtype
             assert a.transform(xx).dtype == b.transform(xx).dtype
             assert a.transform(yy).dtype == b.transform(yy).dtype
@@ -187,3 +187,10 @@ def test_dataframes():
 
     kmeans = DKKMeans()
     kmeans.fit(df)
+
+
+def test_empty_chunks():
+    # https://github.com/dask/dask-ml/issues/551
+    X = da.random.random((100, 4), chunks=((0, 5, 95), (4,)))
+    trn = dask_ml.cluster.KMeans(n_clusters=2).fit_transform(X)  # it works
+    assert trn.chunks == ((5, 95), (2,))

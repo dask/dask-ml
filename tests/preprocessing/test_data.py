@@ -1,9 +1,11 @@
+from copy import copy
+
 import dask
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import pandas as pd
-import pandas.util.testing as tm
+import pandas.testing as tm
 import pytest
 import sklearn.preprocessing as spp
 from dask import compute
@@ -13,7 +15,6 @@ from pandas.api.types import is_categorical_dtype, is_object_dtype
 from sklearn.exceptions import NotFittedError
 
 import dask_ml.preprocessing as dpp
-from dask_ml._compat import DASK_110
 from dask_ml.datasets import make_classification
 from dask_ml.utils import assert_estimator_equal
 
@@ -89,6 +90,15 @@ class TestStandardScaler:
         result = a.inverse_transform(a.fit_transform(X))
         assert dask.is_dask_collection(result)
         assert_eq_ar(result, X)
+
+    def test_nan(self, pandas_df):
+        pandas_df = pandas_df.copy()
+        pandas_df.iloc[0] = np.nan
+        dask_nan_df = dd.from_pandas(pandas_df, npartitions=5)
+        a = dpp.StandardScaler()
+        a.fit(dask_nan_df.values)
+        assert np.isnan(a.mean_).sum() == 0
+        assert np.isnan(a.var_).sum() == 0
 
 
 class TestMinMaxScaler:
@@ -240,7 +250,6 @@ class TestQuantileTransformer:
         dqt = dpp.QuantileTransformer()
         dqt.fit(dX)
 
-    @pytest.mark.skipif(not DASK_110, reason="unsupported")
     def test_fit_transform_frame(self):
         df = pd.DataFrame(np.random.randn(1000, 3))
         ddf = dd.from_pandas(df, 2)
@@ -404,6 +413,13 @@ class TestDummyEncoder:
         result = de.fit_transform(a)
         assert isinstance(result, dd.DataFrame)
 
+    def test_transform_explicit_columns(self):
+        de = dpp.DummyEncoder(columns=["A", "B", "C"])
+        de.fit(dummy)
+        with pytest.raises(ValueError) as rec:
+            de.transform(dummy.drop("B", axis="columns"))
+        assert rec.match("Columns of 'X' do not match the training")
+
     def test_transform_raises(self):
         de = dpp.DummyEncoder()
         de.fit(dummy)
@@ -561,11 +577,12 @@ class TestPolynomialFeatures:
         res_df = a.fit_transform(frame)
         res_arr = b.fit_transform(frame)
         res_c = c.fit_transform(frame)
+
         if daskify:
             res_pandas = a.fit_transform(frame.compute())
             assert dask.is_dask_collection(res_df)
             assert dask.is_dask_collection(res_arr)
-            assert_eq_df(res_df.compute().reset_index(drop=True), res_pandas)
+            assert_eq_df(res_df, res_pandas)
         assert_eq_ar(res_df.values, res_c)
         assert_eq_ar(res_df.values, res_arr)
 
@@ -575,3 +592,14 @@ class TestPolynomialFeatures:
         assert pf._transformer.degree == pf.degree
         assert pf._transformer.interaction_only is pf.interaction_only
         assert pf._transformer.include_bias is pf.include_bias
+
+    @pytest.mark.parametrize("daskify", [True, False])
+    def test_df_transform_index(self, daskify):
+        frame = copy(df)
+        if not daskify:
+            frame = frame.compute()
+        frame = frame.sample(frac=1.0)
+        res_df = dpp.PolynomialFeatures(
+            preserve_dataframe=True, degree=1
+        ).fit_transform(frame)
+        assert_eq_df(res_df.iloc[:, 1:], frame, check_dtype=False)

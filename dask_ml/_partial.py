@@ -2,7 +2,6 @@ from __future__ import absolute_import, division, print_function
 
 import logging
 import os
-import warnings
 
 import dask
 import numpy as np
@@ -10,79 +9,7 @@ import sklearn.utils
 from dask.delayed import Delayed
 from toolz import partial
 
-from ._utils import copy_learned_attributes
-
 logger = logging.getLogger(__name__)
-
-
-_partial_deprecation = (
-    "'{cls.__name__}' is deprecated. Use "
-    "'dask_ml.wrappers.Incremental({base.__name__}(), **kwargs)' "
-    "instead."
-)
-
-
-class _BigPartialFitMixin:
-    """ Wraps a partial_fit enabled estimator for use with Dask arrays """
-
-    _init_kwargs = []
-    _fit_kwargs = []
-
-    def __init__(self, **kwargs):
-        self._deprecated()
-        missing = set(self._init_kwargs) - set(kwargs)
-
-        if missing:
-            raise TypeError(
-                "{} requires the keyword arguments {}".format(type(self), missing)
-            )
-        for kwarg in self._init_kwargs:
-            setattr(self, kwarg, kwargs.pop(kwarg))
-        super(_BigPartialFitMixin, self).__init__(**kwargs)
-
-    @classmethod
-    def _deprecated(cls):
-        for base in cls.mro():
-            if base.__module__.startswith("sklearn"):
-                break
-
-        warnings.warn(_partial_deprecation.format(cls=cls, base=base), FutureWarning)
-
-    @classmethod
-    def _get_param_names(cls):
-        # Evil hack to make sure repr, get_params work
-        # We could also try rewriting __init__ once the class is created
-        bases = cls.mro()
-        # walk bases until you hit an sklearn class.
-        for base in bases:
-            if base.__module__.startswith("sklearn"):
-                break
-
-        # merge the inits
-        my_init = cls._init_kwargs
-        their_init = base._get_param_names()
-        return my_init + their_init
-
-    def fit(self, X, y=None, compute=True):
-        fit_kwargs = {k: getattr(self, k) for k in self._fit_kwargs}
-        result = fit(self, X, y, compute=compute, **fit_kwargs)
-
-        if compute:
-            copy_learned_attributes(result, self)
-            return self
-        return result
-
-    def predict(self, X, dtype=None):
-        predict = super(_BigPartialFitMixin, self).predict
-        if dtype is None:
-            dtype = self._get_predict_dtype(X)
-        if isinstance(X, np.ndarray):
-            return predict(X)
-        return X.map_blocks(predict, dtype=dtype, drop_axis=1)
-
-    def _get_predict_dtype(self, X):
-        xx = np.zeros((1, X.shape[1]), dtype=X.dtype)
-        return super(_BigPartialFitMixin, self).predict(xx).dtype
 
 
 def _partial_fit(model, x, y, kwargs=None):
@@ -91,7 +18,16 @@ def _partial_fit(model, x, y, kwargs=None):
     return model
 
 
-def fit(model, x, y, compute=True, shuffle_blocks=True, random_state=None, **kwargs):
+def fit(
+    model,
+    x,
+    y,
+    compute=True,
+    shuffle_blocks=True,
+    random_state=None,
+    assume_equal_chunks=False,
+    **kwargs
+):
     """ Fit scikit learn model against dask arrays
 
     Model must support the ``partial_fit`` interface for online or batch
@@ -146,44 +82,47 @@ def fit(model, x, y, compute=True, shuffle_blocks=True, random_state=None, **kwa
     >>> da.learn.predict(sgd, z)  # doctest: +SKIP
     dask.array<x_11, shape=(400,), chunks=((100, 100, 100, 100),), dtype=int64>
     """
-    if not hasattr(x, "chunks") and hasattr(x, "to_dask_array"):
-        x = x.to_dask_array()
-    assert x.ndim == 2
+
+    nblocks, x_name = _blocks_and_name(x)
     if y is not None:
-        if not hasattr(y, "chunks") and hasattr(y, "to_dask_array"):
-            y = y.to_dask_array()
+        y_nblocks, y_name = _blocks_and_name(y)
+        assert y_nblocks == nblocks
+    else:
+        y_name = ""
 
-        assert y.ndim == 1
-        assert x.chunks[0] == y.chunks[0]
+    if not hasattr(model, "partial_fit"):
+        msg = "The class '{}' does not implement 'partial_fit'."
+        raise ValueError(msg.format(type(model)))
 
-    assert hasattr(model, "partial_fit")
-    if len(x.chunks[1]) > 1:
-        x = x.rechunk(chunks=(x.chunks[0], sum(x.chunks[1])))
-
-    nblocks = len(x.chunks[0])
     order = list(range(nblocks))
     if shuffle_blocks:
         rng = sklearn.utils.check_random_state(random_state)
         rng.shuffle(order)
 
     name = "fit-" + dask.base.tokenize(model, x, y, kwargs, order)
+
+    if hasattr(x, "chunks") and x.ndim > 1:
+        x_extra = (0,)
+    else:
+        x_extra = ()
+
     dsk = {(name, -1): model}
     dsk.update(
         {
             (name, i): (
                 _partial_fit,
                 (name, i - 1),
-                (x.name, order[i], 0),
-                (getattr(y, "name", ""), order[i]),
+                (x_name, order[i]) + x_extra,
+                (y_name, order[i]),
                 kwargs,
             )
             for i in range(nblocks)
         }
     )
 
-    graphs = {x.name: x.__dask_graph__(), name: dsk}
+    graphs = {x_name: x.__dask_graph__(), name: dsk}
     if hasattr(y, "__dask_graph__"):
-        graphs[y.name] = y.__dask_graph__()
+        graphs[y_name] = y.__dask_graph__()
 
     try:
         from dask.highlevelgraph import HighLevelGraph
@@ -200,6 +139,24 @@ def fit(model, x, y, compute=True, shuffle_blocks=True, random_state=None, **kwa
         return value.compute()
     else:
         return value
+
+
+def _blocks_and_name(obj):
+    if hasattr(obj, "chunks"):
+        nblocks = len(obj.chunks[0])
+        name = obj.name
+
+    elif hasattr(obj, "npartitions"):
+        # dataframe, bag
+        nblocks = obj.npartitions
+        if hasattr(obj, "_name"):
+            # dataframe
+            name = obj._name
+        else:
+            # bag
+            name = obj.name
+
+    return nblocks, name
 
 
 def _predict(model, x):

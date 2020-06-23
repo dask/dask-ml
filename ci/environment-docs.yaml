@@ -12,6 +12,7 @@ dependencies:
   - ipython
   - isort
   - multipledispatch
+  - mypy
   - nbsphinx
   - nomkl
   - nose
@@ -25,13 +26,12 @@ dependencies:
   - pytest-mock
   - python=3.6.6
   - sortedcontainers
-  - scikit-learn>=0.21.3
+  - scikit-learn>=0.23.1
   - scipy
   - sparse
   - sphinx==1.8.5
   - sphinx_rtd_theme
   - sphinx-gallery
-  - tensorflow
   - testpath<0.4
   - tornado
   - toolz
@@ -39,10 +39,10 @@ dependencies:
   - dask-xgboost
   - zict
   - pip
+  - dask
+  - dask-glm
+  - distributed
+  - dask-xgboost
   - pip:
-    - git+https://github.com/dask/dask.git
-    - git+https://github.com/dask/distributed.git
-    - git+https://github.com/dask/dask-glm.git
-    - git+https://github.com/dask/dask-tensorflow.git
     - dask_sphinx_theme >=1.1.0
     - graphviz

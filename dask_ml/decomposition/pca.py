@@ -1,8 +1,11 @@
+import numbers
+
+import dask
 import dask.array as da
+import dask.dataframe as dd
 import numpy as np
-import scipy.sparse as sp
+import sklearn.decomposition
 from dask import compute
-from sklearn.decomposition.base import _BasePCA
 from sklearn.utils.extmath import fast_logdet
 from sklearn.utils.validation import check_random_state
 
@@ -10,8 +13,17 @@ from .._compat import check_is_fitted
 from .._utils import draw_seed
 from ..utils import svd_flip
 
+_TYPE_MSG = (
+    "Got an unsupported type ({}). Dask-ML's PCA only support Dask Arrays or "
+    "DataFrames.\n\nTo resolve this issue,\n\n"
+    "  * Use Scikit-learn's PCA through `sklearn.decomposition.PCA`  # recommended\n\n"
+    "Wrapping the input with a Dask Array/DataFrame will resolve "
+    "this issue but is *not recommended* because Dask-ML's PCA "
+    "implementation will likely be slower because the data fits in memory"
+)
 
-class PCA(_BasePCA):
+
+class PCA(sklearn.decomposition.PCA):
     """Principal component analysis (PCA)
 
     Linear dimensionality reduction using Singular Value Decomposition of the
@@ -184,10 +196,14 @@ class PCA(_BasePCA):
         self.random_state = random_state
 
     def fit(self, X, y=None):
+        if not dask.is_dask_collection(X):
+            raise TypeError(_TYPE_MSG.format(type(X)))
         self._fit(X)
+        self.n_features_in_ = X.shape[1]
         return self
 
-    def _fit(self, X):
+    def _get_solver(self, X, n_components):
+        n_samples, n_features = X.shape
         solvers = {"full", "auto", "tsqr", "randomized"}
         solver = self.svd_solver
 
@@ -195,6 +211,47 @@ class PCA(_BasePCA):
             raise ValueError(
                 "Invalid solver '{}'. Must be one of {}".format(solver, solvers)
             )
+
+        if solver == "auto":
+            # Small problem, just call full PCA
+            if not _known_shape(X.shape):
+                raise ValueError(
+                    "Cannot automatically choose PCA solver with unknown "
+                    "shapes. To clear this error,\n\n"
+                    "    * pass X.to_dask_array(lengths=True)  "
+                    "# for Dask DataFrame (dask >= 0.19)\n"
+                    "    * pass X.compute_chunk_sizes()  "
+                    "# for Dask Array X (dask >= 2.4)\n"
+                    "    * Use a specific SVD solver "
+                    "(e.g., ensure `svd_solver in ['randomized', 'tsqr', 'full']`)"
+                )
+            if max(n_samples, n_features) <= 500:
+                solver = "full"
+            elif n_components >= 1 and n_components < 0.8 * min(n_samples, n_features):
+                solver = "randomized"
+            # This is also the case of n_components in (0,1)
+            else:
+                solver = "full"
+
+        if solver == "randomized":
+            lower_limit = 1
+        else:
+            lower_limit = 0
+
+        if not (np.nanmin([n_samples, n_features]) >= n_components >= lower_limit):
+            msg = (
+                "n_components={} must be between {} and "
+                "min(n_samples, n_features)={} with "
+                "svd_solver='{}'.".format(
+                    n_components, lower_limit, min(n_samples, n_features), solver
+                )
+            )
+            raise ValueError(msg)
+        return solver
+
+    def _fit(self, X):
+        if isinstance(X, dd.DataFrame):
+            X = X.values
 
         # Handle n_components==None
         if self.n_components is None:
@@ -208,34 +265,7 @@ class PCA(_BasePCA):
             n_components = self.n_components
 
         n_samples, n_features = X.shape
-
-        if solver == "auto":
-            # Small problem, just call full PCA
-            if max(X.shape) <= 500:
-                solver = "full"
-            elif n_components >= 1 and n_components < 0.8 * min(X.shape):
-                solver = "randomized"
-            # This is also the case of n_components in (0,1)
-            else:
-                solver = "full"
-
-        if solver == "randomized":
-            lower_limit = 1
-        else:
-            lower_limit = 0
-
-        if not (min(n_samples, n_features) >= n_components >= lower_limit):
-            msg = (
-                "n_components={} must be between {} and "
-                "min(n_samples, n_features)={} with "
-                "svd_solver='{}'".format(
-                    n_components, lower_limit, min(n_samples, n_features), solver
-                )
-            )
-            raise ValueError(msg)
-
-        if sp.issparse(X):
-            raise TypeError("Cannot fit PCA on sparse 'X'")
+        solver = self._get_solver(X, n_components)
 
         self.mean_ = X.mean(0)
         X -= self.mean_
@@ -285,35 +315,53 @@ class PCA(_BasePCA):
         else:
             noise_variance = 0.0
 
-        (
-            self.n_samples_,
-            self.n_features_,
-            self.n_components_,
-            self.components_,
-            self.explained_variance_,
-            self.explained_variance_ratio_,
-            self.singular_values_,
-            self.noise_variance_,
-            self.singular_values_,
-        ) = compute(
-            n_samples,
-            n_features,
-            n_components,
-            components,
-            explained_variance,
-            explained_variance_ratio,
-            singular_values,
-            noise_variance,
-            singular_values,
-        )
+        try:
+            (
+                self.n_samples_,
+                self.n_features_,
+                self.n_components_,
+                self.components_,
+                self.explained_variance_,
+                self.explained_variance_ratio_,
+                self.singular_values_,
+                self.noise_variance_,
+                self.singular_values_,
+            ) = compute(
+                n_samples,
+                n_features,
+                n_components,
+                components,
+                explained_variance,
+                explained_variance_ratio,
+                singular_values,
+                noise_variance,
+                singular_values,
+            )
+        except ValueError as e:
+            if np.isnan([n_samples, n_features]).any():
+                msg = (
+                    "Computation of the SVD raised an error. It is possible "
+                    "n_components is too large. i.e., "
+                    "`n_components > np.nanmin(X.shape) = "
+                    "np.nanmin({})`\n\n"
+                    "A possible resolution to this error is to ensure that "
+                    "n_components <= min(n_samples, n_features)"
+                )
+                raise ValueError(msg.format(X.shape)) from e
+            raise e
 
-        if solver != "randomized":
-            self.components_ = self.components_[:n_components]
-            self.explained_variance_ = self.explained_variance_[:n_components]
-            self.explained_variance_ratio_ = self.explained_variance_ratio_[
-                :n_components
-            ]
-            self.singular_values_ = self.singular_values_[:n_components]
+        self.components_ = self.components_[:n_components]
+        self.explained_variance_ = self.explained_variance_[:n_components]
+        self.explained_variance_ratio_ = self.explained_variance_ratio_[:n_components]
+        self.singular_values_ = self.singular_values_[:n_components]
+
+        if len(self.singular_values_) < n_components:
+            self.n_components_ = len(self.singular_values_)
+            msg = (
+                "n_components={n} is larger than the number of singular values"
+                " ({s}) (note: PCA has attributes as if n_components == {s})"
+            )
+            raise ValueError(msg.format(n=n_components, s=len(self.singular_values_)))
 
         return U, S, V
 
@@ -361,6 +409,8 @@ class PCA(_BasePCA):
 
         """
         # X = check_array(X)
+        if not dask.is_dask_collection(X):
+            raise TypeError(_TYPE_MSG.format(type(X)))
         U, S, V = self._fit(X)
         U = U[:, : self.n_components_]
 
@@ -453,3 +503,7 @@ class PCA(_BasePCA):
             Average log-likelihood of the samples under the current model
         """
         return da.mean(self.score_samples(X))
+
+
+def _known_shape(shape):
+    return all(isinstance(x, numbers.Integral) for x in shape)
