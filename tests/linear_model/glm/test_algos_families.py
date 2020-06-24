@@ -130,9 +130,9 @@ def test_basic_reg_descent(func, kwargs, N, nchunks, family, lam, reg):
         (gradient_descent, {"max_iter": 2}),
     ],
 )
-@pytest.mark.parametrize("scheduler", ["synchronous", "threading", "multiprocessing"])
+@pytest.mark.parametrize("scheduler", ["synchronous", "threading"])
 def test_determinism(func, kwargs, scheduler):
-    X, y = make_intercept_data(1000, 10)
+    X, y = make_intercept_data(100, 10)
 
     with dask.config.set(scheduler=scheduler):
         a, n_iter_a = func(X, y, **kwargs)
