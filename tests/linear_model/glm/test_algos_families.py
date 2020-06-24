@@ -49,6 +49,7 @@ def make_intercept_data(N, p, seed=20009):
 )
 def test_methods(N, p, seed, opt):
     X, y = make_intercept_data(N, p, seed=seed)
+
     coefs, _ = opt(X, y)
     p = sigmoid(X.dot(coefs).compute())
 
@@ -161,7 +162,7 @@ else:
     )
     def test_determinism_distributed(func, kwargs, loop):
         with cluster() as (s, [a, b]):
-            with Client(s["address"], loop=loop) as c:
+            with Client(s["address"], loop=loop):
                 X, y = make_intercept_data(1000, 10)
 
                 a, n_iter_a = func(X, y, **kwargs)

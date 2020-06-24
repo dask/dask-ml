@@ -165,7 +165,7 @@ def gradient_descent(X, y, max_iter=100, tol=1e-14, family=Logistic, **kwargs):
 
 
 @normalize
-def newton(X, y, max_iter=50, tol=1e-8, family=Logistic, **kwargs):
+def newton(X, y, max_iter=50, tol=1e-8, family=Logistic, rcond=None, **kwargs):
     """Newton's Method for Logistic Regression.
 
     Parameters
@@ -204,7 +204,7 @@ def newton(X, y, max_iter=50, tol=1e-8, family=Logistic, **kwargs):
 
         # should this be dask or numpy?
         # currently uses Python 3 specific syntax
-        step, _, _, _ = np.linalg.lstsq(hess, grad)
+        step, _, _, _ = np.linalg.lstsq(hess, grad, rcond=rcond)
         beta = beta_old - step
 
         # should change this criterion
@@ -455,7 +455,6 @@ def proximal_grad(
     n, p = X.shape
     firstBacktrackMult = 0.1
     nextBacktrackMult = 0.5
-    armijoMult = 0.1
     stepGrowth = 1.25
     stepSize = 1.0
     recalcRate = 10
@@ -485,7 +484,6 @@ def proximal_grad(
             beta = regularizer.proximal_operator(
                 obeta - stepSize * gradient, stepSize * lamduh
             )
-            step = obeta - beta
             Xbeta = X.dot(beta)
 
             Xbeta, beta = persist(Xbeta, beta)
