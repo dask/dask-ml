@@ -447,7 +447,10 @@ def init_scalable(
     # to do that.
 
     if len(centers) < n_clusters:
-        logger.warning("Found fewer than %d clusters in init.", n_clusters)
+        logger.warning(
+            f"Found fewer than {n_clusters} clusters in init "
+            f"(found {len(centers)})."
+        )
         # supplement with random
         need = n_clusters - len(centers)
         locs = sorted(
