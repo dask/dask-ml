@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.5.1.dev3+g4fe3af2
+                1.5.1.dev4+gc04fdc9
               </div>
             
           
@@ -232,7 +232,7 @@
 
   <ul class="wy-breadcrumbs">
     
-      <li><a href="index.html">Docs</a> &raquo;</li>
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
       <li>Incremental Learning</li>
     
@@ -340,18 +340,18 @@ can also explicitly pass <code class="docutils literal notranslate"><span class=
 </div>
 <p>We can get the accuracy score on our dataset.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gh">Out[9]: </span><span class="go">0.63</span>
+<span class="gh">Out[9]: </span><span class="go">0.75</span>
 </pre></div>
 </div>
 <p>All of the attributes learned durning training, like <code class="docutils literal notranslate"><span class="pre">coef_</span></code>, are available
 on the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> instance.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[  7.40041844, -26.27606811,  -7.22145133,  10.19705515,</span>
-<span class="go">         -9.54524079, -47.47278025,  16.20483084,  21.36006976,</span>
-<span class="go">         -1.19898769, -15.99156943,  32.82682216,  45.05492358,</span>
-<span class="go">        -23.02353956,   2.02459265,   9.6022387 ,  -2.17799501,</span>
-<span class="go">         -8.78099973,   6.26526397,  -2.23769559, -33.07710611]])</span>
+<span class="go">array([[ 12.30346386,   2.18063185, -41.79174462,  26.4254394 ,</span>
+<span class="go">         27.14578444,  15.55729708,  19.6098568 ,   9.58953631,</span>
+<span class="go">         45.56890129,  48.32250861, -78.23841383, -46.38439666,</span>
+<span class="go">         48.3493384 ,  -5.1964491 ,  18.77729385,   7.15102873,</span>
+<span class="go">        -17.02862454,  23.96229636, -40.32791529,   5.7641424 ]])</span>
 </pre></div>
 </div>
 <p>If necessary, the actual estimator trained is available as <code class="docutils literal notranslate"><span class="pre">Incremental.estimator_</span></code></p>
@@ -387,11 +387,19 @@ larger than memory datasets.</p>
 
   <div role="contentinfo">
     <p>
+        
         &copy; Copyright 2017, Dask developers
 
     </p>
   </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
 
@@ -402,7 +410,6 @@ larger than memory datasets.</p>
 
   </div>
   
-
 
   <script type="text/javascript">
       jQuery(function () {
