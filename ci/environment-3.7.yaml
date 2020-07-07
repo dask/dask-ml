@@ -10,7 +10,7 @@ dependencies:
   - dask-glm >=0.2.0
   - distributed
   - flake8
-  - isort
+  - isort==4.3.21
   - multipledispatch >=0.4.9
   - mypy
   - numba
