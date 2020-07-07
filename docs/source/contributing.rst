@@ -105,7 +105,7 @@ Install and build the `pre commit <https://github.com/pre-commit/pre-commit>`_ t
 
 .. code-block:: none
 
-    pip install pre-commit
+    python -m pip install pre-commit
     pre-commit install
 
 to install a few plugins like black, isort, and flake8. These tools will automatically
