@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.5.1.dev5+g81b9843
+                1.5.1.dev6+gdaf9ea8
               </div>
             
           
@@ -337,10 +337,13 @@ use</p>
 </div>
 <div class="section" id="pre-commit-hooks">
 <h2>Pre-Commit Hooks<a class="headerlink" href="#pre-commit-hooks" title="Permalink to this headline">¶</a></h2>
-<p>Install the <a class="reference external" href="https://github.com/pre-commit/pre-commit">pre commit</a> tool. Then, from the
-root of the <code class="docutils literal notranslate"><span class="pre">dask-ml</span></code> repository, run <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">install</span></code> to install a few plugins
-like black, isort, and flake8. These tools will automatically be run on each commit. You
-can skip the checks with <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">--no-verify</span></code>.</p>
+<p>Install and build the <a class="reference external" href="https://github.com/pre-commit/pre-commit">pre commit</a> tool as:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>python -m pip install pre-commit
+pre-commit install
+</pre></div>
+</div>
+<p>to install a few plugins like black, isort, and flake8. These tools will automatically
+be run on each commit. You can skip the checks with <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">--no-verify</span></code>.</p>
 </div>
 <div class="section" id="conventions">
 <h2>Conventions<a class="headerlink" href="#conventions" title="Permalink to this headline">¶</a></h2>
