@@ -151,3 +151,7 @@ def log_loss(
 
 
 log_loss.__doc__ = getattr(sklearn.metrics.log_loss, "__doc__")
+
+
+def poisson_deviance(y_true, y_pred):
+    return 2 * (y_true * np.log1p(y_true / y_pred) - (y_true - y_pred)).sum()

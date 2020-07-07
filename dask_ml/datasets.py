@@ -10,6 +10,8 @@ import sklearn.utils
 
 import dask_ml.utils
 
+from . import _compat
+
 
 def _check_axis_partitioning(chunks, n_features):
     c = chunks[1][0]
@@ -30,6 +32,7 @@ def make_counts(
     scale=1.0,
     chunks=100,
     random_state=None,
+    is_sparse=False,
 ):
     """
     Generate a dummy dataset for modeling count data.
@@ -72,6 +75,11 @@ def make_counts(
     z0 = X[:, informative_idx].dot(beta[informative_idx])
     rate = da.exp(z0)
     y = rng.poisson(rate, size=1, chunks=(chunks,))
+
+    if is_sparse:
+        sparse = _compat._import_sparse()
+        X = X.map_blocks(sparse.COO)
+
     return X, y
 
 
@@ -218,6 +226,7 @@ def make_regression(
     coef=False,
     random_state=None,
     chunks=None,
+    is_sparse=False,
 ):
     """
     Generate a random regression problem.
@@ -334,6 +343,10 @@ def make_regression(
 
     y_big = y_big.squeeze()
 
+    if is_sparse:
+        sparse = _compat._import_sparse()
+        X_big = X_big.map_blocks(sparse.COO)
+
     if return_coef:
         return X_big, y_big, coef
     else:
@@ -357,6 +370,7 @@ def make_classification(
     shuffle=True,
     random_state=None,
     chunks=None,
+    is_sparse=False,
 ):
     chunks = da.core.normalize_chunks(chunks, (n_samples, n_features))
     _check_axis_partitioning(chunks, n_features)
@@ -378,7 +392,14 @@ def make_classification(
     y = rng.random(z0.shape, chunks=chunks[0]) < 1 / (1 + da.exp(-z0))
     y = y.astype(int)
 
+    if is_sparse:
+        sparse = _compat._import_sparse()
+        X = X.map_blocks(sparse.COO)
+
     return X, y
+
+
+make_poisson = make_counts
 
 
 def random_date(start, end):

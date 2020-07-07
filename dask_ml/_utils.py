@@ -5,6 +5,14 @@ import numpy as np
 from sklearn.base import BaseEstimator
 
 
+def is_sparse(x):
+    try:
+        from sparse import SparseArray
+    except ImportError:
+        return False
+    return isinstance(x, SparseArray)
+
+
 def copy_learned_attributes(from_estimator, to_estimator):
     attrs = {k: v for k, v in vars(from_estimator).items() if k.endswith("_")}
 

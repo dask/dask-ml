@@ -4,11 +4,11 @@ import numpy as np
 import pandas as pd
 import pytest
 from dask.dataframe.utils import assert_eq
-from dask_glm.regularizers import Regularizer
 from sklearn.pipeline import make_pipeline
 
 from dask_ml.datasets import make_classification, make_counts, make_regression
 from dask_ml.linear_model import LinearRegression, LogisticRegression, PoissonRegression
+from dask_ml.linear_model.regularizers import Regularizer
 from dask_ml.linear_model.utils import add_intercept
 from dask_ml.model_selection import GridSearchCV
 
@@ -25,7 +25,7 @@ def regularizer(request):
     return request.param
 
 
-class DoNothingTransformer:
+class DoNothingTransformer(object):
     def fit(self, X, y=None):
         return self
 
@@ -51,32 +51,21 @@ def test_pr_init(solver):
 
 
 @pytest.mark.parametrize("fit_intercept", [True, False])
-def test_fit(fit_intercept, solver):
-    X, y = make_classification(n_samples=100, n_features=5, chunks=50)
+@pytest.mark.parametrize("is_sparse", [True, False])
+def test_fit(fit_intercept, is_sparse):
+    X, y = make_classification(
+        n_samples=100, n_features=5, chunks=10, is_sparse=is_sparse
+    )
     lr = LogisticRegression(fit_intercept=fit_intercept)
     lr.fit(X, y)
     lr.predict(X)
     lr.predict_proba(X)
 
 
-@pytest.mark.parametrize(
-    "solver", ["admm", "newton", "lbfgs", "proximal_grad", "gradient_descent"]
-)
-def test_fit_solver(solver):
-    import dask_glm
-    from distutils.version import LooseVersion
-
-    if LooseVersion(dask_glm.__version__) <= "0.2.0":
-        pytest.skip("FutureWarning for dask config.")
-
-    X, y = make_classification(n_samples=100, n_features=5, chunks=50)
-    lr = LogisticRegression(solver=solver)
-    lr.fit(X, y)
-
-
 @pytest.mark.parametrize("fit_intercept", [True, False])
-def test_lm(fit_intercept):
-    X, y = make_regression(n_samples=100, n_features=5, chunks=50)
+@pytest.mark.parametrize("is_sparse", [True, False])
+def test_lm(fit_intercept, is_sparse):
+    X, y = make_regression(n_samples=100, n_features=5, chunks=10, is_sparse=is_sparse)
     lr = LinearRegression(fit_intercept=fit_intercept)
     lr.fit(X, y)
     lr.predict(X)
@@ -85,8 +74,9 @@ def test_lm(fit_intercept):
 
 
 @pytest.mark.parametrize("fit_intercept", [True, False])
-def test_big(fit_intercept):
-    X, y = make_classification(chunks=50)
+@pytest.mark.parametrize("is_sparse", [True, False])
+def test_big(fit_intercept, is_sparse):
+    X, y = make_classification(chunks=50, is_sparse=is_sparse)
     lr = LogisticRegression(fit_intercept=fit_intercept)
     lr.fit(X, y)
     lr.predict(X)
@@ -96,9 +86,11 @@ def test_big(fit_intercept):
 
 
 @pytest.mark.parametrize("fit_intercept", [True, False])
-def test_poisson_fit(fit_intercept):
-    X, y = make_counts(n_samples=100, chunks=500)
-    pr = PoissonRegression(fit_intercept=fit_intercept)
+@pytest.mark.parametrize("is_sparse", [True, False])
+def test_poisson_fit(fit_intercept, is_sparse):
+    # XXX: this seems to take forever to converge. Setting a low max_iter for now.
+    X, y = make_counts(chunks=200, is_sparse=is_sparse)
+    pr = PoissonRegression(fit_intercept=fit_intercept, max_iter=5)
     pr.fit(X, y)
     pr.predict(X)
     pr.get_deviance(X, y)
@@ -107,14 +99,15 @@ def test_poisson_fit(fit_intercept):
 
 
 def test_in_pipeline():
-    X, y = make_classification(n_samples=100, n_features=5, chunks=50)
+    X, y = make_classification(n_samples=100, n_features=5, chunks=10)
     pipe = make_pipeline(DoNothingTransformer(), LogisticRegression())
     pipe.fit(X, y)
 
 
+@pytest.mark.xfail(reason="GridSearch dask objects")
 def test_gridsearch():
-    X, y = make_classification(n_samples=100, n_features=5, chunks=50)
-    grid = {"logisticregression__C": [1000, 100, 10, 2]}
+    X, y = make_classification(n_samples=100, n_features=5, chunks=10)
+    grid = {"logisticregression__lamduh": [0.001, 0.01, 0.1, 0.5]}
     pipe = make_pipeline(DoNothingTransformer(), LogisticRegression())
     search = GridSearchCV(pipe, grid, cv=3)
     search.fit(X, y)

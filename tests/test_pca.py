@@ -113,6 +113,7 @@ def test_no_empty_slice_warning():
     assert len(w) == 0
 
 
+@pytest.mark.filterwarnings("ignore:no implementation found")
 def test_whitening():
     # Check that PCA output has unit-variance
     rng = np.random.RandomState(0)
@@ -324,6 +325,7 @@ def test_pca_check_projection():
         assert_almost_equal(np.abs(Yt[0][0]), 1.0, 1)
 
 
+@pytest.mark.filterwarnings("ignore:no implementation found")
 def test_pca_inverse():
     # Test that the projection of data can be inverted
     rng = np.random.RandomState(0)
@@ -389,6 +391,7 @@ def test_n_components_none():
                 assert pca.n_components_ == min(data.shape)
 
 
+@pytest.mark.filterwarnings("ignore:no implementation found")
 def test_randomized_pca_check_projection():
     # Test that the projection by randomized PCA on dense data is correct
     rng = np.random.RandomState(0)
@@ -534,6 +537,7 @@ def test_infer_dim_by_explained_variance():
     assert pca.n_components_ == 2
 
 
+@pytest.mark.filterwarnings("ignore:no implementation found")
 def test_pca_score():
     # Test that probabilistic PCA scoring yields a reasonable score
     n, p = 1000, 3
@@ -585,6 +589,7 @@ def test_pca_score3():
     assert ll.argmax() == 1
 
 
+@pytest.mark.filterwarnings("ignore:no implementation found")
 def test_pca_score_with_different_solvers():
     digits = datasets.load_digits()
     X_digits = digits.data

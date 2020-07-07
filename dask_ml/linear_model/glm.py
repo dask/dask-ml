@@ -2,19 +2,12 @@
 """Generalized Linear Models for large datasets."""
 import textwrap
 
-from dask_glm import algorithms, families
-from dask_glm.utils import (
-    accuracy_score,
-    add_intercept,
-    dot,
-    exp,
-    poisson_deviance,
-    sigmoid,
-)
+from dask_glm.utils import add_intercept, dot, exp, poisson_deviance, sigmoid
 from sklearn.base import BaseEstimator
 
-from ..metrics import r2_score
+from ..metrics import accuracy_score, r2_score
 from ..utils import check_array
+from . import algorithms, families
 
 _base_doc = textwrap.dedent(
     """\

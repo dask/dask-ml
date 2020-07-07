@@ -36,6 +36,7 @@ dependencies:
   - tornado
   - toolz
   - xgboost
+  - dask-xgboost
   - zict
   - pip
   - dask

@@ -1,4 +1,5 @@
 import contextlib
+import importlib
 import os
 from collections.abc import Mapping  # noqa
 from typing import Any, List, Optional, Union
@@ -19,6 +20,7 @@ DISTRIBUTED_VERSION = packaging.version.parse(distributed.__version__)
 SK_024 = SK_VERSION >= packaging.version.parse("0.24.0.dev0")
 DASK_240 = DASK_VERSION >= packaging.version.parse("2.4.0")
 DASK_2130 = DASK_VERSION >= packaging.version.parse("2.13.0")
+DASK_2200 = DASK_VERSION > packaging.version.parse("2.19.0")  # TODO: update to >=
 DISTRIBUTED_2_5_0 = DISTRIBUTED_VERSION > packaging.version.parse("2.5.0")
 DISTRIBUTED_2_11_0 = DISTRIBUTED_VERSION > packaging.version.parse("2.10.0")  # dev
 WINDOWS = os.name == "nt"
@@ -38,6 +40,15 @@ def check_is_fitted(est, attributes: Optional[Union[str, List[str]]] = None):
     args: Any = ()
 
     return sklearn.utils.validation.check_is_fitted(est, *args)
+
+
+def _import_sparse():
+    try:
+        return importlib.import_module("sparse")
+    except ImportError:
+        raise ImportError(
+            "This requires the optional 'sparse' library. Please install 'sparse'."
+        )
 
 
 def _check_multimetric_scoring(estimator, scoring=None):

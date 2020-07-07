@@ -14,7 +14,7 @@ dependencies:
   - multipledispatch >=0.4.9
   - mypy
   - numba
-  - numpy >=1.16.3
+  - numpy >=1.17.0
   - numpydoc
   - packaging
   - pandas

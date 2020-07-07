@@ -55,6 +55,7 @@ def test_fit_raises():
 
 
 class TestKMeans:
+    @pytest.mark.filterwarnings("ignore:no implementation found")
     def test_basic(self, Xl_blobs_easy):
         X, _ = Xl_blobs_easy
 
@@ -162,6 +163,7 @@ class TestKMeans:
         km.fit(X)
         km.transform(X)
 
+    @pytest.mark.filterwarnings("ignore:no implementation found")
     def test_dtypes(self):
         X = da.random.uniform(size=(100, 2), chunks=(50, 2))
         X2 = X.astype("f4")

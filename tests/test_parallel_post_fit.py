@@ -81,6 +81,7 @@ def test_predict(kind):
 
 
 @pytest.mark.parametrize("kind", ["numpy", "dask.dataframe", "dask.array"])
+@pytest.mark.filterwarnings("ignore:no implementation found")
 def test_transform(kind):
     X, y = make_classification(chunks=100)
 
@@ -130,6 +131,7 @@ def test_multiclass():
     assert_eq_ar(result, expected)
 
 
+@pytest.mark.filterwarnings("ignore:no implementation found")
 def test_auto_rechunk():
     clf = ParallelPostFit(GradientBoostingClassifier())
     X, y = make_classification(n_samples=1000, n_features=20, chunks=100)
