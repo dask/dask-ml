@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.5.1.dev4+gc04fdc9
+                1.5.1.dev5+g81b9843
               </div>
             
           
@@ -398,13 +398,13 @@ IEEE Transactions on Pattern Analysis and Machine Intelligence
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.cluster.SpectralClustering.fit_predict" title="dask_ml.cluster.SpectralClustering.fit_predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_predict</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.cluster.SpectralClustering.fit_predict" title="dask_ml.cluster.SpectralClustering.fit_predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_predict</span></code></a>(X[,&nbsp;y])</td>
 <td>Perform clustering on X and returns cluster labels.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.cluster.SpectralClustering.get_params" title="dask_ml.cluster.SpectralClustering.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.cluster.SpectralClustering.get_params" title="dask_ml.cluster.SpectralClustering.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.cluster.SpectralClustering.set_params" title="dask_ml.cluster.SpectralClustering.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;**params)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.cluster.SpectralClustering.set_params" title="dask_ml.cluster.SpectralClustering.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
 </tbody>
@@ -422,13 +422,13 @@ IEEE Transactions on Pattern Analysis and Machine Intelligence
 </table>
 <dl class="method">
 <dt id="dask_ml.cluster.SpectralClustering.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>n_clusters=8</em>, <em>eigen_solver=None</em>, <em>random_state=None</em>, <em>n_init=10</em>, <em>gamma=1.0</em>, <em>affinity='rbf'</em>, <em>n_neighbors=10</em>, <em>eigen_tol=0.0</em>, <em>assign_labels='kmeans'</em>, <em>degree=3</em>, <em>coef0=1</em>, <em>kernel_params=None</em>, <em>n_jobs=1</em>, <em>n_components=100</em>, <em>persist_embedding=False</em>, <em>kmeans_params=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.cluster.SpectralClustering.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>n_clusters=8</em>, <em>eigen_solver=None</em>, <em>random_state=None</em>, <em>n_init=10</em>, <em>gamma=1.0</em>, <em>affinity='rbf'</em>, <em>n_neighbors=10</em>, <em>eigen_tol=0.0</em>, <em>assign_labels='kmeans'</em>, <em>degree=3</em>, <em>coef0=1</em>, <em>kernel_params=None</em>, <em>n_jobs=1</em>, <em>n_components=100</em>, <em>persist_embedding=False</em>, <em>kmeans_params=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.cluster.SpectralClustering.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dask_ml.cluster.SpectralClustering.fit_predict">
-<code class="descname">fit_predict</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.cluster.SpectralClustering.fit_predict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit_predict</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.cluster.SpectralClustering.fit_predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform clustering on X and returns cluster labels.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -457,7 +457,7 @@ IEEE Transactions on Pattern Analysis and Machine Intelligence
 
 <dl class="method">
 <dt id="dask_ml.cluster.SpectralClustering.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.cluster.SpectralClustering.get_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.cluster.SpectralClustering.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get parameters for this estimator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -484,7 +484,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.cluster.SpectralClustering.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.cluster.SpectralClustering.set_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.cluster.SpectralClustering.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
 (such as pipelines). The latter have parameters of the form

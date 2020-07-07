@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.5.1.dev4+gc04fdc9
+                1.5.1.dev5+g81b9843
               </div>
             
           
@@ -379,28 +379,28 @@ data isn’t all read into memory at once.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.wrappers.ParallelPostFit.fit" title="dask_ml.wrappers.ParallelPostFit.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.wrappers.ParallelPostFit.fit" title="dask_ml.wrappers.ParallelPostFit.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X[,&nbsp;y])</td>
 <td>Fit the underlying estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.wrappers.ParallelPostFit.get_params" title="dask_ml.wrappers.ParallelPostFit.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.wrappers.ParallelPostFit.get_params" title="dask_ml.wrappers.ParallelPostFit.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.wrappers.ParallelPostFit.predict" title="dask_ml.wrappers.ParallelPostFit.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(self,&nbsp;X)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.wrappers.ParallelPostFit.predict" title="dask_ml.wrappers.ParallelPostFit.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(X)</td>
 <td>Predict for X.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.wrappers.ParallelPostFit.predict_log_proba" title="dask_ml.wrappers.ParallelPostFit.predict_log_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_log_proba</span></code></a>(self,&nbsp;X)</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.wrappers.ParallelPostFit.predict_log_proba" title="dask_ml.wrappers.ParallelPostFit.predict_log_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_log_proba</span></code></a>(X)</td>
 <td>Log of proability estimates.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.wrappers.ParallelPostFit.predict_proba" title="dask_ml.wrappers.ParallelPostFit.predict_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_proba</span></code></a>(self,&nbsp;X)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.wrappers.ParallelPostFit.predict_proba" title="dask_ml.wrappers.ParallelPostFit.predict_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_proba</span></code></a>(X)</td>
 <td>Probability estimates.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.wrappers.ParallelPostFit.score" title="dask_ml.wrappers.ParallelPostFit.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(self,&nbsp;X,&nbsp;y[,&nbsp;compute])</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.wrappers.ParallelPostFit.score" title="dask_ml.wrappers.ParallelPostFit.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(X,&nbsp;y[,&nbsp;compute])</td>
 <td>Returns the score on the given data.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.wrappers.ParallelPostFit.set_params" title="dask_ml.wrappers.ParallelPostFit.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;**params)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.wrappers.ParallelPostFit.set_params" title="dask_ml.wrappers.ParallelPostFit.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.wrappers.ParallelPostFit.transform" title="dask_ml.wrappers.ParallelPostFit.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X)</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.wrappers.ParallelPostFit.transform" title="dask_ml.wrappers.ParallelPostFit.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(X)</td>
 <td>Transform block or partition-wise for dask inputs.</td>
 </tr>
 </tbody>
@@ -418,13 +418,13 @@ data isn’t all read into memory at once.</p>
 </table>
 <dl class="method">
 <dt id="dask_ml.wrappers.ParallelPostFit.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>estimator=None</em>, <em>scoring=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.ParallelPostFit.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>estimator=None</em>, <em>scoring=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.ParallelPostFit.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dask_ml.wrappers.ParallelPostFit.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.ParallelPostFit.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.ParallelPostFit.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the underlying estimator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -451,7 +451,7 @@ data isn’t all read into memory at once.</p>
 
 <dl class="method">
 <dt id="dask_ml.wrappers.ParallelPostFit.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.ParallelPostFit.get_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.ParallelPostFit.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get parameters for this estimator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -478,7 +478,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.wrappers.ParallelPostFit.predict">
-<code class="descname">predict</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.ParallelPostFit.predict" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.ParallelPostFit.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict for X.</p>
 <p>For dask inputs, a dask array or dataframe is returned. For other
 inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
@@ -505,7 +505,7 @@ regular return value is returned.</p>
 
 <dl class="method">
 <dt id="dask_ml.wrappers.ParallelPostFit.predict_log_proba">
-<code class="descname">predict_log_proba</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.ParallelPostFit.predict_log_proba" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predict_log_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.ParallelPostFit.predict_log_proba" title="Permalink to this definition">¶</a></dt>
 <dd><p>Log of proability estimates.</p>
 <p>For dask inputs, a dask array or dataframe is returned. For other
 inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
@@ -534,7 +534,7 @@ method, then an <code class="docutils literal notranslate"><span class="pre">Att
 
 <dl class="method">
 <dt id="dask_ml.wrappers.ParallelPostFit.predict_proba">
-<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.ParallelPostFit.predict_proba" title="Permalink to this definition">¶</a></dt>
+<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.ParallelPostFit.predict_proba" title="Permalink to this definition">¶</a></dt>
 <dd><p>Probability estimates.</p>
 <p>For dask inputs, a dask array or dataframe is returned. For other
 inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
@@ -563,7 +563,7 @@ method, then an <code class="docutils literal notranslate"><span class="pre">Att
 
 <dl class="method">
 <dt id="dask_ml.wrappers.ParallelPostFit.score">
-<code class="descname">score</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y</em>, <em>compute=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.ParallelPostFit.score" title="Permalink to this definition">¶</a></dt>
+<code class="descname">score</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>compute=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.ParallelPostFit.score" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the score on the given data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -594,7 +594,7 @@ None for unsupervised learning.</p>
 
 <dl class="method">
 <dt id="dask_ml.wrappers.ParallelPostFit.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.ParallelPostFit.set_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.ParallelPostFit.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
 (such as pipelines). The latter have parameters of the form
@@ -624,7 +624,7 @@ component of a nested object.</p>
 
 <dl class="method">
 <dt id="dask_ml.wrappers.ParallelPostFit.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.ParallelPostFit.transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transform</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.ParallelPostFit.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform block or partition-wise for dask inputs.</p>
 <p>For dask inputs, a dask array or dataframe is returned. For other
 inputs (NumPy array, pandas dataframe, scipy sparse matrix), the

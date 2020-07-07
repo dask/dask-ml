@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.5.1.dev4+gc04fdc9
+                1.5.1.dev5+g81b9843
               </div>
             
           
@@ -323,13 +323,13 @@ on each partition / block of the inputs.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.ensemble.BlockwiseVotingRegressor.get_params" title="dask_ml.ensemble.BlockwiseVotingRegressor.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.ensemble.BlockwiseVotingRegressor.get_params" title="dask_ml.ensemble.BlockwiseVotingRegressor.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.ensemble.BlockwiseVotingRegressor.score" title="dask_ml.ensemble.BlockwiseVotingRegressor.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(self,&nbsp;X,&nbsp;y[,&nbsp;sample_weight])</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.ensemble.BlockwiseVotingRegressor.score" title="dask_ml.ensemble.BlockwiseVotingRegressor.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(X,&nbsp;y[,&nbsp;sample_weight])</td>
 <td>Return the mean accuracy on the given test data and labels.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.ensemble.BlockwiseVotingRegressor.set_params" title="dask_ml.ensemble.BlockwiseVotingRegressor.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;**params)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.ensemble.BlockwiseVotingRegressor.set_params" title="dask_ml.ensemble.BlockwiseVotingRegressor.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
 </tbody>
@@ -350,13 +350,13 @@ on each partition / block of the inputs.</p>
 </table>
 <dl class="method">
 <dt id="dask_ml.ensemble.BlockwiseVotingRegressor.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>estimator</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.ensemble.BlockwiseVotingRegressor.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>estimator</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.ensemble.BlockwiseVotingRegressor.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dask_ml.ensemble.BlockwiseVotingRegressor.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.ensemble.BlockwiseVotingRegressor.get_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.ensemble.BlockwiseVotingRegressor.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get parameters for this estimator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -383,7 +383,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.ensemble.BlockwiseVotingRegressor.score">
-<code class="descname">score</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.ensemble.BlockwiseVotingRegressor.score" title="Permalink to this definition">¶</a></dt>
+<code class="descname">score</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.ensemble.BlockwiseVotingRegressor.score" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the mean accuracy on the given test data and labels.</p>
 <p>In multi-label classification, this is the subset accuracy
 which is a harsh metric since you require for each sample that
@@ -426,7 +426,7 @@ rather than <code class="docutils literal notranslate"><span class="pre">'varian
 
 <dl class="method">
 <dt id="dask_ml.ensemble.BlockwiseVotingRegressor.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.ensemble.BlockwiseVotingRegressor.set_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.ensemble.BlockwiseVotingRegressor.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
 (such as pipelines). The latter have parameters of the form

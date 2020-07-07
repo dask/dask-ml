@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.5.1.dev4+gc04fdc9
+                1.5.1.dev5+g81b9843
               </div>
             
           
@@ -351,32 +351,32 @@ this behavior.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.Categorizer.fit" title="dask_ml.preprocessing.Categorizer.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X,&nbsp;dask.dataframe.core.DataFrame],&nbsp;…)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.Categorizer.fit" title="dask_ml.preprocessing.Categorizer.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X,&nbsp;dask.dataframe.core.DataFrame],&nbsp;y,&nbsp;…)</td>
 <td>Find the categorical columns.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.Categorizer.fit_transform" title="dask_ml.preprocessing.Categorizer.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.Categorizer.fit_transform" title="dask_ml.preprocessing.Categorizer.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(X[,&nbsp;y])</td>
 <td>Fit to data, then transform it.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.Categorizer.get_params" title="dask_ml.preprocessing.Categorizer.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.Categorizer.get_params" title="dask_ml.preprocessing.Categorizer.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.Categorizer.set_params" title="dask_ml.preprocessing.Categorizer.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;**params)</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.Categorizer.set_params" title="dask_ml.preprocessing.Categorizer.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.Categorizer.transform" title="dask_ml.preprocessing.Categorizer.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.Categorizer.transform" title="dask_ml.preprocessing.Categorizer.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(X,&nbsp;dask.dataframe.core.DataFrame],&nbsp;…)</td>
 <td>Transform the columns in <code class="docutils literal notranslate"><span class="pre">X</span></code> according to <code class="docutils literal notranslate"><span class="pre">self.categories_</span></code>.</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="dask_ml.preprocessing.Categorizer.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>categories:Union[dict</em>, <em>NoneType]=None</em>, <em>columns:pandas.core.indexes.base.Index=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.Categorizer.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>categories: Optional[dict] = None</em>, <em>columns: pandas.core.indexes.base.Index = None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.Categorizer.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.Categorizer.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>self, X:Union[pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; 'Categorizer'<a class="headerlink" href="#dask_ml.preprocessing.Categorizer.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X: Union[pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y: Union[ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, None] = None</em><span class="sig-paren">)</span> &#x2192; dask_ml.preprocessing.data.Categorizer<a class="headerlink" href="#dask_ml.preprocessing.Categorizer.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the categorical columns.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -402,7 +402,7 @@ this behavior.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.Categorizer.fit_transform">
-<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>**fit_params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.Categorizer.fit_transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em>, <em>**fit_params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.Categorizer.fit_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit to data, then transform it.</p>
 <p>Fits transformer to X and y with optional parameters fit_params
 and returns a transformed version of X.</p>
@@ -435,7 +435,7 @@ and returns a transformed version of X.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.Categorizer.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.Categorizer.get_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.Categorizer.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get parameters for this estimator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -462,7 +462,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.Categorizer.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.Categorizer.set_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.Categorizer.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
 (such as pipelines). The latter have parameters of the form
@@ -492,7 +492,7 @@ component of a nested object.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.Categorizer.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>self, X:Union[pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; Union[pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.Categorizer.transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transform</code><span class="sig-paren">(</span><em>X: Union[pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y: Union[ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, None] = None</em><span class="sig-paren">)</span> &#x2192; Union[pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.Categorizer.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform the columns in <code class="docutils literal notranslate"><span class="pre">X</span></code> according to <code class="docutils literal notranslate"><span class="pre">self.categories_</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

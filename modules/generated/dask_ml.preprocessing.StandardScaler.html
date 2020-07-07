@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.5.1.dev4+gc04fdc9
+                1.5.1.dev5+g81b9843
               </div>
             
           
@@ -400,38 +400,38 @@ see <a class="reference external" href="https://scikit-learn.org/stable/auto_exa
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.StandardScaler.fit" title="dask_ml.preprocessing.StandardScaler.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X,&nbsp;pandas.core.frame.DataFrame,&nbsp;…)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.StandardScaler.fit" title="dask_ml.preprocessing.StandardScaler.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X,&nbsp;pandas.core.frame.DataFrame,&nbsp;…)</td>
 <td>Compute the mean and std to be used for later scaling.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.StandardScaler.fit_transform" title="dask_ml.preprocessing.StandardScaler.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.StandardScaler.fit_transform" title="dask_ml.preprocessing.StandardScaler.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(X[,&nbsp;y])</td>
 <td>Fit to data, then transform it.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.StandardScaler.get_params" title="dask_ml.preprocessing.StandardScaler.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.StandardScaler.get_params" title="dask_ml.preprocessing.StandardScaler.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.StandardScaler.inverse_transform" title="dask_ml.preprocessing.StandardScaler.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.StandardScaler.inverse_transform" title="dask_ml.preprocessing.StandardScaler.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(X,&nbsp;…)</td>
 <td>Scale back the data to the original representation</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.StandardScaler.partial_fit" title="dask_ml.preprocessing.StandardScaler.partial_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_fit</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.StandardScaler.partial_fit" title="dask_ml.preprocessing.StandardScaler.partial_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_fit</span></code></a>(X,&nbsp;pandas.core.frame.DataFrame,&nbsp;…)</td>
 <td>Online computation of mean and std on X for later scaling.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.StandardScaler.set_params" title="dask_ml.preprocessing.StandardScaler.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;**params)</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.StandardScaler.set_params" title="dask_ml.preprocessing.StandardScaler.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.StandardScaler.transform" title="dask_ml.preprocessing.StandardScaler.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.StandardScaler.transform" title="dask_ml.preprocessing.StandardScaler.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(X,&nbsp;pandas.core.frame.DataFrame,&nbsp;…)</td>
 <td>Perform standardization by centering and scaling</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="dask_ml.preprocessing.StandardScaler.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>*</em>, <em>copy=True</em>, <em>with_mean=True</em>, <em>with_std=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>*</em>, <em>copy=True</em>, <em>with_mean=True</em>, <em>with_std=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.StandardScaler.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; 'StandardScaler'<a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X: Union[ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y: Union[ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, None] = None</em><span class="sig-paren">)</span> &#x2192; dask_ml.preprocessing.data.StandardScaler<a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the mean and std to be used for later scaling.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -454,7 +454,7 @@ used for later scaling along the features axis.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.StandardScaler.fit_transform">
-<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>**fit_params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.fit_transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em>, <em>**fit_params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.fit_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit to data, then transform it.</p>
 <p>Fits transformer to X and y with optional parameters fit_params
 and returns a transformed version of X.</p>
@@ -487,7 +487,7 @@ and returns a transformed version of X.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.StandardScaler.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.get_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get parameters for this estimator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -514,7 +514,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.StandardScaler.inverse_transform">
-<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], copy:Union[bool, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.inverse_transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>X: Union[ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], copy: Optional[bool] = None</em><span class="sig-paren">)</span> &#x2192; Union[ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.inverse_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Scale back the data to the original representation</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -543,7 +543,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.StandardScaler.partial_fit">
-<code class="descname">partial_fit</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.partial_fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">partial_fit</code><span class="sig-paren">(</span><em>X: Union[ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y: Union[ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, None] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.partial_fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Online computation of mean and std on X for later scaling.</p>
 <p>All of X is processed as a single batch. This is intended for cases
 when <a class="reference internal" href="#dask_ml.preprocessing.StandardScaler.fit" title="dask_ml.preprocessing.StandardScaler.fit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code></a> is not feasible due to very large number of
@@ -580,7 +580,7 @@ used for later scaling along the features axis.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.StandardScaler.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.set_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
 (such as pipelines). The latter have parameters of the form
@@ -610,7 +610,7 @@ component of a nested object.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.StandardScaler.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None, copy:Union[bool, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transform</code><span class="sig-paren">(</span><em>X: Union[ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y: Union[ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, None] = None, copy: Optional[bool] = None</em><span class="sig-paren">)</span> &#x2192; Union[ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.StandardScaler.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform standardization by centering and scaling</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

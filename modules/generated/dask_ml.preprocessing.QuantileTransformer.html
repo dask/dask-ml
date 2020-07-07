@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.5.1.dev4+gc04fdc9
+                1.5.1.dev5+g81b9843
               </div>
             
           
@@ -393,35 +393,35 @@ see <a class="reference external" href="https://scikit-learn.org/stable/auto_exa
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.QuantileTransformer.fit" title="dask_ml.preprocessing.QuantileTransformer.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.QuantileTransformer.fit" title="dask_ml.preprocessing.QuantileTransformer.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X[,&nbsp;y])</td>
 <td>Compute the quantiles used for transforming.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.QuantileTransformer.fit_transform" title="dask_ml.preprocessing.QuantileTransformer.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.QuantileTransformer.fit_transform" title="dask_ml.preprocessing.QuantileTransformer.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(X[,&nbsp;y])</td>
 <td>Fit to data, then transform it.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.QuantileTransformer.get_params" title="dask_ml.preprocessing.QuantileTransformer.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.QuantileTransformer.get_params" title="dask_ml.preprocessing.QuantileTransformer.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.QuantileTransformer.inverse_transform" title="dask_ml.preprocessing.QuantileTransformer.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(self,&nbsp;X)</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.QuantileTransformer.inverse_transform" title="dask_ml.preprocessing.QuantileTransformer.inverse_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code></a>(X)</td>
 <td>Back-projection to the original space.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.QuantileTransformer.set_params" title="dask_ml.preprocessing.QuantileTransformer.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;**params)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.QuantileTransformer.set_params" title="dask_ml.preprocessing.QuantileTransformer.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.QuantileTransformer.transform" title="dask_ml.preprocessing.QuantileTransformer.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X)</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.QuantileTransformer.transform" title="dask_ml.preprocessing.QuantileTransformer.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(X)</td>
 <td>Feature-wise transformation of the data.</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="dask_ml.preprocessing.QuantileTransformer.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>*</em>, <em>n_quantiles=1000</em>, <em>output_distribution='uniform'</em>, <em>ignore_implicit_zeros=False</em>, <em>subsample=100000</em>, <em>random_state=None</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>*</em>, <em>n_quantiles=1000</em>, <em>output_distribution='uniform'</em>, <em>ignore_implicit_zeros=False</em>, <em>subsample=100000</em>, <em>random_state=None</em>, <em>copy=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.QuantileTransformer.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the quantiles used for transforming.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -449,7 +449,7 @@ nonnegative if <cite>ignore_implicit_zeros</cite> is False.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.QuantileTransformer.fit_transform">
-<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>**fit_params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer.fit_transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em>, <em>**fit_params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer.fit_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit to data, then transform it.</p>
 <p>Fits transformer to X and y with optional parameters fit_params
 and returns a transformed version of X.</p>
@@ -482,7 +482,7 @@ and returns a transformed version of X.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.QuantileTransformer.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer.get_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get parameters for this estimator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -509,7 +509,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.QuantileTransformer.inverse_transform">
-<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer.inverse_transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">inverse_transform</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer.inverse_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Back-projection to the original space.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -538,7 +538,7 @@ nonnegative if <cite>ignore_implicit_zeros</cite> is False.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.QuantileTransformer.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer.set_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
 (such as pipelines). The latter have parameters of the form
@@ -568,7 +568,7 @@ component of a nested object.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.QuantileTransformer.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer.transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transform</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Feature-wise transformation of the data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

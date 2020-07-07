@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.5.1.dev4+gc04fdc9
+                1.5.1.dev5+g81b9843
               </div>
             
           
@@ -425,35 +425,35 @@ are added at the right to the output of the transformers.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.compose.ColumnTransformer.fit" title="dask_ml.compose.ColumnTransformer.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.compose.ColumnTransformer.fit" title="dask_ml.compose.ColumnTransformer.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X[,&nbsp;y])</td>
 <td>Fit all transformers using X.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.compose.ColumnTransformer.fit_transform" title="dask_ml.compose.ColumnTransformer.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.compose.ColumnTransformer.fit_transform" title="dask_ml.compose.ColumnTransformer.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(X[,&nbsp;y])</td>
 <td>Fit all transformers, transform the data and concatenate results.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.compose.ColumnTransformer.get_feature_names" title="dask_ml.compose.ColumnTransformer.get_feature_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_feature_names</span></code></a>(self)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.compose.ColumnTransformer.get_feature_names" title="dask_ml.compose.ColumnTransformer.get_feature_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_feature_names</span></code></a>()</td>
 <td>Get feature names from all transformers.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.compose.ColumnTransformer.get_params" title="dask_ml.compose.ColumnTransformer.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.compose.ColumnTransformer.get_params" title="dask_ml.compose.ColumnTransformer.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.compose.ColumnTransformer.set_params" title="dask_ml.compose.ColumnTransformer.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;**kwargs)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.compose.ColumnTransformer.set_params" title="dask_ml.compose.ColumnTransformer.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**kwargs)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.compose.ColumnTransformer.transform" title="dask_ml.compose.ColumnTransformer.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X)</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.compose.ColumnTransformer.transform" title="dask_ml.compose.ColumnTransformer.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(X)</td>
 <td>Transform X separately by each transformer, concatenate results.</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="dask_ml.compose.ColumnTransformer.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>transformers</em>, <em>remainder='drop'</em>, <em>sparse_threshold=0.3</em>, <em>n_jobs=1</em>, <em>transformer_weights=None</em>, <em>preserve_dataframe=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.compose.ColumnTransformer.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>transformers</em>, <em>remainder='drop'</em>, <em>sparse_threshold=0.3</em>, <em>n_jobs=1</em>, <em>transformer_weights=None</em>, <em>preserve_dataframe=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.compose.ColumnTransformer.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dask_ml.compose.ColumnTransformer.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.compose.ColumnTransformer.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.compose.ColumnTransformer.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit all transformers using X.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -483,7 +483,7 @@ transformers.</p>
 
 <dl class="method">
 <dt id="dask_ml.compose.ColumnTransformer.fit_transform">
-<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.compose.ColumnTransformer.fit_transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.compose.ColumnTransformer.fit_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit all transformers, transform the data and concatenate results.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -516,7 +516,7 @@ sparse matrices.</p>
 
 <dl class="method">
 <dt id="dask_ml.compose.ColumnTransformer.get_feature_names">
-<code class="descname">get_feature_names</code><span class="sig-paren">(</span><em>self</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.compose.ColumnTransformer.get_feature_names" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_feature_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.compose.ColumnTransformer.get_feature_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get feature names from all transformers.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -535,7 +535,7 @@ sparse matrices.</p>
 
 <dl class="method">
 <dt id="dask_ml.compose.ColumnTransformer.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.compose.ColumnTransformer.get_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.compose.ColumnTransformer.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get parameters for this estimator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -571,7 +571,7 @@ objects.</p>
 
 <dl class="method">
 <dt id="dask_ml.compose.ColumnTransformer.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.compose.ColumnTransformer.set_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.compose.ColumnTransformer.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <p>Valid parameter keys can be listed with <code class="docutils literal notranslate"><span class="pre">get_params()</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -590,7 +590,7 @@ objects.</p>
 
 <dl class="method">
 <dt id="dask_ml.compose.ColumnTransformer.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.compose.ColumnTransformer.transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transform</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.compose.ColumnTransformer.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform X separately by each transformer, concatenate results.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

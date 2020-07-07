@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.5.1.dev4+gc04fdc9
+                1.5.1.dev5+g81b9843
               </div>
             
           
@@ -368,35 +368,35 @@ exponentially in the degree. High degrees can cause overfitting.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.PolynomialFeatures.fit" title="dask_ml.preprocessing.PolynomialFeatures.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(self,&nbsp;X,&nbsp;pandas.core.frame.DataFrame,&nbsp;…)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.PolynomialFeatures.fit" title="dask_ml.preprocessing.PolynomialFeatures.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X,&nbsp;pandas.core.frame.DataFrame,&nbsp;…)</td>
 <td>Compute number of output features.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.PolynomialFeatures.fit_transform" title="dask_ml.preprocessing.PolynomialFeatures.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(self,&nbsp;X[,&nbsp;y])</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.PolynomialFeatures.fit_transform" title="dask_ml.preprocessing.PolynomialFeatures.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(X[,&nbsp;y])</td>
 <td>Fit to data, then transform it.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.PolynomialFeatures.get_feature_names" title="dask_ml.preprocessing.PolynomialFeatures.get_feature_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_feature_names</span></code></a>(self[,&nbsp;input_features])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.PolynomialFeatures.get_feature_names" title="dask_ml.preprocessing.PolynomialFeatures.get_feature_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_feature_names</span></code></a>([input_features])</td>
 <td>Return feature names for output features</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.PolynomialFeatures.get_params" title="dask_ml.preprocessing.PolynomialFeatures.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>(self[,&nbsp;deep])</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.PolynomialFeatures.get_params" title="dask_ml.preprocessing.PolynomialFeatures.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.PolynomialFeatures.set_params" title="dask_ml.preprocessing.PolynomialFeatures.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(self,&nbsp;**params)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.PolynomialFeatures.set_params" title="dask_ml.preprocessing.PolynomialFeatures.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.PolynomialFeatures.transform" title="dask_ml.preprocessing.PolynomialFeatures.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(self,&nbsp;X,&nbsp;…)</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.PolynomialFeatures.transform" title="dask_ml.preprocessing.PolynomialFeatures.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(X,&nbsp;pandas.core.frame.DataFrame,&nbsp;…)</td>
 <td>Transform data to polynomial features</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
 <dt id="dask_ml.preprocessing.PolynomialFeatures.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>self</em>, <em>degree:int=2</em>, <em>interaction_only:bool=False</em>, <em>include_bias:bool=True</em>, <em>preserve_dataframe:bool=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>degree: int = 2</em>, <em>interaction_only: bool = False</em>, <em>include_bias: bool = True</em>, <em>preserve_dataframe: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.PolynomialFeatures.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; 'PolynomialFeatures'<a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X: Union[ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y: Union[ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, None] = None</em><span class="sig-paren">)</span> &#x2192; dask_ml.preprocessing.data.PolynomialFeatures<a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute number of output features.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -421,7 +421,7 @@ exponentially in the degree. High degrees can cause overfitting.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.PolynomialFeatures.fit_transform">
-<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>self</em>, <em>X</em>, <em>y=None</em>, <em>**fit_params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.fit_transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em>, <em>**fit_params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.fit_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit to data, then transform it.</p>
 <p>Fits transformer to X and y with optional parameters fit_params
 and returns a transformed version of X.</p>
@@ -454,7 +454,7 @@ and returns a transformed version of X.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.PolynomialFeatures.get_feature_names">
-<code class="descname">get_feature_names</code><span class="sig-paren">(</span><em>self</em>, <em>input_features=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.get_feature_names" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_feature_names</code><span class="sig-paren">(</span><em>input_features=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.get_feature_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return feature names for output features</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -480,7 +480,7 @@ and returns a transformed version of X.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.PolynomialFeatures.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>self</em>, <em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.get_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get parameters for this estimator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -507,7 +507,7 @@ contained subobjects that are estimators.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.PolynomialFeatures.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>self</em>, <em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.set_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
 (such as pipelines). The latter have parameters of the form
@@ -537,7 +537,7 @@ component of a nested object.</p>
 
 <dl class="method">
 <dt id="dask_ml.preprocessing.PolynomialFeatures.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>self, X:Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y:Union[~ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, NoneType]=None</em><span class="sig-paren">)</span> &#x2192; Union[~ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.transform" title="Permalink to this definition">¶</a></dt>
+<code class="descname">transform</code><span class="sig-paren">(</span><em>X: Union[ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y: Union[ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, None] = None</em><span class="sig-paren">)</span> &#x2192; Union[ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform data to polynomial features</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

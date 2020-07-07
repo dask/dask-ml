@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.5.1.dev4+gc04fdc9
+                1.5.1.dev5+g81b9843
               </div>
             
           
@@ -371,6 +371,10 @@ the same type as the input. So if a <code class="docutils literal notranslate"><
 <p>We use <a class="reference external" href="http://numpydoc.readthedocs.io/en/latest/format.html">numpydoc</a> for our docstrings.</p>
 <p>Building the docs is possible with</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ conda env create -f ci/environment-docs.yaml --name=dask-ml-dev-docs
+$ conda activate dask-ml-dev-docs
+$ python -m pip install -e .
+$ cd docs
+$ make html
 </pre></div>
 </div>
 <p>Examples are written as Jupyter notebooks with their output stripped, either
