@@ -143,6 +143,10 @@ Building the docs is possible with
 .. code-block:: none
 
    $ conda env create -f ci/environment-docs.yaml --name=dask-ml-dev-docs
+   $ conda activate dask-ml-dev-docs
+   $ python -m pip install -e .
+   $ cd docs
+   $ make html
 
 Examples are written as Jupyter notebooks with their output stripped, either
 manually or using `nbstripout <https://github.com/kynan/nbstripout>`_. We want
