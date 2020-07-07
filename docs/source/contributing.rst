@@ -101,10 +101,15 @@ You can still use all the usual pytest command-line options in addition to those
 Pre-Commit Hooks
 ~~~~~~~~~~~~~~~~
 
-Install the `pre commit <https://github.com/pre-commit/pre-commit>`_ tool. Then, from the
-root of the ``dask-ml`` repository, run ``pre-commit install`` to install a few plugins
-like black, isort, and flake8. These tools will automatically be run on each commit. You
-can skip the checks with ``git commit --no-verify``.
+Install and build the `pre commit <https://github.com/pre-commit/pre-commit>`_ tool as:
+
+.. code-block:: none
+
+    python -m pip install pre-commit
+    pre-commit install
+
+to install a few plugins like black, isort, and flake8. These tools will automatically
+be run on each commit. You can skip the checks with ``git commit --no-verify``.
 
 Conventions
 ~~~~~~~~~~~
