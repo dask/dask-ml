@@ -6,10 +6,12 @@ flake8
 RET=$(($RET + $?)) ; echo $MSG "DONE"
 
 MSG='Checking black... ' ; echo $MSG
+black --version
 black --check .
 RET=$(($RET + $?)) ; echo $MSG "DONE"
 
 MSG='Checking isort... ' ; echo $MSG
+isort --version-number
 isort --recursive --check-only .
 RET=$(($RET + $?)) ; echo $MSG "DONE"
 

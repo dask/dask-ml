@@ -10,7 +10,7 @@ dependencies:
   - heapdict
   - ipykernel
   - ipython
-  - isort
+  - isort==4.3.21
   - multipledispatch
   - mypy
   - nbsphinx

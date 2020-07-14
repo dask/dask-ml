@@ -101,10 +101,15 @@ You can still use all the usual pytest command-line options in addition to those
 Pre-Commit Hooks
 ~~~~~~~~~~~~~~~~
 
-Install the `pre commit <https://github.com/pre-commit/pre-commit>`_ tool. Then, from the
-root of the ``dask-ml`` repository, run ``pre-commit install`` to install a few plugins
-like black, isort, and flake8. These tools will automatically be run on each commit. You
-can skip the checks with ``git commit --no-verify``.
+Install and build the `pre commit <https://github.com/pre-commit/pre-commit>`_ tool as:
+
+.. code-block:: none
+
+    python -m pip install pre-commit
+    pre-commit install
+
+to install a few plugins like black, isort, and flake8. These tools will automatically
+be run on each commit. You can skip the checks with ``git commit --no-verify``.
 
 Conventions
 ~~~~~~~~~~~
@@ -143,6 +148,10 @@ Building the docs is possible with
 .. code-block:: none
 
    $ conda env create -f ci/environment-docs.yaml --name=dask-ml-dev-docs
+   $ conda activate dask-ml-dev-docs
+   $ python -m pip install -e .
+   $ cd docs
+   $ make html
 
 Examples are written as Jupyter notebooks with their output stripped, either
 manually or using `nbstripout <https://github.com/kynan/nbstripout>`_. We want
