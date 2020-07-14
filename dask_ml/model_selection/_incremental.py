@@ -289,10 +289,8 @@ async def _fit(
         _specs = {}
 
         model_scores = {ident: info[ident][-1]["score"] for ident in instructions}
-        if client.asynchronous:
-            _sched_info = client.scheduler_info()
-        else:
-            _sched_info = client._scheduler_identity
+
+        _sched_info = client.scheduler_info()
         num_workers = len(_sched_info["workers"])
         priorities = _get_priorities(model_scores, num_workers=num_workers)
 
