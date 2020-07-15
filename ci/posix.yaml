@@ -20,6 +20,7 @@ jobs:
       sklearnDev:
         envFile: 'ci/environment-3.7.yaml'
         SKLEARN_DEV: "yes"
+        WRAPPERS: "no"
 
   steps:
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
@@ -32,6 +33,13 @@ jobs:
 
   - bash: conda env create --quiet --file=$(envFile) --name=dask-ml-test && conda list -n dask-ml-test
     displayName: "install"
+
+  - bash: |
+      conda install pytorch torchvision -c pytorch
+      pip install skorch
+      pip install tensorflow scikeras keras
+    displayName: "install Tensorflow/PyTorch"
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
 
   - script: |
       source activate dask-ml-test
