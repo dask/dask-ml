@@ -35,11 +35,11 @@ Now, we can use the SciKeras to create a Scikit-learn compatible model:
    model = KerasClassifier(build_fn=_keras_build_fn, lr=0.1)
 
 This model will work with all of Dask-ML: it expects NumPy arrays as inputs and
-obeys the Scikit-learn API. For example, the following examples have been
-implemented:
+obeys the Scikit-learn API. For example, it's possible to use Dask-ML to do the
+following:
 
-* Using Keras with the relevant model selection in Dask-ML, :class:`~dask_ml.model_selection.HyperbandSearchCV`
-  (TODO: link).
-* Using Keras with Dask-ML's :class:`~dask_ml.wrappers.Incremental` (TODO link)
+* Use Keras with Dask-ML's model selection, including
+  :class:`~dask_ml.model_selection.HyperbandSearchCV`.
+* Use Keras with Dask-ML's :class:`~dask_ml.wrappers.Incremental`.
 
 .. _SciKeras: https://github.com/adriangb/scikeras

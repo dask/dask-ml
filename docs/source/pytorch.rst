@@ -50,15 +50,15 @@ With this, it's easy to use Skorch:
 
 Each parameter that the PyTorch `nn.Module` takes is prefixed with `module__`,
 and same for the optimizer (`optim.SGD` takes a `lr` and `momentum`
-parameters).
+parameters). The ``niceties`` make sure Skorch uses all the data for training
+and doesn't print excessive amounts of logs.
 
-Now, this model can be used with Dask-ML. The following examples have been
-implemented:
+Now, this model can be used with Dask-ML. For example, it's possible to do the
+following:
 
-* Using PyTorch with the relevant model selection in Dask-ML,
-  :class:`~dask_ml.model_selection.HyperbandSearchCV` (TODO: link).
-* Using PyTorch with Dask-ML's :class:`~dask_ml.wrappers.Incremental` (TODO:
-  link).
+* Use PyTorch with the Dask-ML's model selection, including
+  :class:`~dask_ml.model_selection.HyperbandSearchCV`.
+* Use PyTorch with Dask-ML's :class:`~dask_ml.wrappers.Incremental`.
 
 .. _Skorch: https://skorch.readthedocs.io/en/stable/
 .. _PyTorch: https://pytorch.org
