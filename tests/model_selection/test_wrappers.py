@@ -5,10 +5,10 @@ import numpy as np
 import pytest
 from distributed.utils_test import gen_cluster
 from scipy.stats import loguniform, uniform
-from sklearn.model_selection import RandomizedSearchCV
-from sklearn.datasets import make_classification, make_regression
 from sklearn.base import clone
+from sklearn.datasets import make_classification, make_regression
 from sklearn.exceptions import DataConversionWarning
+from sklearn.model_selection import RandomizedSearchCV
 
 from dask_ml.model_selection import IncrementalSearchCV
 
