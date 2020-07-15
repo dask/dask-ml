@@ -390,7 +390,7 @@ def random_date(start, end):
 
 
 def return_dataframes(func):
-    """Wraps a function that returns a tuple of Dask arrays (X, y) to return 
+    """Wraps a function that returns a tuple of Dask arrays (X, y) to return
     a tuple of Dask dataframe and series (X_df, y_series).
     """
 
@@ -406,8 +406,8 @@ def return_dataframes(func):
         y : Dask Series of shape [n_samples] or [n_samples, n_targets]
             The output values.
         """
-        random_state, chunks = map(kwargs.get, ('random_state', 'chunks'))
-        dates = kwargs.pop('dates', None)
+        random_state, chunks = map(kwargs.get, ("random_state", "chunks"))
+        dates = kwargs.pop("dates", None)
 
         X_array, y_array = func(*args, **kwargs)
 
@@ -430,7 +430,9 @@ def return_dataframes(func):
                 axis=1,
             )
         return X_df, y_series
+
     return wrapper
+
 
 make_classification_df = return_dataframes(make_classification)
 make_regression_df = return_dataframes(make_regression)
