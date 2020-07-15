@@ -39,7 +39,7 @@ jobs:
       pip install skorch
       pip install tensorflow scikeras keras
     displayName: "install Tensorflow/PyTorch"
-    condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+    # condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
 
   - script: |
       source activate dask-ml-test
