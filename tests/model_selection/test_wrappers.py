@@ -88,19 +88,17 @@ def test_keras(c, s, a, b):
     assert search.best_score_ >= 0
 
 
-class ShallowNet(nn.Module):
-    def __init__(self, n_features=5):
-        super().__init__()
-        self.layer1 = nn.Linear(n_features, 1)
-
-    def forward(self, x):
-        return F.relu(self.layer1(x))
-
-
 @gen_cluster(client=True)
 def test_pytorch(c, s, a, b):
     pytest.importorskip("torch")
     pytest.importorskip("skorch")
+    class ShallowNet(nn.Module):
+        def __init__(self, n_features=5):
+            super().__init__()
+            self.layer1 = nn.Linear(n_features, 1)
+
+        def forward(self, x):
+            return F.relu(self.layer1(x))
 
     n_features = 10
     defaults = {
