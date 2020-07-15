@@ -63,7 +63,6 @@ def test_deterministic(generator, scheduler):
     assert_eq(a, b)
     assert_eq(t, u)
 
-
 def test_make_classification_df():
     X_df, y_series = dask_ml.datasets.make_classification_df(
         n_samples=100,
@@ -77,6 +76,62 @@ def test_make_classification_df():
     assert y_series is not None
     assert "date" in X_df.columns
     assert len(X_df.columns) == 6
+    assert len(X_df) == 100
+    assert len(y_series) == 100
+    assert isinstance(y_series, dask.dataframe.core.Series)
+
+def test_make_classification_df_missing_kwargs():
+    with pytest.raises(ValueError):
+        X_df, y_series = dask_ml.datasets.make_classification_df(
+            n_samples=100,
+            n_features=5,
+        )
+
+def test_make_classification_df_without_dates():
+    X_df, y_series = dask_ml.datasets.make_classification_df(
+        n_samples=100,
+        n_features=5,
+        random_state=123,
+        chunks=100,
+    )
+
+    assert X_df is not None
+    assert y_series is not None
+    assert "date" not in X_df.columns
+    assert len(X_df.columns) == 5
+    assert len(X_df) == 100
+    assert len(y_series) == 100
+    assert isinstance(y_series, dask.dataframe.core.Series)
+
+def test_make_regression_df():
+    X_df, y_series = dask_ml.datasets.make_regression_df(
+        n_samples=100,
+        n_features=5,
+        random_state=123,
+        chunks=100,
+        dates=(date(2014, 1, 1), date(2015, 1, 1)),
+    )
+
+    assert X_df is not None
+    assert y_series is not None
+    assert "date" in X_df.columns
+    assert len(X_df.columns) == 6
+    assert len(X_df) == 100
+    assert len(y_series) == 100
+    assert isinstance(y_series, dask.dataframe.core.Series)
+
+def test_make_regression_df_without_dates():
+    X_df, y_series = dask_ml.datasets.make_regression_df(
+        n_samples=100,
+        n_features=5,
+        random_state=123,
+        chunks=100,
+    )
+
+    assert X_df is not None
+    assert y_series is not None
+    assert "date" not in X_df.columns
+    assert len(X_df.columns) == 5
     assert len(X_df) == 100
     assert len(y_series) == 100
     assert isinstance(y_series, dask.dataframe.core.Series)
