@@ -120,12 +120,20 @@ Scikit-Learn should feel at home with Dask-ML.
    hyper-parameter-search.rst
    compose.rst
    glm.rst
-   joblib.rst
    meta-estimators.rst
    incremental.rst
    clustering.rst
-   xgboost.rst
    modules/api.rst
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Integration
+
+   keras.rst
+   pytorch.rst
+   xgboost.rst
+   joblib.rst
 
 .. toctree::
    :maxdepth: 2
