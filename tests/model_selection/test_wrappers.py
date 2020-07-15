@@ -68,6 +68,9 @@ def test_keras(c, s, a, b):
     model = KerasClassifier(build_fn=_keras_build_fn, lr=0.1)
     params = {"lr": loguniform(1e-3, 1e-1)}
 
+    # SciKeras reformats some of the shapes; I think this warning comes from
+    # that but am not sure
+    # https://github.com/adriangb/scikeras/issues/19#issuecomment-658549923
     with pytest.warns(DataConversionWarning):
         m = model.partial_fit(X, y)
     assert m is model
