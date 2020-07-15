@@ -481,7 +481,7 @@ class Incremental(ParallelPostFit):
                 random_state=self.random_state,
                 shuffle_blocks=self.shuffle_blocks,
                 assume_equal_chunks=self.assume_equal_chunks,
-                **fit_kwargs
+                **fit_kwargs,
             )
 
         copy_learned_attributes(result, self)
@@ -551,3 +551,141 @@ def _predict_proba(part, estimator):
 
 def _transform(part, estimator):
     return estimator.transform(part)
+
+
+try:
+    from scikeras.wrappers import KerasRegressor, KerasClassifier
+except:
+
+    class _KerasError:
+        def __init__(self, *args, **kwargs):
+            raise ModuleNotFoundError(
+                "SciKeras not installed. Please install Tensorflow, Keras "
+                "and SciKeras. This code will work:\n\n"
+                "    $ pip install tensorflow keras scikeras\n"
+            )
+
+    class KerasClassifier(_KerasError):
+        pass
+
+    class KerasRegressor(_KerasError):
+        pass
+
+
+try:
+    from skorch import NeuralNetClassifier, NeuralNetRegressor
+except:
+
+    class _PyTorchError:
+        def __init__(self, *args, **kwargs):
+            raise ModuleNotFoundError(
+                "Skorch not installed. Please install PyTorch and Skorch:"
+                "    * PyTorch installation instructions: https://pytorch.org/ \n"
+                "    * Skorch installation: `pip install skorch`"
+            )
+
+    class NeuralNetClassifier(_PyTorchError):
+        pass
+
+    class NeuralNetRegressor(_PyTorchError):
+        pass
+
+
+class PyTorchClassifier(NeuralNetClassifier):
+    """
+    A wrapper for PyTorch modules that's most suited for model selection.
+
+    This class is a wrapper around `Skorch`_, which brings a Scikit-learn API
+    to PyTorch.
+
+    .. _Skorch: https://skorch.readthedocs.io
+
+    Examples
+    --------
+    >>> import torch.optim as optim
+    >>> import torch.nn as nn
+    >>> from dask_ml.wrappers import PyTorchRegressor
+    >>> import torch
+    >>>
+    >>> class ShallowNet(nn.Module):
+    ...     def __init__(self, n_features=5):
+    ...         super().__init__()
+    ...         self.layer1 = nn.Linear(n_features, 1)
+    ...     def forward(self, x):
+    ...         return torch.sign(self.layer1(x))
+    ...
+    >>> model = PyTorchRegressor(
+    ...     module=ShallowNet,
+    ...     module__n_features=200,
+    ...     optimizer=optim.SGD,
+    ...     optimizer__lr=0.1,
+    ...     batch_size=64,
+    ... )
+    ...
+    >>> from sklearn.datasets import make_classification
+    >>> X, y = make_classification(n_features=200, n_samples=400, n_classes=2)
+    >>> X = X.astype("float32")
+    >>> y = y.astype("float32").reshape(-1, 1)
+    >>> model.partial_fit(X, y)
+
+    """
+    def __init__(
+        self, warm_start=False, train_split=None, max_epochs=1, callbacks=None, **kwargs
+    ):
+        super().__init__(
+            warm_start=warm_start,
+            train_split=train_split,
+            max_epochs=1,
+            callbacks=callbacks or [],
+            **kwargs,
+        )
+
+
+class PyTorchRegressor(NeuralNetRegressor):
+    """
+    A wrapper for PyTorch modules that's most suited for model selection.
+
+    This class is a wrapper around `Skorch`_, which brings a Scikit-learn API
+    to PyTorch.
+
+    .. _Skorch: https://skorch.readthedocs.io
+
+    Examples
+    --------
+    >>> import torch.optim as optim
+    >>> import torch.nn as nn
+    >>> from dask_ml.wrappers import PyTorchRegressor
+    >>>
+    >>> class ShallowNet(nn.Module):
+    ...     def __init__(self, n_features=5):
+    ...         super().__init__()
+    ...         self.layer1 = nn.Linear(n_features, 1)
+    ...     def forward(self, x):
+    ...         return F.relu(self.layer1(x))
+    ...
+    >>> model = PyTorchRegressor(
+    ...     module=ShallowNet,
+    ...     module__n_features=200,
+    ...     optimizer=optim.SGD,
+    ...     optimizer__lr=0.1,
+    ...     batch_size=64,
+    ... )
+    >>> from sklearn.datasets import make_regression
+    >>> X, y = make_regression(n_features=200, n_samples=400)
+    >>> X, y = X.astype("float32"), y.astype("float32")
+    >>> model.partial_fit(X, y)
+
+    """
+
+    def __init__(self, warm_start=False, train_split=None, max_epochs=1, **kwargs):
+        super().__init__(
+            warm_start=warm_start,
+            train_split=train_split,
+            max_epochs=max_epochs,
+            **kwargs,
+        )
+
+    def initialize(self, *args, **kwargs):
+        r = super().initialize(*args, **kwargs)
+        self.callbacks_ = []
+        return r
