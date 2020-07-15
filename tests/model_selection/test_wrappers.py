@@ -3,26 +3,32 @@ from typing import Tuple
 
 import numpy as np
 import pytest
-import torch.optim as optim
-import torch.nn as nn
-import torch.nn.functional as F
-import tensorflow as tf
-from sklearn.datasets import make_classification, make_regression
 from distributed.utils_test import gen_cluster
 from scipy.stats import loguniform, uniform
-from tensorflow.keras.datasets import mnist as keras_mnist
-from tensorflow.keras.layers import Dense, Activation, Dropout
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.utils import to_categorical
-from skorch import NeuralNetClassifier
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.datasets import make_classification, make_regression
+from sklearn.base import clone
 from sklearn.exceptions import DataConversionWarning
 
 from dask_ml.model_selection import IncrementalSearchCV
-from sklearn.model_selection import RandomizedSearchCV
-from sklearn.base import clone
 
-from scikeras.wrappers import KerasClassifier, KerasRegressor
-from skorch import NeuralNetClassifier, NeuralNetRegressor
+try:
+    import tensorflow as tf
+    from tensorflow.keras.datasets import mnist as keras_mnist
+    from tensorflow.keras.layers import Dense, Activation, Dropout
+    from tensorflow.keras.models import Sequential
+    from tensorflow.keras.utils import to_categorical
+    from scikeras.wrappers import KerasClassifier, KerasRegressor
+except:
+    pass
+
+try:
+    import torch.optim as optim
+    import torch.nn as nn
+    import torch.nn.functional as F
+    from skorch import NeuralNetClassifier, NeuralNetRegressor
+except:
+    pass
 
 
 def mnist() -> Tuple[np.ndarray, np.ndarray]:
@@ -48,13 +54,29 @@ def _keras_build_fn(lr=0.01):
     return model
 
 
-def test_keras():
+@gen_cluster(client=True)
+def test_keras(c, s, a, b):
+#  def test_keras():
+    pytest.importorskip("tensorflow")
+    pytest.importorskip("scikeras")
+
     X, y = mnist()
     assert X.ndim == 2 and X.shape[-1] == 784
     assert y.ndim == 1 and len(X) == len(y)
+    assert isinstance(X, np.ndarray) and isinstance(y, np.ndarray)
 
     model = KerasClassifier(build_fn=_keras_build_fn, lr=0.1)
     params = {"lr": loguniform(1e-3, 1e-1)}
+
+    with pytest.warns(DataConversionWarning):
+        m = model.partial_fit(X, y)
+    assert m is model
+    model2 = pickle.loads(pickle.dumps(model))
+
+    search = RandomizedSearchCV(model, params)
+    with pytest.warns(DataConversionWarning):
+        search.fit(X, y, epochs=2)
+    assert search.best_score_ >= 0
 
     search = IncrementalSearchCV(model, params, max_iter=5)
     with pytest.warns(DataConversionWarning):
@@ -73,6 +95,9 @@ class ShallowNet(nn.Module):
 
 @gen_cluster(client=True)
 def test_pytorch(c, s, a, b):
+    pytest.importorskip("torch")
+    pytest.importorskip("skorch")
+
     n_features = 10
     defaults = {
         "callbacks": False,
