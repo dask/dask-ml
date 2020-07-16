@@ -1,5 +1,5 @@
-Keras
-=====
+Keras and Tensorflow
+====================
 
 The package SciKeras_ brings a Scikit-learn API to Keras. Install directions
 are at https://github.com/adriangb/scikeras/blob/master/README.md#installation.
