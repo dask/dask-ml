@@ -18,7 +18,7 @@ normal way to create a `Keras Sequential model`_
    from tensorflow.keras.layers import Dense, Activation, Dropout
    from tensorflow.keras.models import Sequential
 
-   def _keras_build_fn(lr=0.01):
+   def build_model(lr=0.01):
        layers = [Dense(512, input_shape=(784,), activation="relu"),
                  Dense(10, input_shape=(512,), activation="softmax")]
        model = Sequential(layers)
@@ -32,7 +32,7 @@ Now, we can use the SciKeras to create a Scikit-learn compatible model:
 .. code-block:: python
 
    from scikeras.wrappers import KerasClassifier, KerasRegressor
-   model = KerasClassifier(build_fn=_keras_build_fn, lr=0.1)
+   model = KerasClassifier(build_fn=build_model, lr=0.1)
 
 This model will work with all of Dask-ML: it expects NumPy arrays as inputs and
 obeys the Scikit-learn API. For example, it's possible to use Dask-ML to do the
