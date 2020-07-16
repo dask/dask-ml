@@ -388,7 +388,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         return SHAs
 
     async def _fit(self, X, y, **fit_params):
-        X, y, scorer = self._validate_parameters(X, y)
+        X, y, scorer = await self._validate_parameters(X, y)
 
         brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
         SHAs = self._get_SHAs(brackets)
