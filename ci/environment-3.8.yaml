@@ -30,7 +30,3 @@ dependencies:
   - pip
   - pip:
     - pytest-azurepipelines
-    - tensorflow
-    - scikeras
-    - skorch
-    - torch
