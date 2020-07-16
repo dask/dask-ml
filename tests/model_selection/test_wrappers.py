@@ -27,7 +27,10 @@ try:
     import torch.nn as nn
     import torch.nn.functional as F
     from skorch import NeuralNetClassifier, NeuralNetRegressor
+
+    PYTORCH = True
 except:
+    PYTORCH = False
     pass
 
 
@@ -47,7 +50,12 @@ def _keras_build_fn(lr=0.01):
         Dense(512, input_shape=(784,), activation="relu"),
         Dense(10, input_shape=(512,), activation="softmax"),
     ]
-    model = Sequential(layers)
+
+    # See https://github.com/adriangb/scikeras/issues/24
+    try:
+        model = Sequential(layers)
+    except TypeError:
+        model = Sequential(layers)
 
     opt = tf.keras.optimizers.SGD(learning_rate=lr)
     model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"])
@@ -56,7 +64,6 @@ def _keras_build_fn(lr=0.01):
 
 @gen_cluster(client=True)
 def test_keras(c, s, a, b):
-#  def test_keras():
     pytest.importorskip("tensorflow")
     pytest.importorskip("scikeras")
 
@@ -65,33 +72,16 @@ def test_keras(c, s, a, b):
     assert y.ndim == 1 and len(X) == len(y)
     assert isinstance(X, np.ndarray) and isinstance(y, np.ndarray)
 
-    model = KerasClassifier(build_fn=_keras_build_fn, lr=0.1)
+    model = KerasClassifier(build_fn=_keras_build_fn, epochs=1, lr=0.1)
     params = {"lr": loguniform(1e-3, 1e-1)}
 
-    # Keras and Scikit-learn don't agree on shapes all the time.
-    # SciKeras does it's best to manage that. See [1] and [2].
-    # [1]:https://github.com/adriangb/scikeras/issues/20
-    # [2]:https://github.com/dask/dask-ml/pull/699#discussion_r455385057
-    with pytest.warns(DataConversionWarning):
-        m = model.partial_fit(X, y)
-    assert m is model
-    model2 = pickle.loads(pickle.dumps(model))
-
-    search = RandomizedSearchCV(model, params)
-    with pytest.warns(DataConversionWarning):
-        search.fit(X, y, epochs=2)
-    assert search.best_score_ >= 0
-
-    search = IncrementalSearchCV(model, params, max_iter=5)
-    with pytest.warns(DataConversionWarning):
-        yield search.fit(X, y)
+    search = IncrementalSearchCV(model, params, max_iter=2, decay_rate=None)
+    yield search.fit(X, y, epochs=1)
     assert search.best_score_ >= 0
 
 
-@gen_cluster(client=True)
-def test_pytorch(c, s, a, b):
-    pytest.importorskip("torch")
-    pytest.importorskip("skorch")
+if PYTORCH:
+
     class ShallowNet(nn.Module):
         def __init__(self, n_features=5):
             super().__init__()
@@ -99,6 +89,12 @@ def test_pytorch(c, s, a, b):
 
         def forward(self, x):
             return F.relu(self.layer1(x))
+
+
+@gen_cluster(client=True)
+def test_pytorch(c, s, a, b):
+    pytest.importorskip("torch")
+    pytest.importorskip("skorch")
 
     n_features = 10
     defaults = {
