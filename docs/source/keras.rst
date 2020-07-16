@@ -18,7 +18,7 @@ normal way to create a `Keras Sequential model`_
    from tensorflow.keras.layers import Dense, Activation, Dropout
    from tensorflow.keras.models import Sequential
 
-   def _keras_build_fn(lr=0.01):
+   def build_model(lr=0.01):
        layers = [Dense(512, input_shape=(784,), activation="relu"),
                  Dense(10, input_shape=(512,), activation="softmax")]
        model = Sequential(layers)
