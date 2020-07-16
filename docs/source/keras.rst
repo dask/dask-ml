@@ -32,7 +32,7 @@ Now, we can use the SciKeras to create a Scikit-learn compatible model:
 .. code-block:: python
 
    from scikeras.wrappers import KerasClassifier, KerasRegressor
-   model = KerasClassifier(build_fn=_keras_build_fn, lr=0.1)
+   model = KerasClassifier(build_fn=build_model, lr=0.1)
 
 This model will work with all of Dask-ML: it expects NumPy arrays as inputs and
 obeys the Scikit-learn API. For example, it's possible to use Dask-ML to do the
