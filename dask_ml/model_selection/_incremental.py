@@ -188,6 +188,8 @@ async def _fit(
     if isinstance(y_test, dd.Series):
         y_test = y_test.to_dask_array()
 
+    X_train, y_train, X_test, y_test = dask.persist(X_train, y_train, X_test, y_test)
+
     if isinstance(X_test, da.Array):
         X_test = client.compute(X_test)
     else:
@@ -198,7 +200,6 @@ async def _fit(
         y_test = await client.scatter(y_test)
 
     # Convert to batches of delayed objects of numpy arrays
-    X_train, y_train = dask.persist(X_train, y_train)
     X_train = sorted(futures_of(X_train), key=lambda f: f.key)
     y_train = sorted(futures_of(y_train), key=lambda f: f.key)
     assert len(X_train) == len(y_train)
