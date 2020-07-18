@@ -15,6 +15,7 @@ from distributed.utils_test import (  # noqa: F401
 )
 from sklearn.linear_model import SGDClassifier
 
+import dask.dataframe as dd
 from dask_ml._compat import DISTRIBUTED_2_5_0
 from dask_ml.datasets import make_classification
 from dask_ml.model_selection import (
@@ -465,3 +466,16 @@ def test_logs_dont_repeat(c, s, a, b):
     # Make sure only one model creation message is printed per bracket
     # (all brackets have unique n_models as asserted above)
     assert len(n_models) == len(set(n_models))
+
+
+@gen_cluster(client=True)
+async def test_dataframe_inputs(c, s, a, b):
+    X = pd.DataFrame({"x": [1, 2, 3], "y": [4, 5, 6]})
+    X = dd.from_pandas(X, npartitions=2)
+    y = pd.Series([False, True, True])
+    y = dd.from_pandas(y, npartitions=2)
+
+    model = ConstantFunction()
+    params = {"value": scipy.stats.uniform(0, 1)}
+    alg = HyperbandSearchCV(model, params, max_iter=9, random_state=42)
+    await alg.fit(X, y)
