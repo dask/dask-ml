@@ -568,8 +568,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         else:
             test_size = self.test_size
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=test_size, random_state=self.random_state,
-            shuffle=True
+            X, y, test_size=test_size, random_state=self.random_state, shuffle=True
         )
         return X_train, X_test, y_train, y_test
 
@@ -645,8 +644,9 @@ class BaseIncrementalSearchCV(ParallelPostFit):
 
         X, y, scorer = self._validate_parameters(X, y)
 
-        X_train, X_test, y_train, y_test = self._get_train_test_split(X, y,
-                shuffle=True)
+        X_train, X_test, y_train, y_test = self._get_train_test_split(
+            X, y, shuffle=True
+        )
 
         with context:
             results = await fit(
