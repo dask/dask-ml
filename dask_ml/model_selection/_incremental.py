@@ -28,7 +28,6 @@ from sklearn.utils.metaestimators import if_delegate_has_method
 from .._compat import check_is_fitted, dummy_context
 from .._typing import ArrayLike, Int
 from .._utils import LoggingContext
-from ..utils import check_array
 from ..wrappers import ParallelPostFit
 from ._split import train_test_split
 
@@ -549,7 +548,6 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         """
         if isinstance(X, np.ndarray):
             X = da.from_array(X, X.shape)
-        X = check_array(X, **kwargs)
         return X
 
     def _get_train_test_split(self, X, y, **kwargs):
