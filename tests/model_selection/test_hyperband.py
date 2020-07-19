@@ -2,11 +2,11 @@ import logging
 import math
 import warnings
 
-import dask.array as da
 import numpy as np
 import pandas as pd
 import pytest
 import scipy.stats
+from dask import array as da, dataframe as dd
 from distributed.utils_test import (  # noqa: F401
     captured_logger,
     cluster,
@@ -15,7 +15,6 @@ from distributed.utils_test import (  # noqa: F401
 )
 from sklearn.linear_model import SGDClassifier
 
-import dask.dataframe as dd
 from dask_ml._compat import DISTRIBUTED_2_5_0
 from dask_ml.datasets import make_classification
 from dask_ml.model_selection import (
