@@ -133,7 +133,7 @@
             
             
               <div class="version">
-                1.5.1.dev8+gfc6a04a
+                1.5.1.dev9+gfe10a45
               </div>
             
           
@@ -262,6 +262,14 @@
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.xgboost.XGBRegressor.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code>.XGBRegressor</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.xgboost.train.html">dask_ml.xgboost.train</a></li>
 <li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.xgboost.predict.html">dask_ml.xgboost.predict</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#dask-ml-datasets-datasets"><code class="docutils literal notranslate"><span class="pre">dask_ml.datasets</span></code>: Datasets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.datasets.make_counts.html">dask_ml.datasets.make_counts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.datasets.make_blobs.html">dask_ml.datasets.make_blobs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.datasets.make_regression.html">dask_ml.datasets.make_regression</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.datasets.make_classification.html">dask_ml.datasets.make_classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/dask_ml.datasets.make_classification_df.html">dask_ml.datasets.make_classification_df</a></li>
 </ul>
 </li>
 </ul>
@@ -4481,6 +4489,312 @@ will be setup in distributed mode alongside your existing
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.xgboost.predict.html#dask_ml.xgboost.predict" title="dask_ml.xgboost.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(client,&nbsp;model,&nbsp;data)</td>
 <td>Distributed prediction with XGBoost</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="dask-ml-datasets-datasets">
+<h2><a class="reference internal" href="#module-dask_ml.datasets" title="dask_ml.datasets"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.datasets</span></code></a>: Datasets<a class="headerlink" href="#dask-ml-datasets-datasets" title="Permalink to this headline">¶</a></h2>
+<p>dask-ml provides some utilities for generating toy datasets.</p>
+<span class="target" id="module-dask_ml.datasets"></span><dl class="function">
+<dt id="dask_ml.datasets.make_blobs">
+<code class="descclassname">dask_ml.datasets.</code><code class="descname">make_blobs</code><span class="sig-paren">(</span><em>n_samples=100</em>, <em>n_features=2</em>, <em>centers=None</em>, <em>cluster_std=1.0</em>, <em>center_box=(-10.0</em>, <em>10.0)</em>, <em>shuffle=True</em>, <em>random_state=None</em>, <em>chunks=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.datasets.make_blobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate isotropic Gaussian blobs for clustering.</p>
+<p>This can be used to generate very large Dask arrays on a cluster of
+machines. When using Dask in distributed mode, the client machine
+only needs to allocate a single block’s worth of data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>n_samples</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int or array-like, optional (default=100)</span></dt>
+<dd><p class="first last">If int, it is the total number of points equally divided among
+clusters.
+If array-like, each element of the sequence indicates
+the number of samples per cluster.</p>
+</dd>
+<dt><strong>n_features</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional (default=2)</span></dt>
+<dd><p class="first last">The number of features for each sample.</p>
+</dd>
+<dt><strong>centers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int or array of shape [n_centers, n_features], optional</span></dt>
+<dd><p class="first last">(default=None)
+The number of centers to generate, or the fixed center locations.
+If n_samples is an int and centers is None, 3 centers are generated.
+If n_samples is array-like, centers must be
+either None or an array of length equal to the length of n_samples.</p>
+</dd>
+<dt><strong>cluster_std</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or sequence of floats, optional (default=1.0)</span></dt>
+<dd><p class="first last">The standard deviation of the clusters.</p>
+</dd>
+<dt><strong>center_box</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pair of floats (min, max), optional (default=(-10.0, 10.0))</span></dt>
+<dd><p class="first last">The bounding box for each cluster center when centers are
+generated at random.</p>
+</dd>
+<dt><strong>shuffle</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional (default=True)</span></dt>
+<dd><p class="first last">Shuffle the samples.</p>
+</dd>
+<dt><strong>random_state</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, RandomState instance or None (default)</span></dt>
+<dd><p class="first last">Determines random number generation for dataset creation. Pass an int
+for reproducible output across multiple function calls.
+See <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-random-state" title="(in scikit-learn v0.23)"><span class="xref std std-term">Glossary</span></a>.</p>
+</dd>
+<dt><strong>chunks</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, tuple</span></dt>
+<dd><p class="first">How to chunk the array. Must be one of the following forms:
+-   A blocksize like 1000.
+-   A blockshape like (1000, 1000).
+-   Explicit sizes of all blocks along all dimensions like</p>
+<blockquote class="last">
+<div><p>((1000, 1000, 500), (400, 400)).</p>
+</div></blockquote>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array of shape [n_samples, n_features]</span></dt>
+<dd><p class="first last">The generated samples.</p>
+</dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array of shape [n_samples]</span></dt>
+<dd><p class="first last">The integer labels for cluster membership of each sample.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="generated/dask_ml.datasets.make_classification.html#dask_ml.datasets.make_classification" title="dask_ml.datasets.make_classification"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_classification</span></code></a></dt>
+<dd>a more intricate variant</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dask_ml.datasets</span> <span class="kn">import</span> <span class="n">make_blobs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_blobs</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span>
+<span class="go">dask.array&lt;..., shape=(100000, 2), dtype=float64, chunksize=(10000, 2)&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span>
+<span class="go">dask.array&lt;concatenate, shape=(100000,), dtype=int64, chunksize=(10000,)&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="dask_ml.datasets.make_classification_df">
+<code class="descclassname">dask_ml.datasets.</code><code class="descname">make_classification_df</code><span class="sig-paren">(</span><em>n_samples=10000</em>, <em>response_rate=0.5</em>, <em>predictability=0.1</em>, <em>random_state=None</em>, <em>chunks=None</em>, <em>dates=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.datasets.make_classification_df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses the make_classification function to create a dask
+dataframe for testing.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>n_samples</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default is 10000</span></dt>
+<dd><p class="first last">number of observations to be generated</p>
+</dd>
+<dt><strong>response_rate</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float between 0.0 and 0.5, default is 0.5</span></dt>
+<dd><p class="first last">percentage of sample to be response records max is 0.5</p>
+</dd>
+<dt><strong>predictability</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float between 0.0 and 1.0, default is 0.1</span></dt>
+<dd><p class="first last">how hard is the response to predict (1.0 being easist)</p>
+</dd>
+<dt><strong>random_state</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default is None</span></dt>
+<dd><p class="first last">seed for reproducability purposes</p>
+</dd>
+<dt><strong>chunks</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">How to chunk the array. Must be one of the following forms:
+-   A blocksize like 1000.</p>
+</dd>
+<dt><strong>dates</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuple, optional, default is None</span></dt>
+<dd><p class="first last">tuple of start and end date objects to use for generating
+random dates in the date column</p>
+</dd>
+<dt><strong>**kwargs</strong></dt>
+<dd><p class="first last">Other keyword arguments to pass to <cite>sklearn.datasets.make_classification</cite></p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Dask DataFrame of shape [n_samples, n_features] or</span></dt>
+<dd><p class="first last">[n_samples, n_features + 1] when dates specified
+The input samples.</p>
+</dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Dask Series of shape [n_samples] or [n_samples, n_targets]</span></dt>
+<dd><p class="first last">The output values.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="dask_ml.datasets.make_counts">
+<code class="descclassname">dask_ml.datasets.</code><code class="descname">make_counts</code><span class="sig-paren">(</span><em>n_samples=1000</em>, <em>n_features=100</em>, <em>n_informative=2</em>, <em>scale=1.0</em>, <em>chunks=100</em>, <em>random_state=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.datasets.make_counts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a dummy dataset for modeling count data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>n_samples</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">number of rows in the output array</p>
+</dd>
+<dt><strong>n_features</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">number of columns (features) in the output array</p>
+</dd>
+<dt><strong>n_informative</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">number of features that are correlated with the outcome</p>
+</dd>
+<dt><strong>scale</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Scale the true coefficient array by this</p>
+</dd>
+<dt><strong>chunks</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">Number of rows per dask array block.</p>
+</dd>
+<dt><strong>random_state</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, RandomState instance or None (default)</span></dt>
+<dd><p class="first last">Determines random number generation for dataset creation. Pass an int
+for reproducible output across multiple function calls.
+See <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-random-state" title="(in scikit-learn v0.23)"><span class="xref std std-term">Glossary</span></a>.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dask.array, size <code class="docutils literal notranslate"><span class="pre">(n_samples,</span> <span class="pre">n_features)</span></code></span></dt>
+<dd></dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dask.array, size <code class="docutils literal notranslate"><span class="pre">(n_samples,)</span></code></span></dt>
+<dd><p class="first last">array of non-negative integer-valued data</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_counts</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="dask_ml.datasets.make_regression">
+<code class="descclassname">dask_ml.datasets.</code><code class="descname">make_regression</code><span class="sig-paren">(</span><em>n_samples=100</em>, <em>n_features=100</em>, <em>n_informative=10</em>, <em>n_targets=1</em>, <em>bias=0.0</em>, <em>effective_rank=None</em>, <em>tail_strength=0.5</em>, <em>noise=0.0</em>, <em>shuffle=True</em>, <em>coef=False</em>, <em>random_state=None</em>, <em>chunks=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.datasets.make_regression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a random regression problem.</p>
+<p>The input set can either be well conditioned (by default) or have a low
+rank-fat tail singular profile. See
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.datasets.make_low_rank_matrix.html#sklearn.datasets.make_low_rank_matrix" title="(in scikit-learn v0.23)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.datasets.make_low_rank_matrix()</span></code></a> for more details.</p>
+<p>This can be used to generate very large Dask arrays on a cluster of
+machines. When using Dask in distributed mode, the client machine
+only needs to allocate a single block’s worth of data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>n_samples</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional (default=100)</span></dt>
+<dd><p class="first last">The number of samples.</p>
+</dd>
+<dt><strong>n_features</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional (default=100)</span></dt>
+<dd><p class="first last">The number of features.</p>
+</dd>
+<dt><strong>n_informative</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional (default=10)</span></dt>
+<dd><p class="first last">The number of informative features, i.e., the number of features used
+to build the linear model used to generate the output.</p>
+</dd>
+<dt><strong>n_targets</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, optional (default=1)</span></dt>
+<dd><p class="first last">The number of regression targets, i.e., the dimension of the y output
+vector associated with a sample. By default, the output is a scalar.</p>
+</dd>
+<dt><strong>bias</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional (default=0.0)</span></dt>
+<dd><p class="first last">The bias term in the underlying linear model.</p>
+</dd>
+<dt><strong>effective_rank</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int or None, optional (default=None)</span></dt>
+<dd><dl class="first last docutils">
+<dt>if not None:</dt>
+<dd><p class="first last">The approximate number of singular vectors required to explain most
+of the input data by linear combinations. Using this kind of
+singular spectrum in the input allows the generator to reproduce
+the correlations often observed in practice.</p>
+</dd>
+<dt>if None:</dt>
+<dd><p class="first last">The input set is well conditioned, centered and gaussian with
+unit variance.</p>
+</dd>
+</dl>
+</dd>
+<dt><strong>tail_strength</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float between 0.0 and 1.0, optional (default=0.5)</span></dt>
+<dd><p class="first last">The relative importance of the fat noisy tail of the singular values
+profile if <cite>effective_rank</cite> is not None.</p>
+</dd>
+<dt><strong>noise</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional (default=0.0)</span></dt>
+<dd><p class="first last">The standard deviation of the gaussian noise applied to the output.</p>
+</dd>
+<dt><strong>shuffle</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional (default=True)</span></dt>
+<dd><p class="first last">Shuffle the samples and the features.</p>
+</dd>
+<dt><strong>coef</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, optional (default=False)</span></dt>
+<dd><p class="first last">If True, the coefficients of the underlying linear model are returned.</p>
+</dd>
+<dt><strong>random_state</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, RandomState instance or None (default)</span></dt>
+<dd><p class="first last">Determines random number generation for dataset creation. Pass an int
+for reproducible output across multiple function calls.
+See <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-random-state" title="(in scikit-learn v0.23)"><span class="xref std std-term">Glossary</span></a>.</p>
+</dd>
+<dt><strong>chunks</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, tuple</span></dt>
+<dd><p class="first">How to chunk the array. Must be one of the following forms:
+-   A blocksize like 1000.
+-   A blockshape like (1000, 1000).
+-   Explicit sizes of all blocks along all dimensions like</p>
+<blockquote class="last">
+<div><p>((1000, 1000, 500), (400, 400)).</p>
+</div></blockquote>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Dask array of shape [n_samples, n_features]</span></dt>
+<dd><p class="first last">The input samples.</p>
+</dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Dask array of shape [n_samples] or [n_samples, n_targets]</span></dt>
+<dd><p class="first last">The output values.</p>
+</dd>
+<dt><strong>coef</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array of shape [n_features] or [n_features, n_targets], optional</span></dt>
+<dd><p class="first last">The coefficient of the underlying linear model. It is returned only if
+coef is True.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.datasets.make_counts.html#dask_ml.datasets.make_counts" title="dask_ml.datasets.make_counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_counts</span></code></a>([n_samples,&nbsp;n_features,&nbsp;…])</td>
+<td>Generate a dummy dataset for modeling count data.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.datasets.make_blobs.html#dask_ml.datasets.make_blobs" title="dask_ml.datasets.make_blobs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_blobs</span></code></a>([n_samples,&nbsp;n_features,&nbsp;centers,&nbsp;…])</td>
+<td>Generate isotropic Gaussian blobs for clustering.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.datasets.make_regression.html#dask_ml.datasets.make_regression" title="dask_ml.datasets.make_regression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_regression</span></code></a>([n_samples,&nbsp;n_features,&nbsp;…])</td>
+<td>Generate a random regression problem.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="generated/dask_ml.datasets.make_classification.html#dask_ml.datasets.make_classification" title="dask_ml.datasets.make_classification"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_classification</span></code></a>([n_samples,&nbsp;n_features,&nbsp;…])</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.datasets.make_classification_df.html#dask_ml.datasets.make_classification_df" title="dask_ml.datasets.make_classification_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_classification_df</span></code></a>([n_samples,&nbsp;…])</td>
+<td>Uses the make_classification function to create a dask dataframe for testing.</td>
 </tr>
 </tbody>
 </table>

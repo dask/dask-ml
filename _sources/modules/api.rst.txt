@@ -264,3 +264,21 @@ Classification Metrics
 
    train
    predict
+
+:mod:`dask_ml.datasets`: Datasets
+======================================================
+
+dask-ml provides some utilities for generating toy datasets.
+
+.. automodule:: dask_ml.datasets
+
+.. currentmodule:: dask_ml.datasets
+
+.. autosummary::
+   :toctree: generated/
+
+   make_counts
+   make_blobs
+   make_regression
+   make_classification
+   make_classification_df

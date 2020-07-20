@@ -1,0 +1,6 @@
+dask\_ml.datasets.make\_counts
+==============================
+
+.. currentmodule:: dask_ml.datasets
+
+.. autofunction:: make_counts

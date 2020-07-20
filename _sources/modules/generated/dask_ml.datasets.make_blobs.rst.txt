@@ -1,0 +1,6 @@
+dask\_ml.datasets.make\_blobs
+=============================
+
+.. currentmodule:: dask_ml.datasets
+
+.. autofunction:: make_blobs

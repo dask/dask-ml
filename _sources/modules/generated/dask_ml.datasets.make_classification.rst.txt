@@ -1,0 +1,6 @@
+dask\_ml.datasets.make\_classification
+======================================
+
+.. currentmodule:: dask_ml.datasets
+
+.. autofunction:: make_classification

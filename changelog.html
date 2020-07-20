@@ -48,7 +48,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Contributing" href="contributing.html" />
-    <link rel="prev" title="dask_ml.xgboost.predict" href="modules/generated/dask_ml.xgboost.predict.html" />
+    <link rel="prev" title="dask_ml.datasets.make_classification_df" href="modules/generated/dask_ml.datasets.make_classification_df.html" />
     <link rel="shortcut icon" href="_static/images/favicon.ico"/>
   
 </head>
@@ -133,7 +133,7 @@
             
             
               <div class="version">
-                1.5.1.dev8+gfc6a04a
+                1.5.1.dev9+gfe10a45
               </div>
             
           
@@ -441,7 +441,7 @@ have more than one block along the features (<a class="reference external" href=
 <div class="section" id="id1">
 <h3>Enhancements<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>Added support for <a class="reference external" href="https://docs.dask.org/en/latest/dataframe-api.html#dask.dataframe.DataFrame" title="(in Dask v2.20.0+10.g1f57364a.dirty)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask.dataframe.DataFrame</span></code></a> to <a class="reference internal" href="modules/generated/dask_ml.model_selection.train_test_split.html#dask_ml.model_selection.train_test_split" title="dask_ml.model_selection.train_test_split"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dask_ml.model_selection.train_test_split()</span></code></a> (<a class="reference external" href="https://github.com/dask/dask-ml/issues/351">GH#351</a>)</li>
+<li>Added support for <a class="reference external" href="https://docs.dask.org/en/latest/dataframe-api.html#dask.dataframe.DataFrame" title="(in Dask v2.21.0+1.gdacda137.dirty)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask.dataframe.DataFrame</span></code></a> to <a class="reference internal" href="modules/generated/dask_ml.model_selection.train_test_split.html#dask_ml.model_selection.train_test_split" title="dask_ml.model_selection.train_test_split"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dask_ml.model_selection.train_test_split()</span></code></a> (<a class="reference external" href="https://github.com/dask/dask-ml/issues/351">GH#351</a>)</li>
 </ul>
 </div>
 </div>
@@ -559,7 +559,7 @@ who previously installed <code class="docutils literal notranslate"><span class=
 <h3>API Breaking Changes<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>The <cite>n_samples_seen_</cite> attribute on <code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.preprocessing.StandardScalar</span></code> is now consistently <code class="docutils literal notranslate"><span class="pre">numpy.nan</span></code> (<a class="reference external" href="https://github.com/dask/dask-ml/issues/157">GH#157</a>).</li>
-<li>Changed the algorithm for <code class="xref py py-meth docutils literal notranslate"><span class="pre">dask_ml.datasets.make_blobs()</span></code>, <code class="xref py py-meth docutils literal notranslate"><span class="pre">dask_ml.datasets.make_regression()</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">dask_ml.datasets.make_classfication()</span></code> to reduce the single-machine peak memory usage (<a class="reference external" href="https://github.com/dask/dask-ml/issues/67">GH#67</a>)</li>
+<li>Changed the algorithm for <a class="reference internal" href="modules/generated/dask_ml.datasets.make_blobs.html#dask_ml.datasets.make_blobs" title="dask_ml.datasets.make_blobs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dask_ml.datasets.make_blobs()</span></code></a>, <a class="reference internal" href="modules/generated/dask_ml.datasets.make_regression.html#dask_ml.datasets.make_regression" title="dask_ml.datasets.make_regression"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dask_ml.datasets.make_regression()</span></code></a> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">dask_ml.datasets.make_classfication()</span></code> to reduce the single-machine peak memory usage (<a class="reference external" href="https://github.com/dask/dask-ml/issues/67">GH#67</a>)</li>
 </ul>
 </div>
 <div class="section" id="id12">
@@ -664,7 +664,7 @@ concrete NumPy or pandas objects, rather than persisted dask objects
         <a href="contributing.html" class="btn btn-neutral float-right" title="Contributing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="modules/generated/dask_ml.xgboost.predict.html" class="btn btn-neutral float-left" title="dask_ml.xgboost.predict" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="modules/generated/dask_ml.datasets.make_classification_df.html" class="btn btn-neutral float-left" title="dask_ml.datasets.make_classification_df" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

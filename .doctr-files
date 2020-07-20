@@ -21,6 +21,11 @@
 ./_sources/modules/api.rst.txt
 ./_sources/modules/generated/dask_ml.cluster.KMeans.rst.txt
 ./_sources/modules/generated/dask_ml.cluster.SpectralClustering.rst.txt
+./_sources/modules/generated/dask_ml.datasets.make_blobs.rst.txt
+./_sources/modules/generated/dask_ml.datasets.make_classification.rst.txt
+./_sources/modules/generated/dask_ml.datasets.make_classification_df.rst.txt
+./_sources/modules/generated/dask_ml.datasets.make_counts.rst.txt
+./_sources/modules/generated/dask_ml.datasets.make_regression.rst.txt
 ./_sources/modules/generated/dask_ml.decomposition.IncrementalPCA.rst.txt
 ./_sources/modules/generated/dask_ml.decomposition.PCA.rst.txt
 ./_sources/modules/generated/dask_ml.decomposition.TruncatedSVD.rst.txt
@@ -136,6 +141,11 @@
 ./modules/api.html
 ./modules/generated/dask_ml.cluster.KMeans.html
 ./modules/generated/dask_ml.cluster.SpectralClustering.html
+./modules/generated/dask_ml.datasets.make_blobs.html
+./modules/generated/dask_ml.datasets.make_classification.html
+./modules/generated/dask_ml.datasets.make_classification_df.html
+./modules/generated/dask_ml.datasets.make_counts.html
+./modules/generated/dask_ml.datasets.make_regression.html
 ./modules/generated/dask_ml.decomposition.IncrementalPCA.html
 ./modules/generated/dask_ml.decomposition.PCA.html
 ./modules/generated/dask_ml.decomposition.TruncatedSVD.html
