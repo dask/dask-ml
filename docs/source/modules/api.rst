@@ -280,4 +280,5 @@ dask-ml provides some utilities for generating toy datasets.
    make_counts
    make_blobs
    make_regression
+   make_classification
    make_classification_df
