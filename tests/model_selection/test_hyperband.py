@@ -2,11 +2,11 @@ import logging
 import math
 import warnings
 
-import dask.array as da
 import numpy as np
 import pandas as pd
 import pytest
 import scipy.stats
+from dask import array as da, dataframe as dd
 from distributed.utils_test import (  # noqa: F401
     captured_logger,
     cluster,
@@ -465,3 +465,16 @@ def test_logs_dont_repeat(c, s, a, b):
     # Make sure only one model creation message is printed per bracket
     # (all brackets have unique n_models as asserted above)
     assert len(n_models) == len(set(n_models))
+
+
+@gen_cluster(client=True)
+async def test_dataframe_inputs(c, s, a, b):
+    X = pd.DataFrame({"x": [1, 2, 3], "y": [4, 5, 6]})
+    X = dd.from_pandas(X, npartitions=2)
+    y = pd.Series([False, True, True])
+    y = dd.from_pandas(y, npartitions=2)
+
+    model = ConstantFunction()
+    params = {"value": scipy.stats.uniform(0, 1)}
+    alg = HyperbandSearchCV(model, params, max_iter=9, random_state=42)
+    await alg.fit(X, y)
