@@ -133,7 +133,7 @@
             
             
               <div class="version">
-                1.5.1.dev9+gfe10a45
+                1.5.1.dev10+gc609ab3
               </div>
             
           
@@ -280,7 +280,7 @@
 <h1>dask_ml.model_selection.train_test_split<a class="headerlink" href="#dask-ml-model-selection-train-test-split" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="dask_ml.model_selection.train_test_split">
-<code class="descclassname">dask_ml.model_selection.</code><code class="descname">train_test_split</code><span class="sig-paren">(</span><em>*arrays</em>, <em>test_size=None</em>, <em>train_size=None</em>, <em>random_state=None</em>, <em>shuffle=None</em>, <em>blockwise=None</em>, <em>convert_mixed_types=False</em>, <em>**options</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.train_test_split" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">dask_ml.model_selection.</code><code class="descname">train_test_split</code><span class="sig-paren">(</span><em>*arrays</em>, <em>test_size=None</em>, <em>train_size=None</em>, <em>random_state=None</em>, <em>shuffle=None</em>, <em>blockwise=True</em>, <em>convert_mixed_types=False</em>, <em>**options</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.train_test_split" title="Permalink to this definition">¶</a></dt>
 <dd><p>Split arrays into random train and test matricies.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -304,14 +304,14 @@ by <cite>np.random</cite>.</p>
 <dt><strong>shuffle</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default None</span></dt>
 <dd><p class="first last">Whether to shuffle the data before splitting.</p>
 </dd>
-<dt><strong>blockwise</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional.</span></dt>
+<dt><strong>blockwise</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default True.</span></dt>
 <dd><p class="first">Whether to shuffle data only within blocks (True), or allow data to
 be shuffled between blocks (False). Shuffling between blocks can
 be much more expensive, especially in distributed environments.</p>
-<p class="last">The default behavior depends on the types in arrays. For Dask Arrays,
-the default is True (data are not shuffled between blocks). For Dask
-DataFrames, the default and only allowed value is False (data are
-shuffled between blocks).</p>
+<p class="last">The default is <code class="docutils literal notranslate"><span class="pre">True</span></code>, data are only shuffled within blocks.
+For Dask Arrays, set <code class="docutils literal notranslate"><span class="pre">blockwise=False</span></code> to shuffle data between
+blocks as well. For Dask DataFrames, <code class="docutils literal notranslate"><span class="pre">blockwise=False</span></code> is not
+currently supported and a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> will be raised.</p>
 </dd>
 <dt><strong>convert_mixed_types</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default False</span></dt>
 <dd><p class="first last">Whether to convert dask DataFrames and Series to dask Arrays when
@@ -336,7 +336,7 @@ to determine the length of each block.</p>
 </pre></div>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_regression</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">125</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
-<span class="gp">... </span>                   <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">... </span>                       <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span>
 <span class="gp">... </span>                                                    <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">X_train</span>
