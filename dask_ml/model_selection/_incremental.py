@@ -28,7 +28,6 @@ from sklearn.utils.metaestimators import if_delegate_has_method
 from .._compat import check_is_fitted, dummy_context
 from .._typing import ArrayLike, Int
 from .._utils import LoggingContext
-from ..utils import check_array
 from ..wrappers import ParallelPostFit
 from ._split import train_test_split
 
@@ -179,6 +178,17 @@ async def _fit(
 
     # Convert testing data into a single element on the cluster
     # This assumes that it fits into memory on a single worker
+    if isinstance(X_train, (dd.DataFrame, dd.Series)):
+        X_train = X_train.to_dask_array()
+    if isinstance(X_test, (dd.DataFrame, dd.Series)):
+        X_test = X_test.to_dask_array()
+    if isinstance(y_train, dd.Series):
+        y_train = y_train.to_dask_array()
+    if isinstance(y_test, dd.Series):
+        y_test = y_test.to_dask_array()
+
+    X_train, y_train, X_test, y_test = dask.persist(X_train, y_train, X_test, y_test)
+
     if isinstance(X_test, da.Array):
         X_test = client.compute(X_test)
     else:
@@ -189,7 +199,6 @@ async def _fit(
         y_test = await client.scatter(y_test)
 
     # Convert to batches of delayed objects of numpy arrays
-    X_train, y_train = dask.persist(X_train, y_train)
     X_train = sorted(futures_of(X_train), key=lambda f: f.key)
     y_train = sorted(futures_of(y_train), key=lambda f: f.key)
     assert len(X_train) == len(y_train)
@@ -515,13 +524,11 @@ class BaseIncrementalSearchCV(ParallelPostFit):
             )
 
         # Make sure dask arrays are passed so error on unknown chunk size is raised
-        if isinstance(X, dd.DataFrame):
-            X = X.to_dask_array()
-        if isinstance(y, (dd.DataFrame, dd.Series)):
-            y = y.to_dask_array()
-        kwargs = dict(accept_unknown_chunks=False, accept_dask_dataframe=False)
-        X = self._check_array(X, **kwargs)
-        y = self._check_array(y, ensure_2d=False, **kwargs)
+        kwargs = dict(accept_unknown_chunks=True, accept_dask_dataframe=True)
+        if not isinstance(X, dd.DataFrame):
+            X = self._check_array(X, **kwargs)
+        if not isinstance(y, dd.Series):
+            y = self._check_array(y, ensure_2d=False, **kwargs)
         scorer = check_scoring(self.estimator, scoring=self.scoring)
         return X, y, scorer
 
@@ -541,7 +548,6 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         """
         if isinstance(X, np.ndarray):
             X = da.from_array(X, X.shape)
-        X = check_array(X, **kwargs)
         return X
 
     def _get_train_test_split(self, X, y, **kwargs):
@@ -560,7 +566,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         else:
             test_size = self.test_size
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=test_size, random_state=self.random_state
+            X, y, test_size=test_size, random_state=self.random_state, shuffle=True
         )
         return X_train, X_test, y_train, y_test
 
@@ -635,6 +641,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
             context = dummy_context()
 
         X, y, scorer = self._validate_parameters(X, y)
+
         X_train, X_test, y_train, y_test = self._get_train_test_split(X, y)
 
         with context:
