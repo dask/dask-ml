@@ -642,7 +642,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
 
         X, y, scorer = self._validate_parameters(X, y)
 
-        X_train, X_test, y_train, y_test = self._get_train_test_split()
+        X_train, X_test, y_train, y_test = self._get_train_test_split(X, y)
 
         with context:
             results = await fit(
