@@ -530,14 +530,10 @@ class BaseIncrementalSearchCV(ParallelPostFit):
             y = self._check_array(y, ensure_2d=False, **kwargs)
         estimator = self.estimator
         if isinstance(estimator, Future):
-            estimator = await estimator.result()
-
-        kwargs = dict(accept_unknown_chunks=True, accept_dask_dataframe=True)
-        if not isinstance(X, dd.DataFrame):
-            X = self._check_array(X, **kwargs)
-        if not isinstance(y, dd.Series):
-            y = self._check_array(y, ensure_2d=False, **kwargs)
-        scorer = check_scoring(self.estimator, scoring=self.scoring)
+            client = default_client()
+            scorer = await client.submit(check_scoring, estimator, scoring=self.scoring)
+        else:
+            scorer = check_scoring(self.estimator, scoring=self.scoring)
         return X, y, scorer
 
     @property
