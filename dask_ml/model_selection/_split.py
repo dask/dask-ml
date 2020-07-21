@@ -241,7 +241,7 @@ class KFold(BaseCrossValidator):
         X = check_array(X)
         n_samples = X.shape[0]
         n_splits = self.n_splits
-        fold_sizes = np.full(n_splits, n_samples // n_splits, dtype=np.int)
+        fold_sizes = np.full(n_splits, n_samples // n_splits, dtype=int)
         fold_sizes[: n_samples % n_splits] += 1
 
         chunks = X.chunks[0]
@@ -364,7 +364,7 @@ def train_test_split(
     train_size=None,
     random_state=None,
     shuffle=None,
-    blockwise=None,
+    blockwise=True,
     convert_mixed_types=False,
     **options,
 ):
@@ -384,15 +384,15 @@ def train_test_split(
         by `np.random`.
     shuffle : bool, default None
         Whether to shuffle the data before splitting.
-    blockwise : bool, optional.
+    blockwise : bool, default True.
         Whether to shuffle data only within blocks (True), or allow data to
         be shuffled between blocks (False). Shuffling between blocks can
         be much more expensive, especially in distributed environments.
 
-        The default behavior depends on the types in arrays. For Dask Arrays,
-        the default is True (data are not shuffled between blocks). For Dask
-        DataFrames, the default and only allowed value is False (data are
-        shuffled between blocks).
+        The default is ``True``, data are only shuffled within blocks.
+        For Dask Arrays, set ``blockwise=False`` to shuffle data between
+        blocks as well. For Dask DataFrames, ``blockwise=False`` is not
+        currently supported and a ``ValueError`` will be raised.
 
     convert_mixed_types : bool, default False
         Whether to convert dask DataFrames and Series to dask Arrays when
@@ -410,7 +410,7 @@ def train_test_split(
     >>> from dask_ml.datasets import make_regression
 
     >>> X, y = make_regression(n_samples=125, n_features=4, chunks=50,
-    ...                    random_state=0)
+    ...                        random_state=0)
     >>> X_train, X_test, y_train, y_test = train_test_split(X, y,
     ...                                                     random_state=0)
     >>> X_train
@@ -492,8 +492,6 @@ def train_test_split(
             raise NotImplementedError(
                 "'shuffle=False' is not currently supported for dask Arrays."
             )
-        if blockwise is None:
-            blockwise = True
 
         splitter = ShuffleSplit(
             n_splits=1,
