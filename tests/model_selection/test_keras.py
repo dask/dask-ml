@@ -54,9 +54,6 @@ def _keras_build_fn(lr=0.01):
 
 @gen_cluster(client=True)
 def test_keras(c, s, a, b):
-    pytest.importorskip("tensorflow")
-    pytest.importorskip("scikeras")
-
     X, y = mnist()
     assert X.ndim == 2 and X.shape[-1] == 784
     assert y.ndim == 1 and len(X) == len(y)
@@ -68,5 +65,3 @@ def test_keras(c, s, a, b):
     search = IncrementalSearchCV(model, params, max_iter=2, decay_rate=None)
     yield search.fit(X, y, epochs=1)
     assert search.best_score_ >= 0
-
-
