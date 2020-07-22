@@ -1,6 +1,8 @@
 """
 Utilities to build feature vectors from text documents.
 """
+import itertools
+
 import dask
 import dask.array as da
 import dask.bag as db
@@ -9,6 +11,8 @@ import numpy as np
 import scipy.sparse
 import sklearn.base
 import sklearn.feature_extraction.text
+from sklearn.utils.validation import check_is_fitted
+from distributed import get_client
 
 
 class _BaseHasher(sklearn.base.BaseEstimator):
@@ -61,6 +65,8 @@ class _BaseHasher(sklearn.base.BaseEstimator):
         return result
 
 
+
+
 class HashingVectorizer(_BaseHasher, sklearn.feature_extraction.text.HashingVectorizer):
     # explicit doc for Sphinx
     __doc__ = sklearn.feature_extraction.text.HashingVectorizer.__doc__
@@ -108,3 +114,78 @@ class FeatureHasher(_BaseHasher, sklearn.feature_extraction.text.FeatureHasher):
     @property
     def _hasher(self):
         return sklearn.feature_extraction.text.FeatureHasher
+
+
+class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
+    # Potential issues:
+    # 1. The vocabularies might be somewhat large.
+    #    Consider storing this on the cluster, rather than shipping between
+    #    the client?
+    def fit_transform(self, raw_documents, y=None):
+        # Just bag for now.
+        # Two cases:
+        # 1. vocabulary provided, easy.
+        # 2. vocabulary learned, harder.
+        params = self.get_params()
+        vocabulary = params.pop("vocabulary")
+
+        client = 
+
+        if self.vocabulary is not None:
+            # Case 1: Just map transform.
+            fixed_vocabulary = True
+            result = raw_documents.map_partitions(_count_vectorizer_transform,
+                                                  dask.delayed(vocabulary), params)
+        else:
+            fixed_vocabulary = False
+            # Case 2: learn vocabulary from the data.
+            vocabularies = raw_documents.map_partitions(_build_vocabulary, params)
+            # compute and merge.
+            vocabularies = dask.compute(vocabularies)  # List[Set[str]]
+            # maybe the merge should be done as a task in the cluster.
+            vocabulary = {key: i for i, key in enumerate(set(itertools.chain.from_iterable(vocabularies)))}
+            # same as before
+            result = raw_documents.map_partitions(_count_vectorizer_transform,
+                                                  dask.delayed(vocabulary), params)
+
+        meta = scipy.sparse.eye(0, format="csr", dtype=self.dtype)
+        result = build_array(result, len(vocabulary), meta)
+
+        # XXX: more params
+        self.vocabulary_ = vocabulary
+        self.fixed_vocabulary_ = fixed_vocabulary
+
+        return result
+
+    def transform(self, raw_documents):
+        params = self.get_params()
+        vocabulary = params.pop("vocabulary")
+        if vocabulary is None:
+            check_is_fitted(self, "vocabulary_")
+            vocabulary = self.vocabulary_
+        result = raw_documents.map_partitions(_count_vectorizer_transform, vocabulary, params)
+        meta = scipy.sparse.eye(0, format="csr", dtype=self.dtype)
+        return build_array(result, len(vocabulary), meta)
+
+
+def _count_vectorizer_transform(partition, vocabulary, params):
+    model = sklearn.feature_extraction.text.CountVectorizer(vocabulary=vocabulary,
+                                                            **params)
+    return model.transform(partition)
+
+
+def _build_vocabulary(partition, params):
+    model = sklearn.feature_extraction.text.CountVectorizer(**params)
+    model.fit(partition)
+    return set(model.vocabulary_)
+
+
+def build_array(b, n_features, meta):
+    """
+    Build a Dask Array from a bag of scipy.sparse matrics.
+    """
+    objs = b.to_delayed()
+    arrs = [da.from_delayed(obj, (np.nan, n_features), meta=meta)
+            for obj in objs]
+    arr = da.concatenate(arrs)
+    return arr
