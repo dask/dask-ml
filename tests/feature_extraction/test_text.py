@@ -109,15 +109,15 @@ def test_correct_meta():
     assert result._meta.shape == (0, 0)
 
 
-@pytest.mark.parametrize("as_distributed", [True, False])
-def test_count_vectorizer(as_distributed):
+@pytest.mark.parametrize("use_actors", [True, False])
+def test_count_vectorizer(use_actors):
     # TODO: gen_cluster, pickle futures, issue.
     m1 = sklearn.feature_extraction.text.CountVectorizer()
     m2 = dask_ml.feature_extraction.text.CountVectorizer()
     b = db.from_sequence(JUNK_FOOD_DOCS, npartitions=2)
     m1.fit(b.compute())
 
-    if as_distributed:
+    if use_actors:
         from distributed import Client
 
         with Client():

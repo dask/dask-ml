@@ -142,25 +142,60 @@ class Vocabulary:
 
 
 class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
-    # Potential issues:
-    # 1. The vocabularies might be somewhat large.
-    #    Consider storing this on the cluster, rather than shipping between
-    #    the client?
-    def fit_transform(self, raw_documents, y=None):
-        # Just bag for now.
-        # Two cases:
-        # 1. vocabulary provided, easy.
-        # 2. vocabulary learned, harder.
-        try:
-            client = get_client()
-        except ValueError:
-            return self._fit_transform_no_actor(raw_documents, y)
-        else:
-            return self._fit_transform(client, raw_documents, y)
+    def __init__(
+        self,
+        *,
+        input="content",
+        encoding="utf-8",
+        decode_error="strict",
+        strip_accents=None,
+        lowercase=True,
+        preprocessor=None,
+        tokenizer=None,
+        stop_words=None,
+        token_pattern=r"(?u)\b\w\w+\b",
+        ngram_range=(1, 1),
+        analyzer="word",
+        max_df=1.0,
+        min_df=1,
+        max_features=None,
+        vocabulary=None,
+        binary=False,
+        dtype=np.int64,
+        use_actors=True
+    ):
+        self.use_actors = use_actors
+        super().__init__(
+            input=input,
+            encoding=encoding,
+            decode_error=decode_error,
+            strip_accents=strip_accents,
+            lowercase=lowercase,
+            preprocessor=preprocessor,
+            tokenizer=tokenizer,
+            stop_words=stop_words,
+            token_pattern=token_pattern,
+            ngram_range=ngram_range,
+            analyzer=analyzer,
+            max_df=max_df,
+            min_df=min_df,
+            max_features=max_features,
+            vocabulary=vocabulary,
+            binary=binary,
+            dtype=dtype,
+        )
 
-    def _fit_transform(self, client, raw_documents, y=None):
+    def fit_transform(self, raw_documents, y=None):
+        if self.use_actors:
+            return self._fit_transform(raw_documents, y)
+        else:
+            return self._fit_transform_no_actor(raw_documents, y)
+
+    def _fit_transform(self, raw_documents, y=None):
+        client = get_client()
         params = self.get_params()
         vocabulary = params.pop("vocabulary")
+        del params["use_actors"]
 
         vocabulary_ = client.submit(Vocabulary, vocabulary=vocabulary, actor=True)
         vocabulary_actor = vocabulary_.result()
@@ -194,16 +229,16 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
         return result
 
     def transform(self, raw_documents):
-        try:
-            client = get_client()
-        except ValueError:
-            return self._transform_no_actor(raw_documents)
+        if self.use_actors:
+            return self._transform(raw_documents)
         else:
-            return self._transform(client, raw_documents)
+            return self._transform_no_actor(raw_documents)
 
-    def _transform(self, client, raw_documents):
+    def _transform(self, raw_documents):
         params = self.get_params()
         vocabulary = params.pop("vocabulary")
+        del params["use_actors"]
+
         if vocabulary is None:
             check_is_fitted(self, "vocabulary_")
             vocabulary = self.vocabulary_
@@ -220,6 +255,7 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
         # 2. vocabulary learned, harder.
         params = self.get_params()
         vocabulary = params.pop("vocabulary")
+        del params["use_actors"]
 
         if self.vocabulary is not None:
             # Case 1: Just map transform.
@@ -259,6 +295,8 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
     def _transform_no_actor(self, raw_documents):
         params = self.get_params()
         vocabulary = params.pop("vocabulary")
+        del params["use_actors"]
+
         if vocabulary is None:
             check_is_fitted(self, "vocabulary_")
             vocabulary = self.vocabulary_
