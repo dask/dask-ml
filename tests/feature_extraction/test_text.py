@@ -113,7 +113,7 @@ def test_correct_meta():
 def test_count_vectorizer(use_actors):
     # TODO: gen_cluster, pickle futures, issue.
     m1 = sklearn.feature_extraction.text.CountVectorizer()
-    m2 = dask_ml.feature_extraction.text.CountVectorizer()
+    m2 = dask_ml.feature_extraction.text.CountVectorizer(use_actors=use_actors)
     b = db.from_sequence(JUNK_FOOD_DOCS, npartitions=2)
     m1.fit(b.compute())
 
