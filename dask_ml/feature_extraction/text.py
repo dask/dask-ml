@@ -66,7 +66,6 @@ class _BaseHasher(sklearn.base.BaseEstimator):
 
 
 
-
 class HashingVectorizer(_BaseHasher, sklearn.feature_extraction.text.HashingVectorizer):
     # explicit doc for Sphinx
     __doc__ = sklearn.feature_extraction.text.HashingVectorizer.__doc__
@@ -116,6 +115,25 @@ class FeatureHasher(_BaseHasher, sklearn.feature_extraction.text.FeatureHasher):
         return sklearn.feature_extraction.text.FeatureHasher
 
 
+class Vocabulary:
+    def __init__(self, vocabulary=None):
+        if vocabulary is None:
+            self.vocabulary = set()
+            self.fixed_vocabulary = True
+        else:
+            self.vocabulary = vocabulary
+
+    def update(self, obj):
+        assert not self.fixed_vocabulary
+        self.vocabulary |= obj
+
+    def finalize(self):
+        if self.fixed_vocabulary:
+            return self.vocabulary
+        else:
+            return {key: i for i, key in enumerate(sorted(self.vocabulary))}
+
+
 class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
     # Potential issues:
     # 1. The vocabularies might be somewhat large.
@@ -129,24 +147,28 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
         params = self.get_params()
         vocabulary = params.pop("vocabulary")
 
-        client = 
+        client = get_client()
 
         if self.vocabulary is not None:
             # Case 1: Just map transform.
             fixed_vocabulary = True
+            vocabulary_ = client.submit(Vocabulary, vocabulary=vocabulary, actor=True)
+            vocabulary_actor = vocabulary_.result()
+
             result = raw_documents.map_partitions(_count_vectorizer_transform,
-                                                  dask.delayed(vocabulary), params)
+                                                  vocabulary_actor, params)
         else:
             fixed_vocabulary = False
             # Case 2: learn vocabulary from the data.
-            vocabularies = raw_documents.map_partitions(_build_vocabulary, params)
+            vocabularies = raw_documents.map_partitions(_build_vocabulary, vocabulary, params)
             # compute and merge.
-            vocabularies = dask.compute(vocabularies)  # List[Set[str]]
+            dask.compute(vocabularies)  # List[Set[str]]
+            vocabulary = 
             # maybe the merge should be done as a task in the cluster.
             vocabulary = {key: i for i, key in enumerate(set(itertools.chain.from_iterable(vocabularies)))}
             # same as before
             result = raw_documents.map_partitions(_count_vectorizer_transform,
-                                                  dask.delayed(vocabulary), params)
+                                                  vocabulary, params)
 
         meta = scipy.sparse.eye(0, format="csr", dtype=self.dtype)
         result = build_array(result, len(vocabulary), meta)
@@ -168,16 +190,17 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
         return build_array(result, len(vocabulary), meta)
 
 
-def _count_vectorizer_transform(partition, vocabulary, params):
+def _count_vectorizer_transform(partition, vocabulary_actor, params):
+    vocabulary = vocabulary_actor.finalize()
     model = sklearn.feature_extraction.text.CountVectorizer(vocabulary=vocabulary,
                                                             **params)
     return model.transform(partition)
 
 
-def _build_vocabulary(partition, params):
+def _build_vocabulary(partition, vocabulary_actor, params):
     model = sklearn.feature_extraction.text.CountVectorizer(**params)
     model.fit(partition)
-    return set(model.vocabulary_)
+    vocabulary_actor.update(set(model.vocabulary_))
 
 
 def build_array(b, n_features, meta):
