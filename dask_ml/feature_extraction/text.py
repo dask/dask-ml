@@ -115,7 +115,7 @@ class FeatureHasher(_BaseHasher, sklearn.feature_extraction.text.FeatureHasher):
 
 
 class Vocabulary:
-    vocabulary = {}
+    vocabulary = set()
     fixed_vocabulary = None
 
     def __init__(self, vocabulary=None):
@@ -236,17 +236,15 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
 
     def _transform(self, raw_documents):
         params = self.get_params()
-        vocabulary = params.pop("vocabulary")
+        del params["vocabulary"]
         del params["use_actors"]
 
-        if vocabulary is None:
-            check_is_fitted(self, "vocabulary_")
-            vocabulary = self.vocabulary_
+        check_is_fitted(self, "vocabulary_")
         result = raw_documents.map_partitions(
-            _count_vectorizer_transform, vocabulary, params
+            _count_vectorizer_transform, self.vocabulary_actor_, params
         )
         meta = scipy.sparse.eye(0, format="csr", dtype=self.dtype)
-        return build_array(result, len(vocabulary), meta)
+        return build_array(result, self.vocabulary_actor_.n_features, meta)
 
     def _fit_transform_no_actor(self, raw_documents, y=None):
         # Just bag for now.
@@ -269,18 +267,19 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
             vocabularies = raw_documents.map_partitions(
                 _build_vocabulary_no_actor, params
             )
-            # compute and merge.
-            vocabularies = dask.compute(vocabularies)  # List[Set[str]]
-            # maybe the merge should be done as a task in the cluster.
-            vocabulary = {
-                key: i
-                for i, key in enumerate(
-                    sorted(set(itertools.chain.from_iterable(vocabularies)))
-                )
-            }
+
+            # compute
+            vocabulary = _merge_vocabulary(*vocabularies.to_delayed()).compute()
+            try:
+                client = get_client()
+            except ValueError:
+                remote_vocabulary = dask.delayed(vocabulary)
+            else:
+                (remote_vocabulary,) = client.scatter([vocabulary], broadcast=True)
+
             # same as before
             result = raw_documents.map_partitions(
-                _count_vectorizer_transform_no_actor, dask.delayed(vocabulary), params
+                _count_vectorizer_transform_no_actor, remote_vocabulary, params
             )
 
         meta = scipy.sparse.eye(0, format="csr", dtype=self.dtype)
@@ -352,3 +351,14 @@ def _build_array_no_actor(b, n_features, meta):
     arrs = [da.from_delayed(obj, (np.nan, n_features), meta=meta) for obj in objs]
     arr = da.concatenate(arrs)
     return arr
+
+
+@dask.delayed
+def _merge_vocabulary(*vocabularies):
+    vocabulary = {
+        key: i
+        for i, key in enumerate(
+            sorted(set(itertools.chain.from_iterable(vocabularies)))
+        )
+    }
+    return vocabulary
