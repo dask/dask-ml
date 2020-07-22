@@ -107,3 +107,17 @@ def test_correct_meta():
     assert scipy.sparse.issparse(result._meta)
     assert result._meta.dtype == "float64"
     assert result._meta.shape == (0, 0)
+
+
+def test_count_vectorizer():
+    # TODO: gen_cluster, pickle futures, issue.
+    from distributed import Client
+
+    with Client():
+        m1 = dask_ml.feature_extraction.text.CountVectorizer()
+        m2 = sklearn.feature_extraction.text.CountVectorizer()
+        b = db.from_sequence(JUNK_FOOD_DOCS, npartitions=2)
+        m1.fit(b)
+        m2.fit(b)
+
+        assert_estimator_equal(m1, m2, exclude={"vocabulary_actor_", "stop_words_"})
