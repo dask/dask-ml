@@ -1,6 +1,8 @@
 """
 Utilities to build feature vectors from text documents.
 """
+import itertools
+
 import dask
 import dask.array as da
 import dask.bag as db
@@ -149,10 +151,17 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
         # Two cases:
         # 1. vocabulary provided, easy.
         # 2. vocabulary learned, harder.
+        try:
+            client = get_client()
+        except ValueError:
+            return self._fit_transform_no_actor(raw_documents, y)
+        else:
+            return self._fit_transform(client, raw_documents, y)
+
+    def _fit_transform(self, client, raw_documents, y=None):
         params = self.get_params()
         vocabulary = params.pop("vocabulary")
 
-        client = get_client()
         vocabulary_ = client.submit(Vocabulary, vocabulary=vocabulary, actor=True)
         vocabulary_actor = vocabulary_.result()
 
@@ -178,8 +187,6 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
         meta = scipy.sparse.eye(0, format="csr", dtype=self.dtype)
         result = build_array(result, vocabulary_actor.n_features, meta)
 
-        # TODO: check all the params params
-        # self.vocabulary_ = vocabulary
         self.vocabulary_actor_ = vocabulary_actor
         self.vocabulary_ = vocabulary_actor.finalize().result()
         self.fixed_vocabulary_ = fixed_vocabulary
@@ -187,6 +194,14 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
         return result
 
     def transform(self, raw_documents):
+        try:
+            client = get_client()
+        except ValueError:
+            return self._transform_no_actor(raw_documents)
+        else:
+            return self._transform(client, raw_documents)
+
+    def _transform(self, client, raw_documents):
         params = self.get_params()
         vocabulary = params.pop("vocabulary")
         if vocabulary is None:
@@ -197,6 +212,61 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
         )
         meta = scipy.sparse.eye(0, format="csr", dtype=self.dtype)
         return build_array(result, len(vocabulary), meta)
+
+    def _fit_transform_no_actor(self, raw_documents, y=None):
+        # Just bag for now.
+        # Two cases:
+        # 1. vocabulary provided, easy.
+        # 2. vocabulary learned, harder.
+        params = self.get_params()
+        vocabulary = params.pop("vocabulary")
+
+        if self.vocabulary is not None:
+            # Case 1: Just map transform.
+            fixed_vocabulary = True
+            result = raw_documents.map_partitions(
+                _count_vectorizer_transform_no_actor, dask.delayed(vocabulary), params
+            )
+        else:
+            fixed_vocabulary = False
+            # Case 2: learn vocabulary from the data.
+            vocabularies = raw_documents.map_partitions(
+                _build_vocabulary_no_actor, params
+            )
+            # compute and merge.
+            vocabularies = dask.compute(vocabularies)  # List[Set[str]]
+            # maybe the merge should be done as a task in the cluster.
+            vocabulary = {
+                key: i
+                for i, key in enumerate(
+                    sorted(set(itertools.chain.from_iterable(vocabularies)))
+                )
+            }
+            # same as before
+            result = raw_documents.map_partitions(
+                _count_vectorizer_transform_no_actor, dask.delayed(vocabulary), params
+            )
+
+        meta = scipy.sparse.eye(0, format="csr", dtype=self.dtype)
+        result = build_array(result, len(vocabulary), meta)
+
+        # XXX: more params
+        self.vocabulary_ = vocabulary
+        self.fixed_vocabulary_ = fixed_vocabulary
+
+        return result
+
+    def _transform_no_actor(self, raw_documents):
+        params = self.get_params()
+        vocabulary = params.pop("vocabulary")
+        if vocabulary is None:
+            check_is_fitted(self, "vocabulary_")
+            vocabulary = self.vocabulary_
+        result = raw_documents.map_partitions(
+            _count_vectorizer_transform_no_actor, vocabulary, params
+        )
+        meta = scipy.sparse.eye(0, format="csr", dtype=self.dtype)
+        return _build_array_no_actor(result, len(vocabulary), meta)
 
 
 def _count_vectorizer_transform(partition, vocabulary_actor, params):
@@ -214,6 +284,29 @@ def _build_vocabulary(partition, vocabulary_actor, params):
 
 
 def build_array(b, n_features, meta):
+    """
+    Build a Dask Array from a bag of scipy.sparse matrics.
+    """
+    objs = b.to_delayed()
+    arrs = [da.from_delayed(obj, (np.nan, n_features), meta=meta) for obj in objs]
+    arr = da.concatenate(arrs)
+    return arr
+
+
+def _count_vectorizer_transform_no_actor(partition, vocabulary, params):
+    model = sklearn.feature_extraction.text.CountVectorizer(
+        vocabulary=vocabulary, **params
+    )
+    return model.transform(partition)
+
+
+def _build_vocabulary_no_actor(partition, params):
+    model = sklearn.feature_extraction.text.CountVectorizer(**params)
+    model.fit(partition)
+    return set(model.vocabulary_)
+
+
+def _build_array_no_actor(b, n_features, meta):
     """
     Build a Dask Array from a bag of scipy.sparse matrics.
     """

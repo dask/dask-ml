@@ -109,15 +109,20 @@ def test_correct_meta():
     assert result._meta.shape == (0, 0)
 
 
-def test_count_vectorizer():
+@pytest.mark.parametrize("as_distributed", [True, False])
+def test_count_vectorizer(as_distributed):
     # TODO: gen_cluster, pickle futures, issue.
-    from distributed import Client
+    m1 = sklearn.feature_extraction.text.CountVectorizer()
+    m2 = dask_ml.feature_extraction.text.CountVectorizer()
+    b = db.from_sequence(JUNK_FOOD_DOCS, npartitions=2)
+    m1.fit(b.compute())
 
-    with Client():
-        m1 = dask_ml.feature_extraction.text.CountVectorizer()
-        m2 = sklearn.feature_extraction.text.CountVectorizer()
-        b = db.from_sequence(JUNK_FOOD_DOCS, npartitions=2)
-        m1.fit(b)
+    if as_distributed:
+        from distributed import Client
+
+        with Client():
+            m2.fit(b)
+    else:
         m2.fit(b)
 
-        assert_estimator_equal(m1, m2, exclude={"vocabulary_actor_", "stop_words_"})
+    assert_estimator_equal(m1, m2, exclude={"vocabulary_actor_", "stop_words_"})
