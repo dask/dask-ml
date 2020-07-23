@@ -1,3 +1,5 @@
+import contextlib
+
 import dask.array as da
 import dask.bag as db
 import dask.dataframe as dd
@@ -110,19 +112,35 @@ def test_correct_meta():
 
 
 @pytest.mark.parametrize("use_actors", [True, False])
-def test_count_vectorizer(use_actors):
+@pytest.mark.parametrize("give_vocabulary", [True, False])
+def test_count_vectorizer(use_actors, give_vocabulary):
     # TODO: gen_cluster, pickle futures, issue.
     m1 = sklearn.feature_extraction.text.CountVectorizer()
-    m2 = dask_ml.feature_extraction.text.CountVectorizer(use_actors=use_actors)
     b = db.from_sequence(JUNK_FOOD_DOCS, npartitions=2)
-    m1.fit(b.compute())
+    r1 = m1.fit_transform(JUNK_FOOD_DOCS)
+
+    if give_vocabulary:
+        vocabulary = m1.vocabulary_
+        m1 = sklearn.feature_extraction.text.CountVectorizer(vocabulary=vocabulary)
+        r1 = m1.fit_transform(JUNK_FOOD_DOCS)
+    else:
+        vocabulary = None
+
+    m2 = dask_ml.feature_extraction.text.CountVectorizer(
+        use_actors=use_actors, vocabulary=vocabulary
+    )
 
     if use_actors:
         from distributed import Client
 
-        with Client():
-            m2.fit(b)
+        client = Client()  # noqa
+        r2 = m2.fit_transform(b)
     else:
-        m2.fit(b)
+        r2 = m2.fit_transform(b)
+        client = contextlib.nullcontext()
 
-    assert_estimator_equal(m1, m2, exclude={"vocabulary_actor_", "stop_words_"})
+    with client:
+        assert_estimator_equal(m1, m2, exclude={"vocabulary_actor_", "stop_words_"})
+        assert isinstance(r2, da.Array)
+        assert isinstance(r2._meta, scipy.sparse.csr_matrix)
+        np.testing.assert_array_equal(r1.toarray(), r2.compute().toarray())

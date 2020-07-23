@@ -142,6 +142,49 @@ class Vocabulary:
 
 
 class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
+    """Convert a collection of text documents to a matrix of token counts
+
+    .. note::
+
+       This implementation requires an active :class:`distributed.Client`.
+
+    Notes
+    -----
+    When a vocabulary isn't provided, ``fit_transform`` requires two
+    passes over the dataset: one to learn the vocabulary and a second
+    to transform the data. Consider persisting the data if it fits
+    in (distributed) memory.
+
+    See Also
+    --------
+    sklearn.feature_extraction.text.CountVectorizer
+
+    Examples
+    --------
+    >>> from dask_ml.feature_extraction.text import CountVectorizer
+    >>> import dask.bag as db
+    >>> from distributed import Client
+    >>> client = Client()
+    >>> corpus = [
+    ...     'This is the first document.',
+    ...     'This document is the second document.',
+    ...     'And this is the third one.',
+    ...     'Is this the first document?',
+    ... ]
+    >>> corpus = db.from_sequence(corpus, npartitions=2)
+    >>> vectorizer = CountVectorizer()
+    >>> X = vectorizer.fit_transform(corpus)
+    dask.array<concatenate, shape=(nan, 9), dtype=int64, chunksize=(nan, 9), ...
+               chunktype=scipy.csr_matrix>
+    >>> X.compute().toarray()
+    array([[0, 1, 1, 1, 0, 0, 1, 0, 1],
+           [0, 2, 0, 1, 0, 1, 1, 0, 1],
+           [1, 0, 0, 1, 1, 0, 1, 1, 1],
+           [0, 1, 1, 1, 0, 0, 1, 0, 1]])
+    >>> vectorizer.get_feature_names()
+    ['and', 'document', 'first', 'is', 'one', 'second', 'the', 'third', 'this']
+    """
+
     def __init__(
         self,
         *,
@@ -261,6 +304,7 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
             result = raw_documents.map_partitions(
                 _count_vectorizer_transform_no_actor, dask.delayed(vocabulary), params
             )
+            vocabulary_ = vocabulary
         else:
             fixed_vocabulary = False
             # Case 2: learn vocabulary from the data.
@@ -268,25 +312,19 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
                 _build_vocabulary_no_actor, params
             )
 
-            # compute
-            vocabulary = _merge_vocabulary(*vocabularies.to_delayed()).compute()
-            try:
-                client = get_client()
-            except ValueError:
-                remote_vocabulary = dask.delayed(vocabulary)
-            else:
-                (remote_vocabulary,) = client.scatter([vocabulary], broadcast=True)
+            vocabulary = _merge_vocabulary(*vocabularies.to_delayed())
+            vocabulary_ = vocabulary.compute()
 
             # same as before
             result = raw_documents.map_partitions(
-                _count_vectorizer_transform_no_actor, remote_vocabulary, params
+                _count_vectorizer_transform_no_actor, vocabulary, params
             )
 
         meta = scipy.sparse.eye(0, format="csr", dtype=self.dtype)
-        result = build_array(result, len(vocabulary), meta)
+        result = build_array_no_actor(result, len(vocabulary_), meta)
 
         # XXX: more params
-        self.vocabulary_ = vocabulary
+        self.vocabulary_ = vocabulary_
         self.fixed_vocabulary_ = fixed_vocabulary
 
         return result
@@ -303,11 +341,18 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
             _count_vectorizer_transform_no_actor, vocabulary, params
         )
         meta = scipy.sparse.eye(0, format="csr", dtype=self.dtype)
-        return _build_array_no_actor(result, len(vocabulary), meta)
+        return build_array_no_actor(result, vocabulary, meta)
 
 
 def _count_vectorizer_transform(partition, vocabulary_actor, params):
     vocabulary = vocabulary_actor.finalize().result()
+    model = sklearn.feature_extraction.text.CountVectorizer(
+        vocabulary=vocabulary, **params
+    )
+    return model.transform(partition)
+
+
+def _count_vectorizer_transform_no_actor(partition, vocabulary, params):
     model = sklearn.feature_extraction.text.CountVectorizer(
         vocabulary=vocabulary, **params
     )
@@ -320,6 +365,16 @@ def _build_vocabulary(partition, vocabulary_actor, params):
     vocabulary_actor.update(set(model.vocabulary_))
 
 
+def build_array_no_actor(b, n_features, meta):
+    """
+    Build a Dask Array from a bag of scipy.sparse matrics.
+    """
+    objs = b.to_delayed()
+    arrs = [da.from_delayed(obj, (np.nan, n_features), meta=meta) for obj in objs]
+    arr = da.concatenate(arrs)
+    return arr
+
+
 def build_array(b, n_features, meta):
     """
     Build a Dask Array from a bag of scipy.sparse matrics.
@@ -330,27 +385,10 @@ def build_array(b, n_features, meta):
     return arr
 
 
-def _count_vectorizer_transform_no_actor(partition, vocabulary, params):
-    model = sklearn.feature_extraction.text.CountVectorizer(
-        vocabulary=vocabulary, **params
-    )
-    return model.transform(partition)
-
-
 def _build_vocabulary_no_actor(partition, params):
     model = sklearn.feature_extraction.text.CountVectorizer(**params)
     model.fit(partition)
     return set(model.vocabulary_)
-
-
-def _build_array_no_actor(b, n_features, meta):
-    """
-    Build a Dask Array from a bag of scipy.sparse matrics.
-    """
-    objs = b.to_delayed()
-    arrs = [da.from_delayed(obj, (np.nan, n_features), meta=meta) for obj in objs]
-    arr = da.concatenate(arrs)
-    return arr
 
 
 @dask.delayed
