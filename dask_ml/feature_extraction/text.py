@@ -215,7 +215,7 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
             else:
                 vocabulary_for_transform = vocabulary
 
-        n_features = vocabulary_length(vocabulary)
+        n_features = vocabulary_length(vocabulary_for_transform)
         transformed = raw_documents.map_partitions(
             _count_vectorizer_transform, vocabulary_for_transform, params
         )
@@ -239,7 +239,7 @@ def vocabulary_length(vocabulary):
     elif isinstance(vocabulary, Delayed):
         try:
             return len(vocabulary)
-        except ValueError:
+        except TypeError:
             return len(vocabulary.compute())
     elif isinstance(vocabulary, distributed.Future):
         client = get_client()
