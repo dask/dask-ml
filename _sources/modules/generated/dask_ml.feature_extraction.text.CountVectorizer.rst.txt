@@ -1,0 +1,16 @@
+:mod:`dask_ml.feature_extraction.text`.CountVectorizer
+=============================================================
+
+.. currentmodule:: dask_ml.feature_extraction.text
+
+.. autoclass:: CountVectorizer
+
+   
+   .. automethod:: __init__
+   
+
+.. include:: dask_ml.feature_extraction.text.CountVectorizer.examples
+
+.. raw:: html
+
+    <div class="clearer"></div>
