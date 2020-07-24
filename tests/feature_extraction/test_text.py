@@ -111,9 +111,9 @@ def test_correct_meta():
     assert result._meta.shape == (0, 0)
 
 
-@pytest.mark.parametrize("use_actors", [True, False])
 @pytest.mark.parametrize("give_vocabulary", [True, False])
-def test_count_vectorizer(use_actors, give_vocabulary):
+@pytest.mark.parametrize("distributed", [True, False])
+def test_count_vectorizer(give_vocabulary, distributed):
     m1 = sklearn.feature_extraction.text.CountVectorizer()
     b = db.from_sequence(JUNK_FOOD_DOCS, npartitions=2)
     r1 = m1.fit_transform(JUNK_FOOD_DOCS)
@@ -125,11 +125,9 @@ def test_count_vectorizer(use_actors, give_vocabulary):
     else:
         vocabulary = None
 
-    m2 = dask_ml.feature_extraction.text.CountVectorizer(
-        use_actors=use_actors, vocabulary=vocabulary
-    )
+    m2 = dask_ml.feature_extraction.text.CountVectorizer(vocabulary=vocabulary)
 
-    if use_actors:
+    if distributed:
         from distributed import Client
 
         client = Client()  # noqa

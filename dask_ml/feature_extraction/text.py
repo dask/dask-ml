@@ -13,7 +13,7 @@ import scipy.sparse
 import sklearn.base
 import sklearn.feature_extraction.text
 from dask.delayed import Delayed
-from distributed import Actor, get_client, wait
+from distributed import get_client, wait
 from sklearn.utils.validation import check_is_fitted
 
 
@@ -116,33 +116,6 @@ class FeatureHasher(_BaseHasher, sklearn.feature_extraction.text.FeatureHasher):
         return sklearn.feature_extraction.text.FeatureHasher
 
 
-class Vocabulary:
-    vocabulary = set()
-    fixed_vocabulary = None
-
-    def __init__(self, vocabulary=None):
-        if vocabulary is None:
-            self.vocabulary = set()
-            self.fixed_vocabulary = False
-        else:
-            self.fixed_vocabulary = True
-            self.vocabulary = vocabulary
-
-    def update(self, obj):
-        assert not self.fixed_vocabulary
-        self.vocabulary |= obj
-
-    def finalize(self):
-        if self.fixed_vocabulary:
-            return self.vocabulary
-        else:
-            return {key: i for i, key in enumerate(sorted(self.vocabulary))}
-
-    @property
-    def n_features(self):
-        return len(self.vocabulary)
-
-
 class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
     """Convert a collection of text documents to a matrix of token counts
 
@@ -187,72 +160,11 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
     ['and', 'document', 'first', 'is', 'one', 'second', 'the', 'third', 'this']
     """
 
-    def __init__(
-        self,
-        *,
-        input="content",
-        encoding="utf-8",
-        decode_error="strict",
-        strip_accents=None,
-        lowercase=True,
-        preprocessor=None,
-        tokenizer=None,
-        stop_words=None,
-        token_pattern=r"(?u)\b\w\w+\b",
-        ngram_range=(1, 1),
-        analyzer="word",
-        max_df=1.0,
-        min_df=1,
-        max_features=None,
-        vocabulary=None,
-        binary=False,
-        dtype=np.int64,
-        use_actors=True,
-    ):
-        self.use_actors = use_actors
-        super().__init__(
-            input=input,
-            encoding=encoding,
-            decode_error=decode_error,
-            strip_accents=strip_accents,
-            lowercase=lowercase,
-            preprocessor=preprocessor,
-            tokenizer=tokenizer,
-            stop_words=stop_words,
-            token_pattern=token_pattern,
-            ngram_range=ngram_range,
-            analyzer=analyzer,
-            max_df=max_df,
-            min_df=min_df,
-            max_features=max_features,
-            vocabulary=vocabulary,
-            binary=binary,
-            dtype=dtype,
-        )
-
     def fit_transform(self, raw_documents, y=None):
-        # try:
-        #     client = get_client()
-        #     use_actors = True
-        # except ValueError:
-        #     use_actors = False
-        use_actors = self.use_actors
-        if use_actors:
-            client = get_client()
-
         params = self.get_params()
         vocabulary = params.pop("vocabulary")
-        del params["use_actors"]
 
-        if use_actors:
-            vocabulary_actor = client.submit(
-                Vocabulary, vocabulary=vocabulary, actor=True
-            )
-            vocabulary_actor = vocabulary_actor.result()
-            vocabulary_for_transform = vocabulary_actor
-        else:
-            vocabulary_actor = None
-            vocabulary_for_transform = vocabulary
+        vocabulary_for_transform = vocabulary
 
         if self.vocabulary is not None:
             # Case 1: Just map transform.
@@ -262,17 +174,12 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
         else:
             fixed_vocabulary = False
             # Case 2: learn vocabulary from the data.
-            vocabularies = raw_documents.map_partitions(
-                _build_vocabulary, vocabulary_actor, params
+            vocabularies = raw_documents.map_partitions(_build_vocabulary, params)
+            vocabulary = vocabulary_for_transform = _merge_vocabulary(
+                *vocabularies.to_delayed()
             )
-            if use_actors:
-                dask.compute(vocabularies)  # List[Set[str]]
-                vocabulary_ = vocabulary_actor.finalize().result()
-            else:
-                vocabulary = vocabulary_for_transform = _merge_vocabulary(
-                    *vocabularies.to_delayed()
-                )
-                vocabulary_ = vocabulary.compute()
+            vocabulary_for_transform = vocabulary_for_transform.persist()
+            vocabulary_ = vocabulary.compute()
 
         n_features = len(vocabulary_)
         result = raw_documents.map_partitions(
@@ -282,7 +189,6 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
         meta = scipy.sparse.eye(0, format="csr", dtype=self.dtype)
         result = build_array(result, n_features, meta)
 
-        self.vocabulary_actor_ = vocabulary_actor
         self.vocabulary_ = vocabulary_
         self.fixed_vocabulary_ = fixed_vocabulary
 
@@ -291,16 +197,23 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
     def transform(self, raw_documents):
         params = self.get_params()
         vocabulary = params.pop("vocabulary")
-        use_actors = params.pop("use_actors")
 
         if vocabulary is None:
             check_is_fitted(self, "vocabulary_")
-            if use_actors:
-                vocabulary_for_transform = self.vocabulary_
-            else:
-                vocabulary_for_transform = self.vocabulary_actor_
+            vocabulary_for_transform = self.vocabulary_
         else:
-            vocabulary_for_transform = vocabulary
+            if isinstance(vocabulary, dict):
+                # scatter for the user
+                try:
+                    client = get_client()
+                except ValueError:
+                    vocabulary_for_transform = dask.delayed(vocabulary)
+                else:
+                    (vocabulary_for_transform,) = client.scatter(
+                        (vocabulary,), broadcast=True
+                    )
+            else:
+                vocabulary_for_transform = vocabulary
 
         n_features = vocabulary_length(vocabulary)
         transformed = raw_documents.map_partitions(
@@ -323,8 +236,6 @@ def build_array(bag, n_features, meta):
 def vocabulary_length(vocabulary):
     if isinstance(vocabulary, dict):
         return len(vocabulary)
-    elif isinstance(vocabulary, Vocabulary):
-        return vocabulary.n_features
     elif isinstance(vocabulary, Delayed):
         try:
             return len(vocabulary)
@@ -341,22 +252,16 @@ def vocabulary_length(vocabulary):
 
 
 def _count_vectorizer_transform(partition, vocabulary, params):
-    if isinstance(vocabulary, Actor):
-        vocabulary = vocabulary.finalize().result()
     model = sklearn.feature_extraction.text.CountVectorizer(
         vocabulary=vocabulary, **params
     )
     return model.transform(partition)
 
 
-def _build_vocabulary(partition, vocabulary_actor, params):
+def _build_vocabulary(partition, params):
     model = sklearn.feature_extraction.text.CountVectorizer(**params)
     model.fit(partition)
-    result = set(model.vocabulary_)
-    if vocabulary_actor is not None:
-        vocabulary_actor.update(result)
-    else:
-        return result
+    return set(model.vocabulary_)
 
 
 @dask.delayed
