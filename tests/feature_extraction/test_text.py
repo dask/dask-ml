@@ -1,5 +1,3 @@
-import contextlib
-
 import dask.array as da
 import dask.bag as db
 import dask.dataframe as dd
@@ -11,6 +9,7 @@ import sklearn.feature_extraction.text
 from distributed import Client
 
 import dask_ml.feature_extraction.text
+from dask_ml._compat import nullcontext
 from dask_ml.utils import assert_estimator_equal
 
 JUNK_FOOD_DOCS = (
@@ -131,7 +130,7 @@ def test_count_vectorizer(give_vocabulary, distributed):
     if distributed:
         client = Client()  # noqa
     else:
-        client = contextlib.nullcontext()
+        client = nullcontext()
 
     if give_vocabulary:
         r2 = m2.transform(b)
