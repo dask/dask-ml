@@ -39,10 +39,8 @@ def test_ok(metric_pairs, compute):
 
 @pytest.mark.parametrize("squared", [True, False])
 def test_mse_squared(squared):
-    m1, m2 = (
-        getattr(dask_ml.metrics, "mean_squared_error"),
-        getattr(sklearn.metrics, "mean_squared_error"),
-    )
+    m1 = dask_ml.metrics.mean_squared_error
+    m2 = sklearn.metrics.mean_squared_error
 
     a = da.random.uniform(size=(100,), chunks=(25,))
     b = da.random.uniform(size=(100,), chunks=(25,))
