@@ -119,16 +119,19 @@ class FeatureHasher(_BaseHasher, sklearn.feature_extraction.text.FeatureHasher):
 class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
     """Convert a collection of text documents to a matrix of token counts
 
-    .. note::
-
-       This implementation requires an active :class:`distributed.Client`.
-
     Notes
     -----
     When a vocabulary isn't provided, ``fit_transform`` requires two
     passes over the dataset: one to learn the vocabulary and a second
     to transform the data. Consider persisting the data if it fits
-    in (distributed) memory.
+    in (distributed) memory prior to calling ``fit`` or ``transform``
+    when not providing a ``vocabulary``.
+
+    Additionally, this implementation benefits from having
+    an active ``dask.distributed.Client``, even on a single machine.
+    When a client is present, the learned ``vocabulary`` is persisted
+    in distributed memory, which saves some recompuation and redundant
+    communication.
 
     See Also
     --------
@@ -136,6 +139,9 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
 
     Examples
     --------
+    The Dask-ML implementation currently requires that ``raw_documents``
+    is a :class:`dask.bag.Bag` of documents (lists of strings).
+
     >>> from dask_ml.feature_extraction.text import CountVectorizer
     >>> import dask.bag as db
     >>> from distributed import Client
