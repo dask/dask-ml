@@ -133,7 +133,7 @@
             
             
               <div class="version">
-                1.5.1.dev12+g389084a
+                1.5.1.dev13+g2a5e967
               </div>
             
           
@@ -278,7 +278,7 @@
 <h1>dask_ml.metrics.mean_squared_error<a class="headerlink" href="#dask-ml-metrics-mean-squared-error" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="dask_ml.metrics.mean_squared_error">
-<code class="descclassname">dask_ml.metrics.</code><code class="descname">mean_squared_error</code><span class="sig-paren">(</span><em>y_true: ArrayLike</em>, <em>y_pred: ArrayLike</em>, <em>sample_weight: Optional[ArrayLike] = None</em>, <em>multioutput: Optional[str] = 'uniform_average'</em>, <em>compute: bool = True</em><span class="sig-paren">)</span> &#x2192; ArrayLike<a class="headerlink" href="#dask_ml.metrics.mean_squared_error" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">dask_ml.metrics.</code><code class="descname">mean_squared_error</code><span class="sig-paren">(</span><em>y_true: ArrayLike</em>, <em>y_pred: ArrayLike</em>, <em>sample_weight: Optional[ArrayLike] = None</em>, <em>multioutput: Optional[str] = 'uniform_average'</em>, <em>squared: bool = True</em>, <em>compute: bool = True</em><span class="sig-paren">)</span> &#x2192; ArrayLike<a class="headerlink" href="#dask_ml.metrics.mean_squared_error" title="Permalink to this definition">¶</a></dt>
 <dd><p>Mean squared error regression loss</p>
 <p>This docstring was copied from sklearn.metrics.mean_squared_error.</p>
 <p>Some inconsistencies with the Dask version may exist.</p>
@@ -309,7 +309,7 @@ Array-like value defines weights used to average errors.</p>
 </dd>
 </dl>
 </dd>
-<dt><strong>squared</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean value, optional (default = True)  (Not supported in Dask)</span></dt>
+<dt><strong>squared</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean value, optional (default = True)</span></dt>
 <dd><p class="first last">If True returns MSE value, if False returns RMSE value.</p>
 </dd>
 </dl>
