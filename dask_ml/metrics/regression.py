@@ -34,6 +34,7 @@ def mean_squared_error(
     y_pred: ArrayLike,
     sample_weight: Optional[ArrayLike] = None,
     multioutput: Optional[str] = "uniform_average",
+    squared: bool = True,
     compute: bool = True,
 ) -> ArrayLike:
     _check_sample_weight(sample_weight)
@@ -48,6 +49,8 @@ def mean_squared_error(
     else:
         raise ValueError("Weighted 'multioutput' not supported.")
     result = output_errors.mean()
+    if not squared:
+        result = da.sqrt(result)
     if compute:
         result = result.compute()
     return result
