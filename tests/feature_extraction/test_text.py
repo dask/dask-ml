@@ -9,7 +9,7 @@ import sklearn.feature_extraction.text
 from distributed import Client
 
 import dask_ml.feature_extraction.text
-from dask_ml._compat import nullcontext
+from dask_ml._compat import dummy_context
 from dask_ml.utils import assert_estimator_equal
 
 JUNK_FOOD_DOCS = (
@@ -130,7 +130,7 @@ def test_count_vectorizer(give_vocabulary, distributed):
     if distributed:
         client = Client()  # noqa
     else:
-        client = nullcontext()
+        client = dummy_context()
 
     if give_vocabulary:
         r2 = m2.transform(b)
