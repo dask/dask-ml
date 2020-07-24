@@ -35,7 +35,7 @@ jobs:
     displayName: "install"
 
   - bash: |
-      conda install pytorch torchvision -c pytorch
+      conda install -y pytorch torchvision -c pytorch
       pip install skorch
       pip install tensorflow scikeras keras
       pip install -U git+https://github.com/adriangb/scikeras.git
