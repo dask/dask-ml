@@ -14,7 +14,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Cross Validation &mdash; dask-ml 1.5.1 documentation</title>
+  <title>Cross Validation &mdash; dask-ml 1.6.0 documentation</title>
   
 
   
@@ -133,7 +133,7 @@
             
             
               <div class="version">
-                1.5.1.dev16+g2038baf
+                1.6.0
               </div>
             
           
@@ -273,9 +273,9 @@ This document only describes the extensions made to support Dask arrays.</p>
 
 <span class="gp">In [8]: </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="gh">Out[8]: </span><span class="go"></span>
-<span class="go">array([[-1.13718099, -0.5403331 ,  0.07110488, -0.3837625 ],</span>
-<span class="go">       [ 0.83154369,  0.17831678, -0.11855249,  0.11225947],</span>
-<span class="go">       [ 0.06104403,  0.99703317,  0.99714619,  0.73869252]])</span>
+<span class="go">array([[-1.34564068,  1.35118465,  0.48875575,  1.04930275],</span>
+<span class="go">       [-0.35558747,  1.33408773,  2.86662792,  0.91737522],</span>
+<span class="go">       [-0.24547985, -0.63067068, -0.11139771,  1.57407473]])</span>
 </pre></div>
 </div>
 <p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v0.23)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
