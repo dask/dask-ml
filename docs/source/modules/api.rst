@@ -176,10 +176,11 @@ with Dask Arrays or DataFrames.
    :toctree: generated/
    :template: class.rst
 
+   feature_extraction.text.CountVectorizer
    feature_extraction.text.HashingVectorizer
    feature_extraction.text.FeatureHasher
 
-   
+
 :mod:`dask_ml.compose`: Composite Estimators
 ============================================
 
