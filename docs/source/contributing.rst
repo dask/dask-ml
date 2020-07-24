@@ -29,7 +29,7 @@ in the ``ci`` directory.
 
 .. code-block:: none
 
-   conda env create -f ci/environment-3.7.yaml --name=dask-ml-dev
+   conda env create -f ci/environment-latest.yaml --name=dask-ml-dev
 
 to create a conda environment and install all the dependencies.
 
@@ -43,9 +43,14 @@ Building dask-ml
 Dask-ML is a pure-python repository. Development installation should be as simple as
 cloning the repository and running the following in the cloned directory:
 
-.. code-block:: none
+``pip``::
 
-   python -m pip install -e ".[dev]"
+  python -m pip install -e ".[dev]"
+
+``conda``::
+   
+  conda activate dask-ml-dev
+  python -m pip install --no-deps -e .
 
 If you have any trouble, please open an issue on the
 `dask-ml issue tracker <https://github.com/dask/dask-ml/issues>`_.
