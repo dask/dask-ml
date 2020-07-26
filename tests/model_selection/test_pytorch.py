@@ -1,16 +1,18 @@
 import pytest
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+from distributed.utils_test import gen_cluster
+from scipy.stats import loguniform
+from sklearn.base import clone
+from sklearn.datasets import make_regression
+
+from dask_ml.model_selection import IncrementalSearchCV
+from skorch import NeuralNetClassifier, NeuralNetRegressor
+
 pytest.importorskip("torch")
 pytest.importorskip("skorch")
 
-from sklearn.base import clone
-from distributed.utils_test import gen_cluster
-from scipy.stats import loguniform
-import torch.optim as optim
-import torch.nn as nn
-import torch.nn.functional as F
-from skorch import NeuralNetClassifier, NeuralNetRegressor
-from sklearn.datasets import make_regression
-from dask_ml.model_selection import IncrementalSearchCV
 
 
 class ShallowNet(nn.Module):
