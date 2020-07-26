@@ -563,7 +563,8 @@ try:
     SCIKERAS = True
 except ImportError:
     SCIKERAS = False
-    SciKerasClassifier = object
+    BaseWrapper = object
+
 try:
     import tensorflow as tf
 
