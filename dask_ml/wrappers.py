@@ -572,6 +572,7 @@ try:
 except ImportError:
     TF = False
 
+
 class _BaseKerasWrapper(BaseWrapper):
     def fit(self, *args, verbose=0, workers=0, callbacks=None, **kwargs):
         # workers=0 runs on main thread
@@ -603,5 +604,5 @@ class KerasClassifier(_BaseKerasWrapper, SciKerasClassifier):
     pass
 
 
-class KerasRegressor( _BaseKerasWrapper, SciKerasRegressor):
+class KerasRegressor(_BaseKerasWrapper, SciKerasRegressor):
     pass
