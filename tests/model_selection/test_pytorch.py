@@ -1,7 +1,8 @@
+# isort: off
 import pytest
-
-pytest.importorskip("torch")  # isort:skip
-pytest.importorskip("skorch")  # isort:skip
+pytest.importorskip("torch")
+pytest.importorskip("skorch")
+# isort: on
 
 import torch.nn as nn
 import torch.nn.functional as F
