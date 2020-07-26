@@ -130,10 +130,9 @@ Scikit-Learn should feel at home with Dask-ML.
    :hidden:
    :caption: Integration
 
-   keras.rst
-   pytorch.rst
-   xgboost.rst
    joblib.rst
+   xgboost.rst
+   pytorch.rst
 
 .. toctree::
    :maxdepth: 2
