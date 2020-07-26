@@ -35,14 +35,10 @@ jobs:
     displayName: "install"
 
   - bash: |
-      conda install -y pytorch torchvision -c pytorch
+      conda install -y pytorch -c pytorch
       pip install skorch
-      pip install tensorflow scikeras keras
-      pip install -U git+https://github.com/adriangb/scikeras.git
-    displayName: "install Tensorflow/PyTorch"
+    displayName: "install PyTorch"
     # condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
-    # Installing from git is temporary: see
-    # https://github.com/adriangb/scikeras/pull/17#issuecomment-659064357
 
   - script: |
       source activate dask-ml-test
