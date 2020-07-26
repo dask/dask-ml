@@ -1,4 +1,5 @@
 import pytest
+
 pytest.importorskip("torch")  # isort:skip
 pytest.importorskip("skorch")  # isort:skip
 
@@ -9,11 +10,9 @@ from distributed.utils_test import gen_cluster
 from scipy.stats import loguniform
 from sklearn.base import clone
 from sklearn.datasets import make_regression
-
-from dask_ml.model_selection import IncrementalSearchCV
 from skorch import NeuralNetClassifier, NeuralNetRegressor
 
-
+from dask_ml.model_selection import IncrementalSearchCV
 
 
 class ShallowNet(nn.Module):
@@ -27,8 +26,6 @@ class ShallowNet(nn.Module):
 
 @gen_cluster(client=True)
 def test_pytorch(c, s, a, b):
-    pytest.importorskip("torch")
-    pytest.importorskip("skorch")
 
     n_features = 10
     defaults = {
