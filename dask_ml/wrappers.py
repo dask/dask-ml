@@ -551,3 +551,56 @@ def _predict_proba(part, estimator):
 
 def _transform(part, estimator):
     return estimator.transform(part)
+
+
+try:
+    from scikeras.wrappers import (
+        KerasClassifier as SciKerasClassifier,
+        KerasRegressor as SciKerasRegressor,
+        BaseWrapper,
+    )
+
+    SCIKERAS = True
+except ImportError:
+    SCIKERAS = False
+    SciKerasClassifier = object
+try:
+    import tensorflow as tf
+
+    TF = True
+except ImportError:
+    TF = False
+
+class _BaseKerasWrapper(BaseWrapper):
+    def fit(self, *args, verbose=0, workers=0, callbacks=None, **kwargs):
+        # workers=0 runs on main thread
+        # workers >= 1 spins up `worker` threads to load data
+        # (errors happen when workers == threads_per_worker)
+        # https://keras.io/api/models/model_training_apis/#fit-method
+        if not TF:
+            msg = "Tensorflow is not installed. See https://www.tensorflow.org/install/"
+            raise ImportError(msg)
+        if not SCIKERAS:
+            msg = "SciKeras is not installed. Install with `pip install scikeras`."
+            raise ImportError(msg)
+        return super().fit(
+            *args, workers=workers, callbacks=callbacks or [], verbose=verbose
+        )
+
+    def _build_keras_model(self, *args, **kwargs):
+        # See [1] and [2].
+        # [1]:https://github.com/adriangb/scikeras/issues/24
+        # [2]:https://github.com/tensorflow/tensorflow/issues/35813#issuecomment-661763351
+        try:
+            r = super()._build_keras_model(*args, **kwargs)
+        except (TypeError, RuntimeError):
+            r = super()._build_keras_model(*args, **kwargs)
+        return r
+
+
+class KerasClassifier(_BaseKerasWrapper, SciKerasClassifier):
+    pass
+
+
+class KerasRegressor( _BaseKerasWrapper, SciKerasRegressor):
+    pass

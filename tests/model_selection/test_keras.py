@@ -2,6 +2,7 @@ import pickle
 from typing import Tuple
 
 import numpy as np
+import pandas as pd
 import pytest
 from distributed.utils_test import gen_cluster
 from scipy.stats import loguniform, uniform
@@ -13,6 +14,7 @@ from sklearn.model_selection import RandomizedSearchCV
 from dask_ml.model_selection import IncrementalSearchCV
 
 import pytest
+
 pytest.importorskip("tensorflow")
 pytest.importorskip("scikeras")
 
@@ -21,7 +23,7 @@ from tensorflow.keras.datasets import mnist as keras_mnist
 from tensorflow.keras.layers import Dense, Activation, Dropout
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.utils import to_categorical
-from scikeras.wrappers import KerasClassifier, KerasRegressor
+from dask_ml.wrappers import KerasClassifier, KerasRegressor, _BaseKerasWrapper
 
 
 def mnist() -> Tuple[np.ndarray, np.ndarray]:
@@ -41,11 +43,7 @@ def _keras_build_fn(lr=0.01):
         Dense(10, input_shape=(512,), activation="softmax"),
     ]
 
-    # See https://github.com/adriangb/scikeras/issues/24
-    try:
-        model = Sequential(layers)
-    except TypeError:
-        model = Sequential(layers)
+    model = Sequential(layers)
 
     opt = tf.keras.optimizers.SGD(learning_rate=lr)
     model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"])
@@ -59,9 +57,20 @@ def test_keras(c, s, a, b):
     assert y.ndim == 1 and len(X) == len(y)
     assert isinstance(X, np.ndarray) and isinstance(y, np.ndarray)
 
-    model = KerasClassifier(build_fn=_keras_build_fn, epochs=1, lr=0.1)
+    model = KerasClassifier(build_fn=_keras_build_fn, lr=0.1)
     params = {"lr": loguniform(1e-3, 1e-1)}
 
-    search = IncrementalSearchCV(model, params, max_iter=2, decay_rate=None)
-    yield search.fit(X, y, epochs=1)
+    search = IncrementalSearchCV(
+        model, params, max_iter=3, n_initial_parameters=5, decay_rate=None
+    )
+    yield search.fit(X, y)
     assert search.best_score_ >= 0
+
+    # Make sure the model trains, and scores aren't constant
+    scores = {
+        ident: [h["score"] for h in hist]
+        for ident, hist in search.model_history_.items()
+    }
+    assert all(len(hist) == 3 for hist in scores.values())
+    nuniq_scores = [pd.Series(v).nunique() for v in scores.values()]
+    assert max(nuniq_scores) > 1
