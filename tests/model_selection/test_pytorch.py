@@ -1,4 +1,7 @@
 import pytest
+pytest.importorskip("torch")  # isort:skip
+pytest.importorskip("skorch")  # isort:skip
+
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
@@ -10,8 +13,6 @@ from sklearn.datasets import make_regression
 from dask_ml.model_selection import IncrementalSearchCV
 from skorch import NeuralNetClassifier, NeuralNetRegressor
 
-pytest.importorskip("torch")
-pytest.importorskip("skorch")
 
 
 
