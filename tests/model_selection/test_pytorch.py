@@ -1,5 +1,6 @@
 # isort: off
 import pytest
+
 pytest.importorskip("torch")
 pytest.importorskip("skorch")
 # isort: on
