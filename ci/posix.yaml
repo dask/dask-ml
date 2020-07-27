@@ -20,7 +20,6 @@ jobs:
       sklearnDev:
         envFile: 'ci/environment-3.7.yaml'
         SKLEARN_DEV: "yes"
-        WRAPPERS: "no"
 
   steps:
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
