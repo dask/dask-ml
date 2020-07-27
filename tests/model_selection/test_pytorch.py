@@ -1,29 +1,28 @@
-# isort: off
 import pytest
-
-pytest.importorskip("torch")
-pytest.importorskip("skorch")
-# isort: on
-
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
 from distributed.utils_test import gen_cluster
 from scipy.stats import loguniform
 from sklearn.base import clone
 from sklearn.datasets import make_regression
-from skorch import NeuralNetClassifier, NeuralNetRegressor
 
 from dask_ml.model_selection import IncrementalSearchCV
 
+try:
+    import torch.nn as nn
+    import torch.nn.functional as F
+    import torch.optim as optim
+    from skorch import NeuralNetRegressor
+except ImportError:
+    pytestmark = pytest.mark.skip(reason="Missing pytorch or skorch.")
 
-class ShallowNet(nn.Module):
-    def __init__(self, n_features=5):
-        super().__init__()
-        self.layer1 = nn.Linear(n_features, 1)
+else:
 
-    def forward(self, x):
-        return F.relu(self.layer1(x))
+    class ShallowNet(nn.Module):
+        def __init__(self, n_features=5):
+            super().__init__()
+            self.layer1 = nn.Linear(n_features, 1)
+
+        def forward(self, x):
+            return F.relu(self.layer1(x))
 
 
 @gen_cluster(client=True)
@@ -47,8 +46,8 @@ def test_pytorch(c, s, a, b):
     )
 
     model2 = clone(model)
-    assert model.callbacks == False
-    assert model.warm_start == False
+    assert model.callbacks is False
+    assert model.warm_start is False
     assert model.train_split is None
     assert model.max_epochs == 1
 
