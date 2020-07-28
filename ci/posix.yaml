@@ -34,8 +34,9 @@ jobs:
     displayName: "install"
 
   - bash: |
-      conda install -y pytorch -c pytorch
-      pip install skorch
+      conda install -y pytorch -c pytorch -n dask-ml-test
+      source activate dask-ml-test
+      pip install skorch --no-deps
     displayName: "install PyTorch"
     # condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
 
