@@ -515,7 +515,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         self.prefix = prefix
         super(BaseIncrementalSearchCV, self).__init__(estimator, scoring=scoring)
 
-    def _validate_parameters(self, X, y):
+    async def _validate_parameters(self, X, y):
         if (self.max_iter is not None) and self.max_iter < 1:
             raise ValueError(
                 "Received max_iter={}. max_iter < 1 is not supported".format(
@@ -523,13 +523,17 @@ class BaseIncrementalSearchCV(ParallelPostFit):
                 )
             )
 
-        # Make sure dask arrays are passed so error on unknown chunk size is raised
         kwargs = dict(accept_unknown_chunks=True, accept_dask_dataframe=True)
         if not isinstance(X, dd.DataFrame):
             X = self._check_array(X, **kwargs)
-        if not isinstance(y, dd.Series):
+        if not isinstance(y, (dd.DataFrame, dd.Series)):
             y = self._check_array(y, ensure_2d=False, **kwargs)
-        scorer = check_scoring(self.estimator, scoring=self.scoring)
+        estimator = self.estimator
+        if isinstance(estimator, Future):
+            client = default_client()
+            scorer = await client.submit(check_scoring, estimator, scoring=self.scoring)
+        else:
+            scorer = check_scoring(self.estimator, scoring=self.scoring)
         return X, y, scorer
 
     @property
@@ -640,7 +644,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         else:
             context = dummy_context()
 
-        X, y, scorer = self._validate_parameters(X, y)
+        X, y, scorer = await self._validate_parameters(X, y)
 
         X_train, X_test, y_train, y_test = self._get_train_test_split(X, y)
 

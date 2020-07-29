@@ -481,7 +481,7 @@ class Incremental(ParallelPostFit):
                 random_state=self.random_state,
                 shuffle_blocks=self.shuffle_blocks,
                 assume_equal_chunks=self.assume_equal_chunks,
-                **fit_kwargs
+                **fit_kwargs,
             )
 
         copy_learned_attributes(result, self)
