@@ -34,7 +34,7 @@ jobs:
     displayName: "install"
 
   - bash: |
-      conda install -y pytorch -c pytorch -n dask-ml-test
+      conda install -y pytorch cpuonly -c pytorch -n dask-ml-test
       source activate dask-ml-test
       pip install skorch --no-deps
     displayName: "install PyTorch"
