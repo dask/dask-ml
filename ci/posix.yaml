@@ -36,7 +36,7 @@ jobs:
   - bash: |
       conda install -y pytorch cpuonly -c pytorch -n dask-ml-test
       source activate dask-ml-test
-      pip install skorch --no-deps
+      pip install skorch
     displayName: "install PyTorch"
     # condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
 
