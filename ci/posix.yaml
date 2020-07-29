@@ -38,7 +38,7 @@ jobs:
       source activate dask-ml-test
       pip install skorch
     displayName: "install PyTorch"
-    # condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
 
   - script: |
       source activate dask-ml-test
