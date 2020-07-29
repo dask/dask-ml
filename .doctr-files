@@ -71,6 +71,7 @@
 ./_sources/modules/generted/dask_ml.compose.ColumnTransformer.rst.txt
 ./_sources/modules/generted/dask_ml.compose.make_column_transformer.rst.txt
 ./_sources/preprocessing.rst.txt
+./_sources/pytorch.rst.txt
 ./_sources/roadmap.rst.txt
 ./_sources/xgboost.rst.txt
 ./_static/ajax-loader.gif
@@ -194,6 +195,7 @@
 ./objects.inv
 ./preprocessing.html
 ./py-modindex.html
+./pytorch.html
 ./roadmap.html
 ./search.html
 ./searchindex.js

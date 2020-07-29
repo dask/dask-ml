@@ -14,7 +14,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Hyper Parameter Search &mdash; dask-ml 1.6.0 documentation</title>
+  <title>Hyper Parameter Search &mdash; dask-ml 1.6.1 documentation</title>
   
 
   
@@ -133,7 +133,7 @@
             
             
               <div class="version">
-                1.6.0
+                1.6.1.dev1+g5c3179e
               </div>
             
           
@@ -194,12 +194,16 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="compose.html">Pipelines and Composite Estimators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glm.html">Generalized Linear Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="joblib.html">Joblib</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meta-estimators.html">Parallel Meta-estimators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="incremental.html">Incremental Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="clustering.html">Clustering</a></li>
-<li class="toctree-l1"><a class="reference internal" href="xgboost.html">XGBoost</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/api.html">API Reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Integration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="joblib.html">Scikit-Learn &amp; Joblib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xgboost.html">XGBoost &amp; LightGBM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pytorch.html">PyTorch</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Develop</span></p>
 <ul>
@@ -689,7 +693,7 @@ use <a class="reference internal" href="modules/generated/dask_ml.model_selectio
 generalized to any of the above estimators.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">These estimators require that the model implement <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code></p>
+<p class="last">These estimators require that the model implement <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>.</p>
 </div>
 <p>By default, these class will call <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> on each chunk of the data.
 These classes can stop training any models if their score stops increasing
@@ -738,13 +742,13 @@ train-and-score them until we find the best one.</p>
 <span class="gp">In [13]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [14]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span>
-<span class="gh">Out[14]: </span><span class="go">{&#39;alpha&#39;: 0.024992901074569054, &#39;l1_ratio&#39;: 0.42309132480850686}</span>
+<span class="gh">Out[14]: </span><span class="go">{&#39;alpha&#39;: 0.036529877957758486, &#39;l1_ratio&#39;: 0.12704845566447498}</span>
 
 <span class="gp">In [15]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_score_</span>
-<span class="gh">Out[15]: </span><span class="go">0.7</span>
+<span class="gh">Out[15]: </span><span class="go">0.6</span>
 
 <span class="gp">In [16]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
-<span class="gh">Out[16]: </span><span class="go">0.4</span>
+<span class="gh">Out[16]: </span><span class="go">0.6</span>
 </pre></div>
 </div>
 <p>Note that when you do post-fit tasks like <code class="docutils literal notranslate"><span class="pre">search.score</span></code>, the underlying
@@ -765,7 +769,7 @@ to use post-estimation features like scoring or prediction, we recommend using
 <span class="gp">In [21]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [22]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
-<span class="gh">Out[22]: </span><span class="go">0.5</span>
+<span class="gh">Out[22]: </span><span class="go">0.7</span>
 </pre></div>
 </div>
 <p>Note that the parameter names include the <code class="docutils literal notranslate"><span class="pre">estimator__</span></code> prefix, as we’re
@@ -874,7 +878,7 @@ chunks:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [34]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [35]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span>
-<span class="gh">Out[35]: </span><span class="go">{&#39;alpha&#39;: 0.016966534745505035, &#39;l1_ratio&#39;: 0.213807552144193}</span>
+<span class="gh">Out[35]: </span><span class="go">{&#39;alpha&#39;: 0.022239849888400182, &#39;l1_ratio&#39;: 0.6695773192136228}</span>
 </pre></div>
 </div>
 <p>To be clear, this is a very small toy example: there are only 100 examples and

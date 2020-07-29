@@ -14,7 +14,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Incremental Learning &mdash; dask-ml 1.6.0 documentation</title>
+  <title>Incremental Learning &mdash; dask-ml 1.6.1 documentation</title>
   
 
   
@@ -133,7 +133,7 @@
             
             
               <div class="version">
-                1.6.0
+                1.6.1.dev1+g5c3179e
               </div>
             
           
@@ -170,7 +170,6 @@
 <li class="toctree-l1"><a class="reference internal" href="hyper-parameter-search.html">Hyper Parameter Search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compose.html">Pipelines and Composite Estimators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glm.html">Generalized Linear Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="joblib.html">Joblib</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meta-estimators.html">Parallel Meta-estimators</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Incremental Learning</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#incremental-meta-estimator">Incremental Meta-estimator</a><ul>
@@ -180,8 +179,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="clustering.html">Clustering</a></li>
-<li class="toctree-l1"><a class="reference internal" href="xgboost.html">XGBoost</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/api.html">API Reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Integration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="joblib.html">Scikit-Learn &amp; Joblib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xgboost.html">XGBoost &amp; LightGBM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pytorch.html">PyTorch</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Develop</span></p>
 <ul>
@@ -341,18 +345,18 @@ can also explicitly pass <code class="docutils literal notranslate"><span class=
 </div>
 <p>We can get the accuracy score on our dataset.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gh">Out[9]: </span><span class="go">0.69</span>
+<span class="gh">Out[9]: </span><span class="go">0.64</span>
 </pre></div>
 </div>
 <p>All of the attributes learned durning training, like <code class="docutils literal notranslate"><span class="pre">coef_</span></code>, are available
 on the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> instance.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[-26.28947424,   4.07530595, -30.11494023, -15.73766172,</span>
-<span class="go">         37.14660098,  29.48720507,  -0.05933656, -19.05431811,</span>
-<span class="go">        -20.25364968, -37.89020908,  14.45653268,   9.47937476,</span>
-<span class="go">         25.14892237, -17.78256633,   8.79436559,  33.7507309 ,</span>
-<span class="go">         31.63796111,   9.98068464, -38.06118926, -54.12854585]])</span>
+<span class="go">array([[ 50.15122265,  -5.98668839,  26.48263164, -44.92636175,</span>
+<span class="go">          9.51166035, -28.04595955,  15.17924277,  -9.91017376,</span>
+<span class="go">         -0.19842706,  -0.62300577,  34.67563484,   5.24464268,</span>
+<span class="go">          8.80251318, -75.25872057, -82.89615763, -27.95823962,</span>
+<span class="go">         25.57232647,  20.23905491,   1.49418406, -34.50717518]])</span>
 </pre></div>
 </div>
 <p>If necessary, the actual estimator trained is available as <code class="docutils literal notranslate"><span class="pre">Incremental.estimator_</span></code></p>

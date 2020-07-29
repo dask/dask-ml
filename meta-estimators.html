@@ -14,7 +14,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Parallel Meta-estimators &mdash; dask-ml 1.6.0 documentation</title>
+  <title>Parallel Meta-estimators &mdash; dask-ml 1.6.1 documentation</title>
   
 
   
@@ -48,7 +48,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Incremental Learning" href="incremental.html" />
-    <link rel="prev" title="Joblib" href="joblib.html" />
+    <link rel="prev" title="Generalized Linear Models" href="glm.html" />
     <link rel="shortcut icon" href="_static/images/favicon.ico"/>
   
 </head>
@@ -133,7 +133,7 @@
             
             
               <div class="version">
-                1.6.0
+                1.6.1.dev1+g5c3179e
               </div>
             
           
@@ -170,7 +170,6 @@
 <li class="toctree-l1"><a class="reference internal" href="hyper-parameter-search.html">Hyper Parameter Search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compose.html">Pipelines and Composite Estimators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glm.html">Generalized Linear Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="joblib.html">Joblib</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Parallel Meta-estimators</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#parallel-prediction-and-transformation">Parallel Prediction and Transformation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#comparison-to-other-estimators-in-dask-ml">Comparison to other Estimators in dask-ml</a></li>
@@ -178,8 +177,13 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="incremental.html">Incremental Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="clustering.html">Clustering</a></li>
-<li class="toctree-l1"><a class="reference internal" href="xgboost.html">XGBoost</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/api.html">API Reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Integration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="joblib.html">Scikit-Learn &amp; Joblib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xgboost.html">XGBoost &amp; LightGBM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pytorch.html">PyTorch</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Develop</span></p>
 <ul>
@@ -319,12 +323,12 @@ cluster of machines.</p>
 <span class="go">       [0.00464304, 0.99535696],</span>
 <span class="go">       [0.00902734, 0.99097266],</span>
 <span class="go">       [0.01299259, 0.98700741],</span>
-<span class="go">       [0.9015587 , 0.0984413 ],</span>
+<span class="go">       [0.96201056, 0.03798944],</span>
 <span class="go">       [0.75588097, 0.24411903],</span>
-<span class="go">       [0.96353919, 0.03646081],</span>
+<span class="go">       [0.91795535, 0.08204465],</span>
 <span class="go">       [0.0203811 , 0.9796189 ],</span>
 <span class="go">       [0.021179  , 0.978821  ],</span>
-<span class="go">       [0.92368445, 0.07631555]])</span>
+<span class="go">       [0.95425297, 0.04574703]])</span>
 </pre></div>
 </div>
 <p>See <a class="reference external" href="http://dask-ml-benchmarks.readthedocs.io/en/latest/auto_examples/plot_parallel_post_fit_scaling.html">parallelizing prediction</a> for an example of how this
@@ -353,7 +357,7 @@ wrapping the scikit-learn version with a <code class="docutils literal notransla
         <a href="incremental.html" class="btn btn-neutral float-right" title="Incremental Learning" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="joblib.html" class="btn btn-neutral float-left" title="Joblib" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="glm.html" class="btn btn-neutral float-left" title="Generalized Linear Models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

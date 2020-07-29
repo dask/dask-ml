@@ -14,7 +14,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Joblib &mdash; dask-ml 1.6.0 documentation</title>
+  <title>Scikit-Learn &amp; Joblib &mdash; dask-ml 1.6.1 documentation</title>
   
 
   
@@ -47,8 +47,8 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Parallel Meta-estimators" href="meta-estimators.html" />
-    <link rel="prev" title="Generalized Linear Models" href="glm.html" />
+    <link rel="next" title="XGBoost &amp; LightGBM" href="xgboost.html" />
+    <link rel="prev" title="dask_ml.datasets.make_classification_df" href="modules/generated/dask_ml.datasets.make_classification_df.html" />
     <link rel="shortcut icon" href="_static/images/favicon.ico"/>
   
 </head>
@@ -133,7 +133,7 @@
             
             
               <div class="version">
-                1.6.0
+                1.6.1.dev1+g5c3179e
               </div>
             
           
@@ -164,18 +164,22 @@
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Use</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="preprocessing.html">Preprocessing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cross_validation.html">Cross Validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hyper-parameter-search.html">Hyper Parameter Search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compose.html">Pipelines and Composite Estimators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glm.html">Generalized Linear Models</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Joblib</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meta-estimators.html">Parallel Meta-estimators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="incremental.html">Incremental Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="clustering.html">Clustering</a></li>
-<li class="toctree-l1"><a class="reference internal" href="xgboost.html">XGBoost</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/api.html">API Reference</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Integration</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Scikit-Learn &amp; Joblib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="xgboost.html">XGBoost &amp; LightGBM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pytorch.html">PyTorch</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Develop</span></p>
 <ul>
@@ -229,7 +233,7 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>Joblib</li>
+      <li>Scikit-Learn &amp; Joblib</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -248,8 +252,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="joblib">
-<span id="id1"></span><h1>Joblib<a class="headerlink" href="#joblib" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="scikit-learn-joblib">
+<span id="joblib"></span><h1>Scikit-Learn &amp; Joblib<a class="headerlink" href="#scikit-learn-joblib" title="Permalink to this headline">¶</a></h1>
 <p>Many Scikit-Learn algorithms are written for parallel execution using
 <a class="reference external" href="http://joblib.readthedocs.io/en/latest/">Joblib</a>, which natively provides
 thread-based and process-based parallelism.  Joblib is what backs the
@@ -322,10 +326,10 @@ that can be done in parallel. To scale out to RAM-bound workloads
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="meta-estimators.html" class="btn btn-neutral float-right" title="Parallel Meta-estimators" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="xgboost.html" class="btn btn-neutral float-right" title="XGBoost &amp; LightGBM" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="glm.html" class="btn btn-neutral float-left" title="Generalized Linear Models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="modules/generated/dask_ml.datasets.make_classification_df.html" class="btn btn-neutral float-left" title="dask_ml.datasets.make_classification_df" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
