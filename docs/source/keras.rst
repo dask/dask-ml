@@ -1,10 +1,24 @@
 Keras and Tensorflow
 ====================
 
-The package SciKeras_ brings a Scikit-learn API to Keras. Install directions
-are at https://github.com/adriangb/scikeras/blob/master/README.md#installation.
+The package SciKeras_ brings a Scikit-learn API to Keras. This allows Dask-ML
+to be used seamlessly with Keras models.
 
-Notably, Dask-ML usage requires Tensorflow >= 2.3.0 and SciKeras >= 0.1.8.
+Installation
+------------
+
+Following the `Tensorflow install directions`_ and `SciKeras install guide`_,
+these packages need to be installed:
+
+.. code-block:: bash
+
+   $ pip install tensorflow>=2.3.0
+   $ pip install scikeras>=0.1.8
+
+These are the minimum versions that Dask-ML requires to use Tensorflow/Keras.
+
+.. _Tensorflow install directions: https://www.tensorflow.org/install
+.. _SciKeras install guide: https://github.com/adriangb/scikeras#installation
 
 Usage
 -----
