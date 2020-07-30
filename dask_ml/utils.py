@@ -96,7 +96,7 @@ def assert_estimator_equal(left, right, exclude=None, **kwargs):
     for attr in left_attrs2:
         l = getattr(left, attr)
         r = getattr(right, attr)
-        _assert_eq(l, r, **kwargs)
+        _assert_eq(l, r, name=attr, **kwargs)
 
 
 def check_array(
@@ -193,7 +193,7 @@ def check_array(
         return sk_validation.check_array(array, *args, **kwargs)
 
 
-def _assert_eq(l, r, **kwargs):
+def _assert_eq(l, r, name=None, **kwargs):
     array_types = (np.ndarray, da.Array)
     frame_types = (pd.core.generic.NDFrame, dd._Frame)
     if isinstance(l, array_types):
@@ -206,7 +206,7 @@ def _assert_eq(l, r, **kwargs):
         for a, b in zip(l, r):
             _assert_eq(a, b, **kwargs)
     else:
-        assert l == r
+        assert l == r, (name, l, r)
 
 
 def check_random_state(random_state):

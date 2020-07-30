@@ -1,8 +1,14 @@
 PyTorch
 =======
 
-Skorch_ brings a Scikit-learn API to PyTorch_. We encourage looking at the
-Skorch documentation for complete details.
+Skorch_ brings a Scikit-learn API to PyTorch_. Skorch allows PyTorch models to
+be wrapped in Scikit-learn compatible estimators. So, that means that PyTorch
+models wrapped in Skorch can be used with the rest of the Dask-ML API.  For
+example, using Dask-ML's :class:`~dask_ml.model_selection.HyperbandSearchCV` or
+:class:`~dask_ml.model_selection.Incremental` with PyTorch is possible after
+wrapping with Skorch.
+
+We encourage looking at the Skorch documentation for complete details.
 
 Example usage
 -------------
@@ -48,8 +54,8 @@ With this, it's easy to use Skorch:
        **niceties,
    )
 
-Each parameter that the PyTorch `nn.Module` takes is prefixed with `module__`,
-and same for the optimizer (`optim.SGD` takes a `lr` and `momentum`
+Each parameter that the PyTorch ``nn.Module`` takes is prefixed with ``module__``,
+and same for the optimizer (``optim.SGD`` takes a ``lr`` and ``momentum``
 parameters). The ``niceties`` make sure Skorch uses all the data for training
 and doesn't print excessive amounts of logs.
 
