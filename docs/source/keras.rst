@@ -31,7 +31,7 @@ normal way to create a `Keras Sequential model`_
 .. code-block:: python
 
    import tensorflow as tf
-   from tensorflow.keras.layers import Dense, Activation, Dropout
+   from tensorflow.keras.layers import Dense
    from tensorflow.keras.models import Sequential
 
    def build_model(lr=0.01, momentum=0.9):
@@ -50,7 +50,8 @@ Now, we can use the SciKeras to create a Scikit-learn compatible model:
 .. code-block:: python
 
    from scikeras.wrappers import KerasClassifier
-   model = KerasClassifier(build_fn=build_model, lr=0.1, momentum=0.9, verbose=False)
+   niceties = dict(verbose=False)
+   model = KerasClassifier(build_fn=build_model, lr=0.1, momentum=0.9, **niceties)
 
 This model will work with all of Dask-ML: it can use NumPy arrays as inputs and
 obeys the Scikit-learn API. For example, it's possible to use Dask-ML to do the
@@ -65,7 +66,7 @@ If we want to tune ``lr`` and ``momentum``, SciKeras requires that we pass
 
 .. code-block::
 
-   model = KerasClassifier(build_fn=build_model, lr=None, momentum=None, verbose=False)
+   model = KerasClassifier(build_fn=build_model, lr=None, momentum=None, **niceties)
 
 .. _SciKeras: https://github.com/adriangb/scikeras
 
@@ -85,12 +86,9 @@ the MNIST dataset:
 
    def get_mnist() -> Tuple[np.ndarray, np.ndarray]:
        (X_train, y_train), _ = mnist.load_data()
-       X_train = X_train[:100]
-       y_train = y_train[:100]
        X_train = X_train.reshape(X_train.shape[0], 784)
        X_train = X_train.astype("float32")
        X_train /= 255
-       Y_train = to_categorical(y_train, 10)
        return X_train, y_train
 
 And let's perform the basic task of tuning our SGD implementation:
