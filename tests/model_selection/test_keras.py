@@ -1,25 +1,19 @@
-import pickle
 from typing import Tuple
 
 import numpy as np
 import pandas as pd
 import pytest
 from distributed.utils_test import gen_cluster
-from scipy.stats import loguniform, uniform
-from sklearn.base import clone
-from sklearn.datasets import make_classification, make_regression
-from sklearn.exceptions import DataConversionWarning
-from sklearn.model_selection import RandomizedSearchCV
+from scipy.stats import loguniform
 
 from dask_ml.model_selection import IncrementalSearchCV
 
 try:
     import tensorflow as tf
     from tensorflow.keras.datasets import mnist as keras_mnist
-    from tensorflow.keras.layers import Activation, Dense, Dropout
+    from tensorflow.keras.layers import Dense
     from tensorflow.keras.models import Sequential
-    from tensorflow.keras.utils import to_categorical
-    from scikeras import KerasClassifier
+    from scikeras.wrappers import KerasClassifier
 except ImportError:
     pytestmark = pytest.mark.skip(reason="Missing tensorflow or scikeras")
 
@@ -33,7 +27,6 @@ def mnist() -> Tuple[np.ndarray, np.ndarray]:
     X_train = X_train.reshape(X_train.shape[0], 784)
     X_train = X_train.astype("float32")
     X_train /= 255
-    Y_train = to_categorical(y_train, 10)
     return X_train, y_train
 
 
