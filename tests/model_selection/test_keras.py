@@ -3,6 +3,7 @@ from typing import Tuple
 import numpy as np
 import pandas as pd
 import pytest
+from distributed import Nanny
 from distributed.utils_test import gen_cluster
 from scipy.stats import loguniform
 
