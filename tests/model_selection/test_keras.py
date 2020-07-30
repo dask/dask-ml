@@ -11,17 +11,19 @@ from sklearn.datasets import make_classification, make_regression
 from sklearn.exceptions import DataConversionWarning
 from sklearn.model_selection import RandomizedSearchCV
 
-import tensorflow as tf
 from dask_ml.model_selection import IncrementalSearchCV
-from dask_ml.wrappers import KerasClassifier, KerasRegressor, _BaseKerasWrapper
-from tensorflow.keras.datasets import mnist as keras_mnist
-from tensorflow.keras.layers import Activation, Dense, Dropout
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.utils import to_categorical
 
-pytest.importorskip("tensorflow")
-pytest.importorskip("scikeras")
+try:
+    import tensorflow as tf
+    from tensorflow.keras.datasets import mnist as keras_mnist
+    from tensorflow.keras.layers import Activation, Dense, Dropout
+    from tensorflow.keras.models import Sequential
+    from tensorflow.keras.utils import to_categorical
+    from scikeras import KerasClassifier
+except ImportError:
+    pytestmark = pytest.mark.skip(reason="Missing tensorflow or scikeras")
 
+pytest.importorskip("tensorflow", "2.3.0", reason="pickle support")
 
 
 def mnist() -> Tuple[np.ndarray, np.ndarray]:
