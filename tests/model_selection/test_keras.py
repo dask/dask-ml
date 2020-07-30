@@ -43,7 +43,7 @@ def _keras_build_fn(lr=0.01):
     return model
 
 
-@gen_cluster(client=True)
+@gen_cluster(client=True, Worker=Nanny)
 def test_keras(c, s, a, b):
     X, y = mnist()
     assert X.ndim == 2 and X.shape[-1] == 784
