@@ -4,8 +4,10 @@ Keras and Tensorflow
 The package SciKeras_ brings a Scikit-learn API to Keras. Install directions
 are at https://github.com/adriangb/scikeras/blob/master/README.md#installation.
 
-Example usage
--------------
+Notably, Dask-ML usage requires Tensorflow >= 2.3.0 and SciKeras >= 0.1.8.
+
+Usage
+-----
 
 First, let's start by defining normal function to create our model. This is the
 normal way to create a `Keras Sequential model`_
@@ -18,12 +20,14 @@ normal way to create a `Keras Sequential model`_
    from tensorflow.keras.layers import Dense, Activation, Dropout
    from tensorflow.keras.models import Sequential
 
-   def build_model(lr=0.01):
+   def build_model(lr=0.01, momentum=0.9):
        layers = [Dense(512, input_shape=(784,), activation="relu"),
                  Dense(10, input_shape=(512,), activation="softmax")]
        model = Sequential(layers)
 
-       opt = tf.keras.optimizers.SGD(learning_rate=lr)
+       opt = tf.keras.optimizers.SGD(
+           learning_rate=lr, momentum=momentum, nesterov=True,
+       )
        model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"])
        return model
 
@@ -31,10 +35,10 @@ Now, we can use the SciKeras to create a Scikit-learn compatible model:
 
 .. code-block:: python
 
-   from scikeras.wrappers import KerasClassifier, KerasRegressor
-   model = KerasClassifier(build_fn=build_model, lr=0.1)
+   from scikeras.wrappers import KerasClassifier
+   model = KerasClassifier(build_fn=build_model, lr=0.1, momentum=0.9, verbose=False)
 
-This model will work with all of Dask-ML: it expects NumPy arrays as inputs and
+This model will work with all of Dask-ML: it can use NumPy arrays as inputs and
 obeys the Scikit-learn API. For example, it's possible to use Dask-ML to do the
 following:
 
@@ -42,4 +46,54 @@ following:
   :class:`~dask_ml.model_selection.HyperbandSearchCV`.
 * Use Keras with Dask-ML's :class:`~dask_ml.wrappers.Incremental`.
 
+If we want to tune ``lr`` and ``momentum``, SciKeras requires that we pass
+``lr`` and ``momentum`` at initialization:
+
+.. code-block::
+
+   model = KerasClassifier(build_fn=build_model, lr=None, momentum=None, verbose=False)
+
 .. _SciKeras: https://github.com/adriangb/scikeras
+
+Example: Hyperparameter Optimization
+------------------------------------
+
+If we wanted to, we could use the model above with
+:class:`~dask_ml.model_selection.HyperbandSearchCV`. Let's tune this model on
+the MNIST dataset:
+
+.. code-block:: python
+
+   from tensorflow.keras.datasets import mnist
+   from tensorflow.keras.utils import to_categorical
+   import numpy as np
+   from typing import Tuple
+
+   def get_mnist() -> Tuple[np.ndarray, np.ndarray]:
+       (X_train, y_train), _ = mnist.load_data()
+       X_train = X_train[:100]
+       y_train = y_train[:100]
+       X_train = X_train.reshape(X_train.shape[0], 784)
+       X_train = X_train.astype("float32")
+       X_train /= 255
+       Y_train = to_categorical(y_train, 10)
+       return X_train, y_train
+
+And let's perform the basic task of tuning our SGD implementation:
+
+.. code-block:: python
+
+   from scipy.stats import loguniform, uniform
+   params = {"lr": loguniform(1e-3, 1e-1), "momentum": uniform(0, 1)}
+   X, y = get_mnist()
+
+Now, the search can be run:
+
+.. code-block:: python
+
+   from dask.distributed import Client
+   client = Client()
+
+   from dask_ml.model_selection import HyperbandSearchCV
+   search = HyperbandSearchCV(model, params, max_iter=27)
+   search.fit(X, y)
