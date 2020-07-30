@@ -70,6 +70,9 @@ If we want to tune ``lr`` and ``momentum``, SciKeras requires that we pass
 
 .. _SciKeras: https://github.com/adriangb/scikeras
 
+If you run into unexpected errors, SciKeras supports more methods to create a
+Scikit-Learn compatible model. Refer to their documentation for details.
+
 Example: Hyperparameter Optimization
 ------------------------------------
 
