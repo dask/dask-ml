@@ -18,7 +18,8 @@ try:
 except ImportError:
     pytestmark = pytest.mark.skip(reason="Missing tensorflow or scikeras")
 
-pytest.importorskip("tensorflow", "2.3.0", reason="pickle support")
+pytest.importorskip("tensorflow", minversion="2.3.0", reason="pickle support")
+pytest.importorskip("scikeras", minversion="0.1.8", reason="partial fit impl")
 
 
 def mnist() -> Tuple[np.ndarray, np.ndarray]:
