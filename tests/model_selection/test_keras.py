@@ -24,7 +24,7 @@ try:
             reason="pickle support",
         ),
         pytest.mark.skipif(
-            version.parse(scikeras.__version__) < version.parse("1.8.0"),
+            version.parse(scikeras.__version__) < version.parse("0.1.8"),
             reason="partial_fit support",
         ),
     ]
