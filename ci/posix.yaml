@@ -41,8 +41,7 @@ jobs:
     displayName: "install PyTorch"
     condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
 
-  - bash: |
-      pip install tensorflow>=2.3.0 scikeras>=0.1.8
+  - bash: pip install tensorflow>=2.3.0 scikeras>=0.1.8
     displayName: "install Tensorflow and SciKeras"
     # condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
 
