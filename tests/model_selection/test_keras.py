@@ -1,3 +1,4 @@
+from packaging import version
 from typing import Tuple
 
 import numpy as np
@@ -14,12 +15,21 @@ try:
     from tensorflow.keras.datasets import mnist as keras_mnist
     from tensorflow.keras.layers import Dense
     from tensorflow.keras.models import Sequential
+    import scikeras
     from scikeras.wrappers import KerasClassifier
+
+    pytestmark = [
+        pytest.mark.skipif(
+            version.parse(tf.__version__) < version.parse("2.3.0"),
+            reason="pickle support",
+        ),
+        pytest.mark.skipif(
+            version.parse(scikeras.__version__) < version.parse("1.8.0"),
+            reason="partial_fit support",
+        ),
+    ]
 except ImportError:
     pytestmark = pytest.mark.skip(reason="Missing tensorflow or scikeras")
-
-pytest.importorskip("tensorflow", minversion="2.3.0", reason="pickle support")
-pytest.importorskip("scikeras", minversion="0.1.8", reason="partial fit impl")
 
 
 def mnist() -> Tuple[np.ndarray, np.ndarray]:
