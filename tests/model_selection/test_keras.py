@@ -62,7 +62,7 @@ def test_keras(c, s, a, b):
     assert y.ndim == 1 and len(X) == len(y)
     assert isinstance(X, np.ndarray) and isinstance(y, np.ndarray)
 
-    model = KerasClassifier(build_fn=_keras_build_fn, lr=0.1)
+    model = KerasClassifier(build_fn=_keras_build_fn, lr=0.01)
     params = {"lr": loguniform(1e-3, 1e-1)}
 
     search = IncrementalSearchCV(

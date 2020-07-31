@@ -44,6 +44,7 @@ jobs:
     condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
 
   - bash: |
+      source activate dask-ml-test
       pip install tensorflow>=2.3.0
       pip install scikeras>=0.1.8
       python -c "import tensorflow as tf; print('TF ' + tf.__version__)"
