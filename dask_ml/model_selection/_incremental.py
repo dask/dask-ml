@@ -331,13 +331,25 @@ async def _fit(
                 model = speculative.pop(ident)
                 for i in range(k):
                     X_future, y_future = get_futures(start + i)
-                    model = client.submit(_partial_fit,
-                        model, X_future, y_future, fit_params, priority=priority
+                    model = client.submit(
+                        _partial_fit,
+                        model,
+                        X_future,
+                        y_future,
+                        fit_params,
+                        priority=priority,
                     )
-                score = client.submit(_score, model, X_test, y_test, scorer, priority=priority)
+                score = client.submit(
+                    _score, model, X_test, y_test, scorer, priority=priority
+                )
                 X_future, y_future = get_futures(start + k)
-                spec = client.submit(_partial_fit,
-                    model, X_future, y_future, fit_params, priority=priority
+                spec = client.submit(
+                    _partial_fit,
+                    model,
+                    X_future,
+                    y_future,
+                    fit_params,
+                    priority=priority,
                 )
                 _models[ident] = model
                 _scores[ident] = score
