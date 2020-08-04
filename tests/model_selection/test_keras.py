@@ -7,16 +7,17 @@ from distributed import Nanny
 from distributed.utils_test import gen_cluster
 from packaging import version
 from scipy.stats import loguniform
+from sklearn.datasets import make_classification
 
 from dask_ml.model_selection import IncrementalSearchCV
 
 try:
+    import scikeras
     import tensorflow as tf
+    from scikeras.wrappers import KerasClassifier
     from tensorflow.keras.datasets import mnist as keras_mnist
     from tensorflow.keras.layers import Dense
     from tensorflow.keras.models import Sequential
-    import scikeras
-    from scikeras.wrappers import KerasClassifier
 
     pytestmark = [
         pytest.mark.skipif(
@@ -30,16 +31,6 @@ try:
     ]
 except ImportError:
     pytestmark = pytest.mark.skip(reason="Missing tensorflow or scikeras")
-
-
-def mnist() -> Tuple[np.ndarray, np.ndarray]:
-    (X_train, y_train), _ = keras_mnist.load_data()
-    X_train = X_train[:100]
-    y_train = y_train[:100]
-    X_train = X_train.reshape(X_train.shape[0], 784)
-    X_train = X_train.astype("float32")
-    X_train /= 255
-    return X_train, y_train
 
 
 def _keras_build_fn(lr=0.01):
@@ -57,10 +48,10 @@ def _keras_build_fn(lr=0.01):
 
 @gen_cluster(client=True, Worker=Nanny)
 def test_keras(c, s, a, b):
-    X, y = mnist()
-    assert X.ndim == 2 and X.shape[-1] == 784
-    assert y.ndim == 1 and len(X) == len(y)
-    assert isinstance(X, np.ndarray) and isinstance(y, np.ndarray)
+    # Mirror the mnist dataset
+    X, y = make_classification(n_classes=10, n_features=784, n_informative=100)
+    X = X.astype("float32")
+    assert y.dtype == np.dtype("int64")
 
     model = KerasClassifier(build_fn=_keras_build_fn, lr=0.01, verbose=False)
     params = {"lr": loguniform(1e-3, 1e-1)}
@@ -69,6 +60,8 @@ def test_keras(c, s, a, b):
         model, params, max_iter=3, n_initial_parameters=5, decay_rate=None
     )
     yield search.fit(X, y)
+    #  search.fit(X, y)
+
     assert search.best_score_ >= 0
 
     # Make sure the model trains, and scores aren't constant
