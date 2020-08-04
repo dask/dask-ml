@@ -15,7 +15,6 @@ try:
     import scikeras
     import tensorflow as tf
     from scikeras.wrappers import KerasClassifier
-    from tensorflow.keras.datasets import mnist as keras_mnist
     from tensorflow.keras.layers import Dense
     from tensorflow.keras.models import Sequential
 
