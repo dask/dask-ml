@@ -3,6 +3,7 @@ import concurrent.futures
 import itertools
 import logging
 import math
+import platform
 import random
 import sys
 from collections import defaultdict
@@ -47,7 +48,8 @@ pytestmark = [
 
 
 @pytest.mark.skipif(
-    "win" in sys.platform, reason="Unexpected hang on Travis CI windows machines",
+    platform.system() == "Windows",
+    reason="Unexpected hang on Travis CI windows machines",
 )
 @gen_cluster(client=True, timeout=1000)
 async def test_basic(c, s, a, b):
