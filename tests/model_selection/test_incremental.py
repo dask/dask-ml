@@ -2,6 +2,7 @@ import asyncio
 import concurrent.futures
 import itertools
 import logging
+import math
 import random
 import sys
 from collections import defaultdict
@@ -261,13 +262,6 @@ async def _test_search_basic(decay_rate, input_type, memory, c, s, a, b):
         search = InverseDecaySearchCV(model, params, **kwargs)
     else:
         raise ValueError()
-    if memory == "distributed" and input_type == "dataframe":
-        with pytest.raises(TypeError, match=r"to_dask_array\(lengths=True\)"):
-            await search.fit(X, y, classes=[0, 1])
-
-        # Dask-ML raised a type error; let's implement the suggestion
-        X = await c.compute(c.submit(X.to_dask_array, lengths=True))
-        y = await c.compute(c.submit(y.to_dask_array, lengths=True))
     await search.fit(X, y, classes=[0, 1])
 
     assert search.history_
@@ -323,8 +317,10 @@ async def _test_search_basic(decay_rate, input_type, memory, c, s, a, b):
 
     proba = search.predict_proba(X)
     log_proba = search.predict_log_proba(X)
-    assert proba.shape == (1000, 2)
-    assert log_proba.shape == (1000, 2)
+    assert proba.shape[1] == 2
+    assert proba.shape[0] == 1000 or math.isnan(proba.shape[0])
+    assert log_proba.shape[1] == 2
+    assert log_proba.shape[0] == 1000 or math.isnan(proba.shape[0])
 
     assert isinstance(proba, da.Array)
     assert isinstance(log_proba, da.Array)
@@ -336,7 +332,7 @@ async def _test_search_basic(decay_rate, input_type, memory, c, s, a, b):
     da.utils.assert_eq(log_proba, log_proba_)
 
     decision = search.decision_function(X_)
-    assert decision.shape == (1000,)
+    assert decision.shape == (1000,) or math.isnan(decision.shape[0])
     return True
 
 
@@ -930,3 +926,18 @@ async def test_priorities(c, s, w):
     # (6 is chosen conservatively; most of the times 3 or 4 works, but it
     # can fail inconsistently)
     assert all(is_sorted[k] for k in final_keys)
+
+
+@gen_cluster(client=True)
+async def test_model_future(c, s, a, b):
+    X, y = make_classification(n_samples=100, n_features=5, chunks=10)
+
+    params = {"value": np.random.RandomState(42).rand(1000)}
+    model = ConstantFunction()
+    model_future = await c.scatter(model)
+
+    search = IncrementalSearchCV(model_future, params, max_iter=10)
+
+    await search.fit(X, y, classes=[0, 1])
+    assert search.history_
+    assert search.best_score_ > 0

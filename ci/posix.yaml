@@ -33,6 +33,13 @@ jobs:
   - bash: conda env create --quiet --file=$(envFile) --name=dask-ml-test && conda list -n dask-ml-test
     displayName: "install"
 
+  - bash: |
+      conda install -y -q pytorch cpuonly -c pytorch -n dask-ml-test
+      source activate dask-ml-test
+      pip install skorch
+    displayName: "install PyTorch"
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+
   - script: |
       source activate dask-ml-test
       conda uninstall -y --force scikit-learn
