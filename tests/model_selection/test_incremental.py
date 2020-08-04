@@ -50,7 +50,7 @@ pytestmark = [
 async def test_basic(c, s, a, b):
     def _additional_calls(info):
         pf_calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
-        ret = {k: int(calls < 10) for k, calls in pf_calls.items()}
+        ret = {k: int(calls <= 5) for k, calls in pf_calls.items()}
         if len(ret) == 1:
             return {list(ret)[0]: 0}
 
@@ -59,7 +59,7 @@ async def test_basic(c, s, a, b):
         key_to_drop = random.choice(list(some_keys))
         return {k: v for k, v in ret.items() if k != key_to_drop}
 
-    X, y = make_classification(n_samples=1000, n_features=5, chunks=100)
+    X, y = make_classification(n_samples=200, n_features=5, chunks=100)
     model = ConstantFunction()
 
     params = {"value": uniform(0, 1)}
