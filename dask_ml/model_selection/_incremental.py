@@ -233,16 +233,10 @@ async def _fit(
     _scores: Dict[int, Meta] = {}
     _specs: Dict[int, Tuple[Model, Meta]] = {}
 
-    def d_partial_fit(*args, **kwargs):
-        return client.submit(_partial_fit, *args, **kwargs)
-
-    def d_score(*args, **kwargs):
-        return client.submit(_score, *args, **kwargs)
-
     for ident, model in models.items():
-        model = d_partial_fit(model, X_future, y_future, fit_params)
-        score = d_score(model, X_test, y_test, scorer)
-        spec = d_partial_fit(model, X_future_2, y_future_2, fit_params)
+        model = client.submit(_partial_fit, model, X_future, y_future, fit_params)
+        score = client.submit(_score, model, X_test, y_test, scorer)
+        spec = client.submit(_partial_fit, model, X_future_2, y_future_2, fit_params)
         _models[ident] = model
         _scores[ident] = score
         _specs[ident] = spec
@@ -337,12 +331,12 @@ async def _fit(
                 model = speculative.pop(ident)
                 for i in range(k):
                     X_future, y_future = get_futures(start + i)
-                    model = d_partial_fit(
+                    model = client.submit(_partial_fit,
                         model, X_future, y_future, fit_params, priority=priority
                     )
-                score = d_score(model, X_test, y_test, scorer, priority=priority)
+                score = client.submit(_score, model, X_test, y_test, scorer, priority=priority)
                 X_future, y_future = get_futures(start + k)
-                spec = d_partial_fit(
+                spec = client.submit(_partial_fit,
                     model, X_future, y_future, fit_params, priority=priority
                 )
                 _models[ident] = model
