@@ -133,7 +133,7 @@
             
             
               <div class="version">
-                1.6.1.dev1+g5c3179e
+                1.6.1.dev2+g7f6dcb5
               </div>
             
           
@@ -312,7 +312,7 @@
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.evals_result" title="dask_ml.xgboost.XGBRegressor.evals_result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evals_result</span></code></a>()</td>
 <td>Return the evaluation results.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.fit" title="dask_ml.xgboost.XGBRegressor.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X[,&nbsp;y,&nbsp;eval_set,&nbsp;…])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.fit" title="dask_ml.xgboost.XGBRegressor.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X[,&nbsp;y,&nbsp;eval_set,&nbsp;sample_weight,&nbsp;…])</td>
 <td>Fit the gradient boosting model</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.xgboost.XGBRegressor.get_booster" title="dask_ml.xgboost.XGBRegressor.get_booster"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_booster</span></code></a>()</td>
@@ -455,7 +455,7 @@ as linear learners (<cite>booster=gblinear</cite>).</p>
 
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBRegressor.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em>, <em>eval_set=None</em>, <em>sample_weight_eval_set=None</em>, <em>eval_metric=None</em>, <em>early_stopping_rounds=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.fit" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em>, <em>eval_set=None</em>, <em>sample_weight=None</em>, <em>sample_weight_eval_set=None</em>, <em>eval_metric=None</em>, <em>early_stopping_rounds=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the gradient boosting model</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -487,6 +487,8 @@ eval_set : list, optional</p>
 metrics will be computed.
 Validation metrics will help us track the performance of the model.</div></blockquote>
 <dl class="docutils">
+<dt>sample_weight <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
+<dd>instance weights</dd>
 <dt>sample_weight_eval_set <span class="classifier-delimiter">:</span> <span class="classifier">list, optional</span></dt>
 <dd>A list of the form [L_1, L_2, …, L_n], where each L_i is a list
 of instance weights on the i-th validation set.</dd>

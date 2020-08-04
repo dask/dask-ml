@@ -133,7 +133,7 @@
             
             
               <div class="version">
-                1.6.1.dev1+g5c3179e
+                1.6.1.dev2+g7f6dcb5
               </div>
             
           
@@ -279,7 +279,7 @@
 <h1>dask_ml.xgboost.train<a class="headerlink" href="#dask-ml-xgboost-train" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="dask_ml.xgboost.train">
-<code class="descclassname">dask_ml.xgboost.</code><code class="descname">train</code><span class="sig-paren">(</span><em>client</em>, <em>params</em>, <em>data</em>, <em>labels</em>, <em>dmatrix_kwargs={}</em>, <em>evals_result=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.train" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">dask_ml.xgboost.</code><code class="descname">train</code><span class="sig-paren">(</span><em>client</em>, <em>params</em>, <em>data</em>, <em>labels</em>, <em>dmatrix_kwargs={}</em>, <em>evals_result=None</em>, <em>sample_weight=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.train" title="Permalink to this definition">¶</a></dt>
 <dd><p>Train an XGBoost model on a Dask Cluster</p>
 <p>This starts XGBoost on all Dask workers, moves input data to those workers,
 and then calls <code class="docutils literal notranslate"><span class="pre">xgboost.train</span></code> on the inputs.</p>
@@ -302,6 +302,9 @@ and then calls <code class="docutils literal notranslate"><span class="pre">xgbo
 <dt><strong>evals_result: dict, optional</strong></dt>
 <dd><p class="first last">Stores the evaluation result history of all the items in the eval_set
 by mutating evals_result in place.</p>
+</dd>
+<dt><strong>sample_weight</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like, optional</span></dt>
+<dd><p class="first last">instance weights</p>
 </dd>
 <dt><strong>**kwargs: Keywords to give to XGBoost train</strong></dt>
 <dd></dd>
