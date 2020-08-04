@@ -3,6 +3,7 @@ import concurrent.futures
 import itertools
 import logging
 import math
+import os
 import platform
 import random
 import sys
@@ -46,6 +47,8 @@ pytestmark = [
     pytest.mark.filterwarnings("ignore:decay_rate"),
 ]  # decay_rate warnings are tested in test_incremental_warns.py
 
+ON_TRAVIS = int(os.environ.get("ON_TRAVIS", "0"))
+
 
 @pytest.mark.skipif(
     platform.system() == "Windows",
@@ -76,16 +79,22 @@ async def test_basic(c, s, a, b):
     n_parameters = 5
     param_list = list(ParameterSampler(params, n_parameters))
 
-    info, models, history, best = await fit(
-        model,
-        param_list,
-        X_train,
-        y_train,
-        X_test,
-        y_test,
-        _additional_calls,
-        fit_params={"classes": [0, 1]},
-    )
+    try:
+        info, models, history, best = await fit(
+            model,
+            param_list,
+            X_train,
+            y_train,
+            X_test,
+            y_test,
+            _additional_calls,
+            fit_params={"classes": [0, 1]},
+        )
+    except (asyncio.TimeoutError, concurrent.futures.TimeoutError) as e:
+        if not ON_TRAVIS:
+            raise e
+        else:
+            pytest.xfail(reason="Tests on Travis CI can hang randomly")
 
     # Ensure that we touched all data
     keys = {t[0] for t in s.transition_log}
