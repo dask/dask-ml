@@ -46,6 +46,9 @@ pytestmark = [
 ]  # decay_rate warnings are tested in test_incremental_warns.py
 
 
+@pytest.mark.skipif(
+    "win" in sys.platform, reason="Unexpected hang on Travis CI windows machines",
+)
 @gen_cluster(client=True, timeout=1000)
 async def test_basic(c, s, a, b):
     def _additional_calls(info):
