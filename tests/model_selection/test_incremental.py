@@ -50,10 +50,6 @@ pytestmark = [
 ON_TRAVIS = int(os.environ.get("ON_TRAVIS", "0"))
 
 
-@pytest.mark.skipif(
-    platform.system() == "Windows",
-    reason="Unexpected hang on Travis CI windows machines",
-)
 @gen_cluster(client=True, timeout=1000)
 async def test_basic(c, s, a, b):
     def _additional_calls(info):
