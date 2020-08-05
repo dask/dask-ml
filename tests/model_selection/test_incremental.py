@@ -118,13 +118,15 @@ async def test_basic(c, s, a, b):
     for key in keys:
         del models[key]
 
-    _start = time()
-    while c.futures or s.tasks:  # Make sure cleans up cleanly after running
+    # Make sure cleans up quickly after running
+    deadline = time() + 5
+    while c.futures:
         await asyncio.sleep(0.1)
-        if time() - _start >= 5:
-            assert c.futures == {}
-            assert all(task.state == "released" for task in s.tasks.values())
-            break
+        if time() > deadline:
+            assert ValueError("Failed to cleanup in timely manner")
+
+    assert c.futures == {}
+    assert all(task.state == "released" for task in s.tasks.values())
 
     # smoke test for ndarray X_test and y_test
     X_test = await c.compute(X_test)
