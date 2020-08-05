@@ -186,8 +186,8 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
             )
             vocabulary_for_transform = vocabulary_for_transform.persist()
             vocabulary_ = vocabulary.compute()
+            n_features = len(vocabulary_)
 
-        n_features = len(vocabulary_)
         result = raw_documents.map_partitions(
             _count_vectorizer_transform, vocabulary_for_transform, params
         )
@@ -206,20 +206,20 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
 
         if vocabulary is None:
             check_is_fitted(self, "vocabulary_")
-            vocabulary_for_transform = self.vocabulary_
-        else:
-            if isinstance(vocabulary, dict):
-                # scatter for the user
-                try:
-                    client = get_client()
-                except ValueError:
-                    vocabulary_for_transform = dask.delayed(vocabulary)
-                else:
-                    (vocabulary_for_transform,) = client.scatter(
-                        (vocabulary,), broadcast=True
-                    )
+            vocabulary = self.vocabulary_
+
+        if isinstance(vocabulary, dict):
+            # scatter for the user
+            try:
+                client = get_client()
+            except ValueError:
+                vocabulary_for_transform = dask.delayed(vocabulary)
             else:
-                vocabulary_for_transform = vocabulary
+                (vocabulary_for_transform,) = client.scatter(
+                    (vocabulary,), broadcast=True
+                )
+        else:
+            vocabulary_for_transform = vocabulary
 
         n_features = vocabulary_length(vocabulary_for_transform)
         transformed = raw_documents.map_partitions(
