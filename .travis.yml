@@ -25,7 +25,6 @@ install:
   - conda env create -q --file=ci/environment-docs.yaml --name=dask-ml
   - source activate dask-ml
   - pip install pip --upgrade
-  - export ON_TRAVIS=1
   - python -m pip install -e .
   - conda list
 
