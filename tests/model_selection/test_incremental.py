@@ -3,8 +3,6 @@ import concurrent.futures
 import itertools
 import logging
 import math
-import os
-import platform
 import random
 import sys
 from collections import defaultdict
@@ -47,10 +45,8 @@ pytestmark = [
     pytest.mark.filterwarnings("ignore:decay_rate"),
 ]  # decay_rate warnings are tested in test_incremental_warns.py
 
-ON_TRAVIS = int(os.environ.get("ON_TRAVIS", "0"))
 
-
-@gen_cluster(client=True, timeout=1000)
+@gen_cluster(client=True, timeout=10)
 async def test_basic(c, s, a, b):
     def _additional_calls(info):
         pf_calls = {k: v[-1]["partial_fit_calls"] for k, v in info.items()}
@@ -75,22 +71,16 @@ async def test_basic(c, s, a, b):
     n_parameters = 5
     param_list = list(ParameterSampler(params, n_parameters))
 
-    try:
-        info, models, history, best = await fit(
-            model,
-            param_list,
-            X_train,
-            y_train,
-            X_test,
-            y_test,
-            _additional_calls,
-            fit_params={"classes": [0, 1]},
-        )
-    except (asyncio.TimeoutError, concurrent.futures.TimeoutError) as e:
-        if not ON_TRAVIS:
-            raise e
-        else:
-            pytest.xfail(reason="Tests on Travis CI can hang randomly")
+    info, models, history, best = await fit(
+        model,
+        param_list,
+        X_train,
+        y_train,
+        X_test,
+        y_test,
+        _additional_calls,
+        fit_params={"classes": [0, 1]},
+    )
 
     # Ensure that we touched all data
     keys = {t[0] for t in s.transition_log}
@@ -127,8 +117,15 @@ async def test_basic(c, s, a, b):
     for key in keys:
         del models[key]
 
+    from time import time
+    _start = time()
+    await asyncio.sleep(1)
     while c.futures or s.tasks:  # Make sure cleans up cleanly after running
         await asyncio.sleep(0.1)
+        if time() - _start >= 5:
+            assert c.futures == {}
+            assert all(task.state == "released" for task in s.tasks.values())
+            break
 
     # smoke test for ndarray X_test and y_test
     X_test = await c.compute(X_test)
