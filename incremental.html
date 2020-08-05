@@ -133,7 +133,7 @@
             
             
               <div class="version">
-                1.6.1.dev2+g7f6dcb5
+                1.6.1.dev3+gf97ba24
               </div>
             
           
@@ -345,18 +345,18 @@ can also explicitly pass <code class="docutils literal notranslate"><span class=
 </div>
 <p>We can get the accuracy score on our dataset.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gh">Out[9]: </span><span class="go">0.66</span>
+<span class="gh">Out[9]: </span><span class="go">0.6</span>
 </pre></div>
 </div>
 <p>All of the attributes learned durning training, like <code class="docutils literal notranslate"><span class="pre">coef_</span></code>, are available
 on the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> instance.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[ 29.54875778,   6.55112924,  23.34026214, -15.63324696,</span>
-<span class="go">        -59.07897241, -13.56695881,  20.89919311,  -9.56978702,</span>
-<span class="go">        -36.09392042,  38.65321275,  32.83187231,   2.68208377,</span>
-<span class="go">        -29.80084152, -30.56119963,  -0.13275848, -12.61379425,</span>
-<span class="go">         -6.93052367,  -4.20864065,  13.23169251, -36.56330142]])</span>
+<span class="go">array([[-31.48281145,  10.3064321 , -10.94519274,  -3.99880576,</span>
+<span class="go">         -5.12864567,   3.28328466,  35.26777155,  -7.51010481,</span>
+<span class="go">        -14.73559873,  24.33197743, -26.90001535,  11.39759386,</span>
+<span class="go">        -37.86710698, -24.22379625,   1.14402187, -55.75905714,</span>
+<span class="go">         -5.60483938, -28.64038574, -22.03677904,  23.24975352]])</span>
 </pre></div>
 </div>
 <p>If necessary, the actual estimator trained is available as <code class="docutils literal notranslate"><span class="pre">Incremental.estimator_</span></code></p>
