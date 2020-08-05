@@ -6,6 +6,7 @@ import math
 import random
 import sys
 from collections import defaultdict
+from time import time
 
 import dask.array as da
 import dask.dataframe as dd
@@ -117,9 +118,7 @@ async def test_basic(c, s, a, b):
     for key in keys:
         del models[key]
 
-    from time import time
     _start = time()
-    await asyncio.sleep(1)
     while c.futures or s.tasks:  # Make sure cleans up cleanly after running
         await asyncio.sleep(0.1)
         if time() - _start >= 5:
