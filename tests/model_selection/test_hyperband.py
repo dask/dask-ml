@@ -39,7 +39,7 @@ pytestmark = pytest.mark.skipif(not DISTRIBUTED_2_5_0, reason="hangs")
     ],
 )
 def test_basic(array_type, library, max_iter):
-    @gen_cluster(client=True, timeout=5000)
+    @gen_cluster(client=True)
     def _test_basic(c, s, a, b):
         rng = da.random.RandomState(42)
 
@@ -123,7 +123,7 @@ def test_basic(array_type, library, max_iter):
 
 @pytest.mark.parametrize("max_iter,aggressiveness", [(27, 3), (30, 4)])
 def test_hyperband_mirrors_paper_and_metadata(max_iter, aggressiveness):
-    @gen_cluster(client=True, timeout=5000)
+    @gen_cluster(client=True)
     def _test_mirrors_paper(c, s, a, b):
         X, y = make_classification(n_samples=10, n_features=4, chunks=10)
         model = ConstantFunction()
@@ -159,7 +159,7 @@ def test_hyperband_mirrors_paper_and_metadata(max_iter, aggressiveness):
     _test_mirrors_paper()
 
 
-@gen_cluster(client=True, timeout=5000)
+@gen_cluster(client=True)
 def test_hyperband_patience(c, s, a, b):
     # Test to make sure that specifying patience=True results in less
     # computation
@@ -212,7 +212,7 @@ def test_hyperband_patience(c, s, a, b):
             yield alg.fit(X, y)
 
 
-@gen_cluster(client=True, timeout=5000)
+@gen_cluster(client=True)
 def test_cv_results_order_preserved(c, s, a, b):
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
     model = ConstantFunction()
@@ -228,7 +228,7 @@ def test_cv_results_order_preserved(c, s, a, b):
         assert np.allclose(row["test_score"], model_info["score"])
 
 
-@gen_cluster(client=True, timeout=5000)
+@gen_cluster(client=True)
 def test_successive_halving_params(c, s, a, b):
     # Makes sure when SHAs are fit with values from the "SuccessiveHalvingSearchCV
     # params" key, the number of models/calls stay the same as Hyperband.
@@ -252,7 +252,7 @@ def test_successive_halving_params(c, s, a, b):
         assert true_meta["partial_fit_calls"] == sum(pf_calls)
 
 
-@gen_cluster(client=True, timeout=5000)
+@gen_cluster(client=True)
 def test_correct_params(c, s, a, b):
     # Makes sure that Hyperband has the correct parameters.
 
@@ -335,7 +335,7 @@ def test_params_passed():
 
 # decay_rate warnings are tested in test_incremental_warns.py
 @pytest.mark.filterwarnings("ignore:decay_rate")
-@gen_cluster(client=True, timeout=5000)
+@gen_cluster(client=True)
 def test_same_random_state_same_params(c, s, a, b):
     # This makes sure parameters are sampled correctly when random state is
     # specified.
@@ -400,7 +400,7 @@ def test_random_state_no_seed_different_params():
     assert h1._SHA_seed == h2._SHA_seed
 
 
-@gen_cluster(client=True, timeout=5000)
+@gen_cluster(client=True)
 def test_min_max_iter(c, s, a, b):
     # This test makes sure Hyperband works with max_iter=1.
     # Tests for max_iter < 1 are in test_incremental.py.
@@ -413,7 +413,7 @@ def test_min_max_iter(c, s, a, b):
     assert h.best_score_ > 0
 
 
-@gen_cluster(client=True, timeout=5000)
+@gen_cluster(client=True)
 def test_history(c, s, a, b):
     # This test is required to make sure Hyperband wraps SHA successfully
     # Mostly, it's a test to make sure ordered by time
@@ -440,7 +440,7 @@ def test_history(c, s, a, b):
         assert (np.diff(calls) >= 1).all() or len(calls) == 1
 
 
-@gen_cluster(client=True, timeout=5000)
+@gen_cluster(client=True)
 def test_logs_dont_repeat(c, s, a, b):
     # This test is necessary to make sure the dask_ml.model_selection logger
     # isn't piped to stdout repeatedly.
