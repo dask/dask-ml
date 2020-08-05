@@ -16,6 +16,7 @@ DASK_VERSION = packaging.version.parse(dask.__version__)
 PANDAS_VERSION = packaging.version.parse(pandas.__version__)
 DISTRIBUTED_VERSION = packaging.version.parse(distributed.__version__)
 
+SK_0_23_2 = SK_VERSION >= packaging.version.parse("0.23.2")
 SK_024 = SK_VERSION >= packaging.version.parse("0.24.0.dev0")
 DASK_240 = DASK_VERSION >= packaging.version.parse("2.4.0")
 DASK_2130 = DASK_VERSION >= packaging.version.parse("2.13.0")
