@@ -186,8 +186,8 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
             )
             vocabulary_for_transform = vocabulary_for_transform.persist()
             vocabulary_ = vocabulary.compute()
+            n_features = len(vocabulary_)
 
-        n_features = len(vocabulary_)
         result = raw_documents.map_partitions(
             _count_vectorizer_transform, vocabulary_for_transform, params
         )
