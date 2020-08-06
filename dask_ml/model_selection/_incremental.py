@@ -7,7 +7,7 @@ import sys
 from collections import defaultdict, namedtuple
 from copy import deepcopy
 from time import time
-from typing import Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 from warnings import warn
 
 import dask
@@ -18,25 +18,38 @@ import scipy.stats
 import toolz
 from dask.distributed import Future, default_client, futures_of, wait
 from distributed.utils import log_errors
-from sklearn.base import clone
+from sklearn.base import BaseEstimator, clone
+from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import check_scoring
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
 from sklearn.utils.metaestimators import if_delegate_has_method
 
 from .._compat import check_is_fitted, dummy_context
+from .._typing import ArrayLike, Int
 from .._utils import LoggingContext
-from ..utils import check_array
 from ..wrappers import ParallelPostFit
 from ._split import train_test_split
 
-Results = namedtuple("Results", ["info", "models", "history", "best"])
 logger = logging.getLogger("dask_ml.model_selection")
 
 no_default = object()
 
+Results = namedtuple("Results", ["info", "models", "history", "best"])
+Params = Dict[str, Any]
+Meta = Dict[str, Any]  # really Dict[str, Union[int, float, str, Params]]
+Model = Union[BaseEstimator, SGDClassifier]
+History = List[Meta]
+Info = Dict[Int, History]
+Instructions = Dict[Int, Int]
 
-def _partial_fit(model_and_meta, X, y, fit_params):
+
+def _partial_fit(
+    model_and_meta: Tuple[Model, Meta],
+    X: ArrayLike,
+    y: ArrayLike,
+    fit_params: Dict[str, Any],
+) -> Tuple[Model, Meta]:
     """
     Call partial_fit on a classifiers with training data X and y
 
@@ -95,7 +108,12 @@ def _partial_fit(model_and_meta, X, y, fit_params):
         return model, meta
 
 
-def _score(model_and_meta, X, y, scorer):
+def _score(
+    model_and_meta: Tuple[Model, Meta],
+    X: ArrayLike,
+    y: ArrayLike,
+    scorer: Optional[Callable[[Model, ArrayLike, ArrayLike], float]],
+) -> Meta:
     start = time()
     model, meta = model_and_meta
     if scorer:
@@ -108,7 +126,7 @@ def _score(model_and_meta, X, y, scorer):
     return meta
 
 
-def _create_model(model, ident, **params):
+def _create_model(model: Model, ident: Int, **params: Params) -> Tuple[Model, Meta]:
     """ Create a model by cloning and then setting params """
     with log_errors():
         model = clone(model).set_params(**params)
@@ -116,19 +134,19 @@ def _create_model(model, ident, **params):
 
 
 async def _fit(
-    model,
-    params,
-    X_train,
-    y_train,
-    X_test,
-    y_test,
-    additional_calls,
-    fit_params=None,
-    scorer=None,
+    model: Model,
+    params: Union[List[Params], ParameterSampler, ParameterGrid],
+    X_train: ArrayLike,
+    y_train: ArrayLike,
+    X_test: ArrayLike,
+    y_test: ArrayLike,
+    additional_calls: Callable[[Info], Instructions],
+    fit_params: Dict[str, Any] = None,
+    scorer: Callable[[Model, ArrayLike, ArrayLike], float] = None,
     random_state=None,
-    verbose: Union[bool, int, float] = False,
-    prefix="",
-):
+    verbose: Union[bool, Int, float] = False,
+    prefix: str = "",
+) -> Results:
     if isinstance(verbose, bool):
         # Always log (other loggers might configured differently)
         verbose = 1.0
@@ -143,21 +161,34 @@ async def _fit(
     client = default_client()
     rng = check_random_state(random_state)
 
-    info = {}
-    models = {}
-    scores = {}
+    info: Dict[int, History] = {}
+    models: Dict[int, Tuple[Model, Meta]] = {}
+    scores: Dict[int, Meta] = {}
 
     logger.info("[CV%s] creating %d models", prefix, len(params))
     for ident, param in enumerate(params):
         model = client.submit(_create_model, original_model, ident, **param)
         info[ident] = []
         models[ident] = model
+    for ident in info:
+        m, m2 = await models[ident].result()
 
     # assume everything in fit_params is small and make it concrete
     fit_params = await client.compute(fit_params)
 
     # Convert testing data into a single element on the cluster
     # This assumes that it fits into memory on a single worker
+    if isinstance(X_train, (dd.DataFrame, dd.Series)):
+        X_train = X_train.to_dask_array()
+    if isinstance(X_test, (dd.DataFrame, dd.Series)):
+        X_test = X_test.to_dask_array()
+    if isinstance(y_train, dd.Series):
+        y_train = y_train.to_dask_array()
+    if isinstance(y_test, dd.Series):
+        y_test = y_test.to_dask_array()
+
+    X_train, y_train, X_test, y_test = dask.persist(X_train, y_train, X_test, y_test)
+
     if isinstance(X_test, da.Array):
         X_test = client.compute(X_test)
     else:
@@ -168,7 +199,6 @@ async def _fit(
         y_test = await client.scatter(y_test)
 
     # Convert to batches of delayed objects of numpy arrays
-    X_train, y_train = dask.persist(X_train, y_train)
     X_train = sorted(futures_of(X_train), key=lambda f: f.key)
     y_train = sorted(futures_of(y_train), key=lambda f: f.key)
     assert len(X_train) == len(y_train)
@@ -199,9 +229,9 @@ async def _fit(
     # Submit initial partial_fit and score computations on first batch of data
     X_future, y_future = get_futures(0)
     X_future_2, y_future_2 = get_futures(1)
-    _models = {}
-    _scores = {}
-    _specs = {}
+    _models: Dict[int, Tuple[Model, Meta]] = {}
+    _scores: Dict[int, Meta] = {}
+    _specs: Dict[int, Tuple[Model, Meta]] = {}
 
     d_partial_fit = dask.delayed(_partial_fit)
     d_score = dask.delayed(_score)
@@ -245,10 +275,10 @@ async def _fit(
             history.append(meta)
 
         instructions = additional_calls(info)
-        bad = set(models) - set(instructions)
+        fired = set(models) - set(instructions)
 
-        # Delete the futures of bad models.  This cancels speculative tasks
-        for ident in bad:
+        # Delete the futures of bad/fired models.  This cancels speculative tasks
+        for ident in fired:
             del models[ident]
             del scores[ident]
             del info[ident]
@@ -485,7 +515,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         self.prefix = prefix
         super(BaseIncrementalSearchCV, self).__init__(estimator, scoring=scoring)
 
-    def _validate_parameters(self, X, y):
+    async def _validate_parameters(self, X, y):
         if (self.max_iter is not None) and self.max_iter < 1:
             raise ValueError(
                 "Received max_iter={}. max_iter < 1 is not supported".format(
@@ -493,15 +523,17 @@ class BaseIncrementalSearchCV(ParallelPostFit):
                 )
             )
 
-        # Make sure dask arrays are passed so error on unknown chunk size is raised
-        if isinstance(X, dd.DataFrame):
-            X = X.to_dask_array()
-        if isinstance(y, (dd.DataFrame, dd.Series)):
-            y = y.to_dask_array()
-        kwargs = dict(accept_unknown_chunks=False, accept_dask_dataframe=False)
-        X = self._check_array(X, **kwargs)
-        y = self._check_array(y, ensure_2d=False, **kwargs)
-        scorer = check_scoring(self.estimator, scoring=self.scoring)
+        kwargs = dict(accept_unknown_chunks=True, accept_dask_dataframe=True)
+        if not isinstance(X, dd.DataFrame):
+            X = self._check_array(X, **kwargs)
+        if not isinstance(y, (dd.DataFrame, dd.Series)):
+            y = self._check_array(y, ensure_2d=False, **kwargs)
+        estimator = self.estimator
+        if isinstance(estimator, Future):
+            client = default_client()
+            scorer = await client.submit(check_scoring, estimator, scoring=self.scoring)
+        else:
+            scorer = check_scoring(self.estimator, scoring=self.scoring)
         return X, y, scorer
 
     @property
@@ -520,7 +552,6 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         """
         if isinstance(X, np.ndarray):
             X = da.from_array(X, X.shape)
-        X = check_array(X, **kwargs)
         return X
 
     def _get_train_test_split(self, X, y, **kwargs):
@@ -539,7 +570,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         else:
             test_size = self.test_size
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=test_size, random_state=self.random_state
+            X, y, test_size=test_size, random_state=self.random_state, shuffle=True
         )
         return X_train, X_test, y_train, y_test
 
@@ -553,16 +584,18 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         """
         return ParameterGrid(self.parameters)
 
-    def _get_cv_results(self, history, model_hist):
-        cv_results = {}
+    def _get_cv_results(
+        self, model_hist: Dict[int, List[Meta]]
+    ) -> Dict[str, List[Any]]:
+        _cv_results = {}
         best_scores = {}
         best_scores = {k: hist[-1]["score"] for k, hist in model_hist.items()}
 
-        cv_results = {}
+        _cv_results = {}
         for k, hist in model_hist.items():
             pf_times = list(toolz.pluck("partial_fit_time", hist))
             score_times = list(toolz.pluck("score_time", hist))
-            cv_results[k] = {
+            _cv_results[k] = {
                 "mean_partial_fit_time": np.mean(pf_times),
                 "mean_score_time": np.mean(score_times),
                 "std_partial_fit_time": np.std(pf_times),
@@ -572,8 +605,8 @@ class BaseIncrementalSearchCV(ParallelPostFit):
                 "params": hist[0]["params"],
                 "partial_fit_calls": hist[-1]["partial_fit_calls"],
             }
-        cv_results = list(cv_results.values())  # list of dicts
-        cv_results = {k: [res[k] for res in cv_results] for k in cv_results[0]}
+        _cv_results2: List[Dict[str, Any]] = list(_cv_results.values())
+        cv_results = {k: [res[k] for res in _cv_results2] for k in _cv_results2[0]}
 
         # Every model will have the same params because this class uses either
         # ParameterSampler or ParameterGrid
@@ -591,7 +624,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         ).astype(int)
         return cv_results
 
-    def _process_results(self, results):
+    def _process_results(self, results: Results):
         """Called with the output of `fit` immediately after it finishes.
 
         Subclasses may update the results here, before further results are
@@ -611,7 +644,8 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         else:
             context = dummy_context()
 
-        X, y, scorer = self._validate_parameters(X, y)
+        X, y, scorer = await self._validate_parameters(X, y)
+
         X_train, X_test, y_train, y_test = self._get_train_test_split(X, y)
 
         with context:
@@ -632,7 +666,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         results = self._process_results(results)
         model_history, models, history, bst = results
 
-        cv_results = self._get_cv_results(history, model_history)
+        cv_results = self._get_cv_results(model_history)
         best_idx = bst[0]
         best_estimator = await models[best_idx]
 
@@ -687,7 +721,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         self._check_is_fitted("inverse_transform")
         return self.best_estimator_.transform(Xt)
 
-    def score(self, X, y=None):
+    def score(self, X, y=None) -> float:
         if self.scorer_ is None:
             raise ValueError(
                 "No score function explicitly defined, "
@@ -992,7 +1026,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
                 random_state=self.random_state,
             )
 
-    def _additional_calls(self, info):
+    def _additional_calls(self, info: Dict[int, List[Meta]]) -> Instructions:
         if not isinstance(self.patience, int):
             msg = (
                 "patience must be an integer (or a subclass like boolean), "

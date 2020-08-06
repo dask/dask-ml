@@ -1,6 +1,15 @@
 Changelog
 =========
 
+Version 1.6.0
+~~~~~~~~~~~~~
+
+* Improved documentation for RandomizedSearchCV
+* Improved logging in :class:`dask_ml.cluster.KMeans`  (:pr:`688`)
+* Added support for ``dask.dataframe`` objects in :class:`dask_ml.model_selection.HyperbandSearchCV` (:pr:`701`)
+* Added ``squared=True`` option to :class:`dask_ml.metrics.mean_squared_error` (:pr:`707`)
+* Added :class:`dask_ml.feature_extraction.text.CountVectorizer` (:pr:`705`)
+
 Version 1.5.0
 ~~~~~~~~~~~~~
 

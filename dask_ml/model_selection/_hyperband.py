@@ -4,6 +4,7 @@ import asyncio
 import logging
 import math
 from copy import copy
+from typing import Any, Callable, Dict, Iterable, List, Tuple, Union
 from warnings import warn
 
 import numpy as np
@@ -14,6 +15,8 @@ from ._incremental import BaseIncrementalSearchCV
 from ._successive_halving import SuccessiveHalvingSearchCV
 
 logger = logging.getLogger(__name__)
+
+BracketInfo = Dict[str, Any]
 
 
 def _get_hyperband_params(R, eta=3):
@@ -443,7 +446,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         return out
 
     async def _fit(self, X, y, **fit_params):
-        X, y, scorer = self._validate_parameters(X, y)
+        X, y, scorer = await self._validate_parameters(X, y)
 
         brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
         SHAs = self._get_SHAs(brackets)
@@ -536,7 +539,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         return self
 
     @property
-    def metadata(self):
+    def metadata(self) -> Dict[str, Union[int, List[BracketInfo]]]:
         bracket_info = _hyperband_paper_alg(self.max_iter, eta=self.aggressiveness)
         num_models = sum(b["n_models"] for b in bracket_info)
         for bracket in bracket_info:
@@ -574,14 +577,20 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         return info
 
 
-def _get_meta(hists, brackets, SHAs, key):
+def _get_meta(
+    hists: Dict[int, List[Dict[str, Any]]],
+    brackets: Iterable[int],
+    SHAs: Dict[int, SuccessiveHalvingSearchCV],
+    key: Callable[[int, int], str],
+) -> Tuple[List[Dict[str, Any]], Dict[str, List[Dict[str, Any]]]]:
+
     meta_ = []
     history_ = {}
     for bracket in brackets:
-        hist = hists[bracket]
+        _hist = hists[bracket]
 
-        info_hist = {key(bracket, h["model_id"]): [] for h in hist}
-        for h in hist:
+        info_hist = {key(bracket, h["model_id"]): [] for h in _hist}
+        for h in _hist:
             info_hist[key(bracket, h["model_id"])] += [h]
         hist = info_hist
         history_.update(hist)

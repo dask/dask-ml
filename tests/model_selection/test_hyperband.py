@@ -2,11 +2,11 @@ import logging
 import math
 import warnings
 
-import dask.array as da
 import numpy as np
 import pandas as pd
 import pytest
 import scipy.stats
+from dask import array as da, dataframe as dd
 from distributed.utils_test import (  # noqa: F401
     captured_logger,
     cluster,
@@ -39,7 +39,7 @@ pytestmark = pytest.mark.skipif(not DISTRIBUTED_2_5_0, reason="hangs")
     ],
 )
 def test_basic(array_type, library, max_iter):
-    @gen_cluster(client=True, timeout=5000)
+    @gen_cluster(client=True)
     def _test_basic(c, s, a, b):
         rng = da.random.RandomState(42)
 
@@ -123,7 +123,7 @@ def test_basic(array_type, library, max_iter):
 
 @pytest.mark.parametrize("max_iter,aggressiveness", [(27, 3), (30, 4)])
 def test_hyperband_mirrors_paper_and_metadata(max_iter, aggressiveness):
-    @gen_cluster(client=True, timeout=5000)
+    @gen_cluster(client=True)
     def _test_mirrors_paper(c, s, a, b):
         X, y = make_classification(n_samples=10, n_features=4, chunks=10)
         model = ConstantFunction()
@@ -159,7 +159,7 @@ def test_hyperband_mirrors_paper_and_metadata(max_iter, aggressiveness):
     _test_mirrors_paper()
 
 
-@gen_cluster(client=True, timeout=5000)
+@gen_cluster(client=True)
 def test_hyperband_patience(c, s, a, b):
     # Test to make sure that specifying patience=True results in less
     # computation
@@ -212,7 +212,7 @@ def test_hyperband_patience(c, s, a, b):
             yield alg.fit(X, y)
 
 
-@gen_cluster(client=True, timeout=5000)
+@gen_cluster(client=True)
 def test_cv_results_order_preserved(c, s, a, b):
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
     model = ConstantFunction()
@@ -228,7 +228,7 @@ def test_cv_results_order_preserved(c, s, a, b):
         assert np.allclose(row["test_score"], model_info["score"])
 
 
-@gen_cluster(client=True, timeout=5000)
+@gen_cluster(client=True)
 def test_successive_halving_params(c, s, a, b):
     # Makes sure when SHAs are fit with values from the "SuccessiveHalvingSearchCV
     # params" key, the number of models/calls stay the same as Hyperband.
@@ -252,7 +252,7 @@ def test_successive_halving_params(c, s, a, b):
         assert true_meta["partial_fit_calls"] == sum(pf_calls)
 
 
-@gen_cluster(client=True, timeout=5000)
+@gen_cluster(client=True)
 def test_correct_params(c, s, a, b):
     # Makes sure that Hyperband has the correct parameters.
 
@@ -348,7 +348,7 @@ def test_params_passed():
 
 # decay_rate warnings are tested in test_incremental_warns.py
 @pytest.mark.filterwarnings("ignore:decay_rate")
-@gen_cluster(client=True, timeout=5000)
+@gen_cluster(client=True)
 def test_same_random_state_same_params(c, s, a, b):
     # This makes sure parameters are sampled correctly when random state is
     # specified.
@@ -413,7 +413,7 @@ def test_random_state_no_seed_different_params():
     assert h1._SHA_seed == h2._SHA_seed
 
 
-@gen_cluster(client=True, timeout=5000)
+@gen_cluster(client=True)
 def test_min_max_iter(c, s, a, b):
     # This test makes sure Hyperband works with max_iter=1.
     # Tests for max_iter < 1 are in test_incremental.py.
@@ -426,7 +426,7 @@ def test_min_max_iter(c, s, a, b):
     assert h.best_score_ > 0
 
 
-@gen_cluster(client=True, timeout=5000)
+@gen_cluster(client=True)
 def test_history(c, s, a, b):
     # This test is required to make sure Hyperband wraps SHA successfully
     # Mostly, it's a test to make sure ordered by time
@@ -523,7 +523,7 @@ def test_explore_eq_0_valid(c, s, a, b):
     assert all("bracket=" in m for m in model_ids)
 
 
-@gen_cluster(client=True, timeout=5000)
+@gen_cluster(client=True)
 def test_logs_dont_repeat(c, s, a, b):
     # This test is necessary to make sure the dask_ml.model_selection logger
     # isn't piped to stdout repeatedly.
@@ -548,3 +548,16 @@ def test_logs_dont_repeat(c, s, a, b):
     # Make sure only one model creation message is printed per bracket
     # (all brackets have unique n_models as asserted above)
     assert len(n_models) == len(set(n_models))
+
+
+@gen_cluster(client=True)
+async def test_dataframe_inputs(c, s, a, b):
+    X = pd.DataFrame({"x": [1, 2, 3], "y": [4, 5, 6]})
+    X = dd.from_pandas(X, npartitions=2)
+    y = pd.Series([False, True, True])
+    y = dd.from_pandas(y, npartitions=2)
+
+    model = ConstantFunction()
+    params = {"value": scipy.stats.uniform(0, 1)}
+    alg = HyperbandSearchCV(model, params, max_iter=9, random_state=42)
+    await alg.fit(X, y)

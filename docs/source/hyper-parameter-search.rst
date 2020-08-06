@@ -403,7 +403,7 @@ generalized to any of the above estimators.
 
 .. note::
 
-   These estimators require that the model implement ``partial_fit``
+   These estimators require that the model implement ``partial_fit``.
 
 By default, these class will call ``partial_fit`` on each chunk of the data.
 These classes can stop training any models if their score stops increasing

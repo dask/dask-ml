@@ -180,8 +180,8 @@ def test_replace_scoring(estimator, fit_kwargs, scoring, xy_classification, mock
     inc.fit(X, y, **fit_kwargs)
 
     patch = mocker.patch.object(dask_ml.wrappers, "get_scorer")
-    with patch:
-        inc.score(X, y)
+
+    inc.score(X, y)
 
     assert patch.call_count == 1
     patch.assert_called_with(scoring, compute=True)

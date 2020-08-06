@@ -9,7 +9,7 @@ dependencies:
   - dask-glm >=0.2.0
   - distributed ==2.4.0
   - flake8
-  - isort
+  - isort==4.3.21
   - msgpack-python ==0.6.2
   - multipledispatch
   - mypy
