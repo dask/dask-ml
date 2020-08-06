@@ -118,7 +118,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         parameter is specified. ``explore`` is typically specified when
         not much is known about the hyperparameters and/or model.
 
-        If ``explore`` is a bool, run a search aimed at finding the same
+        If ``explore`` is a True, run a search aimed at finding the same
         validation accuracy as Hyperband with ``explore=False`` but with
         less computation.
         If ``explore`` is an integer, repeat the most exploratory bracket
@@ -461,7 +461,9 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         )
         SHAs = {b: SHA for b, SHA in zip(_brackets_ids, _SHAs)}
 
-        def _rename_model_ids(SHA, b, key=lambda x: x):
+        # rename the model IDs for each model in history
+        key = "bracket={}-{}".format
+        for b, SHA in SHAs.items():
             new_ids = {old: key(b, old) for old in SHA.cv_results_["model_id"]}
 
             SHA.cv_results_["model_id"] = np.array(
@@ -474,11 +476,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
                 for h in hist:
                     h["model_id"] = new_ids[h["model_id"]]
                     h["bracket"] = b
-            return SHA
 
-        key = "bracket={}-{}".format
-        SHAs = {b: _rename_model_ids(SHA, b, key=key) for b, SHA in SHAs.items()}
-
+        # Then add bracket information to each SHA
         for b, SHA in SHAs.items():
             n = len(SHA.cv_results_["model_id"])
             arr = np.ones(n, dtype=type(b)) * b
