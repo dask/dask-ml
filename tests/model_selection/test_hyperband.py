@@ -511,7 +511,7 @@ def test_hyperband_bracket_ordered_correctly(max_iter):
         assert meta[0]["n_models"] < meta[-1]["n_models"]
 
 
-@gen_cluster(client=True, timeout=5000)
+@gen_cluster(client=True)
 def test_explore_eq_0_valid(c, s, a, b):
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
     model = ConstantFunction()
