@@ -455,7 +455,7 @@ def test_history(c, s, a, b):
 
 @pytest.mark.parametrize("explore", [2, 1, -1, -2])
 def test_explore(explore):
-    @gen_cluster(client=True, timeout=5000)
+    @gen_cluster(client=True)
     def _test_explore(c, s, a, b):
         X, y = make_classification(n_samples=10, n_features=4, chunks=10)
         model = ConstantFunction()
