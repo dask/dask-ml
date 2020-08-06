@@ -431,7 +431,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
             elif isinstance(self.explore, int) and self.explore < 0:
                 n_repeats = len(SHAs) + self.explore + 1
             else:
-                raise ValueError("explore={self.explore} is not an integer")
+                raise ValueError(f"explore={self.explore} is not an integer")
 
             # b is the key/index of the most aggressive bracket
             b = len(brackets) - 1
