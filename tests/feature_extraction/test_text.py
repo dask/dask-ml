@@ -177,3 +177,9 @@ def test_count_vectorizer_remote_vocabulary():
         assert isinstance(r2, da.Array)
         assert isinstance(r2._meta, scipy.sparse.csr_matrix)
         np.testing.assert_array_equal(r1.toarray(), r2.compute().toarray())
+
+        m = dask_ml.feature_extraction.text.CountVectorizer(
+            vocabulary=remote_vocabulary
+        )
+        m.fit_transform(b)
+        assert m.vocabulary_ is remote_vocabulary
