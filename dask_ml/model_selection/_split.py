@@ -148,7 +148,7 @@ class ShuffleSplit(BaseCrossValidator):
         self.blockwise = _check_blockwise(blockwise)
 
     def split(self, X, y=None, groups=None):
-        X = check_array(X)
+        X = check_array(X, ensure_2d=False, allow_nd=True)
         rng = check_random_state(self.random_state)
         for i in range(self.n_splits):
             seeds = draw_seed(rng, 0, _I4MAX, size=len(X.chunks[0]), dtype="uint")
