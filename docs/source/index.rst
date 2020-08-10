@@ -133,6 +133,7 @@ Scikit-Learn should feel at home with Dask-ML.
    joblib.rst
    xgboost.rst
    pytorch.rst
+   keras.rst
 
 .. toctree::
    :maxdepth: 2
