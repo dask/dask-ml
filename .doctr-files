@@ -17,6 +17,7 @@
 ./_sources/index.rst.txt
 ./_sources/install.rst.txt
 ./_sources/joblib.rst.txt
+./_sources/keras.rst.txt
 ./_sources/meta-estimators.rst.txt
 ./_sources/modules/api.rst.txt
 ./_sources/modules/generated/dask_ml.cluster.KMeans.rst.txt
@@ -139,6 +140,7 @@
 ./index.html
 ./install.html
 ./joblib.html
+./keras.html
 ./meta-estimators.html
 ./modules/api.html
 ./modules/generated/dask_ml.cluster.KMeans.html
