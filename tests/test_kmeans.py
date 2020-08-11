@@ -24,7 +24,7 @@ from dask_ml.utils import assert_estimator_equal, row_norms
 def test_check_estimator():
     with warnings.catch_warnings(record=True):
         warnings.simplefilter("ignore", RuntimeWarning)
-        check_estimator(DKKMeans)
+        check_estimator(DKKMeans())
 
 
 def test_row_norms(X_blobs):
@@ -98,7 +98,7 @@ class TestKMeans:
         skkm = SKKMeans(3, init=init, random_state=0, n_init=1)
         dkkm.fit(X)
         skkm.fit(X_)
-        assert_eq(dkkm.inertia_, skkm.inertia_)
+        assert abs(skkm.inertia_ - dkkm.inertia_) < 0.001
 
     def test_kmeanspp_init(self, Xl_blobs_easy):
         X, y = Xl_blobs_easy
@@ -173,7 +173,6 @@ class TestKMeans:
             a.fit(xx)
             b.fit(xx)
             assert a.cluster_centers_.dtype == b.cluster_centers_.dtype
-            assert a.inertia_.dtype == b.inertia_.dtype
             assert a.labels_.dtype == b.labels_.dtype
             assert a.transform(xx).dtype == b.transform(xx).dtype
             assert a.transform(yy).dtype == b.transform(yy).dtype

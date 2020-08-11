@@ -1,17 +1,20 @@
 from __future__ import division
 
+import asyncio
 import logging
 import math
+from typing import Any, Callable, Dict, Iterable, List, Tuple, Union
 from warnings import warn
 
 import numpy as np
 from sklearn.utils import check_random_state
-from tornado import gen
 
 from ._incremental import BaseIncrementalSearchCV
 from ._successive_halving import SuccessiveHalvingSearchCV
 
 logger = logging.getLogger(__name__)
+
+BracketInfo = Dict[str, Any]
 
 
 def _get_hyperband_params(R, eta=3):
@@ -70,7 +73,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
     to train the best performing estimator via ``max_iter``.
     The other implicit input (the Dask array chuck size) requires
     a rough estimate of how many parameters to sample. Specification details
-    are in :ref:`Notes`.
+    are in :ref:`Notes <hyperband-notes>`.
 
     .. [*] After :math:`N` ``partial_fit`` calls the estimator Hyperband
        produces will be close to the best possible estimator that :math:`N`
@@ -95,7 +98,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
     max_iter : int
         The maximum number of partial_fit calls to any one model. This should
         be the number of ``partial_fit`` calls required for the model to
-        converge. See :ref:`Notes` for details on setting this parameter.
+        converge. See :ref:`Notes <hyperband-notes>` for details on
+        setting this parameter.
 
     aggressiveness : int, default=3
         How aggressive to be in culling off the different estimators. Higher
@@ -138,6 +142,17 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         (see :ref:`scoring`) to evaluate the predictions on the test set.
 
         If None, the estimator's default scorer (if available) is used.
+
+    verbose : bool, float, int, optional, default: False
+        If False (default), don't print logs (or pipe them to stdout). However,
+        standard logging will still be used.
+
+        If True, print logs and use standard logging.
+
+        If float, print/log approximately ``verbose`` fraction of the time.
+
+    prefix : str, optional, default=""
+        While logging, add ``prefix`` to each message.
 
     Examples
     --------
@@ -257,6 +272,9 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
 
     Notes
     -----
+
+    .. _hyperband-notes:
+
     To set ``max_iter`` and the chunk size for ``X`` and ``y``, it is required
     to estimate
 
@@ -294,7 +312,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
             booktitle = {{P}roceedings of the 18th {P}ython in {S}cience {C}onference},
             pages     = {118 - 125},
             year      = {2019},
-            editor    = {Chris Calloway and David Lippa and Dillon Niederhut and David Shupe},
+            editor    = {Chris Calloway and David Lippa and Dillon Niederhut and David Shupe},  # noqa
             doi       = {10.25080/Majora-7ddc1dd1-011}
           }
 
@@ -320,6 +338,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         test_size=None,
         random_state=None,
         scoring=None,
+        verbose=False,
+        prefix="",
     ):
         self.aggressiveness = aggressiveness
 
@@ -332,6 +352,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
             test_size=test_size,
             random_state=random_state,
             scoring=scoring,
+            verbose=verbose,
+            prefix=prefix,
         )
 
     def _get_SHAs(self, brackets):
@@ -345,8 +367,9 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         self._SHA_seed = seed_start
 
         # These brackets are ordered by adaptivity; bracket=0 is least adaptive
-        SHAs = {
-            b: SuccessiveHalvingSearchCV(
+        SHAs = {}
+        for b, (n, r) in brackets.items():
+            sha = SuccessiveHalvingSearchCV(
                 self.estimator,
                 self.parameters,
                 n_initial_parameters=n,
@@ -358,13 +381,13 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
                 test_size=self.test_size,
                 random_state=seed_start + b if b != 0 else self.random_state,
                 scoring=self.scoring,
+                verbose=self.verbose,
+                prefix=f"{self.prefix}, bracket={b}",
             )
-            for b, (n, r) in brackets.items()
-        }
+            SHAs[b] = sha
         return SHAs
 
-    @gen.coroutine
-    def _fit(self, X, y, **fit_params):
+    async def _fit(self, X, y, **fit_params):
         X, y, scorer = self._validate_parameters(X, y)
 
         brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
@@ -375,8 +398,9 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         # (though it doesn't matter a ton; _fit prioritizes high scores
         _brackets_ids = list(reversed(sorted(SHAs)))
 
-        # _fit is run in parallel because it's also a tornado coroutine
-        _SHAs = yield [SHAs[b]._fit(X, y, **fit_params) for b in _brackets_ids]
+        _SHAs = await asyncio.gather(
+            *[SHAs[b]._fit(X, y, **fit_params) for b in _brackets_ids]
+        )
         SHAs = {b: SHA for b, SHA in zip(_brackets_ids, _SHAs)}
 
         # This for-loop rename estimator IDs and pulls out wall times
@@ -450,10 +474,10 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
 
         self.multimetric_ = SHAs[best_bracket].multimetric_
         self._SuccessiveHalvings_ = SHAs
-        raise gen.Return(self)
+        return self
 
     @property
-    def metadata(self):
+    def metadata(self) -> Dict[str, Union[int, List[BracketInfo]]]:
         bracket_info = _hyperband_paper_alg(self.max_iter, eta=self.aggressiveness)
         num_models = sum(b["n_models"] for b in bracket_info)
         for bracket in bracket_info:
@@ -476,14 +500,20 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         return info
 
 
-def _get_meta(hists, brackets, SHAs, key):
+def _get_meta(
+    hists: Dict[int, List[Dict[str, Any]]],
+    brackets: Iterable[int],
+    SHAs: Dict[int, SuccessiveHalvingSearchCV],
+    key: Callable[[int, int], str],
+) -> Tuple[List[Dict[str, Any]], Dict[str, List[Dict[str, Any]]]]:
+
     meta_ = []
     history_ = {}
     for bracket in brackets:
-        hist = hists[bracket]
+        _hist = hists[bracket]
 
-        info_hist = {key(bracket, h["model_id"]): [] for h in hist}
-        for h in hist:
+        info_hist = {key(bracket, h["model_id"]): [] for h in _hist}
+        for h in _hist:
             info_hist[key(bracket, h["model_id"])] += [h]
         hist = info_hist
         history_.update(hist)

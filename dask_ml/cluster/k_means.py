@@ -2,7 +2,6 @@ import logging
 from multiprocessing import cpu_count
 from numbers import Integral
 
-import numba  # isort:skip (see https://github.com/dask/dask-ml/pull/577)
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
@@ -21,6 +20,9 @@ from ..metrics import (
 )
 from ..utils import _timed, _timer, check_array, row_norms
 from ._compat import _k_init
+
+import numba  # isort:skip (see https://github.com/dask/dask-ml/pull/577)
+
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +97,6 @@ class KMeans(TransformerMixin, BaseEstimator):
 
     See Also
     --------
-    PartialMiniBatchKMeans
     sklearn.cluster.MiniBatchKMeans
     sklearn.cluster.KMeans
 
@@ -201,8 +202,9 @@ class KMeans(TransformerMixin, BaseEstimator):
         )
         self.cluster_centers_ = centroids
         self.labels_ = labels
-        self.inertia_ = inertia.compute()
+        self.inertia_ = inertia.compute().item()
         self.n_iter_ = n_iter
+        self.n_features_in_ = X.shape[1]
         return self
 
     def transform(self, X, y=None):
@@ -411,7 +413,7 @@ def init_scalable(
     c_idx = {idx}
 
     # Step 2: Initialize cost
-    cost, = compute(evaluate_cost(X, centers))
+    (cost,) = compute(evaluate_cost(X, centers))
 
     if cost == 0:
         n_iter = 0
@@ -445,7 +447,9 @@ def init_scalable(
     # to do that.
 
     if len(centers) < n_clusters:
-        logger.warning("Found fewer than %d clusters in init.", n_clusters)
+        logger.warning(
+            "Found fewer than %d clusters in init (found %d).", n_clusters, len(centers)
+        )
         # supplement with random
         need = n_clusters - len(centers)
         locs = sorted(
@@ -493,7 +497,7 @@ def _sample_points(X, centers, oversampling_factor, random_state):
     draws = random_state.uniform(size=len(p), chunks=p.chunks)
     picked = p > draws
 
-    new_idxs, = da.where(picked)
+    (new_idxs,) = da.where(picked)
     return new_idxs
 
 
@@ -554,7 +558,7 @@ def _kmeans_single_lloyd(
             # Require at least one per bucket, to avoid division by 0.
             counts = da.maximum(counts, 1)
             new_centers = new_centers / counts[:, None]
-            new_centers, = compute(new_centers)
+            (new_centers,) = compute(new_centers)
 
             # Convergence check
             shift = squared_norm(centers - new_centers)

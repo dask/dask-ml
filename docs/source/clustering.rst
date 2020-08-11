@@ -7,7 +7,6 @@ Clustering
 
 .. autosummary::
    KMeans
-   PartialMiniBatchKMeans
    SpectralClustering
 
 The :mod:`dask_ml.cluster` module implements several algorithms for clustering unlabeled data.

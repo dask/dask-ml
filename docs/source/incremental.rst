@@ -19,11 +19,11 @@ block of a Dask Array to the underlying estimator's ``partial_fit`` method.
 
 .. note::
 
-   :class:`dask_ml.wrappers.Incremetnal` currently does not work well with
+   :class:`dask_ml.wrappers.Incremental` currently does not work well with
    hyper-parameter optimization like :class:`sklearn.model_selection.GridSearchCV`.
    If you need to do hyper-parameter optimization on larger-than-memory datasets,
-   we recommend :class:`dask_ml.model_selection.IncrementalSearch`. See
-   :ref:`hyperparameter.incremental` for an introduction.
+   we recommend :class:`dask_ml.model_selection.IncrementalSearchCV`. See
+   ":ref:`hyperparameter.incremental`" for an introduction.
 
 .. _incremental.blockwise-metaestimator:
 
@@ -113,5 +113,5 @@ If necessary, the actual estimator trained is available as ``Incremental.estimat
 Incremental Learning and Hyper-parameter Optimization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-See :ref:`hyperparameter.incremental` for more on how to do hyperparameter optimization on
+See ":ref:`hyperparameter.incremental`" for more on how to do hyperparameter optimization on
 larger than memory datasets.
