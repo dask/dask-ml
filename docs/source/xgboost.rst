@@ -1,20 +1,7 @@
-XGBoost & LightGBM
-==================
+XGBoost
+=======
 
 .. currentmodule:: dask_ml.xgboost
-
-XGBoost_ is a powerful and popular library for gradient boosted trees.  For
-larger datasets or faster training XGBoost also provides a distributed
-computing solution. LightGBM_ is another library similar to XGBoost; it also
-natively supplies native distributed training for decision trees.
-
-Dask-ML can set up distributed XGBoost or LightGBM for you and hand off data
-from distributed dask.dataframes.  This automates much of the hassle of
-preprocessing and setup while still letting XGBoost/LightGBM do what they do
-well.
-
-Below, we'll refer to an example with XGBoost. Here are the relevant XGBoost
-classes/functions:
 
 .. autosummary::
    train
@@ -22,8 +9,11 @@ classes/functions:
    XGBClassifier
    XGBRegressor
 
-The LightGBM implementation and documentation can be found at
-https://github.com/dask/dask-lightgbm.
+XGBoost_ is a powerful and popular library for gradient boosted trees.  For
+larger datasets or faster training XGBoost also provides a distributed
+computing solution.  Dask-ML can set up distributed XGBoost for you and hand
+off data from distributed dask.dataframes.  This automates much of the hassle
+of preprocessing and setup while still letting XGBoost do what it does well.
 
 Example
 -------
@@ -70,7 +60,6 @@ continues on as normal.
 This work was a collaboration with XGBoost and SKLearn maintainers.  See
 relevant GitHub issue here: `dmlc/xgboost #2032 <https://github.com/dmlc/xgboost/issues/2032>`_
 
-See the ":doc:`Dask-ML examples <examples>`" for an example usage.
+- :doc:`examples/xgboost`
 
 .. _XGBoost: https://xgboost.readthedocs.io/
-.. _LightGBM: https://lightgbm.readthedocs.io/

@@ -1,31 +1,6 @@
 Changelog
 =========
 
-Version 1.6.0
-~~~~~~~~~~~~~
-
-* Improved documentation for RandomizedSearchCV
-* Improved logging in :class:`dask_ml.cluster.KMeans`  (:pr:`688`)
-* Added support for ``dask.dataframe`` objects in :class:`dask_ml.model_selection.HyperbandSearchCV` (:pr:`701`)
-* Added ``squared=True`` option to :class:`dask_ml.metrics.mean_squared_error` (:pr:`707`)
-* Added :class:`dask_ml.feature_extraction.text.CountVectorizer` (:pr:`705`)
-
-Version 1.5.0
-~~~~~~~~~~~~~
-
-* Support for Python 3.8 (:pr:`669`)
-* Compatibility with Scikit-Learn 0.23.0 (:pr:`669`)
-* Scikit-Learn 0.23.0 or newer is now required (:pr:`669`)
-* Removed previously deprecated Partial classes. Use :class:`dask_ml.wrappers.Incremental` instead (:pr:`674`)
-
-Version 1.4.0
-~~~~~~~~~~~~~
-
-* Added :class:`dask_ml.decomposition.IncrementalPCA` for out-of-core / distributed incremental PCA (:pr:`619`)
-* Improved logging and monitoring in incremental model selection (:pr:`528`)
-* Added :class:`dask_ml.ensemble.BlockwiseVotingClassifier` and :class:`dask_ml.ensemble.BlockwiseVotingRegressor` for blockwise training and ensemble prediction (:pr:`657`)
-* Improved documentation for :ref:`hyper-parameter-search` (:pr:`432`)
-
 Version 1.3.0
 ~~~~~~~~~~~~~
 

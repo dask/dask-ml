@@ -93,17 +93,6 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         If None, the random number generator is the RandomState instance used
         by `np.random`.
 
-    verbose : bool, float, int, optional, default: False
-        If False (default), don't print logs (or pipe them to stdout). However,
-        standard logging will still be used.
-
-        If True, print logs and use standard logging.
-
-        If float, print/log approximately ``verbose`` fraction of the time.
-
-    prefix : str, optional, default=""
-        While logging, add ``prefix`` to each message.
-
 
     Attributes
     ----------
@@ -207,11 +196,11 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         tol=1e-3,
         random_state=None,
         scoring=None,
-        verbose=False,
-        prefix="",
     ):
+        self.n_initial_parameters = n_initial_parameters
         self.n_initial_iter = n_initial_iter
         self.aggressiveness = aggressiveness
+
         super(SuccessiveHalvingSearchCV, self).__init__(
             estimator,
             parameters,
@@ -222,9 +211,6 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
             tol=tol,
             random_state=random_state,
             scoring=scoring,
-            verbose=verbose,
-            prefix=prefix,
-            decay_rate=None,
         )
 
     def _adapt(self, info, first_step_completed=False):

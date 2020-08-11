@@ -1,3 +1,4 @@
+import warnings
 from itertools import product
 
 import dask.array as da
@@ -8,12 +9,21 @@ import pytest
 import scipy as sp
 import sklearn.decomposition as sd
 from dask.array.utils import assert_eq
-from numpy.testing import assert_almost_equal, assert_array_almost_equal, assert_raises
 from sklearn import datasets
 from sklearn.utils import check_random_state as sk_check_random_state
 
 import dask_ml.decomposition as dd
+from dask_ml.decomposition._compat import _assess_dimension_, _infer_dimension_
 from dask_ml.utils import assert_estimator_equal, svd_flip
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", FutureWarning)
+    from sklearn.utils.testing import (
+        assert_almost_equal,
+        assert_array_almost_equal,
+        assert_raises,
+    )
+
 
 iris = datasets.load_iris()
 solver_list = ["full", "randomized", "auto", "tsqr"]
@@ -193,7 +203,6 @@ def test_explained_variance():
     assert_array_almost_equal(
         pca.explained_variance_ratio_, apca.explained_variance_ratio_, 3
     )
-    assert_array_almost_equal(pca.noise_variance_, apca.noise_variance_, 3)
 
     rpca = dd.PCA(
         n_components=2, svd_solver="randomized", random_state=42, iterated_power=1
@@ -202,7 +211,6 @@ def test_explained_variance():
     assert_array_almost_equal(
         pca.explained_variance_ratio_, rpca.explained_variance_ratio_, 1
     )
-    assert_array_almost_equal(pca.noise_variance_, rpca.noise_variance_, 1)
 
     # compare to empirical variances
     expected_result = np.linalg.eig(np.cov(X, rowvar=False))[0]
@@ -474,13 +482,12 @@ def test_infer_dim_1():
     X = da.from_array(X, chunks=(n, p))
     pca = dd.PCA(n_components=p, svd_solver="full")
     pca.fit(X)
-    # These tests rely on private imports from scikit-learn
-    # spect = pca.explained_variance_
-    # ll = []
-    # for k in range(p):
-    #     ll.append(_assess_dimension_(spect, k, n, p))
-    # ll = np.array(ll)
-    # assert ll[1] > ll.max() - 0.01 * n
+    spect = pca.explained_variance_
+    ll = []
+    for k in range(p):
+        ll.append(_assess_dimension_(spect, k, n, p))
+    ll = np.array(ll)
+    assert ll[1] > ll.max() - 0.01 * n
 
 
 def test_infer_dim_2():
@@ -494,8 +501,8 @@ def test_infer_dim_2():
     dX = da.from_array(X, chunks=(n, p))
     pca = dd.PCA(n_components=p, svd_solver="full")
     pca.fit(dX)
-    # spect = pca.explained_variance_
-    # assert _infer_dimension_(spect, n, p) > 1
+    spect = pca.explained_variance_
+    assert _infer_dimension_(spect, n, p) > 1
 
 
 def test_infer_dim_3():
@@ -508,8 +515,8 @@ def test_infer_dim_3():
     X = da.from_array(X, chunks=(n, p))
     pca = dd.PCA(n_components=p, svd_solver="full")
     pca.fit(X)
-    # spect = pca.explained_variance_
-    # assert _infer_dimension_(spect, n, p) > 2
+    spect = pca.explained_variance_
+    assert _infer_dimension_(spect, n, p) > 2
 
 
 @pytest.mark.xfail(reason="Fractional n_components")
@@ -784,7 +791,7 @@ def test_svd_flip():
     u = da.from_array(u, chunks=(-1, -1))
     v = da.from_array(v, chunks=(-1, -1))
     u2, v2 = svd_flip(u, v)
-
+    
     def set_readonly(x):
         x.setflags(write=False)
         return x

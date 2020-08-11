@@ -6,10 +6,8 @@ import pandas as pd
 import pytest
 import scipy.sparse
 import sklearn.feature_extraction.text
-from distributed import Client
 
 import dask_ml.feature_extraction.text
-from dask_ml._compat import dummy_context
 from dask_ml.utils import assert_estimator_equal
 
 JUNK_FOOD_DOCS = (
@@ -109,77 +107,3 @@ def test_correct_meta():
     assert scipy.sparse.issparse(result._meta)
     assert result._meta.dtype == "float64"
     assert result._meta.shape == (0, 0)
-
-
-@pytest.mark.parametrize("give_vocabulary", [True, False])
-@pytest.mark.parametrize("distributed", [True, False])
-def test_count_vectorizer(give_vocabulary, distributed):
-    m1 = sklearn.feature_extraction.text.CountVectorizer()
-    b = db.from_sequence(JUNK_FOOD_DOCS, npartitions=2)
-    r1 = m1.fit_transform(JUNK_FOOD_DOCS)
-
-    if give_vocabulary:
-        vocabulary = m1.vocabulary_
-        m1 = sklearn.feature_extraction.text.CountVectorizer(vocabulary=vocabulary)
-        r1 = m1.transform(JUNK_FOOD_DOCS)
-    else:
-        vocabulary = None
-
-    m2 = dask_ml.feature_extraction.text.CountVectorizer(vocabulary=vocabulary)
-
-    if distributed:
-        client = Client()  # noqa
-    else:
-        client = dummy_context()
-
-    if give_vocabulary:
-        r2 = m2.transform(b)
-    else:
-        r2 = m2.fit_transform(b)
-
-    with client:
-        exclude = {"vocabulary_actor_", "stop_words_"}
-        if give_vocabulary:
-            # In scikit-learn, `.transform()` sets these.
-            # This looks buggy.
-            exclude |= {"vocabulary_", "fixed_vocabulary_"}
-
-        assert_estimator_equal(m1, m2, exclude=exclude)
-        assert isinstance(r2, da.Array)
-        assert isinstance(r2._meta, scipy.sparse.csr_matrix)
-        np.testing.assert_array_equal(r1.toarray(), r2.compute().toarray())
-
-        r3 = m2.transform(b)
-        assert isinstance(r3, da.Array)
-        assert isinstance(r3._meta, scipy.sparse.csr_matrix)
-        np.testing.assert_array_equal(r1.toarray(), r3.compute().toarray())
-
-        if give_vocabulary:
-            r4 = m2.fit_transform(b)
-            assert isinstance(r4, da.Array)
-            assert isinstance(r4._meta, scipy.sparse.csr_matrix)
-            np.testing.assert_array_equal(r1.toarray(), r4.compute().toarray())
-
-
-def test_count_vectorizer_remote_vocabulary():
-    m1 = sklearn.feature_extraction.text.CountVectorizer().fit(JUNK_FOOD_DOCS)
-    vocabulary = m1.vocabulary_
-    r1 = m1.transform(JUNK_FOOD_DOCS)
-    b = db.from_sequence(JUNK_FOOD_DOCS, npartitions=2)
-
-    with Client() as client:
-        (remote_vocabulary,) = client.scatter((vocabulary,), broadcast=True)
-        m = dask_ml.feature_extraction.text.CountVectorizer(
-            vocabulary=remote_vocabulary
-        )
-        r2 = m.transform(b)
-
-        assert isinstance(r2, da.Array)
-        assert isinstance(r2._meta, scipy.sparse.csr_matrix)
-        np.testing.assert_array_equal(r1.toarray(), r2.compute().toarray())
-
-        m = dask_ml.feature_extraction.text.CountVectorizer(
-            vocabulary=remote_vocabulary
-        )
-        m.fit_transform(b)
-        assert m.vocabulary_ is remote_vocabulary

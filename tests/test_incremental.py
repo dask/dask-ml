@@ -13,6 +13,7 @@ from sklearn.pipeline import make_pipeline
 
 import dask_ml.feature_extraction.text
 import dask_ml.metrics
+from dask_ml._compat import SK_022
 from dask_ml.metrics.scorer import check_scoring
 from dask_ml.wrappers import Incremental
 
@@ -97,7 +98,11 @@ def test_in_gridsearch(scheduler, xy_classification):
     X, y = xy_classification
     clf = Incremental(SGDClassifier(random_state=0, tol=1e-3))
     param_grid = {"estimator__alpha": [0.1, 10]}
-    gs = sklearn.model_selection.GridSearchCV(clf, param_grid, cv=3)
+    if SK_022:
+        kwargs = {}
+    else:
+        kwargs = {"iid": False}
+    gs = sklearn.model_selection.GridSearchCV(clf, param_grid, cv=3, **kwargs)
 
     with scheduler() as (s, [a, b]):
         gs.fit(X, y, classes=[0, 1])
@@ -180,8 +185,8 @@ def test_replace_scoring(estimator, fit_kwargs, scoring, xy_classification, mock
     inc.fit(X, y, **fit_kwargs)
 
     patch = mocker.patch.object(dask_ml.wrappers, "get_scorer")
-
-    inc.score(X, y)
+    with patch:
+        inc.score(X, y)
 
     assert patch.call_count == 1
     patch.assert_called_with(scoring, compute=True)

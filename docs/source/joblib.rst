@@ -1,7 +1,7 @@
 .. _joblib:
 
-Scikit-Learn & Joblib
-=====================
+Joblib
+======
 
 Many Scikit-Learn algorithms are written for parallel execution using
 `Joblib <http://joblib.readthedocs.io/en/latest/>`__, which natively provides

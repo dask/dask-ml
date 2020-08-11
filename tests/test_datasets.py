@@ -1,5 +1,3 @@
-from datetime import date
-
 import dask
 import dask.array as da
 import numpy as np
@@ -62,21 +60,3 @@ def test_deterministic(generator, scheduler):
     b, u = generator(chunks=100, random_state=10)
     assert_eq(a, b)
     assert_eq(t, u)
-
-
-def test_make_classification_df():
-    X_df, y_series = dask_ml.datasets.make_classification_df(
-        n_samples=100,
-        n_features=5,
-        random_state=123,
-        chunks=100,
-        dates=(date(2014, 1, 1), date(2015, 1, 1)),
-    )
-
-    assert X_df is not None
-    assert y_series is not None
-    assert "date" in X_df.columns
-    assert len(X_df.columns) == 6
-    assert len(X_df) == 100
-    assert len(y_series) == 100
-    assert isinstance(y_series, dask.dataframe.core.Series)

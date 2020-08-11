@@ -2,7 +2,6 @@
 Daskified versions of sklearn.metrics.pairwise
 """
 import warnings
-from typing import Any, Callable, Dict, Optional, Tuple, Union
 
 import dask.array as da
 import numpy as np
@@ -11,17 +10,11 @@ from dask.utils import derived_from
 from sklearn import metrics
 from sklearn.metrics.pairwise import KERNEL_PARAMS
 
-from .._typing import ArrayLike
 from ..utils import row_norms
 
 
 def pairwise_distances_argmin_min(
-    X: ArrayLike,
-    Y: ArrayLike,
-    axis: int = 1,
-    metric: Union[str, Callable[[ArrayLike, ArrayLike], float]] = "euclidean",
-    batch_size: Optional[int] = None,
-    metric_kwargs: Optional[Dict[str, Any]] = None,
+    X, Y, axis=1, metric="euclidean", batch_size=None, metric_kwargs=None
 ):
     if batch_size is not None:
         msg = "'batch_size' is deprecated. Use sklearn.config_context instead.'"
@@ -46,13 +39,7 @@ def pairwise_distances_argmin_min(
     return argmins, mins
 
 
-def pairwise_distances(
-    X: ArrayLike,
-    Y: ArrayLike,
-    metric: Union[str, Callable[[ArrayLike, ArrayLike], float]] = "euclidean",
-    n_jobs: Optional[int] = None,
-    **kwargs: Any
-):
+def pairwise_distances(X, Y, metric="euclidean", n_jobs=None, **kwargs):
     if isinstance(Y, da.Array):
         raise TypeError("`Y` must be a numpy array")
     chunks = (X.chunks[0], (len(Y),))
@@ -67,12 +54,8 @@ def pairwise_distances(
 
 
 def euclidean_distances(
-    X: ArrayLike,
-    Y: Optional[ArrayLike] = None,
-    Y_norm_squared: Optional[ArrayLike] = None,
-    squared: bool = False,
-    X_norm_squared: Optional[ArrayLike] = None,
-) -> ArrayLike:
+    X, Y=None, Y_norm_squared=None, squared=False, X_norm_squared=None
+):
     if Y is None:
         Y = X
 
@@ -104,9 +87,7 @@ def euclidean_distances(
     return distances if squared else da.sqrt(distances)
 
 
-def check_pairwise_arrays(
-    X: ArrayLike, Y: ArrayLike, precomputed: bool = False
-) -> Tuple[ArrayLike, ArrayLike]:
+def check_pairwise_arrays(X, Y, precomputed=False):
     # XXX
     if Y is None:
         Y = X
@@ -132,15 +113,13 @@ def check_pairwise_arrays(
 
 
 @derived_from(metrics.pairwise)
-def linear_kernel(X: ArrayLike, Y: Optional[ArrayLike] = None) -> ArrayLike:
+def linear_kernel(X, Y=None):
     X, Y = check_pairwise_arrays(X, Y)
     return da.dot(X, Y.T)
 
 
 @derived_from(metrics.pairwise)
-def rbf_kernel(
-    X: ArrayLike, Y: Optional[ArrayLike] = None, gamma: Optional[float] = None
-) -> ArrayLike:
+def rbf_kernel(X, Y=None, gamma=None):
     X, Y = check_pairwise_arrays(X, Y)
     if gamma is None:
         gamma = 1.0 / X.shape[1]
@@ -151,13 +130,7 @@ def rbf_kernel(
 
 
 @derived_from(metrics.pairwise)
-def polynomial_kernel(
-    X: ArrayLike,
-    Y: Optional[ArrayLike] = None,
-    degree: int = 3,
-    gamma: Optional[float] = None,
-    coef0: float = 1,
-) -> ArrayLike:
+def polynomial_kernel(X, Y=None, degree=3, gamma=None, coef0=1):
     X, Y = check_pairwise_arrays(X, Y)
     if gamma is None:
         gamma = 1.0 / X.shape[1]
@@ -167,12 +140,7 @@ def polynomial_kernel(
 
 
 @derived_from(metrics.pairwise)
-def sigmoid_kernel(
-    X: ArrayLike,
-    Y: Optional[ArrayLike] = None,
-    gamma: Optional[float] = None,
-    coef0: float = 1,
-) -> ArrayLike:
+def sigmoid_kernel(X, Y=None, gamma=None, coef0=1):
     X, Y = check_pairwise_arrays(X, Y)
     if gamma is None:
         gamma = 1.0 / X.shape[1]
@@ -197,14 +165,7 @@ PAIRWISE_KERNEL_FUNCTIONS = {
 }
 
 
-def pairwise_kernels(
-    X: ArrayLike,
-    Y: Optional[ArrayLike] = None,
-    metric: Union[str, Callable[[ArrayLike, ArrayLike], float]] = "linear",
-    filter_params: bool = False,
-    n_jobs: Optional[int] = 1,
-    **kwds
-):
+def pairwise_kernels(X, Y=None, metric="linear", filter_params=False, n_jobs=1, **kwds):
     from sklearn.gaussian_process.kernels import Kernel as GPKernel
 
     if metric == "precomputed":
@@ -215,7 +176,6 @@ def pairwise_kernels(
     elif metric in PAIRWISE_KERNEL_FUNCTIONS:
         if filter_params:
             kwds = dict((k, kwds[k]) for k in kwds if k in KERNEL_PARAMS[metric])
-        assert isinstance(metric, str)
         func = PAIRWISE_KERNEL_FUNCTIONS[metric]
     elif callable(metric):
         raise NotImplementedError()

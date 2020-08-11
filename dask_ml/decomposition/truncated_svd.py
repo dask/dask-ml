@@ -183,7 +183,6 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
         self.explained_variance_ = ev
         self.explained_variance_ratio_ = evr
         self.singular_values_ = sv
-        self.n_features_in_ = X.shape[1]
         return X_transformed
 
     def transform(self, X, y=None):

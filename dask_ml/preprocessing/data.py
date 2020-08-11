@@ -3,7 +3,6 @@ from __future__ import division
 import multiprocessing
 from collections import OrderedDict
 from distutils.version import LooseVersion
-from typing import Any, List, Optional, Sequence, Union
 
 import dask.array as da
 import dask.dataframe as dd
@@ -17,18 +16,16 @@ from scipy import stats
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_random_state
 
-from dask_ml._compat import blockwise, check_is_fitted
+from dask_ml._compat import SK_022, blockwise, check_is_fitted
 from dask_ml._utils import copy_learned_attributes
 from dask_ml.utils import check_array, handle_zeros_in_scale
-
-from .._typing import ArrayLike, DataFrameType, SeriesType
 
 _PANDAS_VERSION = LooseVersion(pd.__version__)
 _HAS_CTD = _PANDAS_VERSION >= "0.21.0"
 BOUNDS_THRESHOLD = 1e-7
 
 
-def _handle_zeros_in_scale(scale: np.ndarray, copy=True):
+def _handle_zeros_in_scale(scale, copy=True):
     """ Makes sure that whenever scale is zero, we handle it correctly.
 
     This happens in most scalers when we have constant features."""
@@ -50,11 +47,7 @@ class StandardScaler(sklearn.preprocessing.StandardScaler):
 
     __doc__ = sklearn.preprocessing.StandardScaler.__doc__
 
-    def fit(
-        self,
-        X: Union[ArrayLike, DataFrameType],
-        y: Optional[Union[ArrayLike, SeriesType]] = None,
-    ) -> "StandardScaler":
+    def fit(self, X, y=None):
         self._reset()
         attributes = OrderedDict()
         if isinstance(X, (pd.DataFrame, dd.DataFrame)):
@@ -75,31 +68,19 @@ class StandardScaler(sklearn.preprocessing.StandardScaler):
         values = compute(*attributes.values())
         for k, v in zip(attributes, values):
             setattr(self, k, v)
-        self.n_features_in_ = X.shape[1]
         return self
 
-    def partial_fit(
-        self,
-        X: Union[ArrayLike, DataFrameType],
-        y: Optional[Union[ArrayLike, SeriesType]] = None,
-    ):
+    def partial_fit(self, X, y=None):
         raise NotImplementedError()
 
-    def transform(
-        self,
-        X: Union[ArrayLike, DataFrameType],
-        y: Optional[Union[ArrayLike, SeriesType]] = None,
-        copy: Optional[bool] = None,
-    ) -> Union[ArrayLike, DataFrameType]:
+    def transform(self, X, y=None, copy=None):
         if self.with_mean:
             X -= self.mean_
         if self.with_std:
             X /= self.scale_
         return X
 
-    def inverse_transform(
-        self, X: Union[ArrayLike, DataFrameType], copy: Optional[bool] = None
-    ) -> Union[ArrayLike, DataFrameType]:
+    def inverse_transform(self, X, copy=None):
         if self.with_std:
             X *= self.scale_
         if self.with_mean:
@@ -111,11 +92,7 @@ class MinMaxScaler(sklearn.preprocessing.MinMaxScaler):
 
     __doc__ = sklearn.preprocessing.MinMaxScaler.__doc__
 
-    def fit(
-        self,
-        X: Union[ArrayLike, DataFrameType],
-        y: Optional[Union[ArrayLike, SeriesType]] = None,
-    ) -> "MinMaxScaler":
+    def fit(self, X, y=None):
         self._reset()
         attributes = OrderedDict()
         feature_range = self.feature_range
@@ -142,22 +119,12 @@ class MinMaxScaler(sklearn.preprocessing.MinMaxScaler):
         values = compute(*attributes.values())
         for k, v in zip(attributes, values):
             setattr(self, k, v)
-        self.n_features_in_ = X.shape[1]
         return self
 
-    def partial_fit(
-        self,
-        X: Union[ArrayLike, DataFrameType],
-        y: Optional[Union[ArrayLike, SeriesType]] = None,
-    ):
+    def partial_fit(self, X, y=None):
         raise NotImplementedError()
 
-    def transform(
-        self,
-        X: Union[ArrayLike, DataFrameType],
-        y: Optional[Union[ArrayLike, SeriesType]] = None,
-        copy: Optional[bool] = None,
-    ) -> Union[ArrayLike, DataFrameType]:
+    def transform(self, X, y=None, copy=None):
         # Workaround for https://github.com/dask/dask/issues/2840
         if isinstance(X, dd.DataFrame):
             X = X.mul(self.scale_).add(self.min_)
@@ -166,12 +133,7 @@ class MinMaxScaler(sklearn.preprocessing.MinMaxScaler):
             X = X + self.min_
         return X
 
-    def inverse_transform(
-        self,
-        X: Union[ArrayLike, DataFrameType],
-        y: Optional[Union[ArrayLike, SeriesType]] = None,
-        copy: Optional[bool] = None,
-    ) -> Union[ArrayLike, DataFrameType]:
+    def inverse_transform(self, X, y=None, copy=None):
         if not hasattr(self, "scale_"):
             raise Exception(
                 "This %(name)s instance is not fitted yet. "
@@ -193,17 +155,11 @@ class RobustScaler(sklearn.preprocessing.RobustScaler):
 
     __doc__ = sklearn.preprocessing.RobustScaler.__doc__
 
-    def _check_array(
-        self, X: Union[ArrayLike, DataFrameType], *args: Any, **kwargs: Any
-    ) -> Union[ArrayLike, DataFrameType]:
+    def _check_array(self, X, *args, **kwargs):
         X = check_array(X, accept_dask_dataframe=True, **kwargs)
         return X
 
-    def fit(
-        self,
-        X: Union[ArrayLike, DataFrameType],
-        y: Optional[Union[ArrayLike, SeriesType]] = None,
-    ) -> "RobustScaler":
+    def fit(self, X, y=None):
         q_min, q_max = self.quantile_range
         if not 0 <= q_min <= q_max <= 100:
             raise ValueError("Invalid quantile range: %s" % str(self.quantile_range))
@@ -222,17 +178,14 @@ class RobustScaler(sklearn.preprocessing.RobustScaler):
                 ]
             )
 
-        quantiles: Any = [da.percentile(col, [q_min, 50.0, q_max]) for col in X.T]
+        quantiles = [da.percentile(col, [q_min, 50.0, q_max]) for col in X.T]
         quantiles = da.vstack(quantiles).compute()
-        self.center_: List[float] = quantiles[:, 1]
-        self.scale_: List[float] = quantiles[:, 2] - quantiles[:, 0]
+        self.center_ = quantiles[:, 1]
+        self.scale_ = quantiles[:, 2] - quantiles[:, 0]
         self.scale_ = _handle_zeros_in_scale(self.scale_, copy=False)
-        self.n_features_in_ = X.shape[1]
         return self
 
-    def transform(
-        self, X: Union[ArrayLike, DataFrameType]
-    ) -> Union[ArrayLike, DataFrameType]:
+    def transform(self, X):
         """Center and scale the data.
 
         Can be called on sparse input, provided that ``RobustScaler`` has been
@@ -264,9 +217,7 @@ class RobustScaler(sklearn.preprocessing.RobustScaler):
             X /= self.scale_
         return X
 
-    def inverse_transform(
-        self, X: Union[ArrayLike, DataFrameType]
-    ) -> Union[ArrayLike, DataFrameType]:
+    def inverse_transform(self, X):
         """Scale back the data to the original representation
 
         Parameters
@@ -303,13 +254,11 @@ class QuantileTransformer(sklearn.preprocessing.QuantileTransformer):
         sklearn.preprocessing.QuantileTransformer.__doc__.split("\n")[1:]
     )
 
-    def _check_inputs(
-        self,
-        X: Union[ArrayLike, DataFrameType],
-        accept_sparse_negative: bool = False,
-        copy: bool = False,
-        in_fit: bool = True,
-    ) -> Union[ArrayLike, DataFrameType]:
+    def _check_inputs(self, X, accept_sparse_negative=False, copy=False):
+        kwargs = {}
+        if SK_022:
+            kwargs["copy"] = copy
+
         if isinstance(X, (pd.DataFrame, dd.DataFrame)):
             X = X.values
         if isinstance(X, np.ndarray):
@@ -322,26 +271,19 @@ class QuantileTransformer(sklearn.preprocessing.QuantileTransformer):
         # TODO: mix of sparse, dense?
         sample = rng.uniform(size=(5, X.shape[1])).astype(X.dtype)
         super(QuantileTransformer, self)._check_inputs(
-            sample,
-            accept_sparse_negative=accept_sparse_negative,
-            copy=copy,
-            in_fit=in_fit,
+            sample, accept_sparse_negative=accept_sparse_negative, **kwargs
         )
         return X
 
-    def _sparse_fit(self, X: Union[ArrayLike, DataFrameType], random_state: int):
+    def _sparse_fit(self, X, random_state):
         raise NotImplementedError
 
-    def _dense_fit(
-        self, X: Union[ArrayLike, DataFrameType], random_state: int
-    ) -> Union[ArrayLike, DataFrameType]:
+    def _dense_fit(self, X, random_state):
         references = self.references_ * 100
         quantiles = [da.percentile(col, references) for col in X.T]
-        (self.quantiles_,) = compute(da.vstack(quantiles).T)
+        self.quantiles_, = compute(da.vstack(quantiles).T)
 
-    def _transform(
-        self, X: Union[ArrayLike, DataFrameType], inverse: bool = False
-    ) -> Union[ArrayLike, DataFrameType]:
+    def _transform(self, X, inverse=False):
         X = X.copy()  # ...
         transformed = [
             self._transform_col(
@@ -351,9 +293,7 @@ class QuantileTransformer(sklearn.preprocessing.QuantileTransformer):
         ]
         return da.vstack(transformed, allow_unknown_chunksizes=True).T
 
-    def _transform_col(
-        self, X_col: ArrayLike, quantiles: ArrayLike, inverse: bool
-    ) -> ArrayLike:
+    def _transform_col(self, X_col, quantiles, inverse):
         output_distribution = self.output_distribution
 
         if not inverse:
@@ -472,11 +412,11 @@ class Categorizer(BaseEstimator, TransformerMixin):
     CategoricalDtype(categories=['a', 'b', 'c'], ordered=False)
     """
 
-    def __init__(self, categories: Optional[dict] = None, columns: pd.Index = None):
+    def __init__(self, categories=None, columns=None):
         self.categories = categories
         self.columns = columns
 
-    def _check_array(self, X: DataFrameType) -> DataFrameType:
+    def _check_array(self, X):
         # TODO: refactor to check_array
         if not isinstance(X, (pd.DataFrame, dd.DataFrame)):
             raise TypeError(
@@ -484,9 +424,7 @@ class Categorizer(BaseEstimator, TransformerMixin):
             )
         return X
 
-    def fit(
-        self, X: DataFrameType, y: Optional[Union[ArrayLike, SeriesType]] = None
-    ) -> "Categorizer":
+    def fit(self, X, y=None):
         """Find the categorical columns.
 
         Parameters
@@ -514,7 +452,7 @@ class Categorizer(BaseEstimator, TransformerMixin):
         self.categories_ = categories
         return self
 
-    def _fit(self, X: DataFrameType):
+    def _fit(self, X):
         if self.columns is None:
             columns = X.select_dtypes(include=["object", "category"]).columns
         else:
@@ -535,14 +473,12 @@ class Categorizer(BaseEstimator, TransformerMixin):
 
         return columns, categories
 
-    def _fit_dask(self, X: DataFrameType):
+    def _fit_dask(self, X):
         columns = self.columns
         df = X.categorize(columns=columns, index=False)
         return self._fit(df)
 
-    def transform(
-        self, X: DataFrameType, y: Optional[Union[ArrayLike, SeriesType]] = None
-    ) -> DataFrameType:
+    def transform(self, X, y=None):
         """Transform the columns in ``X`` according to ``self.categories_``.
 
         Parameters
@@ -653,15 +589,11 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
     Dask Name: get_dummies, 4 tasks
     """
 
-    def __init__(
-        self, columns: Optional[Sequence[Any]] = None, drop_first: bool = False
-    ):
+    def __init__(self, columns=None, drop_first=False):
         self.columns = columns
         self.drop_first = drop_first
 
-    def fit(
-        self, X: DataFrameType, y: Optional[Union[ArrayLike, SeriesType]] = None
-    ) -> "DummyEncoder":
+    def fit(self, X, y=None):
         """Determine the categorical columns to be dummy encoded.
 
         Parameters
@@ -710,9 +642,7 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
         ).columns
         return self
 
-    def transform(
-        self, X: DataFrameType, y: Optional[Union[ArrayLike, SeriesType]] = None
-    ) -> DataFrameType:
+    def transform(self, X, y=None):
         """Dummy encode the categorical columns in X
 
         Parameters
@@ -737,7 +667,7 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
         else:
             raise TypeError("Unexpected type {}".format(type(X)))
 
-    def inverse_transform(self, X: Union[ArrayLike, DataFrameType]) -> DataFrameType:
+    def inverse_transform(self, X):
         """Inverse dummy-encode the columns in `X`
 
         Parameters
@@ -761,7 +691,7 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
             if unknown:
                 lengths = blockwise(len, "i", X[:, 0], "i", dtype="i8").compute()
                 X = X.copy()
-                chunks: ArrayLike = (tuple(lengths), X.chunks[1])
+                chunks = (tuple(lengths), X.chunks[1])
                 X._chunks = chunks
 
             X = dd.from_dask_array(X, columns=self.transformed_columns_)
@@ -897,9 +827,7 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
     def __init__(self, columns=None):
         self.columns = columns
 
-    def fit(
-        self, X: DataFrameType, y: Optional[Union[ArrayLike, SeriesType]] = None
-    ) -> "OrdinalEncoder":
+    def fit(self, X, y=None):
         """Determine the categorical columns to be encoded.
 
         Parameters
@@ -932,9 +860,7 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
 
         return self
 
-    def transform(
-        self, X: DataFrameType, y: Optional[Union[ArrayLike, SeriesType]] = None
-    ) -> DataFrameType:
+    def transform(self, X, y=None):
         """Ordinal encode the categorical columns in X
 
         Parameters
@@ -960,9 +886,7 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
             X[col] = X[col].cat.codes
         return X
 
-    def inverse_transform(
-        self, X: Union[ArrayLike, DataFrameType]
-    ) -> Union[ArrayLike, DataFrameType]:
+    def inverse_transform(self, X):
         """Inverse ordinal-encode the columns in `X`
 
         Parameters
@@ -986,7 +910,7 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
             if unknown:
                 lengths = blockwise(len, "i", X[:, 0], "i", dtype="i8").compute()
                 X = X.copy()
-                chunks: ArrayLike = (tuple(lengths), X.chunks[1])
+                chunks = (tuple(lengths), X.chunks[1])
                 X._chunks = chunks
 
             X = dd.from_dask_array(X, columns=self.columns_)
@@ -1051,21 +975,15 @@ class PolynomialFeatures(sklearn.preprocessing.PolynomialFeatures):
 
     def __init__(
         self,
-        degree: int = 2,
-        interaction_only: bool = False,
-        include_bias: bool = True,
-        preserve_dataframe: bool = False,
+        degree=2,
+        interaction_only=False,
+        include_bias=True,
+        preserve_dataframe=False,
     ):
-        super(PolynomialFeatures, self).__init__(
-            degree=degree, interaction_only=interaction_only, include_bias=include_bias
-        )
+        super(PolynomialFeatures, self).__init__(degree, interaction_only, include_bias)
         self.preserve_dataframe = preserve_dataframe
 
-    def fit(
-        self,
-        X: Union[ArrayLike, DataFrameType],
-        y: Optional[Union[ArrayLike, SeriesType]] = None,
-    ) -> "PolynomialFeatures":
+    def fit(self, X, y=None):
         self._transformer = sklearn.preprocessing.PolynomialFeatures(
             degree=self.degree,
             interaction_only=self.interaction_only,
@@ -1082,11 +1000,7 @@ class PolynomialFeatures(sklearn.preprocessing.PolynomialFeatures):
         copy_learned_attributes(self._transformer, self)
         return self
 
-    def transform(
-        self,
-        X: Union[ArrayLike, DataFrameType],
-        y: Optional[Union[ArrayLike, SeriesType]] = None,
-    ) -> Union[ArrayLike, DataFrameType]:
+    def transform(self, X, y=None):
         if isinstance(X, da.Array):
             n_cols = len(self._transformer.get_feature_names())
             X = check_array(X, accept_multiple_blocks=False, accept_unknown_chunks=True)

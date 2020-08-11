@@ -42,7 +42,4 @@ jobs:
       echo "[codecov]"
       codecov
 
-      echo "[mypy]"
-      mypy dask_ml/metrics
-
     displayName: "Lint"

@@ -1,3 +1,4 @@
+import pytest
 from dask.array.utils import assert_eq
 from sklearn import naive_bayes as nb_
 
@@ -23,3 +24,25 @@ def test_smoke():
     assert_eq(a.predict_proba(X).compute(), b.predict_proba(X_))
     assert_eq(a.predict(X).compute(), b.predict(X_))
     assert_eq(a.predict_log_proba(X).compute(), b.predict_log_proba(X_))
+
+
+@pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")
+class TestPartialMultinomialNB:
+    def test_basic(self, single_chunk_count_classification):
+        X, y = single_chunk_count_classification
+        a = nb.PartialMultinomialNB(classes=[0, 1])
+        b = nb_.MultinomialNB()
+        a.fit(X, y)
+        b.partial_fit(X, y, classes=[0, 1])
+        assert_eq(a.coef_, b.coef_)
+
+
+@pytest.mark.filterwarnings("ignore:'Partial:FutureWarning")
+class TestPartialBernoulliNB:
+    def test_basic(self, single_chunk_binary_classification):
+        X, y = single_chunk_binary_classification
+        a = nb.PartialBernoulliNB(classes=[0, 1])
+        b = nb_.BernoulliNB()
+        a.fit(X, y)
+        b.partial_fit(X, y, classes=[0, 1])
+        assert_eq(a.coef_, b.coef_)

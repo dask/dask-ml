@@ -4,7 +4,7 @@ Cross Validation
 See the `scikit-learn cross validation documentation`_ for a fuller discussion of cross validation.
 This document only describes the extensions made to support Dask arrays.
 
-The simplest way to split one or more Dask arrays is with :func:`dask_ml.model_selection.train_test_split`:
+The simplest way to split one or more Dask arrays is with :func:`dask_ml.model_selection.train_test_split`.
 
 .. ipython:: python
 
@@ -26,8 +26,8 @@ The interface for splitting Dask arrays is the same as scikit-learn's version.
 
 
 While it's possible to pass dask arrays to :func:`sklearn.model_selection.train_test_split`, we recommend
-using the Dask version for performance reasons: the Dask version is faster
-for two reasons:
+using the Dask version for performance reasons. There are two major difference that let make the Dask version
+faster.
 
 First, **the Dask version shuffles blockwise**.
 In a distributed setting, shuffling *between* blocks may require sending large amounts of data between machines, which can be slow.
