@@ -29,7 +29,7 @@ in the ``ci`` directory.
 
 .. code-block:: none
 
-   conda env create -f ci/environment-3.7.yaml --name=dask-ml-dev
+   conda env create -f ci/environment-latest.yaml --name=dask-ml-dev
 
 to create a conda environment and install all the dependencies.
 
@@ -43,9 +43,14 @@ Building dask-ml
 Dask-ML is a pure-python repository. Development installation should be as simple as
 cloning the repository and running the following in the cloned directory:
 
-.. code-block:: none
+``pip``::
 
-   python -m pip install -e ".[dev]"
+  python -m pip install -e ".[dev]"
+
+``conda``::
+   
+  conda activate dask-ml-dev
+  python -m pip install --no-deps -e .
 
 If you have any trouble, please open an issue on the
 `dask-ml issue tracker <https://github.com/dask/dask-ml/issues>`_.
@@ -101,10 +106,15 @@ You can still use all the usual pytest command-line options in addition to those
 Pre-Commit Hooks
 ~~~~~~~~~~~~~~~~
 
-Install the `pre commit <https://github.com/pre-commit/pre-commit>`_ tool. Then, from the
-root of the ``dask-ml`` repository, run ``pre-commit install`` to install a few plugins
-like black, isort, and flake8. These tools will automatically be run on each commit. You
-can skip the checks with ``git commit --no-verify``.
+Install and build the `pre commit <https://github.com/pre-commit/pre-commit>`_ tool as:
+
+.. code-block:: none
+
+    python -m pip install pre-commit
+    pre-commit install
+
+to install a few plugins like black, isort, and flake8. These tools will automatically
+be run on each commit. You can skip the checks with ``git commit --no-verify``.
 
 Conventions
 ~~~~~~~~~~~
@@ -131,7 +141,7 @@ We have some additional decisions to make in the dask context. Ideally
    the same type as the input. So if a ``dask.array`` is passed in, a
    ``dask.array`` with the same chunks should be returned.
 
-.. _estimator check: http://scikit-learn.org/stable/developers/contributing.html#rolling-your-own-estimator
+.. _estimator check: https://scikit-learn.org/stable/developers/develop.html#rolling-your-own-estimator
 
 Documentation
 ~~~~~~~~~~~~~
@@ -143,6 +153,10 @@ Building the docs is possible with
 .. code-block:: none
 
    $ conda env create -f ci/environment-docs.yaml --name=dask-ml-dev-docs
+   $ conda activate dask-ml-dev-docs
+   $ python -m pip install -e .
+   $ cd docs
+   $ make html
 
 Examples are written as Jupyter notebooks with their output stripped, either
 manually or using `nbstripout <https://github.com/kynan/nbstripout>`_. We want

@@ -1,9 +1,13 @@
+from typing import Any, Callable, Union
+
 import dask.array as da
 import dask.dataframe as dd
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from dask_ml.utils import check_array, handle_zeros_in_scale
+from dask_ml.utils import check_array
+
+from .._typing import ArrayLike, DataFrameType, SeriesType
 
 
 class BlockTransformer(BaseEstimator, TransformerMixin):
@@ -60,15 +64,25 @@ class BlockTransformer(BaseEstimator, TransformerMixin):
     Dask Name: hash_pandas_object, 60 tasks
     """
 
-    def __init__(self, func, *, validate=False, **kw_args):
+    def __init__(
+        self,
+        func: Callable[..., Union[ArrayLike, DataFrameType]],
+        *,
+        validate: bool = False,
+        **kw_args: Any
+    ):
         self.func = func
         self.validate = validate
         self.kw_args = kw_args
 
-    def fit(self, X, y=None):
+    def fit(
+        self, X: Union[ArrayLike, DataFrameType], y: Union[ArrayLike, SeriesType] = None
+    ) -> "BlockTransformer":
         return self
 
-    def transform(self, X, y=None):
+    def transform(
+        self, X: Union[ArrayLike, DataFrameType], y: Union[ArrayLike, SeriesType] = None
+    ) -> Union[ArrayLike, DataFrameType]:
         kwargs = self.kw_args if self.kw_args else {}
 
         if isinstance(X, da.Array):

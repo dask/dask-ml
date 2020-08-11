@@ -10,8 +10,9 @@ dependencies:
   - dask-glm >=0.2.0
   - distributed
   - flake8
-  - isort
+  - isort==4.3.21
   - multipledispatch >=0.4.9
+  - mypy
   - numba
   - numpy >=1.16.3
   - numpydoc
@@ -22,7 +23,7 @@ dependencies:
   - pytest-cov
   - pytest-mock
   - python=3.7.*
-  - scikit-learn>=0.20.0
+  - scikit-learn>=0.23.0
   - scipy
   - sparse
   - toolz

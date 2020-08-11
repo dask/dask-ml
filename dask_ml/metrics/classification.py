@@ -1,11 +1,21 @@
+from typing import Optional
+
 import dask
 import dask.array as da
 import numpy as np
 import sklearn.metrics
 import sklearn.utils.multiclass
 
+from .._typing import ArrayLike
 
-def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None, compute=True):
+
+def accuracy_score(
+    y_true: ArrayLike,
+    y_pred: ArrayLike,
+    normalize: bool = True,
+    sample_weight: Optional[ArrayLike] = None,
+    compute: bool = True,
+) -> ArrayLike:
     """Accuracy classification score.
 
     In multilabel classification, this function computes subset accuracy:
@@ -84,7 +94,9 @@ def accuracy_score(y_true, y_pred, normalize=True, sample_weight=None, compute=T
     return score
 
 
-def _log_loss_inner(x, y, sample_weight, **kwargs):
+def _log_loss_inner(
+    x: ArrayLike, y: ArrayLike, sample_weight: Optional[ArrayLike], **kwargs
+):
     # da.map_blocks wasn't able to concatenate together the results
     # when we reduce down to a scalar per block. So we make an
     # array with 1 element.
@@ -110,7 +122,7 @@ def log_loss(
 
     if y_pred.ndim > 1 and y_true.ndim == 1:
         y_true = y_true.reshape(-1, 1)
-        drop_axis = 1
+        drop_axis: Optional[int] = 1
         if sample_weight is not None:
             sample_weight = sample_weight.reshape(-1, 1)
     else:
