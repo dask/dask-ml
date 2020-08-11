@@ -2,7 +2,7 @@ import contextlib
 import datetime
 import functools
 import logging
-from collections import Sequence
+from collections.abc import Sequence
 from multiprocessing import cpu_count
 from numbers import Integral
 from timeit import default_timer as tic
@@ -23,14 +23,14 @@ from ._utils import ConstantFunction
 logger = logging.getLogger()
 
 
-def _svd_flip_copy(x, y):
+def _svd_flip_copy(x, y, u_based_decision=True):
     # If the array is locked, copy the array and transpose it
     # This happens with a very large array > 1TB
     # GH: issue 592
     try:
-        return skm.svd_flip(x, y)
+        return skm.svd_flip(x, y, u_based_decision=u_based_decision)
     except ValueError:
-        return skm.svd_flip(x.copy(), y.copy())
+        return skm.svd_flip(x.copy(), y.copy(), u_based_decision=u_based_decision)
 
 
 def svd_flip(u, v):
@@ -88,12 +88,15 @@ def assert_estimator_equal(left, right, exclude=None, **kwargs):
     else:
         exclude = set(exclude)
 
-    assert (set(left_attrs) - exclude) == set(right_attrs) - exclude
+    left_attrs2 = set(left_attrs) - exclude
+    right_attrs2 = set(right_attrs) - exclude
 
-    for attr in set(left_attrs) - exclude:
+    assert left_attrs2 == right_attrs2, left_attrs2 ^ right_attrs2
+
+    for attr in left_attrs2:
         l = getattr(left, attr)
         r = getattr(right, attr)
-        _assert_eq(l, r, **kwargs)
+        _assert_eq(l, r, name=attr, **kwargs)
 
 
 def check_array(
@@ -139,7 +142,10 @@ def check_array(
         if not accept_unknown_chunks:
             if np.isnan(array.shape[0]):
                 raise TypeError(
-                    "Cannot operate on Dask array with unknown chunk sizes."
+                    "Cannot operate on Dask array with unknown chunk sizes. "
+                    "Use the following the compute chunk sizes:\n\n"
+                    "   >>> X.compute_chunk_sizes()  # if Dask.Array\n"
+                    "   >>> ddf.to_dask_array(lengths=True)  # if Dask.Dataframe"
                 )
         if not accept_multiple_blocks and array.ndim > 1:
             if len(array.chunks[1]) > 1:
@@ -171,7 +177,13 @@ def check_array(
 
     elif isinstance(array, dd.DataFrame):
         if not accept_dask_dataframe:
-            raise TypeError("This estimator does not support dask dataframes.")
+            raise TypeError(
+                "This estimator does not support dask dataframes. "
+                "This might be resolved with one of\n\n"
+                "    1. ddf.to_dask_array(lengths=True)\n"
+                "    2. ddf.to_dask_array()  # may cause other issues because "
+                "of unknown chunk sizes"
+            )
         # TODO: sample?
         return array
     elif isinstance(array, pd.DataFrame) and preserve_pandas_dataframe:
@@ -181,7 +193,7 @@ def check_array(
         return sk_validation.check_array(array, *args, **kwargs)
 
 
-def _assert_eq(l, r, **kwargs):
+def _assert_eq(l, r, name=None, **kwargs):
     array_types = (np.ndarray, da.Array)
     frame_types = (pd.core.generic.NDFrame, dd._Frame)
     if isinstance(l, array_types):
@@ -194,7 +206,7 @@ def _assert_eq(l, r, **kwargs):
         for a, b in zip(l, r):
             _assert_eq(a, b, **kwargs)
     else:
-        assert l == r
+        assert l == r, (name, l, r)
 
 
 def check_random_state(random_state):

@@ -54,6 +54,24 @@ provides the following:
    model_selection.IncrementalSearchCV
    model_selection.HyperbandSearchCV
    model_selection.SuccessiveHalvingSearchCV
+   model_selection.InverseDecaySearchCV
+
+
+:mod:`dask_ml.ensemble`: Ensemble Methods
+=========================================
+
+.. automodule:: dask_ml.ensemble
+   :no-members:
+   :no-inherited-members:
+
+.. currentmodule:: dask_ml
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   ensemble.BlockwiseVotingClassifier
+   ensemble.BlockwiseVotingRegressor
 
 
 :mod:`dask_ml.linear_model`: Generalized Linear Models
@@ -120,6 +138,7 @@ with Dask Arrays or DataFrames.
    :toctree: generated/
    :template: class.rst
 
+   decomposition.IncrementalPCA
    decomposition.PCA
    decomposition.TruncatedSVD
 
@@ -157,10 +176,11 @@ with Dask Arrays or DataFrames.
    :toctree: generated/
    :template: class.rst
 
+   feature_extraction.text.CountVectorizer
    feature_extraction.text.HashingVectorizer
    feature_extraction.text.FeatureHasher
 
-   
+
 :mod:`dask_ml.compose`: Composite Estimators
 ============================================
 
@@ -226,20 +246,6 @@ Classification Metrics
    metrics.log_loss
 
 
-:mod:`dask_ml.tensorflow`: Tensorflow
-=====================================
-
-.. automodule:: dask_ml.tensorflow
-
-.. currentmodule:: dask_ml.tensorflow
-
-.. autosummary::
-   :toctree: generated/
-
-   start_tensorflow
-
-
-
 :mod:`dask_ml.xgboost`: XGBoost
 ===============================
 
@@ -259,3 +265,21 @@ Classification Metrics
 
    train
    predict
+
+:mod:`dask_ml.datasets`: Datasets
+======================================================
+
+dask-ml provides some utilities for generating toy datasets.
+
+.. automodule:: dask_ml.datasets
+
+.. currentmodule:: dask_ml.datasets
+
+.. autosummary::
+   :toctree: generated/
+
+   make_counts
+   make_blobs
+   make_regression
+   make_classification
+   make_classification_df
