@@ -48,3 +48,15 @@ def test_mse_squared(squared):
     result = m1(a, b, squared=squared)
     expected = m2(a, b, squared=squared)
     assert abs(result - expected) < 1e-5
+
+
+def test_mean_squared_log_error():
+    m1 = dask_ml.metrics.mean_squared_log_error
+    m2 = sklearn.metrics.mean_squared_log_error
+
+    a = da.random.uniform(size=(100,), chunks=(25,))
+    b = da.random.uniform(size=(100,), chunks=(25,))
+
+    result = m1(a, b)
+    expected = m2(a, b)
+    assert abs(result - expected) < 1e-5

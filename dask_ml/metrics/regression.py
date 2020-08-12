@@ -110,3 +110,22 @@ def r2_score(
     if compute:
         result = result.compute()
     return result
+
+
+@derived_from(sklearn.metrics)
+def mean_squared_log_error(
+    y_true: ArrayLike,
+    y_pred: ArrayLike,
+    sample_weight: Optional[ArrayLike] = None,
+    multioutput: Optional[str] = "uniform_average",
+    compute: bool = True,
+) -> ArrayLike:
+
+    result = mean_squared_error(
+        da.log1p(y_true),
+        da.log1p(y_pred),
+        sample_weight=sample_weight,
+        multioutput=multioutput,
+        compute=compute,
+    )
+    return result
