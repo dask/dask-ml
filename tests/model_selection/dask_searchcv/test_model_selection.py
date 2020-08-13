@@ -1031,7 +1031,7 @@ def test_sample_weight_cross_validation(
     gscv = dcv.GridSearchCV(
         estimator,
         estimator_params,  # parameters
-        scoring=make_scorer(metric, greater_is_better, needs_proba),
+        scoring=make_scorer(score_func=metric, greater_is_better=greater_is_better, needs_proba=needs_proba),
         cv=2,
         return_train_score=True
     )
