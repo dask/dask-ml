@@ -191,19 +191,21 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
                 self.categories_.append(cats)
                 self.dtypes_.append(None)
         else:
-            if not (X.dtypes == "category").all():
-                raise ValueError("All columns must be Categorical dtype.")
-            if self.categories == "auto":
-                for col in X.columns:
-                    Xi = X[col]
-                    cats = _encode(Xi, uniques=Xi.cat.categories)
-                    self.categories_.append(cats)
-                    self.dtypes_.append(Xi.dtype)
-            else:
-                raise ValueError(
-                    "Cannot specify 'categories' with DataFrame input. "
-                    "Use a categorical dtype instead."
-                )
+            for i in range(len(X.columns)):
+                Xi = X.iloc[:, i]
+                if self.categories != "auto":
+                    categories = self.categories[i]
+                    Xi = Xi.astype(pd.CategoricalDtype(categories))
+                else:
+                    if not pd.api.types.is_categorical_dtype(Xi.dtype):
+                        raise ValueError(
+                            "All columns must be Categorical dtype when "
+                            "'categories=\"auto\"'."
+                        )
+
+                cats = _encode(Xi, uniques=Xi.cat.categories)
+                self.categories_.append(cats)
+                self.dtypes_.append(Xi.dtype)
 
         self.categories_ = dask.compute(self.categories_)[0]
 
@@ -250,9 +252,7 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
         else:
             import dask.dataframe as dd
 
-            # Validate that all are categorical.
-            if not (X.dtypes == "category").all():
-                raise ValueError("Must be all categorical.")
+            X = X.copy()
 
             if not len(X.columns) == len(self.categories_):
                 raise ValueError(
@@ -260,13 +260,17 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
                     "of categories_ ({})".format(len(X.columns), len(self.categories_))
                 )
 
-            for col, dtype in zip(X.columns, self.dtypes_):
-                if not (X[col].dtype == dtype):
-                    raise ValueError(
-                        "Different CategoricalDtype for fit and "
-                        "transform. '{}' != {}'".format(dtype, X[col].dtype)
-                    )
+            for i, (col, dtype) in enumerate(zip(X.columns, self.dtypes_)):
+                Xi = X.iloc[:, i]
+                if not pd.api.types.is_categorical_dtype(Xi.dtype):
+                    Xi = Xi.astype(dtype)
+                    X[col] = Xi
 
+                if Xi.dtype != dtype:
+                    raise ValueError(
+                        "Different CategoricalDtype for fit and transform. "
+                        "{!r} != {!r}".format(Xi.dtype, dtype)
+                    )
             return dd.get_dummies(X, sparse=self.sparse, dtype=self.dtype)
 
         return X

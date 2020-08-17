@@ -117,6 +117,31 @@ def test_onehotencoder_drop_raises():
         dask_ml.preprocessing.OneHotEncoder(drop="first")
 
 
+def test_onehotencoder_dataframe_with_categories():
+    # https://github.com/dask/dask-ml/issues/726
+    enc = dask_ml.preprocessing.OneHotEncoder(
+        categories=[["a", "b", "c"], ["a", "b"]], sparse=False
+    )
+    ddf = dd.from_pandas(
+        pd.DataFrame({"A": ["a", "b", "b", "a"], "B": ["a", "b", "b", "b"]}),
+        npartitions=1,
+    )
+    result = enc.fit_transform(ddf)
+    expected = dd.from_pandas(
+        pd.DataFrame(
+            {
+                "A_a": [1, 0, 0, 1],
+                "A_b": [0, 1, 1, 0],
+                "A_c": [0, 0, 0, 0],
+                "B_a": [1, 0, 0, 0],
+                "B_b": [0, 0, 0, 0],
+            }
+        ),
+        npartitions=1,
+    )
+    assert_estimator_equal(result, expected)
+
+
 def test_handles_numpy():
     enc = dask_ml.preprocessing.OneHotEncoder()
     enc.fit(X)
@@ -132,15 +157,6 @@ def test_dataframe_requires_all_categorical(data):
     assert e.match("All columns must be Categorical dtype")
 
 
-@pytest.mark.parametrize("data", [df, ddf])
-def test_dataframe_prohibits_categories(data):
-    enc = dask_ml.preprocessing.OneHotEncoder(categories=[["a", "b"]])
-    with pytest.raises(ValueError) as e:
-        enc.fit(data)
-
-    assert e.match("Cannot specify 'categories'")
-
-
 def test_unknown_category_transform():
     df2 = ddf.copy()
     df2["A"] = ddf.A.cat.add_categories("new!")
@@ -148,10 +164,19 @@ def test_unknown_category_transform():
     enc = dask_ml.preprocessing.OneHotEncoder()
     enc.fit(ddf)
 
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(ValueError, match="Different CategoricalDtype"):
         enc.transform(df2)
 
-    assert e.match("Different CategoricalDtype for fit and transform")
+
+def test_different_shape_raises():
+    df2 = ddf.copy()
+    df2["B"] = ddf.A.cat.add_categories("new!")
+
+    enc = dask_ml.preprocessing.OneHotEncoder()
+    enc.fit(ddf)
+
+    with pytest.raises(ValueError, match="Number of columns"):
+        enc.transform(df2)
 
 
 @pytest.mark.skipif(not DASK_2_20_0, reason="Fixed in Dask 2.20.0")

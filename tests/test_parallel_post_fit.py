@@ -93,12 +93,12 @@ def test_transform(kind):
     base = PCA(random_state=0)
     wrap = ParallelPostFit(PCA(random_state=0))
 
-    base.fit(X, y)
-    wrap.fit(X, y)
+    base.fit(*dask.compute(X, y))
+    wrap.fit(*dask.compute(X, y))
 
     assert_estimator_equal(wrap.estimator, base)
 
-    result = base.transform(X)
+    result = base.transform(*dask.compute(X))
     expected = wrap.transform(X)
     assert_eq_ar(result, expected)
 

@@ -15,7 +15,7 @@ install_requires = [
     "distributed>=2.4.0",
     "numba",
     "numpy>=1.17.3",
-    "pandas>=0.23.4",
+    "pandas>=0.24.2",
     "scikit-learn>=0.23",
     "scipy",
     "dask-glm>=0.2.0",

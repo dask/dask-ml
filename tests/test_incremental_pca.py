@@ -22,6 +22,7 @@ iris = datasets.load_iris()
 
 @pytest.mark.parametrize("svd_solver", ["full", "auto", "randomized"])
 @pytest.mark.parametrize("batch_number", [3, 10])
+@pytest.mark.filterwarnings("ignore:invalid value:RuntimeWarning")
 def test_compare_with_sklearn(svd_solver, batch_number):
     X = iris.data
     X_da = da.from_array(X, chunks=(3, -1))
@@ -52,6 +53,7 @@ def test_compare_with_sklearn(svd_solver, batch_number):
 
 
 @pytest.mark.parametrize("svd_solver", ["full", "auto", "randomized"])
+@pytest.mark.filterwarnings("ignore:invalid value:RuntimeWarning")
 def test_incremental_pca(svd_solver):
     # Incremental PCA on dense arrays.
     X = iris.data
@@ -59,7 +61,7 @@ def test_incremental_pca(svd_solver):
     batch_size = X.shape[0] // 3
     ipca = IncrementalPCA(n_components=2, batch_size=batch_size, svd_solver=svd_solver)
     pca = PCA(n_components=2, svd_solver=svd_solver)
-    pca.fit_transform(X)
+    pca.fit_transform(X.compute())
 
     X_transformed = ipca.fit_transform(X)
 
@@ -87,6 +89,7 @@ def test_incremental_pca(svd_solver):
         )
 
 
+@pytest.mark.filterwarnings("ignore:invalid value:RuntimeWarning")
 def test_incremental_pca_check_projection():
     # Test that the projection of data is correct.
     rng = np.random.RandomState(1999)
@@ -111,6 +114,7 @@ def test_incremental_pca_check_projection():
     assert_almost_equal(np.abs(Yt[0][0]), 1.0, 1)
 
 
+@pytest.mark.filterwarnings("ignore:invalid value:RuntimeWarning")
 def test_incremental_pca_inverse():
     # Test that the projection of data can be inverted.
     rng = np.random.RandomState(1999)
@@ -154,6 +158,7 @@ def test_incremental_pca_validation():
         IncrementalPCA(n_components=n_components).partial_fit(X)
 
 
+@pytest.mark.filterwarnings("ignore:invalid value:RuntimeWarning")
 def test_n_components_none():
     # Ensures that n_components == None is handled correctly
     rng = np.random.RandomState(1999)
@@ -173,6 +178,7 @@ def test_n_components_none():
         assert ipca.n_components_ == ipca.components_.shape[0]
 
 
+@pytest.mark.filterwarnings("ignore:invalid value:RuntimeWarning")
 def test_incremental_pca_set_params():
     # Test that components_ sign is stable over batch sizes.
     rng = np.random.RandomState(1999)
@@ -200,6 +206,7 @@ def test_incremental_pca_set_params():
     ipca.partial_fit(X)
 
 
+@pytest.mark.filterwarnings("ignore:invalid value:RuntimeWarning")
 def test_incremental_pca_num_features_change():
     # Test that changing n_components will raise an error.
     rng = np.random.RandomState(1999)
@@ -215,6 +222,7 @@ def test_incremental_pca_num_features_change():
         ipca.partial_fit(X2)
 
 
+@pytest.mark.filterwarnings("ignore:invalid value:RuntimeWarning")
 def test_incremental_pca_batch_signs():
     # Test that components_ sign is stable over batch sizes.
     rng = np.random.RandomState(1999)
@@ -232,6 +240,7 @@ def test_incremental_pca_batch_signs():
         assert_almost_equal(np.sign(i), np.sign(j), decimal=6)
 
 
+@pytest.mark.filterwarnings("ignore:invalid value:RuntimeWarning")
 def test_incremental_pca_batch_values():
     # Test that components_ values are stable over batch sizes.
     rng = np.random.RandomState(1999)
@@ -249,6 +258,7 @@ def test_incremental_pca_batch_values():
         assert_almost_equal(i, j, decimal=1)
 
 
+@pytest.mark.filterwarnings("ignore:invalid value:RuntimeWarning")
 def test_incremental_pca_batch_rank():
     # Test sample size in each batch is always larger or equal to n_components
     rng = np.random.RandomState(1999)
@@ -266,6 +276,7 @@ def test_incremental_pca_batch_rank():
         assert_allclose_dense_sparse(components_i, components_j)
 
 
+@pytest.mark.filterwarnings("ignore:invalid value:RuntimeWarning")
 def test_incremental_pca_partial_fit():
     # Test that fit and partial_fit get equivalent results.
     rng = np.random.RandomState(1999)
@@ -288,12 +299,13 @@ def test_incremental_pca_partial_fit():
 
 
 @pytest.mark.parametrize("svd_solver", ["full", "auto", "randomized"])
+@pytest.mark.filterwarnings("ignore:invalid value:RuntimeWarning")
 def test_incremental_pca_against_pca_iris(svd_solver):
     # Test that IncrementalPCA and PCA are approximate (to a sign flip).
     X = iris.data
     X = da.from_array(X, chunks=[50, -1])
 
-    Y_pca = PCA(n_components=2, svd_solver=svd_solver).fit_transform(X)
+    Y_pca = PCA(n_components=2, svd_solver=svd_solver).fit_transform(X.compute())
     Y_ipca = IncrementalPCA(
         n_components=2, batch_size=25, svd_solver=svd_solver
     ).fit_transform(X)
@@ -302,6 +314,7 @@ def test_incremental_pca_against_pca_iris(svd_solver):
 
 
 @pytest.mark.parametrize("svd_solver", ["full", "auto", "randomized"])
+@pytest.mark.filterwarnings("ignore:invalid value:RuntimeWarning")
 def test_incremental_pca_against_pca_random_data(svd_solver):
     # Test that IncrementalPCA and PCA are approximate (to a sign flip).
     rng = np.random.RandomState(1999)
@@ -310,7 +323,7 @@ def test_incremental_pca_against_pca_random_data(svd_solver):
     X = rng.randn(n_samples, n_features) + 5 * rng.rand(1, n_features)
     X = da.from_array(X, chunks=[40, -1])
 
-    Y_pca = PCA(n_components=3, svd_solver=svd_solver).fit_transform(X)
+    Y_pca = PCA(n_components=3, svd_solver=svd_solver).fit_transform(X.compute())
     Y_ipca = IncrementalPCA(
         n_components=3, batch_size=25, svd_solver=svd_solver
     ).fit_transform(X)
@@ -319,6 +332,7 @@ def test_incremental_pca_against_pca_random_data(svd_solver):
 
 
 @pytest.mark.parametrize("svd_solver", ["full", "auto", "randomized"])
+@pytest.mark.filterwarnings("ignore:invalid value:RuntimeWarning")
 def test_explained_variances(svd_solver):
     # Test that PCA and IncrementalPCA calculations match
     X = datasets.make_low_rank_matrix(
@@ -328,7 +342,7 @@ def test_explained_variances(svd_solver):
     prec = 3
     n_samples, n_features = X.shape
     for nc in [None, 99]:
-        pca = PCA(n_components=nc, svd_solver=svd_solver).fit(X)
+        pca = PCA(n_components=nc, svd_solver=svd_solver).fit(X.compute())
         ipca = IncrementalPCA(
             n_components=nc, batch_size=100, svd_solver=svd_solver
         ).fit(X)
@@ -342,6 +356,7 @@ def test_explained_variances(svd_solver):
 
 
 @pytest.mark.parametrize("svd_solver", ["full", "auto", "randomized"])
+@pytest.mark.filterwarnings("ignore:invalid value:RuntimeWarning")
 def test_singular_values(svd_solver):
     # Check that the IncrementalPCA output has the correct singular values
 
@@ -354,7 +369,7 @@ def test_singular_values(svd_solver):
     )
     X = da.from_array(X, chunks=[200, -1])
 
-    pca = PCA(n_components=10, svd_solver=svd_solver, random_state=rng).fit(X)
+    pca = PCA(n_components=10, svd_solver=svd_solver, random_state=rng).fit(X.compute())
     ipca = IncrementalPCA(n_components=10, batch_size=100, svd_solver=svd_solver).fit(X)
     assert_array_almost_equal(pca.singular_values_, ipca.singular_values_, 2)
 
@@ -389,7 +404,7 @@ def test_singular_values(svd_solver):
     pca = PCA(n_components=3, svd_solver=svd_solver, random_state=rng)
     ipca = IncrementalPCA(n_components=3, batch_size=100, svd_solver=svd_solver)
 
-    X_pca = pca.fit_transform(X)
+    X_pca = pca.fit_transform(X.compute())
     X_pca /= np.sqrt(np.sum(X_pca ** 2.0, axis=0))
     X_pca[:, 0] *= 3.142
     X_pca[:, 1] *= 2.718
@@ -403,6 +418,7 @@ def test_singular_values(svd_solver):
 
 
 @pytest.mark.parametrize("svd_solver", ["full", "auto", "randomized"])
+@pytest.mark.filterwarnings("ignore:invalid value:RuntimeWarning")
 def test_whitening(svd_solver):
     # Test that PCA and IncrementalPCA transforms match to sign flip.
     X = datasets.make_low_rank_matrix(
@@ -412,7 +428,7 @@ def test_whitening(svd_solver):
     prec = 3
     n_samples, n_features = X.shape
     for nc in [None, 9]:
-        pca = PCA(whiten=True, n_components=nc, svd_solver=svd_solver).fit(X)
+        pca = PCA(whiten=True, n_components=nc, svd_solver=svd_solver).fit(X.compute())
         ipca = IncrementalPCA(
             whiten=True, n_components=nc, batch_size=250, svd_solver=svd_solver
         ).fit(X)
@@ -427,6 +443,7 @@ def test_whitening(svd_solver):
         assert_almost_equal(Xinv_pca, Xinv_ipca, decimal=prec)
 
 
+@pytest.mark.filterwarnings("ignore:invalid value:RuntimeWarning")
 def test_incremental_pca_partial_fit_float_division():
     # Test to ensure float division is used in all versions of Python
     # (non-regression test for issue #9489)
