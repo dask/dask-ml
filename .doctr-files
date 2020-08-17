@@ -43,6 +43,7 @@
 ./_sources/modules/generated/dask_ml.metrics.log_loss.rst.txt
 ./_sources/modules/generated/dask_ml.metrics.mean_absolute_error.rst.txt
 ./_sources/modules/generated/dask_ml.metrics.mean_squared_error.rst.txt
+./_sources/modules/generated/dask_ml.metrics.mean_squared_log_error.rst.txt
 ./_sources/modules/generated/dask_ml.metrics.r2_score.rst.txt
 ./_sources/modules/generated/dask_ml.model_selection.GridSearchCV.rst.txt
 ./_sources/modules/generated/dask_ml.model_selection.HyperbandSearchCV.rst.txt
@@ -166,6 +167,7 @@
 ./modules/generated/dask_ml.metrics.log_loss.html
 ./modules/generated/dask_ml.metrics.mean_absolute_error.html
 ./modules/generated/dask_ml.metrics.mean_squared_error.html
+./modules/generated/dask_ml.metrics.mean_squared_log_error.html
 ./modules/generated/dask_ml.metrics.r2_score.html
 ./modules/generated/dask_ml.model_selection.GridSearchCV.html
 ./modules/generated/dask_ml.model_selection.HyperbandSearchCV.html

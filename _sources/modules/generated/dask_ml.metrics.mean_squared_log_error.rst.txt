@@ -1,0 +1,6 @@
+dask\_ml.metrics.mean\_squared\_log\_error
+==========================================
+
+.. currentmodule:: dask_ml.metrics
+
+.. autofunction:: mean_squared_log_error
