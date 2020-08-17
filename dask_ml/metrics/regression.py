@@ -122,8 +122,8 @@ def mean_squared_log_error(
 ) -> ArrayLike:
 
     result = mean_squared_error(
-        da.log1p(y_true),
-        da.log1p(y_pred),
+        np.log1p(y_true),
+        np.log1p(y_pred),
         sample_weight=sample_weight,
         multioutput=multioutput,
         compute=compute,
