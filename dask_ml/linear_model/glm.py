@@ -208,6 +208,7 @@ class LogisticRegression(_GLM):
             >>> X, y = make_classification()
             >>> lr = LogisticRegression()
             >>> lr.fit(X, y)
+            >>> lr.decision_function(X)
             >>> lr.predict(X)
             >>> lr.predict_proba(X)
             >>> lr.score(X, y)"""
@@ -217,6 +218,21 @@ class LogisticRegression(_GLM):
     @property
     def family(self):
         return families.Logistic
+
+    def decision_function(self, X):
+        """Predict confidence scores for samples in X.
+
+        Parameters
+        ----------
+        X : array-like, shape = [n_samples, n_features]
+
+        Returns
+        -------
+        T : array-like, shape = [n_samples, n_classes]
+            The probability of the sample for each class in the model.
+        """
+        X_ = self._check_array(X)
+        return dot(X_, self._coef)
 
     def predict(self, X):
         """Predict class labels for samples in X.
@@ -244,8 +260,7 @@ class LogisticRegression(_GLM):
         T : array-like, shape = [n_samples, n_classes]
             The probability of the sample for each class in the model.
         """
-        X_ = self._check_array(X)
-        return sigmoid(dot(X_, self._coef))
+        return sigmoid(self.decision_function(X))
 
     def score(self, X, y):
         """The mean accuracy on the given data and labels
