@@ -133,7 +133,7 @@
             
             
               <div class="version">
-                1.6.1.dev8+g68c9bab
+                1.6.1.dev9+gb94c587
               </div>
             
           
@@ -301,7 +301,7 @@ in distributed memory, which saves some recompuation and redundant
 communication.</p>
 <p class="rubric">Examples</p>
 <p>The Dask-ML implementation currently requires that <code class="docutils literal notranslate"><span class="pre">raw_documents</span></code>
-is a <a class="reference external" href="https://docs.dask.org/en/latest/bag-api.html#dask.bag.Bag" title="(in Dask v2.23.0+6.gd809cf9e.dirty)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask.bag.Bag</span></code></a> of documents (lists of strings).</p>
+is a <a class="reference external" href="https://docs.dask.org/en/latest/bag-api.html#dask.bag.Bag" title="(in Dask v2.23.0+8.gcd1883e4.dirty)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask.bag.Bag</span></code></a> of documents (lists of strings).</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dask_ml.feature_extraction.text</span> <span class="kn">import</span> <span class="n">CountVectorizer</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dask.bag</span> <span class="k">as</span> <span class="nn">db</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">distributed</span> <span class="kn">import</span> <span class="n">Client</span>
