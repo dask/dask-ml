@@ -89,6 +89,7 @@ def test_big(fit_intercept):
     X, y = make_classification(chunks=50)
     lr = LogisticRegression(fit_intercept=fit_intercept)
     lr.fit(X, y)
+    lr.decision_function(X)
     lr.predict(X)
     lr.predict_proba(X)
     if fit_intercept:
