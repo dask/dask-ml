@@ -229,7 +229,7 @@ class LogisticRegression(_GLM):
         Returns
         -------
         S : array-like, shape = [n_samples,]
-            The confidence score of the sample for each class in the model.
+            Confidence scores for each sample.
         """
         X_ = self._check_array(X)
         return dot(X_, self._coef)
