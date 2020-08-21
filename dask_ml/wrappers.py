@@ -252,6 +252,44 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         else:
             return self._postfit_estimator.score(X, y)
 
+    def decision_function(self, X):
+        """Predict confidences scores for samples in X.
+
+        For dask inputs, a dask array or dataframe is returned. For other
+        inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
+        regular return value is returned.
+
+        If the underlying estimator does not have a ``decision_function``
+        method, then an ``AttributeError`` is raised.
+
+        Parameters
+        ----------
+        X : array or dataframe
+
+        Returns
+        -------
+        y : array-like
+        """
+        X = self._check_array(X)
+
+        self._check_method("decision_function")
+
+        if isinstance(X, da.Array):
+            # XXX: multiclass
+            return X.map_blocks(
+                _decision_function,
+                estimator=self._postfit_estimator,
+                dtype="float",
+                drop_axis=1
+            )
+        elif isinstance(X, dd._Frame):
+            return X.map_partitions(
+                _decision_function,
+                estimator=self._postfit_estimator
+            )
+        else:
+            return _decision_function(X, estimator=self._postfit_estimator)
+
     def predict(self, X):
         """Predict for X.
 
@@ -539,6 +577,10 @@ def _first_block(dask_object):
 
     else:
         return dask_object
+
+
+def _decision_function(part, estimator):
+    return estimator.decision_function(part)
 
 
 def _predict(part, estimator):
