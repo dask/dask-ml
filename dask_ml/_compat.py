@@ -21,6 +21,7 @@ SK_024 = SK_VERSION >= packaging.version.parse("0.24.0.dev0")
 DASK_240 = DASK_VERSION >= packaging.version.parse("2.4.0")
 DASK_2130 = DASK_VERSION >= packaging.version.parse("2.13.0")
 DASK_2_20_0 = DASK_VERSION >= packaging.version.parse("2.20.0")
+DASK_2_26_0 = DASK_VERSION >= packaging.version.parse("2.26.0")
 DISTRIBUTED_2_5_0 = DISTRIBUTED_VERSION > packaging.version.parse("2.5.0")
 DISTRIBUTED_2_11_0 = DISTRIBUTED_VERSION > packaging.version.parse("2.10.0")  # dev
 WINDOWS = os.name == "nt"
