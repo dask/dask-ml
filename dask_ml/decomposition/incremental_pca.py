@@ -322,7 +322,10 @@ class IncrementalPCA(pca.PCA):
         # The following part is modified so that it can fit to large dask-array
         solver = self._get_solver(X, self.n_components_)
         if solver in {"full", "tsqr"}:
-            U, S, V = linalg.svd(X)
+            if DASK_2_26_0:
+                U, S, V = linalg.svd(X, coerce_signs=False)
+            else:
+                U, S, V = linalg.svd(X)
             # manually implement full_matrix=False
             if V.shape[0] > len(S):
                 V = V[: len(S)]
