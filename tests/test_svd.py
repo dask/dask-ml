@@ -23,6 +23,22 @@ Xdense = X.A
 dXdense = da.from_array(Xdense, chunks=(30, 55))
 
 
+def flip_vector_signs(x, axis):
+    """ Flip vector signs to align them for comparison
+
+    Parameters
+    ----------
+    x : 2D array_like
+        Matrix containing vectors in rows or columns
+    axis : int, 0 or 1
+        Axis in which vectors reside
+    """
+    assert x.ndim == 2
+    signs = np.sum(x, axis=axis, keepdims=True)
+    signs = signs.dtype.type(2) * ((signs >= 0) - signs.dtype.type(0.5))
+    return x * signs
+
+
 @pytest.mark.parametrize("algorithm", ["tsqr", "randomized"])
 def test_basic(algorithm):
     a = dd.TruncatedSVD(random_state=0, algorithm=algorithm)
