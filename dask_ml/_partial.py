@@ -28,7 +28,7 @@ def fit(
     assume_equal_chunks=False,
     **kwargs
 ):
-    """ Fit scikit learn model against dask arrays
+    """Fit scikit learn model against dask arrays
 
     Model must support the ``partial_fit`` interface for online or batch
     learning.
@@ -164,7 +164,7 @@ def _predict(model, x):
 
 
 def predict(model, x):
-    """ Predict with a scikit learn model
+    """Predict with a scikit learn model
 
     Parameters
     ----------

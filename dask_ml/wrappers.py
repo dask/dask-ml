@@ -517,8 +517,7 @@ class Incremental(ParallelPostFit):
 
 
 def _first_block(dask_object):
-    """Extract the first block / partition from a dask object
-    """
+    """Extract the first block / partition from a dask object"""
     if isinstance(dask_object, da.Array):
         if dask_object.ndim > 1 and dask_object.numblocks[-1] != 1:
             raise NotImplementedError(

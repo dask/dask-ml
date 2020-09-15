@@ -307,7 +307,7 @@ def _log_array(logger, arr, name):
 
 def _format_bytes(n):
     # TODO: just import from distributed if / when required
-    """ Format bytes as text
+    """Format bytes as text
 
     >>> format_bytes(1)
     '1 B'

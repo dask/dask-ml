@@ -99,7 +99,6 @@ def test_pca_randomized_solver():
     )
 
 
-@pytest.mark.xfail(reason="tsqr expects n_samples>n_features")
 def test_no_empty_slice_warning():
     # test if we avoid numpy warnings for computing over empty arrays
     n_components = 10
@@ -278,7 +277,6 @@ def test_singular_values():
     )
 
 
-@pytest.mark.xfail(reason="Too wide")
 def test_singular_values_wide():
     # This is split off test_singular_values, but we can't pass it ATM
     # Set the singular values and see what we get back

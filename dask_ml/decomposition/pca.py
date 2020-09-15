@@ -9,7 +9,7 @@ from dask import compute
 from sklearn.utils.extmath import fast_logdet
 from sklearn.utils.validation import check_random_state
 
-from .._compat import check_is_fitted
+from .._compat import DASK_2_26_0, check_is_fitted
 from .._utils import draw_seed
 from ..utils import svd_flip
 
@@ -271,15 +271,27 @@ class PCA(sklearn.decomposition.PCA):
         X -= self.mean_
 
         if solver in {"full", "tsqr"}:
-            U, S, V = da.linalg.svd(X)
+            if DASK_2_26_0:
+                U, S, V = da.linalg.svd(X, coerce_signs=False)
+            else:
+                U, S, V = da.linalg.svd(X)
         else:
             # randomized
             random_state = check_random_state(self.random_state)
             seed = draw_seed(random_state, np.iinfo("int32").max)
             n_power_iter = self.iterated_power
-            U, S, V = da.linalg.svd_compressed(
-                X, n_components, n_power_iter=n_power_iter, seed=seed
-            )
+            if DASK_2_26_0:
+                U, S, V = da.linalg.svd_compressed(
+                    X,
+                    n_components,
+                    n_power_iter=n_power_iter,
+                    seed=seed,
+                    coerce_signs=False,
+                )
+            else:
+                U, S, V = da.linalg.svd_compressed(
+                    X, n_components, n_power_iter=n_power_iter, seed=seed
+                )
         U, V = svd_flip(U, V)
 
         explained_variance = (S ** 2) / (n_samples - 1)
@@ -308,8 +320,6 @@ class PCA(sklearn.decomposition.PCA):
                 noise_variance = (total_var.sum() - explained_variance.sum()) / (
                     min(n_features, n_samples) - n_components
                 )
-
-                pass
             else:
                 noise_variance = explained_variance[n_components:].mean()
         else:
@@ -323,7 +333,6 @@ class PCA(sklearn.decomposition.PCA):
                 self.components_,
                 self.explained_variance_,
                 self.explained_variance_ratio_,
-                self.singular_values_,
                 self.noise_variance_,
                 self.singular_values_,
             ) = compute(
@@ -333,7 +342,6 @@ class PCA(sklearn.decomposition.PCA):
                 components,
                 explained_variance,
                 explained_variance_ratio,
-                singular_values,
                 noise_variance,
                 singular_values,
             )

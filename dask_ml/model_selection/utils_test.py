@@ -177,7 +177,7 @@ class CheckingClassifier(BaseEstimator, ClassifierMixin):
             for key, value in fit_params.items():
                 assert len(value) == len(X), (
                     "Fit parameter %s has length"
-                    "%d; expected %d." % (key, len(value), len(X))
+                    "%d; expected %d." % (key, len(value), len(X),)
                 )
         return self
 

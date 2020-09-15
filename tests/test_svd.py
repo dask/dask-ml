@@ -23,6 +23,22 @@ Xdense = X.A
 dXdense = da.from_array(Xdense, chunks=(30, 55))
 
 
+def flip_vector_signs(x, axis):
+    """ Flip vector signs to align them for comparison
+
+    Parameters
+    ----------
+    x : 2D array_like
+        Matrix containing vectors in rows or columns
+    axis : int, 0 or 1
+        Axis in which vectors reside
+    """
+    assert x.ndim == 2
+    signs = np.sum(x, axis=axis, keepdims=True)
+    signs = signs.dtype.type(2) * ((signs >= 0) - signs.dtype.type(0.5))
+    return x * signs
+
+
 @pytest.mark.parametrize("algorithm", ["tsqr", "randomized"])
 def test_basic(algorithm):
     a = dd.TruncatedSVD(random_state=0, algorithm=algorithm)
@@ -30,7 +46,11 @@ def test_basic(algorithm):
     b.fit(Xdense)
     a.fit(dXdense)
 
-    np.testing.assert_allclose(a.components_, b.components_, atol=1e-3)
+    np.testing.assert_allclose(
+        flip_vector_signs(a.components_, axis=1),
+        flip_vector_signs(b.components_, axis=1),
+        atol=1e-3,
+    )
     assert_estimator_equal(
         a, b, exclude=["components_", "explained_variance_"], atol=1e-3
     )
@@ -47,7 +67,9 @@ def test_algorithms():
 
     Xa = svd_a.fit_transform(Xdense)[:, :6]
     Xr = svd_r.fit_transform(dXdense)[:, :6]
-    assert_array_almost_equal(Xa, Xr, decimal=5)
+    assert_array_almost_equal(
+        flip_vector_signs(Xa, axis=0), flip_vector_signs(Xr, axis=0), decimal=5
+    )
 
     comp_a = np.abs(svd_a.components_)
     comp_r = np.abs(svd_r.components_)
