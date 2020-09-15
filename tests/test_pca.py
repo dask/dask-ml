@@ -104,6 +104,9 @@ def test_pca_randomized_solver():
 
 
 def test_no_empty_slice_warning():
+    if not DASK_2_26_0:
+        # See https://github.com/dask/dask/pull/6591
+        pytest.xfail("Dask SVD with wide arrays not supported until 2.26.0")
     # test if we avoid numpy warnings for computing over empty arrays
     n_components = 10
     n_features = n_components + 2  # anything > n_comps triggered it in 0.16
@@ -282,6 +285,9 @@ def test_singular_values():
 
 
 def test_singular_values_wide():
+    if not DASK_2_26_0:
+        # See https://github.com/dask/dask/pull/6591
+        pytest.xfail("Dask SVD with wide arrays not supported until 2.26.0")
     # This is split off test_singular_values, but we can't pass it ATM
     # Set the singular values and see what we get back
     rng = np.random.RandomState(0)
