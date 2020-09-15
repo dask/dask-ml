@@ -13,7 +13,8 @@ from sklearn import datasets
 from sklearn.utils import check_random_state as sk_check_random_state
 
 import dask_ml.decomposition as dd
-from dask_ml.utils import assert_estimator_equal, svd_flip
+from dask_ml._compat import DASK_2_26_0
+from dask_ml.utils import assert_estimator_equal, flip_vector_signs, svd_flip
 
 iris = datasets.load_iris()
 solver_list = ["full", "randomized", "auto", "tsqr"]
@@ -27,7 +28,10 @@ def test_basic():
     b = sd.PCA()
     a.fit(dX)
     b.fit(X)
-    assert_estimator_equal(a, b)
+    assert_estimator_equal(a, b, exclude=["components_"])
+    np.testing.assert_allclose(
+        flip_vector_signs(a.components_, 1), flip_vector_signs(b.components_, 1)
+    )
 
 
 def test_pca():
@@ -671,9 +675,13 @@ def test_pca_float_dtype_preservation(svd_solver):
     pca_32 = dd.PCA(n_components=3, svd_solver=svd_solver, random_state=0).fit(dX_32)
 
     assert pca_64.components_.dtype == np.float64
-    assert pca_32.components_.dtype == np.float32
     assert pca_64.transform(dX_64).dtype == np.float64
-    assert pca_32.transform(dX_32).dtype == np.float32
+    if DASK_2_26_0:
+        # See https://github.com/dask/dask/pull/6643
+        pytest.xfail("SVD dtype not preserved in dask 2.26.0")
+    else:
+        assert pca_32.components_.dtype == np.float32
+        assert pca_32.transform(dX_32).dtype == np.float32
 
     assert_array_almost_equal(pca_64.components_, pca_32.components_, decimal=5)
 
@@ -729,7 +737,7 @@ def test_unknown_shapes(fn, solver):
         assert hasattr(pca, "components_")
         assert pca.n_components_ == 2
         assert pca.n_features_ == 3
-        assert np.isnan(pca.n_samples_)
+        assert pca.n_samples_ == 10
         if fn == "fit_transform":
             assert np.isnan(X_hat.shape[0])
             assert X_hat.shape[1] == 2
@@ -755,12 +763,26 @@ def test_unknown_shapes_n_components_larger_than_num_rows(solver):
         assert len(pca.singular_values_) == 2
         assert len(pca.components_) == 2
         assert pca.n_features_ == 10
-        assert np.isnan(pca.n_samples_)
+        assert pca.n_samples_ == 2
         if solver != "randomized":
             assert pca.explained_variance_ratio_.max() == 1.0
     else:
-        with pytest.raises(ValueError, match="n_components is too large"):
-            pca.fit(X)
+        if DASK_2_26_0:
+            # With dask 2.26.0+, tsqr will no longer throw an error related to svd_flip
+            # when inputs have more columns than rows so the expected failure here
+            # should come when the number of components is checked against the number
+            # of singular values, i.e. this is the error that should get thrown
+            with pytest.raises(
+                ValueError,
+                match="n_components=3 is larger than the number of singular values",
+            ):
+                pca.fit(X)
+        else:
+            # Prior to dask 2.26.0, the error being wrapped and rethrown as a
+            # problem related to having too many components was actually caused
+            # by there being more columns than rows in the input data
+            with pytest.raises(ValueError, match="n_components is too large"):
+                pca.fit(X)
 
 
 @pytest.mark.parametrize("input_type", [np.array, pd.DataFrame, sp.sparse.csr_matrix])

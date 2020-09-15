@@ -5,7 +5,7 @@ import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import sklearn.decomposition
-from dask import compute
+from dask import compute, delayed
 from sklearn.utils.extmath import fast_logdet
 from sklearn.utils.validation import check_random_state
 
@@ -264,89 +264,46 @@ class PCA(sklearn.decomposition.PCA):
         else:
             n_components = self.n_components
 
-        n_samples, n_features = X.shape
         solver = self._get_solver(X, n_components)
 
         self.mean_ = X.mean(0)
         X -= self.mean_
 
         if solver in {"full", "tsqr"}:
-            if DASK_2_26_0:
-                U, S, V = da.linalg.svd(X, coerce_signs=False)
-            else:
-                U, S, V = da.linalg.svd(X)
+            U, S, V = da.linalg.svd(X)
         else:
             # randomized
             random_state = check_random_state(self.random_state)
             seed = draw_seed(random_state, np.iinfo("int32").max)
             n_power_iter = self.iterated_power
-            if DASK_2_26_0:
-                U, S, V = da.linalg.svd_compressed(
-                    X,
-                    n_components,
-                    n_power_iter=n_power_iter,
-                    seed=seed,
-                    coerce_signs=False,
-                )
-            else:
-                U, S, V = da.linalg.svd_compressed(
-                    X, n_components, n_power_iter=n_power_iter, seed=seed
-                )
-        U, V = svd_flip(U, V)
-
-        explained_variance = (S ** 2) / (n_samples - 1)
+            U, S, V = da.linalg.svd_compressed(
+                X, n_components, n_power_iter=n_power_iter, seed=seed
+            )
+        if not DASK_2_26_0:
+            U, V = svd_flip(U, V)
         components, singular_values = V, S
 
         if solver == "randomized":
-            # total_var = X.var(ddof=1, axis=0)[:n_components].sum()
-            total_var = X.var(ddof=1, axis=0).sum()
+            total_variance = X.var(ddof=1, axis=0).sum()
         else:
-            total_var = explained_variance.sum()
-        explained_variance_ratio = explained_variance / total_var
-
-        # Postprocess the number of components required
-        # TODO: n_components = 'mle'
-        # Punting on fractional n_components for now
-        # if 0 < n_components < 1.0:
-        #     # number of components for which the cumulated explained
-        #     # variance percentage is superior to the desired threshold
-        #     ratio_cumsum = stable_cumsum(explained_variance_ratio)
-        #     n_components = np.searchsorted(ratio_cumsum, n_components) + 1
-
-        # Compute noise covariance using Probabilistic PCA model
-        # The sigma2 maximum likelihood (cf. eq. 12.46)
-        if n_components < min(n_features, n_samples):
-            if solver == "randomized":
-                noise_variance = (total_var.sum() - explained_variance.sum()) / (
-                    min(n_features, n_samples) - n_components
-                )
-            else:
-                noise_variance = explained_variance[n_components:].mean()
-        else:
-            noise_variance = 0.0
+            total_variance = np.nan
 
         try:
             (
-                self.n_samples_,
-                self.n_features_,
+                (self.n_samples_, self.n_features_),
                 self.n_components_,
                 self.components_,
-                self.explained_variance_,
-                self.explained_variance_ratio_,
-                self.noise_variance_,
                 self.singular_values_,
+                total_variance,
             ) = compute(
-                n_samples,
-                n_features,
+                delayed(lambda x: x.shape)(X),
                 n_components,
                 components,
-                explained_variance,
-                explained_variance_ratio,
-                noise_variance,
                 singular_values,
+                total_variance,
             )
         except ValueError as e:
-            if np.isnan([n_samples, n_features]).any():
+            if np.isnan(X.shape).any():
                 msg = (
                     "Computation of the SVD raised an error. It is possible "
                     "n_components is too large. i.e., "
@@ -357,6 +314,29 @@ class PCA(sklearn.decomposition.PCA):
                 )
                 raise ValueError(msg.format(X.shape)) from e
             raise e
+
+        self.explained_variance_ = self.singular_values_ ** 2 / (self.n_samples_ - 1)
+
+        if solver == "randomized":
+            self.explained_variance_ratio_ = self.explained_variance_ / total_variance
+        else:
+            self.explained_variance_ratio_ = (
+                self.explained_variance_ / self.explained_variance_.sum()
+            )
+
+        # Compute noise covariance using Probabilistic PCA model
+        # The sigma2 maximum likelihood (cf. eq. 12.46)
+        self.noise_variance_ = 0.0
+        if n_components < min(self.n_features_, self.n_samples_):
+            if solver == "randomized":
+                self.noise_variance_ = (
+                    total_variance - self.explained_variance_.sum()
+                ) / (min(self.n_features_, self.n_samples_) - n_components)
+            else:
+                if n_components < len(self.explained_variance_):
+                    self.noise_variance_ = self.explained_variance_[
+                        n_components:
+                    ].mean()
 
         self.components_ = self.components_[:n_components]
         self.explained_variance_ = self.explained_variance_[:n_components]

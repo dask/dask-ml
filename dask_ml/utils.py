@@ -43,6 +43,22 @@ def svd_flip(u, v):
 svd_flip.__doc__ = skm.svd_flip.__doc__
 
 
+def flip_vector_signs(x, axis):
+    """ Flip vector signs to align them for comparison
+
+    Parameters
+    ----------
+    x : 2D array_like
+        Matrix containing vectors in rows or columns
+    axis : int, 0 or 1
+        Axis in which vectors reside
+    """
+    assert x.ndim == 2
+    signs = np.sum(x, axis=axis, keepdims=True)
+    signs = signs.dtype.type(2) * ((signs >= 0) - signs.dtype.type(0.5))
+    return x * signs
+
+
 def slice_columns(X, columns):
     if isinstance(X, dd.DataFrame):
         return X[list(X.columns) if columns is None else columns]

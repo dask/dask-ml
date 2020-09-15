@@ -8,7 +8,7 @@ from sklearn import decomposition as sd
 from sklearn.utils import check_random_state
 
 from dask_ml import decomposition as dd
-from dask_ml.utils import assert_estimator_equal
+from dask_ml.utils import assert_estimator_equal, flip_vector_signs
 
 # Make an X that looks somewhat like a small tf-idf matrix.
 # XXX newer versions of SciPy have scipy.sparse.rand for this.
@@ -21,22 +21,6 @@ X.data[:] = 1 + np.log(X.data)
 Xdense = X.A
 
 dXdense = da.from_array(Xdense, chunks=(30, 55))
-
-
-def flip_vector_signs(x, axis):
-    """ Flip vector signs to align them for comparison
-
-    Parameters
-    ----------
-    x : 2D array_like
-        Matrix containing vectors in rows or columns
-    axis : int, 0 or 1
-        Axis in which vectors reside
-    """
-    assert x.ndim == 2
-    signs = np.sum(x, axis=axis, keepdims=True)
-    signs = signs.dtype.type(2) * ((signs >= 0) - signs.dtype.type(0.5))
-    return x * signs
 
 
 @pytest.mark.parametrize("algorithm", ["tsqr", "randomized"])
