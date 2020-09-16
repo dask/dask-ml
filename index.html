@@ -47,7 +47,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Installation" href="install.html" />
+    <link rel="next" title="Preprocessing" href="preprocessing.html" />
     <link rel="shortcut icon" href="_static/images/favicon.ico"/>
   
 </head>
@@ -132,7 +132,7 @@
             
             
               <div class="version">
-                1.6.1.dev10+gc564d51
+                1.6.1.dev11+g4805ce2
               </div>
             
           
@@ -157,12 +157,7 @@
               
             
             
-              <p class="caption"><span class="caption-text">Get Started</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Use</span></p>
+              <p class="caption"><span class="caption-text">Use</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="preprocessing.html">Preprocessing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cross_validation.html">Cross Validation</a></li>
@@ -255,65 +250,54 @@
   <div class="section" id="dask-ml">
 <span id="id1"></span><h1>Dask-ML<a class="headerlink" href="#dask-ml" title="Permalink to this headline">¶</a></h1>
 <p>Dask-ML provides scalable machine learning in Python using <a class="reference external" href="https://dask.org/">Dask</a> alongside
-popular machine learning libraries like <a class="reference external" href="http://scikit-learn.org/">Scikit-Learn</a>.</p>
+popular machine learning libraries like <a class="reference external" href="http://scikit-learn.org/">Scikit-Learn</a>, XGBoost, and others.</p>
 <p>You can try Dask-ML on a small cloud instance by clicking the following button:</p>
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/dask/dask-examples/master?filepath=machine-learning.ipynb"><img alt="https://mybinder.org/badge.svg" src="https://mybinder.org/badge.svg" /></a>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">&#39;...&#39;</span><span class="p">)</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="s1">&#39;income&#39;</span><span class="p">,</span> <span class="s1">&#39;married&#39;</span><span class="p">]]</span>
-<span class="n">labels</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;outcome&#39;</span><span class="p">]</span>
-
-<span class="kn">from</span> <span class="nn">dask_ml.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
-<span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">()</span>
-<span class="n">lr</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
-</pre></div>
+<div class="section" id="dimensions-of-scale">
+<h2>Dimensions of Scale<a class="headerlink" href="#dimensions-of-scale" title="Permalink to this headline">¶</a></h2>
+<p>People may run into scaling challenges along a couple dimensions, and Dask-ML
+offers tools for addressing each.</p>
+<img alt="_images/dimensions_of_scale.svg" src="_images/dimensions_of_scale.svg" /><div class="section" id="challenge-1-scaling-model-size">
+<h3>Challenge 1: Scaling Model Size<a class="headerlink" href="#challenge-1-scaling-model-size" title="Permalink to this headline">¶</a></h3>
+<p>The first kind of scaling challenge comes when from your models growing so
+large or complex that it affects your workflow (shown along the vertical axis
+above). Under this scaling challenge tasks like model training, prediction, or
+evaluation steps will (eventually) complete, they just take too long. You’ve
+become compute bound.</p>
+<p>To address these challenges you’d continue to use the collections you know and
+love (like the NumPy <code class="docutils literal notranslate"><span class="pre">ndarray</span></code>, pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>, or XGBoost <code class="docutils literal notranslate"><span class="pre">DMatrix</span></code>)
+and use a Dask Cluster to parallelize the workload on many machines. The
+parallelization can occur through one of our integrations (like Dask’s
+<a class="reference internal" href="joblib.html#joblib"><span class="std std-ref">joblib backend</span></a> to parallelize Scikit-Learn directly) or one of
+Dask-ML’s estimators (like our <a class="reference internal" href="hyper-parameter-search.html#hyper-parameter-search"><span class="std std-ref">hyper-parameter optimizers</span></a>).</p>
 </div>
-<div class="section" id="what-does-this-offer">
-<h2>What does this offer?<a class="headerlink" href="#what-does-this-offer" title="Permalink to this headline">¶</a></h2>
-<p>The overarching goal of Dask-ML is to enable scalable machine learning.
-See the navigation pane to the left for details on specific features.</p>
+<div class="section" id="challenge-2-scaling-data-size">
+<h3>Challenge 2: Scaling Data Size<a class="headerlink" href="#challenge-2-scaling-data-size" title="Permalink to this headline">¶</a></h3>
+<p>The second type of scaling challenge people face is when their datasets grow
+larger than RAM (shown along the horizontal axis above). Under this scaling
+challenge, even loading the data into NumPy or pandas becomes impossible.</p>
+<p>To address these challenges, you’d use Dask’s one of Dask’s <a class="reference external" href="https://docs.dask.org/en/latest/user-interfaces.html">high-level
+collections</a> like
+(<a class="reference external" href="https://docs.dask.org/en/latest/array.html">Dask Array</a>, <a class="reference external" href="https://docs.dask.org/en/latest/dataframe.html">Dask DataFrame</a> or <a class="reference external" href="https://docs.dask.org/en/latest/bag.html">Dask Bag</a>) combined with one of Dask-ML’s
+estimators that are designed to work with Dask collections. For example you
+might use Dask Array and one of our preprocessing estimators in
+<a class="reference internal" href="modules/api.html#module-dask_ml.preprocessing" title="dask_ml.preprocessing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code></a>, or one of our ensemble methods in
+<a class="reference internal" href="modules/api.html#module-dask_ml.ensemble" title="dask_ml.ensemble"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code></a>.</p>
 </div>
-<div class="section" id="how-does-this-work">
-<h2>How does this work?<a class="headerlink" href="#how-does-this-work" title="Permalink to this headline">¶</a></h2>
-<p>Modern machine learning algorithms employ a wide variety of techniques.
-Scaling these requires a similarly wide variety of different approaches.
-Generally solutions fall into the following three categories:</p>
-<div class="section" id="parallelize-scikit-learn-directly">
-<h3>Parallelize Scikit-Learn Directly<a class="headerlink" href="#parallelize-scikit-learn-directly" title="Permalink to this headline">¶</a></h3>
-<p>Scikit-Learn already provides parallel computing on a single machine with
-<a class="reference external" href="http://joblib.readthedocs.io/en/latest/">Joblib</a>. Dask extends this
-parallelism to many machines in a cluster. This works well for modest data
-sizes but large computations, such as random forests, hyper-parameter
-optimization, and more.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dask.distributed</span> <span class="kn">import</span> <span class="n">Client</span>
-<span class="kn">import</span> <span class="nn">joblib</span>
-
-<span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">()</span>  <span class="c1"># Connect to a Dask Cluster</span>
-
-<span class="k">with</span> <span class="n">joblib</span><span class="o">.</span><span class="n">parallel_backend</span><span class="p">(</span><span class="s1">&#39;dask&#39;</span><span class="p">):</span>
-    <span class="c1"># Your normal scikit-learn code here</span>
-</pre></div>
+<div class="section" id="not-everyone-needs-scalable-machine-learning">
+<h3>Not Everyone needs Scalable Machine Learning<a class="headerlink" href="#not-everyone-needs-scalable-machine-learning" title="Permalink to this headline">¶</a></h3>
+<p>It’s worth emphasizing that not everyone needs scalable machine learning. Tools
+like sampling can be effective. Always plot your <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/model_selection/plot_learning_curve.html">learning curve</a>.</p>
 </div>
-<p>See <a class="reference internal" href="joblib.html"><span class="doc">Dask-ML Joblib documentation</span></a> for more information.</p>
-<p><em>Note that this is an active collaboration with the Scikit-Learn development
-team.  This functionality is progressing quickly but is in a state of rapid
-change.</em></p>
 </div>
-<div class="section" id="reimplement-scalable-algorithms-with-dask-array">
-<h3>Reimplement Scalable Algorithms with Dask Array<a class="headerlink" href="#reimplement-scalable-algorithms-with-dask-array" title="Permalink to this headline">¶</a></h3>
-<p>Some machine learning algorithms are easy to write down as Numpy algorithms.
-In these cases we can replace Numpy arrays with Dask arrays to achieve scalable
-algorithms easily.  This is employed for <a class="reference internal" href="glm.html"><span class="doc">linear models</span></a>, <a class="reference internal" href="preprocessing.html"><span class="doc">pre-processing</span></a>, and <a class="reference internal" href="clustering.html"><span class="doc">clustering</span></a>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dask_ml.preprocessing</span> <span class="kn">import</span> <span class="n">Categorizer</span><span class="p">,</span> <span class="n">DummyEncoder</span>
-<span class="kn">from</span> <span class="nn">dask_ml.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
-
-<span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">()</span>
-<span class="n">lr</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
-</pre></div>
-</div>
+<div class="section" id="scikit-learn-api">
+<h2>Scikit-Learn API<a class="headerlink" href="#scikit-learn-api" title="Permalink to this headline">¶</a></h2>
+<p>In all cases Dask-ML endeavors to provide a single unified interface around the
+familiar NumPy, Pandas, and Scikit-Learn APIs.  Users familiar with
+Scikit-Learn should feel at home with Dask-ML.</p>
 </div>
 <div class="section" id="partner-with-other-distributed-libraries">
-<h3>Partner with other distributed libraries<a class="headerlink" href="#partner-with-other-distributed-libraries" title="Permalink to this headline">¶</a></h3>
+<h2>Partner with other distributed libraries<a class="headerlink" href="#partner-with-other-distributed-libraries" title="Permalink to this headline">¶</a></h2>
 <p>Other machine learning libraries like XGBoost already have
 distributed solutions that work quite well.  Dask-ML makes no attempt to
 re-implement these systems.  Instead, Dask-ML makes it easy to use normal Dask
@@ -326,15 +310,6 @@ workflows to prepare and set up data, then it deploys XGBoost
 </pre></div>
 </div>
 <p>See <a class="reference internal" href="xgboost.html"><span class="doc">Dask-ML + XGBoost</span></a> for more information.</p>
-</div>
-</div>
-<div class="section" id="scikit-learn-api">
-<h2>Scikit-Learn API<a class="headerlink" href="#scikit-learn-api" title="Permalink to this headline">¶</a></h2>
-<p>In all cases Dask-ML endeavors to provide a single unified interface around the
-familiar NumPy, Pandas, and Scikit-Learn APIs.  Users familiar with
-Scikit-Learn should feel at home with Dask-ML.</p>
-<div class="toctree-wrapper compound">
-</div>
 <div class="toctree-wrapper compound">
 </div>
 <div class="toctree-wrapper compound">
@@ -352,7 +327,7 @@ Scikit-Learn should feel at home with Dask-ML.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="install.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="preprocessing.html" class="btn btn-neutral float-right" title="Preprocessing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
     </div>
