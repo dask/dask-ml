@@ -211,7 +211,7 @@ async def _fit(
     order = []
 
     def get_futures(partial_fit_calls):
-        """ Policy to get training data futures
+        """Policy to get training data futures
 
         Currently we compute once, and then keep in memory.
         Presumably in the future we'll want to let data drop and recompute.
@@ -350,7 +350,7 @@ async def fit(
     verbose: Union[bool, int] = False,
     prefix="",
 ):
-    """ Find a good model and search among a space of hyper-parameters
+    """Find a good model and search among a space of hyper-parameters
 
     This does a hyper-parameter search by creating many models and then fitting
     them incrementally on batches of data and reducing the number of models based

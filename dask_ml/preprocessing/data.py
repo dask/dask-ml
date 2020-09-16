@@ -29,7 +29,7 @@ BOUNDS_THRESHOLD = 1e-7
 
 
 def _handle_zeros_in_scale(scale: np.ndarray, copy=True):
-    """ Makes sure that whenever scale is zero, we handle it correctly.
+    """Makes sure that whenever scale is zero, we handle it correctly.
 
     This happens in most scalers when we have constant features."""
 
@@ -1036,12 +1036,12 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
 
 
 class PolynomialFeatures(sklearn.preprocessing.PolynomialFeatures):
-    """    preserve_dataframe : boolean
-            If True, preserve pandas and dask dataframes after transforming.
-            Using False (default) returns numpy or dask arrays and mimics
-            sklearn's default behaviour
+    """preserve_dataframe : boolean
+        If True, preserve pandas and dask dataframes after transforming.
+        Using False (default) returns numpy or dask arrays and mimics
+        sklearn's default behaviour
 
-        Examples
+    Examples
     """
 
     splitted_orig_doc = sklearn.preprocessing.PolynomialFeatures.__doc__.split(
