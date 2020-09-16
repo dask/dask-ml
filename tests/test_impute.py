@@ -8,6 +8,7 @@ import sklearn.impute
 
 import dask_ml.datasets
 import dask_ml.impute
+from dask_ml._compat import DASK_2_26_0
 from dask_ml.utils import assert_estimator_equal
 
 rng = np.random.RandomState(0)
@@ -108,6 +109,9 @@ def test_frame_strategies(daskify, strategy):
     b.fit(df)
     if not daskify and strategy == "median":
         expected = pd.Series([1.5], index=["A"])
+    elif daskify and strategy == "median" and DASK_2_26_0:
+        # New quantile implementation in Dask
+        expected = pd.Series([1.0], index=["A"])
     else:
         expected = pd.Series([2], index=["A"])
     tm.assert_series_equal(b.statistics_, expected, check_dtype=False)
