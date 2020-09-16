@@ -133,7 +133,7 @@
             
             
               <div class="version">
-                1.6.1.dev9+gb94c587
+                1.6.1.dev10+gc564d51
               </div>
             
           
@@ -289,34 +289,39 @@
 <dt id="dask_ml.preprocessing.PolynomialFeatures">
 <em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">PolynomialFeatures</code><span class="sig-paren">(</span><em>degree: int = 2</em>, <em>interaction_only: bool = False</em>, <em>include_bias: bool = True</em>, <em>preserve_dataframe: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate polynomial and interaction features.</p>
-<p>Generate a new feature matrix consisting of all polynomial combinations
+<blockquote>
+<div>Generate a new feature matrix consisting of all polynomial combinations
 of the features with degree less than or equal to the specified degree.
 For example, if an input sample is two dimensional and of the form
-[a, b], the degree-2 polynomial features are [1, a, b, a^2, ab, b^2].</p>
+[a, b], the degree-2 polynomial features are [1, a, b, a^2, ab, b^2].</div></blockquote>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>degree</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer</span></dt>
-<dd><p class="first last">The degree of the polynomial features. Default = 2.</p>
-</dd>
-<dt><strong>interaction_only</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean, default = False</span></dt>
+<dd><blockquote class="first">
+<div><p>The degree of the polynomial features. Default = 2.</p>
+</div></blockquote>
+<dl class="last docutils">
+<dt>interaction_only <span class="classifier-delimiter">:</span> <span class="classifier">boolean, default = False</span></dt>
 <dd><p class="first last">If true, only interaction features are produced: features that are
 products of at most <code class="docutils literal notranslate"><span class="pre">degree</span></code> <em>distinct</em> input features (so not
 <code class="docutils literal notranslate"><span class="pre">x[1]</span> <span class="pre">**</span> <span class="pre">2</span></code>, <code class="docutils literal notranslate"><span class="pre">x[0]</span> <span class="pre">*</span> <span class="pre">x[2]</span> <span class="pre">**</span> <span class="pre">3</span></code>, etc.).</p>
 </dd>
-<dt><strong>include_bias</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean</span></dt>
+<dt>include_bias <span class="classifier-delimiter">:</span> <span class="classifier">boolean</span></dt>
 <dd><p class="first last">If True (default), then include a bias column, the feature in which
 all polynomial powers are zero (i.e. a column of ones - acts as an
 intercept term in a linear model).</p>
 </dd>
-<dt><strong>order</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str in {‘C’, ‘F’}, default ‘C’</span></dt>
+<dt>order <span class="classifier-delimiter">:</span> <span class="classifier">str in {‘C’, ‘F’}, default ‘C’</span></dt>
 <dd><p class="first">Order of output array in the dense case. ‘F’ order is faster to
 compute, but may slow down subsequent estimators.</p>
 <div class="last versionadded">
 <p><span class="versionmodified">New in version 0.21.</span></p>
 </div>
+</dd>
+</dl>
 </dd>
 <dt><strong>preserve_dataframe</strong> <span class="classifier-delimiter">:</span> <span class="classifier">boolean</span></dt>
 <dd><p class="first last">If True, preserve pandas and dask dataframes after transforming.
@@ -328,15 +333,19 @@ sklearn’s default behaviour</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>powers_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array, shape (n_output_features, n_input_features)</span></dt>
-<dd><p class="first last">powers_[i, j] is the exponent of the jth input in the ith output.</p>
-</dd>
-<dt><strong>n_input_features_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><blockquote class="first">
+<div><p>powers_[i, j] is the exponent of the jth input in the ith output.</p>
+</div></blockquote>
+<dl class="last docutils">
+<dt><a href="#id1"><span class="problematic" id="id2">n_input_features_</span></a> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
 <dd><p class="first last">The total number of input features.</p>
 </dd>
-<dt><strong>n_output_features_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dt><a href="#id3"><span class="problematic" id="id4">n_output_features_</span></a> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
 <dd><p class="first last">The total number of polynomial output features. The number of output
 features is computed by iterating over all suitably sized combinations
 of input features.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </td>
