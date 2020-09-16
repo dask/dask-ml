@@ -2,6 +2,7 @@ import dask.array as da
 from dask import compute
 from sklearn.base import BaseEstimator, TransformerMixin
 
+from .._compat import DASK_2_26_0
 from ..utils import svd_flip
 
 
@@ -171,7 +172,8 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
             u, s, v = da.linalg.svd_compressed(
                 X, self.n_components, self.n_iter, seed=self.random_state
             )
-        u, v = svd_flip(u, v)
+        if not DASK_2_26_0:
+            u, v = svd_flip(u, v)
 
         X_transformed = u * s
         explained_var = X_transformed.var(axis=0)

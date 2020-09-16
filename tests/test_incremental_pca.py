@@ -6,6 +6,7 @@ from sklearn import datasets, decomposition as sd
 from sklearn.decomposition import PCA
 
 from dask_ml.decomposition import IncrementalPCA
+from dask_ml.utils import flip_vector_signs
 
 try:
     from sklearn.utils._testing import assert_almost_equal
@@ -33,7 +34,11 @@ def test_compare_with_sklearn(svd_solver, batch_number):
         n_components=2, batch_size=batch_size, svd_solver=svd_solver
     )
     ipca_da.fit(X_da)
-    np.testing.assert_allclose(ipca.components_, ipca_da.components_, atol=1e-13)
+    np.testing.assert_allclose(
+        flip_vector_signs(ipca.components_, 1),
+        flip_vector_signs(ipca_da.components_, 1),
+        atol=1e-13,
+    )
     np.testing.assert_allclose(
         ipca.explained_variance_, ipca_da.explained_variance_, atol=1e-13
     )

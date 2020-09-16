@@ -3,7 +3,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - black
+  - black==19.10b0
   - coverage
   - dask ==2.4.0
   - dask-glm >=0.2.0

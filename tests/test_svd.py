@@ -8,7 +8,7 @@ from sklearn import decomposition as sd
 from sklearn.utils import check_random_state
 
 from dask_ml import decomposition as dd
-from dask_ml.utils import assert_estimator_equal
+from dask_ml.utils import assert_estimator_equal, flip_vector_signs
 
 # Make an X that looks somewhat like a small tf-idf matrix.
 # XXX newer versions of SciPy have scipy.sparse.rand for this.
@@ -30,7 +30,11 @@ def test_basic(algorithm):
     b.fit(Xdense)
     a.fit(dXdense)
 
-    np.testing.assert_allclose(a.components_, b.components_, atol=1e-3)
+    np.testing.assert_allclose(
+        flip_vector_signs(a.components_, axis=1),
+        flip_vector_signs(b.components_, axis=1),
+        atol=1e-3,
+    )
     assert_estimator_equal(
         a, b, exclude=["components_", "explained_variance_"], atol=1e-3
     )
@@ -47,7 +51,9 @@ def test_algorithms():
 
     Xa = svd_a.fit_transform(Xdense)[:, :6]
     Xr = svd_r.fit_transform(dXdense)[:, :6]
-    assert_array_almost_equal(Xa, Xr, decimal=5)
+    assert_array_almost_equal(
+        flip_vector_signs(Xa, axis=0), flip_vector_signs(Xr, axis=0), decimal=5
+    )
 
     comp_a = np.abs(svd_a.components_)
     comp_r = np.abs(svd_r.components_)
