@@ -69,6 +69,18 @@ def test_attributes():
         assert tsvd.components_.shape == (n_components, n_features)
 
 
+@pytest.mark.parametrize("algorithm", ["tsqr", "randomized"])
+@pytest.mark.parametrize("compute", [True, False])
+def test_compute(algorithm, compute):
+    est = dd.TruncatedSVD(random_state=0, algorithm=algorithm, compute=compute)
+    est.fit(dXdense)
+    array_class = np.ndarray if compute else da.Array
+    assert isinstance(est.components_, array_class)
+    assert isinstance(est.explained_variance_, array_class)
+    assert isinstance(est.explained_variance_ratio_, array_class)
+    assert isinstance(est.singular_values_, array_class)
+
+
 def test_too_many_components():
     for n_components in (n_features, n_features + 1):
         tsvd = dd.TruncatedSVD(n_components=n_components)
