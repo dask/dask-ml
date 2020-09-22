@@ -12,7 +12,7 @@ from scipy import sparse
 from sklearn.utils import gen_batches
 from sklearn.utils.validation import check_random_state
 
-from .._compat import DASK_2_26_0
+from .._compat import DASK_2_26_0, DASK_2_28_0
 from .._utils import draw_seed
 from ..utils import check_array, svd_flip
 from . import pca
@@ -325,7 +325,7 @@ class IncrementalPCA(pca.PCA):
         # The following part is modified so that it can fit to large dask-array
         solver = self._get_solver(X, self.n_components_)
         if solver in {"full", "tsqr"}:
-            if DASK_2_26_0:
+            if DASK_2_26_0 and not DASK_2_28_0:
                 U, S, V = linalg.svd(X, coerce_signs=False)
             else:
                 U, S, V = linalg.svd(X)
@@ -339,7 +339,7 @@ class IncrementalPCA(pca.PCA):
             random_state = check_random_state(self.random_state)
             seed = draw_seed(random_state, np.iinfo("int32").max)
             n_power_iter = self.iterated_power
-            if DASK_2_26_0:
+            if DASK_2_26_0 and not DASK_2_28_0:
                 U, S, V = linalg.svd_compressed(
                     X,
                     self.n_components_,
@@ -351,10 +351,11 @@ class IncrementalPCA(pca.PCA):
                 U, S, V = linalg.svd_compressed(
                     X, self.n_components_, n_power_iter=n_power_iter, seed=seed
                 )
-        if DASK_2_26_0:
-            U, V = svd_flip_fast(U, V)
-        else:
-            U, V = svd_flip(U, V, u_based_decision=False)
+        if not DASK_2_28_0:
+            if DASK_2_26_0:
+                U, V = svd_flip_fast(U, V)
+            else:
+                U, V = svd_flip(U, V, u_based_decision=False)
         explained_variance = S ** 2 / (n_total_samples - 1)
         components, singular_values = V, S
 
