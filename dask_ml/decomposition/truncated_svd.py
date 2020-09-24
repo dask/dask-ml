@@ -8,7 +8,13 @@ from ..utils import svd_flip
 
 class TruncatedSVD(BaseEstimator, TransformerMixin):
     def __init__(
-        self, n_components=2, algorithm="tsqr", n_iter=5, random_state=None, tol=0.0
+        self,
+        n_components=2,
+        algorithm="tsqr",
+        n_iter=5,
+        random_state=None,
+        tol=0.0,
+        compute=True,
     ):
         """Dimensionality reduction using truncated SVD (aka LSA).
 
@@ -44,6 +50,10 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
 
         tol : float, optional
             Ignored.
+
+        compute : bool
+            Whether or not SVD results should be computed
+            eagerly, by default True.
 
         Attributes
         ----------
@@ -115,6 +125,7 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
         self.n_iter = n_iter
         self.random_state = random_state
         self.tol = tol
+        self.compute = compute
 
     def fit(self, X, y=None):
         """Fit truncated SVD on training data X
@@ -162,7 +173,11 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
         """
         X = self._check_array(X)
         if self.algorithm not in {"tsqr", "randomized"}:
-            raise ValueError()
+            raise ValueError(
+                "`algorithm` must be 'tsqr' or 'randomzied', not '{}'".format(
+                    self.algorithm
+                )
+            )
         if self.algorithm == "tsqr":
             u, s, v = da.linalg.svd(X)
             u = u[:, : self.n_components]
@@ -180,11 +195,14 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
         full_var = X.var(axis=0).sum()
         explained_variance_ratio = explained_var / full_var
 
-        components, ev, evr, sv = compute(v, explained_var, explained_variance_ratio, s)
-        self.components_ = components
-        self.explained_variance_ = ev
-        self.explained_variance_ratio_ = evr
-        self.singular_values_ = sv
+        if self.compute:
+            v, explained_var, explained_variance_ratio, s = compute(
+                v, explained_var, explained_variance_ratio, s
+            )
+        self.components_ = v
+        self.explained_variance_ = explained_var
+        self.explained_variance_ratio_ = explained_variance_ratio
+        self.singular_values_ = s
         self.n_features_in_ = X.shape[1]
         return X_transformed
 
