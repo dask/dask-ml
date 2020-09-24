@@ -33,8 +33,8 @@ def _svd_flip_copy(x, y, u_based_decision=True):
         return skm.svd_flip(x.copy(), y.copy(), u_based_decision=u_based_decision)
 
 
-def svd_flip(u, v):
-    u2, v2 = delayed(_svd_flip_copy, nout=2)(u, v)
+def svd_flip(u, v, u_based_decision=True):
+    u2, v2 = delayed(_svd_flip_copy, nout=2)(u, v, u_based_decision=u_based_decision)
     u = da.from_delayed(u2, shape=u.shape, dtype=u.dtype)
     v = da.from_delayed(v2, shape=v.shape, dtype=v.dtype)
     return u, v

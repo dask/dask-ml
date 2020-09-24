@@ -228,9 +228,10 @@ def test_incremental_pca_num_features_change():
 
 
 @pytest.mark.filterwarnings("ignore:invalid value:RuntimeWarning")
-def test_incremental_pca_batch_signs():
+@pytest.mark.parametrize("seed", [1999, 32, 831])
+def test_incremental_pca_batch_signs(seed):
     # Test that components_ sign is stable over batch sizes.
-    rng = np.random.RandomState(1999)
+    rng = np.random.RandomState(seed)
     n_samples = 100
     n_features = 3
     X = rng.randn(n_samples, n_features)
