@@ -1,3 +1,5 @@
+.. _keras:
+
 Keras and Tensorflow
 ====================
 
