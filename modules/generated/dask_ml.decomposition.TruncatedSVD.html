@@ -133,7 +133,7 @@
             
             
               <div class="version">
-                1.6.1.dev11+g4805ce2
+                1.6.1.dev12+gf23fe61
               </div>
             
           
@@ -274,7 +274,7 @@
 <h1><a class="reference internal" href="../api.html#module-dask_ml.decomposition" title="dask_ml.decomposition"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.decomposition</span></code></a>.TruncatedSVD<a class="headerlink" href="#dask-ml-decomposition-truncatedsvd" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="dask_ml.decomposition.TruncatedSVD">
-<em class="property">class </em><code class="descclassname">dask_ml.decomposition.</code><code class="descname">TruncatedSVD</code><span class="sig-paren">(</span><em>n_components=2</em>, <em>algorithm='tsqr'</em>, <em>n_iter=5</em>, <em>random_state=None</em>, <em>tol=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.decomposition.TruncatedSVD" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.decomposition.</code><code class="descname">TruncatedSVD</code><span class="sig-paren">(</span><em>n_components=2</em>, <em>algorithm='tsqr'</em>, <em>n_iter=5</em>, <em>random_state=None</em>, <em>tol=0.0</em>, <em>compute=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.decomposition.TruncatedSVD" title="Permalink to this definition">¶</a></dt>
 <dd><p class="rubric">Methods</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -304,7 +304,7 @@
 </table>
 <dl class="method">
 <dt id="dask_ml.decomposition.TruncatedSVD.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>n_components=2</em>, <em>algorithm='tsqr'</em>, <em>n_iter=5</em>, <em>random_state=None</em>, <em>tol=0.0</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.decomposition.TruncatedSVD.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>n_components=2</em>, <em>algorithm='tsqr'</em>, <em>n_iter=5</em>, <em>random_state=None</em>, <em>tol=0.0</em>, <em>compute=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.decomposition.TruncatedSVD.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dimensionality reduction using truncated SVD (aka LSA).</p>
 <p>This transformer performs linear dimensionality reduction by means of
 truncated singular value decomposition (SVD). Contrary to PCA, this
@@ -340,6 +340,10 @@ used by <cite>np.random</cite>.</p>
 </dd>
 <dt><strong>tol</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
 <dd><p class="first last">Ignored.</p>
+</dd>
+<dt><strong>compute</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">Whether or not SVD results should be computed
+eagerly, by default True.</p>
 </dd>
 </dl>
 </td>
