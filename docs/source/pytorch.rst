@@ -1,3 +1,5 @@
+.. _pytorch:
+
 PyTorch
 =======
 

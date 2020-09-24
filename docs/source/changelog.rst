@@ -1,6 +1,18 @@
 Changelog
 =========
 
+Version 1.7.0
+~~~~~~~~~~~~~
+
+* Improved documentation for working with PyTorch models, see :ref:`pytorch` (:pr:`699`)
+* Improved documentation for working with Keras / TensorFlow models, see :ref:`keras` (:pr:`713`)
+* Fixed handling of remote vocabularies in :class:`dask_ml.feature_extraction.text.HashingVectorizer` (:pr:`719`)
+* Added :func:`dask_ml.metrics.regression.mean_squared_log_error` (:pr:`725`)
+* Allow user-provided categories in :class:`dask_ml.preprocessing.OneHotEncoder` (:pr:`727`)
+* Added :meth:`dask_ml.linear_model.LogisticRegression.decision_function` (:pr:`728`)
+* Added ``compute`` argument to :class:`dask_ml.decomposition.TruncatedSVD` (:pr:`743`)
+* Fixed sign stability in incremental PCA (:pr:`742`)
+
 Version 1.6.0
 ~~~~~~~~~~~~~
 
