@@ -14,7 +14,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Changelog &mdash; dask-ml 1.6.1 documentation</title>
+  <title>Changelog &mdash; dask-ml 1.7.0 documentation</title>
   
 
   
@@ -133,7 +133,7 @@
             
             
               <div class="version">
-                1.6.1.dev13+gbef33d6
+                1.7.0
               </div>
             
           
@@ -180,6 +180,7 @@
 <p class="caption"><span class="caption-text">Develop</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#version-1-7-0">Version 1.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-1-6-0">Version 1.6.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-1-5-0">Version 1.5.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-1-4-0">Version 1.4.0</a></li>
@@ -327,6 +328,19 @@
             
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="version-1-7-0">
+<h2>Version 1.7.0<a class="headerlink" href="#version-1-7-0" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Improved documentation for working with PyTorch models, see <span class="xref std std-ref">pytorch</span> (<a class="reference external" href="https://github.com/dask/dask-ml/pull/699">GH#699</a>)</li>
+<li>Improved documentation for working with Keras / TensorFlow models, see <a class="reference internal" href="keras.html#keras"><span class="std std-ref">Keras and Tensorflow</span></a> (<a class="reference external" href="https://github.com/dask/dask-ml/pull/713">GH#713</a>)</li>
+<li>Fixed handling of remote vocabularies in <a class="reference internal" href="modules/generated/dask_ml.feature_extraction.text.HashingVectorizer.html#dask_ml.feature_extraction.text.HashingVectorizer" title="dask_ml.feature_extraction.text.HashingVectorizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text.HashingVectorizer</span></code></a> (<a class="reference external" href="https://github.com/dask/dask-ml/pull/719">GH#719</a>)</li>
+<li>Added <code class="xref py py-func docutils literal notranslate"><span class="pre">dask_ml.metrics.regression.mean_squared_log_error()</span></code> (<a class="reference external" href="https://github.com/dask/dask-ml/pull/725">GH#725</a>)</li>
+<li>Allow user-provided categories in <a class="reference internal" href="modules/api.html#dask_ml.preprocessing.OneHotEncoder" title="dask_ml.preprocessing.OneHotEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.preprocessing.OneHotEncoder</span></code></a> (<a class="reference external" href="https://github.com/dask/dask-ml/pull/727">GH#727</a>)</li>
+<li>Added <a class="reference internal" href="modules/generated/dask_ml.linear_model.LogisticRegression.html#dask_ml.linear_model.LogisticRegression.decision_function" title="dask_ml.linear_model.LogisticRegression.decision_function"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dask_ml.linear_model.LogisticRegression.decision_function()</span></code></a> (<a class="reference external" href="https://github.com/dask/dask-ml/pull/728">GH#728</a>)</li>
+<li>Added <code class="docutils literal notranslate"><span class="pre">compute</span></code> argument to <a class="reference internal" href="modules/generated/dask_ml.decomposition.TruncatedSVD.html#dask_ml.decomposition.TruncatedSVD" title="dask_ml.decomposition.TruncatedSVD"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.decomposition.TruncatedSVD</span></code></a> (<a class="reference external" href="https://github.com/dask/dask-ml/pull/743">GH#743</a>)</li>
+<li>Fixed sign stability in incremental PCA (<a class="reference external" href="https://github.com/dask/dask-ml/pull/742">GH#742</a>)</li>
+</ul>
+</div>
 <div class="section" id="version-1-6-0">
 <h2>Version 1.6.0<a class="headerlink" href="#version-1-6-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
