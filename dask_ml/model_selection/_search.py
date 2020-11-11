@@ -197,7 +197,7 @@ def build_cv_graph(
     X, y, groups = to_indexable(X, y, groups)
     cv = check_cv(cv, y, is_classifier(estimator))
     # "pairwise" estimators require a different graph for CV splitting
-    is_pairwise = getattr(estimator, "_pairwise", False)
+    is_pairwise = estimator._get_tags().get("_pairwise", False)
 
     dsk = {}
     X_name, y_name, groups_name = to_keys(dsk, X, y, groups)
