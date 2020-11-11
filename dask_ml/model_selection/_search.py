@@ -35,7 +35,7 @@ from sklearn.utils.metaestimators import if_delegate_has_method
 from sklearn.utils.multiclass import type_of_target
 from sklearn.utils.validation import _num_samples
 
-from .._compat import SK_VERSION, check_is_fitted
+from .._compat import SK_VERSION, SK_024, check_is_fitted
 from ._normalize import normalize_estimator
 from .methods import (
     MISSING,
@@ -197,7 +197,10 @@ def build_cv_graph(
     X, y, groups = to_indexable(X, y, groups)
     cv = check_cv(cv, y, is_classifier(estimator))
     # "pairwise" estimators require a different graph for CV splitting
-    is_pairwise = estimator._get_tags().get("_pairwise", False)
+    if SK_024:
+        is_pairwise = estimator._get_tags().get("_pairwise", False)
+    else:
+        is_pairwise = getattr(estimator, "_pairwise", False)
 
     dsk = {}
     X_name, y_name, groups_name = to_keys(dsk, X, y, groups)
