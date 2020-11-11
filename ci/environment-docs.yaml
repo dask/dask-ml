@@ -1,4 +1,4 @@
-name: dask-ml-test
+name: dask-ml-docs
 channels:
   - conda-forge
   - defaults
