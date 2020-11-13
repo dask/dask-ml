@@ -1,25 +1,13 @@
 
 
-
-
-
-
-
-
-
 <!DOCTYPE html>
-<html lang="en" >
+<html class="writer-html4" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Hyper Parameter Search &mdash; dask-ml 1.7.0 documentation</title>
-  
-
-  
-  
-  
+  <title>Hyper Parameter Search &mdash; dask-ml 1.7.1 documentation</title>
   
 
   
@@ -27,6 +15,11 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/explore.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/nbsphinx.css" type="text/css" />
+
+  
+  
+  
+  
 
   
   <!--[if lt IE 9]>
@@ -49,8 +42,27 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Pipelines and Composite Estimators" href="compose.html" />
     <link rel="prev" title="Cross Validation" href="cross_validation.html" />
-    <link rel="shortcut icon" href="_static/images/favicon.ico"/>
+  <link rel="shortcut icon" href="_static/images/favicon.ico"/>
   
+  <meta name="Description" content="Hyper Parameter Search">
+  <meta property="og:description" content="Hyper Parameter Search">
+  <meta name="twitter:description" content="Hyper Parameter Search" />
+  <meta property="og:title" content="dask-ml 1.7.1 documentation - Hyper Parameter Search">
+  <meta property="og:image" content="https://github.com/dask.png">
+  <meta property="og:image:secure_url" content="https://github.com/dask.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="380" />
+  <meta property="og:image:height" content="380" />
+  <meta property="og:url" content="hyper-parameter-search.html">
+  <meta property="og:site_name" content="dask-ml 1.7.1 documentation">
+
+  <meta name="twitter:site" content="https://dask.org" />
+  <meta name="twitter:creator" content="@dask_dev" />
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:image" content="https://github.com/dask.png" />
+  <meta name="twitter:image:alt" content="dask-ml 1.7.1 documentation">
+  
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -108,7 +120,7 @@
             <li><a href="https://stackoverflow.com/questions/tagged/dask">Stack Overflow</a></li>
             <li><a href="https://twitter.com/dask_dev">Twitter</a></li>
             <li><a href="https://blog.dask.org/"> Developer Blog </a></li>
-            <li><a href="https://www.youtube.com/channel/UCj9eavqmvwaCyKhIlu2GaoA/"> YouTube Channel </a></li>
+            <li><a href="https://youtube.com/c/dask-dev"> YouTube Channel </a></li>
             </ul>
         </li>
         </ul>
@@ -133,7 +145,7 @@
             
             
               <div class="version">
-                1.7.0
+                1.7.1.dev1+gbd9c457
               </div>
             
           
@@ -738,13 +750,13 @@ train-and-score them until we find the best one.</p>
 <span class="gp">In [13]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [14]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span>
-<span class="gh">Out[14]: </span><span class="go">{&#39;alpha&#39;: 0.1252065381499946, &#39;l1_ratio&#39;: 0.7151893663724195}</span>
+<span class="gh">Out[14]: </span><span class="go">{&#39;alpha&#39;: 0.12449062586158535, &#39;l1_ratio&#39;: 0.7040486849393368}</span>
 
 <span class="gp">In [15]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_score_</span>
-<span class="gh">Out[15]: </span><span class="go">0.7</span>
+<span class="gh">Out[15]: </span><span class="go">0.65</span>
 
 <span class="gp">In [16]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
-<span class="gh">Out[16]: </span><span class="go">0.5</span>
+<span class="gh">Out[16]: </span><span class="go">0.3</span>
 </pre></div>
 </div>
 <p>Note that when you do post-fit tasks like <code class="docutils literal notranslate"><span class="pre">search.score</span></code>, the underlying
@@ -765,7 +777,7 @@ to use post-estimation features like scoring or prediction, we recommend using
 <span class="gp">In [21]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [22]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
-<span class="gh">Out[22]: </span><span class="go">0.4</span>
+<span class="gh">Out[22]: </span><span class="go">0.6</span>
 </pre></div>
 </div>
 <p>Note that the parameter names include the <code class="docutils literal notranslate"><span class="pre">estimator__</span></code> prefix, as we’re
@@ -874,7 +886,7 @@ chunks:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [34]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [35]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span>
-<span class="gh">Out[35]: </span><span class="go">{&#39;alpha&#39;: 0.049825347526265516, &#39;l1_ratio&#39;: 0.46886194924447366}</span>
+<span class="gh">Out[35]: </span><span class="go">{&#39;alpha&#39;: 0.09607384104956217, &#39;l1_ratio&#39;: 0.14084157476418202}</span>
 </pre></div>
 </div>
 <p>To be clear, this is a very small toy example: there are only 100 examples and

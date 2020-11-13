@@ -1,25 +1,13 @@
 
 
-
-
-
-
-
-
-
 <!DOCTYPE html>
-<html lang="en" >
+<html class="writer-html4" lang="en" >
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Parallel Meta-estimators &mdash; dask-ml 1.7.0 documentation</title>
-  
-
-  
-  
-  
+  <title>Parallel Meta-estimators &mdash; dask-ml 1.7.1 documentation</title>
   
 
   
@@ -27,6 +15,11 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/explore.css" type="text/css" />
   <link rel="stylesheet" href="_static/css/nbsphinx.css" type="text/css" />
+
+  
+  
+  
+  
 
   
   <!--[if lt IE 9]>
@@ -49,8 +42,27 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Incremental Learning" href="incremental.html" />
     <link rel="prev" title="Generalized Linear Models" href="glm.html" />
-    <link rel="shortcut icon" href="_static/images/favicon.ico"/>
+  <link rel="shortcut icon" href="_static/images/favicon.ico"/>
   
+  <meta name="Description" content="Parallel Meta-estimators">
+  <meta property="og:description" content="Parallel Meta-estimators">
+  <meta name="twitter:description" content="Parallel Meta-estimators" />
+  <meta property="og:title" content="dask-ml 1.7.1 documentation - Parallel Meta-estimators">
+  <meta property="og:image" content="https://github.com/dask.png">
+  <meta property="og:image:secure_url" content="https://github.com/dask.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="380" />
+  <meta property="og:image:height" content="380" />
+  <meta property="og:url" content="meta-estimators.html">
+  <meta property="og:site_name" content="dask-ml 1.7.1 documentation">
+
+  <meta name="twitter:site" content="https://dask.org" />
+  <meta name="twitter:creator" content="@dask_dev" />
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:image" content="https://github.com/dask.png" />
+  <meta name="twitter:image:alt" content="dask-ml 1.7.1 documentation">
+  
+
 </head>
 
 <body class="wy-body-for-nav">
@@ -108,7 +120,7 @@
             <li><a href="https://stackoverflow.com/questions/tagged/dask">Stack Overflow</a></li>
             <li><a href="https://twitter.com/dask_dev">Twitter</a></li>
             <li><a href="https://blog.dask.org/"> Developer Blog </a></li>
-            <li><a href="https://www.youtube.com/channel/UCj9eavqmvwaCyKhIlu2GaoA/"> YouTube Channel </a></li>
+            <li><a href="https://youtube.com/c/dask-dev"> YouTube Channel </a></li>
             </ul>
         </li>
         </ul>
@@ -133,7 +145,7 @@
             
             
               <div class="version">
-                1.7.0
+                1.7.1.dev1+gbd9c457
               </div>
             
           
@@ -315,16 +327,16 @@ cause the scheduler to compute tasks in parallel. If you’ve connected to a
 cluster of machines.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_big</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">10</span><span class="p">]</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[0.29480178, 0.70519822],</span>
+<span class="go">array([[0.24519988, 0.75480012],</span>
 <span class="go">       [0.00464304, 0.99535696],</span>
 <span class="go">       [0.00902734, 0.99097266],</span>
 <span class="go">       [0.01299259, 0.98700741],</span>
-<span class="go">       [0.95636531, 0.04363469],</span>
-<span class="go">       [0.70641268, 0.29358732],</span>
-<span class="go">       [0.8881964 , 0.1118036 ],</span>
+<span class="go">       [0.94740973, 0.05259027],</span>
+<span class="go">       [0.75588097, 0.24411903],</span>
+<span class="go">       [0.95374905, 0.04625095],</span>
 <span class="go">       [0.0203811 , 0.9796189 ],</span>
-<span class="go">       [0.02708978, 0.97291022],</span>
-<span class="go">       [0.97703006, 0.02296994]])</span>
+<span class="go">       [0.021179  , 0.978821  ],</span>
+<span class="go">       [0.96136868, 0.03863132]])</span>
 </pre></div>
 </div>
 <p>See <a class="reference external" href="http://dask-ml-benchmarks.readthedocs.io/en/latest/auto_examples/plot_parallel_post_fit_scaling.html">parallelizing prediction</a> for an example of how this
