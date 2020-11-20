@@ -8,7 +8,7 @@ from sklearn.linear_model import SGDClassifier
 
 
 @gen_cluster(client=True)
-def test_pandas():
+def test_pandas(c, s, a, b):
     X, y = make_classification(chunks=100)
     X, y = pd.DataFrame(X.compute()), pd.Series(y.compute())
 
