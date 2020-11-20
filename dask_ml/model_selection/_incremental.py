@@ -198,36 +198,39 @@ async def _fit(
     else:
         y_test = await client.scatter(y_test)
 
-    if hasattr(X_train, 'npartitions'):
-        # Convert to batches of delayed objects of numpy arrays
-        X_train = sorted(futures_of(X_train), key=lambda f: f.key)
-        y_train = sorted(futures_of(y_train), key=lambda f: f.key)
-        assert len(X_train) == len(y_train)
+    # Convert to batches of delayed objects of numpy arrays
+    X_train = sorted(futures_of(X_train), key=lambda f: f.key)
+    y_train = sorted(futures_of(y_train), key=lambda f: f.key)
+    assert len(X_train) == len(y_train)
 
-        train_eg = await client.gather(client.map(len, y_train))
-        msg = "[CV%s] For training there are between %d and %d examples in each chunk"
-        logger.info(msg, prefix, min(train_eg), max(train_eg))
+    train_eg = await client.gather(client.map(len, y_train))
 
-        def get_futures(partial_fit_calls):
-            """Policy to get training data futures
+    ### start addition ###
+    min_samples = min(train_eg) if len(train_eg) else len(y_train)
+    max_samples = max(train_eg) if len(train_eg) else len(y_train)
 
-            Currently we compute once, and then keep in memory.
-            Presumably in the future we'll want to let data drop and recompute.
-            This function handles that policy internally, and also controls random
-            access to training data.
-            """
-            # Shuffle blocks going forward to get uniform-but-random access
-            while partial_fit_calls >= len(order):
-                L = list(range(len(X_train)))
-                rng.shuffle(L)
-                order.extend(L)
-            j = order[partial_fit_calls]
-            return X_train[j], y_train[j]
-    # __addition__ start
-    else:
-        def get_futures(partial_fit_calls):
+    msg = "[CV%s] For training there are between %d and %d examples in each chunk"
+    logger.info(msg, prefix, min_samples, max_samples)
+
+    def get_futures(partial_fit_calls):
+        """Policy to get training data futures
+
+        Currently we compute once, and then keep in memory.
+        Presumably in the future we'll want to let data drop and recompute.
+        This function handles that policy internally, and also controls random
+        access to training data.
+        """
+        if dask.is_dask_collection(y_train):
             return X_train, y_train
-    # __addition__ end
+
+        # Shuffle blocks going forward to get uniform-but-random access
+        while partial_fit_calls >= len(order):
+            L = list(range(len(X_train)))
+            rng.shuffle(L)
+            order.extend(L)
+        j = order[partial_fit_calls]
+        return X_train[j], y_train[j]
+    ### end addition ###
 
     # Order by which we process training data futures
     order = []
