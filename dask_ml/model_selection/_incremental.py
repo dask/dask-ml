@@ -203,11 +203,10 @@ async def _fit(
     y_train = sorted(futures_of(y_train), key=lambda f: f.key)
     assert len(X_train) == len(y_train)
 
-    train_eg = await client.gather(client.map(len, y_train))
+    train_eg = await client.gather(client.map(len, X_train))
 
-    ### start addition ###
-    min_samples = min(train_eg) if len(train_eg) else len(y_train)
-    max_samples = max(train_eg) if len(train_eg) else len(y_train)
+    min_samples = min(train_eg) if len(train_eg) else len(X_train)
+    max_samples = max(train_eg) if len(train_eg) else len(X_train)
 
     msg = "[CV%s] For training there are between %d and %d examples in each chunk"
     logger.info(msg, prefix, min_samples, max_samples)
@@ -220,7 +219,7 @@ async def _fit(
         This function handles that policy internally, and also controls random
         access to training data.
         """
-        if dask.is_dask_collection(y_train):
+        if dask.is_dask_collection(X_train):
             return X_train, y_train
 
         # Shuffle blocks going forward to get uniform-but-random access
@@ -230,7 +229,6 @@ async def _fit(
             order.extend(L)
         j = order[partial_fit_calls]
         return X_train[j], y_train[j]
-    ### end addition ###
 
     # Order by which we process training data futures
     order = []
