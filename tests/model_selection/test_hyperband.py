@@ -484,7 +484,7 @@ async def test_dataframe_inputs(c, s, a, b):
 @gen_cluster(client=True)
 def test_pandas(c, s, a, b):
 
-    X, y = sk_make_classification(chunks=100)
+    X, y = sk_make_classification()
     X, y = pd.DataFrame(X), pd.Series(y)
 
     est = SGDClassifier(tol=1e-3)
