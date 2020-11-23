@@ -14,6 +14,7 @@ from distributed.utils_test import (  # noqa: F401
     loop,
 )
 from sklearn.linear_model import SGDClassifier
+from sklearn.datasets import make_classification as sk_make_classification
 
 from dask_ml._compat import DISTRIBUTED_2_5_0
 from dask_ml.datasets import make_classification
@@ -478,3 +479,19 @@ async def test_dataframe_inputs(c, s, a, b):
     params = {"value": scipy.stats.uniform(0, 1)}
     alg = HyperbandSearchCV(model, params, max_iter=9, random_state=42)
     await alg.fit(X, y)
+
+
+@gen_cluster(client=True)
+def test_pandas(c, s, a, b):
+
+    X, y = sk_make_classification(chunks=100)
+    X, y = pd.DataFrame(X), pd.Series(y)
+
+    est = SGDClassifier(tol=1e-3)
+    param_dist = {'alpha': np.logspace(-4, 0, num=1000),
+                  'loss': ['hinge', 'log', 'modified_huber', 'squared_hinge'],
+                  'average': [True, False]}
+
+    search = HyperbandSearchCV(est, param_dist)
+    search.fit(X, y, classes=y.unique())
+    assert search.best_params_
