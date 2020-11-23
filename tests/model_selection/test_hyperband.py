@@ -493,5 +493,5 @@ def test_pandas(c, s, a, b):
                   'average': [True, False]}
 
     search = HyperbandSearchCV(est, param_dist)
-    search.fit(X, y, classes=y.unique())
+    yield search.fit(X, y, classes=y.unique())
     assert search.best_params_
