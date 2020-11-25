@@ -104,6 +104,7 @@ See :doc:`Dask-ML + XGBoost <xgboost>` for more information.
    hyper-parameter-search.rst
    compose.rst
    glm.rst
+   naive-bayes.rst
    meta-estimators.rst
    incremental.rst
    clustering.rst
