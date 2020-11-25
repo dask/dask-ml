@@ -1,5 +1,5 @@
 Naive Bayes
-=========================
+===========
 
 .. currentmodule:: dask_ml.naive_bayes
 
@@ -11,9 +11,9 @@ See `the scikit-learn documentation <https://scikit-learn.org/stable/modules/nai
 
 These follow the scikit-learn estimator API, and so can be dropped into
 existing routines like grid search and pipelines, but are implemented
-externally with new, scalable algorithms and so can consume distributed dask
-arrays and dataframes rather than just single-machine NumPy and Pandas arrays
-and dataframes.
+externally with new, scalable algorithms and so can consume distributed Dask
+arrays and DataFrames rather than just in-memory NumPy and Pandas arrays
+and DataFrames.
 
 Example
 -------

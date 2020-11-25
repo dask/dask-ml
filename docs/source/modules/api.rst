@@ -92,7 +92,7 @@ provides the following:
    linear_model.PoissonRegression
 
 :mod:`dask_ml.naive_bayes`: Naive Bayes
-======================================================
+=======================================
 
 .. automodule:: dask_ml.naive_bayes
    :no-members:
