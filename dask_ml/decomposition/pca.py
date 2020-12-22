@@ -276,8 +276,9 @@ class PCA(sklearn.decomposition.PCA):
             random_state = check_random_state(self.random_state)
             seed = draw_seed(random_state, np.iinfo("int32").max)
             n_power_iter = self.iterated_power
+            iterator = "none" if n_power_iter == 0 else "power"
             U, S, V = da.linalg.svd_compressed(
-                X, n_components, n_power_iter=n_power_iter, seed=seed
+                X, n_components, iterator=iterator, n_power_iter=n_power_iter, seed=seed
             )
         if not DASK_2_26_0:
             U, V = svd_flip(U, V)

@@ -184,8 +184,9 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
             s = s[: self.n_components]
             v = v[: self.n_components]
         else:
+            iterator = "none" if self.n_iter == 0 else "power"
             u, s, v = da.linalg.svd_compressed(
-                X, self.n_components, self.n_iter, seed=self.random_state
+                X, self.n_components, iterator=iterator, n_power_iter=self.n_iter, seed=self.random_state
             )
         if not DASK_2_26_0:
             u, v = svd_flip(u, v)
