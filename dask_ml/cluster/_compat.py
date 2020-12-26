@@ -1,3 +1,11 @@
-from sklearn.cluster._kmeans import _k_init
+from .._compat import SK_024
 
-__all__ = ["_k_init"]
+if SK_024:
+    from sklearn.cluster._kmeans import _kmeans_plusplus
+
+    __all__ = ["_kmeans_plusplus"]
+
+else:
+    from sklearn.cluster._kmeans import _k_init
+
+    __all__ = ["_k_init"]
