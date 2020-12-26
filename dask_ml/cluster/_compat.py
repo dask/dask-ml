@@ -1,7 +1,7 @@
 from .._compat import SK_024
 
 if SK_024:
-    from sklearn.cluster._kmeans import _kmeans_plusplus
+    from sklearn.cluster._kmeans import _kmeans_plusplus  # noqa
 
     __all__ = ["_kmeans_plusplus"]
 

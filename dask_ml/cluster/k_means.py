@@ -11,7 +11,7 @@ from dask import compute
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.extmath import squared_norm
 
-from .._compat import blockwise, check_is_fitted, SK_024
+from .._compat import SK_024, blockwise, check_is_fitted
 from .._utils import draw_seed
 from ..metrics import (
     euclidean_distances,
