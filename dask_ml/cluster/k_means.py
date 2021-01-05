@@ -11,7 +11,7 @@ from dask import compute
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.extmath import squared_norm
 
-from .._compat import blockwise, check_is_fitted
+from .._compat import SK_024, blockwise, check_is_fitted
 from .._utils import draw_seed
 from ..metrics import (
     euclidean_distances,
@@ -19,7 +19,11 @@ from ..metrics import (
     pairwise_distances_argmin_min,
 )
 from ..utils import _timed, _timer, check_array, row_norms
-from ._compat import _k_init
+
+if SK_024:
+    from ._compat import _kmeans_plusplus
+else:
+    from ._compat import _k_init as _kmeans_plusplus
 
 import numba  # isort:skip (see https://github.com/dask/dask-ml/pull/577)
 
@@ -381,9 +385,11 @@ def init_pp(X, n_clusters, random_state):
     logger.info("Initializing with k-means++")
     with _timer("initialization of %2d centers" % n_clusters, _logger=logger):
         # XXX: Using a private scikit-learn API
-        centers = _k_init(
+        centers = _kmeans_plusplus(
             X, n_clusters, random_state=random_state, x_squared_norms=x_squared_norms
         )
+        if SK_024:
+            centers, _ = centers
 
     return centers
 

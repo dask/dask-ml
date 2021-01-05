@@ -16,9 +16,14 @@ from sklearn.cluster import KMeans as SKKMeans
 from sklearn.utils.estimator_checks import check_estimator
 
 import dask_ml.cluster
+from dask_ml._compat import SK_024
 from dask_ml.cluster import KMeans as DKKMeans, k_means
-from dask_ml.cluster._compat import _k_init
 from dask_ml.utils import assert_estimator_equal, row_norms
+
+if SK_024:
+    from dask_ml.cluster._compat import _kmeans_plusplus
+else:
+    from dask_ml.cluster._compat import _k_init as _kmeans_plusplus
 
 
 def test_check_estimator():
@@ -93,7 +98,10 @@ class TestKMeans:
         X_ = X.compute()
         x_squared_norms = sklearn.utils.extmath.row_norms(X_, squared=True)
         rs = np.random.RandomState(0)
-        init = _k_init(X_, 3, x_squared_norms, rs)
+        if SK_024:
+            init, _ = _kmeans_plusplus(X_, 3, x_squared_norms, rs)
+        else:
+            init = _kmeans_plusplus(X_, 3, x_squared_norms, rs)
         dkkm = DKKMeans(3, init=init, random_state=0)
         skkm = SKKMeans(3, init=init, random_state=0, n_init=1)
         dkkm.fit(X)
