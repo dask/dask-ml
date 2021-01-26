@@ -386,7 +386,9 @@ def init_pp(X, n_clusters, random_state):
     with _timer("initialization of %2d centers" % n_clusters, _logger=logger):
         # XXX: Using a private scikit-learn API
         centers = _kmeans_plusplus(
-            X, n_clusters, random_state=random_state, x_squared_norms=x_squared_norms
+            # sklearn 0.24 requires the compute. Unclear if earlier versions
+            # just implicitly computed.
+            X.compute(), n_clusters, random_state=random_state, x_squared_norms=x_squared_norms
         )
         if SK_024:
             centers, _ = centers
