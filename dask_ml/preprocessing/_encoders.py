@@ -5,8 +5,8 @@ import dask.array as da
 import numpy as np
 import pandas as pd
 import sklearn.preprocessing
-from dask_ml._compat import SK_024
 
+from .._compat import SK_024
 from .._typing import ArrayLike, DataFrameType, SeriesType
 from ..utils import check_array
 from .label import _encode, _encode_dask_array

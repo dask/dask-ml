@@ -388,7 +388,10 @@ def init_pp(X, n_clusters, random_state):
         centers = _kmeans_plusplus(
             # sklearn 0.24 requires the compute. Unclear if earlier versions
             # just implicitly computed.
-            X.compute(), n_clusters, random_state=random_state, x_squared_norms=x_squared_norms
+            X.compute(),
+            n_clusters,
+            random_state=random_state,
+            x_squared_norms=x_squared_norms,
         )
         if SK_024:
             centers, _ = centers
