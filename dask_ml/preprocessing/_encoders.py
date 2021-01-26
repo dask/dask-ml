@@ -154,12 +154,19 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
 
         return self
 
-    def _fit(self, X: Union[ArrayLike, DataFrameType], handle_unknown: str = "error"):
+    def _fit(
+        self,
+        X: Union[ArrayLike, DataFrameType],
+        handle_unknown: str = "error",
+        force_all_finite: bool = True,
+    ):
         X = check_array(
             X, accept_dask_dataframe=True, dtype=None, preserve_pandas_dataframe=True
         )
         if isinstance(X, np.ndarray):
-            return super(OneHotEncoder, self)._fit(X, handle_unknown=handle_unknown)
+            return super(OneHotEncoder, self)._fit(
+                X, handle_unknown=handle_unknown, force_all_finite=force_all_finite
+            )
 
         is_array = isinstance(X, da.Array)
 
