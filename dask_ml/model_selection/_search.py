@@ -55,6 +55,9 @@ from .methods import (
 )
 from .utils import DeprecationDict, is_dask_collection, to_indexable, to_keys, unzip
 
+if SK_024:
+    from sklearn.base import _is_pairwise
+
 logger = logging.getLogger(__name__)
 
 try:
@@ -198,7 +201,7 @@ def build_cv_graph(
     cv = check_cv(cv, y, is_classifier(estimator))
     # "pairwise" estimators require a different graph for CV splitting
     if SK_024:
-        is_pairwise = estimator._get_tags().get("_pairwise", False)
+        is_pairwise = _is_pairwise(estimator)
     else:
         is_pairwise = getattr(estimator, "_pairwise", False)
 
