@@ -165,7 +165,7 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
             X, accept_dask_dataframe=True, dtype=None, preserve_pandas_dataframe=True
         )
         if SK_024:
-            kwargs = dict(force_all_fininte=force_all_finite)
+            kwargs = dict(force_all_finite=force_all_finite)
         else:
             kwargs = {}
         if isinstance(X, np.ndarray):
