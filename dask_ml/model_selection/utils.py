@@ -110,7 +110,7 @@ class DeprecationDict(dict):
     This implementation was copied from Scikit-Learn.
 
     See License information here:
-    https://github.com/scikit-learn/scikit-learn/blob/master/README.rst
+    https://github.com/scikit-learn/scikit-learn/blob/main/README.rst
     """
 
     def __init__(self, *args, **kwargs):
