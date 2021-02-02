@@ -246,7 +246,7 @@ class RobustScaler(sklearn.preprocessing.RobustScaler):
         This implementation was copied and modified from Scikit-Learn.
 
         See License information here:
-        https://github.com/scikit-learn/scikit-learn/blob/master/README.rst
+        https://github.com/scikit-learn/scikit-learn/blob/main/README.rst
         """
         if self.with_centering:
             check_is_fitted(self, "center_")
@@ -277,7 +277,7 @@ class RobustScaler(sklearn.preprocessing.RobustScaler):
         This implementation was copied and modified from Scikit-Learn.
 
         See License information here:
-        https://github.com/scikit-learn/scikit-learn/blob/master/README.rst
+        https://github.com/scikit-learn/scikit-learn/blob/main/README.rst
         """
         check_is_fitted(self, ["center_", "scale_"])
 

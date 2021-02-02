@@ -61,7 +61,7 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
     sparse : boolean, default=True
         Will return sparse matrix if set True else will return an array.
 
-    dtype : number type, default=np.float
+    dtype : number type, default=np.float64
         Desired dtype of output.
 
     handle_unknown : 'error'

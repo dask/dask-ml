@@ -41,7 +41,7 @@ jobs:
       python -c "import torch; print('PyTorch ' + torch.__version__)"
       python -c "import skorch; print('Skorch ' + skorch.__version__)"
     displayName: "install PyTorch"
-    condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
 
   - bash: |
       source activate dask-ml-test
@@ -50,7 +50,7 @@ jobs:
       python -c "import tensorflow as tf; print('TF ' + tf.__version__)"
       python -c "import scikeras; print('SciKeras ' + scikeras.__version__)"
     displayName: "install Tensorflow and SciKeras"
-    condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
 
   - script: |
       source activate dask-ml-test
