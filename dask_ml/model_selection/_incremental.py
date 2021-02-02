@@ -233,22 +233,16 @@ async def _fit(
     _scores: Dict[int, Meta] = {}
     _specs: Dict[int, Tuple[Model, Meta]] = {}
 
-    d_partial_fit = dask.delayed(_partial_fit)
-    d_score = dask.delayed(_score)
-
     for ident, model in models.items():
-        model = d_partial_fit(model, X_future, y_future, fit_params)
-        score = d_score(model, X_test, y_test, scorer)
-        spec = d_partial_fit(model, X_future_2, y_future_2, fit_params)
+        model = client.submit(_partial_fit, model, X_future, y_future, fit_params)
+        score = client.submit(_score, model, X_test, y_test, scorer)
+        spec = client.submit(_partial_fit, model, X_future_2, y_future_2, fit_params)
         _models[ident] = model
         _scores[ident] = score
         _specs[ident] = spec
     _models, _scores, _specs = dask.persist(
         _models, _scores, _specs, priority={tuple(_specs.values()): -1}
     )
-    _models = {k: list(v.dask.values())[0] for k, v in _models.items()}
-    _scores = {k: list(v.dask.values())[0] for k, v in _scores.items()}
-    _specs = {k: list(v.dask.values())[0] for k, v in _specs.items()}
     models.update(_models)
     scores.update(_scores)
     speculative = _specs
@@ -256,6 +250,34 @@ async def _fit(
     new_scores = list(_scores.values())
     history = []
     start_time = time()
+
+    def _get_priorities(model_scores, num_workers=1):
+        """
+        Parameters
+        ----------
+        model_scores : Dict[Any, float]
+            Dictionary of model identities and scores
+
+        num_workers : int
+            The number of workers.
+
+        Returns
+        -------
+        priorities
+            The ranks of the scores. This is set the models score except
+            for the bottom `num_workers` priorities (which are set to the
+            same priority for performance reasons).
+
+        """
+        models = [k for k in model_scores]
+        scores = np.array([model_scores[k] for k in models])
+        idx = -1 if len(scores) <= num_workers else num_workers - 1
+        threshold = np.round(scores[np.argsort(scores)][idx], 2)
+        low_scores = [s for s in scores if s <= threshold]
+        return {
+            m: s if s > threshold else np.median(low_scores)
+            for m, s in zip(models, scores)
+        }
 
     # async for future, result in seq:
     for _i in itertools.count():
@@ -290,32 +312,61 @@ async def _fit(
         _scores = {}
         _specs = {}
 
+        model_scores = {ident: info[ident][-1]["score"] for ident in instructions}
+
+        if client.asynchronous:
+            _sched_info = client.scheduler_info()
+        else:
+            _sched_info = client._scheduler_identity
+
+        num_workers = len(_sched_info["workers"])
+        priorities = _get_priorities(model_scores, num_workers=num_workers)
+
         for ident, k in instructions.items():
             start = info[ident][-1]["partial_fit_calls"] + 1
+            priority = priorities[ident]
 
             if k:
                 k -= 1
                 model = speculative.pop(ident)
                 for i in range(k):
                     X_future, y_future = get_futures(start + i)
-                    model = d_partial_fit(model, X_future, y_future, fit_params)
-                score = d_score(model, X_test, y_test, scorer)
+                    model = client.submit(
+                        _partial_fit,
+                        model,
+                        X_future,
+                        y_future,
+                        fit_params,
+                        priority=priority,
+                    )
+                score = client.submit(
+                    _score, model, X_test, y_test, scorer, priority=priority
+                )
                 X_future, y_future = get_futures(start + k)
-                spec = d_partial_fit(model, X_future, y_future, fit_params)
+                spec = client.submit(
+                    _partial_fit,
+                    model,
+                    X_future,
+                    y_future,
+                    fit_params,
+                    priority=priority,
+                )
                 _models[ident] = model
                 _scores[ident] = score
                 _specs[ident] = spec
 
+        # Give speculative models a lower priority and keep them
+        # ordered so better models finish more quickly.
+        spec_priority = {
+            k: v * 0.75 if v >= 0 else v * 4 / 3 for k, v in priorities.items()
+        }
         _models2, _scores2, _specs2 = dask.persist(
-            _models, _scores, _specs, priority={tuple(_specs.values()): -1}
+            _models, _scores, _specs, priority=spec_priority
         )
         _models2 = {
             k: v if isinstance(v, Future) else list(v.dask.values())[0]
             for k, v in _models2.items()
         }
-        _scores2 = {k: list(v.dask.values())[0] for k, v in _scores2.items()}
-        _specs2 = {k: list(v.dask.values())[0] for k, v in _specs2.items()}
-
         models.update(_models2)
         scores.update(_scores2)
         speculative = _specs2
