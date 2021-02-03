@@ -1,9 +1,11 @@
-from typing import TypeVar, Union
+from typing import TypeVar, Union, Sequence
 
 import dask.dataframe as dd
 import numpy as np
 from dask.array import Array
 from pandas import DataFrame, Index, Series
+from numpy.typing import DTypeLike
+
 
 AnyArrayLike = TypeVar("AnyArrayLike", Index, Series, Array, np.ndarray)
 ArrayLike = TypeVar("ArrayLike", Array, np.ndarray)
@@ -12,3 +14,4 @@ SeriesType = Union[dd.Series, Series]
 DataFrameType = Union[DataFrame, dd.DataFrame]
 Number = Union[int, float, np.float64, np.int64, np.int32]
 Int = Union[int, np.int64, np.int32]
+NDArrayOrScalar = Union[np.ndarray, Sequence[Number], Number]
