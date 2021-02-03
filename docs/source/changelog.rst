@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Version 1.8.0
+~~~~~~~~~~~~~
+
+* Compatibility with scikit-learn 0.24
+
 Version 1.7.0
 ~~~~~~~~~~~~~
 

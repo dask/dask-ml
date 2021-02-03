@@ -44,7 +44,7 @@ svd_flip.__doc__ = skm.svd_flip.__doc__
 
 
 def flip_vector_signs(x, axis):
-    """ Flip vector signs to align them for comparison
+    """Flip vector signs to align them for comparison
 
     Parameters
     ----------

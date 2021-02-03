@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import sklearn.preprocessing
 
+from .._compat import SK_024
 from .._typing import ArrayLike, DataFrameType, SeriesType
 from ..utils import check_array
 from .label import _encode, _encode_dask_array
@@ -60,7 +61,7 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
     sparse : boolean, default=True
         Will return sparse matrix if set True else will return an array.
 
-    dtype : number type, default=np.float
+    dtype : number type, default=np.float64
         Desired dtype of output.
 
     handle_unknown : 'error'
@@ -154,12 +155,23 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
 
         return self
 
-    def _fit(self, X: Union[ArrayLike, DataFrameType], handle_unknown: str = "error"):
+    def _fit(
+        self,
+        X: Union[ArrayLike, DataFrameType],
+        handle_unknown: str = "error",
+        force_all_finite: bool = True,
+    ):
         X = check_array(
             X, accept_dask_dataframe=True, dtype=None, preserve_pandas_dataframe=True
         )
+        if SK_024:
+            kwargs = dict(force_all_finite=force_all_finite)
+        else:
+            kwargs = {}
         if isinstance(X, np.ndarray):
-            return super(OneHotEncoder, self)._fit(X, handle_unknown=handle_unknown)
+            return super(OneHotEncoder, self)._fit(
+                X, handle_unknown=handle_unknown, **kwargs
+            )
 
         is_array = isinstance(X, da.Array)
 

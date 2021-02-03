@@ -91,6 +91,21 @@ provides the following:
    linear_model.LogisticRegression
    linear_model.PoissonRegression
 
+:mod:`dask_ml.naive_bayes`: Naive Bayes
+=======================================
+
+.. automodule:: dask_ml.naive_bayes
+   :no-members:
+   :no-inherited-members:
+
+.. currentmodule:: dask_ml
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   naive_bayes.GaussianNB
+
 :mod:`dask_ml.wrappers`: Meta-Estimators
 ========================================
 

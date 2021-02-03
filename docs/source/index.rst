@@ -10,7 +10,7 @@ popular machine learning libraries like Scikit-Learn_, XGBoost, and others.
 You can try Dask-ML on a small cloud instance by clicking the following button:
 
 .. image:: https://mybinder.org/badge.svg
-   :target: https://mybinder.org/v2/gh/dask/dask-examples/master?filepath=machine-learning.ipynb
+   :target: https://mybinder.org/v2/gh/dask/dask-examples/main?filepath=machine-learning.ipynb
 
 Dimensions of Scale
 -------------------
@@ -104,6 +104,7 @@ See :doc:`Dask-ML + XGBoost <xgboost>` for more information.
    hyper-parameter-search.rst
    compose.rst
    glm.rst
+   naive-bayes.rst
    meta-estimators.rst
    incremental.rst
    clustering.rst

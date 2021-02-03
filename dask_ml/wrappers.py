@@ -204,7 +204,9 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         X = self._check_array(X)
 
         if isinstance(X, da.Array):
-            return X.map_blocks(_transform, estimator=self._postfit_estimator)
+            xx = np.zeros((1, X.shape[1]), dtype=X.dtype)
+            dt = _transform(xx, self._postfit_estimator).dtype
+            return X.map_blocks(_transform, estimator=self._postfit_estimator, dtype=dt)
         elif isinstance(X, dd._Frame):
             return X.map_partitions(_transform, estimator=self._postfit_estimator)
         else:

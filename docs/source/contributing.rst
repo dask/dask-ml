@@ -48,7 +48,7 @@ cloning the repository and running the following in the cloned directory:
   python -m pip install -e ".[dev]"
 
 ``conda``::
-   
+
   conda activate dask-ml-dev
   python -m pip install --no-deps -e .
 
@@ -168,7 +168,7 @@ The source for most examples is maintained in the `dask-examples
 there, and they're automatically included as part of the Dask-ML documentation
 build process.
 
-When adding an example for new feature that's only available in master, the
+When adding an example for new feature that's only available in main, the
 notebook should be first included in Dask-ML repository under
 ``docs/source/examples/``. These examples will be moved to
 ``dask/dask-examples`` as part of the Dask-ML release process.

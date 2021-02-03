@@ -18,7 +18,6 @@ def test_smoke():
     assert_eq(a.class_prior_.compute(), b.class_prior_)
     assert_eq(a.class_count_.compute(), b.class_count_)
     assert_eq(a.theta_.compute(), b.theta_)
-    assert_eq(a.sigma_.compute(), b.sigma_)
 
     assert_eq(a.predict_proba(X).compute(), b.predict_proba(X_))
     assert_eq(a.predict(X).compute(), b.predict(X_))
