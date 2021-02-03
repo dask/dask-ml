@@ -1,10 +1,14 @@
-from typing import TypeVar, Union, Sequence
+from typing import TypeVar, Union, Sequence, Any
 
 import dask.dataframe as dd
 import numpy as np
 from dask.array import Array
 from pandas import DataFrame, Index, Series
-from numpy.typing import DTypeLike
+
+try:
+    from numpy.typing import DTypeLike
+except ImportError:
+    DTypeLike = np.dtype
 
 
 AnyArrayLike = TypeVar("AnyArrayLike", Index, Series, Array, np.ndarray)
