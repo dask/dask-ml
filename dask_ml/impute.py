@@ -70,12 +70,11 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
         if self.strategy == "mean":
             avg = X.mean(axis=0).values
         elif self.strategy == "median":
-            avg = X.quantile().values
+            avg = [np.median(X[col].dropna()) for col in X.columns]
         elif self.strategy == "constant":
             avg = np.full(len(X.columns), self.fill_value)
         else:
-            avg = [X[col].value_counts().nlargest(1).index for col in X.columns]
-            avg = np.concatenate(*dask.compute(avg))
+            avg = [X[col].mode().min() for col in X.columns]
 
         self.statistics_ = pd.Series(dask.compute(avg)[0], index=X.columns)
 
