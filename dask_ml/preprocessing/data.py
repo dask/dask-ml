@@ -770,7 +770,7 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
         big = isinstance(X, dd.DataFrame)
 
         if big:
-            divisions = np.ndarray(X.divisions)
+            divisions = np.array(X.divisions)
             divisions[-1] = divisions[-1] + 1
             chunks = tuple(divisions[1:] - divisions[:-1])
 

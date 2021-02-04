@@ -1,4 +1,4 @@
-from typing import TypeVar, Union, Sequence, Any
+from typing import TypeVar, Union, Sequence
 
 import dask.dataframe as dd
 import numpy as np
