@@ -244,7 +244,7 @@ async def _fit(
         _models[ident] = model
         _scores[ident] = score
         _specs[ident] = spec
-        
+
     if DISTRIBUTED_2021_02_0:
         _models, _scores, _specs = dask.persist(_models, _scores, _specs)
     else:
