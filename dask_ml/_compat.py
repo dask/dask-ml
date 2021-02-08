@@ -23,8 +23,10 @@ DASK_2130 = DASK_VERSION >= packaging.version.parse("2.13.0")
 DASK_2_20_0 = DASK_VERSION >= packaging.version.parse("2.20.0")
 DASK_2_26_0 = DASK_VERSION >= packaging.version.parse("2.26.0")
 DASK_2_28_0 = DASK_VERSION > packaging.version.parse("2.27.0")
+DASK_2021_02_0 = DASK_VERSION >= packaging.version.parse("2021.02.0")
 DISTRIBUTED_2_5_0 = DISTRIBUTED_VERSION > packaging.version.parse("2.5.0")
 DISTRIBUTED_2_11_0 = DISTRIBUTED_VERSION > packaging.version.parse("2.10.0")  # dev
+DISTRIBUTED_2021_02_0 = DISTRIBUTED_VERSION >= packaging.version.parse("2021.02.0")
 PANDAS_1_2_0 = PANDAS_VERSION > packaging.version.parse("1.2.0")
 WINDOWS = os.name == "nt"
 
@@ -35,6 +37,8 @@ def dummy_context(*args: Any, **kwargs: Any):
     # https://docs.python.org/3/library/contextlib.html#contextlib.nullcontext
     yield
 
+
+annotate = dask.annotate if DASK_2021_02_0 else dummy_context
 
 blockwise = da.blockwise
 
