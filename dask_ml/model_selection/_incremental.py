@@ -25,7 +25,7 @@ from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
 from sklearn.utils.metaestimators import if_delegate_has_method
 
-from .._compat import check_is_fitted, dummy_context
+from .._compat import DISTRIBUTED_2021_02_0, annotate, check_is_fitted, dummy_context
 from .._typing import ArrayLike, Int
 from .._utils import LoggingContext
 from ..wrappers import ParallelPostFit
@@ -239,13 +239,18 @@ async def _fit(
     for ident, model in models.items():
         model = d_partial_fit(model, X_future, y_future, fit_params)
         score = d_score(model, X_test, y_test, scorer)
-        spec = d_partial_fit(model, X_future_2, y_future_2, fit_params)
+        with annotate(priority=-1):
+            spec = d_partial_fit(model, X_future_2, y_future_2, fit_params)
         _models[ident] = model
         _scores[ident] = score
         _specs[ident] = spec
-    _models, _scores, _specs = dask.persist(
-        _models, _scores, _specs, priority={tuple(_specs.values()): -1}
-    )
+
+    if DISTRIBUTED_2021_02_0:
+        _models, _scores, _specs = dask.persist(_models, _scores, _specs)
+    else:
+        _models, _scores, _specs = dask.persist(
+            _models, _scores, _specs, priority={tuple(_specs.values()): -1}
+        )
     _models = {k: list(v.dask.values())[0] for k, v in _models.items()}
     _scores = {k: list(v.dask.values())[0] for k, v in _scores.items()}
     _specs = {k: list(v.dask.values())[0] for k, v in _specs.items()}
@@ -301,14 +306,19 @@ async def _fit(
                     model = d_partial_fit(model, X_future, y_future, fit_params)
                 score = d_score(model, X_test, y_test, scorer)
                 X_future, y_future = get_futures(start + k)
-                spec = d_partial_fit(model, X_future, y_future, fit_params)
+                with annotate(priority=-1):
+                    spec = d_partial_fit(model, X_future, y_future, fit_params)
                 _models[ident] = model
                 _scores[ident] = score
                 _specs[ident] = spec
 
-        _models2, _scores2, _specs2 = dask.persist(
-            _models, _scores, _specs, priority={tuple(_specs.values()): -1}
-        )
+        if DISTRIBUTED_2021_02_0:
+            _models2, _scores2, _specs2 = dask.persist(_models, _scores, _specs)
+        else:
+            _models2, _scores2, _specs2 = dask.persist(
+                _models, _scores, _specs, priority={tuple(_specs.values()): -1}
+            )
+
         _models2 = {
             k: v if isinstance(v, Future) else list(v.dask.values())[0]
             for k, v in _models2.items()
