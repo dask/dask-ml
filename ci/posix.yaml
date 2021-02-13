@@ -1,4 +1,4 @@
-parameters:
+call activate dask-ml-testarameters:
   name: ''
   vmImage: ''
 
@@ -64,5 +64,5 @@ jobs:
       pytest --cov=dask_ml --cov-report=xml tests
     displayName: 'Run Tests'
 
-  - bash: ./ci/code_checks.sh
+  - bash: pre-commit run --all-files
     displayName: "Lint"

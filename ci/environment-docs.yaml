@@ -12,7 +12,6 @@ dependencies:
   - ipython
   - isort==4.3.21
   - multipledispatch
-  - mypy
   - nbsphinx
   - nomkl
   - nose
@@ -20,6 +19,7 @@ dependencies:
   - numpy
   - numpydoc
   - pandas
+  - pre-commit=2.10.1
   - psutil
   - pytest
   - pytest-cov

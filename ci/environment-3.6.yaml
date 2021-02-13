@@ -12,12 +12,12 @@ dependencies:
   - isort==4.3.21
   - msgpack-python ==0.6.2
   - multipledispatch
-  - mypy
   - numba
   - numpy ==1.17.3
   - numpydoc
   - packaging
   - pandas =0.24.2
+  - pre-commit=2.10.1
   - psutil
   - pytest
   - pytest-cov
