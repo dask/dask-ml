@@ -1,4 +1,4 @@
-call activate dask-ml-testarameters:
+parameters:
   name: ''
   vmImage: ''
 
