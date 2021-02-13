@@ -25,7 +25,8 @@ if SK_024:
 else:
     from ._compat import _k_init as _kmeans_plusplus
 
-import numba  # isort:skip (see https://github.com/dask/dask-ml/pull/577)
+# (see https://github.com/dask/dask-ml/pull/577)
+import numba  # isort:skip  # noqa
 
 
 logger = logging.getLogger(__name__)
