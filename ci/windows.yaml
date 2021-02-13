@@ -29,5 +29,6 @@ jobs:
     displayName: 'Run Tests'
 
   - script: |
+      call activate dask-ml-test
       pre-commit run --all-files
     displayName: "Lint"
