@@ -3,11 +3,11 @@
 <!DOCTYPE html>
 <html class="writer-html4" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Preprocessing &mdash; dask-ml 1.7.1 documentation</title>
+  <title>Preprocessing &mdash; dask-ml 0.1 documentation</title>
   
 
   
@@ -18,7 +18,10 @@
 
   
   
+
   
+  
+
   
 
   
@@ -47,20 +50,20 @@
   <meta name="Description" content="Preprocessing">
   <meta property="og:description" content="Preprocessing">
   <meta name="twitter:description" content="Preprocessing" />
-  <meta property="og:title" content="dask-ml 1.7.1 documentation - Preprocessing">
+  <meta property="og:title" content="dask-ml 0.1 documentation - Preprocessing">
   <meta property="og:image" content="https://github.com/dask.png">
   <meta property="og:image:secure_url" content="https://github.com/dask.png" />
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="380" />
   <meta property="og:image:height" content="380" />
   <meta property="og:url" content="preprocessing.html">
-  <meta property="og:site_name" content="dask-ml 1.7.1 documentation">
+  <meta property="og:site_name" content="dask-ml 0.1 documentation">
 
   <meta name="twitter:site" content="https://dask.org" />
   <meta name="twitter:creator" content="@dask_dev" />
   <meta name="twitter:card" content="summary">
   <meta name="twitter:image" content="https://github.com/dask.png" />
-  <meta name="twitter:image:alt" content="dask-ml 1.7.1 documentation">
+  <meta name="twitter:image:alt" content="dask-ml 0.1 documentation">
   
 
 </head>
@@ -135,7 +138,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> dask-ml
+            <a href="index.html" class="icon icon-home"> dask-ml
           
 
           
@@ -145,7 +148,7 @@
             
             
               <div class="version">
-                1.7.1.dev1+gbd9c457
+                0.1.dev1+gbe99d37
               </div>
             
           
@@ -186,6 +189,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hyper-parameter-search.html">Hyper Parameter Search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compose.html">Pipelines and Composite Estimators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glm.html">Generalized Linear Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="naive-bayes.html">Naive Bayes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="meta-estimators.html">Parallel Meta-estimators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="incremental.html">Incremental Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="clustering.html">Clustering</a></li>
@@ -244,6 +248,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -255,7 +261,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="_sources/preprocessing.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -286,7 +292,7 @@ scikit-learn counterparts.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler" title="dask_ml.preprocessing.MinMaxScaler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MinMaxScaler</span></code></a>([feature_range,&nbsp;copy])</td>
+<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.preprocessing.MinMaxScaler.html#dask_ml.preprocessing.MinMaxScaler" title="dask_ml.preprocessing.MinMaxScaler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MinMaxScaler</span></code></a>([feature_range,&nbsp;copy,&nbsp;clip])</td>
 <td>Transform features by scaling each feature to a given range.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.preprocessing.QuantileTransformer.html#dask_ml.preprocessing.QuantileTransformer" title="dask_ml.preprocessing.QuantileTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuantileTransformer</span></code></a>(*[,&nbsp;n_quantiles,&nbsp;…])</td>
@@ -315,7 +321,7 @@ scikit-learn counterparts.</p>
 <li><code class="docutils literal notranslate"><span class="pre">.transform</span></code> will return a <code class="docutils literal notranslate"><span class="pre">dask.array</span></code> or <code class="docutils literal notranslate"><span class="pre">dask.dataframe</span></code>
 when the input is a dask collection</li>
 </ol>
-<p>See <a class="reference external" href="https://scikit-learn.org/stable/modules/classes.html#module-sklearn.preprocessing" title="(in scikit-learn v0.23)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sklearn.preprocessing</span></code></a> for more information about any particular
+<p>See <a class="reference external" href="https://scikit-learn.org/stable/modules/classes.html#module-sklearn.preprocessing" title="(in scikit-learn v0.24)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sklearn.preprocessing</span></code></a> for more information about any particular
 transformer. Scikit-learn does have some transforms that are alternatives to
 the large-memory tasks that Dask serves. These include <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.FeatureHasher.html">FeatureHasher</a> (a
 good alternative to <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.DictVectorizer.html">DictVectorizer</a> and <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html">CountVectorizer</a>) and <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.HashingVectorizer.html">HashingVectorizer</a>
@@ -527,37 +533,29 @@ whatever subset of the data we currently see. Instead, it depends on the
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="cross_validation.html" class="btn btn-neutral float-right" title="Cross Validation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="index.html" class="btn btn-neutral float-left" title="Dask-ML" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="cross_validation.html" class="btn btn-neutral float-right" title="Cross Validation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Dask-ML" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2017, Dask developers
+        &#169; Copyright 2017, Dask developers.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

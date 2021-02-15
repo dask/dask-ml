@@ -3,11 +3,11 @@
 <!DOCTYPE html>
 <html class="writer-html4" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>dask_ml.preprocessing.PolynomialFeatures &mdash; dask-ml 1.7.1 documentation</title>
+  <title>dask_ml.preprocessing.PolynomialFeatures &mdash; dask-ml 0.1 documentation</title>
   
 
   
@@ -18,7 +18,10 @@
 
   
   
+
   
+  
+
   
 
   
@@ -47,20 +50,20 @@
   <meta name="Description" content="dask_ml.preprocessing.PolynomialFeatures">
   <meta property="og:description" content="dask_ml.preprocessing.PolynomialFeatures">
   <meta name="twitter:description" content="dask_ml.preprocessing.PolynomialFeatures" />
-  <meta property="og:title" content="dask-ml 1.7.1 documentation - dask_ml.preprocessing.PolynomialFeatures">
+  <meta property="og:title" content="dask-ml 0.1 documentation - dask_ml.preprocessing.PolynomialFeatures">
   <meta property="og:image" content="https://github.com/dask.png">
   <meta property="og:image:secure_url" content="https://github.com/dask.png" />
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="380" />
   <meta property="og:image:height" content="380" />
   <meta property="og:url" content="modules/generated/dask_ml.preprocessing.PolynomialFeatures.html">
-  <meta property="og:site_name" content="dask-ml 1.7.1 documentation">
+  <meta property="og:site_name" content="dask-ml 0.1 documentation">
 
   <meta name="twitter:site" content="https://dask.org" />
   <meta name="twitter:creator" content="@dask_dev" />
   <meta name="twitter:card" content="summary">
   <meta name="twitter:image" content="https://github.com/dask.png" />
-  <meta name="twitter:image:alt" content="dask-ml 1.7.1 documentation">
+  <meta name="twitter:image:alt" content="dask-ml 0.1 documentation">
   
 
 </head>
@@ -135,7 +138,7 @@
           
 
           
-            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> dask-ml
+            <a href="../../index.html" class="icon icon-home"> dask-ml
           
 
           
@@ -145,7 +148,7 @@
             
             
               <div class="version">
-                1.7.1.dev1+gbd9c457
+                0.1.dev1+gbe99d37
               </div>
             
           
@@ -177,6 +180,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../hyper-parameter-search.html">Hyper Parameter Search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../compose.html">Pipelines and Composite Estimators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../glm.html">Generalized Linear Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../naive-bayes.html">Naive Bayes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../meta-estimators.html">Parallel Meta-estimators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../incremental.html">Incremental Learning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../clustering.html">Clustering</a></li>
@@ -184,6 +188,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.model_selection"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>: Model Selection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.ensemble"><code class="docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code>: Ensemble Methods</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.linear_model"><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>: Generalized Linear Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.naive_bayes"><code class="docutils literal notranslate"><span class="pre">dask_ml.naive_bayes</span></code>: Naive Bayes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-wrappers-meta-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.wrappers</span></code>: Meta-Estimators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.cluster"><code class="docutils literal notranslate"><span class="pre">dask_ml.cluster</span></code>: Clustering</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.decomposition"><code class="docutils literal notranslate"><span class="pre">dask_ml.decomposition</span></code>: Matrix Decomposition</a></li>
@@ -263,6 +268,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -276,7 +283,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="../../_sources/modules/generated/dask_ml.preprocessing.PolynomialFeatures.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -306,22 +313,22 @@ For example, if an input sample is two dimensional and of the form
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>degree</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer</span></dt>
+<dt><strong>degree</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default=2</span></dt>
 <dd><blockquote class="first">
-<div><p>The degree of the polynomial features. Default = 2.</p>
+<div><p>The degree of the polynomial features.</p>
 </div></blockquote>
 <dl class="last docutils">
-<dt>interaction_only <span class="classifier-delimiter">:</span> <span class="classifier">boolean, default = False</span></dt>
+<dt>interaction_only <span class="classifier-delimiter">:</span> <span class="classifier">bool, default=False</span></dt>
 <dd><p class="first last">If true, only interaction features are produced: features that are
 products of at most <code class="docutils literal notranslate"><span class="pre">degree</span></code> <em>distinct</em> input features (so not
 <code class="docutils literal notranslate"><span class="pre">x[1]</span> <span class="pre">**</span> <span class="pre">2</span></code>, <code class="docutils literal notranslate"><span class="pre">x[0]</span> <span class="pre">*</span> <span class="pre">x[2]</span> <span class="pre">**</span> <span class="pre">3</span></code>, etc.).</p>
 </dd>
-<dt>include_bias <span class="classifier-delimiter">:</span> <span class="classifier">boolean</span></dt>
+<dt>include_bias <span class="classifier-delimiter">:</span> <span class="classifier">bool, default=True</span></dt>
 <dd><p class="first last">If True (default), then include a bias column, the feature in which
 all polynomial powers are zero (i.e. a column of ones - acts as an
 intercept term in a linear model).</p>
 </dd>
-<dt>order <span class="classifier-delimiter">:</span> <span class="classifier">str in {‘C’, ‘F’}, default ‘C’</span></dt>
+<dt>order <span class="classifier-delimiter">:</span> <span class="classifier">{‘C’, ‘F’}, default=’C’</span></dt>
 <dd><p class="first">Order of output array in the dense case. ‘F’ order is faster to
 compute, but may slow down subsequent estimators.</p>
 <div class="last versionadded">
@@ -339,7 +346,7 @@ sklearn’s default behaviour</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>powers_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array, shape (n_output_features, n_input_features)</span></dt>
+<dt><strong>powers_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of shape (n_output_features, n_input_features)</span></dt>
 <dd><blockquote class="first">
 <div><p>powers_[i, j] is the exponent of the jth input in the ith output.</p>
 </div></blockquote>
@@ -363,7 +370,7 @@ of input features.</p>
 <p>Be aware that the number of features in the output array scales
 polynomially in the number of features of the input array, and
 exponentially in the degree. High degrees can cause overfitting.</p>
-<p>See <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/linear_model/plot_polynomial_interpolation.html#sphx-glr-auto-examples-linear-model-plot-polynomial-interpolation-py" title="(in scikit-learn v0.23)"><span class="xref std std-ref">examples/linear_model/plot_polynomial_interpolation.py</span></a></p>
+<p>See <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/linear_model/plot_polynomial_interpolation.html#sphx-glr-auto-examples-linear-model-plot-polynomial-interpolation-py" title="(in scikit-learn v0.24)"><span class="xref std std-ref">examples/linear_model/plot_polynomial_interpolation.py</span></a></p>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">PolynomialFeatures</span>
@@ -426,15 +433,19 @@ exponentially in the degree. High degrees can cause overfitting.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape (n_samples, n_features)</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{array-like, sparse matrix} of shape (n_samples, n_features)</span></dt>
 <dd><p class="first last">The data.</p>
+</dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">None</span></dt>
+<dd><p class="first last">Ignored.</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">instance</span></dt>
-<dd></dd>
+<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dd><p class="first last">Fitted transformer.</p>
+</dd>
 </dl>
 </td>
 </tr>
@@ -446,17 +457,18 @@ exponentially in the degree. High degrees can cause overfitting.</p>
 <dt id="dask_ml.preprocessing.PolynomialFeatures.fit_transform">
 <code class="descname">fit_transform</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em>, <em>**fit_params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.fit_transform" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit to data, then transform it.</p>
-<p>Fits transformer to X and y with optional parameters fit_params
-and returns a transformed version of X.</p>
+<p>Fits transformer to <cite>X</cite> and <cite>y</cite> with optional parameters <cite>fit_params</cite>
+and returns a transformed version of <cite>X</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{array-like, sparse matrix, dataframe} of shape                 (n_samples, n_features)</span></dt>
-<dd></dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of shape (n_samples,), default=None</span></dt>
-<dd><p class="first last">Target values.</p>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples, n_features)</span></dt>
+<dd><p class="first last">Input samples.</p>
+</dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,) or (n_samples, n_outputs),                 default=None</span></dt>
+<dd><p class="first last">Target values (None for unsupervised transformations).</p>
 </dd>
 <dt><strong>**fit_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
 <dd><p class="first last">Additional fit parameters.</p>
@@ -484,7 +496,7 @@ and returns a transformed version of X.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>input_features</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of string, length n_features, optional</span></dt>
+<dt><strong>input_features</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str of shape (n_features,), default=None</span></dt>
 <dd><p class="first last">String names for input features if available. By default,
 “x0”, “x1”, … “xn_features” is used.</p>
 </dd>
@@ -492,7 +504,7 @@ and returns a transformed version of X.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>output_feature_names</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of string, length n_output_features</span></dt>
+<dt><strong>output_feature_names</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of str of shape (n_output_features,)</span></dt>
 <dd></dd>
 </dl>
 </td>
@@ -518,7 +530,7 @@ contained subobjects that are estimators.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">mapping of string to any</span></dt>
+<dt><strong>params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
 <dd><p class="first last">Parameter names mapped to their values.</p>
 </dd>
 </dl>
@@ -533,9 +545,9 @@ contained subobjects that are estimators.</p>
 <code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
-(such as pipelines). The latter have parameters of the form
-<code class="docutils literal notranslate"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it’s possible to update each
-component of a nested object.</p>
+(such as <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.24)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></a>). The latter have
+parameters of the form <code class="docutils literal notranslate"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it’s
+possible to update each component of a nested object.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -548,7 +560,7 @@ component of a nested object.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">object</span></dt>
+<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">estimator instance</span></dt>
 <dd><p class="first last">Estimator instance.</p>
 </dd>
 </dl>
@@ -567,7 +579,7 @@ component of a nested object.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like or CSR/CSC sparse matrix, shape [n_samples, n_features]</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{array-like, sparse matrix} of shape (n_samples, n_features)</span></dt>
 <dd><p class="first">The data to transform, row by row.</p>
 <p>Prefer CSR over CSC for sparse input (for speed), but CSC is
 required if the degree is 4 or higher. If the degree is less than
@@ -585,9 +597,11 @@ preference of CSR.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>XP</strong> <span class="classifier-delimiter">:</span> <span class="classifier">np.ndarray or CSR/CSC sparse matrix, shape [n_samples, NP]</span></dt>
+<dt><strong>XP</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{ndarray, sparse matrix} of shape (n_samples, NP)</span></dt>
 <dd><p class="first last">The matrix of features, where NP is the number of polynomial
-features generated from the combination of inputs.</p>
+features generated from the combination of inputs. If a sparse
+matrix is provided, it will be converted into a sparse
+<code class="docutils literal notranslate"><span class="pre">csr_matrix</span></code>.</p>
 </dd>
 </dl>
 </td>
@@ -605,37 +619,29 @@ features generated from the combination of inputs.</p>
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="dask_ml.preprocessing.BlockTransformer.html" class="btn btn-neutral float-right" title="dask_ml.preprocessing.BlockTransformer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="dask_ml.preprocessing.LabelEncoder.html" class="btn btn-neutral float-left" title="dask_ml.preprocessing.LabelEncoder" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="dask_ml.preprocessing.BlockTransformer.html" class="btn btn-neutral float-right" title="dask_ml.preprocessing.BlockTransformer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="dask_ml.preprocessing.LabelEncoder.html" class="btn btn-neutral float-left" title="dask_ml.preprocessing.LabelEncoder" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2017, Dask developers
+        &#169; Copyright 2017, Dask developers.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

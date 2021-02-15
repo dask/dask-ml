@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>dask_ml.ensemble.BlockwiseVotingClassifier &mdash; dask-ml 0.1 documentation</title>
+  <title>dask_ml.naive_bayes.GaussianNB &mdash; dask-ml 0.1 documentation</title>
   
 
   
@@ -43,20 +43,20 @@
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="dask_ml.ensemble.BlockwiseVotingRegressor" href="dask_ml.ensemble.BlockwiseVotingRegressor.html" />
-    <link rel="prev" title="dask_ml.model_selection.InverseDecaySearchCV" href="dask_ml.model_selection.InverseDecaySearchCV.html" />
+    <link rel="next" title="dask_ml.wrappers.ParallelPostFit" href="dask_ml.wrappers.ParallelPostFit.html" />
+    <link rel="prev" title="dask_ml.linear_model.PoissonRegression" href="dask_ml.linear_model.PoissonRegression.html" />
   <link rel="shortcut icon" href="../../_static/images/favicon.ico"/>
   
-  <meta name="Description" content="dask_ml.ensemble.BlockwiseVotingClassifier">
-  <meta property="og:description" content="dask_ml.ensemble.BlockwiseVotingClassifier">
-  <meta name="twitter:description" content="dask_ml.ensemble.BlockwiseVotingClassifier" />
-  <meta property="og:title" content="dask-ml 0.1 documentation - dask_ml.ensemble.BlockwiseVotingClassifier">
+  <meta name="Description" content="dask_ml.naive_bayes.GaussianNB">
+  <meta property="og:description" content="dask_ml.naive_bayes.GaussianNB">
+  <meta name="twitter:description" content="dask_ml.naive_bayes.GaussianNB" />
+  <meta property="og:title" content="dask-ml 0.1 documentation - dask_ml.naive_bayes.GaussianNB">
   <meta property="og:image" content="https://github.com/dask.png">
   <meta property="og:image:secure_url" content="https://github.com/dask.png" />
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="380" />
   <meta property="og:image:height" content="380" />
-  <meta property="og:url" content="modules/generated/dask_ml.ensemble.BlockwiseVotingClassifier.html">
+  <meta property="og:url" content="modules/generated/dask_ml.naive_bayes.GaussianNB.html">
   <meta property="og:site_name" content="dask-ml 0.1 documentation">
 
   <meta name="twitter:site" content="https://dask.org" />
@@ -186,13 +186,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../clustering.html">Clustering</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.model_selection"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>: Model Selection</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="../api.html#module-dask_ml.ensemble"><code class="docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code>: Ensemble Methods</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code>.BlockwiseVotingClassifier</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.ensemble.BlockwiseVotingRegressor.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code>.BlockwiseVotingRegressor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.ensemble"><code class="docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code>: Ensemble Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.linear_model"><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>: Generalized Linear Models</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#module-dask_ml.naive_bayes"><code class="docutils literal notranslate"><span class="pre">dask_ml.naive_bayes</span></code>: Naive Bayes</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.naive_bayes</span></code>.GaussianNB</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.linear_model"><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>: Generalized Linear Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.naive_bayes"><code class="docutils literal notranslate"><span class="pre">dask_ml.naive_bayes</span></code>: Naive Bayes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-wrappers-meta-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.wrappers</span></code>: Meta-Estimators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.cluster"><code class="docutils literal notranslate"><span class="pre">dask_ml.cluster</span></code>: Clustering</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.decomposition"><code class="docutils literal notranslate"><span class="pre">dask_ml.decomposition</span></code>: Matrix Decomposition</a></li>
@@ -269,13 +268,13 @@
         
           <li><a href="../api.html">API Reference</a> &raquo;</li>
         
-      <li><code class="docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code>.BlockwiseVotingClassifier</li>
+      <li><code class="docutils literal notranslate"><span class="pre">dask_ml.naive_bayes</span></code>.GaussianNB</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
           
-            <a href="../../_sources/modules/generated/dask_ml.ensemble.BlockwiseVotingClassifier.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/modules/generated/dask_ml.naive_bayes.GaussianNB.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -288,69 +287,18 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="dask-ml-ensemble-blockwisevotingclassifier">
-<h1><a class="reference internal" href="../api.html#module-dask_ml.ensemble" title="dask_ml.ensemble"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code></a>.BlockwiseVotingClassifier<a class="headerlink" href="#dask-ml-ensemble-blockwisevotingclassifier" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="dask-ml-naive-bayes-gaussiannb">
+<h1><a class="reference internal" href="../api.html#module-dask_ml.naive_bayes" title="dask_ml.naive_bayes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.naive_bayes</span></code></a>.GaussianNB<a class="headerlink" href="#dask-ml-naive-bayes-gaussiannb" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
-<dt id="dask_ml.ensemble.BlockwiseVotingClassifier">
-<em class="property">class </em><code class="descclassname">dask_ml.ensemble.</code><code class="descname">BlockwiseVotingClassifier</code><span class="sig-paren">(</span><em>estimator</em>, <em>voting='hard'</em>, <em>classes=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.ensemble.BlockwiseVotingClassifier" title="Permalink to this definition">¶</a></dt>
-<dd><p>Blockwise training and ensemble voting classifier.</p>
-<p>This classifier trains on blocks / partitions of Dask Arrays or DataFrames.
-A cloned version of <cite>estimator</cite> will be fit <em>independently</em> on each block
-or partition of the Dask collection. This is useful when the sub estimator
-only works on small in-memory data structures like a NumPy array or pandas
-DataFrame.</p>
-<p>Prediction is done by the <em>ensemble</em> of learned models.</p>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">Ensure that your data are sufficiently shuffled prior to training!
-If the values of the various blocks / partitions of your dataset are not
-distributed similarly, the classifier will give poor results.</p>
-</div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>estimator</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Estimator</span></dt>
-<dd></dd>
-<dt><strong>voting</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, {‘hard’, ‘soft’} (default=’hard’)</span></dt>
-<dd><p class="first last">If ‘hard’, uses predicted class labels for majority rule voting.
-Else if ‘soft’, predicts the class label based on the argmax of
-the sums of the predicted probabilities, which is recommended for
-an ensemble of well-calibrated classifiers.</p>
-</dd>
-<dt><strong>classes</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list-like, optional</span></dt>
-<dd><p class="first last">The set of classes that <cite>y</cite> can take. This can also be provided as
-a fit param if the underlying estimator requires <cite>classes</cite> at fit time.</p>
-</dd>
-</dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>estimators_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of classifiers</span></dt>
-<dd><p class="first last">The collection of fitted sub-estimators that are <cite>estimator</cite> fitted
-on each partition / block of the inputs.</p>
-</dd>
-<dt><strong>classes_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape (n_predictions,)</span></dt>
-<dd><p class="first last">The class labels.</p>
-</dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
+<dt id="dask_ml.naive_bayes.GaussianNB">
+<em class="property">class </em><code class="descclassname">dask_ml.naive_bayes.</code><code class="descname">GaussianNB</code><span class="sig-paren">(</span><em>priors=None</em>, <em>classes=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.naive_bayes.GaussianNB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit a naive bayes model with a Gaussian likelihood</p>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dask_ml.datasets</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dask_ml.ensemble</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">sklearn.linear_model</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">dask_ml</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">make_classification</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">100_000</span><span class="p">,</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="o">...</span>                                         <span class="n">chunks</span><span class="o">=</span><span class="mi">10_000</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">subestimator</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">linear_model</span><span class="o">.</span><span class="n">RidgeClassifier</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span> <span class="o">=</span> <span class="n">dask_ml</span><span class="o">.</span><span class="n">ensemble</span><span class="o">.</span><span class="n">BlockwiseVotingClassifier</span><span class="p">(</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="o">...</span>     <span class="n">subestimator</span><span class="p">,</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="o">...</span>     <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="o">...</span> <span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dask_ml</span> <span class="kn">import</span> <span class="n">datasets</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dask_ml.naive_bayes</span> <span class="kn">import</span> <span class="n">GaussianNB</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">make_classification</span><span class="p">(</span><span class="n">chunks</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gnb</span> <span class="o">=</span> <span class="n">GaussianNB</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gnb</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 </pre></div>
 </div>
 <p class="rubric">Methods</p>
@@ -360,40 +308,43 @@ on each partition / block of the inputs.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.ensemble.BlockwiseVotingClassifier.get_params" title="dask_ml.ensemble.BlockwiseVotingClassifier.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.naive_bayes.GaussianNB.get_params" title="dask_ml.naive_bayes.GaussianNB.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</td>
 <td>Get parameters for this estimator.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.ensemble.BlockwiseVotingClassifier.score" title="dask_ml.ensemble.BlockwiseVotingClassifier.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(X,&nbsp;y[,&nbsp;sample_weight])</td>
-<td>Return the mean accuracy on the given test data and labels.</td>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.naive_bayes.GaussianNB.predict" title="dask_ml.naive_bayes.GaussianNB.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(X)</td>
+<td>Perform classification on an array of test vectors X.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.ensemble.BlockwiseVotingClassifier.set_params" title="dask_ml.ensemble.BlockwiseVotingClassifier.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.naive_bayes.GaussianNB.predict_log_proba" title="dask_ml.naive_bayes.GaussianNB.predict_log_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_log_proba</span></code></a>(X)</td>
+<td>Return log-probability estimates for the test vector X.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dask_ml.naive_bayes.GaussianNB.predict_proba" title="dask_ml.naive_bayes.GaussianNB.predict_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_proba</span></code></a>(X)</td>
+<td>Return probability estimates for the test vector X.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.naive_bayes.GaussianNB.set_params" title="dask_ml.naive_bayes.GaussianNB.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</td>
 <td>Set the parameters of this estimator.</td>
 </tr>
 </tbody>
 </table>
 <table border="1" class="docutils">
 <colgroup>
-<col width="52%" />
-<col width="48%" />
+<col width="41%" />
+<col width="59%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><strong>fit</strong></td>
 <td>&#160;</td>
 </tr>
-<tr class="row-even"><td><strong>predict</strong></td>
-<td>&#160;</td>
-</tr>
 </tbody>
 </table>
 <dl class="method">
-<dt id="dask_ml.ensemble.BlockwiseVotingClassifier.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>estimator</em>, <em>voting='hard'</em>, <em>classes=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.ensemble.BlockwiseVotingClassifier.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.naive_bayes.GaussianNB.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>priors=None</em>, <em>classes=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.naive_bayes.GaussianNB.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.ensemble.BlockwiseVotingClassifier.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.ensemble.BlockwiseVotingClassifier.get_params" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.naive_bayes.GaussianNB.get_params">
+<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.naive_bayes.GaussianNB.get_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get parameters for this estimator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -419,46 +370,54 @@ contained subobjects that are estimators.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.ensemble.BlockwiseVotingClassifier.score">
-<code class="descname">score</code><span class="sig-paren">(</span><em>X</em>, <em>y</em>, <em>sample_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.ensemble.BlockwiseVotingClassifier.score" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the mean accuracy on the given test data and labels.</p>
-<p>In multi-label classification, this is the subset accuracy
-which is a harsh metric since you require for each sample that
-each label set be correctly predicted.</p>
-<p>This matches the scikit-learn implementation with the difference
-that <a class="reference internal" href="dask_ml.metrics.accuracy_score.html#dask_ml.metrics.accuracy_score" title="dask_ml.metrics.accuracy_score"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dask_ml.metrics.accuracy_score()</span></code></a> is used rather than
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">sklearn.metrics.accuracy_score()</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples, n_features)</span></dt>
-<dd><p class="first last">Test samples.</p>
-</dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,) or (n_samples, n_outputs)</span></dt>
-<dd><p class="first last">True labels for X.</p>
-</dd>
-<dt><strong>sample_weight</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,), default=None</span></dt>
-<dd><p class="first last">Sample weights.</p>
-</dd>
-</dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>score</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Mean accuracy of self.predict(X) wrt. y.</p>
-</dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
+<dt id="dask_ml.naive_bayes.GaussianNB.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.naive_bayes.GaussianNB.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform classification on an array of test vectors X.
+Parameters
+———-
+X : array-like, shape = [n_samples, n_features]
+Returns
+——-
+C : array, shape = [n_samples]</p>
+<blockquote>
+<div>Predicted target values for X</div></blockquote>
 </dd></dl>
 
 <dl class="method">
-<dt id="dask_ml.ensemble.BlockwiseVotingClassifier.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.ensemble.BlockwiseVotingClassifier.set_params" title="Permalink to this definition">¶</a></dt>
+<dt id="dask_ml.naive_bayes.GaussianNB.predict_log_proba">
+<code class="descname">predict_log_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.naive_bayes.GaussianNB.predict_log_proba" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return log-probability estimates for the test vector X.
+Parameters
+———-
+X : array-like, shape = [n_samples, n_features]
+Returns
+——-
+C : array-like, shape = [n_samples, n_classes]</p>
+<blockquote>
+<div>Returns the log-probability of the samples for each class in
+the model. The columns correspond to the classes in sorted
+order, as they appear in the attribute <cite>classes_</cite>.</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.naive_bayes.GaussianNB.predict_proba">
+<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.naive_bayes.GaussianNB.predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return probability estimates for the test vector X.
+Parameters
+———-
+X : array-like, shape = [n_samples, n_features]
+Returns
+——-
+C : array-like, shape = [n_samples, n_classes]</p>
+<blockquote>
+<div>Returns the probability of the samples for each class in
+the model. The columns correspond to the classes in sorted
+order, as they appear in the attribute <cite>classes_</cite>.</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="dask_ml.naive_bayes.GaussianNB.set_params">
+<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.naive_bayes.GaussianNB.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
 (such as <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.24)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></a>). The latter have
@@ -496,8 +455,8 @@ possible to update each component of a nested object.</p>
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="dask_ml.ensemble.BlockwiseVotingRegressor.html" class="btn btn-neutral float-right" title="dask_ml.ensemble.BlockwiseVotingRegressor" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="dask_ml.model_selection.InverseDecaySearchCV.html" class="btn btn-neutral float-left" title="dask_ml.model_selection.InverseDecaySearchCV" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dask_ml.wrappers.ParallelPostFit.html" class="btn btn-neutral float-right" title="dask_ml.wrappers.ParallelPostFit" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="dask_ml.linear_model.PoissonRegression.html" class="btn btn-neutral float-left" title="dask_ml.linear_model.PoissonRegression" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
