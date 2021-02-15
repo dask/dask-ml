@@ -16,7 +16,7 @@ from ..utils import row_norms
 
 
 def pairwise_distances_argmin_min(
-    X: ArrayLike,
+    X: da.Array,
     Y: ArrayLike,
     axis: int = 1,
     metric: Union[str, Callable[[ArrayLike, ArrayLike], float]] = "euclidean",
@@ -47,7 +47,7 @@ def pairwise_distances_argmin_min(
 
 
 def pairwise_distances(
-    X: ArrayLike,
+    X: da.Array,
     Y: ArrayLike,
     metric: Union[str, Callable[[ArrayLike, ArrayLike], float]] = "euclidean",
     n_jobs: Optional[int] = None,
@@ -105,7 +105,7 @@ def euclidean_distances(
 
 
 def check_pairwise_arrays(
-    X: ArrayLike, Y: ArrayLike, precomputed: bool = False
+    X: ArrayLike, Y: Optional[ArrayLike], precomputed: bool = False
 ) -> Tuple[ArrayLike, ArrayLike]:
     # XXX
     if Y is None:
