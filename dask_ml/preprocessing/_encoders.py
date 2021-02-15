@@ -7,7 +7,7 @@ import pandas as pd
 import sklearn.preprocessing
 
 from .._compat import SK_024
-from .._typing import ArrayLike, DataFrameType, SeriesType, DTypeLike
+from .._typing import ArrayLike, DataFrameType, DTypeLike, SeriesType
 from ..utils import check_array
 from .label import _encode, _encode_dask_array
 

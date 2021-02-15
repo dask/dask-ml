@@ -1,4 +1,4 @@
-from typing import TypeVar, Union, Sequence
+from typing import Any, Sequence, Type, TypeVar, Union
 
 import dask.dataframe as dd
 import numpy as np
@@ -8,7 +8,7 @@ from pandas import DataFrame, Index, Series
 try:
     from numpy.typing import DTypeLike
 except ImportError:
-    DTypeLike = np.dtype
+    DTypeLike = Any
 
 
 AnyArrayLike = TypeVar("AnyArrayLike", Index, Series, Array, np.ndarray)
