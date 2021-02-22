@@ -21,14 +21,14 @@ from dask_ml._compat import blockwise, check_is_fitted
 from dask_ml._utils import copy_learned_attributes
 from dask_ml.utils import check_array, handle_zeros_in_scale
 
-from .._typing import ArrayLike, DataFrameType, SeriesType
+from .._typing import ArrayLike, DataFrameType, NDArrayOrScalar, SeriesType
 
 _PANDAS_VERSION = LooseVersion(pd.__version__)
 _HAS_CTD = _PANDAS_VERSION >= "0.21.0"
 BOUNDS_THRESHOLD = 1e-7
 
 
-def _handle_zeros_in_scale(scale: np.ndarray, copy=True):
+def _handle_zeros_in_scale(scale: NDArrayOrScalar, copy=True):
     """Makes sure that whenever scale is zero, we handle it correctly.
 
     This happens in most scalers when we have constant features."""
@@ -75,7 +75,7 @@ class StandardScaler(sklearn.preprocessing.StandardScaler):
         values = compute(*attributes.values())
         for k, v in zip(attributes, values):
             setattr(self, k, v)
-        self.n_features_in_ = X.shape[1]
+        self.n_features_in_: int = X.shape[1]
         return self
 
     def partial_fit(
@@ -142,7 +142,7 @@ class MinMaxScaler(sklearn.preprocessing.MinMaxScaler):
         values = compute(*attributes.values())
         for k, v in zip(attributes, values):
             setattr(self, k, v)
-        self.n_features_in_ = X.shape[1]
+        self.n_features_in_: int = X.shape[1]
         return self
 
     def partial_fit(
@@ -227,7 +227,7 @@ class RobustScaler(sklearn.preprocessing.RobustScaler):
         self.center_: List[float] = quantiles[:, 1]
         self.scale_: List[float] = quantiles[:, 2] - quantiles[:, 0]
         self.scale_ = _handle_zeros_in_scale(self.scale_, copy=False)
-        self.n_features_in_ = X.shape[1]
+        self.n_features_in_: int = X.shape[1]
         return self
 
     def transform(
@@ -338,6 +338,7 @@ class QuantileTransformer(sklearn.preprocessing.QuantileTransformer):
         references = self.references_ * 100
         quantiles = [da.percentile(col, references) for col in X.T]
         (self.quantiles_,) = compute(da.vstack(quantiles).T)
+        return None
 
     def _transform(
         self, X: Union[ArrayLike, DataFrameType], inverse: bool = False
@@ -352,7 +353,7 @@ class QuantileTransformer(sklearn.preprocessing.QuantileTransformer):
         return da.vstack(transformed, allow_unknown_chunksizes=True).T
 
     def _transform_col(
-        self, X_col: ArrayLike, quantiles: ArrayLike, inverse: bool
+        self, X_col: da.Array, quantiles: ArrayLike, inverse: bool
     ) -> ArrayLike:
         output_distribution = self.output_distribution
 
@@ -761,7 +762,7 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
             if unknown:
                 lengths = blockwise(len, "i", X[:, 0], "i", dtype="i8").compute()
                 X = X.copy()
-                chunks: ArrayLike = (tuple(lengths), X.chunks[1])
+                chunks: tuple = (tuple(lengths), X.chunks[1])
                 X._chunks = chunks
 
             X = dd.from_dask_array(X, columns=self.transformed_columns_)
@@ -769,9 +770,9 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
         big = isinstance(X, dd.DataFrame)
 
         if big:
-            chunks = np.array(X.divisions)
-            chunks[-1] = chunks[-1] + 1
-            chunks = tuple(chunks[1:] - chunks[:-1])
+            divisions = np.array(X.divisions)
+            divisions[-1] = divisions[-1] + 1
+            chunks = tuple(divisions[1:] - divisions[:-1])
 
         non_cat = X[list(self.non_categorical_columns_)]
 
@@ -986,7 +987,7 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
             if unknown:
                 lengths = blockwise(len, "i", X[:, 0], "i", dtype="i8").compute()
                 X = X.copy()
-                chunks: ArrayLike = (tuple(lengths), X.chunks[1])
+                chunks: tuple = (tuple(lengths), X.chunks[1])
                 X._chunks = chunks
 
             X = dd.from_dask_array(X, columns=self.columns_)
@@ -994,9 +995,9 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
         big = isinstance(X, dd.DataFrame)
 
         if big:
-            chunks = np.array(X.divisions)
-            chunks[-1] = chunks[-1] + 1
-            chunks = tuple(chunks[1:] - chunks[:-1])
+            divisions = np.array(X.divisions)
+            divisions[-1] = divisions[-1] + 1
+            chunks = tuple(divisions[1:] - divisions[:-1])
 
         X = X.copy()
         for col in self.categorical_columns_:

@@ -71,7 +71,7 @@ class BlockTransformer(BaseEstimator, TransformerMixin):
         validate: bool = False,
         **kw_args: Any
     ):
-        self.func = func
+        self.func: Callable[..., Union[ArrayLike, DataFrameType]] = func
         self.validate = validate
         self.kw_args = kw_args
 

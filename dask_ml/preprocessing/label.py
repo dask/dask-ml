@@ -197,7 +197,7 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
 
 
 def _encode_categorical(
-    values: np.ndarray, uniques: np.ndarray = None, encode: bool = False
+    values: pd.Series, uniques: Optional[np.ndarray] = None, encode: bool = False
 ):
     new_uniques = np.asarray(values.cat.categories)
 
