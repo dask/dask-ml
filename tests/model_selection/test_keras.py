@@ -55,7 +55,7 @@ def test_keras(c, s, a, b):
     model = KerasClassifier(
         model=_keras_build_fn, lr=0.01, verbose=False, loss="categorical_crossentropy",
     )
-    params = {"lr": loguniform(1e-3, 1e-1)}
+    params = {"lr": loguniform(1e-3, 1e-1), "random_state": [1]}
 
     search = IncrementalSearchCV(
         model,
