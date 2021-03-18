@@ -43,12 +43,6 @@ annotate = dask.annotate if DASK_2021_02_0 else dummy_context
 blockwise = da.blockwise
 
 
-def check_is_fitted(est, attributes: Optional[Union[str, List[str]]] = None):
-    args: Any = ()
-
-    return sklearn.utils.validation.check_is_fitted(est, *args)
-
-
 def _check_multimetric_scoring(estimator, scoring=None):
     # TODO: See if scikit-learn 0.24 solves the need for using
     # a private method
