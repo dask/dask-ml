@@ -121,7 +121,7 @@ class TestMinMaxScaler:
         mask = ["3", "4"]
         a = dpp.MinMaxScaler(columns=mask)
         result = a.inverse_transform(a.fit_transform(df2))
-        assert dask.is_dask_colelction(result)
+        assert dask.is_dask_collection(result)
         assert_eq_df(result, df2)
 
     def test_df_values(self):

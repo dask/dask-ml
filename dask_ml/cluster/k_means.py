@@ -86,7 +86,7 @@ class KMeans(TransformerMixin, BaseEstimator):
         A dask array with the index position in ``cluster_centers_`` this
         sample belongs to.
 
-    intertia_ : float
+    inertia_ : float
         Sum of distances of samples to their closest cluster center.
 
     n_iter_ : int

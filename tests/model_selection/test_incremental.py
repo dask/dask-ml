@@ -472,7 +472,7 @@ def test_small(c, s, a, b):
 
 @gen_cluster(client=True)
 def test_smaller(c, s, a, b):
-    # infininte loop
+    # infinite loop
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = {"alpha": [0.1, 0.5]}
