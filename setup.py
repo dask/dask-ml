@@ -31,7 +31,7 @@ test_requires = [
     "flake8",
     "isort",
     "pytest",
-    "pytest-cover",
+    "pytest-cov",
     "pytest-mock",
 ]
 dev_requires = doc_requires + test_requires
