@@ -148,7 +148,7 @@
             
             
               <div class="version">
-                0.1.dev1+gc964587
+                0.1.dev1+g95dd5b9
               </div>
             
           
@@ -349,7 +349,7 @@
 <td>Predict with <cite>data</cite>.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.predict_proba" title="dask_ml.xgboost.XGBClassifier.predict_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_proba</span></code></a>(data[,&nbsp;ntree_limit])</td>
-<td>Predict the probability of each <cite>data</cite> example being of a given class.</td>
+<td>Predict the probability of each <cite>X</cite> example being of a given class.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.save_model" title="dask_ml.xgboost.XGBClassifier.save_model"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_model</span></code></a>(fname)</td>
 <td>Save the model to a file.</td>
@@ -687,7 +687,7 @@ feature_names are the same.</p>
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.predict_proba">
 <code class="descname">predict_proba</code><span class="sig-paren">(</span><em>data</em>, <em>ntree_limit=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.predict_proba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict the probability of each <cite>data</cite> example being of a given class.</p>
+<dd><p>Predict the probability of each <cite>X</cite> example being of a given class.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p>This function is not thread safe</p>
@@ -700,16 +700,17 @@ thread.  If you want to run prediction using multiple thread, call
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
 <dd><p class="first last">Feature matrix.</p>
 </dd>
 <dt><strong>ntree_limit</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">Limit number of trees in the prediction; defaults to best_ntree_limit if defined
-(i.e. it has been trained with early stopping), otherwise 0 (use all trees).</p>
+<dd><p class="first last">Limit number of trees in the prediction; defaults to best_ntree_limit if
+defined (i.e. it has been trained with early stopping), otherwise 0 (use all
+trees).</p>
 </dd>
 <dt><strong>validate_features</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">When this is True, validate that the Booster’s and data’s feature_names are identical.
-Otherwise, it is assumed that the feature_names are the same.</p>
+<dd><p class="first last">When this is True, validate that the Booster’s and data’s feature_names are
+identical.  Otherwise, it is assumed that the feature_names are the same.</p>
 </dd>
 </dl>
 </td>
