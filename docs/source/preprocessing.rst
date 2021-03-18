@@ -96,10 +96,10 @@ The default behavior of OneHotEncoder is to return a sparse array. Scikit-Learn
 returns a SciPy sparse matrix for ndarrays passed to ``transform``.
 
 When passed a Dask Array, :meth:`OneHotEncoder.transform` returns a Dask Array
-*where each block is a scipy sparse matrix*. SciPy sparse matricies don't
+*where each block is a scipy sparse matrix*. SciPy sparse matrices don't
 support the same API as the NumPy ndarray, so most methods won't work on the
 result. Even basic things like ``compute`` will fail. To work around this,
-we currently recommend converting the sparse matricies to dense.
+we currently recommend converting the sparse matrices to dense.
 
 .. code-block:: python
 
@@ -120,7 +120,7 @@ Each block of ``result`` is a scipy sparse matrix
    result.blocks[0].compute()
    # This would fail!
    # result.compute()
-   # Convert to, say, pydata/sparse COO matricies instead
+   # Convert to, say, pydata/sparse COO matrices instead
    from sparse import COO
 
    result.map_blocks(COO.from_scipy_sparse, dtype=result.dtype).compute()

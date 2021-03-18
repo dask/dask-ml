@@ -368,7 +368,7 @@ def train_test_split(
     convert_mixed_types=False,
     **options,
 ):
-    """Split arrays into random train and test matricies.
+    """Split arrays into random train and test matrices.
 
     Parameters
     ----------
@@ -396,7 +396,7 @@ def train_test_split(
 
     convert_mixed_types : bool, default False
         Whether to convert dask DataFrames and Series to dask Arrays when
-        arrays contains a mixiture of types. This results in some computation
+        arrays contains a mixture of types. This results in some computation
         to determine the length of each block.
 
     Returns
@@ -420,7 +420,7 @@ def train_test_split(
            [ 0.99439439, -0.70972797, -0.27567053,  1.73887268]])
     """
     if train_size is None and test_size is None:
-        # all other validation dones elsewhere.
+        # all other validation done elsewhere.
         test_size = 0.1
 
     if train_size is None and test_size is not None:

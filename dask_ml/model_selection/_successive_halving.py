@@ -165,7 +165,7 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         retained by the "inverse decay" algorithm.
 
     best_score_ : float
-        Score achieved by ``best_estimator_`` on the vaidation set after the
+        Score achieved by ``best_estimator_`` on the validation set after the
         final call to ``partial_fit``.
 
     best_index_ : int
@@ -281,7 +281,7 @@ def _simulate_sha(n, r, eta, max_iter=None):
     Parameters
     ----------
     n : int
-        Number of intial models
+        Number of initial models
     r : int
         Number of initial calls
     eta : int

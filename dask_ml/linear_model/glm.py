@@ -178,7 +178,7 @@ class _GLM(BaseEstimator):
 
         Returns
         -------
-        self : objectj
+        self : object
         """
         X = self._check_array(X)
 

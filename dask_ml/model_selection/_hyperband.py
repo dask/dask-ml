@@ -256,7 +256,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         the Hyperband model selection algorithm.
 
     best_score_ : float
-        Score achieved by ``best_estimator_`` on the vaidation set after the
+        Score achieved by ``best_estimator_`` on the validation set after the
         final call to ``partial_fit``.
 
     best_index_ : int
