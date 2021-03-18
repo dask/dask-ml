@@ -73,7 +73,7 @@ Version 1.1.0
 - Non-arrays (e.g. Dask Bags and DataFrames) are now allowed in :class:`dask_ml.wrappers.Incremental`. This is useful for text classification pipelines (pr:`570`)
 - The index is now preserved in :class:`dask_ml.preprocessing.PolynomialFeatures` for DataFrame inputs (:pr:`563`)
 - :class:`dask_ml.decomposition.PCA` now works with DataFrame inputs (:pr:`543`)
-- :class:`dask_ml.cluster.KMeans` handles inputes where some blocks are length-0 (:pr:`559`)
+- :class:`dask_ml.cluster.KMeans` handles inputs where some blocks are length-0 (:pr:`559`)
 - Improved error reporting for mixed inputs to :func:`dask_ml.model_selection.train_test_split` (:pr:`552`)
 - Removed deprecated ``dask_ml.joblib`` module. Use ``joblib.parallel_backend`` instead (:pr:`545`)
 - :class:`dask_ml.preprocessing.QuantileTransformer` now handles DataFrame input (:pr:`533`)
@@ -115,7 +115,7 @@ Note that this version of Dask-ML requires scikit-learn >= 0.20.0.
 Enhancements
 ------------
 
-- Added :class:`dask_ml.model_selection.IncrementalSearchCV`, a meta-estimator for hyperparamter optimization on larger-than-memory datasets (:pr:`356`). See :ref:`hyperparameter.incremental` for more.
+- Added :class:`dask_ml.model_selection.IncrementalSearchCV`, a meta-estimator for hyperparameter optimization on larger-than-memory datasets (:pr:`356`). See :ref:`hyperparameter.incremental` for more.
 - Added :class:`dask_ml.preprocessing.PolynomialTransformer`, a drop-in replacement for the scikit-learn version (:issue:`347`).
 - Added auto-rechunking to Dask Arrays with more than one block along the features in :class:`dask_ml.model_selection.ParallelPostFit` (:issue:`376`)
 - Added support for Dask DataFrame inputs to :class:`dask_ml.cluster.KMeans` (:issue:`390`)

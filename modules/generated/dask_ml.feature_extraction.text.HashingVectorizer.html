@@ -148,7 +148,7 @@
             
             
               <div class="version">
-                0.1.dev1+g95dd5b9
+                0.1.dev1+g027c978
               </div>
             
           
@@ -770,9 +770,9 @@ matrix.</p>
 </tbody>
 </table>
 <p class="rubric">Notes</p>
-<p>The returned dask Array is composed scipy sparse matricies. If you need
+<p>The returned dask Array is composed scipy sparse matrices. If you need
 to compute on the result immediately, you may need to convert the individual
-blocks to ndarrays or pydata/sparse matricies.</p>
+blocks to ndarrays or pydata/sparse matrices.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">sparse</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="o">.</span><span class="n">map_blocks</span><span class="p">(</span><span class="n">sparse</span><span class="o">.</span><span class="n">COO</span><span class="o">.</span><span class="n">from_scipy_sparse</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>  <span class="c1"># doctest: +SKIP</span>
 </pre></div>

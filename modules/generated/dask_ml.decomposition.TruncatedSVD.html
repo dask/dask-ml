@@ -148,7 +148,7 @@
             
             
               <div class="version">
-                0.1.dev1+g95dd5b9
+                0.1.dev1+g027c978
               </div>
             
           
@@ -405,7 +405,7 @@ this class to data once, then keep the instance around to do
 transformations.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">The implementation currently does not support sparse matricies.</p>
+<p class="last">The implementation currently does not support sparse matrices.</p>
 </div>
 <p class="rubric">References</p>
 <p>Direct QR factorizations for tall-and-skinny matrices in
@@ -431,7 +431,7 @@ IEEE International Conference on Big Data, 2013.
 <span class="go">array([35.92469517, 35.32922121, 34.53368856, 34.138..., 34.013...])</span>
 </pre></div>
 </div>
-<p>Note that <code class="docutils literal notranslate"><span class="pre">tranform</span></code> returns a <code class="docutils literal notranslate"><span class="pre">dask.Array</span></code>.</p>
+<p>Note that <code class="docutils literal notranslate"><span class="pre">transform</span></code> returns a <code class="docutils literal notranslate"><span class="pre">dask.Array</span></code>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">svd</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 <span class="go">dask.array&lt;sum-agg, shape=(1000, 5), dtype=float64, chunksize=(100, 5)&gt;</span>
 </pre></div>

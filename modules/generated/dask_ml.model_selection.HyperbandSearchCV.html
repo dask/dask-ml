@@ -148,7 +148,7 @@
             
             
               <div class="version">
-                0.1.dev1+g95dd5b9
+                0.1.dev1+g027c978
               </div>
             
           
@@ -491,7 +491,7 @@ and <code class="docutils literal notranslate"><span class="pre">model_id</span>
 the Hyperband model selection algorithm.</p>
 </dd>
 <dt><strong>best_score_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Score achieved by <code class="docutils literal notranslate"><span class="pre">best_estimator_</span></code> on the vaidation set after the
+<dd><p class="first last">Score achieved by <code class="docutils literal notranslate"><span class="pre">best_estimator_</span></code> on the validation set after the
 final call to <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>.</p>
 </dd>
 <dt><strong>best_index_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
@@ -607,7 +607,7 @@ S. Sievert, T. Augspurger, M. Rocklin.
 <td>Predict for X.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.model_selection.HyperbandSearchCV.predict_log_proba" title="dask_ml.model_selection.HyperbandSearchCV.predict_log_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_log_proba</span></code></a>(X)</td>
-<td>Log of proability estimates.</td>
+<td>Log of probability estimates.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.HyperbandSearchCV.predict_proba" title="dask_ml.model_selection.HyperbandSearchCV.predict_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_proba</span></code></a>(X)</td>
 <td>Probability estimates.</td>
@@ -718,7 +718,7 @@ regular return value is returned.</p>
 <dl class="method">
 <dt id="dask_ml.model_selection.HyperbandSearchCV.predict_log_proba">
 <code class="descname">predict_log_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.HyperbandSearchCV.predict_log_proba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Log of proability estimates.</p>
+<dd><p>Log of probability estimates.</p>
 <p>For dask inputs, a dask array or dataframe is returned. For other
 inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
 regular return value is returned.</p>

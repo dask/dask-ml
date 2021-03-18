@@ -148,7 +148,7 @@
             
             
               <div class="version">
-                0.1.dev1+g95dd5b9
+                0.1.dev1+g027c978
               </div>
             
           
@@ -292,7 +292,7 @@
             
   <div class="section" id="hyper-parameter-search">
 <span id="id1"></span><h1>Hyper Parameter Search<a class="headerlink" href="#hyper-parameter-search" title="Permalink to this headline">¶</a></h1>
-<p><em>Tools to perform hyperparameter optimizaiton of Scikit-Learn API-compatible
+<p><em>Tools to perform hyperparameter optimization of Scikit-Learn API-compatible
 models using Dask, and to scale hyperparameter optimization to</em> <strong>larger
 data and/or larger searches.</strong></p>
 <p>Hyperparameter searches are a required process in machine learning. Briefly,
@@ -562,7 +562,7 @@ subclasses (one of which is
 </tr>
 </tbody>
 </table>
-<p>The varians in Dask-ML implement many (but not all) of the same parameters,
+<p>The variants in Dask-ML implement many (but not all) of the same parameters,
 and should be a drop-in replacement for the subset that they do implement.
 In that case, why use Dask-ML’s versions?</p>
 <ul class="simple">
@@ -756,13 +756,13 @@ train-and-score them until we find the best one.</p>
 <span class="gp">In [13]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [14]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span>
-<span class="gh">Out[14]: </span><span class="go">{&#39;alpha&#39;: 0.049825347526265516, &#39;l1_ratio&#39;: 0.46886194924447366}</span>
+<span class="gh">Out[14]: </span><span class="go">{&#39;alpha&#39;: 0.845912652804937, &#39;l1_ratio&#39;: 0.3834415188257777}</span>
 
 <span class="gp">In [15]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_score_</span>
 <span class="gh">Out[15]: </span><span class="go">0.65</span>
 
 <span class="gp">In [16]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
-<span class="gh">Out[16]: </span><span class="go">0.7</span>
+<span class="gh">Out[16]: </span><span class="go">0.4</span>
 </pre></div>
 </div>
 <p>Note that when you do post-fit tasks like <code class="docutils literal notranslate"><span class="pre">search.score</span></code>, the underlying
@@ -892,7 +892,7 @@ chunks:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [34]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [35]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span>
-<span class="gh">Out[35]: </span><span class="go">{&#39;alpha&#39;: 0.3651844009304099, &#39;l1_ratio&#39;: 0.5062738685222655}</span>
+<span class="gh">Out[35]: </span><span class="go">{&#39;alpha&#39;: 0.7612985385451453, &#39;l1_ratio&#39;: 0.18850458399555325}</span>
 </pre></div>
 </div>
 <p>To be clear, this is a very small toy example: there are only 100 examples and

@@ -148,7 +148,7 @@
             
             
               <div class="version">
-                0.1.dev1+g95dd5b9
+                0.1.dev1+g027c978
               </div>
             
           
@@ -323,7 +323,7 @@ are available on <code class="docutils literal notranslate"><span class="pre">In
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>estimator</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Estimator</span></dt>
-<dd><p class="first last">Any object supporting the scikit-learn <code class="docutils literal notranslate"><span class="pre">parital_fit</span></code> API.</p>
+<dd><p class="first last">Any object supporting the scikit-learn <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> API.</p>
 </dd>
 <dt><strong>scoring</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string or callable, optional</span></dt>
 <dd><p class="first">A single string (see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter" title="(in scikit-learn v0.24)"><span>The scoring parameter: defining model evaluation rules</span></a>) or a callable
@@ -409,7 +409,7 @@ parameter names with <code class="docutils literal notranslate"><span class="pre
 <td>Predict for X.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#dask_ml.wrappers.Incremental.predict_log_proba" title="dask_ml.wrappers.Incremental.predict_log_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_log_proba</span></code></a>(X)</td>
-<td>Log of proability estimates.</td>
+<td>Log of probability estimates.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.wrappers.Incremental.predict_proba" title="dask_ml.wrappers.Incremental.predict_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_proba</span></code></a>(X)</td>
 <td>Probability estimates.</td>
@@ -545,7 +545,7 @@ regular return value is returned.</p>
 <dl class="method">
 <dt id="dask_ml.wrappers.Incremental.predict_log_proba">
 <code class="descname">predict_log_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.Incremental.predict_log_proba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Log of proability estimates.</p>
+<dd><p>Log of probability estimates.</p>
 <p>For dask inputs, a dask array or dataframe is returned. For other
 inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
 regular return value is returned.</p>

@@ -39,7 +39,7 @@ Incremental Meta-estimator
 takes another estimator) that bridges scikit-learn estimators expecting
 NumPy arrays, and users with large Dask Arrays.
 
-Each *block* of a Dask Array is fed to the underlying estiamtor's
+Each *block* of a Dask Array is fed to the underlying estimator's
 ``partial_fit`` method. The training is entirely sequential, so you won't
 notice massive training time speedups from parallelism. In a distributed
 environment, you should notice some speedup from avoiding extra IO, and the
@@ -74,7 +74,7 @@ for you.
 
 Just like :meth:`sklearn.linear_model.SGDClassifier.partial_fit`, we need to
 pass the ``classes`` argument to ``fit``. In general, any argument that is
-required for the underlying estimators ``parital_fit`` becomes required for
+required for the underlying estimators ``partial_fit`` becomes required for
 the wrapped ``fit``.
 
 
@@ -95,7 +95,7 @@ We can get the accuracy score on our dataset.
 
    clf.score(X, y)
 
-All of the attributes learned durning training, like ``coef_``, are available
+All of the attributes learned during training, like ``coef_``, are available
 on the ``Incremental`` instance.
 
 .. ipython:: python

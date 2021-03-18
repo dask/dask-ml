@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>dask_ml.metrics.log_loss &mdash; dask-ml 0.1 documentation</title>
+  <title>dask_ml.compose.make_column_transformer &mdash; dask-ml 0.1 documentation</title>
   
 
   
@@ -43,20 +43,20 @@
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="dask_ml.xgboost.XGBClassifier" href="dask_ml.xgboost.XGBClassifier.html" />
-    <link rel="prev" title="dask_ml.metrics.accuracy_score" href="dask_ml.metrics.accuracy_score.html" />
+    <link rel="next" title="dask_ml.impute.SimpleImputer" href="dask_ml.impute.SimpleImputer.html" />
+    <link rel="prev" title="dask_ml.compose.ColumnTransformer" href="dask_ml.compose.ColumnTransformer.html" />
   <link rel="shortcut icon" href="../../_static/images/favicon.ico"/>
   
-  <meta name="Description" content="dask_ml.metrics.log_loss">
-  <meta property="og:description" content="dask_ml.metrics.log_loss">
-  <meta name="twitter:description" content="dask_ml.metrics.log_loss" />
-  <meta property="og:title" content="dask-ml 0.1 documentation - dask_ml.metrics.log_loss">
+  <meta name="Description" content="dask_ml.compose.make_column_transformer">
+  <meta property="og:description" content="dask_ml.compose.make_column_transformer">
+  <meta name="twitter:description" content="dask_ml.compose.make_column_transformer" />
+  <meta property="og:title" content="dask-ml 0.1 documentation - dask_ml.compose.make_column_transformer">
   <meta property="og:image" content="https://github.com/dask.png">
   <meta property="og:image:secure_url" content="https://github.com/dask.png" />
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="380" />
   <meta property="og:image:height" content="380" />
-  <meta property="og:url" content="modules/generated/dask_ml.metrics.log_loss.html">
+  <meta property="og:url" content="modules/generated/dask_ml.compose.make_column_transformer.html">
   <meta property="og:site_name" content="dask-ml 0.1 documentation">
 
   <meta name="twitter:site" content="https://dask.org" />
@@ -194,17 +194,13 @@
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.decomposition"><code class="docutils literal notranslate"><span class="pre">dask_ml.decomposition</span></code>: Matrix Decomposition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.preprocessing"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>: Preprocessing Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-feature-extraction-text-feature-extraction"><code class="docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>: Feature extraction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-compose-composite-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.compose</span></code>: Composite Estimators</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#dask-ml-compose-composite-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.compose</span></code>: Composite Estimators</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="dask_ml.compose.ColumnTransformer.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.compose</span></code>.ColumnTransformer</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">dask_ml.compose.make_column_transformer</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.impute"><code class="docutils literal notranslate"><span class="pre">dask_ml.impute</span></code>: Imputing Missing Data</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="../api.html#dask-ml-metrics-metrics"><code class="docutils literal notranslate"><span class="pre">dask_ml.metrics</span></code>: Metrics</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="../api.html#regression-metrics">Regression Metrics</a></li>
-<li class="toctree-l3 current"><a class="reference internal" href="../api.html#classification-metrics">Classification Metrics</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="dask_ml.metrics.accuracy_score.html">dask_ml.metrics.accuracy_score</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">dask_ml.metrics.log_loss</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-metrics-metrics"><code class="docutils literal notranslate"><span class="pre">dask_ml.metrics</span></code>: Metrics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.xgboost"><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code>: XGBoost</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-datasets-datasets"><code class="docutils literal notranslate"><span class="pre">dask_ml.datasets</span></code>: Datasets</a></li>
 </ul>
@@ -273,13 +269,13 @@
         
           <li><a href="../api.html">API Reference</a> &raquo;</li>
         
-      <li>dask_ml.metrics.log_loss</li>
+      <li>dask_ml.compose.make_column_transformer</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
           
-            <a href="../../_sources/modules/generated/dask_ml.metrics.log_loss.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/modules/generated/dask_ml.compose.make_column_transformer.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -292,79 +288,102 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="dask-ml-metrics-log-loss">
-<h1>dask_ml.metrics.log_loss<a class="headerlink" href="#dask-ml-metrics-log-loss" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="dask-ml-compose-make-column-transformer">
+<h1>dask_ml.compose.make_column_transformer<a class="headerlink" href="#dask-ml-compose-make-column-transformer" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
-<dt id="dask_ml.metrics.log_loss">
-<code class="descclassname">dask_ml.metrics.</code><code class="descname">log_loss</code><span class="sig-paren">(</span><em>y_true</em>, <em>y_pred</em>, <em>eps=1e-15</em>, <em>normalize=True</em>, <em>sample_weight=None</em>, <em>labels=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.metrics.log_loss" title="Permalink to this definition">¶</a></dt>
-<dd><p>Log loss, aka logistic loss or cross-entropy loss.</p>
-<p>This is the loss function used in (multinomial) logistic regression
-and extensions of it such as neural networks, defined as the negative
-log-likelihood of a logistic model that returns <code class="docutils literal notranslate"><span class="pre">y_pred</span></code> probabilities
-for its training data <code class="docutils literal notranslate"><span class="pre">y_true</span></code>.
-The log loss is only defined for two or more labels.
-For a single sample with true label <span class="math notranslate nohighlight">\(y \in \{0,1\}\)</span> and
-and a probability estimate <span class="math notranslate nohighlight">\(p = \operatorname{Pr}(y = 1)\)</span>, the log
-loss is:</p>
-<div class="math notranslate nohighlight">
-\[L_{\log}(y, p) = -(y \log (p) + (1 - y) \log (1 - p))\]</div>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#log-loss" title="(in scikit-learn v0.24)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<dt id="dask_ml.compose.make_column_transformer">
+<code class="descclassname">dask_ml.compose.</code><code class="descname">make_column_transformer</code><span class="sig-paren">(</span><em>*transformers</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.compose.make_column_transformer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a ColumnTransformer from the given transformers.</p>
+<p>This is a shorthand for the ColumnTransformer constructor; it does not
+require, and does not permit, naming the transformers. Instead, they will
+be given names automatically based on their types. It also does not allow
+weighting with <code class="docutils literal notranslate"><span class="pre">transformer_weights</span></code>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/compose.html#make-column-transformer" title="(in scikit-learn v0.24)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>y_true</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like or label indicator matrix</span></dt>
-<dd><p class="first last">Ground truth (correct) labels for n_samples samples.</p>
+<dt><strong>*transformers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuples</span></dt>
+<dd><p class="first">Tuples of the form (transformer, columns) specifying the
+transformer objects to be applied to subsets of the data.</p>
+<dl class="last docutils">
+<dt>transformer <span class="classifier-delimiter">:</span> <span class="classifier">{‘drop’, ‘passthrough’} or estimator</span></dt>
+<dd><p class="first last">Estimator must support <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v0.24)"><span class="xref std std-term">fit</span></a> and <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-transform" title="(in scikit-learn v0.24)"><span class="xref std std-term">transform</span></a>.
+Special-cased strings ‘drop’ and ‘passthrough’ are accepted as
+well, to indicate to drop the columns or to pass them through
+untransformed, respectively.</p>
 </dd>
-<dt><strong>y_pred</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of float, shape = (n_samples, n_classes) or (n_samples,)</span></dt>
-<dd><p class="first last">Predicted probabilities, as returned by a classifier’s
-predict_proba method. If <code class="docutils literal notranslate"><span class="pre">y_pred.shape</span> <span class="pre">=</span> <span class="pre">(n_samples,)</span></code>
-the probabilities provided are assumed to be that of the
-positive class. The labels in <code class="docutils literal notranslate"><span class="pre">y_pred</span></code> are assumed to be
-ordered alphabetically, as done by
-<code class="xref py py-class docutils literal notranslate"><span class="pre">preprocessing.LabelBinarizer</span></code>.</p>
+<dt>columns <span class="classifier-delimiter">:</span> <span class="classifier">str,  array-like of str, int, array-like of int, slice,                 array-like of bool or callable</span></dt>
+<dd><p class="first last">Indexes the data on its second axis. Integers are interpreted as
+positional columns, while strings can reference DataFrame columns
+by name. A scalar string or int should be used where
+<code class="docutils literal notranslate"><span class="pre">transformer</span></code> expects X to be a 1d array-like (vector),
+otherwise a 2d array will be passed to the transformer.
+A callable is passed the input data <cite>X</cite> and can return any of the
+above. To select multiple columns by name or dtype, you can use
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">make_column_selector</span></code>.</p>
 </dd>
-<dt><strong>eps</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, default=1e-15</span></dt>
-<dd><p class="first last">Log loss is undefined for p=0 or p=1, so probabilities are
-clipped to max(eps, min(1 - eps, p)).</p>
+</dl>
 </dd>
-<dt><strong>normalize</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default=True</span></dt>
-<dd><p class="first last">If true, return the mean loss per sample.
-Otherwise, return the sum of the per-sample losses.</p>
+<dt><strong>remainder</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘drop’, ‘passthrough’} or estimator, default=’drop’</span></dt>
+<dd><p class="first last">By default, only the specified columns in <cite>transformers</cite> are
+transformed and combined in the output, and the non-specified
+columns are dropped. (default of <code class="docutils literal notranslate"><span class="pre">'drop'</span></code>).
+By specifying <code class="docutils literal notranslate"><span class="pre">remainder='passthrough'</span></code>, all remaining columns that
+were not specified in <cite>transformers</cite> will be automatically passed
+through. This subset of columns is concatenated with the output of
+the transformers.
+By setting <code class="docutils literal notranslate"><span class="pre">remainder</span></code> to be an estimator, the remaining
+non-specified columns will use the <code class="docutils literal notranslate"><span class="pre">remainder</span></code> estimator. The
+estimator must support <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v0.24)"><span class="xref std std-term">fit</span></a> and <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-transform" title="(in scikit-learn v0.24)"><span class="xref std std-term">transform</span></a>.</p>
 </dd>
-<dt><strong>sample_weight</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,), default=None</span></dt>
-<dd><p class="first last">Sample weights.</p>
+<dt><strong>sparse_threshold</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, default=0.3</span></dt>
+<dd><p class="first last">If the transformed output consists of a mix of sparse and dense data,
+it will be stacked as a sparse matrix if the density is lower than this
+value. Use <code class="docutils literal notranslate"><span class="pre">sparse_threshold=0</span></code> to always return dense.
+When the transformed output consists of all sparse or all dense data,
+the stacked result will be sparse or dense, respectively, and this
+keyword will be ignored.</p>
 </dd>
-<dt><strong>labels</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, default=None</span></dt>
-<dd><p class="first">If not provided, labels will be inferred from y_true. If <code class="docutils literal notranslate"><span class="pre">labels</span></code>
-is <code class="docutils literal notranslate"><span class="pre">None</span></code> and <code class="docutils literal notranslate"><span class="pre">y_pred</span></code> has shape (n_samples,) the labels are
-assumed to be binary and are inferred from <code class="docutils literal notranslate"><span class="pre">y_true</span></code>.</p>
-<div class="last versionadded">
-<p><span class="versionmodified">New in version 0.18.</span></p>
-</div>
+<dt><strong>n_jobs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default=None</span></dt>
+<dd><p class="first last">Number of jobs to run in parallel.
+<code class="docutils literal notranslate"><span class="pre">None</span></code> means 1 unless in a <code class="xref py py-obj docutils literal notranslate"><span class="pre">joblib.parallel_backend</span></code> context.
+<code class="docutils literal notranslate"><span class="pre">-1</span></code> means using all processors. See <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-n_jobs" title="(in scikit-learn v0.24)"><span class="xref std std-term">Glossary</span></a>
+for more details.</p>
+</dd>
+<dt><strong>verbose</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default=False</span></dt>
+<dd><p class="first last">If True, the time elapsed while fitting each transformer will be
+printed as it is completed.</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>loss</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dt><strong>ct</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ColumnTransformer</span></dt>
 <dd></dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Notes</p>
-<p>The logarithm used is the natural logarithm (base-e).</p>
-<p class="rubric">References</p>
-<p>C.M. Bishop (2006). Pattern Recognition and Machine Learning. Springer,
-p. 209.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference internal" href="../generted/dask_ml.compose.ColumnTransformer.html#dask_ml.compose.ColumnTransformer" title="dask_ml.compose.ColumnTransformer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ColumnTransformer</span></code></a></dt>
+<dd>Class that allows combining the outputs of multiple transformer objects used on column subsets of the data into a single feature space.</dd>
+</dl>
+</div>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">log_loss</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">log_loss</span><span class="p">([</span><span class="s2">&quot;spam&quot;</span><span class="p">,</span> <span class="s2">&quot;ham&quot;</span><span class="p">,</span> <span class="s2">&quot;ham&quot;</span><span class="p">,</span> <span class="s2">&quot;spam&quot;</span><span class="p">],</span>
-<span class="gp">... </span>         <span class="p">[[</span><span class="o">.</span><span class="mi">1</span><span class="p">,</span> <span class="o">.</span><span class="mi">9</span><span class="p">],</span> <span class="p">[</span><span class="o">.</span><span class="mi">9</span><span class="p">,</span> <span class="o">.</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">.</span><span class="mi">8</span><span class="p">,</span> <span class="o">.</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="o">.</span><span class="mi">35</span><span class="p">,</span> <span class="o">.</span><span class="mi">65</span><span class="p">]])</span>
-<span class="go">0.21616...</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span><span class="p">,</span> <span class="n">OneHotEncoder</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.compose</span> <span class="kn">import</span> <span class="n">make_column_transformer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">make_column_transformer</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="n">StandardScaler</span><span class="p">(),</span> <span class="p">[</span><span class="s1">&#39;numerical_column&#39;</span><span class="p">]),</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="n">OneHotEncoder</span><span class="p">(),</span> <span class="p">[</span><span class="s1">&#39;categorical_column&#39;</span><span class="p">]))</span>
+<span class="go">ColumnTransformer(transformers=[(&#39;standardscaler&#39;, StandardScaler(...),</span>
+<span class="go">                                 [&#39;numerical_column&#39;]),</span>
+<span class="go">                                (&#39;onehotencoder&#39;, OneHotEncoder(...),</span>
+<span class="go">                                 [&#39;categorical_column&#39;])])</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -377,8 +396,8 @@ p. 209.</p>
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="dask_ml.xgboost.XGBClassifier.html" class="btn btn-neutral float-right" title="dask_ml.xgboost.XGBClassifier" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="dask_ml.metrics.accuracy_score.html" class="btn btn-neutral float-left" title="dask_ml.metrics.accuracy_score" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dask_ml.impute.SimpleImputer.html" class="btn btn-neutral float-right" title="dask_ml.impute.SimpleImputer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="dask_ml.compose.ColumnTransformer.html" class="btn btn-neutral float-left" title="dask_ml.compose.ColumnTransformer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

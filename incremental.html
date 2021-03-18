@@ -148,7 +148,7 @@
             
             
               <div class="version">
-                0.1.dev1+g95dd5b9
+                0.1.dev1+g027c978
               </div>
             
           
@@ -309,7 +309,7 @@ we recommend <a class="reference internal" href="modules/generated/dask_ml.model
 <p><a class="reference internal" href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental" title="dask_ml.wrappers.Incremental"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.wrappers.Incremental</span></code></a> is a meta-estimator (an estimator that
 takes another estimator) that bridges scikit-learn estimators expecting
 NumPy arrays, and users with large Dask Arrays.</p>
-<p>Each <em>block</em> of a Dask Array is fed to the underlying estiamtor’s
+<p>Each <em>block</em> of a Dask Array is fed to the underlying estimator’s
 <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> method. The training is entirely sequential, so you won’t
 notice massive training time speedups from parallelism. In a distributed
 environment, you should notice some speedup from avoiding extra IO, and the
@@ -345,7 +345,7 @@ training. Dask-ML takes care of passing each block to the underlying estimator
 for you.</p>
 <p>Just like <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html#sklearn.linear_model.SGDClassifier.partial_fit" title="(in scikit-learn v0.24)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sklearn.linear_model.SGDClassifier.partial_fit()</span></code></a>, we need to
 pass the <code class="docutils literal notranslate"><span class="pre">classes</span></code> argument to <code class="docutils literal notranslate"><span class="pre">fit</span></code>. In general, any argument that is
-required for the underlying estimators <code class="docutils literal notranslate"><span class="pre">parital_fit</span></code> becomes required for
+required for the underlying estimators <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> becomes required for
 the wrapped <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -359,18 +359,18 @@ can also explicitly pass <code class="docutils literal notranslate"><span class=
 </div>
 <p>We can get the accuracy score on our dataset.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gh">Out[9]: </span><span class="go">0.66</span>
+<span class="gh">Out[9]: </span><span class="go">0.65</span>
 </pre></div>
 </div>
-<p>All of the attributes learned durning training, like <code class="docutils literal notranslate"><span class="pre">coef_</span></code>, are available
+<p>All of the attributes learned during training, like <code class="docutils literal notranslate"><span class="pre">coef_</span></code>, are available
 on the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> instance.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[ -9.88780535, -60.29035363, -29.6923265 ,   6.62591902,</span>
-<span class="go">        -14.41298747,   7.83480824,  23.59971756, -62.31665111,</span>
-<span class="go">        -27.69644395,  -8.85477097,   8.08566666,  51.1282647 ,</span>
-<span class="go">        -39.30148045, -35.96423562,  27.30132541,  -8.25780597,</span>
-<span class="go">        -42.15993596,  -2.04888074,  19.92316257, -67.23866472]])</span>
+<span class="go">array([[ -1.36186731, -75.65976645, -13.09067961,   4.52440902,</span>
+<span class="go">         -1.22708823,   6.75954875, -30.46618067, -16.05286412,</span>
+<span class="go">          0.80427417,  30.29429145,  -9.84338144,   5.59644108,</span>
+<span class="go">         -8.82498238,  -3.03817851,  12.58883176,  -4.24872708,</span>
+<span class="go">         -9.40952946, -21.31943159, -23.40063516,  -1.04473417]])</span>
 </pre></div>
 </div>
 <p>If necessary, the actual estimator trained is available as <code class="docutils literal notranslate"><span class="pre">Incremental.estimator_</span></code></p>

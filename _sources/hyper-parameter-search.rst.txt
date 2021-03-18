@@ -3,7 +3,7 @@
 Hyper Parameter Search
 ======================
 
-*Tools to perform hyperparameter optimizaiton of Scikit-Learn API-compatible
+*Tools to perform hyperparameter optimization of Scikit-Learn API-compatible
 models using Dask, and to scale hyperparameter optimization to* **larger
 data and/or larger searches.**
 
@@ -234,7 +234,7 @@ Dask-ML implements drop-in replacements for
    dask_ml.model_selection.GridSearchCV
    dask_ml.model_selection.RandomizedSearchCV
 
-The varians in Dask-ML implement many (but not all) of the same parameters,
+The variants in Dask-ML implement many (but not all) of the same parameters,
 and should be a drop-in replacement for the subset that they do implement.
 In that case, why use Dask-ML's versions?
 
