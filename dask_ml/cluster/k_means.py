@@ -10,8 +10,9 @@ import sklearn.cluster
 from dask import compute
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.extmath import squared_norm
+from sklearn.utils.validation import check_is_fitted
 
-from .._compat import SK_024, blockwise, check_is_fitted
+from .._compat import SK_024, blockwise
 from .._utils import draw_seed
 from ..metrics import (
     euclidean_distances,

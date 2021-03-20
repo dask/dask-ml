@@ -24,8 +24,9 @@ from sklearn.metrics import check_scoring
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
 from sklearn.utils.metaestimators import if_delegate_has_method
+from sklearn.utils.validation import check_is_fitted
 
-from .._compat import DISTRIBUTED_2021_02_0, annotate, check_is_fitted, dummy_context
+from .._compat import DISTRIBUTED_2021_02_0, annotate, dummy_context
 from .._typing import ArrayLike, Int
 from .._utils import LoggingContext
 from ..wrappers import ParallelPostFit

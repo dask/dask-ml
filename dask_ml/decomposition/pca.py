@@ -7,9 +7,9 @@ import numpy as np
 import sklearn.decomposition
 from dask import compute, delayed
 from sklearn.utils.extmath import fast_logdet
-from sklearn.utils.validation import check_random_state
+from sklearn.utils.validation import check_is_fitted, check_random_state
 
-from .._compat import DASK_2_26_0, check_is_fitted
+from .._compat import DASK_2_26_0
 from .._utils import draw_seed
 from ..utils import svd_flip
 

@@ -9,8 +9,8 @@ import numpy as np
 import pandas as pd
 import scipy.sparse
 import sklearn.preprocessing
+from sklearn.utils.validation import check_is_fitted
 
-from .._compat import check_is_fitted
 from .._typing import ArrayLike, SeriesType
 
 

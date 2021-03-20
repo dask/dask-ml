@@ -1,7 +1,7 @@
 import contextlib
 import os
 from collections.abc import Mapping  # noqa
-from typing import Any, List, Optional, Union
+from typing import Any
 
 import dask
 import dask.array as da
@@ -41,12 +41,6 @@ def dummy_context(*args: Any, **kwargs: Any):
 annotate = dask.annotate if DASK_2021_02_0 else dummy_context
 
 blockwise = da.blockwise
-
-
-def check_is_fitted(est, attributes: Optional[Union[str, List[str]]] = None):
-    args: Any = ()
-
-    return sklearn.utils.validation.check_is_fitted(est, *args)
 
 
 def _check_multimetric_scoring(estimator, scoring=None):
