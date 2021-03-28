@@ -3,9 +3,9 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - black
+  - black==20.8b1
   - coverage
-  - flake8
+  - flake8==3.8.3
   - graphviz
   - heapdict
   - ipykernel
