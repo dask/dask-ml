@@ -10,7 +10,7 @@ repos:
     - id: flake8
       language_version: python3
 -   repo: https://github.com/timothycrosley/isort
-    rev: 4.3.21
+    rev: 5.8.0
     hooks:
     - id: isort
       language_version: python3

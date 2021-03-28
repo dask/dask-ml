@@ -12,7 +12,7 @@ RET=$(($RET + $?)) ; echo $MSG "DONE"
 
 MSG='Checking isort... ' ; echo $MSG
 isort --version-number
-isort --recursive --check-only .
+isort --profile=black --check-only .
 RET=$(($RET + $?)) ; echo $MSG "DONE"
 
 MSG='Checking mypy... ' ; echo $MSG
