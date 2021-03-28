@@ -13,7 +13,7 @@ dependencies:
   - dask !=2021.3.0
   - dask-glm >=0.2.0
   - flake8==3.8.3
-  - isort=5.8.0
+  - isort==5.8.0
   - multipledispatch >=0.4.9
   - mypy
   - numba
