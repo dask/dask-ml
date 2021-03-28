@@ -46,8 +46,8 @@ blockwise = da.blockwise
 def _check_multimetric_scoring(estimator, scoring=None):
     # TODO: See if scikit-learn 0.24 solves the need for using
     # a private method
-    from sklearn.metrics._scorer import _check_multimetric_scoring
     from sklearn.metrics import check_scoring
+    from sklearn.metrics._scorer import _check_multimetric_scoring
 
     if SK_024:
         if callable(scoring) or isinstance(scoring, (type(None), str)):
