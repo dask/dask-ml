@@ -148,7 +148,7 @@
             
             
               <div class="version">
-                0.1.dev1+g25d2e53
+                0.1.dev1+g80eb0d8
               </div>
             
           
@@ -2994,7 +2994,7 @@ possible to update each component of a nested object.</p>
 
 <dl class="class">
 <dt id="dask_ml.preprocessing.OneHotEncoder">
-<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">OneHotEncoder</code><span class="sig-paren">(</span><em>n_values: Optional[int] = None</em>, <em>categorical_features: Optional[pandas.core.arrays.categorical.Categorical] = None</em>, <em>categories: Union[str</em>, <em>ArrayLike] = 'auto'</em>, <em>drop: Optional[bool] = None</em>, <em>sparse: bool = True</em>, <em>dtype: Any = &lt;class 'numpy.float64'&gt;</em>, <em>handle_unknown: str = 'error'</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OneHotEncoder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">OneHotEncoder</code><span class="sig-paren">(</span><em>n_values: Optional[int] = None, categorical_features: Optional[pandas.core.arrays.categorical.Categorical] = None, categories: Union[str, ArrayLike] = 'auto', drop: Optional[bool] = None, sparse: bool = True, dtype: Union[numpy.dtype, None, type, numpy.typing._dtype_like._SupportsDType, str, Tuple[Any, int], Tuple[Any, Union[int, Sequence[int]]], List[Any], numpy.typing._dtype_like._DTypeDict, Tuple[Any, Any]] = &lt;class 'numpy.float64'&gt;, handle_unknown: str = 'error'</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OneHotEncoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encode categorical integer features as a one-hot numeric array.</p>
 <div class="versionadded">
 <p><span class="versionmodified">New in version 0.8.0.</span></p>
@@ -3631,7 +3631,7 @@ matrix is provided, it will be converted into a sparse
 
 <dl class="class">
 <dt id="dask_ml.preprocessing.BlockTransformer">
-<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">BlockTransformer</code><span class="sig-paren">(</span><em>func: Callable[..., Union[ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]], *, validate: bool = False, **kw_args</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.BlockTransformer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">BlockTransformer</code><span class="sig-paren">(</span><em>func: Callable[[...], Union[ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]], *, validate: bool = False, **kw_args</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.BlockTransformer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct a transformer from a an arbitrary callable</p>
 <p>The BlockTransformer forwards the blocks of the X arguments to a user-defined
 callable and returns the result of this operation.

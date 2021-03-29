@@ -148,7 +148,7 @@
             
             
               <div class="version">
-                0.1.dev1+g25d2e53
+                0.1.dev1+g80eb0d8
               </div>
             
           
@@ -301,7 +301,7 @@
 <h1><a class="reference internal" href="../api.html#module-dask_ml.preprocessing" title="dask_ml.preprocessing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code></a>.BlockTransformer<a class="headerlink" href="#dask-ml-preprocessing-blocktransformer" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="dask_ml.preprocessing.BlockTransformer">
-<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">BlockTransformer</code><span class="sig-paren">(</span><em>func: Callable[..., Union[ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]], *, validate: bool = False, **kw_args</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.BlockTransformer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">BlockTransformer</code><span class="sig-paren">(</span><em>func: Callable[[...], Union[ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]], *, validate: bool = False, **kw_args</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.BlockTransformer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct a transformer from a an arbitrary callable</p>
 <p>The BlockTransformer forwards the blocks of the X arguments to a user-defined
 callable and returns the result of this operation.
@@ -395,7 +395,7 @@ a complete column.</p>
 </table>
 <dl class="method">
 <dt id="dask_ml.preprocessing.BlockTransformer.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>func: Callable[..., Union[ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]], *, validate: bool = False, **kw_args</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.BlockTransformer.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>func: Callable[[...], Union[ArrayLike, pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]], *, validate: bool = False, **kw_args</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.BlockTransformer.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
