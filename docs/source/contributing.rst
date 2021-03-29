@@ -67,7 +67,7 @@ installed.
 
     black .
     flake8
-    isort --profile=black dask_ml tests
+    isort .
 
 You may wish to setup a
 `pre-commit hook <https://black.readthedocs.io/en/stable/version_control_integration.html>`_

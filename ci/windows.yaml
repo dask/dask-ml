@@ -37,7 +37,7 @@ jobs:
       black --check .
 
       echo "[isort]"
-      isort --profile=black --check-only .
+      isort --check-only .
 
       echo "[codecov]"
       codecov
