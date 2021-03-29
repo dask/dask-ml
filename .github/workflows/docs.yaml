@@ -1,4 +1,4 @@
-name: CI
+name: Documentation
 on: [push, pull_request]
 
 jobs:
@@ -12,7 +12,6 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: "latest"
-          python-version: "3.7"
           environment-file: ci/environment-docs.yaml
           activate-environment: dask-ml-docs
           auto-activate-base: false
