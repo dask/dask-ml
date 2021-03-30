@@ -44,5 +44,6 @@ jobs:
 
       echo "[mypy]"
       mypy dask_ml/metrics
+      mypy dask_ml/preprocessing
 
     displayName: "Lint"
