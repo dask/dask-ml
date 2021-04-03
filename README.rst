@@ -3,7 +3,7 @@ Dask-ML
 
 |Build Status| |Azure Pipelines| |Coverage| |Doc Status| |Gitter| |Version Status| |NumFOCUS|
 
-Dask-ML provides scalable machine learning in Python using `Dask <https://dask.org/>`__ alongside popular machine learning libraries like `Scikit-Learn <http://scikit-learn.org/>`__, `XGBoost <https://xgboost.readthedocs.io/>`__, and others.
+Dask-ML provides scalable machine learning in Python using `Dask <https://dask.org/>`__ alongside popular machine learning libraries like `Scikit-Learn <http://scikit-learn.org/>`__, `XGBoost <https://ml.dask.org/xgboost.html>`__, and others.
 
 You can try Dask-ML on a small cloud instance by clicking the following button:
 
