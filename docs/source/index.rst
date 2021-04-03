@@ -132,4 +132,4 @@ See :doc:`Dask-ML + XGBoost <xgboost>` for more information.
 
 .. _Dask: https://dask.org/
 .. _Scikit-Learn: http://scikit-learn.org/
-.. _XGBoost: https://xgboost.readthedocs.io/
+.. _XGBoost: https://ml.dask.org/xgboost.html
