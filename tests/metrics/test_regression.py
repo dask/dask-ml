@@ -7,12 +7,13 @@ import sklearn.metrics
 import dask_ml.metrics
 
 
-@pytest.fixture(params=["mean_squared_error", "mean_absolute_error", "r2_score"])
+@pytest.fixture(params=["mean_squared_error", "mean_absolute_error", "mean_absolute_percentage_error", "r2_score"])
 def metric_pairs(request):
     """Pairs of (dask-ml, sklearn) regression metrics.
 
     * mean_squared_error
     * mean_absolute_error
+    * mean_absolute_percentage_error
     * r2_score
     """
     return (

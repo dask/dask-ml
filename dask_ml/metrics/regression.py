@@ -82,6 +82,33 @@ def mean_absolute_error(
 
 
 @derived_from(sklearn.metrics)
+def mean_absolute_percentage_error(
+    y_true: ArrayLike,
+    y_pred: ArrayLike,
+    sample_weight: Optional[ArrayLike] = None,
+    multioutput: Optional[str] = "uniform_average",
+    compute: bool = True,
+) -> ArrayLike:
+    _check_sample_weight(sample_weight)
+    epsilon = np.finfo(np.float64).eps
+    mape = abs(y_pred - y_true) / da.maximum(y_true, epsilon)
+    output_errors = mape.mean(axis=0)
+
+    if isinstance(multioutput, str) or multioutput is None:
+        if multioutput == "raw_values":
+            if compute:
+                return output_errors.compute()
+            else:
+                return output_errors
+    else:
+        raise ValueError("Weighted 'multioutput' not supported.")
+    result = output_errors.mean()
+    if compute:
+        result = result.compute()
+    return result
+
+
+@derived_from(sklearn.metrics)
 def r2_score(
     y_true: ArrayLike,
     y_pred: ArrayLike,
