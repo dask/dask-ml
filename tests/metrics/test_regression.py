@@ -97,3 +97,19 @@ def test_regression_metrics_raw_values(metric_pairs, compute):
 
     assert_eq(result, expected)
     assert result.shape == (3,)
+
+
+def test_regression_metrics_do_not_support_weighted_multioutput(metric_pairs):
+    m1, _ = metric_pairs
+
+    a = da.random.uniform(size=(100, 3), chunks=(25, 3))
+    b = da.random.uniform(size=(100, 3), chunks=(25, 3))
+    weights = da.random.uniform(size=(3,))
+
+    if m1.__name__ == "r2_score":
+        error_msg = "'multioutput' must be 'uniform_average'"
+    else:
+        error_msg = "Weighted 'multioutput' not supported."
+
+    with pytest.raises((NotImplementedError, ValueError), match=error_msg):
+        result = m1(a, b, multioutput=weights)
