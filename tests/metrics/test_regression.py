@@ -4,10 +4,9 @@ import dask.array as da
 import numpy as np
 import pytest
 import sklearn.metrics
+from dask.array.utils import assert_eq
 
 import dask_ml.metrics
-
-from dask.array.utils import assert_eq
 
 
 @pytest.fixture(params=["mean_squared_error", "mean_absolute_error", "r2_score"])
@@ -112,4 +111,4 @@ def test_regression_metrics_do_not_support_weighted_multioutput(metric_pairs):
         error_msg = "Weighted 'multioutput' not supported."
 
     with pytest.raises((NotImplementedError, ValueError), match=error_msg):
-        result = m1(a, b, multioutput=weights)
+        _ = m1(a, b, multioutput=weights)
