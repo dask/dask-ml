@@ -10,13 +10,13 @@ jobs:
     matrix:
       linux37:
         envFile: 'ci/environment-3.7.yaml'
-        SKLARN_DEV: "no"
+        SKLEARN_DEV: "no"
       linux38:
         envFile: 'ci/environment-3.8.yaml'
-        SKLARN_DEV: "no"
+        SKLEARN_DEV: "no"
       earliest:
         envFile: 'ci/environment-3.6.yaml'
-        SKLARN_DEV: "no"
+        SKLEARN_DEV: "no"
       sklearnDev:
         envFile: 'ci/environment-3.7.yaml'
         SKLEARN_DEV: "yes"
