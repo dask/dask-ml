@@ -18,9 +18,7 @@ if SK_024:
     _METRICS_TO_TEST.append("mean_absolute_percentage_error")
 
 
-@pytest.fixture(
-    params=_METRICS_TO_TEST
-)
+@pytest.fixture(params=_METRICS_TO_TEST)
 def metric_pairs(request):
     """Pairs of (dask-ml, sklearn) regression metrics.
 
