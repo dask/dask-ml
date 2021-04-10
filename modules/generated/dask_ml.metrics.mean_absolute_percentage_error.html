@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>dask_ml.metrics.mean_absolute_error &mdash; dask-ml 0.1 documentation</title>
+  <title>dask_ml.metrics.mean_absolute_percentage_error &mdash; dask-ml 0.1 documentation</title>
   
 
   
@@ -43,20 +43,20 @@
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="dask_ml.metrics.mean_absolute_percentage_error" href="dask_ml.metrics.mean_absolute_percentage_error.html" />
-    <link rel="prev" title="dask_ml.impute.SimpleImputer" href="dask_ml.impute.SimpleImputer.html" />
+    <link rel="next" title="dask_ml.metrics.mean_squared_error" href="dask_ml.metrics.mean_squared_error.html" />
+    <link rel="prev" title="dask_ml.metrics.mean_absolute_error" href="dask_ml.metrics.mean_absolute_error.html" />
   <link rel="shortcut icon" href="../../_static/images/favicon.ico"/>
   
-  <meta name="Description" content="dask_ml.metrics.mean_absolute_error">
-  <meta property="og:description" content="dask_ml.metrics.mean_absolute_error">
-  <meta name="twitter:description" content="dask_ml.metrics.mean_absolute_error" />
-  <meta property="og:title" content="dask-ml 0.1 documentation - dask_ml.metrics.mean_absolute_error">
+  <meta name="Description" content="dask_ml.metrics.mean_absolute_percentage_error">
+  <meta property="og:description" content="dask_ml.metrics.mean_absolute_percentage_error">
+  <meta name="twitter:description" content="dask_ml.metrics.mean_absolute_percentage_error" />
+  <meta property="og:title" content="dask-ml 0.1 documentation - dask_ml.metrics.mean_absolute_percentage_error">
   <meta property="og:image" content="https://github.com/dask.png">
   <meta property="og:image:secure_url" content="https://github.com/dask.png" />
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="380" />
   <meta property="og:image:height" content="380" />
-  <meta property="og:url" content="modules/generated/dask_ml.metrics.mean_absolute_error.html">
+  <meta property="og:url" content="modules/generated/dask_ml.metrics.mean_absolute_percentage_error.html">
   <meta property="og:site_name" content="dask-ml 0.1 documentation">
 
   <meta name="twitter:site" content="https://dask.org" />
@@ -198,8 +198,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.impute"><code class="docutils literal notranslate"><span class="pre">dask_ml.impute</span></code>: Imputing Missing Data</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../api.html#dask-ml-metrics-metrics"><code class="docutils literal notranslate"><span class="pre">dask_ml.metrics</span></code>: Metrics</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="../api.html#regression-metrics">Regression Metrics</a><ul class="current">
-<li class="toctree-l4 current"><a class="current reference internal" href="#">dask_ml.metrics.mean_absolute_error</a></li>
-<li class="toctree-l4"><a class="reference internal" href="dask_ml.metrics.mean_absolute_percentage_error.html">dask_ml.metrics.mean_absolute_percentage_error</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dask_ml.metrics.mean_absolute_error.html">dask_ml.metrics.mean_absolute_error</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">dask_ml.metrics.mean_absolute_percentage_error</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dask_ml.metrics.mean_squared_error.html">dask_ml.metrics.mean_squared_error</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dask_ml.metrics.mean_squared_log_error.html">dask_ml.metrics.mean_squared_log_error</a></li>
 <li class="toctree-l4"><a class="reference internal" href="dask_ml.metrics.r2_score.html">dask_ml.metrics.r2_score</a></li>
@@ -276,13 +276,13 @@
         
           <li><a href="../api.html">API Reference</a> &raquo;</li>
         
-      <li>dask_ml.metrics.mean_absolute_error</li>
+      <li>dask_ml.metrics.mean_absolute_percentage_error</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
           
-            <a href="../../_sources/modules/generated/dask_ml.metrics.mean_absolute_error.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/modules/generated/dask_ml.metrics.mean_absolute_percentage_error.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -295,15 +295,15 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="dask-ml-metrics-mean-absolute-error">
-<h1>dask_ml.metrics.mean_absolute_error<a class="headerlink" href="#dask-ml-metrics-mean-absolute-error" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="dask-ml-metrics-mean-absolute-percentage-error">
+<h1>dask_ml.metrics.mean_absolute_percentage_error<a class="headerlink" href="#dask-ml-metrics-mean-absolute-percentage-error" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
-<dt id="dask_ml.metrics.mean_absolute_error">
-<code class="descclassname">dask_ml.metrics.</code><code class="descname">mean_absolute_error</code><span class="sig-paren">(</span><em>y_true: ArrayLike</em>, <em>y_pred: ArrayLike</em>, <em>sample_weight: Optional[ArrayLike] = None</em>, <em>multioutput: Optional[str] = 'uniform_average'</em>, <em>compute: bool = True</em><span class="sig-paren">)</span> &#x2192; ArrayLike<a class="headerlink" href="#dask_ml.metrics.mean_absolute_error" title="Permalink to this definition">¶</a></dt>
-<dd><p>Mean absolute error regression loss.</p>
-<p>This docstring was copied from sklearn.metrics.mean_absolute_error.</p>
-<p>Some inconsistencies with the Dask version may exist.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#mean-absolute-error" title="(in scikit-learn v0.24)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<dt id="dask_ml.metrics.mean_absolute_percentage_error">
+<code class="descclassname">dask_ml.metrics.</code><code class="descname">mean_absolute_percentage_error</code><span class="sig-paren">(</span><em>y_true: ArrayLike</em>, <em>y_pred: ArrayLike</em>, <em>sample_weight: Optional[ArrayLike] = None</em>, <em>multioutput: Optional[str] = 'uniform_average'</em>, <em>compute: bool = True</em><span class="sig-paren">)</span> &#x2192; ArrayLike<a class="headerlink" href="#dask_ml.metrics.mean_absolute_percentage_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mean absolute percentage error regression loss.</p>
+<p>Note here that we do not represent the output as a percentage in range
+[0, 100]. Instead, we represent it in range [0, 1/eps]. Read more in
+<a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#mean-absolute-percentage-error">https://scikit-learn.org/stable/modules/model_evaluation.html#mean-absolute-percentage-error</a></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -318,50 +318,42 @@
 <dt><strong>sample_weight</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,), default=None</span></dt>
 <dd><p class="first last">Sample weights.</p>
 </dd>
-<dt><strong>multioutput</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘raw_values’, ‘uniform_average’}  or array-like of shape             (n_outputs,), default=’uniform_average’</span></dt>
+<dt><strong>multioutput</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘raw_values’, ‘uniform_average’} or array-like</span></dt>
 <dd><p class="first">Defines aggregating of multiple output values.
-Array-like value defines weights used to average errors.</p>
+Array-like value defines weights used to average errors.
+If input is list then the shape must be (n_outputs,).
+‘raw_values’ :</p>
+<blockquote>
+<div><p>Returns a full set of errors in case of multioutput input.</p>
+</div></blockquote>
 <dl class="last docutils">
-<dt>‘raw_values’ :</dt>
-<dd><p class="first last">Returns a full set of errors in case of multioutput input.</p>
-</dd>
 <dt>‘uniform_average’ :</dt>
 <dd><p class="first last">Errors of all outputs are averaged with uniform weight.</p>
 </dd>
 </dl>
 </dd>
+<dt><strong>compute</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">Whether to compute this result (default <code class="docutils literal notranslate"><span class="pre">True</span></code>)</p>
+</dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>loss</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or ndarray of floats</span></dt>
-<dd><p class="first">If multioutput is ‘raw_values’, then mean absolute error is returned
-for each output separately.
-If multioutput is ‘uniform_average’ or an ndarray of weights, then the
-weighted average of all output errors is returned.</p>
-<p class="last">MAE output is non-negative floating point. The best value is 0.0.</p>
+<dt><strong>loss</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or array-like of floats in the range [0, 1/eps]</span></dt>
+<dd><p class="first last">If multioutput is ‘raw_values’, then mean absolute percentage error
+is returned for each output separately.
+If multioutput is ‘uniform_average’ or <code class="docutils literal notranslate"><span class="pre">None</span></code>, then the
+equally-weighted average of all output errors is returned.
+MAPE output is non-negative floating point. The best value is 0.0.
+But note the fact that bad predictions can lead to arbitarily large
+MAPE values, especially if some y_true values are very close to zero.
+Note that we return a large value instead of <cite>inf</cite> when y_true is zero.</p>
 </dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_absolute_error</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">y_true</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">y_pred</span> <span class="o">=</span> <span class="p">[</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="go">0.5</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">y_true</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="o">-</span><span class="mi">6</span><span class="p">]]</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">y_pred</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">]]</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="go">0.75</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">multioutput</span><span class="o">=</span><span class="s1">&#39;raw_values&#39;</span><span class="p">)</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="go">array([0.5, 1. ])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">multioutput</span><span class="o">=</span><span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">])</span>  <span class="c1"># doctest: +SKIP</span>
-<span class="go">0.85...</span>
-</pre></div>
-</div>
 </dd></dl>
 
 </div>
@@ -372,8 +364,8 @@ weighted average of all output errors is returned.</p>
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="dask_ml.metrics.mean_absolute_percentage_error.html" class="btn btn-neutral float-right" title="dask_ml.metrics.mean_absolute_percentage_error" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="dask_ml.impute.SimpleImputer.html" class="btn btn-neutral float-left" title="dask_ml.impute.SimpleImputer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dask_ml.metrics.mean_squared_error.html" class="btn btn-neutral float-right" title="dask_ml.metrics.mean_squared_error" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="dask_ml.metrics.mean_absolute_error.html" class="btn btn-neutral float-left" title="dask_ml.metrics.mean_absolute_error" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
