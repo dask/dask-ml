@@ -16,7 +16,7 @@ def _check_sample_weight(sample_weight: Optional[ArrayLike]):
 def _check_reg_targets(
     y_true: ArrayLike, y_pred: ArrayLike, multioutput: Optional[str]
 ):
-    if multioutput != "uniform_average":
+    if multioutput is not None and multioutput != "uniform_average":
         raise NotImplementedError("'multioutput' must be 'uniform_average'")
 
     if y_true.ndim == 1:
@@ -40,12 +40,12 @@ def mean_squared_error(
     _check_sample_weight(sample_weight)
     output_errors = ((y_pred - y_true) ** 2).mean(axis=0)
 
-    if isinstance(multioutput, str):
+    if isinstance(multioutput, str) or multioutput is None:
         if multioutput == "raw_values":
-            return output_errors
-        elif multioutput == "uniform_average":
-            # pass None as weights to np.average: uniform mean
-            multioutput = None
+            if compute:
+                return output_errors.compute()
+            else:
+                return output_errors
     else:
         raise ValueError("Weighted 'multioutput' not supported.")
     result = output_errors.mean()
@@ -67,12 +67,12 @@ def mean_absolute_error(
     _check_sample_weight(sample_weight)
     output_errors = abs(y_pred - y_true).mean(axis=0)
 
-    if isinstance(multioutput, str):
+    if isinstance(multioutput, str) or multioutput is None:
         if multioutput == "raw_values":
-            return output_errors
-        elif multioutput == "uniform_average":
-            # pass None as weights to np.average: uniform mean
-            multioutput = None
+            if compute:
+                return output_errors.compute()
+            else:
+                return output_errors
     else:
         raise ValueError("Weighted 'multioutput' not supported.")
     result = output_errors.mean()
@@ -153,7 +153,7 @@ def r2_score(
     compute: bool = True,
 ) -> ArrayLike:
     _check_sample_weight(sample_weight)
-    _, y_true, y_pred, multioutput = _check_reg_targets(y_true, y_pred, multioutput)
+    _, y_true, y_pred, _ = _check_reg_targets(y_true, y_pred, multioutput)
     weight = 1.0
 
     numerator = (weight * (y_true - y_pred) ** 2).sum(axis=0, dtype="f8")
