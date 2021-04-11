@@ -83,6 +83,16 @@ def test_incremental_basic(scheduler, dataframes):
         rel_error /= np.linalg.norm(expected)
         assert rel_error < 0.3
 
+        # decision_function
+        result = clf.decision_function(X)
+        expected = est2.decision_function(X)
+        assert isinstance(result, da.Array)
+        if dataframes:
+            result = result.compute()
+        rel_error = np.linalg.norm(result - expected)
+        rel_error /= np.linalg.norm(expected)
+        assert rel_error < 0.2
+
         # score
         result = clf.score(X, y)
         expected = est2.score(*dask.compute(X, y))
