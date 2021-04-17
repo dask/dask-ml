@@ -15,6 +15,7 @@ from sklearn.base import BaseEstimator
 
 from ..metrics import r2_score
 from ..utils import check_array
+from .utils import lr_prob_stack
 
 _base_doc = textwrap.dedent(
     """\
@@ -228,7 +229,7 @@ class LogisticRegression(_GLM):
 
         Returns
         -------
-        T : array-like, shape = [n_samples, n_classes]
+        T : array-like, shape = [n_samples,]
             The confidence score of the sample for each class in the model.
         """
         X_ = self._check_array(X)
@@ -246,7 +247,7 @@ class LogisticRegression(_GLM):
         C : array, shape = [n_samples,]
             Predicted class labels for each sample
         """
-        return self.predict_proba(X) > 0.5  # TODO: verify, multi_class broken
+        return self.predict_proba(X)[:, 1] > 0.5  # TODO: verify, multi_class broken
 
     def predict_proba(self, X):
         """Probability estimates for samples in X.
@@ -260,7 +261,9 @@ class LogisticRegression(_GLM):
         T : array-like, shape = [n_samples, n_classes]
             The probability of the sample for each class in the model.
         """
-        return sigmoid(self.decision_function(X))
+        # TODO: more work needed here to support multi_class
+        prob = sigmoid(self.decision_function(X))
+        return lr_prob_stack(prob)
 
     def score(self, X, y):
         """The mean accuracy on the given data and labels

@@ -193,3 +193,11 @@ def test_dataframe_warns_about_chunks(fit_intercept):
     clf.fit(X.values, y.values)
     clf.fit(X.to_dask_array(), y.to_dask_array())
     clf.fit(X.to_dask_array(lengths=True), y.to_dask_array(lengths=True))
+
+
+def test_logistic_predict_proba_shape():
+    X, y = make_classification(n_samples=100, n_features=5, chunks=50)
+    lr = LogisticRegression()
+    lr.fit(X, y)
+    prob = lr.predict_proba(X)
+    assert prob.shape == (100, 2)
