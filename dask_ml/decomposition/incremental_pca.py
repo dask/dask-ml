@@ -132,14 +132,20 @@ class IncrementalPCA(pca.PCA):
         svd_solver="auto",
         iterated_power=0,
         random_state=None,
+        center=True,
     ):
         self.n_components = n_components
         self.whiten = whiten
+        self.center = center
         self.copy = copy
         self.batch_size = batch_size
         self.svd_solver = svd_solver
         self.iterated_power = iterated_power
         self.random_state = random_state
+
+    def _check_params(self):
+        if self.center is False:
+            raise ValueError("IncrementalPCA with center=False is not supported.")
 
     def _fit(self, X, y=None):
         """Fit the model with X, using minibatches of size batch_size.
@@ -238,6 +244,7 @@ class IncrementalPCA(pca.PCA):
         self : object
             Returns the instance itself.
         """
+        self._check_params()
         if check_input:
             if sparse.issparse(X):
                 raise TypeError(
