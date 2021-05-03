@@ -271,29 +271,35 @@ def fit_transform(
     return (est, fit_time), Xt
 
 
-def _score(est, X, y, scorer):
+def _score_with_error(est, X, y, scorer, error_score):
+    try:
+        out = scorer(est, X) if y is None else scorer(est, X, y)
+    except Exception:
+        if error_score == "raise":
+            raise
+        else:
+            out = error_score
+    return out
+
+
+def _score(est, X, y, scorer, error_score):
     if est is FIT_FAILURE:
         return FIT_FAILURE
     if isinstance(scorer, Mapping):
-        return {k: v(est, X) if y is None else v(est, X, y) for k, v in scorer.items()}
-    return scorer(est, X) if y is None else scorer(est, X, y)
+        return {
+            k: _score_with_error(est, X, y, v, error_score) for k, v in scorer.items()
+        }
+    return _score_with_error(est, X, y, scorer, error_score)
 
 
 def score(est_and_time, X_test, y_test, X_train, y_train, scorer, error_score):
     est, fit_time = est_and_time
     start_time = default_timer()
-    try:
-        test_score = _score(est, X_test, y_test, scorer)
-    except Exception:
-        if error_score == "raise":
-            raise
-        else:
-            score_time = default_timer() - start_time
-            return fit_time, error_score, score_time, error_score
+    test_score = _score(est, X_test, y_test, scorer, error_score)
     score_time = default_timer() - start_time
     if X_train is None:
         return fit_time, test_score, score_time
-    train_score = _score(est, X_train, y_train, scorer)
+    train_score = _score(est, X_train, y_train, scorer, error_score)
     return fit_time, test_score, score_time, train_score
 
 
