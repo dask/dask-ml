@@ -14,8 +14,8 @@ these packages need to be installed:
 
 .. code-block:: bash
 
-   $ pip install tensorflow>=2.3.0
-   $ pip install scikeras>=0.1.8
+   $ pip install tensorflow>=2.4.0
+   $ pip install scikeras>=0.3.2
 
 These are the minimum versions that Dask-ML requires to use Tensorflow/Keras.
 
@@ -36,16 +36,10 @@ normal way to create a `Keras Sequential model`_
    from tensorflow.keras.layers import Dense
    from tensorflow.keras.models import Sequential
 
-   def build_model(lr=0.01, momentum=0.9):
+   def build_model():
        layers = [Dense(512, input_shape=(784,), activation="relu"),
                  Dense(10, input_shape=(512,), activation="softmax")]
-       model = Sequential(layers)
-
-       opt = tf.keras.optimizers.SGD(
-           learning_rate=lr, momentum=momentum, nesterov=True,
-       )
-       model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"])
-       return model
+       return Sequential(layers)
 
 Now, we can use the SciKeras to create a Scikit-learn compatible model:
 
@@ -53,7 +47,7 @@ Now, we can use the SciKeras to create a Scikit-learn compatible model:
 
    from scikeras.wrappers import KerasClassifier
    niceties = dict(verbose=False)
-   model = KerasClassifier(build_fn=build_model, lr=0.1, momentum=0.9, **niceties)
+   model = KerasClassifier(build_model, loss="categorical_crossentropy", optimizer=tf.keras.optimizers.SGD, **niceties)
 
 This model will work with all of Dask-ML: it can use NumPy arrays as inputs and
 obeys the Scikit-learn API. For example, it's possible to use Dask-ML to do the
@@ -63,12 +57,19 @@ following:
   :class:`~dask_ml.model_selection.HyperbandSearchCV`.
 * Use Keras with Dask-ML's :class:`~dask_ml.wrappers.Incremental`.
 
-If we want to tune ``lr`` and ``momentum``, SciKeras requires that we pass
-``lr`` and ``momentum`` at initialization:
+If we want to tune SGD's ``learning_rate`` and ``momentum``, SciKeras requires that we pass
+``learning_rate`` and ``momentum`` at initialization:
 
-.. code-block::
+.. code-block:: python
 
-   model = KerasClassifier(build_fn=build_model, lr=None, momentum=None, **niceties)
+   model = KerasClassifier(
+      build_model,
+      loss="categorical_crossentropy",
+      optimizer=tf.keras.optimizers.SGD,
+      optimizer__learning_rate=0.1,
+      optimizer__momentum=0.9,
+      **niceties
+   )
 
 .. _SciKeras: https://github.com/adriangb/scikeras
 
@@ -101,7 +102,7 @@ And let's perform the basic task of tuning our SGD implementation:
 .. code-block:: python
 
    from scipy.stats import loguniform, uniform
-   params = {"lr": loguniform(1e-3, 1e-1), "momentum": uniform(0, 1)}
+   params = {"optimizer__learning_rate": loguniform(1e-3, 1e-1), "optimizer__momentum": uniform(0, 1)}
    X, y = get_mnist()
 
 Now, the search can be run:
