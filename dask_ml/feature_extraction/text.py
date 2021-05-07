@@ -96,9 +96,9 @@ class HashingVectorizer(_BaseHasher, sklearn.feature_extraction.text.HashingVect
 
         Notes
         -----
-        The returned dask Array is composed scipy sparse matricies. If you need
+        The returned dask Array is composed scipy sparse matrices. If you need
         to compute on the result immediately, you may need to convert the individual
-        blocks to ndarrays or pydata/sparse matricies.
+        blocks to ndarrays or pydata/sparse matrices.
 
         >>> import sparse
         >>> X.map_blocks(sparse.COO.from_scipy_sparse, dtype=X.dtype)  # doctest: +SKIP
@@ -130,7 +130,7 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
     Additionally, this implementation benefits from having
     an active ``dask.distributed.Client``, even on a single machine.
     When a client is present, the learned ``vocabulary`` is persisted
-    in distributed memory, which saves some recompuation and redundant
+    in distributed memory, which saves some recomputation and redundant
     communication.
 
     See Also

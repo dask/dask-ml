@@ -29,7 +29,7 @@ def test_basic_successive_halving(c, s, a, b):
 @pytest.mark.parametrize("r", [2, 3])
 @pytest.mark.parametrize("n", [9, 22])
 def test_sha_max_iter_and_metadata(n, r):
-    # This test makes sure the number of partial fit calls is perserved
+    # This test makes sure the number of partial fit calls is preserved
     # when
 
     # * n_initial_parameters and max_iter are specified

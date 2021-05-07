@@ -22,8 +22,8 @@ classes/functions:
    XGBClassifier
    XGBRegressor
 
-The LightGBM implementation and documentation can be found at
-https://github.com/dask/dask-lightgbm.
+The LightGBM implementation can be found at https://github.com/microsoft/LightGBM and documentation can be found at
+https://lightgbm.readthedocs.io/en/latest/Parallel-Learning-Guide.html#dask.
 
 Example
 -------

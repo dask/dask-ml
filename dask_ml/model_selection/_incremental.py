@@ -24,8 +24,9 @@ from sklearn.metrics import check_scoring
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
 from sklearn.utils.metaestimators import if_delegate_has_method
+from sklearn.utils.validation import check_is_fitted
 
-from .._compat import DISTRIBUTED_2021_02_0, annotate, check_is_fitted, dummy_context
+from .._compat import DISTRIBUTED_2021_02_0, annotate, dummy_context
 from .._typing import ArrayLike, Int
 from .._utils import LoggingContext
 from ..wrappers import ParallelPostFit
@@ -892,7 +893,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         retained by the "inverse decay" algorithm.
 
     best_score_ : float
-        Score achieved by ``best_estimator_`` on the vaidation set after the
+        Score achieved by ``best_estimator_`` on the validation set after the
         final call to ``partial_fit``.
 
     best_index_ : int
@@ -956,7 +957,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
 
     For example, setting ``tol=0`` and ``patience=2`` means training will stop
     after two consecutive calls to ``model.partial_fit`` without improvement,
-    or when ``max_iter`` total calls to ``model.parital_fit`` are reached.
+    or when ``max_iter`` total calls to ``model.partial_fit`` are reached.
 
     """
 
@@ -1205,7 +1206,7 @@ class InverseDecaySearchCV(IncrementalSearchCV):
         Higher `decay_rate` will result in lower training times, at the cost
         of worse models.
 
-        The default ``decay_rate=1.0`` is chosen because it has some theoritical
+        The default ``decay_rate=1.0`` is chosen because it has some theoretical
         motivation [1]_.
 
     Attributes
@@ -1255,7 +1256,7 @@ class InverseDecaySearchCV(IncrementalSearchCV):
         retained by the "inverse decay" algorithm.
 
     best_score_ : float
-        Score achieved by ``best_estimator_`` on the vaidation set after the
+        Score achieved by ``best_estimator_`` on the validation set after the
         final call to ``partial_fit``.
 
     best_index_ : int
@@ -1278,7 +1279,7 @@ class InverseDecaySearchCV(IncrementalSearchCV):
     Notes
     -----
     When ``decay_rate==1``, this class approximates the
-    number of ``partial_fit`` calls that :class:`SuccesiveHalvingSearchCV`
+    number of ``partial_fit`` calls that :class:`SuccessiveHalvingSearchCV`
     performs. If ``n_initial_parameters`` is configured properly with
     ``decay_rate=1``, it's possible this class will mirror the most aggressive
     bracket of :class:`HyperbandSearchCV`. This might yield good results

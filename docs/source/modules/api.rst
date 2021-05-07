@@ -207,13 +207,13 @@ Meta-estimators for building composite models with transformers.
 .. currentmodule:: dask_ml
 
 .. autosummary::
-   :toctree: generted/
+   :toctree: generated/
    :template: class.rst
 
    compose.ColumnTransformer
 
 .. autosummary::
-   :toctree: generted/
+   :toctree: generated/
 
    compose.make_column_transformer
 
@@ -246,6 +246,7 @@ Regression Metrics
    :toctree: generated/
 
    metrics.mean_absolute_error
+   metrics.mean_absolute_percentage_error
    metrics.mean_squared_error
    metrics.mean_squared_log_error
    metrics.r2_score

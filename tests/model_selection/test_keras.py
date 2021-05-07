@@ -43,14 +43,16 @@ def _keras_build_fn(lr=0.01):
     return model
 
 
-@gen_cluster(client=True, Worker=Nanny)
+@gen_cluster(client=True, Worker=Nanny, timeout=20)
 def test_keras(c, s, a, b):
     # Mirror the mnist dataset
     X, y = make_classification(n_classes=10, n_features=784, n_informative=100)
     X = X.astype("float32")
     assert y.dtype == np.dtype("int64")
 
-    model = KerasClassifier(build_fn=_keras_build_fn, lr=0.01, verbose=False)
+    model = KerasClassifier(
+        model=_keras_build_fn, lr=0.01, verbose=False, loss="categorical_crossentropy",
+    )
     params = {"lr": loguniform(1e-3, 1e-1)}
 
     search = IncrementalSearchCV(

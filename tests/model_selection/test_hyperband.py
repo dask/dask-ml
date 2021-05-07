@@ -304,7 +304,7 @@ def test_correct_params(c, s, a, b):
 
 def test_params_passed():
     # This makes sure that the "SuccessiveHalvingSearchCV params" key in
-    # Hyperband.metadata["brackets"] is correct and they can be instatiated.
+    # Hyperband.metadata["brackets"] is correct and they can be instantiated.
     est = ConstantFunction(value=0.4)
     params = {"value": np.linspace(0, 1)}
     params = {

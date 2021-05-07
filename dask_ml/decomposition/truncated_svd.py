@@ -96,7 +96,7 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
 
         .. warning::
 
-           The implementation currently does not support sparse matricies.
+           The implementation currently does not support sparse matrices.
 
         Examples
         --------
@@ -115,7 +115,7 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
         >>> print(svd.singular_values_)  # doctest: +ELLIPSIS
         array([35.92469517, 35.32922121, 34.53368856, 34.138..., 34.013...])
 
-        Note that ``tranform`` returns a ``dask.Array``.
+        Note that ``transform`` returns a ``dask.Array``.
 
         >>> svd.transform(X)
         dask.array<sum-agg, shape=(1000, 5), dtype=float64, chunksize=(100, 5)>
@@ -174,7 +174,7 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
         X = self._check_array(X)
         if self.algorithm not in {"tsqr", "randomized"}:
             raise ValueError(
-                "`algorithm` must be 'tsqr' or 'randomzied', not '{}'".format(
+                "`algorithm` must be 'tsqr' or 'randomized', not '{}'".format(
                     self.algorithm
                 )
             )

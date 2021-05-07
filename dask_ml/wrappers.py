@@ -7,10 +7,10 @@ import dask.delayed
 import numpy as np
 import sklearn.base
 import sklearn.metrics
+from sklearn.utils.validation import check_is_fitted
 
 from dask_ml.utils import _timer
 
-from ._compat import check_is_fitted
 from ._partial import fit
 from ._utils import copy_learned_attributes
 from .metrics import check_scoring, get_scorer
@@ -322,7 +322,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
             return _predict_proba(X, estimator=self._postfit_estimator)
 
     def predict_log_proba(self, X):
-        """Log of proability estimates.
+        """Log of probability estimates.
 
         For dask inputs, a dask array or dataframe is returned. For other
         inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
@@ -394,7 +394,7 @@ class Incremental(ParallelPostFit):
     Parameters
     ----------
     estimator : Estimator
-        Any object supporting the scikit-learn ``parital_fit`` API.
+        Any object supporting the scikit-learn ``partial_fit`` API.
 
     scoring : string or callable, optional
         A single string (see :ref:`scoring_parameter`) or a callable

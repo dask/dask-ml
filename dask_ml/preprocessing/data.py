@@ -15,9 +15,9 @@ from dask.array import nanmean, nanvar
 from pandas.api.types import is_categorical_dtype
 from scipy import stats
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.utils.validation import check_random_state
+from sklearn.utils.validation import check_is_fitted, check_random_state
 
-from dask_ml._compat import blockwise, check_is_fitted
+from dask_ml._compat import blockwise
 from dask_ml._utils import copy_learned_attributes
 from dask_ml.utils import check_array, handle_zeros_in_scale
 

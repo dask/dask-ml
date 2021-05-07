@@ -177,7 +177,7 @@ class BlockwiseVotingClassifier(ClassifierMixin, BlockwiseBase):
         if isinstance(X, da.Array):
             chunks = (len(self.estimators_), X.chunks[0], len(self.classes_))
             meta = np.array([], dtype="float64")
-            # (n_estimators, len(X), n_classses)
+            # (n_estimators, len(X), n_classes)
             combined = X.map_blocks(
                 _predict_proba_stack,
                 estimators=self.estimators_,

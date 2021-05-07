@@ -204,7 +204,7 @@ def test_check_array_1d():
                 dd.from_pandas(pd.Series([1, 2, 3]), 2),
                 dd.from_pandas(pd.Series([1, 2, 3]), 2).reset_index(),
             ],
-            marks=pytest.mark.xfail(reason="Known and unknown divisiosn."),
+            marks=pytest.mark.xfail(reason="Known and unknown divisions."),
         ),
     ],
 )
