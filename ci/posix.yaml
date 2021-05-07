@@ -50,7 +50,7 @@ jobs:
       python -c "import tensorflow as tf; print('TF ' + tf.__version__)"
       python -c "import scikeras; print('SciKeras ' + scikeras.__version__)"
     displayName: "install Tensorflow and SciKeras"
-    condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+    # condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
 
   - script: |
       source activate dask-ml-test
