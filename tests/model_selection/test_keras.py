@@ -18,29 +18,22 @@ try:
 
     pytestmark = [
         pytest.mark.skipif(
-            version.parse(tf.__version__) < version.parse("2.3.0"),
+            version.parse(tf.__version__) < version.parse("2.4.0"),
             reason="pickle support",
         ),
         pytest.mark.skipif(
-            version.parse(scikeras.__version__) < version.parse("0.1.8"),
-            reason="partial_fit support",
+            version.parse(scikeras.__version__) < version.parse("0.3.2"),
+            reason="default parameter syntax",
         ),
     ]
 except ImportError:
     pytestmark = pytest.mark.skip(reason="Missing tensorflow or scikeras")
 
 
-def _keras_build_fn(lr=0.01):
-    layers = [
-        Dense(512, input_shape=(784,), activation="relu"),
-        Dense(10, input_shape=(512,), activation="softmax"),
-    ]
-
-    model = Sequential(layers)
-
-    opt = tf.keras.optimizers.SGD(learning_rate=lr)
-    model.compile(loss="categorical_crossentropy", optimizer=opt, metrics=["accuracy"])
-    return model
+def _keras_build_fn():
+    layers = [Dense(512, input_shape=(784,), activation="relu"),
+              Dense(10, input_shape=(512,), activation="softmax")]
+    return Sequential(layers)
 
 
 @gen_cluster(client=True, Worker=Nanny, timeout=20)
@@ -51,9 +44,13 @@ def test_keras(c, s, a, b):
     assert y.dtype == np.dtype("int64")
 
     model = KerasClassifier(
-        model=_keras_build_fn, lr=0.01, verbose=False, loss="categorical_crossentropy",
+        _keras_build_fn,
+        verbose=False,
+        loss="categorical_crossentropy",
+        optimizer=tf.keras.optimizers.SGD,
+        optimizer__learning_rate=0.01,
     )
-    params = {"lr": loguniform(1e-3, 1e-1)}
+    params = {"optimizer__learning_rate": loguniform(1e-3, 1e-1)}
 
     search = IncrementalSearchCV(
         model, params, max_iter=3, n_initial_parameters=5, decay_rate=None
