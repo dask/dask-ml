@@ -2,11 +2,12 @@ import inspect
 import logging
 
 import dask.array as da
+import dask.dataframe as dd
 import numpy as np
-from sklearn.base import TransformerMixin
+from sklearn.base import TransformerMixin, clone
 
 from .._utils import copy_learned_attributes
-from ..utils import _timer
+from ..utils import _timer, check_array
 from ..wrappers import ParallelPostFit
 
 logger = logging.getLogger(__name__)
@@ -17,7 +18,7 @@ def lightweight_coresets(X, m, *, gen=da.random.RandomState()):
     Parameters
     ----------
     X : dask.array, shape = [n_samples, n_features]
-        input dask arrat to be sampled
+        input dask array to be sampled
     m : int
         number of samples to pick from `X`
 
@@ -32,28 +33,117 @@ def lightweight_coresets(X, m, *, gen=da.random.RandomState()):
     return X_lwcs, w_lwcs
 
 
-class Coreset(ParallelPostFit, TransformerMixin):
+def get_m(X, k, eps, mode="hard"):
     """
-    Coreset sampling implementation
+    Returns the coreset size, i.e the number of data points to be sampled
+    from the original set of points
+    See Theorem 2 from `Scalable k-Means Clustering via Lightweight Coresets`
 
-    A Coreset is a small set of points that approximates the shae of a larger point set.
-    A clustering algorithm can be applied on the selected subset of points.
+    The resulting coreset is a (eps, k)-lightweight coreset of X
 
     Parameters
     ----------
-    n_clusters : int, default 8
-        Number of clusters to end up with
+    X: dask.array
+        input data. We aim at finding minimum coreset size to be sampled from `X`
+    mu: float
+        average value for the input data
+    k: int
+        number of cluster k
+    eps: float
+        between 0 and 1
+
+
+    Returns
+    -------
+    m: int
+        Number of points to sample
+        For this number, the set `C` is a (`eps`, `k`)-lightweight coreset of `X`
+
+    Notes
+    -----
+    The `delta` parameter from the original paper is not used.
+    In practice most of the time it vanishes,
+    as a log is applied to its inverse, before being summed to big values
+    (values which depend on the data size | number of cluster)
+    """
+    X_m, d = X.shape
+    if hasattr(X_m, "compute"):
+        X_m = X_m.compute()
+
+    if mode == "hard":  # hard clustering
+        numerator = d * k * np.log(k)
+    elif mode == "soft":  # soft clustering
+        numerator = (d ** 2) * (k ** 2)
+    else:
+        raise ValueError("`mode` should be in (hard|soft)")
+    m = np.ceil(numerator / eps)
+    if m >= X_m:
+        _m = np.ceil((d ** 2) * (k ** 2))
+        logger.warning(
+            f"""
+            Number of points to sample ({m}) higher
+            than input dimension ({d}),
+            forcing reduction to {_m}
+        """
+        )
+        m = _m
+    return m
+
+
+class Coreset(ParallelPostFit, TransformerMixin):
+    """Coreset sampling implementation
+
+    Parameters
+    ----------
+    estimator : Estimator
+        The underlying estimator to be fitted.
+
+    eps: float, default=0.05
+        For k cluster, the coreset is guaranteed to be a (`eps`, `k`)
+        coreset of the original data
+
+        `eps` must be greater or equal to 0.05
+        (<= 5% difference in the discretization error).
 
     m : int, default None
-        number of points to select to form a coreset
-        if estimator has a `n_clusters` or `n_components` attributes,
-        `m` will be set to `(n_clusters|n_components)` * `X.shape[1]` / `eps` ** 2
-        when calling `.fit`
+        Number of points to select to form a coreset
 
-    random_state : int, optional
+        If it is `None` and the estimator has a `n_clusters` or `n_components`
+        attributes, `m` will atomatically be set depending on
+        `n_clusters|n_components`, `eps`and the input data when calling `.fit`
+
+    random_state : int, RandomState instance or None, optional, default: None
+        If int, random_state is the seed used by the random number generator;
+        If RandomState instance, random_state is the random number generator;
+        If None, the random number generator is the RandomState instance used
+        by `np.random`.
+
+    References
+    ----------
+    - Scalable k-Means Clustering via Lightweight Coresets, 2018
+      Olivier Bachem, Mario Lucic, Andreas Krause
+      https://arxiv.org/pdf/1702.08248.pdf
+
+    Notes
+    -----
+    ``A Coreset is a small set of points that approximates
+    the shape of a larger set of points``.
+
+    A clustering algorithm can be applied on the selected subset of points.
+
+    Formally, a weighted set `C` is an (`eps`, `k`)-coreset for
+    some input data X if for any set of cluster centers `Q` (with `|Q| <= k`)
+    the quantization error computed via `Q` on `X` and
+    the quantization error computer via `Q` on `C` have at most an
+    `eps` relative difference.
+
     """
 
-    def __init__(self, estimator, m=None, *, eps=0.05, random_state=None):
+    def __init__(self, estimator, *, eps=0.05, delta=0.01, m=None, random_state=None):
+        if not (0 < delta < 1):
+            raise ValueError("`delta` both should be a float between 0 and 1")
+        if not (0.05 <= eps < 1):
+            raise ValueError("`eps` should be a float between 0.05 and 1")
         if m is None:
             k = getattr(estimator, "n_clusters", None) or getattr(
                 estimator, "n_components", None
@@ -67,24 +157,17 @@ class Coreset(ParallelPostFit, TransformerMixin):
 
         self.m = m
         self.eps = eps
-        self.estimator = estimator
+        self.estimator = clone(estimator)
         self.random_state = da.random.RandomState(random_state)
 
     def fit(self, X, y=None, **kwargs):
-        if self.k is not None and self.m is None:
-            m = (X.shape[1] * self.k) / (self.eps ** 2)
-            self.m = np.ceil(m)
-        if self.m > X.shape[0]:
-            logger.warning(
-                f"""
-                Number of points to sample ({self.m}) higher
-                than input dimension ({X.shape[0]}),
-                forcing reduction to {X.shape[0] * 0.05}
-            """
-            )
-            self.m = X.shape[0] * 0.05
+        if isinstance(X, dd.DataFrame):
+            X = X.to_dask_array(lengths=True)  # if Dask.Dataframe
+        X = check_array(X, accept_dask_dataframe=False)
+        if self.m is None:
+            self.m = get_m(X, self.k, self.eps)
 
-        print(f"sampling {self.m} points out of {X.shape[0]}")
+        logger.info(f"sampling {self.m} points out of {X.shape[0]}")
 
         logger.info("Starting sampling")
         with _timer("sampling", _logger=logger):
@@ -99,5 +182,7 @@ class Coreset(ParallelPostFit, TransformerMixin):
 
         # Copy over learned attributes
         copy_learned_attributes(updated_est, self)
-        # return self  TODO
+        ParallelPostFit.__init__(self, estimator=updated_est)
         return self
+
+    # TODO : partial fit ?
