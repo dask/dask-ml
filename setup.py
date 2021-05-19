@@ -35,7 +35,7 @@ test_requires = [
     "pytest-mock",
 ]
 dev_requires = doc_requires + test_requires
-xgboost_requires = ["dask-xgboost", "xgboost"]
+xgboost_requires = ["xgboost"]
 complete_requires = xgboost_requires
 
 extras_require = {

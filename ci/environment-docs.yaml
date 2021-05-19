@@ -44,7 +44,6 @@ dependencies:
   # to allow CI to pass
   - dask !=2021.3.0
   - dask-glm
-  - dask-xgboost
   - pip:
     - dask_sphinx_theme >=1.1.0
     - graphviz

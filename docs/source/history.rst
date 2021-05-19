@@ -6,7 +6,6 @@ focused around particular sub-domains of machine learning.
 
 -  dask-searchcv_: Scalable model selection
 -  dask-glm_: Generalized Linear Model solvers
--  dask-xgboost_: Connection to the XGBoost library
 -  dask-tensorflow_: Connection to the Tensorflow library
 
 While these special-purpose libraries were convenient for development, they
@@ -20,5 +19,4 @@ future development.
 
 .. _dask-searchcv: https://github.com/dask/dask-searchcv
 .. _dask-glm: https://github.com/dask/dask-glm
-.. _dask-xgboost: https://github.com/dask/dask-xgboost
 .. _dask-tensorflow: https://github.com/dask/dask-tensorflow
