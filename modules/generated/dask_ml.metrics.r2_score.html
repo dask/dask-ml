@@ -148,7 +148,7 @@
             
             
               <div class="version">
-                0.1.dev1+g0ea276d
+                0.1.dev1+g3ef1c84
               </div>
             
           
@@ -300,13 +300,13 @@
 <dl class="function">
 <dt id="dask_ml.metrics.r2_score">
 <code class="descclassname">dask_ml.metrics.</code><code class="descname">r2_score</code><span class="sig-paren">(</span><em>y_true: ArrayLike</em>, <em>y_pred: ArrayLike</em>, <em>sample_weight: Optional[ArrayLike] = None</em>, <em>multioutput: Optional[str] = 'uniform_average'</em>, <em>compute: bool = True</em><span class="sig-paren">)</span> &#x2192; ArrayLike<a class="headerlink" href="#dask_ml.metrics.r2_score" title="Permalink to this definition">¶</a></dt>
-<dd><p>R^2 (coefficient of determination) regression score function.</p>
+<dd><p><span class="math notranslate nohighlight">\(R^2\)</span> (coefficient of determination) regression score function.</p>
 <p>This docstring was copied from sklearn.metrics.r2_score.</p>
 <p>Some inconsistencies with the Dask version may exist.</p>
 <p>Best possible score is 1.0 and it can be negative (because the
 model can be arbitrarily worse). A constant model that always
 predicts the expected value of y, disregarding the input features,
-would get a R^2 score of 0.0.</p>
+would get a <span class="math notranslate nohighlight">\(R^2\)</span> score of 0.0.</p>
 <p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#r2-score" title="(in scikit-learn v0.24)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -347,7 +347,7 @@ of each individual output.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>z</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float or ndarray of floats</span></dt>
-<dd><p class="first last">The R^2 score or ndarray of scores if ‘multioutput’ is
+<dd><p class="first last">The <span class="math notranslate nohighlight">\(R^2\)</span> score or ndarray of scores if ‘multioutput’ is
 ‘raw_values’.</p>
 </dd>
 </dl>
@@ -357,8 +357,8 @@ of each individual output.</p>
 </table>
 <p class="rubric">Notes</p>
 <p>This is not a symmetric function.</p>
-<p>Unlike most other scores, R^2 score may be negative (it need not actually
-be the square of a quantity R).</p>
+<p>Unlike most other scores, <span class="math notranslate nohighlight">\(R^2\)</span> score may be negative (it need not
+actually be the square of a quantity R).</p>
 <p>This metric is not well-defined for single samples and will return a NaN
 value if n_samples is less than two.</p>
 <p class="rubric">References</p>

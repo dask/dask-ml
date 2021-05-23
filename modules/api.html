@@ -148,7 +148,7 @@
             
             
               <div class="version">
-                0.1.dev1+g0ea276d
+                0.1.dev1+g3ef1c84
               </div>
             
           
@@ -972,7 +972,7 @@ unit variance scaling.</p>
 <dd><p class="first last">Set to False to perform inplace row normalization and avoid a
 copy (if the input is already a numpy array).</p>
 </dd>
-<dt><strong>clip: bool, default=False</strong></dt>
+<dt><strong>clip</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default=False</span></dt>
 <dd><p class="first">Set to True to clip transformed values of held-out data to
 provided <cite>feature range</cite>.</p>
 <div class="last versionadded">
@@ -2995,7 +2995,7 @@ possible to update each component of a nested object.</p>
 
 <dl class="class">
 <dt id="dask_ml.preprocessing.OneHotEncoder">
-<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">OneHotEncoder</code><span class="sig-paren">(</span><em>n_values: Optional[int] = None, categorical_features: Optional[pandas.core.arrays.categorical.Categorical] = None, categories: Union[str, ArrayLike] = 'auto', drop: Optional[bool] = None, sparse: bool = True, dtype: Union[numpy.dtype, None, type, numpy.typing._dtype_like._SupportsDType, str, Tuple[Any, int], Tuple[Any, Union[int, Sequence[int]]], List[Any], numpy.typing._dtype_like._DTypeDict, Tuple[Any, Any]] = &lt;class 'numpy.float64'&gt;, handle_unknown: str = 'error'</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OneHotEncoder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">OneHotEncoder</code><span class="sig-paren">(</span><em>n_values: Optional[int] = None, categorical_features: Optional[pandas.core.arrays.categorical.Categorical] = None, categories: Union[str, ArrayLike] = 'auto', drop: Optional[bool] = None, sparse: bool = True, dtype: Union[numpy.dtype, None, type, numpy.typing._dtype_like._SupportsDType, str, Tuple[Any, int], Tuple[Any, Union[SupportsIndex, Sequence[SupportsIndex]]], List[Any], numpy.typing._dtype_like._DTypeDict, Tuple[Any, Any]] = &lt;class 'numpy.float64'&gt;, handle_unknown: str = 'error'</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.OneHotEncoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encode categorical integer features as a one-hot numeric array.</p>
 <div class="versionadded">
 <p><span class="versionmodified">New in version 0.8.0.</span></p>
@@ -3132,7 +3132,7 @@ values per feature and transform the data to a binary one-hot encoding.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape [n_samples, n_features]</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples, n_features)</span></dt>
 <dd><p class="first last">The data to determine the categories of each feature.</p>
 </dd>
 <dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">None</span></dt>
@@ -3162,7 +3162,7 @@ values per feature and transform the data to a binary one-hot encoding.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape [n_samples, n_features]</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples, n_features)</span></dt>
 <dd><p class="first last">The data to encode.</p>
 </dd>
 <dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">None</span></dt>
@@ -3173,8 +3173,9 @@ values per feature and transform the data to a binary one-hot encoding.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X_out</strong> <span class="classifier-delimiter">:</span> <span class="classifier">sparse matrix if sparse=True else a 2-d array</span></dt>
-<dd><p class="first last">Transformed input.</p>
+<dt><strong>X_out</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{ndarray, sparse matrix} of shape                 (n_samples, n_encoded_features)</span></dt>
+<dd><p class="first last">Transformed input. If <cite>sparse=True</cite>, a sparse matrix will be
+returned.</p>
 </dd>
 </dl>
 </td>
@@ -3248,14 +3249,14 @@ one-hot encoding), <code class="docutils literal notranslate"><span class="pre">
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like or sparse matrix, shape [n_samples, n_encoded_features]</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{array-like, sparse matrix} of shape                 (n_samples, n_encoded_features)</span></dt>
 <dd><p class="first last">The transformed data.</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X_tr</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape [n_samples, n_features]</span></dt>
+<dt><strong>X_tr</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray of shape (n_samples, n_features)</span></dt>
 <dd><p class="first last">Inverse transformed array.</p>
 </dd>
 </dl>
@@ -3304,15 +3305,16 @@ possible to update each component of a nested object.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape [n_samples, n_features]</span></dt>
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples, n_features)</span></dt>
 <dd><p class="first last">The data to encode.</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X_out</strong> <span class="classifier-delimiter">:</span> <span class="classifier">sparse matrix if sparse=True else a 2-d array</span></dt>
-<dd><p class="first last">Transformed input.</p>
+<dt><strong>X_out</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{ndarray, sparse matrix} of shape                 (n_samples, n_encoded_features)</span></dt>
+<dd><p class="first last">Transformed input. If <cite>sparse=True</cite>, a sparse matrix will be
+returned.</p>
 </dd>
 </dl>
 </td>
@@ -4600,7 +4602,7 @@ possible to update each component of a nested object.</p>
 <td>Mean squared logarithmic error regression loss.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="generated/dask_ml.metrics.r2_score.html#dask_ml.metrics.r2_score" title="dask_ml.metrics.r2_score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">metrics.r2_score</span></code></a>(y_true,&nbsp;y_pred,&nbsp;…)</td>
-<td>R^2 (coefficient of determination) regression score function.</td>
+<td><span class="math notranslate nohighlight">\(R^2\)</span> (coefficient of determination) regression score function.</td>
 </tr>
 </tbody>
 </table>

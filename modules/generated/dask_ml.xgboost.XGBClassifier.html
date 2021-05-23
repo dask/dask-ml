@@ -148,7 +148,7 @@
             
             
               <div class="version">
-                0.1.dev1+g0ea276d
+                0.1.dev1+g3ef1c84
               </div>
             
           
@@ -300,6 +300,12 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>best_iteration</strong></dt>
+<dd></dd>
+<dt><strong>best_ntree_limit</strong></dt>
+<dd></dd>
+<dt><strong>best_score</strong></dt>
+<dd></dd>
 <dt><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.coef_" title="dask_ml.xgboost.XGBClassifier.coef_"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coef_</span></code></a></dt>
 <dd><p class="first last">Coefficients property</p>
 </dd>
@@ -309,6 +315,8 @@
 <dt><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.intercept_" title="dask_ml.xgboost.XGBClassifier.intercept_"><code class="xref py py-obj docutils literal notranslate"><span class="pre">intercept_</span></code></a></dt>
 <dd><p class="first last">Intercept (bias) property</p>
 </dd>
+<dt><strong>n_features_in_</strong></dt>
+<dd></dd>
 </dl>
 </td>
 </tr>
@@ -321,7 +329,7 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.apply" title="dask_ml.xgboost.XGBClassifier.apply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply</span></code></a>(X[,&nbsp;ntree_limit])</td>
+<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.apply" title="dask_ml.xgboost.XGBClassifier.apply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply</span></code></a>(X,&nbsp;ntree_limit,&nbsp;iteration_range,&nbsp;…)</td>
 <td>Return the predicted leaf every tree for each sample.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.evals_result" title="dask_ml.xgboost.XGBClassifier.evals_result"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evals_result</span></code></a>()</td>
@@ -346,7 +354,7 @@
 <td>Load the model from a file.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.predict" title="dask_ml.xgboost.XGBClassifier.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(X)</td>
-<td>Predict with <cite>data</cite>.</td>
+<td>Predict with <cite>X</cite>.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#dask_ml.xgboost.XGBClassifier.predict_proba" title="dask_ml.xgboost.XGBClassifier.predict_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_proba</span></code></a>(data[,&nbsp;ntree_limit])</td>
 <td>Predict the probability of each <cite>X</cite> example being of a given class.</td>
@@ -370,7 +378,7 @@
 
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.apply">
-<code class="descname">apply</code><span class="sig-paren">(</span><em>X</em>, <em>ntree_limit=0</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.apply" title="Permalink to this definition">¶</a></dt>
+<code class="descname">apply</code><span class="sig-paren">(</span><em>X</em>, <em>ntree_limit: int = 0</em>, <em>iteration_range: Optional[Tuple[int</em>, <em>int]] = None</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.apply" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the predicted leaf every tree for each sample.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -638,43 +646,45 @@ Python Booster object (such as feature names) will not be loaded.</p>
 <dl class="method">
 <dt id="dask_ml.xgboost.XGBClassifier.predict">
 <code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBClassifier.predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict with <cite>data</cite>.</p>
+<dd><p>Predict with <cite>X</cite>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p>This function is not thread safe.</p>
-<p>For each booster object, predict can only be called from one thread.
-If you want to run prediction using multiple thread, call
-<code class="docutils literal notranslate"><span class="pre">xgb.copy()</span></code> to make copies of model object and then call
-<code class="docutils literal notranslate"><span class="pre">predict()</span></code>.</p>
-<div class="last highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">preds</span> <span class="o">=</span> <span class="n">bst</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dtest</span><span class="p">,</span> <span class="n">ntree_limit</span><span class="o">=</span><span class="n">num_round</span><span class="p">)</span>
-</pre></div>
-</div>
+<p class="last">This function is only thread safe for <cite>gbtree</cite> and <cite>dart</cite>.</p>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
-<dd><p class="first last">Feature matrix.</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Data to predict with</p>
 </dd>
 <dt><strong>output_margin</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
 <dd><p class="first last">Whether to output the raw untransformed margin value.</p>
 </dd>
 <dt><strong>ntree_limit</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">Limit number of trees in the prediction; defaults to
-best_ntree_limit if defined (i.e. it has been trained with early
-stopping), otherwise 0 (use all trees).</p>
+<dd><p class="first last">Deprecated, use <cite>iteration_range</cite> instead.</p>
 </dd>
 <dt><strong>validate_features</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd><p class="first last">When this is True, validate that the Booster’s and data’s
-feature_names are identical.  Otherwise, it is assumed that the
-feature_names are the same.</p>
+<dd><p class="first last">When this is True, validate that the Booster’s and data’s feature_names are
+identical.  Otherwise, it is assumed that the feature_names are the same.</p>
 </dd>
-</dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>base_margin</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Margin added to prediction.</p>
+</dd>
+<dt><strong>iteration_range :</strong></dt>
+<dd><p class="first">Specifies which layer of trees are used in prediction.  For example, if a
+random forest is trained with 100 rounds.  Specifying <cite>iteration_range=(10,
+20)</cite>, then only the forests built during [10, 20) (half open set) rounds are
+used in this prediction.</p>
+<div class="last versionadded">
+<p><span class="versionmodified">New in version 1.4.0.</span></p>
+</div>
+</dd>
+<dt><strong>Returns</strong></dt>
+<dd></dd>
+<dt><strong>——-</strong></dt>
+<dd></dd>
 <dt><strong>prediction</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array</span></dt>
 <dd></dd>
 </dl>
@@ -690,10 +700,7 @@ feature_names are the same.</p>
 <dd><p>Predict the probability of each <cite>X</cite> example being of a given class.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p>This function is not thread safe</p>
-<p class="last">For each booster object, predict can only be called from one
-thread.  If you want to run prediction using multiple thread, call
-<code class="docutils literal notranslate"><span class="pre">xgb.copy()</span></code> to make copies of model object and then call predict</p>
+<p class="last">This function is only thread safe for <cite>gbtree</cite> and <cite>dart</cite>.</p>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -704,20 +711,28 @@ thread.  If you want to run prediction using multiple thread, call
 <dd><p class="first last">Feature matrix.</p>
 </dd>
 <dt><strong>ntree_limit</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">Limit number of trees in the prediction; defaults to best_ntree_limit if
-defined (i.e. it has been trained with early stopping), otherwise 0 (use all
-trees).</p>
+<dd><p class="first last">Deprecated, use <cite>iteration_range</cite> instead.</p>
 </dd>
 <dt><strong>validate_features</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
 <dd><p class="first last">When this is True, validate that the Booster’s and data’s feature_names are
 identical.  Otherwise, it is assumed that the feature_names are the same.</p>
+</dd>
+<dt><strong>base_margin</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd><p class="first last">Margin added to prediction.</p>
+</dd>
+<dt><strong>iteration_range :</strong></dt>
+<dd><p class="first last">Specifies which layer of trees are used in prediction.  For example, if a
+random forest is trained with 100 rounds.  Specifying <cite>iteration_range=(10,
+20)</cite>, then only the forests built during [10, 20) (half open set) rounds are
+used in this prediction.</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>prediction</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numpy array</span></dt>
-<dd><p class="first last">a numpy array with the probability of each data example being of a given class.</p>
+<dd><p class="first last">a numpy array of shape array-like of shape (n_samples, n_classes) with the
+probability of each data example being of a given class.</p>
 </dd>
 </dl>
 </td>

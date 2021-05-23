@@ -148,7 +148,7 @@
             
             
               <div class="version">
-                0.1.dev1+g0ea276d
+                0.1.dev1+g3ef1c84
               </div>
             
           
@@ -421,7 +421,7 @@ detail is in “<a class="reference internal" href="#hyperparameter-cpu-nmem"><s
 <p>This case happens when the data doesn’t fit in memory but there aren’t many
 hyperparameters to search over. The data doesn’t fit in memory, so it makes
 sense to call <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> on each chunk of a Dask Array/Dataframe. This
-estimators does that:</p>
+estimator does that:</p>
 <table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
@@ -442,7 +442,7 @@ wrapped with <a class="reference internal" href="modules/generated/dask_ml.wrapp
 </div>
 <div class="section" id="compute-constrained-but-not-memory-constrained">
 <span id="hyperparameter-cpu-nmem"></span><h3>Compute constrained, but not memory constrained<a class="headerlink" href="#compute-constrained-but-not-memory-constrained" title="Permalink to this headline">¶</a></h3>
-<p>This case happens when the data fits on in the memory of one machine but when
+<p>This case happens when the data fits in the memory of one machine but when
 there are a lot of hyperparameters to search, or the models require specialized
 hardware like GPUs. The best class for this case is
 <a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a>:</p>
@@ -477,7 +477,7 @@ classes:</p>
 </tr>
 </tbody>
 </table>
-<p>The input parameters for these classes are a more difficult to configure.</p>
+<p>The input parameters for these classes are more difficult to configure.</p>
 <p>All of these searches can reduce time to solution by (cleverly) deciding which
 parameters to evaluate. That is, these searches <em>adapt</em> to history to decide
 which parameters to continue evaluating.  All of these estimators support
@@ -756,18 +756,18 @@ train-and-score them until we find the best one.</p>
 <span class="gp">In [13]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [14]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span>
-<span class="gh">Out[14]: </span><span class="go">{&#39;alpha&#39;: 0.08887680304436767, &#39;l1_ratio&#39;: 0.05813789374393907}</span>
+<span class="gh">Out[14]: </span><span class="go">{&#39;alpha&#39;: 0.7612985385451453, &#39;l1_ratio&#39;: 0.18850458399555325}</span>
 
 <span class="gp">In [15]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_score_</span>
 <span class="gh">Out[15]: </span><span class="go">0.65</span>
 
 <span class="gp">In [16]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
-<span class="gh">Out[16]: </span><span class="go">0.3</span>
+<span class="gh">Out[16]: </span><span class="go">0.5</span>
 </pre></div>
 </div>
 <p>Note that when you do post-fit tasks like <code class="docutils literal notranslate"><span class="pre">search.score</span></code>, the underlying
 model’s score method is used. If that is unable to handle a
-larger-than-memory Dask Array, you’ll exhaust your machines memory. If you plan
+larger-than-memory Dask Array, you’ll exhaust your machine’s memory. If you plan
 to use post-estimation features like scoring or prediction, we recommend using
 <a class="reference internal" href="modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit" title="dask_ml.wrappers.ParallelPostFit"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.wrappers.ParallelPostFit</span></code></a>.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [17]: </span><span class="kn">from</span> <span class="nn">dask_ml.wrappers</span> <span class="kn">import</span> <span class="n">ParallelPostFit</span>
@@ -783,7 +783,7 @@ to use post-estimation features like scoring or prediction, we recommend using
 <span class="gp">In [21]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [22]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
-<span class="gh">Out[22]: </span><span class="go">0.3</span>
+<span class="gh">Out[22]: </span><span class="go">0.5</span>
 </pre></div>
 </div>
 <p>Note that the parameter names include the <code class="docutils literal notranslate"><span class="pre">estimator__</span></code> prefix, as we’re
@@ -892,17 +892,16 @@ chunks:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [34]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [35]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span>
-<span class="gh">Out[35]: </span><span class="go">{&#39;alpha&#39;: 0.07035737028722144, &#39;l1_ratio&#39;: 0.6458941130666561}</span>
+<span class="gh">Out[35]: </span><span class="go">{&#39;alpha&#39;: 0.26001623122188383, &#39;l1_ratio&#39;: 0.515992306773807}</span>
 </pre></div>
 </div>
-<p>To be clear, this is a very small toy example: there are only 100 examples and
-20 features for each example. Let’s see how the performance scales with a more
-realistic example.</p>
+<p>To be clear, this is a very small toy example: there are only 100 observations and
+20 features. Let’s see how the performance scales with a more realistic example.</p>
 </div>
 <div class="section" id="hyperband-performance">
 <span id="hyperparameter-hyperband-perf"></span><h3>Hyperband Performance<a class="headerlink" href="#hyperband-performance" title="Permalink to this headline">¶</a></h3>
 <p>This performance comparison will briefly summarize an experiment to find
-performance results. This is similar to the case above, and complete details
+performance results. This is similar to the case above. Complete details
 can be found in the Dask blog post “<a class="reference external" href="https://blog.dask.org/2019/09/30/dask-hyperparam-opt">Better and faster hyperparameter
 optimization with Dask</a>”.</p>
 <p>It will use these estimators with the following inputs:</p>
@@ -925,7 +924,7 @@ these parameters:</p>
 <code class="docutils literal notranslate"><span class="pre">hidden_layer_sizes</span></code>. This can take values that have 12 neurons; for
 example, 6 neurons in two layers or 4 neurons in 3 layers.</li>
 <li>Six hyperparameters that control finding the optimal model of a particular
-architecture. This includes hyperparameters like weight decay and various
+architecture. This includes hyperparameters such as weight decay and various
 optimization parameters (including batch size, learning rate and momentum).</li>
 </ul>
 <p>Here’s how we’ll configure the two different estimators:</p>
@@ -960,7 +959,7 @@ required to train 4 models to completion.</span></p>
 case because only 4 Dask workers are used, and they’re all busy for the vast
 majority of the search. How does this change with the number of workers?</p>
 <p>To see this, let’s analyze how the time-to-completion for Hyperband varies with
-the number of Dask workers in a seperate experiment.</p>
+the number of Dask workers in a separate experiment.</p>
 <div class="figure align-center" id="id12">
 <a class="reference internal image-reference" href="_images/scaling-patience-true.svg"><img alt="_images/scaling-patience-true.svg" src="_images/scaling-patience-true.svg" width="60%" /></a>
 <p class="caption"><span class="caption-text">The time-to-completion for a single run of Hyperband as the number of Dask

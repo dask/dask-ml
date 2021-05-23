@@ -148,7 +148,7 @@
             
             
               <div class="version">
-                0.1.dev1+g0ea276d
+                0.1.dev1+g3ef1c84
               </div>
             
           
@@ -328,14 +328,16 @@ is large enough (e.g. 2 ** 18 for text classification problems).</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>input</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string {‘filename’, ‘file’, ‘content’}, default=’content’</span></dt>
-<dd><p class="first">If ‘filename’, the sequence passed as an argument to fit is
+<dt><strong>input</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘filename’, ‘file’, ‘content’}, default=’content’</span></dt>
+<dd><ul class="first last simple">
+<li>If <cite>‘filename’</cite>, the sequence passed as an argument to fit is
 expected to be a list of filenames that need reading to fetch
-the raw content to analyze.</p>
-<p>If ‘file’, the sequence items must have a ‘read’ method (file-like
-object) that is called to fetch the bytes in memory.</p>
-<p class="last">Otherwise the input is expected to be a sequence of items that
-can be of type string or byte.</p>
+the raw content to analyze.</li>
+<li>If <cite>‘file’</cite>, the sequence items must have a ‘read’ method (file-like
+object) that is called to fetch the bytes in memory.</li>
+<li>If <cite>‘content’</cite>, the input is expected to be a sequence of items that
+can be of type string or byte.</li>
+</ul>
 </dd>
 <dt><strong>encoding</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, default=’utf-8’</span></dt>
 <dd><p class="first last">If bytes or files are given to analyze, this encoding is used to
@@ -370,7 +372,7 @@ Only applies if <code class="docutils literal notranslate"><span class="pre">ana
 preprocessing and n-grams generation steps.
 Only applies if <code class="docutils literal notranslate"><span class="pre">analyzer</span> <span class="pre">==</span> <span class="pre">'word'</span></code>.</p>
 </dd>
-<dt><strong>stop_words</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string {‘english’}, list, default=None</span></dt>
+<dt><strong>stop_words</strong> <span class="classifier-delimiter">:</span> <span class="classifier">{‘english’}, list, default=None</span></dt>
 <dd><p class="first">If ‘english’, a built-in stop word list for English is used.
 There are several known issues with ‘english’ and you should
 consider an alternative (see <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#stop-words" title="(in scikit-learn v0.24)"><span>Using stop words</span></a>).</p>
@@ -401,12 +403,11 @@ Option ‘char_wb’ creates character n-grams only from text inside
 word boundaries; n-grams at the edges of words are padded with space.</p>
 <p>If a callable is passed it is used to extract the sequence of features
 out of the raw, unprocessed input.</p>
-<div class="versionchanged">
-<p><span class="versionmodified">Changed in version 0.21.</span></p>
-</div>
-<p class="last">Since v0.21, if <code class="docutils literal notranslate"><span class="pre">input</span></code> is <code class="docutils literal notranslate"><span class="pre">filename</span></code> or <code class="docutils literal notranslate"><span class="pre">file</span></code>, the data is
-first read from the file and then passed to the given callable
+<div class="last versionchanged">
+<p><span class="versionmodified">Changed in version 0.21: </span>Since v0.21, if <code class="docutils literal notranslate"><span class="pre">input</span></code> is <code class="docutils literal notranslate"><span class="pre">'filename'</span></code> or <code class="docutils literal notranslate"><span class="pre">'file'</span></code>, the data
+is first read from the file and then passed to the given callable
 analyzer.</p>
+</div>
 </dd>
 <dt><strong>n_features</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default=(2 ** 20)</span></dt>
 <dd><p class="first last">The number of features (columns) in the output matrices. Small numbers
