@@ -22,7 +22,7 @@ from distributed.utils_test import (  # noqa: F401
 )
 from scipy.stats import uniform
 from sklearn.base import clone
-from sklearn.cluster import MiniBatchKMeans, KMeans
+from sklearn.cluster import KMeans, MiniBatchKMeans
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
@@ -855,6 +855,7 @@ def test_warns_scores_per_fit(c, s, a, b):
     with pytest.warns(UserWarning, match="deprecated since Dask-ML v1.4.0"):
         yield search.fit(X, y)
 
+
 @gen_cluster(client=True)
 async def test_raises_if_no_partial_fit(c, s, a, b):
     X, y = make_classification(n_samples=20, n_features=3, chunks=(10, -1))
@@ -873,6 +874,7 @@ async def test_raises_if_no_partial_fit(c, s, a, b):
     search2 = RandomizedSearchCV(model, params, n_iter=2)
     await search2.fit(X, y)
     assert search2.best_score_
+
 
 @gen_cluster(client=True)
 async def test_model_future(c, s, a, b):
