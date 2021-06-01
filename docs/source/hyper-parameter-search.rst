@@ -3,7 +3,10 @@
 Hyper Parameter Search
 ======================
 
-*Hyperparameter optimization becomes difficult with* **large data** *and/or* **complicated searches,** *and choosing the right tool requires some consideration. All of Dask-ML's hyperparameter optimization focuses on using Scikit-Learn API-compatible models.*
+*Hyperparameter optimization becomes difficult with* **large data** *and/or*
+**complicated searches,** *and choosing the right tool requires some
+consideration. All of Dask-ML's hyperparameter optimization focuses on using
+Scikit-Learn API-compatible models.*
 
 Hyperparameter searches are a required process in machine learning. Briefly,
 machine learning models require certain "hyperparameters", model parameters
