@@ -3,10 +3,7 @@
 Hyper Parameter Search
 ======================
 
-*Hyperparameter optimization becomes difficult with* **large data** *and/or*
-**complicated searches.** *This page shows tools to perform hyperparameter
-optimization of Scikit-Learn API-compatible models using Dask, and explains
-when they're relevant.*
+*Hyperparameter optimization becomes difficult with* **large data** *and/or* **complicated searches,** *and choosing the right tool requires some consideration. All of Dask-ML's hyperparameter optimization focuses on using Scikit-Learn API-compatible models.*
 
 Hyperparameter searches are a required process in machine learning. Briefly,
 machine learning models require certain "hyperparameters", model parameters
@@ -20,10 +17,14 @@ performance is desired and/or with massive datasets, which is common when
 preparing for production or a paper publication. The following section
 clarifies the issues that can occur:
 
-* ":ref:`hyperparameter.scaling`" mentions problems that often occur in
-  hyperparameter optimization searches.
+* ":ref:`hyperparameter.issues`" mentions two key problems that often occur in
+  hyperparameter optimization searches: large data and "compute constrained."
+* ":ref:`hyperparameter.scaling`" mentions the tools to workaround these two
+  issues, and the requirements for each tool.
 
-Tools that address these problems are expanded upon in these sections:
+This section will explain which tools Dask-ML has, and in what cases they
+should be used.  Tools that address these problems are expanded upon in these
+sections:
 
 1. ":ref:`hyperparameter.drop-in`" details classes that mirror the Scikit-learn
    estimators but work nicely with Dask objects and can offer better
@@ -33,10 +34,10 @@ Tools that address these problems are expanded upon in these sections:
 3. ":ref:`hyperparameter.adaptive`" details classes that avoid extra
    computation and find high-performing hyperparameters more quickly.
 
-.. _hyperparameter.scaling:
+.. _hyperparameter.issues:
 
-Scaling hyperparameter searches
--------------------------------
+Issues in hyperparameter searches
+---------------------------------
 
 Dask-ML provides classes to avoid the two most common issues in hyperparameter
 optimization, when the hyperparameter search is...
@@ -93,9 +94,19 @@ model may require specialized hardware like GPUs:
    ...     "average": [True, False],
    ... }
    >>>
+   >>> # Compute constrained; only 1 CUDA GPU available
+   >>> # model = model.cuda()  # PyTorch syntax
+   >>>
 
-These issues are independent and both can happen the same time. Dask-ML has
-tools to address all 4 combinations. Let's look at each case.
+These issues are independent, and both can happen the same time.
+
+.. _hyperparameter.scaling:
+
+Scaling hyperparameter searches
+-------------------------------
+
+Dask-ML has tools to address all 4 combinations of "compute constrained" and
+"memory constrained." Let's look at each case.
 
 Neither compute nor memory constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -163,10 +174,8 @@ hardware like GPUs. The best class for this case is
 Briefly, this estimator is easy to use, has strong mathematical motivation and
 performs remarkably well. For more detail, see
 ":ref:`hyperparameter.hyperband-params`" and
-":ref:`hyperparameter.hyperband-perf`".
-
-Two other adaptive hyperparameter optimization algorithms are implemented in these
-classes:
+":ref:`hyperparameter.hyperband-perf`". Two other adaptive hyperparameter
+optimization algorithms are implemented:
 
 .. autosummary::
    dask_ml.model_selection.SuccessiveHalvingSearchCV
@@ -176,9 +185,8 @@ The input parameters for these classes are more difficult to configure.
 
 All of these searches can reduce time to solution by (cleverly) deciding which
 parameters to evaluate. That is, these searches *adapt* to history to decide
-which parameters to continue evaluating.  All of these estimators support
-ignoring models models with decreasing score via the ``patience`` and ``tol``
-parameters.
+which parameters to continue evaluating. With that, it's natural to require
+that the models implement ``partial_fit``.
 
 Another way to limit computation is to avoid repeated work during during the
 searches. This is especially useful with expensive preprocessing, which is
