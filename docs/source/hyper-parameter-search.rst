@@ -3,9 +3,10 @@
 Hyper Parameter Search
 ======================
 
-*Tools to perform hyperparameter optimization of Scikit-Learn API-compatible
-models using Dask, and to scale hyperparameter optimization to* **larger
-data and/or larger searches.**
+*Hyperparameter optimization becomes difficult with* **large data** *and/or*
+**complicated searches.** *This page shows tools to perform hyperparameter
+optimization of Scikit-Learn API-compatible models using Dask, and explains
+when they're relevant.*
 
 Hyperparameter searches are a required process in machine learning. Briefly,
 machine learning models require certain "hyperparameters", model parameters
@@ -131,7 +132,7 @@ Memory constrained, but not compute constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This case happens when the data doesn't fit in memory but there aren't many
-hyperparameters to search over. The data doesn't fit in memory, so it makes
+hyperparameters to search over. The data doesn't fit in memory, so it only makes
 sense to call ``partial_fit`` on each chunk of a Dask Array/Dataframe. This
 estimator does that:
 
