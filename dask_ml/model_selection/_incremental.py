@@ -166,7 +166,7 @@ async def _fit(
     models: Dict[int, Tuple[Model, Meta]] = {}
     scores: Dict[int, Meta] = {}
 
-    if "partial_fit" not in dir(model):
+    if not hasattr(model, "partial_fit"):
         raise ValueError(
             f"model={model} does not implement `partial_fit`, a "
             "requirement for doing incremental hyperparameter "
