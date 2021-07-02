@@ -7,6 +7,7 @@ import dask.delayed
 import numpy as np
 import sklearn.base
 import sklearn.metrics
+from distributed import get_client
 from sklearn.utils.validation import check_is_fitted
 
 from dask_ml.utils import _timer
@@ -150,6 +151,19 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         # The estimator instance to use for postfit tasks like score
         return self.estimator
 
+    def _postfit_estimator_or_future(self):
+        """
+        If running with distributed cluster, scatter estimator to workers
+        and return the future
+        """
+        try:
+            client = get_client()
+        except ValueError:
+            estimator = self._postfit_estimator
+        else:
+            estimator = client.scatter(self._postfit_estimator, broadcast=True)
+        return estimator
+
     def fit(self, X, y=None, **kwargs):
         """Fit the underlying estimator.
 
@@ -202,13 +216,14 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         """
         self._check_method("transform")
         X = self._check_array(X)
+        estimator_or_fut = self._postfit_estimator_or_future()
 
         if isinstance(X, da.Array):
             xx = np.zeros((1, X.shape[1]), dtype=X.dtype)
             dt = _transform(xx, self._postfit_estimator).dtype
-            return X.map_blocks(_transform, estimator=self._postfit_estimator, dtype=dt)
+            return X.map_blocks(_transform, estimator=estimator_or_fut, dtype=dt)
         elif isinstance(X, dd._Frame):
-            return X.map_partitions(_transform, estimator=self._postfit_estimator)
+            return X.map_partitions(_transform, estimator=estimator_or_fut)
         else:
             return _transform(X, estimator=self._postfit_estimator)
 
@@ -271,16 +286,17 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         """
         self._check_method("predict")
         X = self._check_array(X)
+        estimator_or_fut = self._postfit_estimator_or_future()
 
         if isinstance(X, da.Array):
             result = X.map_blocks(
-                _predict, dtype="int", estimator=self._postfit_estimator, drop_axis=1
+                _predict, dtype="int", estimator=estimator_or_fut, drop_axis=1
             )
             return result
 
         elif isinstance(X, dd._Frame):
             return X.map_partitions(
-                _predict, estimator=self._postfit_estimator, meta=np.array([1])
+                _predict, estimator=estimator_or_fut, meta=np.array([1])
             )
 
         else:
@@ -305,6 +321,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         y : array-like
         """
         X = self._check_array(X)
+        estimator_or_fut = self._postfit_estimator_or_future()
 
         self._check_method("predict_proba")
 
@@ -312,12 +329,12 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
             # XXX: multiclass
             return X.map_blocks(
                 _predict_proba,
-                estimator=self._postfit_estimator,
+                estimator=estimator_or_fut,
                 dtype="float",
                 chunks=(X.chunks[0], len(self._postfit_estimator.classes_)),
             )
         elif isinstance(X, dd._Frame):
-            return X.map_partitions(_predict_proba, estimator=self._postfit_estimator)
+            return X.map_partitions(_predict_proba, estimator=estimator_or_fut)
         else:
             return _predict_proba(X, estimator=self._postfit_estimator)
 
