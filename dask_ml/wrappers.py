@@ -223,7 +223,8 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
             dt = _transform(xx, self._postfit_estimator).dtype
             return X.map_blocks(_transform, estimator=estimator_or_fut, dtype=dt)
         elif isinstance(X, dd._Frame):
-            return X.map_partitions(_transform, estimator=estimator_or_fut)
+            meta = self._postfit_estimator.transform(X.head(1, npartitions=-1))
+            return X.map_partitions(_transform, estimator=estimator_or_fut, meta=meta)
         else:
             return _transform(X, estimator=self._postfit_estimator)
 
@@ -334,7 +335,10 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
                 chunks=(X.chunks[0], len(self._postfit_estimator.classes_)),
             )
         elif isinstance(X, dd._Frame):
-            return X.map_partitions(_predict_proba, estimator=estimator_or_fut)
+            meta = self._postfit_estimator.predict_proba(X.head(1, npartitions=-1))
+            return X.map_partitions(
+                _predict_proba, estimator=estimator_or_fut, meta=meta
+            )
         else:
             return _predict_proba(X, estimator=self._postfit_estimator)
 
