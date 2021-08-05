@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Version 1.9.0
+~~~~~~~~~~~~~
+
+* ``LogisticRegression.predict_proba`` now correctly returns an ``(n, 2)`` array for binary classification (:pr:`760`)
+* Fixed multioutput behavior to be consistent with scikit-learn (:pr:`820`)
+* Added MAPE to regression metrics (:pr:`822`)
+* NumPy 1.20 compatability (:pr:`784`)
+
 Version 1.8.0
 ~~~~~~~~~~~~~
 
