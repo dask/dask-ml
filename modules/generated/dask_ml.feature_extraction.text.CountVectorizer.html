@@ -64,7 +64,7 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:image" content="https://github.com/dask.png" />
   <meta name="twitter:image:alt" content="dask-ml 0.1 documentation">
-  
+
 
 </head>
 
@@ -86,7 +86,7 @@
             <li><a href="https://docs.dask.org/en/latest/why.html"> Why Dask? </a></li>
             <li><a href="https://stories.dask.org/en/latest"> Use Cases </a></li>
             <li><a href="https://www.youtube.com/watch?v=RA_2qdipVng&list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri"> Talks </a></li>
-            <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab"> Try Online </a></li>
+            <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/main?urlpath=lab"> Try Online </a></li>
             <li><a href="https://dask.org/slides"> Slides </a></li>
             </ul>
         </li>
@@ -124,6 +124,7 @@
             <li><a href="https://twitter.com/dask_dev">Twitter</a></li>
             <li><a href="https://blog.dask.org/"> Developer Blog </a></li>
             <li><a href="https://youtube.com/c/dask-dev"> YouTube Channel </a></li>
+            <li><a href="https://join.slack.com/t/dask/shared_invite/zt-mfmh7quc-nIrXL6ocgiUH2haLYA914g"> Slack </a></li>
             </ul>
         </li>
         </ul>
@@ -148,7 +149,7 @@
             
             
               <div class="version">
-                0.1.dev1+g3ef1c84
+                0.1.dev1+gf1933bb
               </div>
             
           
@@ -315,7 +316,7 @@ in distributed memory, which saves some recomputation and redundant
 communication.</p>
 <p class="rubric">Examples</p>
 <p>The Dask-ML implementation currently requires that <code class="docutils literal notranslate"><span class="pre">raw_documents</span></code>
-is a <a class="reference external" href="https://docs.dask.org/en/latest/bag-api.html#dask.bag.Bag" title="(in Dask)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask.bag.Bag</span></code></a> of documents (lists of strings).</p>
+is a <a class="reference external" href="https://docs.dask.org/en/latest/generated/dask.bag.Bag.html#dask.bag.Bag" title="(in Dask)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask.bag.Bag</span></code></a> of documents (lists of strings).</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dask_ml.feature_extraction.text</span> <span class="kn">import</span> <span class="n">CountVectorizer</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dask.bag</span> <span class="k">as</span> <span class="nn">db</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">distributed</span> <span class="kn">import</span> <span class="n">Client</span>

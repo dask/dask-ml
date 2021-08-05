@@ -64,7 +64,7 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:image" content="https://github.com/dask.png" />
   <meta name="twitter:image:alt" content="dask-ml 0.1 documentation">
-  
+
 
 </head>
 
@@ -86,7 +86,7 @@
             <li><a href="https://docs.dask.org/en/latest/why.html"> Why Dask? </a></li>
             <li><a href="https://stories.dask.org/en/latest"> Use Cases </a></li>
             <li><a href="https://www.youtube.com/watch?v=RA_2qdipVng&list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri"> Talks </a></li>
-            <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab"> Try Online </a></li>
+            <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/main?urlpath=lab"> Try Online </a></li>
             <li><a href="https://dask.org/slides"> Slides </a></li>
             </ul>
         </li>
@@ -124,6 +124,7 @@
             <li><a href="https://twitter.com/dask_dev">Twitter</a></li>
             <li><a href="https://blog.dask.org/"> Developer Blog </a></li>
             <li><a href="https://youtube.com/c/dask-dev"> YouTube Channel </a></li>
+            <li><a href="https://join.slack.com/t/dask/shared_invite/zt-mfmh7quc-nIrXL6ocgiUH2haLYA914g"> Slack </a></li>
             </ul>
         </li>
         </ul>
@@ -148,7 +149,7 @@
             
             
               <div class="version">
-                0.1.dev1+g3ef1c84
+                0.1.dev1+gf1933bb
               </div>
             
           
@@ -359,18 +360,18 @@ can also explicitly pass <code class="docutils literal notranslate"><span class=
 </div>
 <p>We can get the accuracy score on our dataset.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gh">Out[9]: </span><span class="go">0.67</span>
+<span class="gh">Out[9]: </span><span class="go">0.62</span>
 </pre></div>
 </div>
 <p>All of the attributes learned during training, like <code class="docutils literal notranslate"><span class="pre">coef_</span></code>, are available
 on the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> instance.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[-12.87744084,  23.79901675,  -2.326193  ,  -6.54310442,</span>
-<span class="go">         35.67144744, -20.07298142,  -5.74659738,  19.70844388,</span>
-<span class="go">         49.88294122,  14.25195302, -15.1815518 , -30.48961663,</span>
-<span class="go">          3.43056113,  14.68057306, -22.36633989, -63.36660449,</span>
-<span class="go">         38.37083522,  -2.15517997,   6.55036805,   4.13111828]])</span>
+<span class="go">array([[ -2.59992123, -46.74217678,  -8.36168682, -23.47544939,</span>
+<span class="go">         -7.78567361,  11.15124974, -44.4791235 , -46.77935462,</span>
+<span class="go">        -42.76064035, -17.56004063,  35.00491226, -17.97160493,</span>
+<span class="go">         38.57791481,  30.80554627, -29.55674658,  25.98601382,</span>
+<span class="go">         21.36800654, -20.86388065,   7.17264784,  -1.71491267]])</span>
 </pre></div>
 </div>
 <p>If necessary, the actual estimator trained is available as <code class="docutils literal notranslate"><span class="pre">Incremental.estimator_</span></code></p>

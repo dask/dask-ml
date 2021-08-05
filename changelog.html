@@ -64,7 +64,7 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:image" content="https://github.com/dask.png" />
   <meta name="twitter:image:alt" content="dask-ml 0.1 documentation">
-  
+
 
 </head>
 
@@ -86,7 +86,7 @@
             <li><a href="https://docs.dask.org/en/latest/why.html"> Why Dask? </a></li>
             <li><a href="https://stories.dask.org/en/latest"> Use Cases </a></li>
             <li><a href="https://www.youtube.com/watch?v=RA_2qdipVng&list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri"> Talks </a></li>
-            <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/master?urlpath=lab"> Try Online </a></li>
+            <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/main?urlpath=lab"> Try Online </a></li>
             <li><a href="https://dask.org/slides"> Slides </a></li>
             </ul>
         </li>
@@ -124,6 +124,7 @@
             <li><a href="https://twitter.com/dask_dev">Twitter</a></li>
             <li><a href="https://blog.dask.org/"> Developer Blog </a></li>
             <li><a href="https://youtube.com/c/dask-dev"> YouTube Channel </a></li>
+            <li><a href="https://join.slack.com/t/dask/shared_invite/zt-mfmh7quc-nIrXL6ocgiUH2haLYA914g"> Slack </a></li>
             </ul>
         </li>
         </ul>
@@ -148,7 +149,7 @@
             
             
               <div class="version">
-                0.1.dev1+g3ef1c84
+                0.1.dev1+gf1933bb
               </div>
             
           
@@ -196,6 +197,7 @@
 <p class="caption"><span class="caption-text">Develop</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#version-1-9-0">Version 1.9.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-1-8-0">Version 1.8.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-1-7-0">Version 1.7.0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-1-6-0">Version 1.6.0</a></li>
@@ -347,6 +349,15 @@
             
   <div class="section" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="version-1-9-0">
+<h2>Version 1.9.0<a class="headerlink" href="#version-1-9-0" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">LogisticRegression.predict_proba</span></code> now correctly returns an <code class="docutils literal notranslate"><span class="pre">(n,</span> <span class="pre">2)</span></code> array for binary classification (<a class="reference external" href="https://github.com/dask/dask-ml/pull/760">GH#760</a>)</li>
+<li>Fixed multioutput behavior to be consistent with scikit-learn (<a class="reference external" href="https://github.com/dask/dask-ml/pull/820">GH#820</a>)</li>
+<li>Added MAPE to regression metrics (<a class="reference external" href="https://github.com/dask/dask-ml/pull/822">GH#822</a>)</li>
+<li>NumPy 1.20 compatability (<a class="reference external" href="https://github.com/dask/dask-ml/pull/784">GH#784</a>)</li>
+</ul>
+</div>
 <div class="section" id="version-1-8-0">
 <h2>Version 1.8.0<a class="headerlink" href="#version-1-8-0" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
@@ -491,7 +502,7 @@ have more than one block along the features (<a class="reference external" href=
 <div class="section" id="id1">
 <h3>Enhancements<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>Added support for <a class="reference external" href="https://docs.dask.org/en/latest/dataframe-api.html#dask.dataframe.DataFrame" title="(in Dask)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask.dataframe.DataFrame</span></code></a> to <a class="reference internal" href="modules/generated/dask_ml.model_selection.train_test_split.html#dask_ml.model_selection.train_test_split" title="dask_ml.model_selection.train_test_split"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dask_ml.model_selection.train_test_split()</span></code></a> (<a class="reference external" href="https://github.com/dask/dask-ml/issues/351">GH#351</a>)</li>
+<li>Added support for <a class="reference external" href="https://docs.dask.org/en/latest/generated/dask.dataframe.DataFrame.html#dask.dataframe.DataFrame" title="(in Dask)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask.dataframe.DataFrame</span></code></a> to <a class="reference internal" href="modules/generated/dask_ml.model_selection.train_test_split.html#dask_ml.model_selection.train_test_split" title="dask_ml.model_selection.train_test_split"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dask_ml.model_selection.train_test_split()</span></code></a> (<a class="reference external" href="https://github.com/dask/dask-ml/issues/351">GH#351</a>)</li>
 </ul>
 </div>
 </div>
