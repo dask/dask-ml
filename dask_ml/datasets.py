@@ -451,8 +451,8 @@ def make_classification_df(
             [
                 X_df,
                 dd.from_array(
-                    np.array([random_date(*dates)] * len(X_df)),
-                    chunksize=chunks,
+                    np.array([random_date(*dates) for i in range(len(X_df))]),
+                    chunksize=n_samples,
                     columns=["date"],
                 ),
             ],
