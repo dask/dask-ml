@@ -25,6 +25,7 @@ jobs:
         run: |
           cd docs
           make html
+          cat build/html/index.html
 
       - name: Deploy docs
         if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request'}}
