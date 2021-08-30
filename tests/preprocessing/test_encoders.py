@@ -56,7 +56,7 @@ def test_basic_array(sparse, method, categories):
     if sparse:
         assert scipy.sparse.issparse(result.blocks[0].compute())
         result = result.map_blocks(lambda x: x.toarray(), dtype="f8").compute()
-        da.utils.assert_eq(result, expected)
+        da.utils.assert_eq(result, expected, check_type=False)
     else:
         result = result.compute()
         da.utils.assert_eq(result, expected)
@@ -98,7 +98,7 @@ def test_basic_dataframe(sparse, method, dask_data, dtype):
         dtype = pd.SparseDtype(dtype, dtype(0))
     assert (result.dtypes == dtype).all()
 
-    da.utils.assert_eq(result.values, expected)
+    da.utils.assert_eq(result.values, expected, check_type=False)
 
 
 def test_invalid_handle_input():
