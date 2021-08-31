@@ -381,10 +381,11 @@ def make_classification(
     return X, y
 
 
-def random_date(start, end):
+def random_date(start, end, random_state=None):
+    rng_random_date = dask_ml.utils.check_random_state(random_state)
     delta = end - start
     int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
-    random_second = np.random.randint(int_delta)
+    random_second = rng_random_date.randint(int_delta).compute().item()
     return start + timedelta(seconds=random_second)
 
 
@@ -451,7 +452,12 @@ def make_classification_df(
             [
                 X_df,
                 dd.from_array(
-                    np.array([random_date(*dates) for i in range(len(X_df))]),
+                    np.array(
+                        [
+                            random_date(*dates, random_state + i)
+                            for i in range(len(X_df))
+                        ]
+                    ),
                     chunksize=n_samples,
                     columns=["date"],
                 ),

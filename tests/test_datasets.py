@@ -73,6 +73,15 @@ def test_make_classification_df():
         dates=(date(2014, 1, 1), date(2015, 1, 1)),
     )
 
+    X_df1, y_series1 = dask_ml.datasets.make_classification_df(
+        n_samples=100,
+        n_features=5,
+        random_state=123,
+        chunks=100,
+        dates=(date(2014, 1, 1), date(2015, 1, 1)),
+    )
+    check_randomness = np.unique((X_df["date"] == X_df1["date"]).compute())
+
     assert X_df is not None
     assert y_series is not None
     assert "date" in X_df.columns
@@ -80,3 +89,5 @@ def test_make_classification_df():
     assert len(X_df) == 100
     assert len(y_series) == 100
     assert isinstance(y_series, dask.dataframe.core.Series)
+    assert check_randomness.size == 1
+    assert check_randomness[0] is True
