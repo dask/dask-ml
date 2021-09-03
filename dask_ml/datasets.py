@@ -431,6 +431,13 @@ def make_classification_df(
         The output values.
 
     """
+    if (
+        random_state is not None
+        or not isinstance(random_state, np.random.RandomState)
+        or not isinstance(random_state, int)
+    ):
+        random_state = None
+
     X_array, y_array = make_classification(
         n_samples=n_samples,
         flip_y=(1 - predictability),
