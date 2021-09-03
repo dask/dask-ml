@@ -91,3 +91,4 @@ def test_make_classification_df():
     assert isinstance(y_series, dask.dataframe.core.Series)
     assert check_randomness.size == 1
     assert check_randomness[0] is True
+    assert np.unique(X_df["date"]).size >= 2
