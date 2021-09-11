@@ -55,8 +55,8 @@ def test_basic_array(sparse, method, categories):
 
     if sparse:
         assert scipy.sparse.issparse(result.blocks[0].compute())
-        result = result.map_blocks(lambda x: x.toarray(), dtype="f8").compute()
-        da.utils.assert_eq(result, expected)
+        result = result.compute()
+        np.testing.assert_array_almost_equal(result.toarray(), expected.toarray())
     else:
         result = result.compute()
         da.utils.assert_eq(result, expected)
