@@ -98,7 +98,7 @@ def test_basic_dataframe(sparse, method, dask_data, dtype):
         dtype = pd.SparseDtype(dtype, dtype(0))
     assert (result.dtypes == dtype).all()
 
-    da.utils.assert_eq(result.values, expected)
+    da.utils.assert_eq(result.values, expected.toarray())
 
 
 def test_invalid_handle_input():
