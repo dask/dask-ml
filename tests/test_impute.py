@@ -29,7 +29,8 @@ def test_fit(data):
     a.fit(X)
     b.fit(data)
 
-    assert_estimator_equal(a, b)
+    assert_estimator_equal(a, b, exclude=["statistics_"])
+    np.testing.assert_array_almost_equal(a.statistics_, np.asarray(b.statistics_))
 
 
 @pytest.mark.parametrize("data", [X, dX, df, ddf])
@@ -40,7 +41,8 @@ def test_fit_constant(data):
     expected = a.fit_transform(X)
     result = b.fit_transform(data)
 
-    assert_estimator_equal(a, b)
+    assert_estimator_equal(a, b, exclude=["statistics_"])
+    np.testing.assert_array_almost_equal(a.statistics_, np.asarray(b.statistics_))
     assert isinstance(result, type(data))
     if isinstance(data, (pd.DataFrame, dd.DataFrame)):
         result = result.values
