@@ -55,8 +55,8 @@ def test_basic_array(sparse, method, categories):
 
     if sparse:
         assert scipy.sparse.issparse(result.blocks[0].compute())
-        result = result.map_blocks(lambda x: x.toarray(), dtype="f8").compute()
-        da.utils.assert_eq(result, expected)
+        result = result.compute()
+        np.testing.assert_array_almost_equal(result.toarray(), expected.toarray())
     else:
         result = result.compute()
         da.utils.assert_eq(result, expected)
@@ -97,6 +97,8 @@ def test_basic_dataframe(sparse, method, dask_data, dtype):
         # pandas sparse ExtensionDtype interface
         dtype = pd.SparseDtype(dtype, dtype(0))
     assert (result.dtypes == dtype).all()
+    if sparse:
+        expected = expected.toarray()
 
     da.utils.assert_eq(result.values, expected)
 
