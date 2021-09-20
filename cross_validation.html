@@ -1,46 +1,23 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html4" lang="en" >
 <head>
   <meta charset="utf-8" />
-  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
-  <title>Cross Validation &mdash; dask-ml 0.1 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/style.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/explore.css" type="text/css" />
-  <link rel="stylesheet" href="_static/css/nbsphinx.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+  <title>Cross Validation &mdash; dask-ml 1.8.1 documentation</title><link rel="stylesheet" href="_static/css/style.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/explore.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/nbsphinx.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script type="text/javascript" src="_static/jquery.js"></script>
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
         <script type="text/javascript" src="_static/language_data.js"></script>
         <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <script type="text/javascript" src="_static/js/custom.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Hyper Parameter Search" href="hyper-parameter-search.html" />
@@ -50,27 +27,25 @@
   <meta name="Description" content="Cross Validation">
   <meta property="og:description" content="Cross Validation">
   <meta name="twitter:description" content="Cross Validation" />
-  <meta property="og:title" content="dask-ml 0.1 documentation - Cross Validation">
+  <meta property="og:title" content="dask-ml 1.8.1 documentation - Cross Validation">
   <meta property="og:image" content="https://github.com/dask.png">
   <meta property="og:image:secure_url" content="https://github.com/dask.png" />
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="380" />
   <meta property="og:image:height" content="380" />
   <meta property="og:url" content="cross_validation.html">
-  <meta property="og:site_name" content="dask-ml 0.1 documentation">
+  <meta property="og:site_name" content="dask-ml 1.8.1 documentation">
 
   <meta name="twitter:site" content="https://dask.org" />
   <meta name="twitter:creator" content="@dask_dev" />
   <meta name="twitter:card" content="summary">
   <meta name="twitter:image" content="https://github.com/dask.png" />
-  <meta name="twitter:image:alt" content="dask-ml 0.1 documentation">
+  <meta name="twitter:image:alt" content="dask-ml 1.8.1 documentation">
 
 
 </head>
 
 <body class="wy-body-for-nav">
-
-  
     <nav id="explore-links">
         <a href="https://docs.dask.org/">
         <img class="caption" src="_static/images/dask-horizontal-white.svg"/>
@@ -132,29 +107,14 @@
     </nav>
   
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="index.html" class="icon icon-home"> dask-ml
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
-                0.1.dev1+g980b3cb
+                1.8.1.dev23+gc99cab3a
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -162,18 +122,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption"><span class="caption-text">Use</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="preprocessing.html">Preprocessing</a></li>
@@ -202,71 +151,30 @@
 <li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">dask-ml</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>Cross Validation</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="_sources/cross_validation.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <div class="section" id="cross-validation">
 <h1>Cross Validation<a class="headerlink" href="#cross-validation" title="Permalink to this headline">¶</a></h1>
 <p>See the <a class="reference external" href="http:/scikit-learn.org/stable/modules/cross_validation.html">scikit-learn cross validation documentation</a> for a fuller discussion of cross validation.
@@ -292,9 +200,9 @@ This document only describes the extensions made to support Dask arrays.</p>
 
 <span class="gp">In [8]: </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="gh">Out[8]: </span><span class="go"></span>
-<span class="go">array([[-0.21865417, -0.50456115,  2.27597266,  0.39090406],</span>
-<span class="go">       [-0.67007472,  0.11768581, -0.42047692,  0.76148918],</span>
-<span class="go">       [-0.3122028 , -0.88191003, -0.00495866,  0.91761886]])</span>
+<span class="go">array([[ 0.347507  ,  0.21822583, -0.7777512 ,  1.28130955],</span>
+<span class="go">       [-0.24547985, -0.63067068, -0.11139771,  1.57407473],</span>
+<span class="go">       [-0.54613065, -0.90709521,  1.47050494, -0.48765508]])</span>
 </pre></div>
 </div>
 <p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v0.24)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
@@ -309,50 +217,33 @@ For very large datasets, creating and transmitting <code class="docutils literal
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="hyper-parameter-search.html" class="btn btn-neutral float-right" title="Hyper Parameter Search" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="preprocessing.html" class="btn btn-neutral float-left" title="Preprocessing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hyper-parameter-search.html" class="btn btn-neutral float-right" title="Hyper Parameter Search" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2017, Dask developers.
-
-    </p>
+    <p>&#169; Copyright 2017, Dask developers.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>
