@@ -21,12 +21,12 @@ from ..metrics import (
 )
 from ..utils import _timed, _timer, check_array, row_norms
 
+import numba  # isort:skip (see https://github.com/dask/dask-ml/pull/577)
+
 if SK_024:
     from ._compat import _kmeans_plusplus
 else:
     from ._compat import _k_init as _kmeans_plusplus
-
-import numba  # isort:skip (see https://github.com/dask/dask-ml/pull/577)
 
 
 logger = logging.getLogger(__name__)
