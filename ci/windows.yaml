@@ -37,12 +37,13 @@ jobs:
       black --check .
 
       echo "[isort]"
-      isort --recursive --check-only .
+      isort --check-only .
 
       echo "[codecov]"
       codecov
 
       echo "[mypy]"
       mypy dask_ml/metrics
+      mypy dask_ml/preprocessing
 
     displayName: "Lint"

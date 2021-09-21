@@ -63,8 +63,9 @@ def test_fit(fit_intercept, solver):
     "solver", ["admm", "newton", "lbfgs", "proximal_grad", "gradient_descent"]
 )
 def test_fit_solver(solver):
-    import dask_glm
     from distutils.version import LooseVersion
+
+    import dask_glm
 
     if LooseVersion(dask_glm.__version__) <= "0.2.0":
         pytest.skip("FutureWarning for dask config.")

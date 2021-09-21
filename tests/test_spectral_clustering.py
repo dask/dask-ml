@@ -103,9 +103,10 @@ def test_spectral_clustering(Xl_blobs_easy):
 
 @pytest.mark.parametrize("keep", [[4, 7], [4, 5], [0, 3], [1, 9], [0, 1, 5, 8, 9]])
 def test_slice_mostly_sorted(keep):
-    import numpy as np
     import dask.array as da
+    import numpy as np
     from dask.array.utils import assert_eq
+
     from dask_ml.cluster.spectral import _slice_mostly_sorted
 
     X = np.arange(10).reshape(-1, 1)

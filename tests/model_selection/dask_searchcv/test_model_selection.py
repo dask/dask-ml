@@ -445,7 +445,12 @@ def test_pipeline_sub_estimators():
         },
     ]
 
-    gs = GridSearchCV(pipe, param_grid=param_grid, return_train_score=True, cv=3,)
+    gs = GridSearchCV(
+        pipe,
+        param_grid=param_grid,
+        return_train_score=True,
+        cv=3,
+    )
     gs.fit(X, y)
     dgs = dcv.GridSearchCV(
         pipe, param_grid=param_grid, scheduler="sync", return_train_score=True, cv=3
@@ -946,7 +951,11 @@ def test_gridsearch_with_arraylike_fit_param(cache_cv):
     param_grid = {"foo_param": [0.0001, 0.1]}
 
     a = dcv.GridSearchCV(
-        MockClassifierWithFitParam(), param_grid, cv=3, refit=False, cache_cv=cache_cv,
+        MockClassifierWithFitParam(),
+        param_grid,
+        cv=3,
+        refit=False,
+        cache_cv=cache_cv,
     )
     b = GridSearchCV(MockClassifierWithFitParam(), param_grid, cv=3, refit=False)
 

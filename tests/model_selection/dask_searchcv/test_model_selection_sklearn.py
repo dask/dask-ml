@@ -561,7 +561,7 @@ def test_pandas_input():
     # check cross_val_score doesn't destroy pandas dataframe
     types = [(MockDataFrame, MockDataFrame)]
     try:
-        from pandas import Series, DataFrame
+        from pandas import DataFrame, Series
 
         types.append((DataFrame, Series))
     except ImportError:
