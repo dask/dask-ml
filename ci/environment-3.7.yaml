@@ -5,7 +5,6 @@ channels:
 dependencies:
   - dask
   - dask-glm
-  - isort==4.3.21
   - multipledispatch >=0.4.9
   - mypy
   - numba
