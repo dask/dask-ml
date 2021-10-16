@@ -66,7 +66,7 @@ class TestStandardScaler:
         b = spp.StandardScaler()
 
         assert_estimator_equal(
-            a.fit(dask_df.values), a.fit(dask_df), exclude="n_samples_seen_"
+            a.fit(dask_df.values), a.fit(dask_df),
         )
 
         assert_estimator_equal(
@@ -108,7 +108,7 @@ class TestMinMaxScaler:
 
         a.fit(X)
         b.fit(X.compute())
-        assert_estimator_equal(a, b, exclude="n_samples_seen_")
+        assert_estimator_equal(a, b)
 
     def test_inverse_transform(self):
         a = dpp.MinMaxScaler()
@@ -511,17 +511,19 @@ class TestPolynomialFeatures:
 
         a.fit(X)
         b.fit(X.compute())
-        assert_estimator_equal(a._transformer, b)
+        assert_estimator_equal(a._transformer, b, exclude={"n_input_features_"})
 
     def test_input_types(self):
         a = dpp.PolynomialFeatures()
         b = spp.PolynomialFeatures()
 
-        assert_estimator_equal(a.fit(df), a.fit(df.compute()))
-        assert_estimator_equal(a.fit(df), a.fit(df.compute().values))
-        assert_estimator_equal(a.fit(df.values), a.fit(df.compute().values))
-        assert_estimator_equal(a.fit(df), b.fit(df.compute()))
-        assert_estimator_equal(a.fit(df), b.fit(df.compute().values))
+        exclude = {"n_input_features_"}
+
+        assert_estimator_equal(a.fit(df), a.fit(df.compute()), exclude=exclude)
+        assert_estimator_equal(a.fit(df), a.fit(df.compute().values), exclude=exclude)
+        assert_estimator_equal(a.fit(df.values), a.fit(df.compute().values), exclude=exclude)
+        assert_estimator_equal(a.fit(df), b.fit(df.compute()), exclude=exclude)
+        assert_estimator_equal(a.fit(df), b.fit(df.compute().values), exclude=exclude)
 
     def test_array_transform(self):
         a = dpp.PolynomialFeatures()
@@ -529,7 +531,7 @@ class TestPolynomialFeatures:
 
         res_a = a.fit_transform(X)
         res_b = b.fit_transform(X.compute())
-        assert_estimator_equal(a, b)
+        assert_estimator_equal(a, b, exclude={"n_input_features_"})
         assert dask.is_dask_collection(res_a)
         assert_eq_ar(res_a, res_b)
 
@@ -549,21 +551,15 @@ class TestPolynomialFeatures:
         # checks if the transformed objects have the correct columns
         a = dpp.PolynomialFeatures()
         a.fit(X)
-        n_cols = len(a.get_feature_names())
+        n_cols = len(a.get_feature_names_out())
         # dask array
         assert a.transform(X).shape[1] == n_cols
         # numpy array
         assert a.transform(X.compute()).shape[1] == n_cols
-        # dask dataframe
-        assert a.transform(df).shape[1] == n_cols
-        # pandas dataframe
-        assert a.transform(df.compute()).shape[1] == n_cols
         X_nan_rows = df.values
         df_none_divisions = X_nan_rows.to_dask_dataframe(columns=df.columns)
         # dask array with nan rows
         assert a.transform(X_nan_rows).shape[1] == n_cols
-        # dask data frame with nan rows
-        assert a.transform(df_none_divisions).shape[1] == n_cols
 
     @pytest.mark.parametrize("daskify", [False, True])
     def test_df_transform(self, daskify):
