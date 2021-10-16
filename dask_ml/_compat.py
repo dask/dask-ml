@@ -16,8 +16,6 @@ DASK_VERSION = packaging.version.parse(dask.__version__)
 PANDAS_VERSION = packaging.version.parse(pandas.__version__)
 DISTRIBUTED_VERSION = packaging.version.parse(distributed.__version__)
 
-SK_0_23_2 = SK_VERSION >= packaging.version.parse("0.23.2")
-SK_024 = SK_VERSION >= packaging.version.parse("0.24.0.dev0")
 DASK_240 = DASK_VERSION >= packaging.version.parse("2.4.0")
 DASK_2130 = DASK_VERSION >= packaging.version.parse("2.13.0")
 DASK_2_20_0 = DASK_VERSION >= packaging.version.parse("2.20.0")
@@ -49,9 +47,7 @@ def _check_multimetric_scoring(estimator, scoring=None):
     from sklearn.metrics._scorer import _check_multimetric_scoring
     from sklearn.metrics import check_scoring
 
-    if SK_024:
-        if callable(scoring) or isinstance(scoring, (type(None), str)):
-            scorers = {"score": check_scoring(estimator, scoring=scoring)}
-            return scorers, False
-        return _check_multimetric_scoring(estimator, scoring), True
-    return _check_multimetric_scoring(estimator, scoring)
+    if callable(scoring) or isinstance(scoring, (type(None), str)):
+        scorers = {"score": check_scoring(estimator, scoring=scoring)}
+        return scorers, False
+    return _check_multimetric_scoring(estimator, scoring), True
