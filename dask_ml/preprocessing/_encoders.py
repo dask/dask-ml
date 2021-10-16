@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 import sklearn.preprocessing
 
-from .._compat import SK_024
 from .._typing import ArrayLike, DataFrameType, DTypeLike, SeriesType
 from ..base import DaskMLBaseMixin
 from ..utils import check_array

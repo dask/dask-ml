@@ -35,7 +35,7 @@ from sklearn.utils.metaestimators import if_delegate_has_method
 from sklearn.utils.multiclass import type_of_target
 from sklearn.utils.validation import _num_samples, check_is_fitted
 
-from .._compat import SK_024, SK_VERSION
+from .._compat import SK_VERSION
 from ._normalize import normalize_estimator
 from .methods import (
     MISSING,
@@ -54,9 +54,7 @@ from .methods import (
     score,
 )
 from .utils import DeprecationDict, is_dask_collection, to_indexable, to_keys, unzip
-
-if SK_024:
-    from sklearn.base import _is_pairwise
+from sklearn.base import _is_pairwise
 
 logger = logging.getLogger(__name__)
 
@@ -200,10 +198,7 @@ def build_cv_graph(
     X, y, groups = to_indexable(X, y, groups)
     cv = check_cv(cv, y, is_classifier(estimator))
     # "pairwise" estimators require a different graph for CV splitting
-    if SK_024:
-        is_pairwise = _is_pairwise(estimator)
-    else:
-        is_pairwise = getattr(estimator, "_pairwise", False)
+    is_pairwise = _is_pairwise(estimator)
 
     dsk = {}
     X_name, y_name, groups_name = to_keys(dsk, X, y, groups)
