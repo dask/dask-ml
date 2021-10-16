@@ -1,4 +1,4 @@
-dask\_ml.metrics.mean\_squared\_log\_error
+﻿dask\_ml.metrics.mean\_squared\_log\_error
 ==========================================
 
 .. currentmodule:: dask_ml.metrics

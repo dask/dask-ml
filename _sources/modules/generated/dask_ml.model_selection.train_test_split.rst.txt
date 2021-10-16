@@ -1,4 +1,4 @@
-dask\_ml.model\_selection.train\_test\_split
+﻿dask\_ml.model\_selection.train\_test\_split
 ============================================
 
 .. currentmodule:: dask_ml.model_selection

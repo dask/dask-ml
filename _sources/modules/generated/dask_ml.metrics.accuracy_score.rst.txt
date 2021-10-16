@@ -1,4 +1,4 @@
-dask\_ml.metrics.accuracy\_score
+﻿dask\_ml.metrics.accuracy\_score
 ================================
 
 .. currentmodule:: dask_ml.metrics

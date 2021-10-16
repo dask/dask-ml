@@ -1,4 +1,4 @@
-:mod:`dask_ml.preprocessing`.Categorizer
+﻿:mod:`dask_ml.preprocessing`.Categorizer
 ===============================================
 
 .. currentmodule:: dask_ml.preprocessing

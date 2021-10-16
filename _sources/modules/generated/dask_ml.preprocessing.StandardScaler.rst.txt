@@ -1,4 +1,4 @@
-:mod:`dask_ml.preprocessing`.StandardScaler
+﻿:mod:`dask_ml.preprocessing`.StandardScaler
 ==================================================
 
 .. currentmodule:: dask_ml.preprocessing

@@ -1,4 +1,4 @@
-dask\_ml.datasets.make\_regression
+﻿dask\_ml.datasets.make\_regression
 ==================================
 
 .. currentmodule:: dask_ml.datasets

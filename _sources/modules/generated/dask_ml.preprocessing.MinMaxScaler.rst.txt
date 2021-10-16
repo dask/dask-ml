@@ -1,4 +1,4 @@
-:mod:`dask_ml.preprocessing`.MinMaxScaler
+﻿:mod:`dask_ml.preprocessing`.MinMaxScaler
 ================================================
 
 .. currentmodule:: dask_ml.preprocessing

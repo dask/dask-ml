@@ -1,4 +1,4 @@
-:mod:`dask_ml.impute`.SimpleImputer
+﻿:mod:`dask_ml.impute`.SimpleImputer
 ==========================================
 
 .. currentmodule:: dask_ml.impute

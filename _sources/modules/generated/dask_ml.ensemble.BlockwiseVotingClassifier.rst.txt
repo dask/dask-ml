@@ -1,4 +1,4 @@
-:mod:`dask_ml.ensemble`.BlockwiseVotingClassifier
+﻿:mod:`dask_ml.ensemble`.BlockwiseVotingClassifier
 ========================================================
 
 .. currentmodule:: dask_ml.ensemble

@@ -1,4 +1,4 @@
-:mod:`dask_ml.feature_extraction.text`.HashingVectorizer
+﻿:mod:`dask_ml.feature_extraction.text`.HashingVectorizer
 ===============================================================
 
 .. currentmodule:: dask_ml.feature_extraction.text

@@ -1,250 +1,799 @@
+
 <!DOCTYPE html>
-<html class="writer-html4" lang="en" >
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dask_ml.preprocessing.Categorizer &mdash; dask-ml 1.8.1 documentation</title><link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/explore.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/nbsphinx.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script type="text/javascript" src="../../_static/js/custom.js"></script>
-    <script src="../../_static/js/theme.js"></script>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>dask_ml.preprocessing.Categorizer &#8212; dask-ml 1.8.1 documentation</title>
+    
+  <link href="../../_static/css/theme.css" rel="stylesheet" />
+  <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/style.css" />
+    
+  <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="dask_ml.preprocessing.DummyEncoder" href="dask_ml.preprocessing.DummyEncoder.html" />
     <link rel="prev" title="dask_ml.preprocessing.QuantileTransformer" href="dask_ml.preprocessing.QuantileTransformer.html" />
-  <link rel="shortcut icon" href="../../_static/images/favicon.ico"/>
-  
-  <meta name="Description" content="dask_ml.preprocessing.Categorizer">
-  <meta property="og:description" content="dask_ml.preprocessing.Categorizer">
-  <meta name="twitter:description" content="dask_ml.preprocessing.Categorizer" />
-  <meta property="og:title" content="dask-ml 1.8.1 documentation - dask_ml.preprocessing.Categorizer">
-  <meta property="og:image" content="https://github.com/dask.png">
-  <meta property="og:image:secure_url" content="https://github.com/dask.png" />
-  <meta property="og:image:type" content="image/png" />
-  <meta property="og:image:width" content="380" />
-  <meta property="og:image:height" content="380" />
-  <meta property="og:url" content="modules/generated/dask_ml.preprocessing.Categorizer.html">
-  <meta property="og:site_name" content="dask-ml 1.8.1 documentation">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
 
-  <meta name="twitter:site" content="https://dask.org" />
-  <meta name="twitter:creator" content="@dask_dev" />
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:image" content="https://github.com/dask.png" />
-  <meta name="twitter:image:alt" content="dask-ml 1.8.1 documentation">
+<nav class="dask-nav container-fluid">
+  <ul>
+    <li class="logo">
+      <a href="https://docs.dask.org/">
+        <img
+          class="caption"
+          src="../../_static/images/dask-horizontal-white.svg"
+        />
+      </a>
+    </li>
+
+    <li>
+      <a href="https://docs.dask.org/">Dask</a>
+    </li>
+
+    <li>
+      <a href="https://distributed.dask.org/">Distributed</a>
+    </li>
+
+    <li>
+      <a href="https://ml.dask.org/">Dask ML</a>
+    </li>
+
+    <li>
+      <a href="https://examples.dask.org/">Examples</a>
+    </li>
+
+    <li>
+      <a href="https://docs.dask.org/en/latest/ecosystem.html">Ecosystem</a>
+    </li>
+
+    <li>
+      <a href="https://docs.dask.org/en/latest/support.html">Community</a>
+    </li>
+  </ul>
+</nav>
 
 
-</head>
+    
+    <div class="container-fluid" id="banner"></div>
 
-<body class="wy-body-for-nav">
-    <nav id="explore-links">
-        <a href="https://docs.dask.org/">
-        <img class="caption" src="../../_static/images/dask-horizontal-white.svg"/>
-        </a>
+    
 
-        <ul>
-        <li>
-            <a>Get Started</a>
-            <ul>
-            <li><a href="https://docs.dask.org/en/latest/install.html"> Install </a></li>
-            <li><a href="https://examples.dask.org"> Examples </a></li>
-            <li><a href="https://github.com/dask/dask-tutorial"> Tutorial </a></li>
-            <li><a href="https://docs.dask.org/en/latest/why.html"> Why Dask? </a></li>
-            <li><a href="https://stories.dask.org/en/latest"> Use Cases </a></li>
-            <li><a href="https://www.youtube.com/watch?v=RA_2qdipVng&list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri"> Talks </a></li>
-            <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/main?urlpath=lab"> Try Online </a></li>
-            <li><a href="https://dask.org/slides"> Slides </a></li>
-            </ul>
-        </li>
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p class="caption" role="heading">
+ <span class="caption-text">
+  Use
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../preprocessing.html">
+   Preprocessing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../cross_validation.html">
+   Cross Validation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../hyper-parameter-search.html">
+   Hyper Parameter Search
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../compose.html">
+   Pipelines and Composite Estimators
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../glm.html">
+   Generalized Linear Models
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../naive-bayes.html">
+   Naive Bayes
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../meta-estimators.html">
+   Parallel Meta-estimators
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../incremental.html">
+   Incremental Learning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../clustering.html">
+   Clustering
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../api.html">
+   API Reference
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.model_selection.train_test_split.html">
+     dask_ml.model_selection.train_test_split
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.model_selection.ShuffleSplit.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .ShuffleSplit
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.model_selection.KFold.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .KFold
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.model_selection.GridSearchCV.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .GridSearchCV
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.model_selection.RandomizedSearchCV.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .RandomizedSearchCV
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.model_selection.IncrementalSearchCV.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .IncrementalSearchCV
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.model_selection.HyperbandSearchCV.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .HyperbandSearchCV
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.model_selection.SuccessiveHalvingSearchCV.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .SuccessiveHalvingSearchCV
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.model_selection.InverseDecaySearchCV.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .InverseDecaySearchCV
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.ensemble.BlockwiseVotingClassifier.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.ensemble
+      </span>
+     </code>
+     .BlockwiseVotingClassifier
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.ensemble.BlockwiseVotingRegressor.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.ensemble
+      </span>
+     </code>
+     .BlockwiseVotingRegressor
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.linear_model.LinearRegression.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.linear_model
+      </span>
+     </code>
+     .LinearRegression
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.linear_model.LogisticRegression.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.linear_model
+      </span>
+     </code>
+     .LogisticRegression
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.linear_model.PoissonRegression.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.linear_model
+      </span>
+     </code>
+     .PoissonRegression
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.naive_bayes.GaussianNB.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.naive_bayes
+      </span>
+     </code>
+     .GaussianNB
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.wrappers.ParallelPostFit.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.wrappers
+      </span>
+     </code>
+     .ParallelPostFit
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.wrappers.Incremental.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.wrappers
+      </span>
+     </code>
+     .Incremental
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.cluster.KMeans.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.cluster
+      </span>
+     </code>
+     .KMeans
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.cluster.SpectralClustering.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.cluster
+      </span>
+     </code>
+     .SpectralClustering
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.decomposition.IncrementalPCA.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.decomposition
+      </span>
+     </code>
+     .IncrementalPCA
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.decomposition.PCA.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.decomposition
+      </span>
+     </code>
+     .PCA
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.decomposition.TruncatedSVD.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.decomposition
+      </span>
+     </code>
+     .TruncatedSVD
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.preprocessing.StandardScaler.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .StandardScaler
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.preprocessing.RobustScaler.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .RobustScaler
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.preprocessing.MinMaxScaler.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .MinMaxScaler
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.preprocessing.QuantileTransformer.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .QuantileTransformer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.preprocessing.StandardScaler.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .StandardScaler
+    </a>
+   </li>
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="#">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .Categorizer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.preprocessing.DummyEncoder.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .DummyEncoder
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.preprocessing.OrdinalEncoder.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .OrdinalEncoder
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.preprocessing.LabelEncoder.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .LabelEncoder
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.preprocessing.PolynomialFeatures.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .PolynomialFeatures
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.preprocessing.BlockTransformer.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .BlockTransformer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.feature_extraction.text.CountVectorizer.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.feature_extraction.text
+      </span>
+     </code>
+     .CountVectorizer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.feature_extraction.text.HashingVectorizer.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.feature_extraction.text
+      </span>
+     </code>
+     .HashingVectorizer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.feature_extraction.text.FeatureHasher.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.feature_extraction.text
+      </span>
+     </code>
+     .FeatureHasher
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.compose.ColumnTransformer.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.compose
+      </span>
+     </code>
+     .ColumnTransformer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.compose.make_column_transformer.html">
+     dask_ml.compose.make_column_transformer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.impute.SimpleImputer.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.impute
+      </span>
+     </code>
+     .SimpleImputer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.metrics.mean_absolute_error.html">
+     dask_ml.metrics.mean_absolute_error
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.metrics.mean_absolute_percentage_error.html">
+     dask_ml.metrics.mean_absolute_percentage_error
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.metrics.mean_squared_error.html">
+     dask_ml.metrics.mean_squared_error
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.metrics.mean_squared_log_error.html">
+     dask_ml.metrics.mean_squared_log_error
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.metrics.r2_score.html">
+     dask_ml.metrics.r2_score
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.metrics.accuracy_score.html">
+     dask_ml.metrics.accuracy_score
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.metrics.log_loss.html">
+     dask_ml.metrics.log_loss
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.xgboost.XGBClassifier.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.xgboost
+      </span>
+     </code>
+     .XGBClassifier
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.xgboost.XGBRegressor.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.xgboost
+      </span>
+     </code>
+     .XGBRegressor
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.xgboost.train.html">
+     dask_ml.xgboost.train
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.xgboost.predict.html">
+     dask_ml.xgboost.predict
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.datasets.make_counts.html">
+     dask_ml.datasets.make_counts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.datasets.make_blobs.html">
+     dask_ml.datasets.make_blobs
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.datasets.make_regression.html">
+     dask_ml.datasets.make_regression
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.datasets.make_classification.html">
+     dask_ml.datasets.make_classification
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.datasets.make_classification_df.html">
+     dask_ml.datasets.make_classification_df
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+<p class="caption" role="heading">
+ <span class="caption-text">
+  Integration
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../joblib.html">
+   Scikit-Learn &amp; Joblib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../xgboost.html">
+   XGBoost &amp; LightGBM
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../pytorch.html">
+   PyTorch
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../keras.html">
+   Keras and Tensorflow
+  </a>
+ </li>
+</ul>
+<p class="caption" role="heading">
+ <span class="caption-text">
+  Develop
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../changelog.html">
+   Changelog
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../contributing.html">
+   Contributing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../roadmap.html">
+   Dask-ML Roadmap
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../history.html">
+   History
+  </a>
+ </li>
+</ul>
 
-        <li>
-            <a href="">Algorithms</a>
-            <ul>
-            <li><a href="https://docs.dask.org/en/latest/array.html">Arrays</a></li>
-            <li><a href="https://docs.dask.org/en/latest/dataframe.html">Dataframes</a></li>
-            <li><a href="https://docs.dask.org/en/latest/bag.html">Bags</a></li>
-            <li><a href="https://docs.dask.org/en/latest/delayed.html">Delayed (custom)</a></li>
-            <li><a href="https://docs.dask.org/en/latest/futures.html">Futures (real-time)</a></li>
-            <li><a href="http://ml.dask.org">Machine Learning</a></li>
-            <li><a href="https://xarray.pydata.org/en/latest/">XArray</a></li>
-            </ul>
-        </li>
+    </div>
+</nav> <!-- To handle the deprecated key -->
 
-        <li>
-            <a href="https://docs.dask.org/en/latest/setup.html">Setup</a>
-            <ul>
-            <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
-            <li><a href="https://docs.dask.org/en/latest/setup/cloud.html"> Cloud </a></li>
-            <li><a href="https://docs.dask.org/en/latest/setup/hpc.html"> HPC </a></li>
-            <li><a href="https://kubernetes.dask.org/en/latest/"> Kubernetes </a></li>
-            <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
-            </ul>
-        </li>
-
-        <li>
-            <a>Community</a>
-            <ul>
-            <li><a href="http://docs.dask.org/en/latest/support.html">Ask for Help</a></li>
-            <li><a href="https://github.com/dask">Github</a></li>
-            <li><a href="https://stackoverflow.com/questions/tagged/dask">Stack Overflow</a></li>
-            <li><a href="https://twitter.com/dask_dev">Twitter</a></li>
-            <li><a href="https://blog.dask.org/"> Developer Blog </a></li>
-            <li><a href="https://youtube.com/c/dask-dev"> YouTube Channel </a></li>
-            <li><a href="https://join.slack.com/t/dask/shared_invite/zt-mfmh7quc-nIrXL6ocgiUH2haLYA914g"> Slack </a></li>
-            </ul>
-        </li>
-        </ul>
-
-    </nav>
-  
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> dask-ml
-          </a>
-              <div class="version">
-                1.8.1.dev23+gc99cab3a
-              </div>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
+<div class="navbar_extra_footer">
+  Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption"><span class="caption-text">Use</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../preprocessing.html">Preprocessing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cross_validation.html">Cross Validation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../hyper-parameter-search.html">Hyper Parameter Search</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../compose.html">Pipelines and Composite Estimators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../glm.html">Generalized Linear Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../naive-bayes.html">Naive Bayes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../meta-estimators.html">Parallel Meta-estimators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../incremental.html">Incremental Learning</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../clustering.html">Clustering</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.model_selection"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>: Model Selection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.ensemble"><code class="docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code>: Ensemble Methods</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.linear_model"><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>: Generalized Linear Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.naive_bayes"><code class="docutils literal notranslate"><span class="pre">dask_ml.naive_bayes</span></code>: Naive Bayes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-wrappers-meta-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.wrappers</span></code>: Meta-Estimators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.cluster"><code class="docutils literal notranslate"><span class="pre">dask_ml.cluster</span></code>: Clustering</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.decomposition"><code class="docutils literal notranslate"><span class="pre">dask_ml.decomposition</span></code>: Matrix Decomposition</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="../api.html#module-dask_ml.preprocessing"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>: Preprocessing Data</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.StandardScaler.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.StandardScaler</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.RobustScaler.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.RobustScaler</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.MinMaxScaler.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.MinMaxScaler</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.QuantileTransformer.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.QuantileTransformer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.StandardScaler.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.StandardScaler</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.Categorizer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.DummyEncoder.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.DummyEncoder</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.OrdinalEncoder.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.OrdinalEncoder</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.LabelEncoder.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.LabelEncoder</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.PolynomialFeatures.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.PolynomialFeatures</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.preprocessing.BlockTransformer.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.BlockTransformer</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-feature-extraction-text-feature-extraction"><code class="docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>: Feature extraction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-compose-composite-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.compose</span></code>: Composite Estimators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.impute"><code class="docutils literal notranslate"><span class="pre">dask_ml.impute</span></code>: Imputing Missing Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-metrics-metrics"><code class="docutils literal notranslate"><span class="pre">dask_ml.metrics</span></code>: Metrics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.xgboost"><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code>: XGBoost</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-datasets-datasets"><code class="docutils literal notranslate"><span class="pre">dask_ml.datasets</span></code>: Datasets</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption"><span class="caption-text">Integration</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../joblib.html">Scikit-Learn &amp; Joblib</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../xgboost.html">XGBoost &amp; LightGBM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../pytorch.html">PyTorch</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../keras.html">Keras and Tensorflow</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Develop</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../roadmap.html">Dask-ML Roadmap</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../history.html">History</a></li>
-</ul>
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="../../_sources/modules/generated/dask_ml.preprocessing.Categorizer.rst.txt"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.rst</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
 
         </div>
-      </div>
-    </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../index.html">dask-ml</a>
-      </nav>
-
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../api.html">API Reference</a> &raquo;</li>
-      <li><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.Categorizer</li>
-      <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/modules/generated/dask_ml.preprocessing.Categorizer.rst.txt" rel="nofollow"> View page source</a>
-      </li>
-  </ul>
-  <hr/>
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+        </div>
+    </div>
 </div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
   <div class="section" id="dask-ml-preprocessing-categorizer">
 <h1><a class="reference internal" href="../api.html#module-dask_ml.preprocessing" title="dask_ml.preprocessing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code></a>.Categorizer<a class="headerlink" href="#dask-ml-preprocessing-categorizer" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="dask_ml.preprocessing.Categorizer">
-<em class="property">class </em><code class="descclassname">dask_ml.preprocessing.</code><code class="descname">Categorizer</code><span class="sig-paren">(</span><em>categories: Optional[dict] = None</em>, <em>columns: pandas.core.indexes.base.Index = None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.Categorizer" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="dask_ml.preprocessing.Categorizer">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dask_ml.preprocessing.</span></span><span class="sig-name descname"><span class="pre">Categorizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">categories</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.6/library/stdtypes.html#dict" title="(in Python v3.6)"><span class="pre">dict</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.core.indexes.base.Index</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.Categorizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform columns of a DataFrame to categorical dtype.</p>
 <p>This is a useful pre-processing step for dummy, one-hot, or
 categorical encoding.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>categories</strong> <span class="classifier-delimiter">:</span> <span class="classifier">mapping, optional</span></dt>
-<dd><p class="first last">A dictionary mapping column name to instances of
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>categories</strong><span class="classifier">mapping, optional</span></dt><dd><p>A dictionary mapping column name to instances of
 <code class="docutils literal notranslate"><span class="pre">pandas.api.types.CategoricalDtype</span></code>. Alternatively, a
 mapping of column name to <code class="docutils literal notranslate"><span class="pre">(categories,</span> <span class="pre">ordered)</span></code> tuples.</p>
 </dd>
-<dt><strong>columns</strong> <span class="classifier-delimiter">:</span> <span class="classifier">sequence, optional</span></dt>
-<dd><p class="first last">A sequence of column names to limit the categorization to.
+<dt><strong>columns</strong><span class="classifier">sequence, optional</span></dt><dd><p>A sequence of column names to limit the categorization to.
 This argument is ignored when <code class="docutils literal notranslate"><span class="pre">categories</span></code> is specified.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>columns_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Index</span></dt>
-<dd><p class="first last">The columns that were categorized. Useful when <code class="docutils literal notranslate"><span class="pre">categories</span></code> is None,
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>columns_</strong><span class="classifier">pandas.Index</span></dt><dd><p>The columns that were categorized. Useful when <code class="docutils literal notranslate"><span class="pre">categories</span></code> is None,
 and we detect the categorical and object columns</p>
 </dd>
-<dt><strong>categories_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">A dictionary mapping column names to dtypes. For pandas&gt;=0.21.0, the
+<dt><strong>categories_</strong><span class="classifier">dict</span></dt><dd><p>A dictionary mapping column names to dtypes. For pandas&gt;=0.21.0, the
 values are instances of <code class="docutils literal notranslate"><span class="pre">pandas.api.types.CategoricalDtype</span></code>. For
 older pandas, the values are tuples of <code class="docutils literal notranslate"><span class="pre">(categories,</span> <span class="pre">ordered)</span></code>.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Notes</p>
 <p>This transformer only applies to <code class="docutils literal notranslate"><span class="pre">dask.DataFrame</span></code> and
 <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code>. By default, all object-type columns are converted to
@@ -254,7 +803,7 @@ this behavior.</p>
 <p>All other columns are included in the transformed output untouched.</p>
 <p>For <code class="docutils literal notranslate"><span class="pre">dask.DataFrame</span></code>, any unknown categoricals will become known.</p>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">]})</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">]})</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ce</span> <span class="o">=</span> <span class="n">Categorizer</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ce</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">dtypes</span>
 <span class="go">A       int64</span>
@@ -262,225 +811,101 @@ this behavior.</p>
 <span class="go">dtype: object</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ce</span><span class="o">.</span><span class="n">categories_</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ce</span><span class="o">.</span><span class="n">categories_</span>
 <span class="go">{&#39;B&#39;: CategoricalDtype(categories=[&#39;a&#39;, &#39;b&#39;], ordered=False)}</span>
 </pre></div>
 </div>
 <p>Using CategoricalDtypes for specifying the categories:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pandas.api.types</span> <span class="kn">import</span> <span class="n">CategoricalDtype</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pandas.api.types</span> <span class="kn">import</span> <span class="n">CategoricalDtype</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ce</span> <span class="o">=</span> <span class="n">Categorizer</span><span class="p">(</span><span class="n">categories</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="n">CategoricalDtype</span><span class="p">([</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">])})</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ce</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">B</span><span class="o">.</span><span class="n">dtype</span>
 <span class="go">CategoricalDtype(categories=[&#39;a&#39;, &#39;b&#39;, &#39;c&#39;], ordered=False)</span>
 </pre></div>
 </div>
 <p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
+<table class="longtable table autosummary">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.Categorizer.fit" title="dask_ml.preprocessing.Categorizer.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X,&nbsp;dask.dataframe.core.DataFrame],&nbsp;y,&nbsp;…)</td>
-<td>Find the categorical columns.</td>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code>(X[, y])</p></td>
+<td><p>Find the categorical columns.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.Categorizer.fit_transform" title="dask_ml.preprocessing.Categorizer.fit_transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code></a>(X[,&nbsp;y])</td>
-<td>Fit to data, then transform it.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code>(X[, y])</p></td>
+<td><p>Fit to data, then transform it.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.Categorizer.get_params" title="dask_ml.preprocessing.Categorizer.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</td>
-<td>Get parameters for this estimator.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code>([deep])</p></td>
+<td><p>Get parameters for this estimator.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.preprocessing.Categorizer.set_params" title="dask_ml.preprocessing.Categorizer.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</td>
-<td>Set the parameters of this estimator.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code>(**params)</p></td>
+<td><p>Set the parameters of this estimator.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.preprocessing.Categorizer.transform" title="dask_ml.preprocessing.Categorizer.transform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></a>(X,&nbsp;dask.dataframe.core.DataFrame],&nbsp;…)</td>
-<td>Transform the columns in <code class="docutils literal notranslate"><span class="pre">X</span></code> according to <code class="docutils literal notranslate"><span class="pre">self.categories_</span></code>.</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="dask_ml.preprocessing.Categorizer.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>categories: Optional[dict] = None</em>, <em>columns: pandas.core.indexes.base.Index = None</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.Categorizer.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="dask_ml.preprocessing.Categorizer.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>X: Union[pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y: Union[ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, None] = None</em><span class="sig-paren">)</span> &#x2192; dask_ml.preprocessing.data.Categorizer<a class="headerlink" href="#dask_ml.preprocessing.Categorizer.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find the categorical columns.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame or dask.DataFrame</span></dt>
-<dd></dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ignored</span></dt>
-<dd></dd>
-</dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt>self</dt>
-<dd></dd>
-</dl>
-</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(X[, y])</p></td>
+<td><p>Transform the columns in <code class="docutils literal notranslate"><span class="pre">X</span></code> according to <code class="docutils literal notranslate"><span class="pre">self.categories_</span></code>.</p></td>
 </tr>
 </tbody>
 </table>
-</dd></dl>
-
-<dl class="method">
-<dt id="dask_ml.preprocessing.Categorizer.fit_transform">
-<code class="descname">fit_transform</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em>, <em>**fit_params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.Categorizer.fit_transform" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fit to data, then transform it.</p>
-<p>Fits transformer to <cite>X</cite> and <cite>y</cite> with optional parameters <cite>fit_params</cite>
-and returns a transformed version of <cite>X</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples, n_features)</span></dt>
-<dd><p class="first last">Input samples.</p>
-</dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like of shape (n_samples,) or (n_samples, n_outputs),                 default=None</span></dt>
-<dd><p class="first last">Target values (None for unsupervised transformations).</p>
-</dd>
-<dt><strong>**fit_params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">Additional fit parameters.</p>
-</dd>
-</dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X_new</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ndarray array of shape (n_samples, n_features_new)</span></dt>
-<dd><p class="first last">Transformed array.</p>
-</dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="dask_ml.preprocessing.Categorizer.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.Categorizer.get_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get parameters for this estimator.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default=True</span></dt>
-<dd><p class="first last">If True, will return the parameters for this estimator and
-contained subobjects that are estimators.</p>
-</dd>
-</dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">Parameter names mapped to their values.</p>
-</dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="dask_ml.preprocessing.Categorizer.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.Categorizer.set_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the parameters of this estimator.</p>
-<p>The method works on simple estimators as well as on nested objects
-(such as <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.24)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></a>). The latter have
-parameters of the form <code class="docutils literal notranslate"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it’s
-possible to update each component of a nested object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>**params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">Estimator parameters.</p>
-</dd>
-</dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">estimator instance</span></dt>
-<dd><p class="first last">Estimator instance.</p>
-</dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="dask_ml.preprocessing.Categorizer.transform">
-<code class="descname">transform</code><span class="sig-paren">(</span><em>X: Union[pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame], y: Union[ArrayLike, dask.dataframe.core.Series, pandas.core.series.Series, None] = None</em><span class="sig-paren">)</span> &#x2192; Union[pandas.core.frame.DataFrame, dask.dataframe.core.DataFrame]<a class="headerlink" href="#dask_ml.preprocessing.Categorizer.transform" title="Permalink to this definition">¶</a></dt>
-<dd><p>Transform the columns in <code class="docutils literal notranslate"><span class="pre">X</span></code> according to <code class="docutils literal notranslate"><span class="pre">self.categories_</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame or dask.DataFrame</span></dt>
-<dd></dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">ignored</span></dt>
-<dd></dd>
-</dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X_trn</strong> <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame or dask.DataFrame</span></dt>
-<dd><p class="first last">Same type as the input. The columns in <code class="docutils literal notranslate"><span class="pre">self.categories_</span></code> will
-be converted to categorical dtype.</p>
-</dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dask_ml.preprocessing.Categorizer.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">categories</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.6/library/stdtypes.html#dict" title="(in Python v3.6)"><span class="pre">dict</span></a><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.core.indexes.base.Index</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.Categorizer.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
 <div class="clearer"></div></div>
 
 
-           </div>
-          </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="dask_ml.preprocessing.QuantileTransformer.html" class="btn btn-neutral float-left" title="dask_ml.preprocessing.QuantileTransformer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="dask_ml.preprocessing.DummyEncoder.html" class="btn btn-neutral float-right" title="dask_ml.preprocessing.DummyEncoder" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+              </div>
+              
+        
+            
+
+
+
+<div class='prev-next-bottom'>
+    
+    <div id="prev">
+        <a class="left-prev" href="dask_ml.preprocessing.QuantileTransformer.html" title="previous page">
+            <i class="prevnext-label fas fa-angle-left"></i>
+            <div class="prevnext-info">
+                <p class="prevnext-label">previous</p>
+                <p class="prevnext-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.QuantileTransformer</p>
+            </div>
+        </a>
     </div>
+     <div id="next">
+        <a class="right-next" href="dask_ml.preprocessing.DummyEncoder.html" title="next page">
+            <div class="prevnext-info">
+                <p class="prevnext-label">next</p>
+                <p class="prevnext-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>.DummyEncoder</p>
+            </div>
+            <i class="prevnext-label fas fa-angle-right"></i>
+        </a>
+     </div>
 
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright 2017, Dask developers.</p>
-  </div>
-
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
-
-</footer>
+</div>
+        
         </div>
-      </div>
-    </section>
-  </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
+    </div>
+    <footer class="footer">
+    <div class="container">
+      <p>
+        
+          By Dask developers<br/>
+        
+            &copy; Copyright 2017, Dask developers.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
 
-</body>
+
+      </div>
+    </div>
+  
+  <script src="../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
 </html>

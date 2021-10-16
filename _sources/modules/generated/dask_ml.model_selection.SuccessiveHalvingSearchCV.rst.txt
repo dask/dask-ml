@@ -1,4 +1,4 @@
-:mod:`dask_ml.model_selection`.SuccessiveHalvingSearchCV
+﻿:mod:`dask_ml.model_selection`.SuccessiveHalvingSearchCV
 ===============================================================
 
 .. currentmodule:: dask_ml.model_selection

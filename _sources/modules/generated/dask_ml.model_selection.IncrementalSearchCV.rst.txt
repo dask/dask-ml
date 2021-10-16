@@ -1,4 +1,4 @@
-:mod:`dask_ml.model_selection`.IncrementalSearchCV
+﻿:mod:`dask_ml.model_selection`.IncrementalSearchCV
 =========================================================
 
 .. currentmodule:: dask_ml.model_selection

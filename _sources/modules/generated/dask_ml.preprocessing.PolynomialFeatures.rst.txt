@@ -1,4 +1,4 @@
-:mod:`dask_ml.preprocessing`.PolynomialFeatures
+﻿:mod:`dask_ml.preprocessing`.PolynomialFeatures
 ======================================================
 
 .. currentmodule:: dask_ml.preprocessing

@@ -1,4 +1,4 @@
-dask\_ml.xgboost.predict
+﻿dask\_ml.xgboost.predict
 ========================
 
 .. currentmodule:: dask_ml.xgboost

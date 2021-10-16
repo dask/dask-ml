@@ -1,4 +1,4 @@
-:mod:`dask_ml.preprocessing`.OrdinalEncoder
+﻿:mod:`dask_ml.preprocessing`.OrdinalEncoder
 ==================================================
 
 .. currentmodule:: dask_ml.preprocessing

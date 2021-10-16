@@ -1,4 +1,4 @@
-dask\_ml.datasets.make\_counts
+﻿dask\_ml.datasets.make\_counts
 ==============================
 
 .. currentmodule:: dask_ml.datasets

@@ -1,4 +1,4 @@
-dask\_ml.metrics.log\_loss
+﻿dask\_ml.metrics.log\_loss
 ==========================
 
 .. currentmodule:: dask_ml.metrics

@@ -1,4 +1,4 @@
-dask\_ml.metrics.mean\_absolute\_error
+﻿dask\_ml.metrics.mean\_absolute\_error
 ======================================
 
 .. currentmodule:: dask_ml.metrics

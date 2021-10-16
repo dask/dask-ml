@@ -1,204 +1,853 @@
+
 <!DOCTYPE html>
-<html class="writer-html4" lang="en" >
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hyper Parameter Search &mdash; dask-ml 1.8.1 documentation</title><link rel="stylesheet" href="_static/css/style.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/explore.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/nbsphinx.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script type="text/javascript" src="_static/js/custom.js"></script>
-    <script src="_static/js/theme.js"></script>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hyper Parameter Search &#8212; dask-ml 1.8.1 documentation</title>
+    
+  <link href="_static/css/theme.css" rel="stylesheet" />
+  <link href="_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/style.css" />
+    
+  <link rel="preload" as="script" href="_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Pipelines and Composite Estimators" href="compose.html" />
     <link rel="prev" title="Cross Validation" href="cross_validation.html" />
-  <link rel="shortcut icon" href="_static/images/favicon.ico"/>
-  
-  <meta name="Description" content="Hyper Parameter Search">
-  <meta property="og:description" content="Hyper Parameter Search">
-  <meta name="twitter:description" content="Hyper Parameter Search" />
-  <meta property="og:title" content="dask-ml 1.8.1 documentation - Hyper Parameter Search">
-  <meta property="og:image" content="https://github.com/dask.png">
-  <meta property="og:image:secure_url" content="https://github.com/dask.png" />
-  <meta property="og:image:type" content="image/png" />
-  <meta property="og:image:width" content="380" />
-  <meta property="og:image:height" content="380" />
-  <meta property="og:url" content="hyper-parameter-search.html">
-  <meta property="og:site_name" content="dask-ml 1.8.1 documentation">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
 
-  <meta name="twitter:site" content="https://dask.org" />
-  <meta name="twitter:creator" content="@dask_dev" />
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:image" content="https://github.com/dask.png" />
-  <meta name="twitter:image:alt" content="dask-ml 1.8.1 documentation">
+<nav class="dask-nav container-fluid">
+  <ul>
+    <li class="logo">
+      <a href="https://docs.dask.org/">
+        <img
+          class="caption"
+          src="_static/images/dask-horizontal-white.svg"
+        />
+      </a>
+    </li>
+
+    <li>
+      <a href="https://docs.dask.org/">Dask</a>
+    </li>
+
+    <li>
+      <a href="https://distributed.dask.org/">Distributed</a>
+    </li>
+
+    <li>
+      <a href="https://ml.dask.org/">Dask ML</a>
+    </li>
+
+    <li>
+      <a href="https://examples.dask.org/">Examples</a>
+    </li>
+
+    <li>
+      <a href="https://docs.dask.org/en/latest/ecosystem.html">Ecosystem</a>
+    </li>
+
+    <li>
+      <a href="https://docs.dask.org/en/latest/support.html">Community</a>
+    </li>
+  </ul>
+</nav>
 
 
-</head>
+    
+    <div class="container-fluid" id="banner"></div>
 
-<body class="wy-body-for-nav">
-    <nav id="explore-links">
-        <a href="https://docs.dask.org/">
-        <img class="caption" src="_static/images/dask-horizontal-white.svg"/>
-        </a>
+    
 
-        <ul>
-        <li>
-            <a>Get Started</a>
-            <ul>
-            <li><a href="https://docs.dask.org/en/latest/install.html"> Install </a></li>
-            <li><a href="https://examples.dask.org"> Examples </a></li>
-            <li><a href="https://github.com/dask/dask-tutorial"> Tutorial </a></li>
-            <li><a href="https://docs.dask.org/en/latest/why.html"> Why Dask? </a></li>
-            <li><a href="https://stories.dask.org/en/latest"> Use Cases </a></li>
-            <li><a href="https://www.youtube.com/watch?v=RA_2qdipVng&list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri"> Talks </a></li>
-            <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/main?urlpath=lab"> Try Online </a></li>
-            <li><a href="https://dask.org/slides"> Slides </a></li>
-            </ul>
-        </li>
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="index.html">
+      
+      
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p class="caption" role="heading">
+ <span class="caption-text">
+  Use
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="preprocessing.html">
+   Preprocessing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="cross_validation.html">
+   Cross Validation
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Hyper Parameter Search
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="compose.html">
+   Pipelines and Composite Estimators
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="glm.html">
+   Generalized Linear Models
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="naive-bayes.html">
+   Naive Bayes
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="meta-estimators.html">
+   Parallel Meta-estimators
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="incremental.html">
+   Incremental Learning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="clustering.html">
+   Clustering
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="modules/api.html">
+   API Reference
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.model_selection.train_test_split.html">
+     dask_ml.model_selection.train_test_split
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.model_selection.ShuffleSplit.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .ShuffleSplit
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.model_selection.KFold.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .KFold
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.model_selection.GridSearchCV.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .GridSearchCV
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .RandomizedSearchCV
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .IncrementalSearchCV
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .HyperbandSearchCV
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .SuccessiveHalvingSearchCV
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.model_selection.InverseDecaySearchCV.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .InverseDecaySearchCV
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.ensemble.BlockwiseVotingClassifier.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.ensemble
+      </span>
+     </code>
+     .BlockwiseVotingClassifier
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.ensemble.BlockwiseVotingRegressor.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.ensemble
+      </span>
+     </code>
+     .BlockwiseVotingRegressor
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.linear_model.LinearRegression.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.linear_model
+      </span>
+     </code>
+     .LinearRegression
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.linear_model.LogisticRegression.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.linear_model
+      </span>
+     </code>
+     .LogisticRegression
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.linear_model.PoissonRegression.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.linear_model
+      </span>
+     </code>
+     .PoissonRegression
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.naive_bayes.GaussianNB.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.naive_bayes
+      </span>
+     </code>
+     .GaussianNB
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.wrappers.ParallelPostFit.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.wrappers
+      </span>
+     </code>
+     .ParallelPostFit
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.wrappers.Incremental.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.wrappers
+      </span>
+     </code>
+     .Incremental
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.cluster.KMeans.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.cluster
+      </span>
+     </code>
+     .KMeans
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.cluster.SpectralClustering.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.cluster
+      </span>
+     </code>
+     .SpectralClustering
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.decomposition.IncrementalPCA.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.decomposition
+      </span>
+     </code>
+     .IncrementalPCA
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.decomposition.PCA.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.decomposition
+      </span>
+     </code>
+     .PCA
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.decomposition.TruncatedSVD.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.decomposition
+      </span>
+     </code>
+     .TruncatedSVD
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.preprocessing.StandardScaler.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .StandardScaler
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.preprocessing.RobustScaler.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .RobustScaler
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.preprocessing.MinMaxScaler.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .MinMaxScaler
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.preprocessing.QuantileTransformer.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .QuantileTransformer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.preprocessing.StandardScaler.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .StandardScaler
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.preprocessing.Categorizer.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .Categorizer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.preprocessing.DummyEncoder.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .DummyEncoder
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.preprocessing.OrdinalEncoder.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .OrdinalEncoder
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.preprocessing.LabelEncoder.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .LabelEncoder
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.preprocessing.PolynomialFeatures.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .PolynomialFeatures
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.preprocessing.BlockTransformer.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .BlockTransformer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.feature_extraction.text.CountVectorizer.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.feature_extraction.text
+      </span>
+     </code>
+     .CountVectorizer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.feature_extraction.text.HashingVectorizer.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.feature_extraction.text
+      </span>
+     </code>
+     .HashingVectorizer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.feature_extraction.text.FeatureHasher.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.feature_extraction.text
+      </span>
+     </code>
+     .FeatureHasher
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.compose.ColumnTransformer.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.compose
+      </span>
+     </code>
+     .ColumnTransformer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.compose.make_column_transformer.html">
+     dask_ml.compose.make_column_transformer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.impute.SimpleImputer.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.impute
+      </span>
+     </code>
+     .SimpleImputer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.metrics.mean_absolute_error.html">
+     dask_ml.metrics.mean_absolute_error
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.metrics.mean_absolute_percentage_error.html">
+     dask_ml.metrics.mean_absolute_percentage_error
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.metrics.mean_squared_error.html">
+     dask_ml.metrics.mean_squared_error
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.metrics.mean_squared_log_error.html">
+     dask_ml.metrics.mean_squared_log_error
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.metrics.r2_score.html">
+     dask_ml.metrics.r2_score
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.metrics.accuracy_score.html">
+     dask_ml.metrics.accuracy_score
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.metrics.log_loss.html">
+     dask_ml.metrics.log_loss
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.xgboost.XGBClassifier.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.xgboost
+      </span>
+     </code>
+     .XGBClassifier
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.xgboost.XGBRegressor.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.xgboost
+      </span>
+     </code>
+     .XGBRegressor
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.xgboost.train.html">
+     dask_ml.xgboost.train
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.xgboost.predict.html">
+     dask_ml.xgboost.predict
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.datasets.make_counts.html">
+     dask_ml.datasets.make_counts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.datasets.make_blobs.html">
+     dask_ml.datasets.make_blobs
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.datasets.make_regression.html">
+     dask_ml.datasets.make_regression
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.datasets.make_classification.html">
+     dask_ml.datasets.make_classification
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="modules/generated/dask_ml.datasets.make_classification_df.html">
+     dask_ml.datasets.make_classification_df
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+<p class="caption" role="heading">
+ <span class="caption-text">
+  Integration
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="joblib.html">
+   Scikit-Learn &amp; Joblib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="xgboost.html">
+   XGBoost &amp; LightGBM
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="pytorch.html">
+   PyTorch
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="keras.html">
+   Keras and Tensorflow
+  </a>
+ </li>
+</ul>
+<p class="caption" role="heading">
+ <span class="caption-text">
+  Develop
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="changelog.html">
+   Changelog
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="contributing.html">
+   Contributing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="roadmap.html">
+   Dask-ML Roadmap
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="history.html">
+   History
+  </a>
+ </li>
+</ul>
 
-        <li>
-            <a href="">Algorithms</a>
-            <ul>
-            <li><a href="https://docs.dask.org/en/latest/array.html">Arrays</a></li>
-            <li><a href="https://docs.dask.org/en/latest/dataframe.html">Dataframes</a></li>
-            <li><a href="https://docs.dask.org/en/latest/bag.html">Bags</a></li>
-            <li><a href="https://docs.dask.org/en/latest/delayed.html">Delayed (custom)</a></li>
-            <li><a href="https://docs.dask.org/en/latest/futures.html">Futures (real-time)</a></li>
-            <li><a href="http://ml.dask.org">Machine Learning</a></li>
-            <li><a href="https://xarray.pydata.org/en/latest/">XArray</a></li>
-            </ul>
-        </li>
+    </div>
+</nav> <!-- To handle the deprecated key -->
 
-        <li>
-            <a href="https://docs.dask.org/en/latest/setup.html">Setup</a>
-            <ul>
-            <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
-            <li><a href="https://docs.dask.org/en/latest/setup/cloud.html"> Cloud </a></li>
-            <li><a href="https://docs.dask.org/en/latest/setup/hpc.html"> HPC </a></li>
-            <li><a href="https://kubernetes.dask.org/en/latest/"> Kubernetes </a></li>
-            <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
-            </ul>
-        </li>
-
-        <li>
-            <a>Community</a>
-            <ul>
-            <li><a href="http://docs.dask.org/en/latest/support.html">Ask for Help</a></li>
-            <li><a href="https://github.com/dask">Github</a></li>
-            <li><a href="https://stackoverflow.com/questions/tagged/dask">Stack Overflow</a></li>
-            <li><a href="https://twitter.com/dask_dev">Twitter</a></li>
-            <li><a href="https://blog.dask.org/"> Developer Blog </a></li>
-            <li><a href="https://youtube.com/c/dask-dev"> YouTube Channel </a></li>
-            <li><a href="https://join.slack.com/t/dask/shared_invite/zt-mfmh7quc-nIrXL6ocgiUH2haLYA914g"> Slack </a></li>
-            </ul>
-        </li>
-        </ul>
-
-    </nav>
-  
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
-            <a href="index.html" class="icon icon-home"> dask-ml
-          </a>
-              <div class="version">
-                1.8.1.dev23+gc99cab3a
-              </div>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
+<div class="navbar_extra_footer">
+  Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption"><span class="caption-text">Use</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="preprocessing.html">Preprocessing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cross_validation.html">Cross Validation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Hyper Parameter Search</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#scaling-hyperparameter-searches">Scaling hyperparameter searches</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#neither-compute-nor-memory-constrained">Neither compute nor memory constrained</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#memory-constrained-but-not-compute-constrained">Memory constrained, but not compute constrained</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#compute-constrained-but-not-memory-constrained">Compute constrained, but not memory constrained</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#compute-and-memory-constrained">Compute and memory constrained</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#drop-in-replacements-for-scikit-learn">Drop-In Replacements for Scikit-Learn</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#flexible-backends">Flexible Backends</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#works-well-with-dask-collections">Works Well With Dask Collections</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#avoid-repeated-work">Avoid Repeated Work</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#incremental-hyperparameter-optimization">Incremental Hyperparameter Optimization</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#basic-use">Basic use</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#adaptive-hyperparameter-optimization">Adaptive Hyperparameter Optimization</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#hyperband-parameters-rule-of-thumb">Hyperband parameters: rule-of-thumb</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#hyperband-performance">Hyperband Performance</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="compose.html">Pipelines and Composite Estimators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="glm.html">Generalized Linear Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="naive-bayes.html">Naive Bayes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="meta-estimators.html">Parallel Meta-estimators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="incremental.html">Incremental Learning</a></li>
-<li class="toctree-l1"><a class="reference internal" href="clustering.html">Clustering</a></li>
-<li class="toctree-l1"><a class="reference internal" href="modules/api.html">API Reference</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Integration</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="joblib.html">Scikit-Learn &amp; Joblib</a></li>
-<li class="toctree-l1"><a class="reference internal" href="xgboost.html">XGBoost &amp; LightGBM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pytorch.html">PyTorch</a></li>
-<li class="toctree-l1"><a class="reference internal" href="keras.html">Keras and Tensorflow</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Develop</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Dask-ML Roadmap</a></li>
-<li class="toctree-l1"><a class="reference internal" href="history.html">History</a></li>
-</ul>
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="_sources/hyper-parameter-search.rst.txt"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.rst</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
 
         </div>
-      </div>
-    </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">dask-ml</a>
-      </nav>
-
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Hyper Parameter Search</li>
-      <li class="wy-breadcrumbs-aside">
-            <a href="_sources/hyper-parameter-search.rst.txt" rel="nofollow"> View page source</a>
-      </li>
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav" aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#scaling-hyperparameter-searches">
+   Scaling hyperparameter searches
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#neither-compute-nor-memory-constrained">
+     Neither compute nor memory constrained
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#memory-constrained-but-not-compute-constrained">
+     Memory constrained, but not compute constrained
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#compute-constrained-but-not-memory-constrained">
+     Compute constrained, but not memory constrained
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#compute-and-memory-constrained">
+     Compute and memory constrained
+    </a>
+   </li>
   </ul>
-  <hr/>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#drop-in-replacements-for-scikit-learn">
+   Drop-In Replacements for Scikit-Learn
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#flexible-backends">
+     Flexible Backends
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#works-well-with-dask-collections">
+     Works Well With Dask Collections
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#avoid-repeated-work">
+     Avoid Repeated Work
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#incremental-hyperparameter-optimization">
+   Incremental Hyperparameter Optimization
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#basic-use">
+     Basic use
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#adaptive-hyperparameter-optimization">
+   Adaptive Hyperparameter Optimization
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#hyperband-parameters-rule-of-thumb">
+     Hyperband parameters: rule-of-thumb
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#hyperband-performance">
+     Hyperband Performance
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
 </div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
   <div class="section" id="hyper-parameter-search">
 <span id="id1"></span><h1>Hyper Parameter Search<a class="headerlink" href="#hyper-parameter-search" title="Permalink to this headline">¶</a></h1>
 <p><em>Tools to perform hyperparameter optimization of Scikit-Learn API-compatible
@@ -214,31 +863,31 @@ performance is desired and/or with massive datasets, which is common when
 preparing for production or a paper publication. The following section
 clarifies the issues that can occur:</p>
 <ul class="simple">
-<li>“<a class="reference internal" href="#hyperparameter-scaling"><span class="std std-ref">Scaling hyperparameter searches</span></a>” mentions problems that often occur in
-hyperparameter optimization searches.</li>
+<li><p>“<a class="reference internal" href="#hyperparameter-scaling"><span class="std std-ref">Scaling hyperparameter searches</span></a>” mentions problems that often occur in
+hyperparameter optimization searches.</p></li>
 </ul>
 <p>Tools that address these problems are expanded upon in these sections:</p>
 <ol class="arabic simple">
-<li>“<a class="reference internal" href="#hyperparameter-drop-in"><span class="std std-ref">Drop-In Replacements for Scikit-Learn</span></a>” details classes that mirror the Scikit-learn
+<li><p>“<a class="reference internal" href="#hyperparameter-drop-in"><span class="std std-ref">Drop-In Replacements for Scikit-Learn</span></a>” details classes that mirror the Scikit-learn
 estimators but work nicely with Dask objects and can offer better
-performance.</li>
-<li>“<a class="reference internal" href="#hyperparameter-incremental"><span class="std std-ref">Incremental Hyperparameter Optimization</span></a>” details classes that work well with
-large datasets.</li>
-<li>“<a class="reference internal" href="#hyperparameter-adaptive"><span class="std std-ref">Adaptive Hyperparameter Optimization</span></a>” details classes that avoid extra
-computation and find high-performing hyperparameters more quickly.</li>
+performance.</p></li>
+<li><p>“<a class="reference internal" href="#hyperparameter-incremental"><span class="std std-ref">Incremental Hyperparameter Optimization</span></a>” details classes that work well with
+large datasets.</p></li>
+<li><p>“<a class="reference internal" href="#hyperparameter-adaptive"><span class="std std-ref">Adaptive Hyperparameter Optimization</span></a>” details classes that avoid extra
+computation and find high-performing hyperparameters more quickly.</p></li>
 </ol>
 <div class="section" id="scaling-hyperparameter-searches">
 <span id="hyperparameter-scaling"></span><h2>Scaling hyperparameter searches<a class="headerlink" href="#scaling-hyperparameter-searches" title="Permalink to this headline">¶</a></h2>
 <p>Dask-ML provides classes to avoid the two most common issues in hyperparameter
 optimization, when the hyperparameter search is…</p>
 <ol class="arabic simple">
-<li>“<strong>memory constrained”</strong>. This happens when the dataset size is too large to
+<li><p>“<strong>memory constrained”</strong>. This happens when the dataset size is too large to
 fit in memory.  This typically happens when a model needs to be tuned for a
-larger-than-memory dataset after local development.</li>
-<li>“<strong>compute constrained</strong>”. This happen when the computation takes too long
+larger-than-memory dataset after local development.</p></li>
+<li><p>“<strong>compute constrained</strong>”. This happen when the computation takes too long
 even with data that can fit in memory.  This typically happens when many
 hyperparameters need to be tuned or the model requires a specialized
-hardware (e.g., GPUs).</li>
+hardware (e.g., GPUs).</p></li>
 </ol>
 <p>“Memory constrained” searches happen when the data doesn’t fit in the memory of
 a single machine:</p>
@@ -288,33 +937,33 @@ tools to address all 4 combinations. Let’s look at each case.</p>
 <p>This case happens when there aren’t many hyperparameters to tune and the data
 fits in memory. This is common when the search doesn’t take too long to run.</p>
 <p>Scikit-learn can handle this case:</p>
-<table border="1" class="longtable docutils">
+<table class="longtable table autosummary">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v0.24)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>(…[,&nbsp;…])</td>
-<td>Exhaustive search over specified parameter values for an estimator.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>(...[, ...])</p></td>
+<td><p>Exhaustive search over specified parameter values for an estimator.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v0.24)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.RandomizedSearchCV</span></code></a>(…)</td>
-<td>Randomized search on hyper parameters.</td>
+<tr class="row-even"><td><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.RandomizedSearchCV</span></code></a>(...)</p></td>
+<td><p>Randomized search on hyper parameters.</p></td>
 </tr>
 </tbody>
 </table>
 <p>Dask-ML also has some drop in replacements for the Scikit-learn versions that
 works well with <a class="reference external" href="https://docs.dask.org/en/latest/user-interfaces.html#high-level-collections">Dask collections</a> (like Dask Arrays and Dask DataFrames):</p>
-<table border="1" class="longtable docutils">
+<table class="longtable table autosummary">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV" title="dask_ml.model_selection.GridSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.GridSearchCV</span></code></a>(…[,&nbsp;…])</td>
-<td>Exhaustive search over specified parameter values for an estimator.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV" title="dask_ml.model_selection.GridSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.GridSearchCV</span></code></a>(...[, ...])</p></td>
+<td><p>Exhaustive search over specified parameter values for an estimator.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV" title="dask_ml.model_selection.RandomizedSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.RandomizedSearchCV</span></code></a>(…)</td>
-<td>Randomized search on hyper parameters.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV" title="dask_ml.model_selection.RandomizedSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.RandomizedSearchCV</span></code></a>(...)</p></td>
+<td><p>Randomized search on hyper parameters.</p></td>
 </tr>
 </tbody>
 </table>
@@ -331,14 +980,14 @@ detail is in “<a class="reference internal" href="#hyperparameter-cpu-nmem"><s
 hyperparameters to search over. The data doesn’t fit in memory, so it makes
 sense to call <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> on each chunk of a Dask Array/Dataframe. This
 estimator does that:</p>
-<table border="1" class="longtable docutils">
+<table class="longtable table autosummary">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV" title="dask_ml.model_selection.IncrementalSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearchCV</span></code></a>(…)</td>
-<td>Incrementally search for hyper-parameters on models that support partial_fit</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV" title="dask_ml.model_selection.IncrementalSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearchCV</span></code></a>(...)</p></td>
+<td><p>Incrementally search for hyper-parameters on models that support partial_fit</p></td>
 </tr>
 </tbody>
 </table>
@@ -355,14 +1004,14 @@ wrapped with <a class="reference internal" href="modules/generated/dask_ml.wrapp
 there are a lot of hyperparameters to search, or the models require specialized
 hardware like GPUs. The best class for this case is
 <a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a>:</p>
-<table border="1" class="longtable docutils">
+<table class="longtable table autosummary">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.HyperbandSearchCV</span></code></a>(…)</td>
-<td>Find the best parameters for a particular model with an adaptive cross-validation algorithm.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.HyperbandSearchCV</span></code></a>(...)</p></td>
+<td><p>Find the best parameters for a particular model with an adaptive cross-validation algorithm.</p></td>
 </tr>
 </tbody>
 </table>
@@ -372,17 +1021,17 @@ performs remarkably well. For more detail, see
 “<a class="reference internal" href="#hyperparameter-hyperband-perf"><span class="std std-ref">Hyperband Performance</span></a>”.</p>
 <p>Two other adaptive hyperparameter optimization algorithms are implemented in these
 classes:</p>
-<table border="1" class="longtable docutils">
+<table class="longtable table autosummary">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV" title="dask_ml.model_selection.SuccessiveHalvingSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.SuccessiveHalvingSearchCV</span></code></a>(…)</td>
-<td>Perform the successive halving algorithm <a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#r424ea1a907b1-1" id="id2">[R424ea1a907b1-1]</a>.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV" title="dask_ml.model_selection.SuccessiveHalvingSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.SuccessiveHalvingSearchCV</span></code></a>(...)</p></td>
+<td><p>Perform the successive halving algorithm <a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#r424ea1a907b1-1" id="id2"><span>[R424ea1a907b1-1]</span></a>.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.InverseDecaySearchCV.html#dask_ml.model_selection.InverseDecaySearchCV" title="dask_ml.model_selection.InverseDecaySearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.InverseDecaySearchCV</span></code></a>(…)</td>
-<td>Incrementally search for hyper-parameters on models that support partial_fit</td>
+<tr class="row-even"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.InverseDecaySearchCV.html#dask_ml.model_selection.InverseDecaySearchCV" title="dask_ml.model_selection.InverseDecaySearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.InverseDecaySearchCV</span></code></a>(...)</p></td>
+<td><p>Incrementally search for hyper-parameters on models that support partial_fit</p></td>
 </tr>
 </tbody>
 </table>
@@ -395,22 +1044,22 @@ parameters.</p>
 <p>Another way to limit computation is to avoid repeated work during during the
 searches. This is especially useful with expensive preprocessing, which is
 common in natural language processing (NLP).</p>
-<table border="1" class="longtable docutils">
+<table class="longtable table autosummary">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV" title="dask_ml.model_selection.RandomizedSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.RandomizedSearchCV</span></code></a>(…)</td>
-<td>Randomized search on hyper parameters.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV" title="dask_ml.model_selection.RandomizedSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.RandomizedSearchCV</span></code></a>(...)</p></td>
+<td><p>Randomized search on hyper parameters.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV" title="dask_ml.model_selection.GridSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.GridSearchCV</span></code></a>(…[,&nbsp;…])</td>
-<td>Exhaustive search over specified parameter values for an estimator.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV" title="dask_ml.model_selection.GridSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.GridSearchCV</span></code></a>(...[, ...])</p></td>
+<td><p>Exhaustive search over specified parameter values for an estimator.</p></td>
 </tr>
 </tbody>
 </table>
 <p>Avoiding repeated work with this class relies on the model being an instance of
-Scikit-learn’s <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.24)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></a>.  See
+Scikit-learn’s <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></a>.  See
 “<a class="reference internal" href="#avoid-repeated-work"><span class="std std-ref">Avoid Repeated Work</span></a>” for more detail.</p>
 </div>
 <div class="section" id="compute-and-memory-constrained">
@@ -418,20 +1067,20 @@ Scikit-learn’s <a class="reference external" href="https://scikit-learn.org/st
 <p>This case happens when the dataset is larger than memory and there are many
 parameters to search. In this case, it’s useful to have strong support for Dask
 Arrays/DataFrames <cite>and</cite> to decide which models to continue training.</p>
-<table border="1" class="longtable docutils">
+<table class="longtable table autosummary">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.HyperbandSearchCV</span></code></a>(…)</td>
-<td>Find the best parameters for a particular model with an adaptive cross-validation algorithm.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.HyperbandSearchCV</span></code></a>(...)</p></td>
+<td><p>Find the best parameters for a particular model with an adaptive cross-validation algorithm.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV" title="dask_ml.model_selection.SuccessiveHalvingSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.SuccessiveHalvingSearchCV</span></code></a>(…)</td>
-<td>Perform the successive halving algorithm <a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#r424ea1a907b1-1" id="id3">[R424ea1a907b1-1]</a>.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV" title="dask_ml.model_selection.SuccessiveHalvingSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.SuccessiveHalvingSearchCV</span></code></a>(...)</p></td>
+<td><p>Perform the successive halving algorithm <a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#r424ea1a907b1-1" id="id3"><span>[R424ea1a907b1-1]</span></a>.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.InverseDecaySearchCV.html#dask_ml.model_selection.InverseDecaySearchCV" title="dask_ml.model_selection.InverseDecaySearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.InverseDecaySearchCV</span></code></a>(…)</td>
-<td>Incrementally search for hyper-parameters on models that support partial_fit</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.InverseDecaySearchCV.html#dask_ml.model_selection.InverseDecaySearchCV" title="dask_ml.model_selection.InverseDecaySearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.InverseDecaySearchCV</span></code></a>(...)</p></td>
+<td><p>Incrementally search for hyper-parameters on models that support partial_fit</p></td>
 </tr>
 </tbody>
 </table>
@@ -440,34 +1089,34 @@ the computation required as described in “<a class="reference internal" href="
 <hr class="docutils" />
 <p>Now, let’s look at these classes in-depth.</p>
 <ol class="arabic simple">
-<li>“<a class="reference internal" href="#hyperparameter-drop-in"><span class="std std-ref">Drop-In Replacements for Scikit-Learn</span></a>” details
+<li><p>“<a class="reference internal" href="#hyperparameter-drop-in"><span class="std std-ref">Drop-In Replacements for Scikit-Learn</span></a>” details
 <a class="reference internal" href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV" title="dask_ml.model_selection.RandomizedSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomizedSearchCV</span></code></a> and
-<a class="reference internal" href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV" title="dask_ml.model_selection.GridSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">GridSearchCV</span></code></a>.</li>
-<li>“<a class="reference internal" href="#hyperparameter-incremental"><span class="std std-ref">Incremental Hyperparameter Optimization</span></a>” details
+<a class="reference internal" href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV" title="dask_ml.model_selection.GridSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">GridSearchCV</span></code></a>.</p></li>
+<li><p>“<a class="reference internal" href="#hyperparameter-incremental"><span class="std std-ref">Incremental Hyperparameter Optimization</span></a>” details
 <a class="reference internal" href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV" title="dask_ml.model_selection.IncrementalSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">IncrementalSearchCV</span></code></a> and all it’s
 subclasses (one of which is
-<a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a>).</li>
-<li>“<a class="reference internal" href="#hyperparameter-adaptive"><span class="std std-ref">Adaptive Hyperparameter Optimization</span></a>” details usage and performance of
-<a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a>.</li>
+<a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a>).</p></li>
+<li><p>“<a class="reference internal" href="#hyperparameter-adaptive"><span class="std std-ref">Adaptive Hyperparameter Optimization</span></a>” details usage and performance of
+<a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a>.</p></li>
 </ol>
 </div>
 </div>
 <div class="section" id="drop-in-replacements-for-scikit-learn">
 <span id="hyperparameter-drop-in"></span><h2>Drop-In Replacements for Scikit-Learn<a class="headerlink" href="#drop-in-replacements-for-scikit-learn" title="Permalink to this headline">¶</a></h2>
 <p>Dask-ML implements drop-in replacements for
-<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v0.24)"><code class="xref py py-class docutils literal notranslate"><span class="pre">GridSearchCV</span></code></a> and
-<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v0.24)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomizedSearchCV</span></code></a>.</p>
-<table border="1" class="longtable docutils">
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">GridSearchCV</span></code></a> and
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomizedSearchCV</span></code></a>.</p>
+<table class="longtable table autosummary">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV" title="dask_ml.model_selection.GridSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.GridSearchCV</span></code></a>(…[,&nbsp;…])</td>
-<td>Exhaustive search over specified parameter values for an estimator.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.GridSearchCV.html#dask_ml.model_selection.GridSearchCV" title="dask_ml.model_selection.GridSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.GridSearchCV</span></code></a>(...[, ...])</p></td>
+<td><p>Exhaustive search over specified parameter values for an estimator.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV" title="dask_ml.model_selection.RandomizedSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.RandomizedSearchCV</span></code></a>(…)</td>
-<td>Randomized search on hyper parameters.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV" title="dask_ml.model_selection.RandomizedSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.RandomizedSearchCV</span></code></a>(...)</p></td>
+<td><p>Randomized search on hyper parameters.</p></td>
 </tr>
 </tbody>
 </table>
@@ -475,15 +1124,15 @@ subclasses (one of which is
 and should be a drop-in replacement for the subset that they do implement.
 In that case, why use Dask-ML’s versions?</p>
 <ul class="simple">
-<li><a class="reference internal" href="#flexible-backends"><span class="std std-ref">Flexible Backends</span></a>: Hyperparameter
+<li><p><a class="reference internal" href="#flexible-backends"><span class="std std-ref">Flexible Backends</span></a>: Hyperparameter
 optimization can be done in parallel using threads, processes, or distributed
-across a cluster.</li>
-<li><a class="reference internal" href="#works-with-dask-collections"><span class="std std-ref">Works well with Dask collections</span></a>. Dask
-arrays, dataframes, and delayed can be passed to <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</li>
-<li><a class="reference internal" href="#avoid-repeated-work"><span class="std std-ref">Avoid repeated work</span></a>. Candidate models with
+across a cluster.</p></li>
+<li><p><a class="reference internal" href="#works-with-dask-collections"><span class="std std-ref">Works well with Dask collections</span></a>. Dask
+arrays, dataframes, and delayed can be passed to <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</p></li>
+<li><p><a class="reference internal" href="#avoid-repeated-work"><span class="std std-ref">Avoid repeated work</span></a>. Candidate models with
 identical parameters and inputs will only be fit once. For
 composite-models such as <code class="docutils literal notranslate"><span class="pre">Pipeline</span></code> this can be significantly more
-efficient as it can avoid expensive repeated computations.</li>
+efficient as it can avoid expensive repeated computations.</p></li>
 </ul>
 <p>Both Scikit-learn’s and Dask-ML’s model selection meta-estimators can be used
 with Dask’s <a class="reference internal" href="joblib.html#joblib"><span class="std std-ref">joblib backend</span></a>.</p>
@@ -591,23 +1240,23 @@ expensive early steps, this can be a big win when performing a grid search.</p>
 </div>
 <div class="section" id="incremental-hyperparameter-optimization">
 <span id="hyperparameter-incremental"></span><h2>Incremental Hyperparameter Optimization<a class="headerlink" href="#incremental-hyperparameter-optimization" title="Permalink to this headline">¶</a></h2>
-<table border="1" class="longtable docutils">
+<table class="longtable table autosummary">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV" title="dask_ml.model_selection.IncrementalSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearchCV</span></code></a>(…)</td>
-<td>Incrementally search for hyper-parameters on models that support partial_fit</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV" title="dask_ml.model_selection.IncrementalSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearchCV</span></code></a>(...)</p></td>
+<td><p>Incrementally search for hyper-parameters on models that support partial_fit</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.HyperbandSearchCV</span></code></a>(…)</td>
-<td>Find the best parameters for a particular model with an adaptive cross-validation algorithm.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.HyperbandSearchCV</span></code></a>(...)</p></td>
+<td><p>Find the best parameters for a particular model with an adaptive cross-validation algorithm.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV" title="dask_ml.model_selection.SuccessiveHalvingSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.SuccessiveHalvingSearchCV</span></code></a>(…)</td>
-<td>Perform the successive halving algorithm <a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#r424ea1a907b1-1" id="id6">[R424ea1a907b1-1]</a>.</td>
+<tr class="row-odd"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV" title="dask_ml.model_selection.SuccessiveHalvingSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.SuccessiveHalvingSearchCV</span></code></a>(...)</p></td>
+<td><p>Perform the successive halving algorithm <a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#r424ea1a907b1-1" id="id6"><span>[R424ea1a907b1-1]</span></a>.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.InverseDecaySearchCV.html#dask_ml.model_selection.InverseDecaySearchCV" title="dask_ml.model_selection.InverseDecaySearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.InverseDecaySearchCV</span></code></a>(…)</td>
-<td>Incrementally search for hyper-parameters on models that support partial_fit</td>
+<tr class="row-even"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.InverseDecaySearchCV.html#dask_ml.model_selection.InverseDecaySearchCV" title="dask_ml.model_selection.InverseDecaySearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.InverseDecaySearchCV</span></code></a>(...)</p></td>
+<td><p>Incrementally search for hyper-parameters on models that support partial_fit</p></td>
 </tr>
 </tbody>
 </table>
@@ -615,8 +1264,8 @@ expensive early steps, this can be a big win when performing a grid search.</p>
 use <a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a>, but it can easily be
 generalized to any of the above estimators.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">These estimators require that the model implement <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>.</p>
+<p class="admonition-title">Note</p>
+<p>These estimators require that the model implement <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>.</p>
 </div>
 <p>By default, these class will call <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> on each chunk of the data.
 These classes can stop training any models if their score stops increasing
@@ -665,13 +1314,13 @@ train-and-score them until we find the best one.</p>
 <span class="gp">In [13]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [14]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span>
-<span class="gh">Out[14]: </span><span class="go">{&#39;alpha&#39;: 0.0721213777206371, &#39;l1_ratio&#39;: 0.43964218144076417}</span>
+<span class="gh">Out[14]: </span><span class="go">{&#39;alpha&#39;: 0.2585723020378285, &#39;l1_ratio&#39;: 0.7653501711774684}</span>
 
 <span class="gp">In [15]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_score_</span>
-<span class="gh">Out[15]: </span><span class="go">0.7</span>
+<span class="gh">Out[15]: </span><span class="go">0.55</span>
 
 <span class="gp">In [16]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
-<span class="gh">Out[16]: </span><span class="go">0.4</span>
+<span class="gh">Out[16]: </span><span class="go">0.5</span>
 </pre></div>
 </div>
 <p>Note that when you do post-fit tasks like <code class="docutils literal notranslate"><span class="pre">search.score</span></code>, the underlying
@@ -692,7 +1341,7 @@ to use post-estimation features like scoring or prediction, we recommend using
 <span class="gp">In [21]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [22]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
-<span class="gh">Out[22]: </span><span class="go">0.5</span>
+<span class="gh">Out[22]: </span><span class="go">0.6</span>
 </pre></div>
 </div>
 <p>Note that the parameter names include the <code class="docutils literal notranslate"><span class="pre">estimator__</span></code> prefix, as we’re
@@ -705,17 +1354,17 @@ that’s underlying the <a class="reference internal" href="modules/generated/da
 <p>Dask-ML has these estimators that <cite>adapt</cite> to historical data to determine which
 models to continue training. This means high scoring models can be found with
 fewer cumulative calls to <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>.</p>
-<table border="1" class="longtable docutils">
+<table class="longtable table autosummary">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.HyperbandSearchCV</span></code></a>(…)</td>
-<td>Find the best parameters for a particular model with an adaptive cross-validation algorithm.</td>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.HyperbandSearchCV</span></code></a>(...)</p></td>
+<td><p>Find the best parameters for a particular model with an adaptive cross-validation algorithm.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV" title="dask_ml.model_selection.SuccessiveHalvingSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.SuccessiveHalvingSearchCV</span></code></a>(…)</td>
-<td>Perform the successive halving algorithm <a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#r424ea1a907b1-1" id="id7">[R424ea1a907b1-1]</a>.</td>
+<tr class="row-even"><td><p><a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#dask_ml.model_selection.SuccessiveHalvingSearchCV" title="dask_ml.model_selection.SuccessiveHalvingSearchCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dask_ml.model_selection.SuccessiveHalvingSearchCV</span></code></a>(...)</p></td>
+<td><p>Perform the successive halving algorithm <a class="reference internal" href="modules/generated/dask_ml.model_selection.SuccessiveHalvingSearchCV.html#r424ea1a907b1-1" id="id7"><span>[R424ea1a907b1-1]</span></a>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -726,11 +1375,11 @@ mentioned in “<a class="reference internal" href="#hyperparameter-incremental"
 <p><a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a> has several niceties
 mentioned in the following sections:</p>
 <ul class="simple">
-<li><a class="reference internal" href="#hyperparameter-hyperband-params"><span class="std std-ref">Hyperband parameters: rule-of-thumb</span></a>: a good rule-of-thumb to determine
-<a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a>’s input parameters.</li>
-<li><a class="reference internal" href="#hyperparameter-hyperband-perf"><span class="std std-ref">Hyperband Performance</span></a>: how quickly
+<li><p><a class="reference internal" href="#hyperparameter-hyperband-params"><span class="std std-ref">Hyperband parameters: rule-of-thumb</span></a>: a good rule-of-thumb to determine
+<a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a>’s input parameters.</p></li>
+<li><p><a class="reference internal" href="#hyperparameter-hyperband-perf"><span class="std std-ref">Hyperband Performance</span></a>: how quickly
 <a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a> will find high performing
-models.</li>
+models.</p></li>
 </ul>
 <p>Let’s see how well Hyperband does when the inputs are chosen with the provided
 rule-of-thumb.</p>
@@ -738,9 +1387,9 @@ rule-of-thumb.</p>
 <span id="hyperparameter-hyperband-params"></span><h3>Hyperband parameters: rule-of-thumb<a class="headerlink" href="#hyperband-parameters-rule-of-thumb" title="Permalink to this headline">¶</a></h3>
 <p><a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a> has two inputs:</p>
 <ol class="arabic simple">
-<li><code class="docutils literal notranslate"><span class="pre">max_iter</span></code>, which determines how many times to call <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code></li>
-<li>the chunk size of the Dask array, which determines how many data each
-<code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> call receives.</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_iter</span></code>, which determines how many times to call <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code></p></li>
+<li><p>the chunk size of the Dask array, which determines how many data each
+<code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> call receives.</p></li>
 </ol>
 <p>These fall out pretty naturally once it’s known how long to train the best
 model and very approximately how many parameters to sample:</p>
@@ -775,9 +1424,9 @@ much about the data, model or hyperparameters. If I had at least some sense of
 what hyperparameters to use, I would specify <code class="docutils literal notranslate"><span class="pre">aggressiveness=3</span></code>, the default.</p>
 <p>The inputs to this rule-of-thumb are exactly what the user cares about:</p>
 <ul class="simple">
-<li>A measure of how complex the search space is (via <code class="docutils literal notranslate"><span class="pre">n_params</span></code>)</li>
-<li>How long to train the best model (via <code class="docutils literal notranslate"><span class="pre">n_examples</span></code>)</li>
-<li>How confident they are in the hyperparameters (via <code class="docutils literal notranslate"><span class="pre">aggressiveness</span></code>).</li>
+<li><p>A measure of how complex the search space is (via <code class="docutils literal notranslate"><span class="pre">n_params</span></code>)</p></li>
+<li><p>How long to train the best model (via <code class="docutils literal notranslate"><span class="pre">n_examples</span></code>)</p></li>
+<li><p>How confident they are in the hyperparameters (via <code class="docutils literal notranslate"><span class="pre">aggressiveness</span></code>).</p></li>
 </ul>
 <p>Notably, there’s no tradeoff between <code class="docutils literal notranslate"><span class="pre">n_examples</span></code> and <code class="docutils literal notranslate"><span class="pre">n_params</span></code> like with
 <a class="reference internal" href="modules/generated/dask_ml.model_selection.RandomizedSearchCV.html#dask_ml.model_selection.RandomizedSearchCV" title="dask_ml.model_selection.RandomizedSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomizedSearchCV</span></code></a> because <code class="docutils literal notranslate"><span class="pre">n_examples</span></code> is
@@ -801,7 +1450,7 @@ chunks:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [34]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [35]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span>
-<span class="gh">Out[35]: </span><span class="go">{&#39;alpha&#39;: 0.15691662625121378, &#39;l1_ratio&#39;: 0.9449903286748056}</span>
+<span class="gh">Out[35]: </span><span class="go">{&#39;alpha&#39;: 0.022239849888400182, &#39;l1_ratio&#39;: 0.6695773192136228}</span>
 </pre></div>
 </div>
 <p>To be clear, this is a very small toy example: there are only 100 observations and
@@ -815,33 +1464,33 @@ can be found in the Dask blog post “<a class="reference external" href="https:
 optimization with Dask</a>”.</p>
 <p>It will use these estimators with the following inputs:</p>
 <ul class="simple">
-<li>Model: Scikit-learn’s <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html#sklearn.neural_network.MLPClassifier" title="(in scikit-learn v0.24)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLPClassifier</span></code></a> with 12
-neurons</li>
-<li>Dataset: A simple synthetic dataset with 4 classes and 6 features (2
-meaningful features and 4 random features):</li>
+<li><p>Model: Scikit-learn’s <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html#sklearn.neural_network.MLPClassifier" title="(in scikit-learn v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLPClassifier</span></code></a> with 12
+neurons</p></li>
+<li><p>Dataset: A simple synthetic dataset with 4 classes and 6 features (2
+meaningful features and 4 random features):</p></li>
 </ul>
 <div class="figure align-center" id="id9">
 <a class="reference internal image-reference" href="_images/synthetic-dataset.png"><img alt="_images/synthetic-dataset.png" src="_images/synthetic-dataset.png" style="width: 30%;" /></a>
 <p class="caption"><span class="caption-text">The training dataset with 60,000 data. The 4 classes are shown with
 different colors, and in addition to the two features shown (on the x/y
-axes) there are also 4 other usefuless features.</span></p>
+axes) there are also 4 other usefuless features.</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
 </div>
 <p>Let’s search for the best model to classify this dataset. Let’s search over
 these parameters:</p>
 <ul class="simple">
-<li>One hyperparameters that control optimal model architecture:
+<li><p>One hyperparameters that control optimal model architecture:
 <code class="docutils literal notranslate"><span class="pre">hidden_layer_sizes</span></code>. This can take values that have 12 neurons; for
-example, 6 neurons in two layers or 4 neurons in 3 layers.</li>
-<li>Six hyperparameters that control finding the optimal model of a particular
+example, 6 neurons in two layers or 4 neurons in 3 layers.</p></li>
+<li><p>Six hyperparameters that control finding the optimal model of a particular
 architecture. This includes hyperparameters such as weight decay and various
-optimization parameters (including batch size, learning rate and momentum).</li>
+optimization parameters (including batch size, learning rate and momentum).</p></li>
 </ul>
 <p>Here’s how we’ll configure the two different estimators:</p>
 <ol class="arabic simple">
-<li>“Hyperband” is configured with rule-of-thumb above with <code class="docutils literal notranslate"><span class="pre">n_params</span> <span class="pre">=</span>
-<span class="pre">299</span></code> <a class="footnote-reference" href="#f1" id="id8">[1]</a> and <code class="docutils literal notranslate"><span class="pre">n_examples</span> <span class="pre">=</span> <span class="pre">50</span> <span class="pre">*</span> <span class="pre">len(X_train)</span></code>.</li>
-<li>“Incremental” is configured to do the same amount of work as Hyperband
-with <code class="docutils literal notranslate"><span class="pre">IncrementalSearchCV(...,</span> <span class="pre">n_initial_parameters=19,</span> <span class="pre">decay_rate=0)</span></code></li>
+<li><p>“Hyperband” is configured with rule-of-thumb above with <code class="docutils literal notranslate"><span class="pre">n_params</span> <span class="pre">=</span>
+<span class="pre">299</span></code> <a class="footnote-reference brackets" href="#f1" id="id8">1</a> and <code class="docutils literal notranslate"><span class="pre">n_examples</span> <span class="pre">=</span> <span class="pre">50</span> <span class="pre">*</span> <span class="pre">len(X_train)</span></code>.</p></li>
+<li><p>“Incremental” is configured to do the same amount of work as Hyperband
+with <code class="docutils literal notranslate"><span class="pre">IncrementalSearchCV(...,</span> <span class="pre">n_initial_parameters=19,</span> <span class="pre">decay_rate=0)</span></code></p></li>
 </ol>
 <p>These two estimators are configured do the same amount of computation, the
 equivalent of fitting about 19 models. With this amount of computation, how do
@@ -850,7 +1499,7 @@ the final accuracies look?</p>
 <a class="reference internal image-reference" href="_images/synthetic-final-acc.svg"><img alt="_images/synthetic-final-acc.svg" src="_images/synthetic-final-acc.svg" width="60%" /></a>
 <p class="caption"><span class="caption-text">The final validation accuracy over 200 different runs of the estimators
 above. Out of the 200 runs, the <cite>worst</cite> <a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a> run performed
-better than 99 of the <code class="xref py py-class docutils literal notranslate"><span class="pre">IncrementalSearchCV</span></code> runs.</span></p>
+better than 99 of the <code class="xref py py-class docutils literal notranslate"><span class="pre">IncrementalSearchCV</span></code> runs.</span><a class="headerlink" href="#id10" title="Permalink to this image">¶</a></p>
 </div>
 <p>This is great – <a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a> looks to
 be a lot more confident than
@@ -862,7 +1511,7 @@ searches find models of (say) 85% accuracy? Experimentally, Hyperband reaches
 <a class="reference internal image-reference" href="_images/synthetic-val-acc.svg"><img alt="_images/synthetic-val-acc.svg" src="_images/synthetic-val-acc.svg" width="60%" /></a>
 <p class="caption"><span class="caption-text">The average accuracy obtained by each search after a certain number of
 passes through the dataset. The green line is passes through the data
-required to train 4 models to completion.</span></p>
+required to train 4 models to completion.</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
 </div>
 <p>“Passes through the dataset” is a good proxy for “time to solution” in this
 case because only 4 Dask workers are used, and they’re all busy for the vast
@@ -872,50 +1521,71 @@ the number of Dask workers in a separate experiment.</p>
 <div class="figure align-center" id="id12">
 <a class="reference internal image-reference" href="_images/scaling-patience-true.svg"><img alt="_images/scaling-patience-true.svg" src="_images/scaling-patience-true.svg" width="60%" /></a>
 <p class="caption"><span class="caption-text">The time-to-completion for a single run of Hyperband as the number of Dask
-workers vary. The solid white line is the time required to train one model.</span></p>
+workers vary. The solid white line is the time required to train one model.</span><a class="headerlink" href="#id12" title="Permalink to this image">¶</a></p>
 </div>
 <p>It looks like the speedup starts to saturate around 24 Dask workers. This
 number will increase if the search space becomes larger or if model evaluation
 takes longer.</p>
-<table class="docutils footnote" frame="void" id="f1" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id8">[1]</a></td><td>Approximately 300 parameters were desired; 299 was chosen to make the Dask array chunk evenly</td></tr>
-</tbody>
-</table>
+<dl class="footnote brackets">
+<dt class="label" id="f1"><span class="brackets"><a class="fn-backref" href="#id8">1</a></span></dt>
+<dd><p>Approximately 300 parameters were desired; 299 was chosen to make the Dask array chunk evenly</p>
+</dd>
+</dl>
 </div>
 </div>
 </div>
 
 
-           </div>
-          </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="cross_validation.html" class="btn btn-neutral float-left" title="Cross Validation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="compose.html" class="btn btn-neutral float-right" title="Pipelines and Composite Estimators" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+              </div>
+              
+        
+            
+
+
+
+<div class='prev-next-bottom'>
+    
+    <div id="prev">
+        <a class="left-prev" href="cross_validation.html" title="previous page">
+            <i class="prevnext-label fas fa-angle-left"></i>
+            <div class="prevnext-info">
+                <p class="prevnext-label">previous</p>
+                <p class="prevnext-title">Cross Validation</p>
+            </div>
+        </a>
     </div>
+     <div id="next">
+        <a class="right-next" href="compose.html" title="next page">
+            <div class="prevnext-info">
+                <p class="prevnext-label">next</p>
+                <p class="prevnext-title">Pipelines and Composite Estimators</p>
+            </div>
+            <i class="prevnext-label fas fa-angle-right"></i>
+        </a>
+     </div>
 
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright 2017, Dask developers.</p>
-  </div>
-
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
-
-</footer>
+</div>
+        
         </div>
-      </div>
-    </section>
-  </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
+    </div>
+    <footer class="footer">
+    <div class="container">
+      <p>
+        
+          By Dask developers<br/>
+        
+            &copy; Copyright 2017, Dask developers.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
 
-</body>
+
+      </div>
+    </div>
+  
+  <script src="_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
 </html>

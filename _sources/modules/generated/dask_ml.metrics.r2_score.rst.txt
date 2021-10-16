@@ -1,4 +1,4 @@
-dask\_ml.metrics.r2\_score
+﻿dask\_ml.metrics.r2\_score
 ==========================
 
 .. currentmodule:: dask_ml.metrics

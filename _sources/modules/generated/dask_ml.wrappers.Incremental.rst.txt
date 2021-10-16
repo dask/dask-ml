@@ -1,4 +1,4 @@
-:mod:`dask_ml.wrappers`.Incremental
+﻿:mod:`dask_ml.wrappers`.Incremental
 ==========================================
 
 .. currentmodule:: dask_ml.wrappers

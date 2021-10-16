@@ -1,217 +1,777 @@
+
 <!DOCTYPE html>
-<html class="writer-html4" lang="en" >
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>dask_ml.model_selection.HyperbandSearchCV &mdash; dask-ml 1.8.1 documentation</title><link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/explore.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/nbsphinx.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../../_static/jquery.js"></script>
-        <script type="text/javascript" src="../../_static/underscore.js"></script>
-        <script type="text/javascript" src="../../_static/doctools.js"></script>
-        <script type="text/javascript" src="../../_static/language_data.js"></script>
-        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script type="text/javascript" src="../../_static/js/custom.js"></script>
-    <script src="../../_static/js/theme.js"></script>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>dask_ml.model_selection.HyperbandSearchCV &#8212; dask-ml 1.8.1 documentation</title>
+    
+  <link href="../../_static/css/theme.css" rel="stylesheet" />
+  <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/style.css" />
+    
+  <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="dask_ml.model_selection.SuccessiveHalvingSearchCV" href="dask_ml.model_selection.SuccessiveHalvingSearchCV.html" />
     <link rel="prev" title="dask_ml.model_selection.IncrementalSearchCV" href="dask_ml.model_selection.IncrementalSearchCV.html" />
-  <link rel="shortcut icon" href="../../_static/images/favicon.ico"/>
-  
-  <meta name="Description" content="dask_ml.model_selection.HyperbandSearchCV">
-  <meta property="og:description" content="dask_ml.model_selection.HyperbandSearchCV">
-  <meta name="twitter:description" content="dask_ml.model_selection.HyperbandSearchCV" />
-  <meta property="og:title" content="dask-ml 1.8.1 documentation - dask_ml.model_selection.HyperbandSearchCV">
-  <meta property="og:image" content="https://github.com/dask.png">
-  <meta property="og:image:secure_url" content="https://github.com/dask.png" />
-  <meta property="og:image:type" content="image/png" />
-  <meta property="og:image:width" content="380" />
-  <meta property="og:image:height" content="380" />
-  <meta property="og:url" content="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html">
-  <meta property="og:site_name" content="dask-ml 1.8.1 documentation">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
 
-  <meta name="twitter:site" content="https://dask.org" />
-  <meta name="twitter:creator" content="@dask_dev" />
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:image" content="https://github.com/dask.png" />
-  <meta name="twitter:image:alt" content="dask-ml 1.8.1 documentation">
+<nav class="dask-nav container-fluid">
+  <ul>
+    <li class="logo">
+      <a href="https://docs.dask.org/">
+        <img
+          class="caption"
+          src="../../_static/images/dask-horizontal-white.svg"
+        />
+      </a>
+    </li>
+
+    <li>
+      <a href="https://docs.dask.org/">Dask</a>
+    </li>
+
+    <li>
+      <a href="https://distributed.dask.org/">Distributed</a>
+    </li>
+
+    <li>
+      <a href="https://ml.dask.org/">Dask ML</a>
+    </li>
+
+    <li>
+      <a href="https://examples.dask.org/">Examples</a>
+    </li>
+
+    <li>
+      <a href="https://docs.dask.org/en/latest/ecosystem.html">Ecosystem</a>
+    </li>
+
+    <li>
+      <a href="https://docs.dask.org/en/latest/support.html">Community</a>
+    </li>
+  </ul>
+</nav>
 
 
-</head>
+    
+    <div class="container-fluid" id="banner"></div>
 
-<body class="wy-body-for-nav">
-    <nav id="explore-links">
-        <a href="https://docs.dask.org/">
-        <img class="caption" src="../../_static/images/dask-horizontal-white.svg"/>
-        </a>
+    
 
-        <ul>
-        <li>
-            <a>Get Started</a>
-            <ul>
-            <li><a href="https://docs.dask.org/en/latest/install.html"> Install </a></li>
-            <li><a href="https://examples.dask.org"> Examples </a></li>
-            <li><a href="https://github.com/dask/dask-tutorial"> Tutorial </a></li>
-            <li><a href="https://docs.dask.org/en/latest/why.html"> Why Dask? </a></li>
-            <li><a href="https://stories.dask.org/en/latest"> Use Cases </a></li>
-            <li><a href="https://www.youtube.com/watch?v=RA_2qdipVng&list=PLRtz5iA93T4PQvWuoMnIyEIz1fXiJ5Pri"> Talks </a></li>
-            <li><a href="https://mybinder.org/v2/gh/dask/dask-examples/main?urlpath=lab"> Try Online </a></li>
-            <li><a href="https://dask.org/slides"> Slides </a></li>
-            </ul>
-        </li>
+    <div class="container-xl">
+      <div class="row">
+          
+<div class="col-12 col-md-3 bd-sidebar site-navigation show" id="site-navigation">
+    
+        <div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+      
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p class="caption" role="heading">
+ <span class="caption-text">
+  Use
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../preprocessing.html">
+   Preprocessing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../cross_validation.html">
+   Cross Validation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../hyper-parameter-search.html">
+   Hyper Parameter Search
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../compose.html">
+   Pipelines and Composite Estimators
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../glm.html">
+   Generalized Linear Models
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../naive-bayes.html">
+   Naive Bayes
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../meta-estimators.html">
+   Parallel Meta-estimators
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../incremental.html">
+   Incremental Learning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../clustering.html">
+   Clustering
+  </a>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../api.html">
+   API Reference
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.model_selection.train_test_split.html">
+     dask_ml.model_selection.train_test_split
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.model_selection.ShuffleSplit.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .ShuffleSplit
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.model_selection.KFold.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .KFold
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.model_selection.GridSearchCV.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .GridSearchCV
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.model_selection.RandomizedSearchCV.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .RandomizedSearchCV
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.model_selection.IncrementalSearchCV.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .IncrementalSearchCV
+    </a>
+   </li>
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="#">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .HyperbandSearchCV
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.model_selection.SuccessiveHalvingSearchCV.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .SuccessiveHalvingSearchCV
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.model_selection.InverseDecaySearchCV.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.model_selection
+      </span>
+     </code>
+     .InverseDecaySearchCV
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.ensemble.BlockwiseVotingClassifier.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.ensemble
+      </span>
+     </code>
+     .BlockwiseVotingClassifier
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.ensemble.BlockwiseVotingRegressor.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.ensemble
+      </span>
+     </code>
+     .BlockwiseVotingRegressor
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.linear_model.LinearRegression.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.linear_model
+      </span>
+     </code>
+     .LinearRegression
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.linear_model.LogisticRegression.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.linear_model
+      </span>
+     </code>
+     .LogisticRegression
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.linear_model.PoissonRegression.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.linear_model
+      </span>
+     </code>
+     .PoissonRegression
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.naive_bayes.GaussianNB.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.naive_bayes
+      </span>
+     </code>
+     .GaussianNB
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.wrappers.ParallelPostFit.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.wrappers
+      </span>
+     </code>
+     .ParallelPostFit
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.wrappers.Incremental.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.wrappers
+      </span>
+     </code>
+     .Incremental
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.cluster.KMeans.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.cluster
+      </span>
+     </code>
+     .KMeans
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.cluster.SpectralClustering.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.cluster
+      </span>
+     </code>
+     .SpectralClustering
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.decomposition.IncrementalPCA.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.decomposition
+      </span>
+     </code>
+     .IncrementalPCA
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.decomposition.PCA.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.decomposition
+      </span>
+     </code>
+     .PCA
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.decomposition.TruncatedSVD.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.decomposition
+      </span>
+     </code>
+     .TruncatedSVD
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.preprocessing.StandardScaler.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .StandardScaler
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.preprocessing.RobustScaler.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .RobustScaler
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.preprocessing.MinMaxScaler.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .MinMaxScaler
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.preprocessing.QuantileTransformer.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .QuantileTransformer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.preprocessing.StandardScaler.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .StandardScaler
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.preprocessing.Categorizer.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .Categorizer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.preprocessing.DummyEncoder.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .DummyEncoder
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.preprocessing.OrdinalEncoder.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .OrdinalEncoder
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.preprocessing.LabelEncoder.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .LabelEncoder
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.preprocessing.PolynomialFeatures.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .PolynomialFeatures
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.preprocessing.BlockTransformer.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.preprocessing
+      </span>
+     </code>
+     .BlockTransformer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.feature_extraction.text.CountVectorizer.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.feature_extraction.text
+      </span>
+     </code>
+     .CountVectorizer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.feature_extraction.text.HashingVectorizer.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.feature_extraction.text
+      </span>
+     </code>
+     .HashingVectorizer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.feature_extraction.text.FeatureHasher.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.feature_extraction.text
+      </span>
+     </code>
+     .FeatureHasher
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.compose.ColumnTransformer.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.compose
+      </span>
+     </code>
+     .ColumnTransformer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.compose.make_column_transformer.html">
+     dask_ml.compose.make_column_transformer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.impute.SimpleImputer.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.impute
+      </span>
+     </code>
+     .SimpleImputer
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.metrics.mean_absolute_error.html">
+     dask_ml.metrics.mean_absolute_error
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.metrics.mean_absolute_percentage_error.html">
+     dask_ml.metrics.mean_absolute_percentage_error
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.metrics.mean_squared_error.html">
+     dask_ml.metrics.mean_squared_error
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.metrics.mean_squared_log_error.html">
+     dask_ml.metrics.mean_squared_log_error
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.metrics.r2_score.html">
+     dask_ml.metrics.r2_score
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.metrics.accuracy_score.html">
+     dask_ml.metrics.accuracy_score
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.metrics.log_loss.html">
+     dask_ml.metrics.log_loss
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.xgboost.XGBClassifier.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.xgboost
+      </span>
+     </code>
+     .XGBClassifier
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.xgboost.XGBRegressor.html">
+     <code class="xref py py-mod docutils literal notranslate">
+      <span class="pre">
+       dask_ml.xgboost
+      </span>
+     </code>
+     .XGBRegressor
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.xgboost.train.html">
+     dask_ml.xgboost.train
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.xgboost.predict.html">
+     dask_ml.xgboost.predict
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.datasets.make_counts.html">
+     dask_ml.datasets.make_counts
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.datasets.make_blobs.html">
+     dask_ml.datasets.make_blobs
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.datasets.make_regression.html">
+     dask_ml.datasets.make_regression
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.datasets.make_classification.html">
+     dask_ml.datasets.make_classification
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="dask_ml.datasets.make_classification_df.html">
+     dask_ml.datasets.make_classification_df
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+<p class="caption" role="heading">
+ <span class="caption-text">
+  Integration
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../joblib.html">
+   Scikit-Learn &amp; Joblib
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../xgboost.html">
+   XGBoost &amp; LightGBM
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../pytorch.html">
+   PyTorch
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../keras.html">
+   Keras and Tensorflow
+  </a>
+ </li>
+</ul>
+<p class="caption" role="heading">
+ <span class="caption-text">
+  Develop
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../changelog.html">
+   Changelog
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../contributing.html">
+   Contributing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../roadmap.html">
+   Dask-ML Roadmap
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../history.html">
+   History
+  </a>
+ </li>
+</ul>
 
-        <li>
-            <a href="">Algorithms</a>
-            <ul>
-            <li><a href="https://docs.dask.org/en/latest/array.html">Arrays</a></li>
-            <li><a href="https://docs.dask.org/en/latest/dataframe.html">Dataframes</a></li>
-            <li><a href="https://docs.dask.org/en/latest/bag.html">Bags</a></li>
-            <li><a href="https://docs.dask.org/en/latest/delayed.html">Delayed (custom)</a></li>
-            <li><a href="https://docs.dask.org/en/latest/futures.html">Futures (real-time)</a></li>
-            <li><a href="http://ml.dask.org">Machine Learning</a></li>
-            <li><a href="https://xarray.pydata.org/en/latest/">XArray</a></li>
-            </ul>
-        </li>
+    </div>
+</nav> <!-- To handle the deprecated key -->
 
-        <li>
-            <a href="https://docs.dask.org/en/latest/setup.html">Setup</a>
-            <ul>
-            <li><a href="https://docs.dask.org/en/latest/setup/single-machine.html"> Local </a></li>
-            <li><a href="https://docs.dask.org/en/latest/setup/cloud.html"> Cloud </a></li>
-            <li><a href="https://docs.dask.org/en/latest/setup/hpc.html"> HPC </a></li>
-            <li><a href="https://kubernetes.dask.org/en/latest/"> Kubernetes </a></li>
-            <li><a href="https://yarn.dask.org/en/latest/"> Hadoop / Yarn </a></li>
-            </ul>
-        </li>
-
-        <li>
-            <a>Community</a>
-            <ul>
-            <li><a href="http://docs.dask.org/en/latest/support.html">Ask for Help</a></li>
-            <li><a href="https://github.com/dask">Github</a></li>
-            <li><a href="https://stackoverflow.com/questions/tagged/dask">Stack Overflow</a></li>
-            <li><a href="https://twitter.com/dask_dev">Twitter</a></li>
-            <li><a href="https://blog.dask.org/"> Developer Blog </a></li>
-            <li><a href="https://youtube.com/c/dask-dev"> YouTube Channel </a></li>
-            <li><a href="https://join.slack.com/t/dask/shared_invite/zt-mfmh7quc-nIrXL6ocgiUH2haLYA914g"> Slack </a></li>
-            </ul>
-        </li>
-        </ul>
-
-    </nav>
-  
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> dask-ml
-          </a>
-              <div class="version">
-                1.8.1.dev23+gc99cab3a
-              </div>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
+<div class="navbar_extra_footer">
+  Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption"><span class="caption-text">Use</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../preprocessing.html">Preprocessing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../cross_validation.html">Cross Validation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../hyper-parameter-search.html">Hyper Parameter Search</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../compose.html">Pipelines and Composite Estimators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../glm.html">Generalized Linear Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../naive-bayes.html">Naive Bayes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../meta-estimators.html">Parallel Meta-estimators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../incremental.html">Incremental Learning</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../clustering.html">Clustering</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="../api.html#module-dask_ml.model_selection"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>: Model Selection</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.train_test_split.html">dask_ml.model_selection.train_test_split</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.ShuffleSplit.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.ShuffleSplit</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.KFold.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.KFold</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.GridSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.GridSearchCV</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.RandomizedSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.RandomizedSearchCV</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.IncrementalSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.IncrementalSearchCV</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.HyperbandSearchCV</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.SuccessiveHalvingSearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.SuccessiveHalvingSearchCV</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dask_ml.model_selection.InverseDecaySearchCV.html"><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.InverseDecaySearchCV</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.ensemble"><code class="docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code>: Ensemble Methods</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.linear_model"><code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code>: Generalized Linear Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.naive_bayes"><code class="docutils literal notranslate"><span class="pre">dask_ml.naive_bayes</span></code>: Naive Bayes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-wrappers-meta-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.wrappers</span></code>: Meta-Estimators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.cluster"><code class="docutils literal notranslate"><span class="pre">dask_ml.cluster</span></code>: Clustering</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.decomposition"><code class="docutils literal notranslate"><span class="pre">dask_ml.decomposition</span></code>: Matrix Decomposition</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.preprocessing"><code class="docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code>: Preprocessing Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-feature-extraction-text-feature-extraction"><code class="docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>: Feature extraction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-compose-composite-estimators"><code class="docutils literal notranslate"><span class="pre">dask_ml.compose</span></code>: Composite Estimators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.impute"><code class="docutils literal notranslate"><span class="pre">dask_ml.impute</span></code>: Imputing Missing Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-metrics-metrics"><code class="docutils literal notranslate"><span class="pre">dask_ml.metrics</span></code>: Metrics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#module-dask_ml.xgboost"><code class="docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code>: XGBoost</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#dask-ml-datasets-datasets"><code class="docutils literal notranslate"><span class="pre">dask_ml.datasets</span></code>: Datasets</a></li>
-</ul>
-</li>
-</ul>
-<p class="caption"><span class="caption-text">Integration</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../joblib.html">Scikit-Learn &amp; Joblib</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../xgboost.html">XGBoost &amp; LightGBM</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../pytorch.html">PyTorch</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../keras.html">Keras and Tensorflow</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Develop</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../roadmap.html">Dask-ML Roadmap</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../history.html">History</a></li>
-</ul>
+
+</div>
+
+
+          
+
+
+          
+<main class="col py-md-3 pl-md-4 bd-content overflow-auto" role="main">
+    
+    <div class="topbar container-xl fixed-top">
+    <div class="topbar-contents row">
+        <div class="col-12 col-md-3 bd-topbar-whitespace site-navigation show"></div>
+        <div class="col pl-md-4 topbar-main">
+            
+            <button id="navbar-toggler" class="navbar-toggler ml-0" type="button" data-toggle="collapse"
+                data-toggle="tooltip" data-placement="bottom" data-target=".site-navigation" aria-controls="navbar-menu"
+                aria-expanded="true" aria-label="Toggle navigation" aria-controls="site-navigation"
+                title="Toggle navigation" data-toggle="tooltip" data-placement="left">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-arrow-left"></i>
+                <i class="fas fa-arrow-up"></i>
+            </button>
+            
+            
+<div class="dropdown-buttons-trigger">
+    <button id="dropdown-buttons-trigger" class="btn btn-secondary topbarbtn" aria-label="Download this page"><i
+            class="fas fa-download"></i></button>
+
+    <div class="dropdown-buttons">
+        <!-- ipynb file if we had a myst markdown file -->
+        
+        <!-- Download raw file -->
+        <a class="dropdown-buttons" href="../../_sources/modules/generated/dask_ml.model_selection.HyperbandSearchCV.rst.txt"><button type="button"
+                class="btn btn-secondary topbarbtn" title="Download source file" data-toggle="tooltip"
+                data-placement="left">.rst</button></a>
+        <!-- Download PDF via print -->
+        <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
+            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+    </div>
+</div>
+
+            <!-- Source interaction buttons -->
+
+            <!-- Full screen (wrap in <a> to have style consistency -->
+
+<a class="full-screen-button"><button type="button" class="btn btn-secondary topbarbtn" data-toggle="tooltip"
+        data-placement="bottom" onclick="toggleFullScreen()" aria-label="Fullscreen mode"
+        title="Fullscreen mode"><i
+            class="fas fa-expand"></i></button></a>
+
+            <!-- Launch buttons -->
 
         </div>
-      </div>
-    </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../index.html">dask-ml</a>
-      </nav>
-
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../api.html">API Reference</a> &raquo;</li>
-      <li><code class="docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.HyperbandSearchCV</li>
-      <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/modules/generated/dask_ml.model_selection.HyperbandSearchCV.rst.txt" rel="nofollow"> View page source</a>
-      </li>
-  </ul>
-  <hr/>
+        <!-- Table of contents -->
+        <div class="d-none d-md-block col-md-2 bd-toc show">
+            
+        </div>
+    </div>
 </div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
+    <div id="main-content" class="row">
+        <div class="col-12 col-md-9 pl-md-3 pr-md-0">
+        
+              <div>
+                
   <div class="section" id="dask-ml-model-selection-hyperbandsearchcv">
 <h1><a class="reference internal" href="../api.html#module-dask_ml.model_selection" title="dask_ml.model_selection"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code></a>.HyperbandSearchCV<a class="headerlink" href="#dask-ml-model-selection-hyperbandsearchcv" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="dask_ml.model_selection.HyperbandSearchCV">
-<em class="property">class </em><code class="descclassname">dask_ml.model_selection.</code><code class="descname">HyperbandSearchCV</code><span class="sig-paren">(</span><em>estimator</em>, <em>parameters</em>, <em>max_iter=81</em>, <em>aggressiveness=3</em>, <em>patience=False</em>, <em>tol=0.001</em>, <em>test_size=None</em>, <em>random_state=None</em>, <em>scoring=None</em>, <em>verbose=False</em>, <em>prefix=''</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.HyperbandSearchCV" title="Permalink to this definition">¶</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="dask_ml.model_selection.HyperbandSearchCV">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dask_ml.model_selection.</span></span><span class="sig-name descname"><span class="pre">HyperbandSearchCV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">81</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggressiveness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scoring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.HyperbandSearchCV" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the best parameters for a particular model with an adaptive
 cross-validation algorithm.</p>
 <p>Hyperband will find close to the best possible parameters with
-the given computational budget <a class="footnote-reference" href="#id3" id="id1">[*]</a> by spending more time training
+the given computational budget <a class="footnote-reference brackets" href="#id3" id="id1">*</a> by spending more time training
 high-performing estimators <a class="reference internal" href="#r6ef2b88ca647-1" id="id2">[1]</a>. This means that Hyperband stops training
 estimators that perform poorly – at it’s core, Hyperband is an early
 stopping scheme for RandomizedSearchCV.</p>
@@ -223,214 +783,187 @@ to train the best performing estimator via <code class="docutils literal notrans
 The other implicit input (the Dask array chuck size) requires
 a rough estimate of how many parameters to sample. Specification details
 are in <a class="reference internal" href="#hyperband-notes"><span class="std std-ref">Notes</span></a>.</p>
-<table class="docutils footnote" frame="void" id="id3" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id1">[*]</a></td><td>After <span class="math notranslate nohighlight">\(N\)</span> <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> calls the estimator Hyperband
+<dl class="footnote brackets">
+<dt class="label" id="id3"><span class="brackets"><a class="fn-backref" href="#id1">*</a></span></dt>
+<dd><p>After <span class="math notranslate nohighlight">\(N\)</span> <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> calls the estimator Hyperband
 produces will be close to the best possible estimator that <span class="math notranslate nohighlight">\(N\)</span>
 <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> calls could ever produce with high probability (where
-“close” means “within log terms of the expected best possible score”).</td></tr>
-</tbody>
-</table>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>estimator</strong> <span class="classifier-delimiter">:</span> <span class="classifier">estimator object.</span></dt>
-<dd><p class="first last">A object of that type is instantiated for each hyperparameter
+“close” means “within log terms of the expected best possible score”).</p>
+</dd>
+</dl>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>estimator</strong><span class="classifier">estimator object.</span></dt><dd><p>A object of that type is instantiated for each hyperparameter
 combination. This is assumed to implement the scikit-learn estimator
 interface. Either estimator needs to provide a <code class="docutils literal notranslate"><span class="pre">score</span></code> function,
 or <code class="docutils literal notranslate"><span class="pre">scoring</span></code> must be passed. The estimator must implement
 <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>, <code class="docutils literal notranslate"><span class="pre">set_params</span></code>, and work well with <code class="docutils literal notranslate"><span class="pre">clone</span></code>.</p>
 </dd>
-<dt><strong>parameters</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">Dictionary with parameters names (string) as keys and distributions
+<dt><strong>parameters</strong><span class="classifier">dict</span></dt><dd><p>Dictionary with parameters names (string) as keys and distributions
 or lists of parameters to try. Distributions must provide a <code class="docutils literal notranslate"><span class="pre">rvs</span></code>
 method for sampling (such as those from scipy.stats.distributions).
 If a list is given, it is sampled uniformly.</p>
 </dd>
-<dt><strong>max_iter</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">The maximum number of partial_fit calls to any one model. This should
+<dt><strong>max_iter</strong><span class="classifier">int</span></dt><dd><p>The maximum number of partial_fit calls to any one model. This should
 be the number of <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> calls required for the model to
 converge. See <a class="reference internal" href="#hyperband-notes"><span class="std std-ref">Notes</span></a> for details on
 setting this parameter.</p>
 </dd>
-<dt><strong>aggressiveness</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default=3</span></dt>
-<dd><p class="first last">How aggressive to be in culling off the different estimators. Higher
+<dt><strong>aggressiveness</strong><span class="classifier">int, default=3</span></dt><dd><p>How aggressive to be in culling off the different estimators. Higher
 values imply higher confidence in scoring (or that
 the hyperparameters influence the <code class="docutils literal notranslate"><span class="pre">estimator.score</span></code> more
 than the data). Theory suggests <code class="docutils literal notranslate"><span class="pre">aggressiveness=3</span></code> is close to
 optimal. <code class="docutils literal notranslate"><span class="pre">aggressiveness=4</span></code> has higher confidence that is likely
 suitable for initial exploration.</p>
 </dd>
-<dt><strong>patience</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, default False</span></dt>
-<dd><p class="first last">If specified, training stops when the score does not increase by
+<dt><strong>patience</strong><span class="classifier">int, default False</span></dt><dd><p>If specified, training stops when the score does not increase by
 <code class="docutils literal notranslate"><span class="pre">tol</span></code> after <code class="docutils literal notranslate"><span class="pre">patience</span></code> calls to <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>. Off by default.
 A <code class="docutils literal notranslate"><span class="pre">patience</span></code> value is automatically selected if <code class="docutils literal notranslate"><span class="pre">patience=True</span></code> to
 work well with the Hyperband model selection algorithm.</p>
 </dd>
-<dt><strong>tol</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, default 0.001</span></dt>
-<dd><p class="first last">The required level of improvement to consider stopping training on
+<dt><strong>tol</strong><span class="classifier">float, default 0.001</span></dt><dd><p>The required level of improvement to consider stopping training on
 that model when <code class="docutils literal notranslate"><span class="pre">patience</span></code> is specified.  Increasing <code class="docutils literal notranslate"><span class="pre">tol</span></code> will
 tend to reduce training time at the cost of (potentially) worse
 estimators.</p>
 </dd>
-<dt><strong>test_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first">Fraction of the dataset to hold out for computing test/validation
+<dt><strong>test_size</strong><span class="classifier">float</span></dt><dd><p>Fraction of the dataset to hold out for computing test/validation
 scores. Defaults to the size of a single partition of
 the input training set.</p>
-<div class="last admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The testing dataset should fit in memory on a single machine.
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The testing dataset should fit in memory on a single machine.
 Adjust the <code class="docutils literal notranslate"><span class="pre">test_size</span></code> parameter as necessary to achieve this.</p>
 </div>
 </dd>
-<dt><strong>random_state</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int, RandomState instance or None, optional, default: None</span></dt>
-<dd><p class="first last">If int, random_state is the seed used by the random number generator;
+<dt><strong>random_state</strong><span class="classifier">int, RandomState instance or None, optional, default: None</span></dt><dd><p>If int, random_state is the seed used by the random number generator;
 If RandomState instance, random_state is the random number generator;
 If None, the random number generator is the RandomState instance used
 by <cite>np.random</cite>.</p>
 </dd>
-<dt><strong>scoring</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, callable, list/tuple, dict or None, default: None</span></dt>
-<dd><p class="first">A single string (see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter" title="(in scikit-learn v0.24)"><span>The scoring parameter: defining model evaluation rules</span></a>) or a callable
-(see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring" title="(in scikit-learn v0.24)"><span>Defining your scoring strategy from metric functions</span></a>) to evaluate the predictions on the test set.</p>
-<p class="last">If None, the estimator’s default scorer (if available) is used.</p>
+<dt><strong>scoring</strong><span class="classifier">string, callable, list/tuple, dict or None, default: None</span></dt><dd><p>A single string (see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter" title="(in scikit-learn v1.0)"><span>The scoring parameter: defining model evaluation rules</span></a>) or a callable
+(see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring" title="(in scikit-learn v1.0)"><span>Defining your scoring strategy from metric functions</span></a>) to evaluate the predictions on the test set.</p>
+<p>If None, the estimator’s default scorer (if available) is used.</p>
 </dd>
-<dt><strong>verbose</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, float, int, optional, default: False</span></dt>
-<dd><p class="first">If False (default), don’t print logs (or pipe them to stdout). However,
+<dt><strong>verbose</strong><span class="classifier">bool, float, int, optional, default: False</span></dt><dd><p>If False (default), don’t print logs (or pipe them to stdout). However,
 standard logging will still be used.</p>
 <p>If True, print logs and use standard logging.</p>
-<p class="last">If float, print/log approximately <code class="docutils literal notranslate"><span class="pre">verbose</span></code> fraction of the time.</p>
+<p>If float, print/log approximately <code class="docutils literal notranslate"><span class="pre">verbose</span></code> fraction of the time.</p>
 </dd>
-<dt><strong>prefix</strong> <span class="classifier-delimiter">:</span> <span class="classifier">str, optional, default=””</span></dt>
-<dd><p class="first last">While logging, add <code class="docutils literal notranslate"><span class="pre">prefix</span></code> to each message.</p>
+<dt><strong>prefix</strong><span class="classifier">str, optional, default=””</span></dt><dd><p>While logging, add <code class="docutils literal notranslate"><span class="pre">prefix</span></code> to each message.</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>metadata and metadata_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict[str, Union(int, dict)]</span></dt>
-<dd><p class="first">These dictionaries describe the computation performed, either
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><dl>
+<dt><strong>metadata and metadata_</strong><span class="classifier">dict[str, Union(int, dict)]</span></dt><dd><p>These dictionaries describe the computation performed, either
 before computation happens with <code class="docutils literal notranslate"><span class="pre">metadata</span></code> or after computation
 happens with <code class="docutils literal notranslate"><span class="pre">metadata_</span></code>. These dictionaries both have keys</p>
 <ul>
-<li><p class="first"><code class="docutils literal notranslate"><span class="pre">n_models</span></code>, an int representing how many models will be/is created.</p>
-</li>
-<li><dl class="first docutils">
-<dt><code class="docutils literal notranslate"><span class="pre">partial_fit_calls</span></code>, an int representing how many times</dt>
-<dd><p class="first last"><code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> will be/is called.</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">n_models</span></code>, an int representing how many models will be/is created.</p></li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">partial_fit_calls</span></code>, an int representing how many times</dt><dd><p><code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> will be/is called.</p>
 </dd>
 </dl>
 </li>
-<li><p class="first"><code class="docutils literal notranslate"><span class="pre">brackets</span></code>, a list of the brackets that Hyperband runs. Each
+<li><p><code class="docutils literal notranslate"><span class="pre">brackets</span></code>, a list of the brackets that Hyperband runs. Each
 bracket has different values for training time importance and
 hyperparameter importance. In addition to <code class="docutils literal notranslate"><span class="pre">n_models</span></code> and
 <code class="docutils literal notranslate"><span class="pre">partial_fit_calls</span></code>, each element in this list has keys</p>
 <blockquote>
 <div><ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">bracket</span></code>, an int the bracket ID. Each bracket corresponds to
+<li><p><code class="docutils literal notranslate"><span class="pre">bracket</span></code>, an int the bracket ID. Each bracket corresponds to
 a different levels of training time importance.
 For bracket 0, training time is important. For the highest
 bracket, training time is not important and models are killed
-aggressively.</li>
-<li><code class="docutils literal notranslate"><span class="pre">SuccessiveHalvingSearchCV</span> <span class="pre">params</span></code>, a dictionary used to create
+aggressively.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SuccessiveHalvingSearchCV</span> <span class="pre">params</span></code>, a dictionary used to create
 the different brackets. It does not include the
-<code class="docutils literal notranslate"><span class="pre">estimator</span></code> or <code class="docutils literal notranslate"><span class="pre">parameters</span></code> parameters.</li>
-<li><code class="docutils literal notranslate"><span class="pre">decisions</span></code>, the number of <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> calls Hyperband makes
-before making decisions.</li>
+<code class="docutils literal notranslate"><span class="pre">estimator</span></code> or <code class="docutils literal notranslate"><span class="pre">parameters</span></code> parameters.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">decisions</span></code>, the number of <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> calls Hyperband makes
+before making decisions.</p></li>
 </ul>
 </div></blockquote>
 </li>
 </ul>
-<p class="last">These dictionaries are the same if <code class="docutils literal notranslate"><span class="pre">patience</span></code> is not specified. If
+<p>These dictionaries are the same if <code class="docutils literal notranslate"><span class="pre">patience</span></code> is not specified. If
 <code class="docutils literal notranslate"><span class="pre">patience</span></code> is specified, it’s possible that less training is
 performed, and <code class="docutils literal notranslate"><span class="pre">metadata_</span></code> will reflect that (though <code class="docutils literal notranslate"><span class="pre">metadata</span></code>
 won’t).</p>
 </dd>
-<dt><strong>cv_results_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Dict[str, np.ndarray]</span></dt>
-<dd><p class="first">A dictionary that describes how well each model has performed.
+<dt><strong>cv_results_</strong><span class="classifier">Dict[str, np.ndarray]</span></dt><dd><p>A dictionary that describes how well each model has performed.
 It contains information about every model regardless if it reached
 <code class="docutils literal notranslate"><span class="pre">max_iter</span></code>.  It has keys</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">mean_partial_fit_time</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">mean_score_time</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">std_partial_fit_time</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">std_score_time</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">test_score</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">rank_test_score</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">model_id</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">partial_fit_calls</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">params</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">param_{key}</span></code>, where <code class="docutils literal notranslate"><span class="pre">{key}</span></code> is every key in <code class="docutils literal notranslate"><span class="pre">params</span></code>.</li>
-<li><code class="docutils literal notranslate"><span class="pre">bracket</span></code></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mean_partial_fit_time</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mean_score_time</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">std_partial_fit_time</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">std_score_time</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_score</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rank_test_score</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model_id</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">partial_fit_calls</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">params</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">param_{key}</span></code>, where <code class="docutils literal notranslate"><span class="pre">{key}</span></code> is every key in <code class="docutils literal notranslate"><span class="pre">params</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bracket</span></code></p></li>
 </ul>
 <p>The values in the <code class="docutils literal notranslate"><span class="pre">test_score</span></code> key correspond to the last score a model
 received on the hold out dataset. The key <code class="docutils literal notranslate"><span class="pre">model_id</span></code> corresponds with
 <code class="docutils literal notranslate"><span class="pre">history_</span></code>. This dictionary can be imported into a Pandas DataFrame.</p>
-<p class="last">In the <code class="docutils literal notranslate"><span class="pre">model_id</span></code>, the bracket ID prefix corresponds to the bracket
+<p>In the <code class="docutils literal notranslate"><span class="pre">model_id</span></code>, the bracket ID prefix corresponds to the bracket
 in <code class="docutils literal notranslate"><span class="pre">metadata</span></code>. Bracket 0 doesn’t adapt to previous training at all;
 higher values correspond to more adaptation.</p>
 </dd>
-<dt><strong>history_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of dicts</span></dt>
-<dd><p class="first">Information about each model after each <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> call. Each dict
+<dt><strong>history_</strong><span class="classifier">list of dicts</span></dt><dd><p>Information about each model after each <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> call. Each dict
 the keys</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">partial_fit_time</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">score_time</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">score</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">model_id</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">params</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">partial_fit_calls</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">elapsed_wall_time</span></code></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">partial_fit_time</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">score_time</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">score</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model_id</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">params</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">partial_fit_calls</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">elapsed_wall_time</span></code></p></li>
 </ul>
-<p class="last">The key <code class="docutils literal notranslate"><span class="pre">model_id</span></code> corresponds to the <code class="docutils literal notranslate"><span class="pre">model_id</span></code> in <code class="docutils literal notranslate"><span class="pre">cv_results_</span></code>.
+<p>The key <code class="docutils literal notranslate"><span class="pre">model_id</span></code> corresponds to the <code class="docutils literal notranslate"><span class="pre">model_id</span></code> in <code class="docutils literal notranslate"><span class="pre">cv_results_</span></code>.
 This list of dicts can be imported into Pandas.</p>
 </dd>
-<dt><strong>model_history_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict of lists of dict</span></dt>
-<dd><p class="first">A dictionary of each models history. This is a reorganization of
+<dt><strong>model_history_</strong><span class="classifier">dict of lists of dict</span></dt><dd><p>A dictionary of each models history. This is a reorganization of
 <code class="docutils literal notranslate"><span class="pre">history_</span></code>: the same information is present but organized per model.</p>
-<p class="last">This data has the structure  <code class="docutils literal notranslate"><span class="pre">{model_id:</span> <span class="pre">[h1,</span> <span class="pre">h2,</span> <span class="pre">h3,</span> <span class="pre">...]}</span></code> where
+<p>This data has the structure  <code class="docutils literal notranslate"><span class="pre">{model_id:</span> <span class="pre">[h1,</span> <span class="pre">h2,</span> <span class="pre">h3,</span> <span class="pre">...]}</span></code> where
 <code class="docutils literal notranslate"><span class="pre">h1</span></code>, <code class="docutils literal notranslate"><span class="pre">h2</span></code> and <code class="docutils literal notranslate"><span class="pre">h3</span></code> are elements of <code class="docutils literal notranslate"><span class="pre">history_</span></code>
 and <code class="docutils literal notranslate"><span class="pre">model_id</span></code> is the model ID as in <code class="docutils literal notranslate"><span class="pre">cv_results_</span></code>.</p>
 </dd>
-<dt><strong>best_estimator_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">BaseEstimator</span></dt>
-<dd><p class="first last">The model with the highest validation score as selected by
+<dt><strong>best_estimator_</strong><span class="classifier">BaseEstimator</span></dt><dd><p>The model with the highest validation score as selected by
 the Hyperband model selection algorithm.</p>
 </dd>
-<dt><strong>best_score_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Score achieved by <code class="docutils literal notranslate"><span class="pre">best_estimator_</span></code> on the validation set after the
+<dt><strong>best_score_</strong><span class="classifier">float</span></dt><dd><p>Score achieved by <code class="docutils literal notranslate"><span class="pre">best_estimator_</span></code> on the validation set after the
 final call to <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>.</p>
 </dd>
-<dt><strong>best_index_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd><p class="first last">Index indicating which estimator in <code class="docutils literal notranslate"><span class="pre">cv_results_</span></code> corresponds to
+<dt><strong>best_index_</strong><span class="classifier">int</span></dt><dd><p>Index indicating which estimator in <code class="docutils literal notranslate"><span class="pre">cv_results_</span></code> corresponds to
 the highest score.</p>
 </dd>
-<dt><strong>best_params_</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">Dictionary of best parameters found on the hold-out data.</p>
+<dt><strong>best_params_</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of best parameters found on the hold-out data.</p>
 </dd>
-<dt><strong>scorer_ :</strong></dt>
-<dd><p class="first last">The function used to score models, which has a call signature of
+<dt><strong>scorer_ :</strong></dt><dd><p>The function used to score models, which has a call signature of
 <code class="docutils literal notranslate"><span class="pre">scorer_(estimator,</span> <span class="pre">X,</span> <span class="pre">y)</span></code>.</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 <p class="rubric">Notes</p>
 <p id="hyperband-notes">To set <code class="docutils literal notranslate"><span class="pre">max_iter</span></code> and the chunk size for <code class="docutils literal notranslate"><span class="pre">X</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code>, it is required
 to estimate</p>
 <ul class="simple">
-<li>the number of examples at least one model will see
+<li><p>the number of examples at least one model will see
 (<code class="docutils literal notranslate"><span class="pre">n_examples</span></code>). If 10 passes through the data are needed for
-the longest trained model, <code class="docutils literal notranslate"><span class="pre">n_examples</span> <span class="pre">=</span> <span class="pre">10</span> <span class="pre">*</span> <span class="pre">len(X)</span></code>.</li>
-<li>how many hyper-parameter combinations to sample (<code class="docutils literal notranslate"><span class="pre">n_params</span></code>)</li>
+the longest trained model, <code class="docutils literal notranslate"><span class="pre">n_examples</span> <span class="pre">=</span> <span class="pre">10</span> <span class="pre">*</span> <span class="pre">len(X)</span></code>.</p></li>
+<li><p>how many hyper-parameter combinations to sample (<code class="docutils literal notranslate"><span class="pre">n_params</span></code>)</p></li>
 </ul>
 <p>These can be rough guesses. To determine the chunk size and <code class="docutils literal notranslate"><span class="pre">max_iter</span></code>,</p>
 <ol class="arabic simple">
-<li>Let the chunks size be <code class="docutils literal notranslate"><span class="pre">chunk_size</span> <span class="pre">=</span> <span class="pre">n_examples</span> <span class="pre">/</span> <span class="pre">n_params</span></code></li>
-<li>Let <code class="docutils literal notranslate"><span class="pre">max_iter</span> <span class="pre">=</span> <span class="pre">n_params</span></code></li>
+<li><p>Let the chunks size be <code class="docutils literal notranslate"><span class="pre">chunk_size</span> <span class="pre">=</span> <span class="pre">n_examples</span> <span class="pre">/</span> <span class="pre">n_params</span></code></p></li>
+<li><p>Let <code class="docutils literal notranslate"><span class="pre">max_iter</span> <span class="pre">=</span> <span class="pre">n_params</span></code></p></li>
 </ol>
 <p>Then, every estimator sees no
 more than <code class="docutils literal notranslate"><span class="pre">max_iter</span> <span class="pre">*</span> <span class="pre">chunk_size</span> <span class="pre">=</span> <span class="pre">n_examples</span></code> examples.
@@ -438,10 +971,10 @@ Hyperband will actually sample some more hyper-parameter combinations than
 <code class="docutils literal notranslate"><span class="pre">n_examples</span></code> (which is why rough guesses are adequate). For example,
 let’s say</p>
 <ul class="simple">
-<li>about 200 or 300 hyper-parameters need to be tested to effectively
-search the possible hyper-parameters</li>
-<li>models need more than <code class="docutils literal notranslate"><span class="pre">50</span> <span class="pre">*</span> <span class="pre">len(X)</span></code> examples but less than
-<code class="docutils literal notranslate"><span class="pre">100</span> <span class="pre">*</span> <span class="pre">len(X)</span></code> examples.</li>
+<li><p>about 200 or 300 hyper-parameters need to be tested to effectively
+search the possible hyper-parameters</p></li>
+<li><p>models need more than <code class="docutils literal notranslate"><span class="pre">50</span> <span class="pre">*</span> <span class="pre">len(X)</span></code> examples but less than
+<code class="docutils literal notranslate"><span class="pre">100</span> <span class="pre">*</span> <span class="pre">len(X)</span></code> examples.</p></li>
 </ul>
 <p>Let’s decide to provide <code class="docutils literal notranslate"><span class="pre">81</span> <span class="pre">*</span> <span class="pre">len(X)</span></code> examples and to sample 243
 parameters. Then each chunk will be 1/3rd the dataset and <code class="docutils literal notranslate"><span class="pre">max_iter=243</span></code>.</p>
@@ -458,24 +991,20 @@ parameters. Then each chunk will be 1/3rd the dataset and <code class="docutils 
 </pre></div>
 </div>
 <p class="rubric">References</p>
-<table class="docutils citation" frame="void" id="r6ef2b88ca647-1" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td>“Hyperband: A novel bandit-based approach to hyperparameter
+<dl class="citation">
+<dt class="label" id="r6ef2b88ca647-1"><span class="brackets"><a class="fn-backref" href="#id2">1</a></span></dt>
+<dd><p>“Hyperband: A novel bandit-based approach to hyperparameter
 optimization”, 2016 by L. Li, K. Jamieson, G. DeSalvo, A.
-Rostamizadeh, and A. Talwalkar.  <a class="reference external" href="https://arxiv.org/abs/1603.06560">https://arxiv.org/abs/1603.06560</a></td></tr>
-</tbody>
-</table>
-<table class="docutils citation" frame="void" id="r6ef2b88ca647-2" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id4">[2]</a></td><td>“Better and faster hyperparameter optimization with Dask”, 2018 by
+Rostamizadeh, and A. Talwalkar.  <a class="reference external" href="https://arxiv.org/abs/1603.06560">https://arxiv.org/abs/1603.06560</a></p>
+</dd>
+<dt class="label" id="r6ef2b88ca647-2"><span class="brackets"><a class="fn-backref" href="#id4">2</a></span></dt>
+<dd><p>“Better and faster hyperparameter optimization with Dask”, 2018 by
 S. Sievert, T. Augspurger, M. Rocklin.
-<a class="reference external" href="https://doi.org/10.25080/Majora-7ddc1dd1-011">https://doi.org/10.25080/Majora-7ddc1dd1-011</a></td></tr>
-</tbody>
-</table>
+<a class="reference external" href="https://doi.org/10.25080/Majora-7ddc1dd1-011">https://doi.org/10.25080/Majora-7ddc1dd1-011</a></p>
+</dd>
+</dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dask_ml.model_selection</span> <span class="kn">import</span> <span class="n">HyperbandSearchCV</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dask_ml.datasets</span> <span class="kn">import</span> <span class="n">make_classification</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">SGDClassifier</span>
@@ -493,288 +1022,115 @@ S. Sievert, T. Augspurger, M. Rocklin.
 </pre></div>
 </div>
 <p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
+<table class="longtable table autosummary">
 <colgroup>
-<col width="10%" />
-<col width="90%" />
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">decision_function</span></code>(X)</td>
-<td></td>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">decision_function</span></code>(X)</p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.model_selection.HyperbandSearchCV.fit" title="dask_ml.model_selection.HyperbandSearchCV.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a>(X[,&nbsp;y])</td>
-<td>Find the best parameters for a particular model.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code>(X[, y])</p></td>
+<td><p>Find the best parameters for a particular model.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.HyperbandSearchCV.get_params" title="dask_ml.model_selection.HyperbandSearchCV.get_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code></a>([deep])</td>
-<td>Get parameters for this estimator.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code>([deep])</p></td>
+<td><p>Get parameters for this estimator.</p></td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code>(Xt)</td>
-<td></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code>(Xt)</p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.HyperbandSearchCV.predict" title="dask_ml.model_selection.HyperbandSearchCV.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(X)</td>
-<td>Predict for X.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code>(X)</p></td>
+<td><p>Predict for X.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.model_selection.HyperbandSearchCV.predict_log_proba" title="dask_ml.model_selection.HyperbandSearchCV.predict_log_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_log_proba</span></code></a>(X)</td>
-<td>Log of probability estimates.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_log_proba</span></code>(X)</p></td>
+<td><p>Log of probability estimates.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.HyperbandSearchCV.predict_proba" title="dask_ml.model_selection.HyperbandSearchCV.predict_proba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_proba</span></code></a>(X)</td>
-<td>Probability estimates.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_proba</span></code>(X)</p></td>
+<td><p>Probability estimates.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#dask_ml.model_selection.HyperbandSearchCV.score" title="dask_ml.model_selection.HyperbandSearchCV.score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code></a>(X[,&nbsp;y])</td>
-<td>Returns the score on the given data.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code>(X[, y])</p></td>
+<td><p>Returns the score on the given data.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#dask_ml.model_selection.HyperbandSearchCV.set_params" title="dask_ml.model_selection.HyperbandSearchCV.set_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code></a>(**params)</td>
-<td>Set the parameters of this estimator.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code>(**params)</p></td>
+<td><p>Set the parameters of this estimator.</p></td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(X)</td>
-<td></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(X)</p></td>
+<td><p>Transform block or partition-wise for dask inputs.</p></td>
 </tr>
 </tbody>
 </table>
-<table border="1" class="docutils">
+<table class="table">
 <colgroup>
-<col width="60%" />
-<col width="40%" />
+<col style="width: 60%" />
+<col style="width: 40%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><strong>partial_fit</strong></td>
-<td>&#160;</td>
+<tbody>
+<tr class="row-odd"><td><p><strong>partial_fit</strong></p></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
-<dt id="dask_ml.model_selection.HyperbandSearchCV.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>estimator</em>, <em>parameters</em>, <em>max_iter=81</em>, <em>aggressiveness=3</em>, <em>patience=False</em>, <em>tol=0.001</em>, <em>test_size=None</em>, <em>random_state=None</em>, <em>scoring=None</em>, <em>verbose=False</em>, <em>prefix=''</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.HyperbandSearchCV.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="dask_ml.model_selection.HyperbandSearchCV.fit">
-<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em>, <em>**fit_params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.HyperbandSearchCV.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find the best parameters for a particular model.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>X, y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like</span></dt>
-<dd></dd>
-<dt><strong>**fit_params</strong></dt>
-<dd><p class="first last">Additional partial fit keyword arguments for the estimator.</p>
-</dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="dask_ml.model_selection.HyperbandSearchCV.get_params">
-<code class="descname">get_params</code><span class="sig-paren">(</span><em>deep=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.HyperbandSearchCV.get_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get parameters for this estimator.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>deep</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, default=True</span></dt>
-<dd><p class="first last">If True, will return the parameters for this estimator and
-contained subobjects that are estimators.</p>
-</dd>
-</dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">Parameter names mapped to their values.</p>
-</dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="dask_ml.model_selection.HyperbandSearchCV.predict">
-<code class="descname">predict</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.HyperbandSearchCV.predict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Predict for X.</p>
-<p>For dask inputs, a dask array or dataframe is returned. For other
-inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
-regular return value is returned.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like</span></dt>
-<dd></dd>
-</dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like</span></dt>
-<dd></dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="dask_ml.model_selection.HyperbandSearchCV.predict_log_proba">
-<code class="descname">predict_log_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.HyperbandSearchCV.predict_log_proba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Log of probability estimates.</p>
-<p>For dask inputs, a dask array or dataframe is returned. For other
-inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
-regular return value is returned.</p>
-<p>If the underlying estimator does not have a <code class="docutils literal notranslate"><span class="pre">predict_proba</span></code>
-method, then an <code class="docutils literal notranslate"><span class="pre">AttributeError</span></code> is raised.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array or dataframe</span></dt>
-<dd></dd>
-</dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like</span></dt>
-<dd></dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="dask_ml.model_selection.HyperbandSearchCV.predict_proba">
-<code class="descname">predict_proba</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.HyperbandSearchCV.predict_proba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Probability estimates.</p>
-<p>For dask inputs, a dask array or dataframe is returned. For other
-inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
-regular return value is returned.</p>
-<p>If the underlying estimator does not have a <code class="docutils literal notranslate"><span class="pre">predict_proba</span></code>
-method, then an <code class="docutils literal notranslate"><span class="pre">AttributeError</span></code> is raised.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array or dataframe</span></dt>
-<dd></dd>
-</dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like</span></dt>
-<dd></dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="dask_ml.model_selection.HyperbandSearchCV.score">
-<code class="descname">score</code><span class="sig-paren">(</span><em>X</em>, <em>y=None</em><span class="sig-paren">)</span> &#x2192; float<a class="headerlink" href="#dask_ml.model_selection.HyperbandSearchCV.score" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the score on the given data.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>X</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples, n_features]</span></dt>
-<dd><p class="first last">Input data, where n_samples is the number of samples and
-n_features is the number of features.</p>
-</dd>
-<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array-like, shape = [n_samples] or [n_samples, n_output], optional</span></dt>
-<dd><p class="first last">Target relative to X for classification or regression;
-None for unsupervised learning.</p>
-</dd>
-</dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>score</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">return self.estimator.score(X, y)</p>
-</dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="dask_ml.model_selection.HyperbandSearchCV.set_params">
-<code class="descname">set_params</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.HyperbandSearchCV.set_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the parameters of this estimator.</p>
-<p>The method works on simple estimators as well as on nested objects
-(such as <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v0.24)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></a>). The latter have
-parameters of the form <code class="docutils literal notranslate"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it’s
-possible to update each component of a nested object.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>**params</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
-<dd><p class="first last">Estimator parameters.</p>
-</dd>
-</dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>self</strong> <span class="classifier-delimiter">:</span> <span class="classifier">estimator instance</span></dt>
-<dd><p class="first last">Estimator instance.</p>
-</dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dask_ml.model_selection.HyperbandSearchCV.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">81</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggressiveness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scoring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.model_selection.HyperbandSearchCV.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
 <div class="clearer"></div></div>
 
 
-           </div>
-          </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="dask_ml.model_selection.IncrementalSearchCV.html" class="btn btn-neutral float-left" title="dask_ml.model_selection.IncrementalSearchCV" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="dask_ml.model_selection.SuccessiveHalvingSearchCV.html" class="btn btn-neutral float-right" title="dask_ml.model_selection.SuccessiveHalvingSearchCV" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+              </div>
+              
+        
+            
+
+
+
+<div class='prev-next-bottom'>
+    
+    <div id="prev">
+        <a class="left-prev" href="dask_ml.model_selection.IncrementalSearchCV.html" title="previous page">
+            <i class="prevnext-label fas fa-angle-left"></i>
+            <div class="prevnext-info">
+                <p class="prevnext-label">previous</p>
+                <p class="prevnext-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.IncrementalSearchCV</p>
+            </div>
+        </a>
     </div>
+     <div id="next">
+        <a class="right-next" href="dask_ml.model_selection.SuccessiveHalvingSearchCV.html" title="next page">
+            <div class="prevnext-info">
+                <p class="prevnext-label">next</p>
+                <p class="prevnext-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.model_selection</span></code>.SuccessiveHalvingSearchCV</p>
+            </div>
+            <i class="prevnext-label fas fa-angle-right"></i>
+        </a>
+     </div>
 
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright 2017, Dask developers.</p>
-  </div>
-
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
-
-</footer>
+</div>
+        
         </div>
-      </div>
-    </section>
-  </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
+    </div>
+    <footer class="footer">
+    <div class="container">
+      <p>
+        
+          By Dask developers<br/>
+        
+            &copy; Copyright 2017, Dask developers.<br/>
+      </p>
+    </div>
+  </footer>
+</main>
 
-</body>
+
+      </div>
+    </div>
+  
+  <script src="../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  
+  </body>
 </html>
