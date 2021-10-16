@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Version 2021.10.16
+~~~~~~~~~~~~~~~~~~
+
+* Added support for scikit-learn 1.0.0. scikit-learn 1.0.0 is now the minimum-supported version.
+
 Version 1.9.0
 ~~~~~~~~~~~~~
 
