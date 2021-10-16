@@ -521,7 +521,9 @@ class TestPolynomialFeatures:
 
         assert_estimator_equal(a.fit(df), a.fit(df.compute()), exclude=exclude)
         assert_estimator_equal(a.fit(df), a.fit(df.compute().values), exclude=exclude)
-        assert_estimator_equal(a.fit(df.values), a.fit(df.compute().values), exclude=exclude)
+        assert_estimator_equal(
+            a.fit(df.values), a.fit(df.compute().values), exclude=exclude
+        )
         assert_estimator_equal(a.fit(df), b.fit(df.compute()), exclude=exclude)
         assert_estimator_equal(a.fit(df), b.fit(df.compute().values), exclude=exclude)
 
@@ -557,7 +559,6 @@ class TestPolynomialFeatures:
         # numpy array
         assert a.transform(X.compute()).shape[1] == n_cols
         X_nan_rows = df.values
-        df_none_divisions = X_nan_rows.to_dask_dataframe(columns=df.columns)
         # dask array with nan rows
         assert a.transform(X_nan_rows).shape[1] == n_cols
 

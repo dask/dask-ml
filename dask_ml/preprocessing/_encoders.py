@@ -161,7 +161,9 @@ class OneHotEncoder(DaskMLBaseMixin, sklearn.preprocessing.OneHotEncoder):
         handle_unknown: str = "error",
         force_all_finite: bool = True,
     ):
-        X = self._validate_data(X, accept_dask_dataframe=True, dtype=None, preserve_pandas_dataframe=True)
+        X = self._validate_data(
+            X, accept_dask_dataframe=True, dtype=None, preserve_pandas_dataframe=True
+        )
         self._check_n_features(X, reset=True)
         self._check_feature_names(X, reset=True)
 

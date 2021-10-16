@@ -1,7 +1,8 @@
 from __future__ import division
 
-import numbers
+import collections
 import multiprocessing
+import numbers
 from collections import OrderedDict
 from distutils.version import LooseVersion
 from typing import Any, List, Optional, Sequence, Union
@@ -22,8 +23,8 @@ from dask_ml._compat import blockwise
 from dask_ml._utils import copy_learned_attributes
 from dask_ml.utils import check_array, handle_zeros_in_scale
 
-from ..base import DaskMLBaseMixin
 from .._typing import ArrayLike, DataFrameType, NDArrayOrScalar, SeriesType
+from ..base import DaskMLBaseMixin
 
 _PANDAS_VERSION = LooseVersion(pd.__version__)
 _HAS_CTD = _PANDAS_VERSION >= "0.21.0"
@@ -58,7 +59,14 @@ class StandardScaler(DaskMLBaseMixin, sklearn.preprocessing.StandardScaler):
         y: Optional[Union[ArrayLike, SeriesType]] = None,
     ) -> "StandardScaler":
         self._reset()
-        X = self._validate_data(X, estimator=self, accept_dask_array=True, accept_dask_dataframe=True, accept_unknown_chunks=True, preserve_pandas_dataframe=True)
+        X = self._validate_data(
+            X,
+            estimator=self,
+            accept_dask_array=True,
+            accept_dask_dataframe=True,
+            accept_unknown_chunks=True,
+            preserve_pandas_dataframe=True,
+        )
 
         attributes = OrderedDict()
         if isinstance(X, (pd.DataFrame, dd.DataFrame)):
@@ -1076,7 +1084,14 @@ class PolynomialFeatures(DaskMLBaseMixin, sklearn.preprocessing.PolynomialFeatur
             interaction_only=self.interaction_only,
             include_bias=self.include_bias,
         )
-        X = self._validate_data(X, estimator=self, accept_dask_array=True, accept_dask_dataframe=True, accept_unknown_chunks=True, preserve_pandas_dataframe=True)
+        X = self._validate_data(
+            X,
+            estimator=self,
+            accept_dask_array=True,
+            accept_dask_dataframe=True,
+            accept_unknown_chunks=True,
+            preserve_pandas_dataframe=True,
+        )
 
         if isinstance(self.degree, numbers.Integral):
             if self.degree < 0:

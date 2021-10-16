@@ -20,8 +20,8 @@ from ..metrics import (
     pairwise_distances_argmin_min,
 )
 from ..utils import _timed, _timer, check_array, row_norms
-
 from ._compat import _kmeans_plusplus
+
 import numba  # isort:skip (see https://github.com/dask/dask-ml/pull/577)
 
 

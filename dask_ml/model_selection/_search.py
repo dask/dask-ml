@@ -15,7 +15,13 @@ from dask.delayed import delayed
 from dask.distributed import as_completed
 from dask.utils import derived_from
 from sklearn import model_selection
-from sklearn.base import BaseEstimator, MetaEstimatorMixin, clone, is_classifier
+from sklearn.base import (
+    BaseEstimator,
+    MetaEstimatorMixin,
+    _is_pairwise,
+    clone,
+    is_classifier,
+)
 from sklearn.exceptions import NotFittedError
 from sklearn.model_selection._search import BaseSearchCV, _check_param_grid
 from sklearn.model_selection._split import (
@@ -54,7 +60,6 @@ from .methods import (
     score,
 )
 from .utils import DeprecationDict, is_dask_collection, to_indexable, to_keys, unzip
-from sklearn.base import _is_pairwise
 
 logger = logging.getLogger(__name__)
 

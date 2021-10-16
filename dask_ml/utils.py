@@ -2,6 +2,7 @@ import contextlib
 import datetime
 import functools
 import logging
+import warnings
 from collections.abc import Sequence
 from multiprocessing import cpu_count
 from numbers import Integral
@@ -124,7 +125,7 @@ def check_array(
     accept_multiple_blocks=False,
     preserve_pandas_dataframe=False,
     remove_zero_chunks=True,
-    **kwargs
+    **kwargs,
 ):
     """Validate inputs
 
@@ -274,7 +275,6 @@ def check_matching_blocks(*arrays):
         raise ValueError("Unexpected types {}.".format({type(x) for x in arrays}))
 
 
-
 def check_X_y(
     X,
     y,
@@ -418,18 +418,23 @@ def check_X_y(
 
 def _check_y(y, multi_output=False, y_numeric=False):
     """Isolated part of check_X_y dedicated to y validation"""
-    if multi_output:
-        y = check_array(
-            y, accept_sparse="csr", force_all_finite=True, ensure_2d=False, dtype=None
-        )
-    else:
-        y = column_or_1d(y, warn=True)
-        _assert_all_finite(y)
-        _ensure_no_complex_data(y)
-    if y_numeric and y.dtype.kind == "O":
-        y = y.astype(np.float64)
-
+    # TODO: implement
+    # if multi_output:
+    #     y = check_array(
+    #         y, accept_sparse="csr", force_all_finite=True, ensure_2d=False, dtype=None
+    #     )
+    # else:
+    #     y = column_or_1d(y, warn=True)
+    #     _assert_all_finite(y)
+    #     _ensure_no_complex_data(y)
+    # if y_numeric and y.dtype.kind == "O":
+    #     y = y.astype(np.float64)
     return y
+
+
+def check_consistent_length(*arrays):
+    # TODO: check divisions, chunks, etc.
+    pass
 
 
 def check_chunks(n_samples, n_features, chunks=None):
@@ -556,7 +561,6 @@ def _num_samples(X):
         # dask dataframe
         result = result.compute()
     return result
-
 
 
 def _get_feature_names(X):

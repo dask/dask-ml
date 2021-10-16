@@ -176,9 +176,6 @@ def predict(model, x):
     func = partial(_predict, model)
 
     if getattr(model, "feature_names_in_", None) is not None:
-        import pandas as pd
-        import dask.dataframe as dd
-
         meta = model.predict(x._meta_nonempty)
         return x.map_partitions(func, meta=meta)
     else:

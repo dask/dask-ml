@@ -17,9 +17,8 @@ from sklearn.utils.estimator_checks import check_estimator
 
 import dask_ml.cluster
 from dask_ml.cluster import KMeans as DKKMeans, k_means
-from dask_ml.utils import assert_estimator_equal, row_norms
-
 from dask_ml.cluster._compat import _kmeans_plusplus
+from dask_ml.utils import assert_estimator_equal, row_norms
 
 
 def test_check_estimator():
