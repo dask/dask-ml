@@ -1,6 +1,6 @@
 import sklearn.base
 
-from .utils import check_array
+from .utils import _check_y, check_array, check_X_y
 
 
 class DaskMLBaseMixin:
