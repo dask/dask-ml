@@ -8,11 +8,12 @@ import sklearn.preprocessing
 
 from .._compat import SK_024
 from .._typing import ArrayLike, DataFrameType, DTypeLike, SeriesType
+from ..base import DaskMLBaseMixin
 from ..utils import check_array
 from .label import _encode, _encode_dask_array
 
 
-class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
+class OneHotEncoder(DaskMLBaseMixin, sklearn.preprocessing.OneHotEncoder):
     """Encode categorical integer features as a one-hot numeric array.
 
     .. versionadded:: 0.8.0
@@ -161,16 +162,13 @@ class OneHotEncoder(sklearn.preprocessing.OneHotEncoder):
         handle_unknown: str = "error",
         force_all_finite: bool = True,
     ):
-        X = check_array(
-            X, accept_dask_dataframe=True, dtype=None, preserve_pandas_dataframe=True
-        )
-        if SK_024:
-            kwargs = dict(force_all_finite=force_all_finite)
-        else:
-            kwargs = {}
+        X = self._validate_data(X, accept_dask_dataframe=True, dtype=None, preserve_pandas_dataframe=True)
+        self._check_n_features(X, reset=True)
+        self._check_feature_names(X, reset=True)
+
         if isinstance(X, np.ndarray):
             return super(OneHotEncoder, self)._fit(
-                X, handle_unknown=handle_unknown, **kwargs
+                X, handle_unknown=handle_unknown, force_all_finite=force_all_finite
             )
 
         is_array = isinstance(X, da.Array)
