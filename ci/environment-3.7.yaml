@@ -1,23 +1,15 @@
-name: dask-ml-test
+name: dask-ml-3.7
 channels:
   - conda-forge
   - defaults
 dependencies:
-  - black==19.10b0
-  - coverage
-  - codecov
-  # dask 2021.3.0 introduced a regression which causes tests to fail.
-  # The issue has been resolved upstream in dask and will be included
-  # in the next release. We temporarily apply a dask version contraint
-  # to allow CI to pass
-  - dask !=2021.3.0
-  - dask-glm >=0.2.0
-  - flake8
+  - dask
+  - dask-glm
   - isort==4.3.21
   - multipledispatch >=0.4.9
   - mypy
   - numba
-  - numpy >=1.16.3
+  - numpy
   - numpydoc
   - packaging
   - pandas
@@ -26,10 +18,7 @@ dependencies:
   - pytest-cov
   - pytest-mock
   - python=3.7.*
-  - scikit-learn>=0.23.0
+  - scikit-learn>=1.0.0
   - scipy
   - sparse
   - toolz
-  - pip
-  - pip:
-    - pytest-azurepipelines
