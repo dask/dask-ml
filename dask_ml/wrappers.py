@@ -3,7 +3,6 @@ import logging
 
 import dask.array as da
 import dask.dataframe as dd
-from dask.dataframe.dispatch import make_meta
 import dask.delayed
 import numpy as np
 import sklearn.base
@@ -15,7 +14,6 @@ from dask_ml.utils import _timer
 from ._partial import fit
 from ._utils import copy_learned_attributes
 from .metrics import check_scoring, get_scorer
-
 
 logger = logging.getLogger(__name__)
 
@@ -281,11 +279,8 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
             return result
 
         elif isinstance(X, dd._Frame):
-            # create  meta series belonging to the appropiate backend
-            meta_ser = make_meta(X.iloc[:,0])
-            result =  X.map_partitions( _predict, estimator=self._postfit_estimator, meta=meta_ser)
-            return result.to_dask_array()
-
+            result = X.map_partitions(_predict, estimator=self._postfit_estimator)
+            return result
         else:
             return _predict(X, estimator=self._postfit_estimator)
 
