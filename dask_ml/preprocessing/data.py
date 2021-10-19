@@ -1,6 +1,8 @@
 from __future__ import division
 
+import collections
 import multiprocessing
+import numbers
 from collections import OrderedDict
 from distutils.version import LooseVersion
 from typing import Any, List, Optional, Sequence, Union
@@ -22,6 +24,7 @@ from dask_ml._utils import copy_learned_attributes
 from dask_ml.utils import check_array, handle_zeros_in_scale
 
 from .._typing import ArrayLike, DataFrameType, NDArrayOrScalar, SeriesType
+from ..base import DaskMLBaseMixin
 
 _PANDAS_VERSION = LooseVersion(pd.__version__)
 _HAS_CTD = _PANDAS_VERSION >= "0.21.0"
@@ -46,7 +49,7 @@ def _handle_zeros_in_scale(scale: NDArrayOrScalar, copy=True):
         return scale
 
 
-class StandardScaler(sklearn.preprocessing.StandardScaler):
+class StandardScaler(DaskMLBaseMixin, sklearn.preprocessing.StandardScaler):
 
     __doc__ = sklearn.preprocessing.StandardScaler.__doc__
 
@@ -56,6 +59,15 @@ class StandardScaler(sklearn.preprocessing.StandardScaler):
         y: Optional[Union[ArrayLike, SeriesType]] = None,
     ) -> "StandardScaler":
         self._reset()
+        X = self._validate_data(
+            X,
+            estimator=self,
+            accept_dask_array=True,
+            accept_dask_dataframe=True,
+            accept_unknown_chunks=True,
+            preserve_pandas_dataframe=True,
+        )
+
         attributes = OrderedDict()
         if isinstance(X, (pd.DataFrame, dd.DataFrame)):
             X = X.values
@@ -71,7 +83,7 @@ class StandardScaler(sklearn.preprocessing.StandardScaler):
             attributes["scale_"] = scale_
             attributes["var_"] = var_
 
-        attributes["n_samples_seen_"] = np.nan
+        attributes["n_samples_seen_"] = X.shape[0]
         values = compute(*attributes.values())
         for k, v in zip(attributes, values):
             setattr(self, k, v)
@@ -137,7 +149,7 @@ class MinMaxScaler(sklearn.preprocessing.MinMaxScaler):
         attributes["data_range_"] = data_range
         attributes["scale_"] = scale
         attributes["min_"] = feature_range[0] - data_min * scale
-        attributes["n_samples_seen_"] = np.nan
+        attributes["n_samples_seen_"] = X.shape[0]
 
         values = compute(*attributes.values())
         for k, v in zip(attributes, values):
@@ -1036,7 +1048,7 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
         return X
 
 
-class PolynomialFeatures(sklearn.preprocessing.PolynomialFeatures):
+class PolynomialFeatures(DaskMLBaseMixin, sklearn.preprocessing.PolynomialFeatures):
     """preserve_dataframe : boolean
         If True, preserve pandas and dask dataframes after transforming.
         Using False (default) returns numpy or dask arrays and mimics
@@ -1072,6 +1084,45 @@ class PolynomialFeatures(sklearn.preprocessing.PolynomialFeatures):
             interaction_only=self.interaction_only,
             include_bias=self.include_bias,
         )
+        X = self._validate_data(
+            X,
+            estimator=self,
+            accept_dask_array=True,
+            accept_dask_dataframe=True,
+            accept_unknown_chunks=True,
+            preserve_pandas_dataframe=True,
+        )
+
+        if isinstance(self.degree, numbers.Integral):
+            if self.degree < 0:
+                raise ValueError(
+                    f"degree must be a non-negative integer, got {self.degree}."
+                )
+            self._min_degree = 0
+            self._max_degree = self.degree
+        elif (
+            isinstance(self.degree, collections.abc.Iterable) and len(self.degree) == 2
+        ):
+            self._min_degree, self._max_degree = self.degree
+            if not (
+                isinstance(self._min_degree, numbers.Integral)
+                and isinstance(self._max_degree, numbers.Integral)
+                and self._min_degree >= 0
+                and self._min_degree <= self._max_degree
+            ):
+                raise ValueError(
+                    "degree=(min_degree, max_degree) must "
+                    "be non-negative integers that fulfil "
+                    "min_degree <= max_degree, got "
+                    f"{self.degree}."
+                )
+        else:
+            raise ValueError(
+                "degree must be a non-negative int or tuple "
+                "(min_degree, max_degree), got "
+                f"{self.degree}."
+            )
+
         X_sample = X
         if isinstance(X, dd.DataFrame):
             X_sample = X._meta_nonempty
@@ -1089,19 +1140,19 @@ class PolynomialFeatures(sklearn.preprocessing.PolynomialFeatures):
         y: Optional[Union[ArrayLike, SeriesType]] = None,
     ) -> Union[ArrayLike, DataFrameType]:
         if isinstance(X, da.Array):
-            n_cols = len(self._transformer.get_feature_names())
+            n_cols = len(self._transformer.get_feature_names_out())
             X = check_array(X, accept_multiple_blocks=False, accept_unknown_chunks=True)
             chunks = (X.chunks[0], n_cols)
             XP = X.map_blocks(self._transformer.transform, dtype=X.dtype, chunks=chunks)
         elif isinstance(X, pd.DataFrame):
             XP = X.pipe(self._transformer.transform)
             if self.preserve_dataframe:
-                columns = self._transformer.get_feature_names(X.columns)
+                columns = self._transformer.get_feature_names_out(X.columns)
                 XP = pd.DataFrame(data=XP, columns=columns, index=X.index)
         elif isinstance(X, dd.DataFrame):
             XP = X.map_partitions(self._transformer.transform)
             if self.preserve_dataframe:
-                columns = self._transformer.get_feature_names(X.columns)
+                columns = self._transformer.get_feature_names_out(X.columns)
                 XP = dd.from_dask_array(XP, columns, X.index)
         else:
             # typically X is instance of np.ndarray

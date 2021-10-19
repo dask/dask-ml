@@ -5,12 +5,10 @@ channels:
 dependencies:
   - black
   - coverage
-  - flake8
   - graphviz
   - heapdict
   - ipykernel
   - ipython
-  - isort==4.3.21
   - multipledispatch
   - mypy
   - nbsphinx
@@ -21,18 +19,14 @@ dependencies:
   - numpydoc
   - pandas
   - psutil
-  - pytest
-  - pytest-cov
-  - pytest-mock
-  - python=3.7
+  - python=3.8
   - sortedcontainers
-  - scikit-learn>=0.23.1
+  - scikit-learn>=1.0.0
   - scipy
   - sparse
-  - sphinx==1.8.5
+  - sphinx
   - sphinx_rtd_theme
   - sphinx-gallery
-  - testpath<0.4
   - tornado
   - toolz
   - xgboost

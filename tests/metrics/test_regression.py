@@ -7,7 +7,6 @@ import sklearn.metrics
 from dask.array.utils import assert_eq
 
 import dask_ml.metrics
-from dask_ml._compat import SK_024
 
 _METRICS_TO_TEST = [
     "mean_squared_error",
@@ -17,8 +16,7 @@ _METRICS_TO_TEST = [
 ]
 
 # mean_absolute_percentage_error() was added in scikit-learn 0.24.0
-if SK_024:
-    _METRICS_TO_TEST.append("mean_absolute_percentage_error")
+_METRICS_TO_TEST.append("mean_absolute_percentage_error")
 
 
 @pytest.fixture(params=_METRICS_TO_TEST)

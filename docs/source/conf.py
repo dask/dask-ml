@@ -19,7 +19,6 @@
 #
 import packaging.version
 
-import dask_sphinx_theme
 from dask_ml import __version__ as version
 
 # import sys
@@ -106,8 +105,8 @@ todo_include_todos = False
 
 
 html_theme = "dask_sphinx_theme"
-
-html_theme_path = [dask_sphinx_theme.get_html_theme_path()]
+html_theme_options = {"logo_only": True}
+# html_theme_path = [dask_sphinx_theme.get_html_theme_path()]
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
