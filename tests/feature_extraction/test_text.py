@@ -183,3 +183,53 @@ def test_count_vectorizer_remote_vocabulary():
         )
         m.fit_transform(b)
         assert m.vocabulary_ is remote_vocabulary
+
+
+@pytest.mark.parametrize("distributed", [True, False])
+@pytest.mark.parametrize("norm", ["l1", "l2"])
+@pytest.mark.parametrize("use_idf", [True, False])
+@pytest.mark.parametrize("smooth_idf", [True, False])
+@pytest.mark.parametrize("sublinear_tf", [True, False])
+def test_tfidf_vectorizer(distributed,
+                          norm,
+                          use_idf,
+                          smooth_idf,
+                          sublinear_tf):
+    m1 = (sklearn.feature_extraction.text
+          .TfidfVectorizer(norm=norm,
+                           use_idf=use_idf,
+                           smooth_idf=smooth_idf,
+                           sublinear_tf=sublinear_tf))
+    b = db.from_sequence(JUNK_FOOD_DOCS, npartitions=2)
+    r1 = m1.fit_transform(JUNK_FOOD_DOCS)
+
+    m2 = (dask_ml.feature_extraction.text
+          .TfidfVectorizer(norm=norm,
+                           use_idf=use_idf,
+                           smooth_idf=smooth_idf,
+                           sublinear_tf=sublinear_tf))
+
+    if distributed:
+        client = Client()  # noqa
+    else:
+        client = dummy_context()
+
+    r2 = m2.fit_transform(b)
+
+    with client:
+        exclude = {"vocabulary_actor_", "stop_words_"}
+        if not use_idf:
+            # idf_ being a property, the automatic attributes detection
+            # does not work as usual so we will exclude it in this case:
+            exclude.add("idf_")
+        assert_estimator_equal(m1, m2, exclude=exclude)
+        assert isinstance(r2, da.Array)
+        assert isinstance(r2._meta, scipy.sparse.csr_matrix)
+        np.testing.assert_array_almost_equal(r1.toarray(),
+                                             r2.compute().toarray())
+
+        r3 = m2.transform(b)
+        assert isinstance(r3, da.Array)
+        assert isinstance(r3._meta, scipy.sparse.csr_matrix)
+        np.testing.assert_array_almost_equal(r1.toarray(),
+                                             r3.compute().toarray())

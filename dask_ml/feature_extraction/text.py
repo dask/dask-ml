@@ -121,7 +121,7 @@ class FeatureHasher(_BaseHasher, sklearn.feature_extraction.text.FeatureHasher):
 
 
 def _n_samples(X):
-    """Count the number of samples sparse X."""
+    """Count the number of samples dask array X."""
     def chunk_n_samples(chunk, axis, keepdims):
         return np.array([chunk.shape[0]])
 
@@ -133,11 +133,10 @@ def _n_samples(X):
 
 
 def _document_frequency(X, dtype):
-    """Count the number of non-zero values for each feature in sparse X."""
+    """Count the number of non-zero values for each feature in dask array X."""
     def chunk_doc_freq(chunk, axis, keepdims):
         if scipy.sparse.isspmatrix_csr(chunk):
-            arr = np.bincount(chunk.indices)
-            return np.pad(arr, (0, chunk.shape[1] - len(arr)))
+            return np.bincount(chunk.indices, minlength=chunk.shape[1])
         else:
             return np.diff(chunk.indptr)
 
@@ -361,11 +360,10 @@ class TfidfTransformer(sklearn.feature_extraction.text.TfidfTransformer):
         #     X = sp.csr_matrix(X, dtype=np.float64)
 
         def _astype(chunk):
-            c = chunk.copy()
-            c.data = chunk.data.astype(np.float64)
-            return c
+            return chunk.astype(np.float64, copy=True)
 
         def _one_plus_log(chunk):
+            # transforms nonzero elements x of csr_matrix: x -> 1 + log(x)
             c = chunk.copy()
             c.data = np.log(chunk.data, dtype=np.float64)
             c.data += 1
@@ -374,11 +372,12 @@ class TfidfTransformer(sklearn.feature_extraction.text.TfidfTransformer):
         def _dot_idf_diag(chunk):
             return chunk * self._idf_diag
 
+        meta = scipy.sparse.eye(0, format="csr")
         if X.dtype != np.float64:
-            X = X.map_blocks(_astype, dtype=np.float64)
+            X = X.map_blocks(_astype, dtype=np.float64, meta=meta)
 
         if self.sublinear_tf:
-            X = X.map_blocks(_one_plus_log, dtype=np.float64)
+            X = X.map_blocks(_one_plus_log, dtype=np.float64, meta=meta)
 
         if self.use_idf:
             # idf_ being a property, the automatic attributes detection
@@ -386,13 +385,13 @@ class TfidfTransformer(sklearn.feature_extraction.text.TfidfTransformer):
             # name:
             check_is_fitted(self, attributes=["idf_"], msg="idf vector is not fitted")
 
-            # *= doesn't work
-            X = X.map_blocks(_dot_idf_diag, dtype=np.float64)
+            X = X.map_blocks(_dot_idf_diag, dtype=np.float64, meta=meta)
 
         if self.norm:
             X = X.map_blocks(_normalize_transform,
                              dtype=np.float64,
-                             norm=self.norm)
+                             norm=self.norm,
+                             meta=meta)
 
         return X
 
