@@ -122,3 +122,5 @@ docs/source/auto_examples/
 docs/source/examples/mydask.png
 
 dask-worker-space
+/.project
+/.pydevproject

@@ -12,9 +12,13 @@ import numpy as np
 import scipy.sparse
 import sklearn.base
 import sklearn.feature_extraction.text
+import sklearn.preprocessing
 from dask.delayed import Delayed
 from distributed import get_client, wait
 from sklearn.utils.validation import check_is_fitted
+from builtins import getattr
+
+FLOAT_DTYPES = (np.float64, np.float32, np.float16)
 
 
 class _BaseHasher(sklearn.base.BaseEstimator):
@@ -116,6 +120,35 @@ class FeatureHasher(_BaseHasher, sklearn.feature_extraction.text.FeatureHasher):
         return sklearn.feature_extraction.text.FeatureHasher
 
 
+def _n_samples(X):
+    """Count the number of samples sparse X."""
+    def chunk_n_samples(chunk, axis, keepdims):
+        return np.array([chunk.shape[0]])
+
+    return da.reduction(X,
+                        chunk=chunk_n_samples,
+                        aggregate=np.sum,
+                        concatenate=False,
+                        dtype=X.dtype).compute()
+
+
+def _document_frequency(X, dtype):
+    """Count the number of non-zero values for each feature in sparse X."""
+    def chunk_doc_freq(chunk, axis, keepdims):
+        if scipy.sparse.isspmatrix_csr(chunk):
+            arr = np.bincount(chunk.indices)
+            return np.pad(arr, (0, chunk.shape[1] - len(arr)))
+        else:
+            return np.diff(chunk.indptr)
+
+    return da.reduction(X,
+                        chunk=chunk_doc_freq,
+                        aggregate=np.sum,
+                        axis=0,
+                        concatenate=False,
+                        dtype=dtype).compute().astype(dtype)
+
+
 class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
     """Convert a collection of text documents to a matrix of token counts
 
@@ -167,7 +200,11 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
     """
 
     def fit_transform(self, raw_documents, y=None):
-        params = self.get_params()
+        subclass_instance_params = self.get_params()
+        excluded_keys = getattr(self, '_non_CountVectorizer_params', [])
+        params = {key: subclass_instance_params[key]
+                  for key in subclass_instance_params
+                  if key not in excluded_keys}
         vocabulary = params.pop("vocabulary")
 
         vocabulary_for_transform = vocabulary
@@ -201,7 +238,11 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
         return result
 
     def transform(self, raw_documents):
-        params = self.get_params()
+        subclass_instance_params = self.get_params()
+        excluded_keys = getattr(self, '_non_CountVectorizer_params', [])
+        params = {key: subclass_instance_params[key]
+                  for key in subclass_instance_params
+                  if key not in excluded_keys}
         vocabulary = params.pop("vocabulary")
 
         if vocabulary is None:
@@ -227,6 +268,370 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
         )
         meta = scipy.sparse.eye(0, format="csr", dtype=self.dtype)
         return build_array(transformed, n_features, meta)
+
+
+class TfidfTransformer(sklearn.feature_extraction.text.TfidfTransformer):
+    """Transform a count matrix to a normalized tf or tf-idf representation
+
+    See Also
+    --------
+    sklearn.feature_extraction.text.TfidfTransformer
+
+    Examples
+    --------
+    >>> from dask_ml.feature_extraction.text import TfidfTransformer
+    >>> from dask_ml.feature_extraction.text import CountVectorizer
+    >>> from sklearn.pipeline import Pipeline
+    >>> import numpy as np
+    >>> corpus = ['this is the first document',
+    ...           'this document is the second document',
+    ...           'and this is the third one',
+    ...           'is this the first document']
+    >>> X = CountVectorizer().fit_transform(corpus)
+    dask.array<concatenate, shape=(nan, 9), dtype=int64, chunksize=(nan, 9), ...
+               chunktype=scipy.csr_matrix>
+    >>> X.compute().toarray()
+    array([[0, 1, 1, 1, 0, 0, 1, 0, 1],
+           [0, 2, 0, 1, 0, 1, 1, 0, 1],
+           [1, 0, 0, 1, 1, 0, 1, 1, 1],
+           [0, 1, 1, 1, 0, 0, 1, 0, 1]])
+    >>> transformer = TfidfTransformer().fit(X)
+    TfidfTransformer()
+    >>> transformer.idf_
+    array([1.91629073, 1.22314355, 1.51082562, 1.        , 1.91629073,
+           1.91629073, 1.        , 1.91629073, 1.        ])
+    >>> transformer.transform(X).compute().shape
+    (4, 9)
+    """
+    def fit(self, X, y=None):
+        """Learn the idf vector (global term weights).
+
+        Parameters
+        ----------
+        X : sparse matrix of shape n_samples, n_features)
+            A matrix of term/token counts.
+        """
+        # X = check_array(X, accept_sparse=('csr', 'csc'))
+        # if not sp.issparse(X):
+        #     X = sp.csr_matrix(X)
+        dtype = X.dtype if X.dtype in FLOAT_DTYPES else np.float64
+
+        if self.use_idf:
+            n_samples, n_features = _n_samples(X), X.shape[1]
+            df = _document_frequency(X, dtype)
+            # df = df.astype(dtype, **_astype_copy_false(df))
+
+            # perform idf smoothing if required
+            df += int(self.smooth_idf)
+            n_samples += int(self.smooth_idf)
+
+            # log+1 instead of log makes sure terms with zero idf don't get
+            # suppressed entirely.
+            idf = np.log(n_samples / df) + 1
+            self._idf_diag = scipy.sparse.diags(
+                idf,
+                offsets=0,
+                shape=(n_features, n_features),
+                format="csr",
+                dtype=dtype,
+            )
+
+        return self
+
+    def transform(self, X, copy=True):
+        """Transform a count matrix to a tf or tf-idf representation
+
+        Parameters
+        ----------
+        X : sparse matrix of (n_samples, n_features)
+            a matrix of term/token counts
+
+        copy : bool, default=True
+            Whether to copy X and operate on the copy or perform in-place
+            operations.
+
+        Returns
+        -------
+        vectors : sparse matrix of shape (n_samples, n_features)
+        """
+        # X = self._validate_data(
+        #     X, accept_sparse="csr", dtype=FLOAT_DTYPES, copy=copy, reset=False
+        # )
+        # if not sp.issparse(X):
+        #     X = sp.csr_matrix(X, dtype=np.float64)
+
+        def _astype(chunk):
+            c = chunk.copy()
+            c.data = chunk.data.astype(np.float64)
+            return c
+
+        def _one_plus_log(chunk):
+            c = chunk.copy()
+            c.data = np.log(chunk.data, dtype=np.float64)
+            c.data += 1
+            return c
+
+        def _dot_idf_diag(chunk):
+            return chunk * self._idf_diag
+
+        if X.dtype != np.float64:
+            X = X.map_blocks(_astype, dtype=np.float64)
+
+        if self.sublinear_tf:
+            X = X.map_blocks(_one_plus_log, dtype=np.float64)
+
+        if self.use_idf:
+            # idf_ being a property, the automatic attributes detection
+            # does not work as usual and we need to specify the attribute
+            # name:
+            check_is_fitted(self, attributes=["idf_"], msg="idf vector is not fitted")
+
+            # *= doesn't work
+            X = X.map_blocks(_dot_idf_diag, dtype=np.float64)
+
+        if self.norm:
+            X = X.map_blocks(_normalize_transform,
+                             dtype=np.float64,
+                             norm=self.norm)
+
+        return X
+
+
+class TfidfVectorizer(CountVectorizer):
+    r"""Convert a collection of raw documents to a matrix of TF-IDF features.
+
+    Equivalent to :class:`CountVectorizer` followed by
+    :class:`TfidfTransformer`.
+
+    See Also
+    --------
+    sklearn.feature_extraction.text.TfidfVectorizer
+
+    Examples
+    --------
+    The Dask-ML implementation currently requires that ``raw_documents``
+    is a :class:`dask.bag.Bag` of documents (lists of strings).
+
+    >>> from dask_ml.feature_extraction.text import TfidfVectorizer
+    >>> import dask.bag as db
+    >>> from distributed import Client
+    >>> client = Client()
+    >>> corpus = [
+    ...     'This is the first document.',
+    ...     'This document is the second document.',
+    ...     'And this is the third one.',
+    ...     'Is this the first document?',
+    ... ]
+    >>> corpus = db.from_sequence(corpus, npartitions=2)
+    >>> vectorizer = TfidfVectorizer()
+    >>> X = vectorizer.fit_transform(corpus)
+    dask.array<concatenate, shape=(nan, 9), dtype=float64, chunksize=(nan, 9), ...
+               chunktype=scipy.csr_matrix>
+    >>> X.compute().toarray()
+    array([[0.        , 0.46979139, 0.58028582, 0.38408524, 0.        ,
+        0.        , 0.38408524, 0.        , 0.38408524],
+       [0.        , 0.6876236 , 0.        , 0.28108867, 0.        ,
+        0.53864762, 0.28108867, 0.        , 0.28108867],
+       [0.51184851, 0.        , 0.        , 0.26710379, 0.51184851,
+        0.        , 0.26710379, 0.51184851, 0.26710379],
+       [0.        , 0.46979139, 0.58028582, 0.38408524, 0.        ,
+        0.        , 0.38408524, 0.        , 0.38408524]])
+    >>> vectorizer.get_feature_names()
+    ['and', 'document', 'first', 'is', 'one', 'second', 'the', 'third', 'this']
+    """
+
+    def __init__(
+        self,
+        *,
+        input="content",
+        encoding="utf-8",
+        decode_error="strict",
+        strip_accents=None,
+        lowercase=True,
+        preprocessor=None,
+        tokenizer=None,
+        analyzer="word",
+        stop_words=None,
+        token_pattern=r"(?u)\b\w\w+\b",
+        ngram_range=(1, 1),
+        max_df=1.0,
+        min_df=1,
+        max_features=None,
+        vocabulary=None,
+        binary=False,
+        dtype=np.float64,
+        norm="l2",
+        use_idf=True,
+        smooth_idf=True,
+        sublinear_tf=False,
+    ):
+
+        super().__init__(
+            input=input,
+            encoding=encoding,
+            decode_error=decode_error,
+            strip_accents=strip_accents,
+            lowercase=lowercase,
+            preprocessor=preprocessor,
+            tokenizer=tokenizer,
+            analyzer=analyzer,
+            stop_words=stop_words,
+            token_pattern=token_pattern,
+            ngram_range=ngram_range,
+            max_df=max_df,
+            min_df=min_df,
+            max_features=max_features,
+            vocabulary=vocabulary,
+            binary=binary,
+            dtype=dtype,
+        )
+
+        self._non_CountVectorizer_params = ['norm', 'use_idf',
+                                            'smooth_idf', 'sublinear_tf']
+        self._tfidf = TfidfTransformer(
+            norm=norm, use_idf=use_idf, smooth_idf=smooth_idf, sublinear_tf=sublinear_tf
+        )
+
+    # Broadcast the TF-IDF parameters to the underlying transformer instance
+    # for easy grid search and repr
+
+    @property
+    def norm(self):
+        """Norm of each row output, can be either "l1" or "l2"."""
+        return self._tfidf.norm
+
+    @norm.setter
+    def norm(self, value):
+        self._tfidf.norm = value
+
+    @property
+    def use_idf(self):
+        """Whether or not IDF re-weighting is used."""
+        return self._tfidf.use_idf
+
+    @use_idf.setter
+    def use_idf(self, value):
+        self._tfidf.use_idf = value
+
+    @property
+    def smooth_idf(self):
+        """Whether or not IDF weights are smoothed."""
+        return self._tfidf.smooth_idf
+
+    @smooth_idf.setter
+    def smooth_idf(self, value):
+        self._tfidf.smooth_idf = value
+
+    @property
+    def sublinear_tf(self):
+        """Whether or not sublinear TF scaling is applied."""
+        return self._tfidf.sublinear_tf
+
+    @sublinear_tf.setter
+    def sublinear_tf(self, value):
+        self._tfidf.sublinear_tf = value
+
+    @property
+    def idf_(self):
+        """Inverse document frequency vector, only defined if `use_idf=True`.
+
+        Returns
+        -------
+        ndarray of shape (n_features,)
+        """
+        return self._tfidf.idf_
+
+    @idf_.setter
+    def idf_(self, value):
+        self._validate_vocabulary()
+        if hasattr(self, "vocabulary_"):
+            if len(self.vocabulary_) != len(value):
+                raise ValueError(
+                    "idf length = %d must be equal to vocabulary size = %d"
+                    % (len(value), len(self.vocabulary))
+                )
+        self._tfidf.idf_ = value
+
+    def _check_params(self):
+        if self.dtype not in FLOAT_DTYPES:
+            warnings.warn(
+                "Only {} 'dtype' should be used. {} 'dtype' will "
+                "be converted to np.float64.".format(FLOAT_DTYPES, self.dtype),
+                UserWarning,
+            )
+
+    def fit(self, raw_documents, y=None):
+        """Learn vocabulary and idf from training set.
+
+        Parameters
+        ----------
+        raw_documents : iterable
+            An iterable which generates either str, unicode or file objects.
+
+        y : None
+            This parameter is not needed to compute tfidf.
+
+        Returns
+        -------
+        self : object
+            Fitted vectorizer.
+        """
+        self._check_params()
+        self._warn_for_unused_params()
+        X = super().fit_transform(raw_documents,
+                                  y=self._non_CountVectorizer_params)
+        self._tfidf.fit(X)
+        return self
+
+    def fit_transform(self, raw_documents, y=None):
+        """Learn vocabulary and idf, return document-term matrix.
+
+        This is equivalent to fit followed by transform, but more efficiently
+        implemented.
+
+        Parameters
+        ----------
+        raw_documents : iterable
+            An iterable which generates either str, unicode or file objects.
+
+        y : None
+            This parameter is ignored.
+
+        Returns
+        -------
+        X : sparse matrix of (n_samples, n_features)
+            Tf-idf-weighted document-term matrix.
+        """
+        self._check_params()
+        X = super().fit_transform(raw_documents)
+        self._tfidf.fit(X)
+        # X is already a transformed view of raw_documents so
+        # we set copy to False
+        return self._tfidf.transform(X)
+
+    def transform(self, raw_documents):
+        """Transform documents to document-term matrix.
+
+        Uses the vocabulary and document frequencies (df) learned by fit (or
+        fit_transform).
+
+        Parameters
+        ----------
+        raw_documents : iterable
+            An iterable which generates either str, unicode or file objects.
+
+        Returns
+        -------
+        X : sparse matrix of (n_samples, n_features)
+            Tf-idf-weighted document-term matrix.
+        """
+        check_is_fitted(self, msg="The TF-IDF vectorizer is not fitted")
+
+        X = super().transform(raw_documents)
+        return self._tfidf.transform(X, copy=False)
+
+    def _more_tags(self):
+        return {"X_types": ["string"], "_skip_test": True}
 
 
 def build_array(bag, n_features, meta):
@@ -255,6 +660,10 @@ def vocabulary_length(vocabulary):
         return result
     else:
         raise ValueError(f"Unknown vocabulary type {type(vocabulary)}.")
+
+
+def _normalize_transform(chunk, norm):
+    return sklearn.preprocessing.normalize(chunk, norm=norm)
 
 
 def _count_vectorizer_transform(partition, vocabulary, params):
