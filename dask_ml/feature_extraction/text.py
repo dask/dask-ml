@@ -8,6 +8,7 @@ import dask.array as da
 import dask.bag as db
 import dask.dataframe as dd
 import distributed
+import pandas as pd
 import numpy as np
 import scipy.sparse
 import sklearn.base
@@ -16,7 +17,6 @@ import sklearn.preprocessing
 from dask.delayed import Delayed
 from distributed import get_client, wait
 from sklearn.utils.validation import check_is_fitted
-from builtins import getattr
 
 FLOAT_DTYPES = (np.float64, np.float32, np.float16)
 
@@ -120,18 +120,6 @@ class FeatureHasher(_BaseHasher, sklearn.feature_extraction.text.FeatureHasher):
         return sklearn.feature_extraction.text.FeatureHasher
 
 
-def _n_samples(X):
-    """Count the number of samples dask array X."""
-    def chunk_n_samples(chunk, axis, keepdims):
-        return np.array([chunk.shape[0]])
-
-    return da.reduction(X,
-                        chunk=chunk_n_samples,
-                        aggregate=np.sum,
-                        concatenate=False,
-                        dtype=X.dtype).compute()
-
-
 def _document_frequency(X, dtype):
     """Count the number of non-zero values for each feature in dask array X."""
     def chunk_doc_freq(chunk, axis, keepdims):
@@ -172,7 +160,9 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
     Examples
     --------
     The Dask-ML implementation currently requires that ``raw_documents``
-    is a :class:`dask.bag.Bag` of documents (lists of strings).
+    is either a :class:`dask.bag.Bag` of documents (lists of strings) or
+    a :class:`dask.dataframe.Series` of documents (Series of strings)
+    with partitions of type :class:`pandas.Series`.
 
     >>> from dask_ml.feature_extraction.text import CountVectorizer
     >>> import dask.bag as db
@@ -184,10 +174,25 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
     ...     'And this is the third one.',
     ...     'Is this the first document?',
     ... ]
-    >>> corpus = db.from_sequence(corpus, npartitions=2)
+    >>> corpus_bag = db.from_sequence(corpus, npartitions=2)
     >>> vectorizer = CountVectorizer()
-    >>> X = vectorizer.fit_transform(corpus)
-    dask.array<concatenate, shape=(nan, 9), dtype=int64, chunksize=(nan, 9), ...
+    >>> X = vectorizer.fit_transform(corpus_bag)
+    dask.array<concatenate, shape=(4, 9), dtype=int64, chunksize=(2, 9), ...
+               chunktype=scipy.csr_matrix>
+    >>> X.compute().toarray()
+    array([[0, 1, 1, 1, 0, 0, 1, 0, 1],
+           [0, 2, 0, 1, 0, 1, 1, 0, 1],
+           [1, 0, 0, 1, 1, 0, 1, 1, 1],
+           [0, 1, 1, 1, 0, 0, 1, 0, 1]])
+    >>> vectorizer.get_feature_names()
+    ['and', 'document', 'first', 'is', 'one', 'second', 'the', 'third', 'this']
+    
+    >>> import dask.dataframe as dd
+    >>> import pandas as pd
+    >>> corpus_dds = dd.from_pandas(pd.Series(corpus), npartitions=2)
+    >>> vectorizer = CountVectorizer()
+    >>> X = vectorizer.fit_transform(corpus_dds)
+    dask.array<concatenate, shape=(4, 9), dtype=int64, chunksize=(2, 9), ...
                chunktype=scipy.csr_matrix>
     >>> X.compute().toarray()
     array([[0, 1, 1, 1, 0, 0, 1, 0, 1],
@@ -199,13 +204,17 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
     """
 
     def fit_transform(self, raw_documents, y=None):
+        # Note that in general 'self' could refer to an instance of either this
+        # class or a subclass of this class.  Hence it is possible that
+        # self.get_params() could get unexpected parameters of an instance of a
+        # subclass.  Such parameters need to be excluded here:
         subclass_instance_params = self.get_params()
         excluded_keys = getattr(self, '_non_CountVectorizer_params', [])
         params = {key: subclass_instance_params[key]
                   for key in subclass_instance_params
                   if key not in excluded_keys}
-        vocabulary = params.pop("vocabulary")
 
+        vocabulary = params.pop("vocabulary")
         vocabulary_for_transform = vocabulary
 
         if self.vocabulary is not None:
@@ -217,19 +226,22 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
             fixed_vocabulary = False
             # Case 2: learn vocabulary from the data.
             vocabularies = raw_documents.map_partitions(_build_vocabulary, params)
-            vocabulary = vocabulary_for_transform = _merge_vocabulary(
-                *vocabularies.to_delayed()
-            )
+            vocabulary = vocabulary_for_transform = (
+                _merge_vocabulary( *vocabularies.to_delayed() ))
             vocabulary_for_transform = vocabulary_for_transform.persist()
             vocabulary_ = vocabulary.compute()
             n_features = len(vocabulary_)
 
-        result = raw_documents.map_partitions(
-            _count_vectorizer_transform, vocabulary_for_transform, params
-        )
-
         meta = scipy.sparse.eye(0, format="csr", dtype=self.dtype)
-        result = build_array(result, n_features, meta)
+        if isinstance(raw_documents, dd.Series):
+            result = raw_documents.map_partitions(
+                _count_vectorizer_transform, vocabulary_for_transform,
+                params, meta=meta)
+        else:
+            result = raw_documents.map_partitions(
+                _count_vectorizer_transform, vocabulary_for_transform, params)
+            result = build_array(result, n_features, meta)
+        result.compute_chunk_sizes()
 
         self.vocabulary_ = vocabulary_
         self.fixed_vocabulary_ = fixed_vocabulary
@@ -237,6 +249,10 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
         return result
 
     def transform(self, raw_documents):
+        # Note that in general 'self' could refer to an instance of either this
+        # class or a subclass of this class.  Hence it is possible that
+        # self.get_params() could get unexpected parameters of an instance of a
+        # subclass.  Such parameters need to be excluded here:
         subclass_instance_params = self.get_params()
         excluded_keys = getattr(self, '_non_CountVectorizer_params', [])
         params = {key: subclass_instance_params[key]
@@ -262,12 +278,17 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
             vocabulary_for_transform = vocabulary
 
         n_features = vocabulary_length(vocabulary_for_transform)
-        transformed = raw_documents.map_partitions(
-            _count_vectorizer_transform, vocabulary_for_transform, params
-        )
         meta = scipy.sparse.eye(0, format="csr", dtype=self.dtype)
-        return build_array(transformed, n_features, meta)
-
+        if isinstance(raw_documents, dd.Series):
+            result = raw_documents.map_partitions(
+                _count_vectorizer_transform, vocabulary_for_transform,
+                params, meta=meta)
+        else:
+            transformed = raw_documents.map_partitions(
+                _count_vectorizer_transform, vocabulary_for_transform, params)
+            result = build_array(transformed, n_features, meta)
+        result.compute_chunk_sizes()
+        return result
 
 class TfidfTransformer(sklearn.feature_extraction.text.TfidfTransformer):
     """Transform a count matrix to a normalized tf or tf-idf representation
@@ -316,7 +337,7 @@ class TfidfTransformer(sklearn.feature_extraction.text.TfidfTransformer):
         dtype = X.dtype if X.dtype in FLOAT_DTYPES else np.float64
 
         if self.use_idf:
-            n_samples, n_features = _n_samples(X), X.shape[1]
+            n_samples, n_features = X.shape
             df = _document_frequency(X, dtype)
             # df = df.astype(dtype, **_astype_copy_false(df))
 
@@ -409,7 +430,9 @@ class TfidfVectorizer(CountVectorizer):
     Examples
     --------
     The Dask-ML implementation currently requires that ``raw_documents``
-    is a :class:`dask.bag.Bag` of documents (lists of strings).
+    is either a :class:`dask.bag.Bag` of documents (lists of strings) or
+    a :class:`dask.dataframe.Series` of documents (Series of strings)
+    with partitions of type :class:`pandas.Series`.
 
     >>> from dask_ml.feature_extraction.text import TfidfVectorizer
     >>> import dask.bag as db
@@ -421,10 +444,29 @@ class TfidfVectorizer(CountVectorizer):
     ...     'And this is the third one.',
     ...     'Is this the first document?',
     ... ]
-    >>> corpus = db.from_sequence(corpus, npartitions=2)
+    >>> corpus_bag = db.from_sequence(corpus, npartitions=2)
     >>> vectorizer = TfidfVectorizer()
-    >>> X = vectorizer.fit_transform(corpus)
-    dask.array<concatenate, shape=(nan, 9), dtype=float64, chunksize=(nan, 9), ...
+    >>> X = vectorizer.fit_transform(corpus_bag)
+    dask.array<concatenate, shape=(4, 9), dtype=float64, chunksize=(2, 9), ...
+               chunktype=scipy.csr_matrix>
+    >>> X.compute().toarray()
+    array([[0.        , 0.46979139, 0.58028582, 0.38408524, 0.        ,
+        0.        , 0.38408524, 0.        , 0.38408524],
+       [0.        , 0.6876236 , 0.        , 0.28108867, 0.        ,
+        0.53864762, 0.28108867, 0.        , 0.28108867],
+       [0.51184851, 0.        , 0.        , 0.26710379, 0.51184851,
+        0.        , 0.26710379, 0.51184851, 0.26710379],
+       [0.        , 0.46979139, 0.58028582, 0.38408524, 0.        ,
+        0.        , 0.38408524, 0.        , 0.38408524]])
+    >>> vectorizer.get_feature_names()
+    ['and', 'document', 'first', 'is', 'one', 'second', 'the', 'third', 'this']
+
+    >>> import dask.dataframe as dd
+    >>> import pandas as pd
+    >>> corpus_dds = dd.from_pandas(pd.Series(corpus), npartitions=2)
+    >>> vectorizer = TfidfVectorizer()
+    >>> X = vectorizer.fit_transform(corpus_dds)
+    dask.array<concatenate, shape=(4, 9), dtype=float64, chunksize=(2, 9), ...
                chunktype=scipy.csr_matrix>
     >>> X.compute().toarray()
     array([[0.        , 0.46979139, 0.58028582, 0.38408524, 0.        ,

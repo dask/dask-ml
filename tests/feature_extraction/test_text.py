@@ -186,11 +186,13 @@ def test_count_vectorizer_remote_vocabulary():
 
 
 @pytest.mark.parametrize("distributed", [True, False])
+@pytest.mark.parametrize("collection_type", ["Bag", "Series"])
 @pytest.mark.parametrize("norm", ["l1", "l2"])
 @pytest.mark.parametrize("use_idf", [True, False])
 @pytest.mark.parametrize("smooth_idf", [True, False])
 @pytest.mark.parametrize("sublinear_tf", [True, False])
 def test_tfidf_vectorizer(distributed,
+                          collection_type,
                           norm,
                           use_idf,
                           smooth_idf,
@@ -200,7 +202,10 @@ def test_tfidf_vectorizer(distributed,
                            use_idf=use_idf,
                            smooth_idf=smooth_idf,
                            sublinear_tf=sublinear_tf))
-    b = db.from_sequence(JUNK_FOOD_DOCS, npartitions=2)
+    if collection_type == "Bag":
+        docs = db.from_sequence(JUNK_FOOD_DOCS, npartitions=2)
+    elif collection_type == "Series":
+        docs = dd.from_pandas(pd.Series(JUNK_FOOD_DOCS), npartitions=2)
     r1 = m1.fit_transform(JUNK_FOOD_DOCS)
 
     m2 = (dask_ml.feature_extraction.text
@@ -214,7 +219,7 @@ def test_tfidf_vectorizer(distributed,
     else:
         client = dummy_context()
 
-    r2 = m2.fit_transform(b)
+    r2 = m2.fit_transform(docs)
 
     with client:
         exclude = {"vocabulary_actor_", "stop_words_"}
@@ -228,7 +233,7 @@ def test_tfidf_vectorizer(distributed,
         np.testing.assert_array_almost_equal(r1.toarray(),
                                              r2.compute().toarray())
 
-        r3 = m2.transform(b)
+        r3 = m2.transform(docs)
         assert isinstance(r3, da.Array)
         assert isinstance(r3._meta, scipy.sparse.csr_matrix)
         np.testing.assert_array_almost_equal(r1.toarray(),
