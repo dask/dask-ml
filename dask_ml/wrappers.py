@@ -279,8 +279,15 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
             return result
 
         elif isinstance(X, dd._Frame):
-            result = X.map_partitions(_predict, estimator=self._postfit_estimator)
-            return result
+            try:
+                meta = _predict(X._meta_nonempty, estimator=self._postfit_estimator)
+            except:
+                # fall back to numpy array if _predict fails on meta data
+                # to allow value dependent models to succeed
+                meta = np.array([1])
+            return X.map_partitions(
+                _predict, estimator=self._postfit_estimator, meta=meta
+            )
         else:
             return _predict(X, estimator=self._postfit_estimator)
 

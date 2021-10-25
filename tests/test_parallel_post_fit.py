@@ -2,11 +2,13 @@ import dask
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
+import pandas as pd
 import pytest
 import sklearn.datasets
 from sklearn.decomposition import PCA
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.naive_bayes import CategoricalNB
 
 from dask_ml.datasets import make_classification
 from dask_ml.utils import assert_eq_ar, assert_estimator_equal
@@ -47,6 +49,47 @@ def test_laziness():
     x = clf.score(X, y, compute=False)
     assert dask.is_dask_collection(x)
     assert 0 < x.compute() < 1
+
+
+def test_predict_meta_fallback():
+    # test to predict
+    # that fit works when fit fails on meta
+    # because of value dependent model
+    X = pd.DataFrame({"c_0": [0, 1, 2, 3]})
+    y = np.array([1, 2, 3, 4])
+
+    base = CategoricalNB()
+    base.fit(pd.DataFrame(X), y)
+    wrap = ParallelPostFit(base)
+
+    dd_X = dd.from_pandas(X, npartitions=2)
+    dd_X._meta = pd.DataFrame({"c_0": [5]})
+    with pytest.raises(IndexError) as m:
+        base.predict(dd_X._meta)
+
+    # ensure we fall back to numpy array as output
+    # when metadata inference fails
+    wrap_output = wrap.predict(dd_X)
+    assert wrap_output.dtype == np.int64
+
+    result = wrap.predict(dd_X)
+    expected = base.predict(X)
+    assert_eq_ar(result, expected)
+
+
+def test_predict_meta_correctness():
+    X, y = make_classification(chunks=100)
+    X_ddf = dd.from_dask_array(X)
+    y_ddf = dd.from_dask_array(y)
+
+    base = LinearRegression(n_jobs=1)
+    base.fit(X, y)
+    wrap = ParallelPostFit(base)
+
+    base_output_dtype = base.predict(X).dtype
+    wrap_output_dtype = wrap.predict(X_ddf).dtype
+
+    assert base_output_dtype == wrap_output_dtype
 
 
 @pytest.mark.parametrize("kind", ["numpy", "dask.dataframe", "dask.array"])
