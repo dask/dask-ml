@@ -281,7 +281,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         elif isinstance(X, dd._Frame):
             try:
                 meta = _predict(X._meta_nonempty, estimator=self._postfit_estimator)
-            except:
+            except Exception:
                 # fall back to numpy array if _predict fails on meta data
                 # to allow value dependent models to succeed
                 meta = np.array([1])

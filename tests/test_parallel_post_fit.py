@@ -64,7 +64,7 @@ def test_predict_meta_fallback():
 
     dd_X = dd.from_pandas(X, npartitions=2)
     dd_X._meta = pd.DataFrame({"c_0": [5]})
-    with pytest.raises(IndexError) as m:
+    with pytest.raises(IndexError):
         base.predict(dd_X._meta)
 
     # ensure we fall back to numpy array as output
@@ -80,7 +80,6 @@ def test_predict_meta_fallback():
 def test_predict_meta_correctness():
     X, y = make_classification(chunks=100)
     X_ddf = dd.from_dask_array(X)
-    y_ddf = dd.from_dask_array(y)
 
     base = LinearRegression(n_jobs=1)
     base.fit(X, y)
