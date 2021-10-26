@@ -215,19 +215,34 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
     ['and', 'document', 'first', 'is', 'one', 'second', 'the', 'third', 'this']
     """
 
-    def get_params(self):
-        # Note that in general 'self' could refer to an instance of either this
-        # class or a subclass of this class.  Hence it is possible that
-        # self.get_params() could get unexpected parameters of an instance of a
-        # subclass.  Such parameters need to be excluded here:
-        subclass_instance_params = super().get_params()
-        excluded_keys = getattr(self, '_non_CountVectorizer_params', [])
-        return {key: subclass_instance_params[key]
-                for key in subclass_instance_params
-                if key not in excluded_keys}
+    def get_CountVectorizer_params(self, deep=True):
+        """
+        Get CountVectorizer parameters (names and values) for this 
+        estimator (self), whether it is an instance of CountVectorizer or an
+        instance of a subclass of CountVectorizer.
+
+        Parameters
+        ----------
+        deep : bool, default=True
+            If True, will return the CountVectorizer parameters for this
+            estimator and contained subobjects that are estimators.
+
+        Returns
+        -------
+        params : dict
+            Parameter names mapped to their values.
+        """
+        out = dict()
+        for key in CountVectorizer._get_param_names():
+            value = getattr(self, key)
+            if deep and hasattr(value, "get_params"):
+                deep_items = value.get_params().items()
+                out.update((key + "__" + k, val) for k, val in deep_items)
+            out[key] = value
+        return out
 
     def fit_transform(self, raw_documents, y=None):
-        params = self.get_params()
+        params = self.get_CountVectorizer_params()
         vocabulary = params.pop("vocabulary")
         vocabulary_for_transform = vocabulary
 
@@ -262,7 +277,7 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
         return result
 
     def transform(self, raw_documents):
-        params = self.get_params()
+        params = self.get_CountVectorizer_params()
         vocabulary = params.pop("vocabulary")
 
         if vocabulary is None:
@@ -532,8 +547,6 @@ class TfidfVectorizer(CountVectorizer):
             dtype=dtype,
         )
 
-        self._non_CountVectorizer_params = ['norm', 'use_idf',
-                                            'smooth_idf', 'sublinear_tf']
         self._tfidf = TfidfTransformer(
             norm=norm, use_idf=use_idf, smooth_idf=smooth_idf, sublinear_tf=sublinear_tf
         )

@@ -197,29 +197,49 @@ def test_tfidf_vectorizer(distributed,
                           use_idf,
                           smooth_idf,
                           sublinear_tf):
-    m1 = (sklearn.feature_extraction.text
-          .TfidfVectorizer(norm=norm,
-                           use_idf=use_idf,
-                           smooth_idf=smooth_idf,
-                           sublinear_tf=sublinear_tf))
-    if collection_type == "Bag":
-        docs = db.from_sequence(JUNK_FOOD_DOCS, npartitions=2)
-    elif collection_type == "Series":
-        docs = dd.from_pandas(pd.Series(JUNK_FOOD_DOCS), npartitions=2)
-    r1 = m1.fit_transform(JUNK_FOOD_DOCS)
+    skl1 = (sklearn.feature_extraction.text
+            .TfidfVectorizer(norm=norm,
+                             use_idf=use_idf,
+                             smooth_idf=smooth_idf,
+                             sublinear_tf=sublinear_tf))
+    skl2 = (sklearn.feature_extraction.text
+            .TfidfVectorizer(norm=norm,
+                             use_idf=use_idf,
+                             smooth_idf=smooth_idf,
+                             sublinear_tf=sublinear_tf))
 
-    m2 = (dask_ml.feature_extraction.text
-          .TfidfVectorizer(norm=norm,
-                           use_idf=use_idf,
-                           smooth_idf=smooth_idf,
-                           sublinear_tf=sublinear_tf))
+    JUNK_FOOD_DOCS_SUBLIST = JUNK_FOOD_DOCS[:2]
+    if collection_type == "Bag":
+        full_docs = db.from_sequence(JUNK_FOOD_DOCS, npartitions=2)
+        sub_docs = db.from_sequence(JUNK_FOOD_DOCS_SUBLIST, npartitions=2)
+    elif collection_type == "Series":
+        full_docs = dd.from_pandas(pd.Series(JUNK_FOOD_DOCS), npartitions=2)
+        sub_docs = dd.from_pandas(pd.Series(JUNK_FOOD_DOCS_SUBLIST),
+                                  npartitions=2)
+
+    csr_skl1 = skl1.fit_transform(JUNK_FOOD_DOCS)
+    skl2 = skl2.fit(JUNK_FOOD_DOCS)
+    csr_skl2 = skl2.transform(JUNK_FOOD_DOCS)
+
+    dml1 = (dask_ml.feature_extraction.text
+            .TfidfVectorizer(norm=norm,
+                             use_idf=use_idf,
+                             smooth_idf=smooth_idf,
+                             sublinear_tf=sublinear_tf))
+    dml2 = (dask_ml.feature_extraction.text
+            .TfidfVectorizer(norm=norm,
+                             use_idf=use_idf,
+                             smooth_idf=smooth_idf,
+                             sublinear_tf=sublinear_tf))
 
     if distributed:
         client = Client()  # noqa
     else:
         client = dummy_context()
 
-    r2 = m2.fit_transform(docs)
+    csr_dml1 = dml1.fit_transform(full_docs)
+    dml2 = dml2.fit(full_docs)
+    csr_dml2 = dml2.transform(full_docs)
 
     with client:
         exclude = {"vocabulary_actor_", "stop_words_"}
@@ -227,14 +247,34 @@ def test_tfidf_vectorizer(distributed,
             # idf_ being a property, the automatic attributes detection
             # does not work as usual so we will exclude it in this case:
             exclude.add("idf_")
-        assert_estimator_equal(m1, m2, exclude=exclude)
-        assert isinstance(r2, da.Array)
-        assert isinstance(r2._meta, scipy.sparse.csr_matrix)
-        np.testing.assert_array_almost_equal(r1.toarray(),
-                                             r2.compute().toarray())
+        assert_estimator_equal(skl1, dml1, exclude=exclude)
+        assert isinstance(csr_dml1, da.Array)
+        assert isinstance(csr_dml1._meta, scipy.sparse.csr_matrix)
+        np.testing.assert_array_almost_equal(csr_skl1.toarray(),
+                                             csr_dml1.compute().toarray())
 
-        r3 = m2.transform(docs)
-        assert isinstance(r3, da.Array)
-        assert isinstance(r3._meta, scipy.sparse.csr_matrix)
-        np.testing.assert_array_almost_equal(r1.toarray(),
-                                             r3.compute().toarray())
+        assert_estimator_equal(skl2, dml2, exclude=exclude)
+        assert isinstance(csr_dml2, da.Array)
+        assert isinstance(csr_dml2._meta, scipy.sparse.csr_matrix)
+        np.testing.assert_array_almost_equal(csr_skl2.toarray(),
+                                             csr_dml2.compute().toarray())
+
+        csr_dml1 = dml1.transform(full_docs)
+        assert isinstance(csr_dml1, da.Array)
+        assert isinstance(csr_dml1._meta, scipy.sparse.csr_matrix)
+        np.testing.assert_array_almost_equal(csr_skl1.toarray(),
+                                             csr_dml1.compute().toarray())
+
+        csr_skl1 = skl1.transform(JUNK_FOOD_DOCS_SUBLIST)
+        csr_dml1 = dml1.transform(sub_docs)
+        assert isinstance(csr_dml1, da.Array)
+        assert isinstance(csr_dml1._meta, scipy.sparse.csr_matrix)
+        np.testing.assert_array_almost_equal(csr_skl1.toarray(),
+                                             csr_dml1.compute().toarray())
+
+        csr_skl1 = skl2.transform(JUNK_FOOD_DOCS_SUBLIST)
+        csr_dml1 = dml2.transform(sub_docs)
+        assert isinstance(csr_dml1, da.Array)
+        assert isinstance(csr_dml1._meta, scipy.sparse.csr_matrix)
+        np.testing.assert_array_almost_equal(csr_skl1.toarray(),
+                                             csr_dml1.compute().toarray())
