@@ -405,11 +405,12 @@ class TfidfTransformer(sklearn.feature_extraction.text.TfidfTransformer):
             return chunk * self._idf_diag
 
         meta = scipy.sparse.eye(0, format="csr")
-        if X.dtype != np.float64:
-            X = X.map_blocks(_astype, dtype=np.float64, meta=meta)
+        dtype = X.dtype if X.dtype in FLOAT_DTYPES else np.float64
+        if X.dtype != dtype:
+            X = X.map_blocks(_astype, dtype=dtype, meta=meta)
 
         if self.sublinear_tf:
-            X = X.map_blocks(_one_plus_log, dtype=np.float64, meta=meta)
+            X = X.map_blocks(_one_plus_log, dtype=dtype, meta=meta)
 
         if self.use_idf:
             # idf_ being a property, the automatic attributes detection
@@ -426,11 +427,11 @@ class TfidfTransformer(sklearn.feature_extraction.text.TfidfTransformer):
                     shape=(n_features, n_features),
                     format="csr",
                     dtype=_idf_diag.dtype)
-            X = X.map_blocks(_dot_idf_diag, dtype=np.float64, meta=meta)
+            X = X.map_blocks(_dot_idf_diag, dtype=dtype, meta=meta)
 
         if self.norm:
             X = X.map_blocks(_normalize_transform,
-                             dtype=np.float64,
+                             dtype=dtype,
                              norm=self.norm,
                              meta=meta)
 
