@@ -418,15 +418,7 @@ class TfidfTransformer(sklearn.feature_extraction.text.TfidfTransformer):
             # name:
             check_is_fitted(self, attributes=["idf_"],
                             msg="idf vector is not fitted")
-            if dask.is_dask_collection(self._idf_diag):
-                _idf_diag = self._idf_diag.compute()
-                n_features = len(_idf_diag)
-                self._idf_diag = scipy.sparse.diags(
-                    _idf_diag,
-                    offsets=0,
-                    shape=(n_features, n_features),
-                    format="csr",
-                    dtype=_idf_diag.dtype)
+            self.__compute_idf()
             X = X.map_blocks(_dot_idf_diag, dtype=dtype, meta=meta)
 
         if self.norm:
@@ -437,8 +429,34 @@ class TfidfTransformer(sklearn.feature_extraction.text.TfidfTransformer):
 
         return X
 
+    def __compute_idf(self):
+        # if _idf_diag is still lazy, then it is computed here
+        if dask.is_dask_collection(self._idf_diag):
+            _idf_diag = self._idf_diag.compute()
+            n_features = len(_idf_diag)
+            self._idf_diag = scipy.sparse.diags(
+                _idf_diag,
+                offsets=0,
+                shape=(n_features, n_features),
+                format="csr",
+                dtype=_idf_diag.dtype)
+        
+    @property
+    def idf_(self):
+        """Inverse document frequency vector, only defined if `use_idf=True`.
 
-class TfidfVectorizer(CountVectorizer):
+        Returns
+        -------
+        ndarray of shape (n_features,)
+        """
+        self.__compute_idf()
+        # if _idf_diag is not set, this will raise an attribute error,
+        # which means hasattr(self, "idf_") is False
+        return np.ravel(self._idf_diag.sum(axis=0))
+
+
+class TfidfVectorizer(sklearn.feature_extraction.text.TfidfVectorizer,
+                      CountVectorizer):
     r"""Convert a collection of raw documents to a matrix of TF-IDF features.
 
     Equivalent to :class:`CountVectorizer` followed by
@@ -549,148 +567,11 @@ class TfidfVectorizer(CountVectorizer):
         )
 
         self._tfidf = TfidfTransformer(
-            norm=norm, use_idf=use_idf, smooth_idf=smooth_idf, sublinear_tf=sublinear_tf
+            norm=norm,
+            use_idf=use_idf,
+            smooth_idf=smooth_idf,
+            sublinear_tf=sublinear_tf
         )
-
-    # Broadcast the TF-IDF parameters to the underlying transformer instance
-    # for easy grid search and repr
-
-    @property
-    def norm(self):
-        """Norm of each row output, can be either "l1" or "l2"."""
-        return self._tfidf.norm
-
-    @norm.setter
-    def norm(self, value):
-        self._tfidf.norm = value
-
-    @property
-    def use_idf(self):
-        """Whether or not IDF re-weighting is used."""
-        return self._tfidf.use_idf
-
-    @use_idf.setter
-    def use_idf(self, value):
-        self._tfidf.use_idf = value
-
-    @property
-    def smooth_idf(self):
-        """Whether or not IDF weights are smoothed."""
-        return self._tfidf.smooth_idf
-
-    @smooth_idf.setter
-    def smooth_idf(self, value):
-        self._tfidf.smooth_idf = value
-
-    @property
-    def sublinear_tf(self):
-        """Whether or not sublinear TF scaling is applied."""
-        return self._tfidf.sublinear_tf
-
-    @sublinear_tf.setter
-    def sublinear_tf(self, value):
-        self._tfidf.sublinear_tf = value
-
-    @property
-    def idf_(self):
-        """Inverse document frequency vector, only defined if `use_idf=True`.
-
-        Returns
-        -------
-        ndarray of shape (n_features,)
-        """
-        return self._tfidf.idf_
-
-    @idf_.setter
-    def idf_(self, value):
-        self._validate_vocabulary()
-        if hasattr(self, "vocabulary_"):
-            if len(self.vocabulary_) != len(value):
-                raise ValueError(
-                    "idf length = %d must be equal to vocabulary size = %d"
-                    % (len(value), len(self.vocabulary))
-                )
-        self._tfidf.idf_ = value
-
-    def _check_params(self):
-        if self.dtype not in FLOAT_DTYPES:
-            warnings.warn(
-                "Only {} 'dtype' should be used. {} 'dtype' will "
-                "be converted to np.float64.".format(FLOAT_DTYPES, self.dtype),
-                UserWarning,
-            )
-
-    def fit(self, raw_documents, y=None):
-        """Learn vocabulary and idf from training set.
-
-        Parameters
-        ----------
-        raw_documents : iterable
-            An iterable which generates either str, unicode or file objects.
-
-        y : None
-            This parameter is not needed to compute tfidf.
-
-        Returns
-        -------
-        self : object
-            Fitted vectorizer.
-        """
-        self._check_params()
-        self._warn_for_unused_params()
-        X = super().fit_transform(raw_documents)
-        self._tfidf.fit(X)
-        return self
-
-    def fit_transform(self, raw_documents, y=None):
-        """Learn vocabulary and idf, return document-term matrix.
-
-        This is equivalent to fit followed by transform, but more efficiently
-        implemented.
-
-        Parameters
-        ----------
-        raw_documents : iterable
-            An iterable which generates either str, unicode or file objects.
-
-        y : None
-            This parameter is ignored.
-
-        Returns
-        -------
-        X : sparse matrix of (n_samples, n_features)
-            Tf-idf-weighted document-term matrix.
-        """
-        self._check_params()
-        X = super().fit_transform(raw_documents)
-        self._tfidf.fit(X)
-        # X is already a transformed view of raw_documents so
-        # we set copy to False
-        return self._tfidf.transform(X)
-
-    def transform(self, raw_documents):
-        """Transform documents to document-term matrix.
-
-        Uses the vocabulary and document frequencies (df) learned by fit (or
-        fit_transform).
-
-        Parameters
-        ----------
-        raw_documents : iterable
-            An iterable which generates either str, unicode or file objects.
-
-        Returns
-        -------
-        X : sparse matrix of (n_samples, n_features)
-            Tf-idf-weighted document-term matrix.
-        """
-        check_is_fitted(self, msg="The TF-IDF vectorizer is not fitted")
-
-        X = super().transform(raw_documents)
-        return self._tfidf.transform(X, copy=False)
-
-    def _more_tags(self):
-        return {"X_types": ["string"], "_skip_test": True}
 
 
 def build_array(bag, n_features, meta):
