@@ -89,7 +89,7 @@ class OneHotEncoder(DaskMLBaseMixin, sklearn.preprocessing.OneHotEncoder):
     Given a dataset with two features, we let the encoder find the unique
     values per feature and transform the data to a binary one-hot encoding.
 
-    >>> from dask_ml.preprocessing import OneHotEncoder
+    >>> from dask.ml.preprocessing import OneHotEncoder
     >>> import numpy as np
     >>> import dask.array as da
     >>> enc = OneHotEncoder()

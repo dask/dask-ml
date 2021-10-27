@@ -142,7 +142,7 @@ class CountVectorizer(sklearn.feature_extraction.text.CountVectorizer):
     The Dask-ML implementation currently requires that ``raw_documents``
     is a :class:`dask.bag.Bag` of documents (lists of strings).
 
-    >>> from dask_ml.feature_extraction.text import CountVectorizer
+    >>> from dask.ml.feature_extraction.text import CountVectorizer
     >>> import dask.bag as db
     >>> from distributed import Client
     >>> client = Client()

@@ -157,8 +157,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
     Examples
     --------
     >>> import numpy as np
-    >>> from dask_ml.model_selection import HyperbandSearchCV
-    >>> from dask_ml.datasets import make_classification
+    >>> from dask.ml.model_selection import HyperbandSearchCV
+    >>> from dask.ml.datasets import make_classification
     >>> from sklearn.linear_model import SGDClassifier
     >>>
     >>> X, y = make_classification(chunks=20)
