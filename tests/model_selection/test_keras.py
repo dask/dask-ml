@@ -44,7 +44,7 @@ def _keras_build_fn(lr=0.01):
 
 
 @gen_cluster(client=True, Worker=Nanny, timeout=20)
-def test_keras(c, s, a, b):
+async def test_keras(c, s, a, b):
     # Mirror the mnist dataset
     X, y = make_classification(n_classes=10, n_features=784, n_informative=100)
     X = X.astype("float32")
@@ -58,7 +58,7 @@ def test_keras(c, s, a, b):
     search = IncrementalSearchCV(
         model, params, max_iter=3, n_initial_parameters=5, decay_rate=None
     )
-    yield search.fit(X, y)
+    await search.fit(X, y)
     #  search.fit(X, y)
 
     assert search.best_score_ >= 0

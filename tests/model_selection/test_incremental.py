@@ -335,7 +335,7 @@ async def _test_search_basic(decay_rate, input_type, memory, c, s, a, b):
 
 
 @gen_cluster(client=True)
-def test_search_plateau_patience(c, s, a, b):
+async def test_search_plateau_patience(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
 
     class ConstantClassifier(SGDClassifier):
@@ -352,7 +352,7 @@ def test_search_plateau_patience(c, s, a, b):
     search = IncrementalSearchCV(
         model, params, n_initial_parameters=10, patience=5, tol=0, max_iter=10,
     )
-    yield search.fit(X, y, classes=[0, 1])
+    await search.fit(X, y, classes=[0, 1])
 
     assert search.history_
     assert pd.DataFrame(search.history_).partial_fit_calls.max() <= 5
@@ -361,50 +361,50 @@ def test_search_plateau_patience(c, s, a, b):
     assert "visualize" not in search.__dict__
     assert search.best_score_ > 0
 
-    X_test, y_test = yield c.compute([X, y])
+    X_test, y_test = await c.compute([X, y])
 
     search.predict(X_test)
     search.score(X_test, y_test)
 
 
 @gen_cluster(client=True)
-def test_search_plateau_tol(c, s, a, b):
+async def test_search_plateau_tol(c, s, a, b):
     model = LinearFunction(slope=1)
     params = {"foo": np.linspace(0, 1)}
 
     # every 3 calls, score will increase by 3. tol=1: model did improved enough
     search = IncrementalSearchCV(model, params, patience=3, tol=1, max_iter=10)
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
-    yield search.fit(X, y)
+    await search.fit(X, y)
     assert set(search.cv_results_["partial_fit_calls"]) == {10}
 
     # Every 3 calls, score increases by 3. tol=4: model didn't improve enough
     search = IncrementalSearchCV(model, params, patience=3, tol=4, max_iter=10)
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
-    yield search.fit(X, y)
+    await search.fit(X, y)
     assert set(search.cv_results_["partial_fit_calls"]) == {3}
 
 
 @gen_cluster(client=True)
-def test_search_max_iter(c, s, a, b):
+async def test_search_max_iter(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = {"alpha": np.logspace(-2, 10, 10), "l1_ratio": np.linspace(0.01, 1, 20)}
 
     search = IncrementalSearchCV(model, params, n_initial_parameters=10, max_iter=1)
-    yield search.fit(X, y, classes=[0, 1])
+    await search.fit(X, y, classes=[0, 1])
     for d in search.history_:
         assert d["partial_fit_calls"] <= 1
 
 
-@gen_cluster(client=True)
 @pytest.mark.xfail(
     sys.platform == "win32",
     reason="https://github.com/dask/dask-ml/issues/673",
     strict=False,
 )
-def test_gridsearch(c, s, a, b):
-    def test_gridsearch_func(c, s, a, b):
+@gen_cluster(client=True)
+async def test_gridsearch(c, s, a, b):
+    async def test_gridsearch_func(c, s, a, b):
         X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
 
         model = SGDClassifier(tol=1e-3)
@@ -412,22 +412,22 @@ def test_gridsearch(c, s, a, b):
         params = {"alpha": np.logspace(-2, 10, 3), "l1_ratio": np.linspace(0.01, 1, 2)}
 
         search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
-        yield search.fit(X, y, classes=[0, 1])
+        await search.fit(X, y, classes=[0, 1])
 
         assert {frozenset(d["params"].items()) for d in search.history_} == {
             frozenset(d.items()) for d in ParameterGrid(params)
         }
 
     try:
-        test_gridsearch_func(c, s, a, b)
+        await test_gridsearch_func(c, s, a, b)
     except concurrent.futures.TimeoutError:
         pytest.xfail(reason="https://github.com/dask/dask-ml/issues/673")
 
 
 @gen_cluster(client=True)
-def test_numpy_array(c, s, a, b):
+async def test_numpy_array(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
-    X, y = yield c.compute([X, y])
+    X, y = await c.compute([X, y])
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = {
         "alpha": np.logspace(-5, -3, 10),
@@ -435,50 +435,50 @@ def test_numpy_array(c, s, a, b):
     }
 
     search = IncrementalSearchCV(model, params, n_initial_parameters=10, max_iter=10)
-    yield search.fit(X, y, classes=[0, 1])
+    await search.fit(X, y, classes=[0, 1])
 
     # smoke test to ensure search completed successfully
     assert search.best_score_ > 0
 
 
 @gen_cluster(client=True)
-def test_transform(c, s, a, b):
-    def test_transform_func(c, s, a, b):
+async def test_transform(c, s, a, b):
+    async def test_transform_func(c, s, a, b):
         X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
         model = MiniBatchKMeans(random_state=0)
         params = {"n_clusters": [3, 4, 5], "n_init": [1, 2]}
         search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
-        yield search.fit(X, y)
-        (X_,) = yield c.compute([X])
+        await search.fit(X, y)
+        (X_,) = await c.compute([X])
         result = search.transform(X_)
         assert result.shape == (100, search.best_estimator_.n_clusters)
 
     try:
-        test_transform_func(c, s, a, b)
+        await test_transform_func(c, s, a, b)
     except concurrent.futures.TimeoutError:
         pytest.xfail(reason="https://github.com/dask/dask-ml/issues/673")
 
 
 @gen_cluster(client=True)
-def test_small(c, s, a, b):
+async def test_small(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = {"alpha": [0.1, 0.5, 0.75, 1.0]}
     search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
-    yield search.fit(X, y, classes=[0, 1])
-    (X_,) = yield c.compute([X])
+    await search.fit(X, y, classes=[0, 1])
+    (X_,) = await c.compute([X])
     search.predict(X_)
 
 
 @gen_cluster(client=True)
-def test_smaller(c, s, a, b):
+async def test_smaller(c, s, a, b):
     # infinite loop
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = {"alpha": [0.1, 0.5]}
     search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
-    yield search.fit(X, y, classes=[0, 1])
-    (X_,) = yield c.compute([X])
+    await search.fit(X, y, classes=[0, 1])
+    (X_,) = await c.compute([X])
     search.predict(X_)
 
 
@@ -511,7 +511,7 @@ def _remove_worst_performing_model(info):
 
 
 @gen_cluster(client=True)
-def test_high_performing_models_are_retained_with_patience(c, s, a, b):
+async def test_high_performing_models_are_retained_with_patience(c, s, a, b):
     """
     This tests covers a case when high performing models plateau before the
     search is finished.
@@ -547,12 +547,12 @@ def test_high_performing_models_are_retained_with_patience(c, s, a, b):
     )
 
     search._adapt = _remove_worst_performing_model
-    yield search.fit(X, y)
+    await search.fit(X, y)
     assert search.best_params_ == {"final_score": 5}
 
 
 @gen_cluster(client=True)
-def test_same_params_with_random_state(c, s, a, b):
+async def test_same_params_with_random_state(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=10, chunks=10, random_state=0)
     model = SGDClassifier(tol=1e-3, penalty="elasticnet", random_state=1)
     params = {"alpha": scipy.stats.uniform(1e-4, 1)}
@@ -562,18 +562,18 @@ def test_same_params_with_random_state(c, s, a, b):
     kwargs = dict(n_initial_parameters=10, random_state=2)
 
     search1 = InverseDecaySearchCV(clone(model), params, **kwargs)
-    yield search1.fit(X, y, classes=[0, 1])
+    await search1.fit(X, y, classes=[0, 1])
     params1 = search1.cv_results_["param_alpha"]
 
     search2 = InverseDecaySearchCV(clone(model), params, **kwargs)
-    yield search2.fit(X, y, classes=[0, 1])
+    await search2.fit(X, y, classes=[0, 1])
     params2 = search2.cv_results_["param_alpha"]
 
     assert np.allclose(params1, params2)
 
 
 @gen_cluster(client=True)
-def test_model_random_determinism(c, s, a, b):
+async def test_model_random_determinism(c, s, a, b):
     # choose so d == n//10. Then each partial_fit call is very
     # unstable, so models will vary a lot.
     n, d = 50, 5
@@ -591,10 +591,10 @@ def test_model_random_determinism(c, s, a, b):
     kwargs = dict(n_initial_parameters=10, random_state=2, max_iter=10)
 
     search1 = InverseDecaySearchCV(model, params, **kwargs)
-    yield search1.fit(X, y, classes=[0, 1])
+    await search1.fit(X, y, classes=[0, 1])
 
     search2 = InverseDecaySearchCV(clone(model), params, **kwargs)
-    yield search2.fit(X, y, classes=[0, 1])
+    await search2.fit(X, y, classes=[0, 1])
 
     assert search1.best_score_ == search2.best_score_
     assert search1.best_params_ == search2.best_params_
@@ -602,22 +602,22 @@ def test_model_random_determinism(c, s, a, b):
 
 
 @gen_cluster(client=True)
-def test_min_max_iter(c, s, a, b):
+async def test_min_max_iter(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     est = SGDClassifier()
     params = {"alpha": np.logspace(-3, 0)}
     search = IncrementalSearchCV(est, params, max_iter=0)
     with pytest.raises(ValueError, match="max_iter < 1 is not supported"):
-        yield search.fit(X, y, classes=[0, 1])
+        await search.fit(X, y, classes=[0, 1])
 
 
 @gen_cluster(client=True)
-def test_history(c, s, a, b):
+async def test_history(c, s, a, b):
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
     model = ConstantFunction()
     params = {"value": scipy.stats.uniform(0, 1)}
     alg = IncrementalSearchCV(model, params, max_iter=9, random_state=42)
-    yield alg.fit(X, y)
+    await alg.fit(X, y)
     gt_zero = lambda x: x >= 0
     gt_one = lambda x: x >= 1
 
@@ -722,7 +722,7 @@ def test_verbosity(Search, verbose, capsys):
 
 
 @gen_cluster(client=True)
-def test_verbosity_types(c, s, a, b):
+async def test_verbosity_types(c, s, a, b):
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
     model = ConstantFunction()
     params = {"value": scipy.stats.uniform(0, 1)}
@@ -730,11 +730,11 @@ def test_verbosity_types(c, s, a, b):
     for verbose in [-1.0, 1.2]:
         search = IncrementalSearchCV(model, params, verbose=verbose, max_iter=3)
         with pytest.raises(ValueError, match="0 <= verbose <= 1"):
-            yield search.fit(X, y)
+            await search.fit(X, y)
 
     for verbose in [0.0, 0, 1, 1.0, True, False]:
         search = IncrementalSearchCV(model, params, verbose=verbose, max_iter=3)
-        yield search.fit(X, y)
+        await search.fit(X, y)
 
 
 @pytest.mark.parametrize("verbose", [0, 0.0, 1 / 2, 1, 1.0, False, True])
@@ -742,12 +742,12 @@ def test_verbosity_levels(capsys, verbose):
     max_iter = 14
 
     @gen_cluster(client=True)
-    def _test_verbosity(c, s, a, b):
+    async def _test_verbosity(c, s, a, b):
         X, y = make_classification(n_samples=10, n_features=4, chunks=10)
         model = ConstantFunction()
         params = {"value": scipy.stats.uniform(0, 1)}
         search = IncrementalSearchCV(model, params, max_iter=max_iter, verbose=verbose)
-        yield search.fit(X, y)
+        await search.fit(X, y)
         return search
 
     with captured_logger(logging.getLogger("dask_ml.model_selection")) as logs:
@@ -760,7 +760,7 @@ def test_verbosity_levels(capsys, verbose):
 
 
 @gen_cluster(client=True)
-def test_search_patience_infeasible_tol(c, s, a, b):
+async def test_search_patience_infeasible_tol(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
 
     rng = check_random_state(42)
@@ -772,14 +772,14 @@ def test_search_patience_infeasible_tol(c, s, a, b):
     search = IncrementalSearchCV(
         model, params, max_iter=max_iter, patience=3, tol=score_increase,
     )
-    yield search.fit(X, y, classes=[0, 1])
+    await search.fit(X, y, classes=[0, 1])
 
     hist = pd.DataFrame(search.history_)
     assert hist.partial_fit_calls.max() == max_iter
 
 
 @gen_cluster(client=True)
-def test_search_basic_patience(c, s, a, b):
+async def test_search_basic_patience(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
 
     rng = check_random_state(42)
@@ -798,7 +798,7 @@ def test_search_basic_patience(c, s, a, b):
         patience=patience,
         fits_per_score=3,
     )
-    yield search.fit(X, y, classes=[0, 1])
+    await search.fit(X, y, classes=[0, 1])
 
     hist = pd.DataFrame(search.history_)
     # +1 (and +2 below) because scores_per_fit isn't exact
@@ -816,14 +816,14 @@ def test_search_basic_patience(c, s, a, b):
         patience=patience,
         fits_per_score=3,
     )
-    yield search.fit(X, y, classes=[0, 1])
+    await search.fit(X, y, classes=[0, 1])
 
     hist = pd.DataFrame(search.history_)
     assert hist.partial_fit_calls.max() == patience + 2
 
 
 @gen_cluster(client=True)
-def test_search_invalid_patience(c, s, a, b):
+async def test_search_invalid_patience(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=10)
 
     params = {"value": np.random.RandomState(42).rand(1000)}
@@ -831,20 +831,20 @@ def test_search_invalid_patience(c, s, a, b):
 
     search = IncrementalSearchCV(model, params, patience=1, max_iter=10)
     with pytest.raises(ValueError, match="patience >= 2"):
-        yield search.fit(X, y, classes=[0, 1])
+        await search.fit(X, y, classes=[0, 1])
 
     search = IncrementalSearchCV(model, params, patience=2.0, max_iter=10)
     with pytest.raises(ValueError, match="patience must be an integer"):
-        yield search.fit(X, y, classes=[0, 1])
+        await search.fit(X, y, classes=[0, 1])
 
     # Make sure this passes
     search = IncrementalSearchCV(model, params, patience=False, max_iter=10)
-    yield search.fit(X, y, classes=[0, 1])
+    await search.fit(X, y, classes=[0, 1])
     assert search.history_
 
 
 @gen_cluster(client=True)
-def test_warns_scores_per_fit(c, s, a, b):
+async def test_warns_scores_per_fit(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=10)
 
     params = {"value": np.random.RandomState(42).rand(1000)}
@@ -852,7 +852,7 @@ def test_warns_scores_per_fit(c, s, a, b):
 
     search = IncrementalSearchCV(model, params, scores_per_fit=2)
     with pytest.warns(UserWarning, match="deprecated since Dask-ML v1.4.0"):
-        yield search.fit(X, y)
+        await search.fit(X, y)
 
 
 @gen_cluster(client=True)

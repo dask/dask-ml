@@ -40,7 +40,7 @@ pytestmark = pytest.mark.skipif(not DISTRIBUTED_2_5_0, reason="hangs")
 )
 def test_basic(array_type, library, max_iter):
     @gen_cluster(client=True)
-    def _test_basic(c, s, a, b):
+    async def _test_basic(c, s, a, b):
         rng = da.random.RandomState(42)
 
         n, d = (50, 2)
@@ -50,7 +50,7 @@ def test_basic(array_type, library, max_iter):
         y = da.sign(X.dot(coef_star))
 
         if array_type == "numpy":
-            X, y = yield c.compute((X, y))
+            X, y = await c.compute((X, y))
 
         params = {
             "loss": ["hinge", "log", "modified_huber", "squared_hinge", "perceptron"],
@@ -73,7 +73,7 @@ def test_basic(array_type, library, max_iter):
         yield search.fit(X, y, classes=classes)
 
         if library == "dask-ml":
-            X, y = yield c.compute((X, y))
+            X, y = await c.compute((X, y))
         score = search.best_estimator_.score(X, y)
         assert score == search.score(X, y)
         assert 0 <= score <= 1
@@ -124,7 +124,7 @@ def test_basic(array_type, library, max_iter):
 @pytest.mark.parametrize("max_iter,aggressiveness", [(27, 3), (30, 4)])
 def test_hyperband_mirrors_paper_and_metadata(max_iter, aggressiveness):
     @gen_cluster(client=True)
-    def _test_mirrors_paper(c, s, a, b):
+    async def _test_mirrors_paper(c, s, a, b):
         X, y = make_classification(n_samples=10, n_features=4, chunks=10)
         model = ConstantFunction()
         params = {"value": np.random.rand(max_iter)}
@@ -135,7 +135,7 @@ def test_hyperband_mirrors_paper_and_metadata(max_iter, aggressiveness):
             random_state=0,
             aggressiveness=aggressiveness,
         )
-        yield alg.fit(X, y)
+        await alg.fit(X, y)
 
         assert alg.metadata == alg.metadata_
 
@@ -160,7 +160,7 @@ def test_hyperband_mirrors_paper_and_metadata(max_iter, aggressiveness):
 
 
 @gen_cluster(client=True)
-def test_hyperband_patience(c, s, a, b):
+async def test_hyperband_patience(c, s, a, b):
     # Test to make sure that specifying patience=True results in less
     # computation
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
@@ -171,7 +171,7 @@ def test_hyperband_patience(c, s, a, b):
     alg = HyperbandSearchCV(
         model, params, max_iter=max_iter, patience=True, random_state=0
     )
-    yield alg.fit(X, y)
+    await alg.fit(X, y)
 
     alg_patience = max_iter // alg.aggressiveness
     actual_decisions = [b.pop("decisions") for b in alg.metadata_["brackets"]]
@@ -195,30 +195,30 @@ def test_hyperband_patience(c, s, a, b):
     kwargs = dict(max_iter=max_iter, aggressiveness=2)
     alg = HyperbandSearchCV(model, params, patience=2, **kwargs)
     with pytest.warns(UserWarning, match="The goal of `patience`"):
-        yield alg.fit(X, y)
+        await alg.fit(X, y)
 
     alg = HyperbandSearchCV(model, params, patience=2, tol=np.nan, **kwargs)
-    yield alg.fit(X, y)
+    await alg.fit(X, y)
     assert pd.DataFrame(alg.history_).partial_fit_calls.max() == max_iter
 
     alg = HyperbandSearchCV(model, params, patience=2, tol=None, **kwargs)
-    yield alg.fit(X, y)
+    await alg.fit(X, y)
     assert pd.DataFrame(alg.history_).partial_fit_calls.max() == max_iter
 
     alg = HyperbandSearchCV(model, params, patience=1, **kwargs)
     with pytest.raises(ValueError, match="always detect a plateau"):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            yield alg.fit(X, y)
+            await alg.fit(X, y)
 
 
 @gen_cluster(client=True)
-def test_cv_results_order_preserved(c, s, a, b):
+async def test_cv_results_order_preserved(c, s, a, b):
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
     model = ConstantFunction()
     params = {"value": scipy.stats.uniform(0, 1)}
     alg = HyperbandSearchCV(model, params, max_iter=9, random_state=42)
-    yield alg.fit(X, y)
+    await alg.fit(X, y)
 
     info = {k: v[-1] for k, v in alg.model_history_.items()}
     for _, row in pd.DataFrame(alg.cv_results_).iterrows():
@@ -229,7 +229,7 @@ def test_cv_results_order_preserved(c, s, a, b):
 
 
 @gen_cluster(client=True)
-def test_successive_halving_params(c, s, a, b):
+async def test_successive_halving_params(c, s, a, b):
     # Makes sure when SHAs are fit with values from the "SuccessiveHalvingSearchCV
     # params" key, the number of models/calls stay the same as Hyperband.
 
@@ -245,7 +245,7 @@ def test_successive_halving_params(c, s, a, b):
 
     metadata = alg.metadata["brackets"]
     for k, (true_meta, SHA) in enumerate(zip(metadata, SHAs)):
-        yield SHA.fit(X, y)
+        await SHA.fit(X, y)
         n_models = len(SHA.model_history_)
         pf_calls = [v[-1]["partial_fit_calls"] for v in SHA.model_history_.values()]
         assert true_meta["n_models"] == n_models
@@ -253,7 +253,7 @@ def test_successive_halving_params(c, s, a, b):
 
 
 @gen_cluster(client=True)
-def test_correct_params(c, s, a, b):
+async def test_correct_params(c, s, a, b):
     # Makes sure that Hyperband has the correct parameters.
 
     # Implemented because Hyperband wraps SHA. Again, makes sure that parameters
@@ -296,7 +296,7 @@ def test_correct_params(c, s, a, b):
     assert all(set(SHA) == SHA_params for SHA in SHAs_params)
 
     # this is testing to make sure that each SHA has the correct estimator
-    yield search.fit(X, y)
+    await search.fit(X, y)
     SHAs = search._SuccessiveHalvings_
     assert all(search.estimator is SHA.estimator for SHA in SHAs.values())
     assert all(search.parameters is SHA.parameters for SHA in SHAs.values())
@@ -336,7 +336,7 @@ def test_params_passed():
 # decay_rate warnings are tested in test_incremental_warns.py
 @pytest.mark.filterwarnings("ignore:decay_rate")
 @gen_cluster(client=True)
-def test_same_random_state_same_params(c, s, a, b):
+async def test_same_random_state_same_params(c, s, a, b):
     # This makes sure parameters are sampled correctly when random state is
     # specified.
 
@@ -357,8 +357,8 @@ def test_same_random_state_same_params(c, s, a, b):
         n_initial_parameters=h.metadata["n_models"],
     )
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
-    yield h.fit(X, y)
-    yield passive.fit(X, y)
+    await h.fit(X, y)
+    await passive.fit(X, y)
 
     # Check to make sure the Hyperbands found the same params
     v_h = h.cv_results_["param_value"]
@@ -401,7 +401,7 @@ def test_random_state_no_seed_different_params():
 
 
 @gen_cluster(client=True)
-def test_min_max_iter(c, s, a, b):
+async def test_min_max_iter(c, s, a, b):
     # This test makes sure Hyperband works with max_iter=1.
     # Tests for max_iter < 1 are in test_incremental.py.
     values = scipy.stats.uniform(0, 1)
@@ -409,12 +409,12 @@ def test_min_max_iter(c, s, a, b):
 
     max_iter = 1
     h = HyperbandSearchCV(ConstantFunction(), {"value": values}, max_iter=max_iter)
-    yield h.fit(X, y)
+    await h.fit(X, y)
     assert h.best_score_ > 0
 
 
 @gen_cluster(client=True)
-def test_history(c, s, a, b):
+async def test_history(c, s, a, b):
     # This test is required to make sure Hyperband wraps SHA successfully
     # Mostly, it's a test to make sure ordered by time
     #
@@ -424,7 +424,7 @@ def test_history(c, s, a, b):
     model = ConstantFunction()
     params = {"value": scipy.stats.uniform(0, 1)}
     alg = HyperbandSearchCV(model, params, max_iter=9, random_state=42)
-    yield alg.fit(X, y)
+    await alg.fit(X, y)
 
     assert alg.cv_results_["model_id"].dtype == "<U11"
     assert all(isinstance(v, str) for v in alg.cv_results_["model_id"])
@@ -441,7 +441,7 @@ def test_history(c, s, a, b):
 
 
 @gen_cluster(client=True)
-def test_logs_dont_repeat(c, s, a, b):
+async def test_logs_dont_repeat(c, s, a, b):
     # This test is necessary to make sure the dask_ml.model_selection logger
     # isn't piped to stdout repeatedly.
     #
@@ -453,7 +453,7 @@ def test_logs_dont_repeat(c, s, a, b):
     params = {"value": scipy.stats.uniform(0, 1)}
     search = HyperbandSearchCV(model, params, max_iter=9, random_state=42)
     with captured_logger(logging.getLogger("dask_ml.model_selection")) as logs:
-        yield search.fit(X, y)
+        await search.fit(X, y)
         assert search.best_score_ > 0  # ensure search ran
         messages = logs.getvalue().splitlines()
     model_creation_msgs = [m for m in messages if "creating" in m]
