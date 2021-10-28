@@ -713,11 +713,15 @@ class BaseIncrementalSearchCV(ParallelPostFit):
             with context:
                 results = await r
         except KeyboardInterrupt:
+            # TODO: why not the workers to quit here?
+            # Multiple instances might be run in parallel (as with
+            # HyperbandSearchCV)... but it also overrides _fit
             logger.info(
                 "[CV%s] Interrupt received on client; sending message"
-                "to workers to cleanly break"
+                "to workers to stop working..."
             )
             results = await r
+            logger.info("[CV%s] workers have stopped working.")
 
         results = self._process_results(results)
         model_history, models, history, bst = results
