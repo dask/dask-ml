@@ -38,87 +38,84 @@ pytestmark = pytest.mark.skipif(not DISTRIBUTED_2_5_0, reason="hangs")
         ("numpy", "ConstantFunction", 20),
     ],
 )
-def test_basic(array_type, library, max_iter):
-    @gen_cluster(client=True)
-    async def _test_basic(c, s, a, b):
-        rng = da.random.RandomState(42)
+@gen_cluster(client=True)
+async def test_basic(c, s, a, b, array_type, library, max_iter):
+    rng = da.random.RandomState(42)
 
-        n, d = (50, 2)
-        # create observations we know linear models can fit
-        X = rng.normal(size=(n, d), chunks=n // 2)
-        coef_star = rng.uniform(size=d, chunks=d)
-        y = da.sign(X.dot(coef_star))
+    n, d = (50, 2)
+    # create observations we know linear models can fit
+    X = rng.normal(size=(n, d), chunks=n // 2)
+    coef_star = rng.uniform(size=d, chunks=d)
+    y = da.sign(X.dot(coef_star))
 
-        if array_type == "numpy":
-            X, y = await c.compute((X, y))
+    if array_type == "numpy":
+        futures = c.compute((X, y))
+        X, y = await c.gather(futures)
 
-        params = {
-            "loss": ["hinge", "log", "modified_huber", "squared_hinge", "perceptron"],
-            "average": [True, False],
-            "learning_rate": ["constant", "invscaling", "optimal"],
-            "eta0": np.logspace(-2, 0, num=1000),
-        }
-        model = SGDClassifier(
-            tol=-np.inf, penalty="elasticnet", random_state=42, eta0=0.1
+    params = {
+        "loss": ["hinge", "log", "modified_huber", "squared_hinge", "perceptron"],
+        "average": [True, False],
+        "learning_rate": ["constant", "invscaling", "optimal"],
+        "eta0": np.logspace(-2, 0, num=1000),
+    }
+    model = SGDClassifier(tol=-np.inf, penalty="elasticnet", random_state=42, eta0=0.1)
+    if library == "dask-ml":
+        model = Incremental(model)
+        params = {"estimator__" + k: v for k, v in params.items()}
+    elif library == "ConstantFunction":
+        model = ConstantFunction()
+        params = {"value": np.linspace(0, 1, num=1000)}
+
+    search = HyperbandSearchCV(model, params, max_iter=max_iter, random_state=42)
+    classes = c.compute(da.unique(y))
+    await search.fit(X, y, classes=classes)
+
+    if library == "dask-ml":
+        futures = c.compute((X, y))
+        X, y = await c.gather(futures)
+    score = search.best_estimator_.score(X, y)
+    assert score == search.score(X, y)
+    assert 0 <= score <= 1
+
+    if library == "ConstantFunction":
+        assert score == search.best_score_
+    else:
+        # These are not equal because IncrementalSearchCV uses a train/test
+        # split and we're testing on the entire train dataset, not only the
+        # validation/test set.
+        assert abs(score - search.best_score_) < 0.1
+
+    assert type(search.best_estimator_) == type(model)
+    assert isinstance(search.best_params_, dict)
+
+    num_fit_models = len(set(search.cv_results_["model_id"]))
+    num_pf_calls = sum(
+        [v[-1]["partial_fit_calls"] for v in search.model_history_.values()]
+    )
+    models = {9: 17, 15: 17, 20: 17, 27: 49, 30: 49, 81: 143}
+    pf_calls = {9: 69, 15: 101, 20: 144, 27: 357, 30: 379, 81: 1581}
+    assert num_fit_models == models[max_iter]
+    assert num_pf_calls == pf_calls[max_iter]
+
+    best_idx = search.best_index_
+    if isinstance(model, ConstantFunction):
+        assert search.cv_results_["test_score"][best_idx] == max(
+            search.cv_results_["test_score"]
         )
-        if library == "dask-ml":
-            model = Incremental(model)
-            params = {"estimator__" + k: v for k, v in params.items()}
-        elif library == "ConstantFunction":
-            model = ConstantFunction()
-            params = {"value": np.linspace(0, 1, num=1000)}
+    model_ids = {h["model_id"] for h in search.history_}
 
-        search = HyperbandSearchCV(model, params, max_iter=max_iter, random_state=42)
-        classes = c.compute(da.unique(y))
-        yield search.fit(X, y, classes=classes)
+    if math.log(max_iter, 3) % 1.0 == 0:
+        # log(max_iter, 3) % 1.0 == 0 is the good case when max_iter is a
+        # power of search.aggressiveness
+        # In this case, assert that more models are tried then the max_iter
+        assert len(model_ids) > max_iter
+    else:
+        # Otherwise, give some padding "almost as many estimators are tried
+        # as max_iter". 3 is a fudge number chosen to be the minimum; when
+        # max_iter=20, len(model_ids) == 17.
+        assert len(model_ids) + 3 >= max_iter
 
-        if library == "dask-ml":
-            X, y = await c.compute((X, y))
-        score = search.best_estimator_.score(X, y)
-        assert score == search.score(X, y)
-        assert 0 <= score <= 1
-
-        if library == "ConstantFunction":
-            assert score == search.best_score_
-        else:
-            # These are not equal because IncrementalSearchCV uses a train/test
-            # split and we're testing on the entire train dataset, not only the
-            # validation/test set.
-            assert abs(score - search.best_score_) < 0.1
-
-        assert type(search.best_estimator_) == type(model)
-        assert isinstance(search.best_params_, dict)
-
-        num_fit_models = len(set(search.cv_results_["model_id"]))
-        num_pf_calls = sum(
-            [v[-1]["partial_fit_calls"] for v in search.model_history_.values()]
-        )
-        models = {9: 17, 15: 17, 20: 17, 27: 49, 30: 49, 81: 143}
-        pf_calls = {9: 69, 15: 101, 20: 144, 27: 357, 30: 379, 81: 1581}
-        assert num_fit_models == models[max_iter]
-        assert num_pf_calls == pf_calls[max_iter]
-
-        best_idx = search.best_index_
-        if isinstance(model, ConstantFunction):
-            assert search.cv_results_["test_score"][best_idx] == max(
-                search.cv_results_["test_score"]
-            )
-        model_ids = {h["model_id"] for h in search.history_}
-
-        if math.log(max_iter, 3) % 1.0 == 0:
-            # log(max_iter, 3) % 1.0 == 0 is the good case when max_iter is a
-            # power of search.aggressiveness
-            # In this case, assert that more models are tried then the max_iter
-            assert len(model_ids) > max_iter
-        else:
-            # Otherwise, give some padding "almost as many estimators are tried
-            # as max_iter". 3 is a fudge number chosen to be the minimum; when
-            # max_iter=20, len(model_ids) == 17.
-            assert len(model_ids) + 3 >= max_iter
-
-        assert all("bracket" in id_ for id_ in model_ids)
-
-    _test_basic()
+    assert all("bracket" in id_ for id_ in model_ids)
 
 
 @pytest.mark.parametrize("max_iter,aggressiveness", [(27, 3), (30, 4)])

@@ -361,7 +361,8 @@ async def test_search_plateau_patience(c, s, a, b):
     assert "visualize" not in search.__dict__
     assert search.best_score_ > 0
 
-    X_test, y_test = await c.compute([X, y])
+    futures = c.compute([X, y])
+    X_test, y_test = await c.gather(futures)
 
     search.predict(X_test)
     search.score(X_test, y_test)
@@ -427,7 +428,8 @@ async def test_gridsearch(c, s, a, b):
 @gen_cluster(client=True)
 async def test_numpy_array(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
-    X, y = await c.compute([X, y])
+    res = c.compute([X, y])
+    X, y = await c.gather(res)
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = {
         "alpha": np.logspace(-5, -3, 10),
@@ -449,7 +451,7 @@ async def test_transform(c, s, a, b):
         params = {"n_clusters": [3, 4, 5], "n_init": [1, 2]}
         search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
         await search.fit(X, y)
-        (X_,) = await c.compute([X])
+        X_ = await c.compute(X)
         result = search.transform(X_)
         assert result.shape == (100, search.best_estimator_.n_clusters)
 
@@ -466,7 +468,7 @@ async def test_small(c, s, a, b):
     params = {"alpha": [0.1, 0.5, 0.75, 1.0]}
     search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
     await search.fit(X, y, classes=[0, 1])
-    (X_,) = await c.compute([X])
+    X_ = await c.compute(X)
     search.predict(X_)
 
 
@@ -478,7 +480,7 @@ async def test_smaller(c, s, a, b):
     params = {"alpha": [0.1, 0.5]}
     search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
     await search.fit(X, y, classes=[0, 1])
-    (X_,) = await c.compute([X])
+    X_ = await c.compute(X)
     search.predict(X_)
 
 
