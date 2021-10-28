@@ -3,7 +3,7 @@ import itertools
 import logging
 import operator
 import sys
-from asyncio import CancelledError, TimeoutError
+from asyncio import CancelledError, TimeoutError, get_running_loop
 from collections import defaultdict, namedtuple
 from copy import deepcopy
 from time import time
@@ -17,9 +17,8 @@ import numpy as np
 import scipy.stats
 import toolz
 from dask.distributed import Future, default_client, futures_of, wait
-from distributed.utils import log_errors
-from distributed.compatibility import get_running_loop
 from distributed.scheduler import KilledWorker
+from distributed.utils import log_errors
 from sklearn.base import BaseEstimator, clone
 from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import check_scoring
@@ -272,7 +271,13 @@ async def _fit(
                 metas = await asyncio.wait_for(asyncio.gather(*new_scores), timeout=1)
                 break
             #  except:  # this still doesn't catch the IndexError?
-            except (TimeoutError, CancelledError, IndexError, KilledWorker, AssertionError):
+            except (
+                TimeoutError,
+                CancelledError,
+                IndexError,
+                KilledWorker,
+                AssertionError,
+            ):
                 if interrupt and interrupt.is_set():
                     logger.info("[CV%s] Timeout recieved; breaking now", prefix)
                     raise KeyboardInterrupt
