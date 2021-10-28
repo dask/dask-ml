@@ -15,6 +15,7 @@ from sklearn.base import BaseEstimator
 
 from ..metrics import r2_score
 from ..utils import check_array
+from .utils import lr_prob_stack
 
 _base_doc = textwrap.dedent(
     """\
@@ -178,7 +179,7 @@ class _GLM(BaseEstimator):
 
         Returns
         -------
-        self : objectj
+        self : object
         """
         X = self._check_array(X)
 
@@ -208,6 +209,7 @@ class LogisticRegression(_GLM):
             >>> X, y = make_classification()
             >>> lr = LogisticRegression()
             >>> lr.fit(X, y)
+            >>> lr.decision_function(X)
             >>> lr.predict(X)
             >>> lr.predict_proba(X)
             >>> lr.score(X, y)"""
@@ -217,6 +219,21 @@ class LogisticRegression(_GLM):
     @property
     def family(self):
         return families.Logistic
+
+    def decision_function(self, X):
+        """Predict confidence scores for samples in X.
+
+        Parameters
+        ----------
+        X : array-like, shape = [n_samples, n_features]
+
+        Returns
+        -------
+        T : array-like, shape = [n_samples,]
+            The confidence score of the sample for each class in the model.
+        """
+        X_ = self._check_array(X)
+        return dot(X_, self._coef)
 
     def predict(self, X):
         """Predict class labels for samples in X.
@@ -230,7 +247,7 @@ class LogisticRegression(_GLM):
         C : array, shape = [n_samples,]
             Predicted class labels for each sample
         """
-        return self.predict_proba(X) > 0.5  # TODO: verify, multi_class broken
+        return self.predict_proba(X)[:, 1] > 0.5  # TODO: verify, multi_class broken
 
     def predict_proba(self, X):
         """Probability estimates for samples in X.
@@ -244,8 +261,9 @@ class LogisticRegression(_GLM):
         T : array-like, shape = [n_samples, n_classes]
             The probability of the sample for each class in the model.
         """
-        X_ = self._check_array(X)
-        return sigmoid(dot(X_, self._coef))
+        # TODO: more work needed here to support multi_class
+        prob = sigmoid(self.decision_function(X))
+        return lr_prob_stack(prob)
 
     def score(self, X, y):
         """The mean accuracy on the given data and labels

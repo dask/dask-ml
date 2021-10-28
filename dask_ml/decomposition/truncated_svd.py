@@ -2,12 +2,19 @@ import dask.array as da
 from dask import compute
 from sklearn.base import BaseEstimator, TransformerMixin
 
+from .._compat import DASK_2_26_0
 from ..utils import svd_flip
 
 
 class TruncatedSVD(BaseEstimator, TransformerMixin):
     def __init__(
-        self, n_components=2, algorithm="tsqr", n_iter=5, random_state=None, tol=0.0
+        self,
+        n_components=2,
+        algorithm="tsqr",
+        n_iter=5,
+        random_state=None,
+        tol=0.0,
+        compute=True,
     ):
         """Dimensionality reduction using truncated SVD (aka LSA).
 
@@ -43,6 +50,10 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
 
         tol : float, optional
             Ignored.
+
+        compute : bool
+            Whether or not SVD results should be computed
+            eagerly, by default True.
 
         Attributes
         ----------
@@ -85,7 +96,7 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
 
         .. warning::
 
-           The implementation currently does not support sparse matricies.
+           The implementation currently does not support sparse matrices.
 
         Examples
         --------
@@ -104,7 +115,7 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
         >>> print(svd.singular_values_)  # doctest: +ELLIPSIS
         array([35.92469517, 35.32922121, 34.53368856, 34.138..., 34.013...])
 
-        Note that ``tranform`` returns a ``dask.Array``.
+        Note that ``transform`` returns a ``dask.Array``.
 
         >>> svd.transform(X)
         dask.array<sum-agg, shape=(1000, 5), dtype=float64, chunksize=(100, 5)>
@@ -114,6 +125,7 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
         self.n_iter = n_iter
         self.random_state = random_state
         self.tol = tol
+        self.compute = compute
 
     def fit(self, X, y=None):
         """Fit truncated SVD on training data X
@@ -161,7 +173,11 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
         """
         X = self._check_array(X)
         if self.algorithm not in {"tsqr", "randomized"}:
-            raise ValueError()
+            raise ValueError(
+                "`algorithm` must be 'tsqr' or 'randomized', not '{}'".format(
+                    self.algorithm
+                )
+            )
         if self.algorithm == "tsqr":
             u, s, v = da.linalg.svd(X)
             u = u[:, : self.n_components]
@@ -169,20 +185,24 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
             v = v[: self.n_components]
         else:
             u, s, v = da.linalg.svd_compressed(
-                X, self.n_components, self.n_iter, seed=self.random_state
+                X, self.n_components, n_power_iter=self.n_iter, seed=self.random_state
             )
-        u, v = svd_flip(u, v)
+        if not DASK_2_26_0:
+            u, v = svd_flip(u, v)
 
         X_transformed = u * s
         explained_var = X_transformed.var(axis=0)
         full_var = X.var(axis=0).sum()
         explained_variance_ratio = explained_var / full_var
 
-        components, ev, evr, sv = compute(v, explained_var, explained_variance_ratio, s)
-        self.components_ = components
-        self.explained_variance_ = ev
-        self.explained_variance_ratio_ = evr
-        self.singular_values_ = sv
+        if self.compute:
+            v, explained_var, explained_variance_ratio, s = compute(
+                v, explained_var, explained_variance_ratio, s
+            )
+        self.components_ = v
+        self.explained_variance_ = explained_var
+        self.explained_variance_ratio_ = explained_variance_ratio
+        self.singular_values_ = s
         self.n_features_in_ = X.shape[1]
         return X_transformed
 

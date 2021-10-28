@@ -240,3 +240,14 @@ def test_split_mixed():
     assert len(expected) == len(results)
     for a, b in zip(expected, results):
         da.utils.assert_eq(a, b)
+
+
+def test_split_3d_data():
+    X_3d = np.arange(1.0, 5001.0).reshape((100, 10, 5))
+    y_3d = np.arange(1.0, 101.0).reshape(100, 1)
+
+    r = dask_ml.model_selection.train_test_split(X_3d, y_3d)
+    X_train, X_test, y_train, y_test = r
+
+    assert X_train.ndim == X_3d.ndim
+    assert X_train.shape[1:] == X_3d.shape[1:]

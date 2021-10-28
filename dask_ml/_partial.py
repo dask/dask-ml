@@ -28,7 +28,7 @@ def fit(
     assume_equal_chunks=False,
     **kwargs
 ):
-    """ Fit scikit learn model against dask arrays
+    """Fit scikit learn model against dask arrays
 
     Model must support the ``partial_fit`` interface for online or batch
     learning.
@@ -160,11 +160,11 @@ def _blocks_and_name(obj):
 
 
 def _predict(model, x):
-    return model.predict(x)[:, None]
+    return model.predict(x)
 
 
 def predict(model, x):
-    """ Predict with a scikit learn model
+    """Predict with a scikit learn model
 
     Parameters
     ----------
@@ -173,15 +173,25 @@ def predict(model, x):
 
     See docstring for ``da.learn.fit``
     """
-    if not hasattr(x, "chunks") and hasattr(x, "to_dask_array"):
-        x = x.to_dask_array()
-    assert x.ndim == 2
-    if len(x.chunks[1]) > 1:
-        x = x.rechunk(chunks=(x.chunks[0], sum(x.chunks[1])))
     func = partial(_predict, model)
-    xx = np.zeros((1, x.shape[1]), dtype=x.dtype)
-    dt = model.predict(xx).dtype
-    return x.map_blocks(func, chunks=(x.chunks[0], (1,)), dtype=dt).squeeze()
+
+    if getattr(model, "feature_names_in_", None) is not None:
+        meta = model.predict(x._meta_nonempty)
+        return x.map_partitions(func, meta=meta)
+    else:
+        if len(x.chunks[1]) > 1:
+            x = x.rechunk(chunks=(x.chunks[0], sum(x.chunks[1])))
+
+        xx = np.zeros((1, x.shape[1]), dtype=x.dtype)
+        meta = model.predict(xx)
+
+        if meta.ndim > 1:
+            chunks = (x.chunks[0], (1,))
+            drop_axis = None
+        else:
+            chunks = (x.chunks[0],)
+            drop_axis = 1
+        return x.map_blocks(func, chunks=chunks, meta=meta, drop_axis=drop_axis)
 
 
 def _copy_partial_doc(cls):

@@ -6,26 +6,30 @@
 
 import dask
 import numpy as np
-from dask import array as da, compute, delayed
+from dask import array as da, compute
 from dask.array import linalg
 from scipy import sparse
 from sklearn.utils import gen_batches
 from sklearn.utils.validation import check_random_state
 
+from .._compat import DASK_2_26_0, DASK_2_28_0
 from .._utils import draw_seed
-from ..utils import _svd_flip_copy, check_array
+from ..utils import check_array, svd_flip
 from . import pca
 from .extmath import _incremental_mean_and_var
 
 
-def svd_flip(u, v):
-    """
-    This is a replicate of svd_flip() which calls svd_flip_fixed()
-    instead of skm.svd_flip()
-    """
-    u2, v2 = delayed(_svd_flip_copy, nout=2)(u, v, False)
-    u = da.from_delayed(u2, shape=u.shape, dtype=u.dtype)
-    v = da.from_delayed(v2, shape=v.shape, dtype=v.dtype)
+def svd_flip_fast(u, v):
+    # Temporary svd_flip correction that bases signs
+    # on right singular vectors and avoids in-memory evaluation.
+    #
+    # This can eventually be replaced by
+    # dask.array.utils.svd_flip(..., u_based_decision=False),
+    # once it is released.
+    dtype = v.dtype
+    signs = np.sum(v, axis=1, keepdims=True)
+    signs = np.where(signs >= 0, dtype.type(1), dtype.type(-1))
+    u, v = u * signs.T, v * signs
     return u, v
 
 
@@ -321,7 +325,10 @@ class IncrementalPCA(pca.PCA):
         # The following part is modified so that it can fit to large dask-array
         solver = self._get_solver(X, self.n_components_)
         if solver in {"full", "tsqr"}:
-            U, S, V = linalg.svd(X)
+            if DASK_2_26_0 and not DASK_2_28_0:
+                U, S, V = linalg.svd(X, coerce_signs=False)
+            else:
+                U, S, V = linalg.svd(X)
             # manually implement full_matrix=False
             if V.shape[0] > len(S):
                 V = V[: len(S)]
@@ -332,10 +339,23 @@ class IncrementalPCA(pca.PCA):
             random_state = check_random_state(self.random_state)
             seed = draw_seed(random_state, np.iinfo("int32").max)
             n_power_iter = self.iterated_power
-            U, S, V = linalg.svd_compressed(
-                X, self.n_components_, n_power_iter=n_power_iter, seed=seed
-            )
-        U, V = svd_flip(U, V)
+            if DASK_2_26_0 and not DASK_2_28_0:
+                U, S, V = linalg.svd_compressed(
+                    X,
+                    self.n_components_,
+                    n_power_iter=n_power_iter,
+                    seed=seed,
+                    coerce_signs=False,
+                )
+            else:
+                U, S, V = linalg.svd_compressed(
+                    X, self.n_components_, n_power_iter=n_power_iter, seed=seed
+                )
+        if not DASK_2_28_0:
+            if DASK_2_26_0:
+                U, V = svd_flip_fast(U, V)
+            else:
+                U, V = svd_flip(U, V, u_based_decision=False)
         explained_variance = S ** 2 / (n_total_samples - 1)
         components, singular_values = V, S
 

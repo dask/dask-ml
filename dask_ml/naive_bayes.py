@@ -13,7 +13,7 @@ class GaussianNB(BaseEstimator):
     --------
     >>> from dask_ml import datasets
     >>> from dask_ml.naive_bayes import GaussianNB
-    >>> X, y = datasets.make_classification(chunks=10)
+    >>> X, y = datasets.make_classification(chunks=50)
     >>> gnb = GaussianNB()
     >>> gnb.fit(X, y)
     """

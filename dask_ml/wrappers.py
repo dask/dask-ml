@@ -7,10 +7,10 @@ import dask.delayed
 import numpy as np
 import sklearn.base
 import sklearn.metrics
+from sklearn.utils.validation import check_is_fitted
 
 from dask_ml.utils import _timer
 
-from ._compat import check_is_fitted
 from ._partial import fit
 from ._utils import copy_learned_attributes
 from .metrics import check_scoring, get_scorer
@@ -204,7 +204,9 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         X = self._check_array(X)
 
         if isinstance(X, da.Array):
-            return X.map_blocks(_transform, estimator=self._postfit_estimator)
+            xx = np.zeros((1, X.shape[1]), dtype=X.dtype)
+            dt = _transform(xx, self._postfit_estimator).dtype
+            return X.map_blocks(_transform, estimator=self._postfit_estimator, dtype=dt)
         elif isinstance(X, dd._Frame):
             return X.map_partitions(_transform, estimator=self._postfit_estimator)
         else:
@@ -320,7 +322,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
             return _predict_proba(X, estimator=self._postfit_estimator)
 
     def predict_log_proba(self, X):
-        """Log of proability estimates.
+        """Log of probability estimates.
 
         For dask inputs, a dask array or dataframe is returned. For other
         inputs (NumPy array, pandas dataframe, scipy sparse matrix), the
@@ -392,7 +394,7 @@ class Incremental(ParallelPostFit):
     Parameters
     ----------
     estimator : Estimator
-        Any object supporting the scikit-learn ``parital_fit`` API.
+        Any object supporting the scikit-learn ``partial_fit`` API.
 
     scoring : string or callable, optional
         A single string (see :ref:`scoring_parameter`) or a callable
@@ -481,7 +483,7 @@ class Incremental(ParallelPostFit):
                 random_state=self.random_state,
                 shuffle_blocks=self.shuffle_blocks,
                 assume_equal_chunks=self.assume_equal_chunks,
-                **fit_kwargs
+                **fit_kwargs,
             )
 
         copy_learned_attributes(result, self)
@@ -517,8 +519,7 @@ class Incremental(ParallelPostFit):
 
 
 def _first_block(dask_object):
-    """Extract the first block / partition from a dask object
-    """
+    """Extract the first block / partition from a dask object"""
     if isinstance(dask_object, da.Array):
         if dask_object.ndim > 1 and dask_object.numblocks[-1] != 1:
             raise NotImplementedError(

@@ -8,7 +8,7 @@ import scipy.sparse
 import sklearn.preprocessing
 
 import dask_ml.preprocessing
-from dask_ml._compat import DASK_240, PANDAS_VERSION
+from dask_ml._compat import DASK_2_20_0, PANDAS_VERSION
 from dask_ml.utils import assert_estimator_equal
 
 X = np.array([["a"], ["a"], ["b"], ["c"]])
@@ -20,9 +20,7 @@ ddf = dd.from_pandas(df, npartitions=2)
 @pytest.mark.parametrize("sparse", [True, False])
 @pytest.mark.parametrize("method", ["fit", "fit_transform"])
 @pytest.mark.parametrize("categories", ["auto", [["a", "b", "c"]]])
-@pytest.mark.xfail(
-    condition=DASK_240, reason="https://github.com/dask/dask/issues/5008"
-)
+@pytest.mark.skipif(not DASK_2_20_0, reason="Fixed in Dask 2.20.0")
 def test_basic_array(sparse, method, categories):
     a = sklearn.preprocessing.OneHotEncoder(categories=categories, sparse=sparse)
     b = dask_ml.preprocessing.OneHotEncoder(categories=categories, sparse=sparse)
@@ -57,8 +55,8 @@ def test_basic_array(sparse, method, categories):
 
     if sparse:
         assert scipy.sparse.issparse(result.blocks[0].compute())
-        result = result.map_blocks(lambda x: x.toarray(), dtype="f8").compute()
-        da.utils.assert_eq(result, expected)
+        result = result.compute()
+        np.testing.assert_array_almost_equal(result.toarray(), expected.toarray())
     else:
         result = result.compute()
         da.utils.assert_eq(result, expected)
@@ -67,7 +65,7 @@ def test_basic_array(sparse, method, categories):
 @pytest.mark.parametrize("sparse", [True, False])
 @pytest.mark.parametrize("method", ["fit", "fit_transform"])
 @pytest.mark.parametrize("dask_data", [df, ddf])  # we handle pandas and dask dataframes
-@pytest.mark.parametrize("dtype", [np.float, np.uint8])
+@pytest.mark.parametrize("dtype", [np.float64, np.uint8])
 def test_basic_dataframe(sparse, method, dask_data, dtype):
     a = sklearn.preprocessing.OneHotEncoder(sparse=sparse, dtype=dtype)
     b = dask_ml.preprocessing.OneHotEncoder(sparse=sparse, dtype=dtype)
@@ -99,6 +97,8 @@ def test_basic_dataframe(sparse, method, dask_data, dtype):
         # pandas sparse ExtensionDtype interface
         dtype = pd.SparseDtype(dtype, dtype(0))
     assert (result.dtypes == dtype).all()
+    if sparse:
+        expected = expected.toarray()
 
     da.utils.assert_eq(result.values, expected)
 
@@ -119,6 +119,31 @@ def test_onehotencoder_drop_raises():
         dask_ml.preprocessing.OneHotEncoder(drop="first")
 
 
+def test_onehotencoder_dataframe_with_categories():
+    # https://github.com/dask/dask-ml/issues/726
+    enc = dask_ml.preprocessing.OneHotEncoder(
+        categories=[["a", "b", "c"], ["a", "b"]], sparse=False
+    )
+    ddf = dd.from_pandas(
+        pd.DataFrame({"A": ["a", "b", "b", "a"], "B": ["a", "b", "b", "b"]}),
+        npartitions=1,
+    )
+    result = enc.fit_transform(ddf)
+    expected = dd.from_pandas(
+        pd.DataFrame(
+            {
+                "A_a": [1, 0, 0, 1],
+                "A_b": [0, 1, 1, 0],
+                "A_c": [0, 0, 0, 0],
+                "B_a": [1, 0, 0, 0],
+                "B_b": [0, 0, 0, 0],
+            }
+        ),
+        npartitions=1,
+    )
+    assert_estimator_equal(result, expected)
+
+
 def test_handles_numpy():
     enc = dask_ml.preprocessing.OneHotEncoder()
     enc.fit(X)
@@ -134,15 +159,6 @@ def test_dataframe_requires_all_categorical(data):
     assert e.match("All columns must be Categorical dtype")
 
 
-@pytest.mark.parametrize("data", [df, ddf])
-def test_dataframe_prohibits_categories(data):
-    enc = dask_ml.preprocessing.OneHotEncoder(categories=[["a", "b"]])
-    with pytest.raises(ValueError) as e:
-        enc.fit(data)
-
-    assert e.match("Cannot specify 'categories'")
-
-
 def test_unknown_category_transform():
     df2 = ddf.copy()
     df2["A"] = ddf.A.cat.add_categories("new!")
@@ -150,15 +166,22 @@ def test_unknown_category_transform():
     enc = dask_ml.preprocessing.OneHotEncoder()
     enc.fit(ddf)
 
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(ValueError, match="Different CategoricalDtype"):
         enc.transform(df2)
 
-    assert e.match("Different CategoricalDtype for fit and transform")
+
+def test_different_shape_raises():
+    df2 = ddf.copy()
+    df2["B"] = ddf.A.cat.add_categories("new!")
+
+    enc = dask_ml.preprocessing.OneHotEncoder()
+    enc.fit(ddf)
+
+    with pytest.raises(ValueError, match="Number of columns"):
+        enc.transform(df2)
 
 
-@pytest.mark.xfail(
-    condition=DASK_240, reason="https://github.com/dask/dask/issues/5008"
-)
+@pytest.mark.skipif(not DASK_2_20_0, reason="Fixed in Dask 2.20.0")
 def test_unknown_category_transform_array():
     x2 = da.from_array(np.array([["a"], ["b"], ["c"], ["d"]]), chunks=2)
     enc = dask_ml.preprocessing.OneHotEncoder()

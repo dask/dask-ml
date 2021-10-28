@@ -177,14 +177,14 @@ class CheckingClassifier(BaseEstimator, ClassifierMixin):
             for key, value in fit_params.items():
                 assert len(value) == len(X), (
                     "Fit parameter %s has length"
-                    "%d; expected %d." % (key, len(value), len(X))
+                    "%d; expected %d." % (key, len(value), len(X),)
                 )
         return self
 
     def predict(self, T):
         if self.check_X is not None:
             assert self.check_X(T)
-        return self.classes_[np.zeros(_num_samples(T), dtype=np.int)]
+        return self.classes_[np.zeros(_num_samples(T), dtype=np.int32)]
 
     def score(self, X=None, Y=None):
         if self.foo_param > 1:

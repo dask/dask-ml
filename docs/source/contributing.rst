@@ -29,7 +29,7 @@ in the ``ci`` directory.
 
 .. code-block:: none
 
-   conda env create -f ci/environment-3.7.yaml --name=dask-ml-dev
+   conda env create -f ci/environment-latest.yaml --name=dask-ml-dev
 
 to create a conda environment and install all the dependencies.
 
@@ -43,9 +43,14 @@ Building dask-ml
 Dask-ML is a pure-python repository. Development installation should be as simple as
 cloning the repository and running the following in the cloned directory:
 
-.. code-block:: none
+``pip``::
 
-   python -m pip install -e ".[dev]"
+  python -m pip install -e ".[dev]"
+
+``conda``::
+
+  conda activate dask-ml-dev
+  python -m pip install --no-deps -e .
 
 If you have any trouble, please open an issue on the
 `dask-ml issue tracker <https://github.com/dask/dask-ml/issues>`_.
@@ -101,10 +106,15 @@ You can still use all the usual pytest command-line options in addition to those
 Pre-Commit Hooks
 ~~~~~~~~~~~~~~~~
 
-Install the `pre commit <https://github.com/pre-commit/pre-commit>`_ tool. Then, from the
-root of the ``dask-ml`` repository, run ``pre-commit install`` to install a few plugins
-like black, isort, and flake8. These tools will automatically be run on each commit. You
-can skip the checks with ``git commit --no-verify``.
+Install and build the `pre commit <https://github.com/pre-commit/pre-commit>`_ tool as:
+
+.. code-block:: none
+
+    python -m pip install pre-commit
+    pre-commit install
+
+to install a few plugins like black, isort, and flake8. These tools will automatically
+be run on each commit. You can skip the checks with ``git commit --no-verify``.
 
 Conventions
 ~~~~~~~~~~~
@@ -143,6 +153,10 @@ Building the docs is possible with
 .. code-block:: none
 
    $ conda env create -f ci/environment-docs.yaml --name=dask-ml-dev-docs
+   $ conda activate dask-ml-dev-docs
+   $ python -m pip install -e .
+   $ cd docs
+   $ make html
 
 Examples are written as Jupyter notebooks with their output stripped, either
 manually or using `nbstripout <https://github.com/kynan/nbstripout>`_. We want
@@ -154,7 +168,7 @@ The source for most examples is maintained in the `dask-examples
 there, and they're automatically included as part of the Dask-ML documentation
 build process.
 
-When adding an example for new feature that's only available in master, the
+When adding an example for new feature that's only available in main, the
 notebook should be first included in Dask-ML repository under
 ``docs/source/examples/``. These examples will be moved to
 ``dask/dask-examples`` as part of the Dask-ML release process.

@@ -408,9 +408,9 @@ def make_classification_df(
     response_rate : float between 0.0 and 0.5, default is 0.5
         percentage of sample to be response records max is 0.5
     predictability : float between 0.0 and 1.0, default is 0.1
-        how hard is the response to predict (1.0 being easist)
+        how hard is the response to predict (1.0 being easiest)
     random_state : int, default is None
-        seed for reproducability purposes
+        seed for reproducibility purposes
     chunks : int
         How to chunk the array. Must be one of the following forms:
         -   A blocksize like 1000.

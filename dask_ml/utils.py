@@ -2,6 +2,7 @@ import contextlib
 import datetime
 import functools
 import logging
+import warnings
 from collections.abc import Sequence
 from multiprocessing import cpu_count
 from numbers import Integral
@@ -33,14 +34,30 @@ def _svd_flip_copy(x, y, u_based_decision=True):
         return skm.svd_flip(x.copy(), y.copy(), u_based_decision=u_based_decision)
 
 
-def svd_flip(u, v):
-    u2, v2 = delayed(_svd_flip_copy, nout=2)(u, v)
+def svd_flip(u, v, u_based_decision=True):
+    u2, v2 = delayed(_svd_flip_copy, nout=2)(u, v, u_based_decision=u_based_decision)
     u = da.from_delayed(u2, shape=u.shape, dtype=u.dtype)
     v = da.from_delayed(v2, shape=v.shape, dtype=v.dtype)
     return u, v
 
 
 svd_flip.__doc__ = skm.svd_flip.__doc__
+
+
+def flip_vector_signs(x, axis):
+    """Flip vector signs to align them for comparison
+
+    Parameters
+    ----------
+    x : 2D array_like
+        Matrix containing vectors in rows or columns
+    axis : int, 0 or 1
+        Axis in which vectors reside
+    """
+    assert x.ndim == 2
+    signs = np.sum(x, axis=axis, keepdims=True)
+    signs = signs.dtype.type(2) * ((signs >= 0) - signs.dtype.type(0.5))
+    return x * signs
 
 
 def slice_columns(X, columns):
@@ -96,7 +113,7 @@ def assert_estimator_equal(left, right, exclude=None, **kwargs):
     for attr in left_attrs2:
         l = getattr(left, attr)
         r = getattr(right, attr)
-        _assert_eq(l, r, **kwargs)
+        _assert_eq(l, r, name=attr, **kwargs)
 
 
 def check_array(
@@ -108,7 +125,7 @@ def check_array(
     accept_multiple_blocks=False,
     preserve_pandas_dataframe=False,
     remove_zero_chunks=True,
-    **kwargs
+    **kwargs,
 ):
     """Validate inputs
 
@@ -193,7 +210,7 @@ def check_array(
         return sk_validation.check_array(array, *args, **kwargs)
 
 
-def _assert_eq(l, r, **kwargs):
+def _assert_eq(l, r, name=None, **kwargs):
     array_types = (np.ndarray, da.Array)
     frame_types = (pd.core.generic.NDFrame, dd._Frame)
     if isinstance(l, array_types):
@@ -205,8 +222,10 @@ def _assert_eq(l, r, **kwargs):
     ):
         for a, b in zip(l, r):
             _assert_eq(a, b, **kwargs)
+    elif np.isscalar(r) and np.isnan(r):
+        assert np.isnan(l), (name, l, r)
     else:
-        assert l == r
+        assert l == r, (name, l, r)
 
 
 def check_random_state(random_state):
@@ -254,6 +273,168 @@ def check_matching_blocks(*arrays):
                 )
     else:
         raise ValueError("Unexpected types {}.".format({type(x) for x in arrays}))
+
+
+def check_X_y(
+    X,
+    y,
+    accept_sparse=False,
+    *,
+    accept_large_sparse=True,
+    dtype="numeric",
+    order=None,
+    copy=False,
+    force_all_finite=True,
+    ensure_2d=True,
+    allow_nd=False,
+    multi_output=False,
+    ensure_min_samples=1,
+    ensure_min_features=1,
+    y_numeric=False,
+    estimator=None,
+):
+    """Input validation for standard estimators.
+
+    Checks X and y for consistent length, enforces X to be 2D and y 1D. By
+    default, X is checked to be non-empty and containing only finite values.
+    Standard input checks are also applied to y, such as checking that y
+    does not have np.nan or np.inf targets. For multi-label y, set
+    multi_output=True to allow 2D and sparse y. If the dtype of X is
+    object, attempt converting to float, raising on failure.
+
+    Parameters
+    ----------
+    X : {ndarray, list, sparse matrix}
+        Input data.
+
+    y : {ndarray, list, sparse matrix}
+        Labels.
+
+    accept_sparse : str, bool or list of str, default=False
+        String[s] representing allowed sparse matrix formats, such as 'csc',
+        'csr', etc. If the input is sparse but not in the allowed format,
+        it will be converted to the first listed format. True allows the input
+        to be any format. False means that a sparse matrix input will
+        raise an error.
+
+    accept_large_sparse : bool, default=True
+        If a CSR, CSC, COO or BSR sparse matrix is supplied and accepted by
+        accept_sparse, accept_large_sparse will cause it to be accepted only
+        if its indices are stored with a 32-bit dtype.
+
+        .. versionadded:: 0.20
+
+    dtype : 'numeric', type, list of type or None, default='numeric'
+        Data type of result. If None, the dtype of the input is preserved.
+        If "numeric", dtype is preserved unless array.dtype is object.
+        If dtype is a list of types, conversion on the first type is only
+        performed if the dtype of the input is not in the list.
+
+    order : {'F', 'C'}, default=None
+        Whether an array will be forced to be fortran or c-style.
+
+    copy : bool, default=False
+        Whether a forced copy will be triggered. If copy=False, a copy might
+        be triggered by a conversion.
+
+    force_all_finite : bool or 'allow-nan', default=True
+        Whether to raise an error on np.inf, np.nan, pd.NA in X. This parameter
+        does not influence whether y can have np.inf, np.nan, pd.NA values.
+        The possibilities are:
+
+        - True: Force all values of X to be finite.
+        - False: accepts np.inf, np.nan, pd.NA in X.
+        - 'allow-nan': accepts only np.nan or pd.NA values in X. Values cannot
+          be infinite.
+
+        .. versionadded:: 0.20
+           ``force_all_finite`` accepts the string ``'allow-nan'``.
+
+        .. versionchanged:: 0.23
+           Accepts `pd.NA` and converts it into `np.nan`
+
+    ensure_2d : bool, default=True
+        Whether to raise a value error if X is not 2D.
+
+    allow_nd : bool, default=False
+        Whether to allow X.ndim > 2.
+
+    multi_output : bool, default=False
+        Whether to allow 2D y (array or sparse matrix). If false, y will be
+        validated as a vector. y cannot have np.nan or np.inf values if
+        multi_output=True.
+
+    ensure_min_samples : int, default=1
+        Make sure that X has a minimum number of samples in its first
+        axis (rows for a 2D array).
+
+    ensure_min_features : int, default=1
+        Make sure that the 2D array has some minimum number of features
+        (columns). The default value of 1 rejects empty datasets.
+        This check is only enforced when X has effectively 2 dimensions or
+        is originally 1D and ``ensure_2d`` is True. Setting to 0 disables
+        this check.
+
+    y_numeric : bool, default=False
+        Whether to ensure that y has a numeric type. If dtype of y is object,
+        it is converted to float64. Should only be used for regression
+        algorithms.
+
+    estimator : str or estimator instance, default=None
+        If passed, include the name of the estimator in warning messages.
+
+    Returns
+    -------
+    X_converted : object
+        The converted and validated X.
+
+    y_converted : object
+        The converted and validated y.
+    """
+    if y is None:
+        raise ValueError("y cannot be None")
+
+    X = check_array(
+        X,
+        accept_sparse=accept_sparse,
+        accept_large_sparse=accept_large_sparse,
+        dtype=dtype,
+        order=order,
+        copy=copy,
+        force_all_finite=force_all_finite,
+        ensure_2d=ensure_2d,
+        allow_nd=allow_nd,
+        ensure_min_samples=ensure_min_samples,
+        ensure_min_features=ensure_min_features,
+        estimator=estimator,
+    )
+
+    y = _check_y(y, multi_output=multi_output, y_numeric=y_numeric)
+
+    check_consistent_length(X, y)
+
+    return X, y
+
+
+def _check_y(y, multi_output=False, y_numeric=False):
+    """Isolated part of check_X_y dedicated to y validation"""
+    # TODO: implement
+    # if multi_output:
+    #     y = check_array(
+    #         y, accept_sparse="csr", force_all_finite=True, ensure_2d=False, dtype=None
+    #     )
+    # else:
+    #     y = column_or_1d(y, warn=True)
+    #     _assert_all_finite(y)
+    #     _ensure_no_complex_data(y)
+    # if y_numeric and y.dtype.kind == "O":
+    #     y = y.astype(np.float64)
+    return y
+
+
+def check_consistent_length(*arrays):
+    # TODO: check divisions, chunks, etc.
+    pass
 
 
 def check_chunks(n_samples, n_features, chunks=None):
@@ -307,7 +488,7 @@ def _log_array(logger, arr, name):
 
 def _format_bytes(n):
     # TODO: just import from distributed if / when required
-    """ Format bytes as text
+    """Format bytes as text
 
     >>> format_bytes(1)
     '1 B'
@@ -380,6 +561,50 @@ def _num_samples(X):
         # dask dataframe
         result = result.compute()
     return result
+
+
+def _get_feature_names(X):
+    """Get feature names from X.
+    Support for other array containers should place its implementation here.
+    Parameters
+    ----------
+    X : {ndarray, dataframe} of shape (n_samples, n_features)
+        Array container to extract feature names.
+        - pandas dataframe : The columns will be considered to be feature
+          names. If the dataframe contains non-string feature names, `None` is
+          returned.
+        - All other array containers will return `None`.
+    Returns
+    -------
+    names: ndarray or None
+        Feature names of `X`. Unrecognized array containers will return `None`.
+    """
+    feature_names = None
+
+    # extract feature names for support array containers
+    if hasattr(X, "columns"):
+        feature_names = np.asarray(X.columns, dtype=object)
+
+    if feature_names is None or len(feature_names) == 0:
+        return
+
+    types = sorted(t.__qualname__ for t in set(type(v) for v in feature_names))
+
+    # Warn when types are mixed.
+    # ints and strings do not warn
+    if len(types) > 1 or not (types[0].startswith("int") or types[0] == "str"):
+        # TODO: Convert to an error in 1.2
+        warnings.warn(
+            "Feature names only support names that are all strings. "
+            f"Got feature names with dtypes: {types}. An error will be raised "
+            "in 1.2.",
+            FutureWarning,
+        )
+        return
+
+    # Only feature names of all strings are supported
+    if types[0] == "str":
+        return feature_names
 
 
 __all__ = [

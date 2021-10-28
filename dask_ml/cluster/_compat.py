@@ -1,3 +1,3 @@
-from sklearn.cluster._kmeans import _k_init
+from sklearn.cluster._kmeans import _kmeans_plusplus  # noqa
 
-__all__ = ["_k_init"]
+__all__ = ["_kmeans_plusplus"]

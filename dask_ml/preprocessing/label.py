@@ -9,8 +9,8 @@ import numpy as np
 import pandas as pd
 import scipy.sparse
 import sklearn.preprocessing
+from sklearn.utils.validation import check_is_fitted
 
-from .._compat import check_is_fitted
 from .._typing import ArrayLike, SeriesType
 
 
@@ -197,14 +197,14 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
 
 
 def _encode_categorical(
-    values: np.ndarray, uniques: np.ndarray = None, encode: bool = False
+    values: pd.Series, uniques: Optional[np.ndarray] = None, encode: bool = False
 ):
     new_uniques = np.asarray(values.cat.categories)
 
     if uniques is not None:
         diff = list(np.setdiff1d(uniques, new_uniques, assume_unique=True))
         if diff:
-            raise ValueError("y comtains previously unseen labels: {}".format(diff))
+            raise ValueError("y contains previously unseen labels: {}".format(diff))
 
     uniques = new_uniques
 
@@ -258,7 +258,7 @@ def _encode_dask_array(
     Parameters
     ----------
     values : da.Array, shape [n_samples,]
-    unqiques : np.ndarray, shape [n_uniques,]
+    uniques : np.ndarray, shape [n_uniques,]
     encode : bool, default False
         Whether to encode the values (True) or just discover the uniques.
     onehot_dtype : np.dtype, optional
@@ -278,7 +278,7 @@ def _encode_dask_array(
     uniques : ndarray
         The discovered uniques (uniques=None) or just `uniques`
     encoded : da.Array, optional
-        The encoded values. Only returend when ``encode=True``.
+        The encoded values. Only returned when ``encode=True``.
     """
 
     if uniques is None:

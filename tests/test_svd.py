@@ -8,7 +8,7 @@ from sklearn import decomposition as sd
 from sklearn.utils import check_random_state
 
 from dask_ml import decomposition as dd
-from dask_ml.utils import assert_estimator_equal
+from dask_ml.utils import assert_estimator_equal, flip_vector_signs
 
 # Make an X that looks somewhat like a small tf-idf matrix.
 # XXX newer versions of SciPy have scipy.sparse.rand for this.
@@ -30,7 +30,11 @@ def test_basic(algorithm):
     b.fit(Xdense)
     a.fit(dXdense)
 
-    np.testing.assert_allclose(a.components_, b.components_, atol=1e-3)
+    np.testing.assert_allclose(
+        flip_vector_signs(a.components_, axis=1),
+        flip_vector_signs(b.components_, axis=1),
+        atol=1e-3,
+    )
     assert_estimator_equal(
         a, b, exclude=["components_", "explained_variance_"], atol=1e-3
     )
@@ -47,7 +51,9 @@ def test_algorithms():
 
     Xa = svd_a.fit_transform(Xdense)[:, :6]
     Xr = svd_r.fit_transform(dXdense)[:, :6]
-    assert_array_almost_equal(Xa, Xr, decimal=5)
+    assert_array_almost_equal(
+        flip_vector_signs(Xa, axis=0), flip_vector_signs(Xr, axis=0), decimal=5
+    )
 
     comp_a = np.abs(svd_a.components_)
     comp_r = np.abs(svd_r.components_)
@@ -61,6 +67,18 @@ def test_attributes():
         tsvd = dd.TruncatedSVD(n_components).fit(dXdense)
         assert tsvd.n_components == n_components
         assert tsvd.components_.shape == (n_components, n_features)
+
+
+@pytest.mark.parametrize("algorithm", ["tsqr", "randomized"])
+@pytest.mark.parametrize("compute", [True, False])
+def test_compute(algorithm, compute):
+    est = dd.TruncatedSVD(random_state=0, algorithm=algorithm, compute=compute)
+    est.fit(dXdense)
+    array_class = np.ndarray if compute else da.Array
+    assert isinstance(est.components_, array_class)
+    assert isinstance(est.explained_variance_, array_class)
+    assert isinstance(est.explained_variance_ratio_, array_class)
+    assert isinstance(est.singular_values_, array_class)
 
 
 def test_too_many_components():

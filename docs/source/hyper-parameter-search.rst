@@ -3,7 +3,7 @@
 Hyper Parameter Search
 ======================
 
-*Tools to perform hyperparameter optimizaiton of Scikit-Learn API-compatible
+*Tools to perform hyperparameter optimization of Scikit-Learn API-compatible
 models using Dask, and to scale hyperparameter optimization to* **larger
 data and/or larger searches.**
 
@@ -133,7 +133,7 @@ Memory constrained, but not compute constrained
 This case happens when the data doesn't fit in memory but there aren't many
 hyperparameters to search over. The data doesn't fit in memory, so it makes
 sense to call ``partial_fit`` on each chunk of a Dask Array/Dataframe. This
-estimators does that:
+estimator does that:
 
 .. autosummary::
    dask_ml.model_selection.IncrementalSearchCV
@@ -151,7 +151,7 @@ wrapped with :class:`~dask_ml.wrappers.Incremental`.
 Compute constrained, but not memory constrained
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This case happens when the data fits on in the memory of one machine but when
+This case happens when the data fits in the memory of one machine but when
 there are a lot of hyperparameters to search, or the models require specialized
 hardware like GPUs. The best class for this case is
 :class:`~dask_ml.model_selection.HyperbandSearchCV`:
@@ -171,7 +171,7 @@ classes:
    dask_ml.model_selection.SuccessiveHalvingSearchCV
    dask_ml.model_selection.InverseDecaySearchCV
 
-The input parameters for these classes are a more difficult to configure.
+The input parameters for these classes are more difficult to configure.
 
 All of these searches can reduce time to solution by (cleverly) deciding which
 parameters to evaluate. That is, these searches *adapt* to history to decide
@@ -234,7 +234,7 @@ Dask-ML implements drop-in replacements for
    dask_ml.model_selection.GridSearchCV
    dask_ml.model_selection.RandomizedSearchCV
 
-The varians in Dask-ML implement many (but not all) of the same parameters,
+The variants in Dask-ML implement many (but not all) of the same parameters,
 and should be a drop-in replacement for the subset that they do implement.
 In that case, why use Dask-ML's versions?
 
@@ -403,7 +403,7 @@ generalized to any of the above estimators.
 
 .. note::
 
-   These estimators require that the model implement ``partial_fit``
+   These estimators require that the model implement ``partial_fit``.
 
 By default, these class will call ``partial_fit`` on each chunk of the data.
 These classes can stop training any models if their score stops increasing
@@ -460,7 +460,7 @@ train-and-score them until we find the best one.
 
 Note that when you do post-fit tasks like ``search.score``, the underlying
 model's score method is used. If that is unable to handle a
-larger-than-memory Dask Array, you'll exhaust your machines memory. If you plan
+larger-than-memory Dask Array, you'll exhaust your machine's memory. If you plan
 to use post-estimation features like scoring or prediction, we recommend using
 :class:`dask_ml.wrappers.ParallelPostFit`.
 
@@ -582,9 +582,8 @@ chunks:
    search.fit(X_train, y_train, classes=[0, 1]);
    search.best_params_
 
-To be clear, this is a very small toy example: there are only 100 examples and
-20 features for each example. Let's see how the performance scales with a more
-realistic example.
+To be clear, this is a very small toy example: there are only 100 observations and
+20 features. Let's see how the performance scales with a more realistic example.
 
 .. _hyperparameter.hyperband-perf:
 
@@ -592,7 +591,7 @@ Hyperband Performance
 ^^^^^^^^^^^^^^^^^^^^^
 
 This performance comparison will briefly summarize an experiment to find
-performance results. This is similar to the case above, and complete details
+performance results. This is similar to the case above. Complete details
 can be found in the Dask blog post "`Better and faster hyperparameter
 optimization with Dask
 <https://blog.dask.org/2019/09/30/dask-hyperparam-opt>`_".
@@ -619,7 +618,7 @@ these parameters:
   ``hidden_layer_sizes``. This can take values that have 12 neurons; for
   example, 6 neurons in two layers or 4 neurons in 3 layers.
 * Six hyperparameters that control finding the optimal model of a particular
-  architecture. This includes hyperparameters like weight decay and various
+  architecture. This includes hyperparameters such as weight decay and various
   optimization parameters (including batch size, learning rate and momentum).
 
 Here's how we'll configure the two different estimators:
@@ -662,7 +661,7 @@ majority of the search. How does this change with the number of workers?
 
 
 To see this, let's analyze how the time-to-completion for Hyperband varies with
-the number of Dask workers in a seperate experiment.
+the number of Dask workers in a separate experiment.
 
 .. figure:: images/scaling-patience-true.svg
    :width: 60%

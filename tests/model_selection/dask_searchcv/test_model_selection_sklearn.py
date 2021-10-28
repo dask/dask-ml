@@ -106,7 +106,7 @@ def test_hyperparameter_searcher_with_fit_params(cls, kwargs):
     pipe = Pipeline([("clf", clf)])
     searcher = cls(pipe, {"clf__foo_param": [1, 2, 3]}, cv=2, **kwargs)
 
-    # The CheckingClassifer generates an assertion error if
+    # The CheckingClassifier generates an assertion error if
     # a parameter is missing or has length != len(X).
     with pytest.raises(AssertionError) as exc:
         searcher.fit(X, y, clf__spam=np.ones(10))
@@ -310,7 +310,7 @@ def test_no_refit():
     assert not hasattr(grid_search, "best_score_")
     assert not hasattr(grid_search, "best_params_")
 
-    # Make sure the predict/transform etc fns raise meaningfull error msg
+    # Make sure the predict/transform etc fns raise meaningful error msg
     for fn_name in (
         "predict",
         "predict_proba",

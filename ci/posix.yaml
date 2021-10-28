@@ -10,16 +10,17 @@ jobs:
     matrix:
       linux37:
         envFile: 'ci/environment-3.7.yaml'
-        SKLARN_DEV: "no"
+        SKLEARN_DEV: "no"
       linux38:
         envFile: 'ci/environment-3.8.yaml'
-        SKLARN_DEV: "no"
+        SKLEARN_DEV: "no"
       earliest:
         envFile: 'ci/environment-3.6.yaml'
-        SKLARN_DEV: "no"
+        SKLEARN_DEV: "no"
       sklearnDev:
         envFile: 'ci/environment-3.7.yaml'
         SKLEARN_DEV: "yes"
+        WRAPPERS: "no"
 
   steps:
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
@@ -32,6 +33,24 @@ jobs:
 
   - bash: conda env create --quiet --file=$(envFile) --name=dask-ml-test && conda list -n dask-ml-test
     displayName: "install"
+
+  - bash: |
+      conda install -y -q pytorch cpuonly -c pytorch -n dask-ml-test
+      source activate dask-ml-test
+      pip install skorch
+      python -c "import torch; print('PyTorch ' + torch.__version__)"
+      python -c "import skorch; print('Skorch ' + skorch.__version__)"
+    displayName: "install PyTorch"
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+
+  - bash: |
+      source activate dask-ml-test
+      pip install tensorflow>=2.3.0
+      pip install scikeras>=0.1.8
+      python -c "import tensorflow as tf; print('TF ' + tf.__version__)"
+      python -c "import scikeras; print('SciKeras ' + scikeras.__version__)"
+    displayName: "install Tensorflow and SciKeras"
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
 
   - script: |
       source activate dask-ml-test

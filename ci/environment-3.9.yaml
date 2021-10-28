@@ -1,0 +1,23 @@
+name: dask-ml-3.9
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - dask
+  - dask-glm
+  - multipledispatch >=0.4.9
+  - mypy
+  - numba
+  - numpy
+  - numpydoc
+  - packaging
+  - pandas
+  - psutil
+  - pytest
+  - pytest-cov
+  - pytest-mock
+  - python=3.9.*
+  - scikit-learn>=1.0.0
+  - scipy
+  - sparse
+  - toolz

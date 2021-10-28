@@ -2,6 +2,7 @@ import asyncio
 import concurrent.futures
 import itertools
 import logging
+import math
 import random
 import sys
 
@@ -161,7 +162,7 @@ def test_partial_fit_doesnt_mutate_inputs():
     assert new_meta2 != new_meta
 
 
-@gen_cluster(client=True, timeout=1000)
+@gen_cluster(client=True)
 async def test_explicit(c, s, a, b):
     X, y = make_classification(n_samples=1000, n_features=10, chunks=(200, 10))
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
@@ -225,7 +226,7 @@ async def test_explicit(c, s, a, b):
         await asyncio.sleep(0.1)
 
 
-@gen_cluster(client=True, timeout=1000)
+@gen_cluster(client=True)
 async def test_search_basic(c, s, a, b):
     for decay_rate, input_type, memory in itertools.product(
         {0, 1}, ["array", "dataframe"], ["distributed"]
@@ -259,13 +260,6 @@ async def _test_search_basic(decay_rate, input_type, memory, c, s, a, b):
         search = InverseDecaySearchCV(model, params, **kwargs)
     else:
         raise ValueError()
-    if memory == "distributed" and input_type == "dataframe":
-        with pytest.raises(TypeError, match=r"to_dask_array\(lengths=True\)"):
-            await search.fit(X, y, classes=[0, 1])
-
-        # Dask-ML raised a type error; let's implement the suggestion
-        X = await c.compute(c.submit(X.to_dask_array, lengths=True))
-        y = await c.compute(c.submit(y.to_dask_array, lengths=True))
     await search.fit(X, y, classes=[0, 1])
 
     assert search.history_
@@ -321,8 +315,10 @@ async def _test_search_basic(decay_rate, input_type, memory, c, s, a, b):
 
     proba = search.predict_proba(X)
     log_proba = search.predict_log_proba(X)
-    assert proba.shape == (1000, 2)
-    assert log_proba.shape == (1000, 2)
+    assert proba.shape[1] == 2
+    assert proba.shape[0] == 1000 or math.isnan(proba.shape[0])
+    assert log_proba.shape[1] == 2
+    assert log_proba.shape[0] == 1000 or math.isnan(proba.shape[0])
 
     assert isinstance(proba, da.Array)
     assert isinstance(log_proba, da.Array)
@@ -334,11 +330,11 @@ async def _test_search_basic(decay_rate, input_type, memory, c, s, a, b):
     da.utils.assert_eq(log_proba, log_proba_)
 
     decision = search.decision_function(X_)
-    assert decision.shape == (1000,)
+    assert decision.shape == (1000,) or math.isnan(decision.shape[0])
     return True
 
 
-@gen_cluster(client=True, timeout=1000)
+@gen_cluster(client=True)
 def test_search_plateau_patience(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
 
@@ -371,7 +367,7 @@ def test_search_plateau_patience(c, s, a, b):
     search.score(X_test, y_test)
 
 
-@gen_cluster(client=True, timeout=1000)
+@gen_cluster(client=True)
 def test_search_plateau_tol(c, s, a, b):
     model = LinearFunction(slope=1)
     params = {"foo": np.linspace(0, 1)}
@@ -476,7 +472,7 @@ def test_small(c, s, a, b):
 
 @gen_cluster(client=True)
 def test_smaller(c, s, a, b):
-    # infininte loop
+    # infinite loop
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = {"alpha": [0.1, 0.5]}
@@ -857,3 +853,18 @@ def test_warns_scores_per_fit(c, s, a, b):
     search = IncrementalSearchCV(model, params, scores_per_fit=2)
     with pytest.warns(UserWarning, match="deprecated since Dask-ML v1.4.0"):
         yield search.fit(X, y)
+
+
+@gen_cluster(client=True)
+async def test_model_future(c, s, a, b):
+    X, y = make_classification(n_samples=100, n_features=5, chunks=10)
+
+    params = {"value": np.random.RandomState(42).rand(1000)}
+    model = ConstantFunction()
+    model_future = await c.scatter(model)
+
+    search = IncrementalSearchCV(model_future, params, max_iter=10)
+
+    await search.fit(X, y, classes=[0, 1])
+    assert search.history_
+    assert search.best_score_ > 0

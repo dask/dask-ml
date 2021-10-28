@@ -91,6 +91,21 @@ provides the following:
    linear_model.LogisticRegression
    linear_model.PoissonRegression
 
+:mod:`dask_ml.naive_bayes`: Naive Bayes
+=======================================
+
+.. automodule:: dask_ml.naive_bayes
+   :no-members:
+   :no-inherited-members:
+
+.. currentmodule:: dask_ml
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   naive_bayes.GaussianNB
+
 :mod:`dask_ml.wrappers`: Meta-Estimators
 ========================================
 
@@ -176,10 +191,11 @@ with Dask Arrays or DataFrames.
    :toctree: generated/
    :template: class.rst
 
+   feature_extraction.text.CountVectorizer
    feature_extraction.text.HashingVectorizer
    feature_extraction.text.FeatureHasher
 
-   
+
 :mod:`dask_ml.compose`: Composite Estimators
 ============================================
 
@@ -190,13 +206,13 @@ Meta-estimators for building composite models with transformers.
 .. currentmodule:: dask_ml
 
 .. autosummary::
-   :toctree: generted/
+   :toctree: generated/
    :template: class.rst
 
    compose.ColumnTransformer
 
 .. autosummary::
-   :toctree: generted/
+   :toctree: generated/
 
    compose.make_column_transformer
 
@@ -229,7 +245,9 @@ Regression Metrics
    :toctree: generated/
 
    metrics.mean_absolute_error
+   metrics.mean_absolute_percentage_error
    metrics.mean_squared_error
+   metrics.mean_squared_log_error
    metrics.r2_score
 
 
@@ -264,3 +282,21 @@ Classification Metrics
 
    train
    predict
+
+:mod:`dask_ml.datasets`: Datasets
+======================================================
+
+dask-ml provides some utilities for generating toy datasets.
+
+.. automodule:: dask_ml.datasets
+
+.. currentmodule:: dask_ml.datasets
+
+.. autosummary::
+   :toctree: generated/
+
+   make_counts
+   make_blobs
+   make_regression
+   make_classification
+   make_classification_df

@@ -10,8 +10,9 @@ import sklearn.cluster
 from dask import compute
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.extmath import squared_norm
+from sklearn.utils.validation import check_is_fitted
 
-from .._compat import blockwise, check_is_fitted
+from .._compat import blockwise
 from .._utils import draw_seed
 from ..metrics import (
     euclidean_distances,
@@ -19,7 +20,7 @@ from ..metrics import (
     pairwise_distances_argmin_min,
 )
 from ..utils import _timed, _timer, check_array, row_norms
-from ._compat import _k_init
+from ._compat import _kmeans_plusplus
 
 import numba  # isort:skip (see https://github.com/dask/dask-ml/pull/577)
 
@@ -82,7 +83,7 @@ class KMeans(TransformerMixin, BaseEstimator):
         A dask array with the index position in ``cluster_centers_`` this
         sample belongs to.
 
-    intertia_ : float
+    inertia_ : float
         Sum of distances of samples to their closest cluster center.
 
     n_iter_ : int
@@ -381,9 +382,15 @@ def init_pp(X, n_clusters, random_state):
     logger.info("Initializing with k-means++")
     with _timer("initialization of %2d centers" % n_clusters, _logger=logger):
         # XXX: Using a private scikit-learn API
-        centers = _k_init(
-            X, n_clusters, random_state=random_state, x_squared_norms=x_squared_norms
+        centers = _kmeans_plusplus(
+            # sklearn 0.24 requires the compute. Unclear if earlier versions
+            # just implicitly computed.
+            X.compute(),
+            n_clusters,
+            random_state=random_state,
+            x_squared_norms=x_squared_norms,
         )
+        centers, _ = centers
 
     return centers
 
@@ -447,7 +454,9 @@ def init_scalable(
     # to do that.
 
     if len(centers) < n_clusters:
-        logger.warning("Found fewer than %d clusters in init.", n_clusters)
+        logger.warning(
+            "Found fewer than %d clusters in init (found %d).", n_clusters, len(centers)
+        )
         # supplement with random
         need = n_clusters - len(centers)
         locs = sorted(

@@ -59,3 +59,13 @@ def add_intercept(X):  # noqa: F811
     if "intercept" in columns:
         raise ValueError("'intercept' column already in 'X'")
     return X.assign(intercept=1)[["intercept"] + list(columns)]
+
+
+@dispatch(np.ndarray)  # noqa: F811
+def lr_prob_stack(prob):  # noqa: F811
+    return np.vstack([1 - prob, prob]).T
+
+
+@dispatch(da.Array)  # noqa: F811
+def lr_prob_stack(prob):  # noqa: F811
+    return da.vstack([1 - prob, prob]).T

@@ -10,7 +10,6 @@ import numpy as np
 import scipy.sparse as sp
 from dask.base import tokenize
 from dask.delayed import Delayed, delayed
-from sklearn.utils.fixes import np_version
 from sklearn.utils.validation import _is_arraylike, indexable
 
 from ..utils import _num_samples
@@ -111,7 +110,7 @@ class DeprecationDict(dict):
     This implementation was copied from Scikit-Learn.
 
     See License information here:
-    https://github.com/scikit-learn/scikit-learn/blob/master/README.rst
+    https://github.com/scikit-learn/scikit-learn/blob/main/README.rst
     """
 
     def __init__(self, *args, **kwargs):
@@ -296,9 +295,7 @@ def _pandas_indexing(X, key, key_dtype, axis):
 
 def _array_indexing(array, key, key_dtype, axis):
     """Index an array or scipy.sparse consistently across NumPy version."""
-    if np_version < (1, 12) or sp.issparse(array):
-        # FIXME: Remove the check for NumPy when using >= 1.12
-        # check if we have an boolean array-likes to make the proper indexing
+    if sp.issparse(array):
         if key_dtype == "bool":
             key = np.asarray(key)
     return array[key] if axis == 0 else array[:, key]
