@@ -391,23 +391,23 @@ class TfidfTransformer(sklearn.feature_extraction.text.TfidfTransformer):
         # if not sp.issparse(X):
         #     X = sp.csr_matrix(X, dtype=np.float64)
 
-        def _astype(chunk):
-            return chunk.astype(np.float64, copy=True)
+        def _astype(chunk, Xdtype=np.float64):
+            return chunk.astype(Xdtype, copy=True)
 
         def _one_plus_log(chunk):
             # transforms nonzero elements x of csr_matrix: x -> 1 + log(x)
             c = chunk.copy()
-            c.data = np.log(chunk.data, dtype=np.float64)
+            c.data = np.log(chunk.data, dtype=chunk.data.dtype)
             c.data += 1
             return c
 
         def _dot_idf_diag(chunk):
             return chunk * self._idf_diag
 
-        meta = scipy.sparse.eye(0, format="csr")
         dtype = X.dtype if X.dtype in FLOAT_DTYPES else np.float64
+        meta = scipy.sparse.eye(0, format="csr", dtype=dtype)
         if X.dtype != dtype:
-            X = X.map_blocks(_astype, dtype=dtype, meta=meta)
+            X = X.map_blocks(_astype, Xdtype=dtype, dtype=dtype, meta=meta)
 
         if self.sublinear_tf:
             X = X.map_blocks(_one_plus_log, dtype=dtype, meta=meta)
