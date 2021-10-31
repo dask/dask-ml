@@ -65,6 +65,8 @@ class TestStandardScaler:
         a = dpp.StandardScaler()
         b = spp.StandardScaler()
 
+        exclude = {"n_samples_seen_", "feature_names_in_"}
+
         assert_estimator_equal(
             a.fit(dask_df.values),
             a.fit(dask_df),
@@ -73,25 +75,25 @@ class TestStandardScaler:
         assert_estimator_equal(
             a.fit(dask_df),
             b.fit(pandas_df),
-            exclude=["n_samples_seen_", "feature_names_in_"],
+            exclude=exclude,
         )
 
         assert_estimator_equal(
             a.fit(dask_df.values),
             b.fit(pandas_df),
-            exclude=["n_samples_seen_", "feature_names_in_"],
+            exclude=exclude,
         )
 
         assert_estimator_equal(
             a.fit(dask_df),
             b.fit(pandas_df.values),
-            exclude=["n_samples_seen_", "feature_names_in_"],
+            exclude=exclude,
         )
 
         assert_estimator_equal(
             a.fit(dask_df.values),
             b.fit(pandas_df.values),
-            exclude=["n_samples_seen_", "feature_names_in_"],
+            exclude=exclude,
         )
 
     def test_inverse_transform(self):
@@ -526,7 +528,7 @@ class TestPolynomialFeatures:
         a = dpp.PolynomialFeatures()
         b = spp.PolynomialFeatures()
 
-        exclude = {"n_input_features_"}
+        exclude = {"n_input_features_", "feature_names_in_"}
 
         assert_estimator_equal(a.fit(df), a.fit(df.compute()), exclude=exclude)
         assert_estimator_equal(a.fit(df), a.fit(df.compute().values), exclude=exclude)
