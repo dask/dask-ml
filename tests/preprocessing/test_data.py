@@ -65,8 +65,6 @@ class TestStandardScaler:
         a = dpp.StandardScaler()
         b = spp.StandardScaler()
 
-        exclude = {"n_samples_seen_", "feature_names_in_"}
-
         assert_estimator_equal(
             a.fit(dask_df.values),
             a.fit(dask_df),
@@ -75,25 +73,25 @@ class TestStandardScaler:
         assert_estimator_equal(
             a.fit(dask_df),
             b.fit(pandas_df),
-            exclude=exclude,
+            exclude="n_samples_seen_",
         )
 
         assert_estimator_equal(
             a.fit(dask_df.values),
             b.fit(pandas_df),
-            exclude=exclude,
+            exclude={"n_samples_seen_", "feature_names_in_"},
         )
 
         assert_estimator_equal(
             a.fit(dask_df),
             b.fit(pandas_df.values),
-            exclude=exclude,
+            exclude={"n_samples_seen_", "feature_names_in_"},
         )
 
         assert_estimator_equal(
             a.fit(dask_df.values),
             b.fit(pandas_df.values),
-            exclude=exclude,
+            exclude="n_samples_seen_",
         )
 
     def test_inverse_transform(self):
@@ -528,15 +526,25 @@ class TestPolynomialFeatures:
         a = dpp.PolynomialFeatures()
         b = spp.PolynomialFeatures()
 
-        exclude = {"n_input_features_", "feature_names_in_"}
-
-        assert_estimator_equal(a.fit(df), a.fit(df.compute()), exclude=exclude)
-        assert_estimator_equal(a.fit(df), a.fit(df.compute().values), exclude=exclude)
         assert_estimator_equal(
-            a.fit(df.values), a.fit(df.compute().values), exclude=exclude
+            a.fit(df), a.fit(df.compute()), exclude={"n_input_features_"}
         )
-        assert_estimator_equal(a.fit(df), b.fit(df.compute()), exclude=exclude)
-        assert_estimator_equal(a.fit(df), b.fit(df.compute().values), exclude=exclude)
+        assert_estimator_equal(
+            a.fit(df),
+            a.fit(df.compute().values),
+            exclude={"n_input_features_", "feature_names_in_"},
+        )
+        assert_estimator_equal(
+            a.fit(df.values), a.fit(df.compute().values), exclude={"n_input_features_"}
+        )
+        assert_estimator_equal(
+            a.fit(df), b.fit(df.compute()), exclude={"n_input_features_"}
+        )
+        assert_estimator_equal(
+            a.fit(df),
+            b.fit(df.compute().values),
+            exclude={"n_input_features_", "feature_names_in_"},
+        )
 
     def test_array_transform(self):
         a = dpp.PolynomialFeatures()
