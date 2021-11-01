@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>dask_ml.preprocessing.RobustScaler &#8212; dask-ml 1.8.1 documentation</title>
+    <title>dask_ml.preprocessing.RobustScaler &#8212; dask-ml 2021.10.18 documentation</title>
     
   <link href="../../_static/css/theme.css" rel="stylesheet" />
   <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
@@ -775,7 +775,7 @@ and the 3rd quartile (75th quantile).</p>
 <p>Centering and scaling happen independently on each feature by
 computing the relevant statistics on the samples in the training
 set. Median and interquartile range are then stored to be used on
-later data using the <code class="docutils literal notranslate"><span class="pre">transform</span></code> method.</p>
+later data using the <code class="xref py py-meth docutils literal notranslate"><span class="pre">transform()</span></code> method.</p>
 <p>Standardization of a dataset is a common requirement for many
 machine learning estimators. Typically this is done by removing the mean
 and scaling to unit variance. However, outliers can often influence the
@@ -788,27 +788,29 @@ the interquartile range often give better results.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl>
-<dt><strong>with_centering</strong><span class="classifier">bool, default=True</span></dt><dd><p>If True, center the data before scaling.
-This will cause <code class="docutils literal notranslate"><span class="pre">transform</span></code> to raise an exception when attempted on
-sparse matrices, because centering them entails building a dense
+<dt><strong>with_centering</strong><span class="classifier">bool, default=True</span></dt><dd><p>If <cite>True</cite>, center the data before scaling.
+This will cause <code class="xref py py-meth docutils literal notranslate"><span class="pre">transform()</span></code> to raise an exception when attempted
+on sparse matrices, because centering them entails building a dense
 matrix which in common use cases is likely to be too large to fit in
 memory.</p>
 </dd>
-<dt><strong>with_scaling</strong><span class="classifier">bool, default=True</span></dt><dd><p>If True, scale the data to interquartile range.</p>
+<dt><strong>with_scaling</strong><span class="classifier">bool, default=True</span></dt><dd><p>If <cite>True</cite>, scale the data to interquartile range.</p>
 </dd>
-<dt><strong>quantile_range</strong><span class="classifier">tuple (q_min, q_max), 0.0 &lt; q_min &lt; q_max &lt; 100.0,         default=(25.0, 75.0), == (1st quantile, 3rd quantile), == IQR</span></dt><dd><p>Quantile range used to calculate <code class="docutils literal notranslate"><span class="pre">scale_</span></code>.</p>
+<dt><strong>quantile_range</strong><span class="classifier">tuple (q_min, q_max), 0.0 &lt; q_min &lt; q_max &lt; 100.0,         default=(25.0, 75.0)</span></dt><dd><p>Quantile range used to calculate <cite>scale_</cite>. By default this is equal to
+the IQR, i.e., <cite>q_min</cite> is the first quantile and <cite>q_max</cite> is the third
+quantile.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 0.18.</span></p>
 </div>
 </dd>
-<dt><strong>copy</strong><span class="classifier">bool, default=True</span></dt><dd><p>If False, try to avoid a copy and do inplace scaling instead.
+<dt><strong>copy</strong><span class="classifier">bool, default=True</span></dt><dd><p>If <cite>False</cite>, try to avoid a copy and do inplace scaling instead.
 This is not guaranteed to always work inplace; e.g. if the data is
 not a NumPy array or scipy.sparse CSR matrix, a copy may still be
 returned.</p>
 </dd>
-<dt><strong>unit_variance</strong><span class="classifier">bool, default=False</span></dt><dd><p>If True, scale data so that normally distributed features have a
+<dt><strong>unit_variance</strong><span class="classifier">bool, default=False</span></dt><dd><p>If <cite>True</cite>, scale data so that normally distributed features have a
 variance of 1. In general, if the difference between the x-values of
-<code class="docutils literal notranslate"><span class="pre">q_max</span></code> and <code class="docutils literal notranslate"><span class="pre">q_min</span></code> for a standard normal distribution is greater
+<cite>q_max</cite> and <cite>q_min</cite> for a standard normal distribution is greater
 than 1, the dataset will be scaled down. If less than 1, the dataset
 will be scaled up.</p>
 <div class="versionadded">
@@ -845,7 +847,7 @@ has feature names that are all strings.</p>
 <dl class="simple">
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">robust_scale</span></code></dt><dd><p>Equivalent function without the estimator API.</p>
 </dd>
-<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html#sklearn.decomposition.PCA" title="(in scikit-learn v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">PCA</span></code></a></dt><dd><p>Further removes the linear correlation across features with ‘whiten=True’.</p>
+<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html#sklearn.decomposition.PCA" title="(in scikit-learn v1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.decomposition.PCA</span></code></a></dt><dd><p>Further removes the linear correlation across features with ‘whiten=True’.</p>
 </dd>
 </dl>
 </div>

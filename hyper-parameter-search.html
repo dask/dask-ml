@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hyper Parameter Search &#8212; dask-ml 1.8.1 documentation</title>
+    <title>Hyper Parameter Search &#8212; dask-ml 2021.10.18 documentation</title>
     
   <link href="_static/css/theme.css" rel="stylesheet" />
   <link href="_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
@@ -1314,13 +1314,13 @@ train-and-score them until we find the best one.</p>
 <span class="gp">In [13]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [14]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span>
-<span class="gh">Out[14]: </span><span class="go">{&#39;alpha&#39;: 0.1252065381499946, &#39;l1_ratio&#39;: 0.7151893663724195}</span>
+<span class="gh">Out[14]: </span><span class="go">{&#39;alpha&#39;: 0.08557228909882697, &#39;l1_ratio&#39;: 0.05999909010783877}</span>
 
 <span class="gp">In [15]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_score_</span>
 <span class="gh">Out[15]: </span><span class="go">0.6</span>
 
 <span class="gp">In [16]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
-<span class="gh">Out[16]: </span><span class="go">0.5</span>
+<span class="gh">Out[16]: </span><span class="go">0.6</span>
 </pre></div>
 </div>
 <p>Note that when you do post-fit tasks like <code class="docutils literal notranslate"><span class="pre">search.score</span></code>, the underlying
@@ -1341,7 +1341,7 @@ to use post-estimation features like scoring or prediction, we recommend using
 <span class="gp">In [21]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [22]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
-<span class="gh">Out[22]: </span><span class="go">0.6</span>
+<span class="gh">Out[22]: </span><span class="go">0.5</span>
 </pre></div>
 </div>
 <p>Note that the parameter names include the <code class="docutils literal notranslate"><span class="pre">estimator__</span></code> prefix, as we’re
@@ -1450,7 +1450,7 @@ chunks:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [34]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [35]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span>
-<span class="gh">Out[35]: </span><span class="go">{&#39;alpha&#39;: 0.1252065381499946, &#39;l1_ratio&#39;: 0.7151893663724195}</span>
+<span class="gh">Out[35]: </span><span class="go">{&#39;alpha&#39;: 0.010923212792818309, &#39;l1_ratio&#39;: 0.5344712370918218}</span>
 </pre></div>
 </div>
 <p>To be clear, this is a very small toy example: there are only 100 observations and

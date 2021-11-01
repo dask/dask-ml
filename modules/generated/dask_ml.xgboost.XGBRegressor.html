@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>dask_ml.xgboost.XGBRegressor &#8212; dask-ml 1.8.1 documentation</title>
+    <title>dask_ml.xgboost.XGBRegressor &#8212; dask-ml 2021.10.18 documentation</title>
     
   <link href="../../_static/css/theme.css" rel="stylesheet" />
   <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
@@ -766,7 +766,7 @@
 <h1><a class="reference internal" href="../api.html#module-dask_ml.xgboost" title="dask_ml.xgboost"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.xgboost</span></code></a>.XGBRegressor<a class="headerlink" href="#dask-ml-xgboost-xgbregressor" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="dask_ml.xgboost.XGBRegressor">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dask_ml.xgboost.</span></span><span class="sig-name descname"><span class="pre">XGBRegressor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reg:squarederror'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dask_ml.xgboost.</span></span><span class="sig-name descname"><span class="pre">XGBRegressor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.6/library/stdtypes.html#str" title="(in Python v3.6)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'reg:squarederror'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Attributes</dt>
 <dd class="field-odd"><dl class="simple">
@@ -775,7 +775,7 @@
 <dt><strong>best_score</strong></dt><dd></dd>
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">coef_</span></code></dt><dd><p>Coefficients property</p>
 </dd>
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">feature_importances_</span></code></dt><dd><p>Feature importances property</p>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">feature_importances_</span></code></dt><dd><p>Feature importances property, return depends on <cite>importance_type</cite> parameter.</p>
 </dd>
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">intercept_</span></code></dt><dd><p>Intercept (bias) property</p>
 </dd>
@@ -812,7 +812,7 @@
 <td><p>Get xgboost specific parameters.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_model</span></code>(fname)</p></td>
-<td><p>Load the model from a file.</p></td>
+<td><p>Load the model from a file or bytearray.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code>(X)</p></td>
 <td><p>Predict with <cite>X</cite>.</p></td>
@@ -830,7 +830,7 @@
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="dask_ml.xgboost.XGBRegressor.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'reg:squarederror'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">objective</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.6/library/stdtypes.html#str" title="(in Python v3.6)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'reg:squarederror'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.6/library/constants.html#None" title="(in Python v3.6)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#dask_ml.xgboost.XGBRegressor.__init__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
