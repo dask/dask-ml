@@ -8,7 +8,7 @@ from dask_ml.utils import ConstantFunction
 
 
 @gen_cluster(client=True)
-def test_warns_decay_rate(c, s, a, b):
+async def test_warns_decay_rate(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=10)
 
     params = {"value": np.random.RandomState(42).rand(1000)}
@@ -18,15 +18,15 @@ def test_warns_decay_rate(c, s, a, b):
     search = IncrementalSearchCV(model, params, **kwargs)
     match = r"deprecated since Dask-ML v1.4.0."
     with pytest.warns(FutureWarning, match=match):
-        yield search.fit(X, y)
+        await search.fit(X, y)
 
     # Make sure the printed warning message works
     search = IncrementalSearchCV(model, params, decay_rate=None, **kwargs)
-    yield search.fit(X, y)
+    await search.fit(X, y)
 
 
 @gen_cluster(client=True)
-def test_warns_decay_rate_wanted(c, s, a, b):
+async def test_warns_decay_rate_wanted(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=10)
 
     params = {"value": np.random.RandomState(42).rand(1000)}
@@ -37,8 +37,8 @@ def test_warns_decay_rate_wanted(c, s, a, b):
     )
     match = "decay_rate is deprecated .* Use InverseDecaySearchCV"
     with pytest.warns(FutureWarning, match=match):
-        yield search.fit(X, y)
+        await search.fit(X, y)
 
     # Make sure old behavior is retained w/o warning
     search = InverseDecaySearchCV(model, params, decay_rate=1)
-    yield search.fit(X, y)
+    await search.fit(X, y)
