@@ -26,7 +26,7 @@ else:
 
 
 @gen_cluster(client=True)
-def test_pytorch(c, s, a, b):
+async def test_pytorch(c, s, a, b):
 
     n_features = 10
     defaults = {
@@ -56,5 +56,5 @@ def test_pytorch(c, s, a, b):
     X = X.astype("float32")
     y = y.astype("float32").reshape(-1, 1)
     search = IncrementalSearchCV(model2, params, max_iter=5, decay_rate=None)
-    yield search.fit(X, y)
+    await search.fit(X, y)
     assert search.best_score_ >= 0
