@@ -34,6 +34,7 @@ def test_set_params():
     assert result["scoring"] == "accuracy"
 
 
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 @pytest.mark.parametrize("dataframes", [False, True])
 def test_incremental_basic(scheduler, dataframes):
     # Create observations that we know linear models can recover
@@ -93,6 +94,7 @@ def test_incremental_basic(scheduler, dataframes):
         assert set(dir(clf.estimator_)) == set(dir(est2))
 
 
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 def test_in_gridsearch(scheduler, xy_classification):
     X, y = xy_classification
     clf = Incremental(SGDClassifier(random_state=0, tol=1e-3))
@@ -111,6 +113,7 @@ def test_scoring(scheduler, xy_classification, scoring=dask_ml.metrics.accuracy_
             clf.fit(X, y, classes=np.unique(y))
 
 
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 @pytest.mark.parametrize("scoring", ["accuracy", "neg_mean_squared_error", "r2", None])
 def test_scoring_string(scheduler, xy_classification, scoring):
     X, y = xy_classification
@@ -136,6 +139,7 @@ def test_fit_ndarrays():
     assert_eq(inc.coef_, inc.estimator_.coef_)
 
 
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 def test_score_ndarrays():
     X = np.ones((10, 5))
     y = np.ones(10)
@@ -153,6 +157,7 @@ def test_score_ndarrays():
     assert inc.score(dX, dy) == 1
 
 
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 def test_score(xy_classification):
     distributed = pytest.importorskip("distributed")
     client = distributed.Client(n_workers=2)

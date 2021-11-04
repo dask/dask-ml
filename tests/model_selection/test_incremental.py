@@ -335,6 +335,7 @@ async def _test_search_basic(decay_rate, input_type, memory, c, s, a, b):
 
 
 @gen_cluster(client=True)
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 async def test_search_plateau_patience(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
 
@@ -461,6 +462,7 @@ async def test_transform(c, s, a, b):
         pytest.xfail(reason="https://github.com/dask/dask-ml/issues/673")
 
 
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 @gen_cluster(client=True)
 async def test_small(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
@@ -472,6 +474,7 @@ async def test_small(c, s, a, b):
     search.predict(X_)
 
 
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 @gen_cluster(client=True)
 async def test_smaller(c, s, a, b):
     # infinite loop

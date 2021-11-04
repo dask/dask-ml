@@ -1,5 +1,6 @@
 """Meta-estimators for parallelizing estimators using the scikit-learn API."""
 import logging
+from warnings import warn
 
 import dask.array as da
 import dask.dataframe as dd
@@ -254,7 +255,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         else:
             return self._postfit_estimator.score(X, y)
 
-    def predict(self, X):
+    def predict(self, X, meta=None):
         """Predict for X.
 
         For dask inputs, a dask array or dataframe is returned. For other
@@ -272,19 +273,22 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         self._check_method("predict")
         X = self._check_array(X)
 
+        if meta is None:
+            warn(
+                "No meta provided to `ParallelPostFit.predict`. "
+                "Defaulting meta to np.array([1]).\n"
+                "Will default to None(infer) in the future release",
+                FutureWarning,
+            )
+            meta = np.array([1])
+
         if isinstance(X, da.Array):
             result = X.map_blocks(
-                _predict, dtype="int", estimator=self._postfit_estimator, drop_axis=1
+                _predict, estimator=self._postfit_estimator, drop_axis=1, meta=meta
             )
             return result
 
         elif isinstance(X, dd._Frame):
-            try:
-                meta = _predict(X._meta_nonempty, estimator=self._postfit_estimator)
-            except Exception:
-                # fall back to numpy array if _predict fails on meta data
-                # to allow value dependent models to succeed
-                meta = np.array([1])
             return X.map_partitions(
                 _predict, estimator=self._postfit_estimator, meta=meta
             )

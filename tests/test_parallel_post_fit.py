@@ -2,19 +2,18 @@ import dask
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
-import pandas as pd
 import pytest
 import sklearn.datasets
 from sklearn.decomposition import PCA
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.linear_model import LinearRegression, LogisticRegression
-from sklearn.naive_bayes import CategoricalNB
 
 from dask_ml.datasets import make_classification
 from dask_ml.utils import assert_eq_ar, assert_estimator_equal
 from dask_ml.wrappers import ParallelPostFit
 
 
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 def test_it_works():
     clf = ParallelPostFit(GradientBoostingClassifier())
 
@@ -41,6 +40,7 @@ def test_no_method_raises():
     assert m.match("The wrapped estimator (.|\n)* 'predict_proba' method.")
 
 
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 def test_laziness():
     clf = ParallelPostFit(LinearRegression())
     X, y = make_classification(chunks=50)
@@ -51,33 +51,8 @@ def test_laziness():
     assert 0 < x.compute() < 1
 
 
-def test_predict_meta_fallback():
-    # test to predict
-    # that fit works when fit fails on meta
-    # because of value dependent model
-    X = pd.DataFrame({"c_0": [0, 1, 2, 3]})
-    y = np.array([1, 2, 3, 4])
-
-    base = CategoricalNB()
-    base.fit(pd.DataFrame(X), y)
-    wrap = ParallelPostFit(base)
-
-    dd_X = dd.from_pandas(X, npartitions=2)
-    dd_X._meta = pd.DataFrame({"c_0": [5]})
-    with pytest.raises(IndexError):
-        base.predict(dd_X._meta)
-
-    # ensure we fall back to numpy array as output
-    # when metadata inference fails
-    wrap_output = wrap.predict(dd_X)
-    assert wrap_output.dtype == np.int64
-
-    result = wrap.predict(dd_X)
-    expected = base.predict(X)
-    assert_eq_ar(result, expected)
-
-
-def test_predict_meta_correctness():
+@pytest.mark.filterwarnings("ignore::FutureWarning")
+def test_predict_with_meta():
     X, y = make_classification(chunks=100)
     X_ddf = dd.from_dask_array(X)
 
@@ -85,12 +60,13 @@ def test_predict_meta_correctness():
     base.fit(X, y)
     wrap = ParallelPostFit(base)
 
-    base_output_dtype = base.predict(X).dtype
-    wrap_output_dtype = wrap.predict(X_ddf).dtype
+    base_output = base.predict(X)
+    wrap_output = wrap.predict(X_ddf, meta=np.array([1.00], dtype=np.float64))
 
-    assert base_output_dtype == wrap_output_dtype
+    assert base_output.dtype == wrap_output.dtype
 
 
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 @pytest.mark.parametrize("kind", ["numpy", "dask.dataframe", "dask.array"])
 def test_predict(kind):
     X, y = make_classification(chunks=100)
@@ -145,6 +121,7 @@ def test_transform(kind):
     assert_eq_ar(result, expected)
 
 
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 def test_multiclass():
     X, y = sklearn.datasets.make_classification(n_classes=3, n_informative=4)
     X = da.from_array(X, chunks=50)
@@ -172,6 +149,7 @@ def test_multiclass():
     assert_eq_ar(result, expected)
 
 
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 def test_auto_rechunk():
     clf = ParallelPostFit(GradientBoostingClassifier())
     X, y = make_classification(n_samples=1000, n_features=20, chunks=100)

@@ -29,6 +29,7 @@ from dask_ml.wrappers import Incremental
 pytestmark = pytest.mark.skipif(not DISTRIBUTED_2_5_0, reason="hangs")
 
 
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 @pytest.mark.parametrize(
     "array_type, library, max_iter",
     [
