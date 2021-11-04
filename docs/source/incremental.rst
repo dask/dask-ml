@@ -92,6 +92,7 @@ the wrapped ``fit``.
 We can get the accuracy score on our dataset.
 
 .. ipython:: python
+   :okwarning:
 
    clf.score(X, y)
 

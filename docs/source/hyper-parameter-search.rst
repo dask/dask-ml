@@ -465,6 +465,7 @@ to use post-estimation features like scoring or prediction, we recommend using
 :class:`dask_ml.wrappers.ParallelPostFit`.
 
 .. ipython:: python
+   :okwarning:
 
    from dask_ml.wrappers import ParallelPostFit
    params = {'estimator__alpha': loguniform(1e-2, 1e0),
