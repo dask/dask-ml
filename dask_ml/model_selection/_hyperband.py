@@ -154,6 +154,13 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
     prefix : str, optional, default=""
         While logging, add ``prefix`` to each message.
 
+    meta: pd.Series, pd.DataFrame, np.array, iterable, tuple, optional, deafult: None
+        An empty ``pd.Series``, ``pd.DataFrame``, ``np.array`` that matches the output
+        type of the ``predict``, ``transform``  calls.
+        This meta is necessary for some ``predict``, ``transform`` calls
+        for some estimators to work with ``dask.dataframe`` and ``dask.array`` .
+
+
     Examples
     --------
     >>> import numpy as np
@@ -340,6 +347,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         scoring=None,
         verbose=False,
         prefix="",
+        meta=None,
     ):
         self.aggressiveness = aggressiveness
 
@@ -354,6 +362,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
             scoring=scoring,
             verbose=verbose,
             prefix=prefix,
+            meta=meta,
         )
 
     def _get_SHAs(self, brackets):

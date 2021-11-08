@@ -34,7 +34,6 @@ def test_set_params():
     assert result["scoring"] == "accuracy"
 
 
-@pytest.mark.filterwarnings("ignore::FutureWarning")
 @pytest.mark.parametrize("dataframes", [False, True])
 def test_incremental_basic(scheduler, dataframes):
     # Create observations that we know linear models can recover
@@ -52,7 +51,7 @@ def test_incremental_basic(scheduler, dataframes):
         est1 = SGDClassifier(random_state=0, tol=1e-3, average=True)
         est2 = clone(est1)
 
-        clf = Incremental(est1, random_state=0)
+        clf = Incremental(est1, random_state=0, meta=np.empty(1, dtype=np.int64))
         result = clf.fit(X, y, classes=[0, 1])
         assert result is clf
 
@@ -94,10 +93,11 @@ def test_incremental_basic(scheduler, dataframes):
         assert set(dir(clf.estimator_)) == set(dir(est2))
 
 
-@pytest.mark.filterwarnings("ignore::FutureWarning")
 def test_in_gridsearch(scheduler, xy_classification):
     X, y = xy_classification
-    clf = Incremental(SGDClassifier(random_state=0, tol=1e-3))
+    clf = Incremental(
+        SGDClassifier(random_state=0, tol=1e-3), meta=np.empty(1, dtype=np.int64)
+    )
     param_grid = {"estimator__alpha": [0.1, 10]}
     gs = sklearn.model_selection.GridSearchCV(clf, param_grid, cv=3)
 
@@ -113,12 +113,13 @@ def test_scoring(scheduler, xy_classification, scoring=dask_ml.metrics.accuracy_
             clf.fit(X, y, classes=np.unique(y))
 
 
-@pytest.mark.filterwarnings("ignore::FutureWarning")
 @pytest.mark.parametrize("scoring", ["accuracy", "neg_mean_squared_error", "r2", None])
 def test_scoring_string(scheduler, xy_classification, scoring):
     X, y = xy_classification
     with scheduler() as (s, [a, b]):
-        clf = Incremental(SGDClassifier(tol=1e-3), scoring=scoring)
+        clf = Incremental(
+            SGDClassifier(tol=1e-3), scoring=scoring, meta=np.empty(1, dtype=np.int64)
+        )
         assert callable(check_scoring(clf, scoring=scoring))
         clf.fit(X, y, classes=np.unique(y))
         clf.score(X, y)
@@ -139,13 +140,12 @@ def test_fit_ndarrays():
     assert_eq(inc.coef_, inc.estimator_.coef_)
 
 
-@pytest.mark.filterwarnings("ignore::FutureWarning")
 def test_score_ndarrays():
     X = np.ones((10, 5))
     y = np.ones(10)
 
     sgd = SGDClassifier(tol=1e-3)
-    inc = Incremental(sgd, scoring="accuracy")
+    inc = Incremental(sgd, scoring="accuracy", meta=np.empty(1, dtype=np.int64))
 
     inc.partial_fit(X, y, classes=[0, 1])
     inc.fit(X, y, classes=[0, 1])
@@ -157,14 +157,15 @@ def test_score_ndarrays():
     assert inc.score(dX, dy) == 1
 
 
-@pytest.mark.filterwarnings("ignore::FutureWarning")
 def test_score(xy_classification):
     distributed = pytest.importorskip("distributed")
     client = distributed.Client(n_workers=2)
 
     X, y = xy_classification
     inc = Incremental(
-        SGDClassifier(max_iter=1000, random_state=0, tol=1e-3), scoring="accuracy"
+        SGDClassifier(max_iter=1000, random_state=0, tol=1e-3),
+        scoring="accuracy",
+        meta=np.empty(1, dtype=np.int64),
     )
 
     with client:

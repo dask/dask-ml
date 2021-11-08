@@ -47,6 +47,12 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
            a single NumPy array, which may exhaust the memory of your worker.
            You probably want to always specify `scoring`.
 
+    meta: pd.Series, pd.DataFrame, np.array, iterable, tuple, optional, deafult: None
+        An empty ``pd.Series``, ``pd.DataFrame``, ``np.array`` that matches the output
+        type of the ``predict``, ``transform``  calls.
+        This meta is necessary for some ``predict``, ``transform`` calls
+        for some estimators to work with ``dask.dataframe`` and ``dask.array`` .
+
     Notes
     -----
 
@@ -116,9 +122,10 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
            [0.99407016, 0.00592984]])
     """
 
-    def __init__(self, estimator=None, scoring=None):
+    def __init__(self, estimator=None, scoring=None, meta=None):
         self.estimator = estimator
         self.scoring = scoring
+        self.meta = meta
 
     def _check_array(self, X):
         """Validate an array for post-fit tasks.
@@ -203,13 +210,27 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         """
         self._check_method("transform")
         X = self._check_array(X)
+        meta = self.meta
 
         if isinstance(X, da.Array):
-            xx = np.zeros((1, X.shape[1]), dtype=X.dtype)
-            dt = _transform(xx, self._postfit_estimator).dtype
-            return X.map_blocks(_transform, estimator=self._postfit_estimator, dtype=dt)
+            if meta is None:
+                xx = np.zeros((1, X.shape[1]), dtype=X.dtype)
+                dt = _transform(xx, self._postfit_estimator).dtype
+                return X.map_blocks(
+                    _transform, estimator=self._postfit_estimator, dtype=dt
+                )
+            else:
+                return X.map_blocks(
+                    _transform, estimator=self._postfit_estimator, meta=meta
+                )
         elif isinstance(X, dd._Frame):
-            return X.map_partitions(_transform, estimator=self._postfit_estimator)
+            if meta is None:
+                # dask-dataframe relies on dd.core.no_default
+                # for infering meta
+                meta = dd.core.no_default
+            return X.map_partitions(
+                _transform, estimator=self._postfit_estimator, meta=meta
+            )
         else:
             return _transform(X, estimator=self._postfit_estimator)
 
@@ -255,7 +276,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         else:
             return self._postfit_estimator.score(X, y)
 
-    def predict(self, X, meta=None):
+    def predict(self, X):
         """Predict for X.
 
         For dask inputs, a dask array or dataframe is returned. For other
@@ -272,15 +293,16 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         """
         self._check_method("predict")
         X = self._check_array(X)
+        meta = self.meta
 
         if meta is None:
             warn(
                 "No meta provided to `ParallelPostFit.predict`. "
-                "Defaulting meta to np.array([1]).\n"
+                "Defaulting meta to np.empty(1, dtype=np.int64).\n"
                 "Will default to None(infer) in the future release",
                 FutureWarning,
             )
-            meta = np.array([1])
+            meta = np.empty(1, dtype=np.int64)
 
         if isinstance(X, da.Array):
             result = X.map_blocks(
@@ -433,6 +455,12 @@ class Incremental(ParallelPostFit):
         of the Dask arrays (default), or to fit in sequential order. This does
         not control shuffle between blocks or shuffling each block.
 
+    meta: pd.Series, pd.DataFrame, np.array, iterable, tuple, optional, deafult: None
+        An empty ``pd.Series``, ``pd.DataFrame``, ``np.array`` that matches the output
+        type of the ``predict``, ``transform``  calls.
+        This meta is necessary for some ``predict``, ``transform`` calls
+        for some estimators to work with ``dask.dataframe`` and ``dask.array`` .
+
     Attributes
     ----------
     estimator_ : Estimator
@@ -469,11 +497,14 @@ class Incremental(ParallelPostFit):
         shuffle_blocks=True,
         random_state=None,
         assume_equal_chunks=True,
+        meta=None,
     ):
         self.shuffle_blocks = shuffle_blocks
         self.random_state = random_state
         self.assume_equal_chunks = assume_equal_chunks
-        super(Incremental, self).__init__(estimator=estimator, scoring=scoring)
+        super(Incremental, self).__init__(
+            estimator=estimator, scoring=scoring, meta=meta
+        )
 
     @property
     def _postfit_estimator(self):

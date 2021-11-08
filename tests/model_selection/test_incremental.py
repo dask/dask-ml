@@ -169,7 +169,7 @@ async def test_explicit(c, s, a, b):
     params = [{"alpha": 0.1}, {"alpha": 0.2}]
 
     def additional_calls(scores):
-        """ Progress through predefined updates, checking along the way """
+        """Progress through predefined updates, checking along the way"""
         ts = scores[0][-1]["partial_fit_calls"]
         ts -= 1  # partial_fit_calls = time step + 1
         if ts == 0:
@@ -335,7 +335,6 @@ async def _test_search_basic(decay_rate, input_type, memory, c, s, a, b):
 
 
 @gen_cluster(client=True)
-@pytest.mark.filterwarnings("ignore::FutureWarning")
 async def test_search_plateau_patience(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
 
@@ -351,7 +350,13 @@ async def test_search_plateau_patience(c, s, a, b):
     model = ConstantClassifier()
 
     search = IncrementalSearchCV(
-        model, params, n_initial_parameters=10, patience=5, tol=0, max_iter=10,
+        model,
+        params,
+        n_initial_parameters=10,
+        patience=5,
+        tol=0,
+        max_iter=10,
+        meta=np.empty(1, dtype=np.int64),
     )
     await search.fit(X, y, classes=[0, 1])
 
@@ -462,26 +467,28 @@ async def test_transform(c, s, a, b):
         pytest.xfail(reason="https://github.com/dask/dask-ml/issues/673")
 
 
-@pytest.mark.filterwarnings("ignore::FutureWarning")
 @gen_cluster(client=True)
 async def test_small(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = {"alpha": [0.1, 0.5, 0.75, 1.0]}
-    search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
+    search = IncrementalSearchCV(
+        model, params, n_initial_parameters="grid", meta=np.empty(1, dtype=np.int64)
+    )
     await search.fit(X, y, classes=[0, 1])
     X_ = await c.compute(X)
     search.predict(X_)
 
 
-@pytest.mark.filterwarnings("ignore::FutureWarning")
 @gen_cluster(client=True)
 async def test_smaller(c, s, a, b):
     # infinite loop
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = {"alpha": [0.1, 0.5]}
-    search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
+    search = IncrementalSearchCV(
+        model, params, n_initial_parameters="grid", meta=np.empty(1, dtype=np.int64)
+    )
     await search.fit(X, y, classes=[0, 1])
     X_ = await c.compute(X)
     search.predict(X_)

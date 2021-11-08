@@ -29,7 +29,6 @@ from dask_ml.wrappers import Incremental
 pytestmark = pytest.mark.skipif(not DISTRIBUTED_2_5_0, reason="hangs")
 
 
-@pytest.mark.filterwarnings("ignore::FutureWarning")
 @pytest.mark.parametrize(
     "array_type, library, max_iter",
     [
@@ -61,7 +60,7 @@ async def test_basic(c, s, a, b, array_type, library, max_iter):
     }
     model = SGDClassifier(tol=-np.inf, penalty="elasticnet", random_state=42, eta0=0.1)
     if library == "dask-ml":
-        model = Incremental(model)
+        model = Incremental(model, meta=np.empty(1, dtype=np.int64))
         params = {"estimator__" + k: v for k, v in params.items()}
     elif library == "ConstantFunction":
         model = ConstantFunction()
@@ -260,7 +259,9 @@ async def test_correct_params(c, s, a, b):
     est = ConstantFunction()
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
     params = {"value": np.linspace(0, 1)}
-    search = HyperbandSearchCV(est, params, max_iter=9)
+    search = HyperbandSearchCV(
+        est, params, max_iter=9, meta=np.empty(1, dtype=np.int64)
+    )
 
     base = {
         "estimator",
@@ -276,7 +277,12 @@ async def test_correct_params(c, s, a, b):
         "verbose",
         "prefix",
     }
-    assert set(search.get_params().keys()) == base.union({"aggressiveness"})
+
+    search_keys = set(search.get_params().keys())
+    # we remove meta because thats dask specific attribute
+    search_keys.remove("meta")
+
+    assert search_keys == base.union({"aggressiveness"})
     meta = search.metadata
     SHAs_params = [
         bracket["SuccessiveHalvingSearchCV params"] for bracket in meta["brackets"]

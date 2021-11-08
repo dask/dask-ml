@@ -13,9 +13,8 @@ from dask_ml.utils import assert_eq_ar, assert_estimator_equal
 from dask_ml.wrappers import ParallelPostFit
 
 
-@pytest.mark.filterwarnings("ignore::FutureWarning")
 def test_it_works():
-    clf = ParallelPostFit(GradientBoostingClassifier())
+    clf = ParallelPostFit(GradientBoostingClassifier(), meta=np.empty(1, np.int64))
 
     X, y = make_classification(n_samples=1000, chunks=100)
     X_, y_ = dask.compute(X, y)
@@ -40,9 +39,8 @@ def test_no_method_raises():
     assert m.match("The wrapped estimator (.|\n)* 'predict_proba' method.")
 
 
-@pytest.mark.filterwarnings("ignore::FutureWarning")
 def test_laziness():
-    clf = ParallelPostFit(LinearRegression())
+    clf = ParallelPostFit(LinearRegression(), meta=np.empty(1, dtype=np.float64))
     X, y = make_classification(chunks=50)
     clf.fit(X, y)
 
@@ -51,8 +49,7 @@ def test_laziness():
     assert 0 < x.compute() < 1
 
 
-@pytest.mark.filterwarnings("ignore::FutureWarning")
-def test_predict_with_meta():
+def test_predict_raise_warning():
     X, y = make_classification(chunks=100)
     X_ddf = dd.from_dask_array(X)
 
@@ -60,13 +57,28 @@ def test_predict_with_meta():
     base.fit(X, y)
     wrap = ParallelPostFit(base)
 
-    base_output = base.predict(X)
-    wrap_output = wrap.predict(X_ddf, meta=np.array([1.00], dtype=np.float64))
+    expect_warn = (
+        "No meta provided to `ParallelPostFit.predict`. Defaulting meta to np.empty"
+    )
 
-    assert base_output.dtype == wrap_output.dtype
+    with pytest.warns(FutureWarning, match=expect_warn):
+        wrap.predict(X_ddf)
 
 
-@pytest.mark.filterwarnings("ignore::FutureWarning")
+def test_predict_with_meta():
+    X, y = make_classification(chunks=100)
+    X_ddf = dd.from_dask_array(X)
+
+    base = LinearRegression(n_jobs=1)
+    base.fit(X, y)
+    meta_ar = np.empty(1, dtype=np.float64)
+    wrap = ParallelPostFit(base, meta=meta_ar)
+
+    wrap_output = wrap.predict(X_ddf)
+
+    assert wrap_output.dtype == np.float64
+
+
 @pytest.mark.parametrize("kind", ["numpy", "dask.dataframe", "dask.array"])
 def test_predict(kind):
     X, y = make_classification(chunks=100)
@@ -78,7 +90,10 @@ def test_predict(kind):
         y = dd.from_dask_array(y)
 
     base = LogisticRegression(random_state=0, n_jobs=1, solver="lbfgs")
-    wrap = ParallelPostFit(LogisticRegression(random_state=0, n_jobs=1, solver="lbfgs"))
+    wrap = ParallelPostFit(
+        LogisticRegression(random_state=0, n_jobs=1, solver="lbfgs"),
+        meta=np.empty(1, dtype=np.int64),
+    )
 
     base.fit(*dask.compute(X, y))
     wrap.fit(*dask.compute(X, y))
@@ -121,14 +136,16 @@ def test_transform(kind):
     assert_eq_ar(result, expected)
 
 
-@pytest.mark.filterwarnings("ignore::FutureWarning")
 def test_multiclass():
     X, y = sklearn.datasets.make_classification(n_classes=3, n_informative=4)
     X = da.from_array(X, chunks=50)
     y = da.from_array(y, chunks=50)
 
     clf = ParallelPostFit(
-        LogisticRegression(random_state=0, n_jobs=1, solver="lbfgs", multi_class="auto")
+        LogisticRegression(
+            random_state=0, n_jobs=1, solver="lbfgs", multi_class="auto"
+        ),
+        meta=np.empty(1, dtype=np.int64),
     )
 
     clf.fit(*dask.compute(X, y))
@@ -149,9 +166,10 @@ def test_multiclass():
     assert_eq_ar(result, expected)
 
 
-@pytest.mark.filterwarnings("ignore::FutureWarning")
 def test_auto_rechunk():
-    clf = ParallelPostFit(GradientBoostingClassifier())
+    clf = ParallelPostFit(
+        GradientBoostingClassifier(), meta=np.empty(1, dtype=np.int32)
+    )
     X, y = make_classification(n_samples=1000, n_features=20, chunks=100)
     X = X.rechunk({0: 100, 1: 10})
     clf.fit(X, y)

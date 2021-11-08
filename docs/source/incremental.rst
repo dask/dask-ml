@@ -57,7 +57,7 @@ between machines.
    X
 
    estimator = SGDClassifier(random_state=10, max_iter=100)
-   clf = Incremental(estimator)
+   clf = Incremental(estimator,  meta=np.empty(1, dtype=np.int64))
    clf.fit(X, y, classes=[0, 1])
 
 In this example, we make a (small) random Dask Array. It has 100 samples,
@@ -92,7 +92,6 @@ the wrapped ``fit``.
 We can get the accuracy score on our dataset.
 
 .. ipython:: python
-   :okwarning:
 
    clf.score(X, y)
 
