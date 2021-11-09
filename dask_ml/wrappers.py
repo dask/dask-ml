@@ -215,8 +215,8 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         if isinstance(X, da.Array):
             if meta is None:
                 xx = np.zeros((1, X.shape[1]), dtype=X.dtype)
-                y = _transform(xx, self._postfit_estimator)
-                meta = type(y)((), dtype=y.dtype)
+                x_t = _transform(xx, self._postfit_estimator)
+                meta = type(x_t)((), dtype=x_t.dtype)
             return X.map_blocks(
                 _transform, estimator=self._postfit_estimator, meta=meta
             )
