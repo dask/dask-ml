@@ -215,14 +215,11 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         if isinstance(X, da.Array):
             if meta is None:
                 xx = np.zeros((1, X.shape[1]), dtype=X.dtype)
-                dt = _transform(xx, self._postfit_estimator).dtype
-                return X.map_blocks(
-                    _transform, estimator=self._postfit_estimator, dtype=dt
-                )
-            else:
-                return X.map_blocks(
-                    _transform, estimator=self._postfit_estimator, meta=meta
-                )
+                y = _transform(xx, self._postfit_estimator)
+                meta = type(y)((), dtype=y.dtype)
+            return X.map_blocks(
+                _transform, estimator=self._postfit_estimator, meta=meta
+            )
         elif isinstance(X, dd._Frame):
             if meta is None:
                 # dask-dataframe relies on dd.core.no_default
