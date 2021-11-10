@@ -121,7 +121,10 @@ def fit(
         }
     )
 
-    new_dsk = HighLevelGraph.from_collections(name, dsk, dependencies=[x, y])
+    dependencies = [x]
+    if y is not None:
+        dependencies.append(y)
+    new_dsk = HighLevelGraph.from_collections(name, dsk, dependencies=dependencies)
     value = Delayed((name, nblocks - 1), new_dsk)
 
     if compute:
