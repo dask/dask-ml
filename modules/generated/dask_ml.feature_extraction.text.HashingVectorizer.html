@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>dask_ml.feature_extraction.text.HashingVectorizer &#8212; dask-ml 2021.10.18 documentation</title>
     
-  <link href="../../_static/css/theme.css" rel="stylesheet" />
-  <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../../_static/css/theme.css" rel="stylesheet">
+  <link href="../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -25,7 +25,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/style.css" />
     
-  <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
@@ -37,7 +37,10 @@
     <link rel="next" title="dask_ml.feature_extraction.text.FeatureHasher" href="dask_ml.feature_extraction.text.FeatureHasher.html" />
     <link rel="prev" title="dask_ml.feature_extraction.text.CountVectorizer" href="dask_ml.feature_extraction.text.CountVectorizer.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="docsearch:language" content="en" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
     
   </head>
   <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
@@ -101,7 +104,7 @@
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
 </form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item active">
-        <p class="caption" role="heading">
+        <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Use
  </span>
@@ -635,7 +638,7 @@
   </ul>
  </li>
 </ul>
-<p class="caption" role="heading">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Integration
  </span>
@@ -662,7 +665,7 @@
   </a>
  </li>
 </ul>
-<p class="caption" role="heading">
+<p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
   Develop
  </span>
@@ -766,7 +769,7 @@
 <h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>.HashingVectorizer<a class="headerlink" href="#dask-ml-feature-extraction-text-hashingvectorizer" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="dask_ml.feature_extraction.text.HashingVectorizer">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dask_ml.feature_extraction.text.</span></span><span class="sig-name descname"><span class="pre">HashingVectorizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">*</span></em>, <em class="sig-param"><span class="pre">input='content'</span></em>, <em class="sig-param"><span class="pre">encoding='utf-8'</span></em>, <em class="sig-param"><span class="pre">decode_error='strict'</span></em>, <em class="sig-param"><span class="pre">strip_accents=None</span></em>, <em class="sig-param"><span class="pre">lowercase=True</span></em>, <em class="sig-param"><span class="pre">preprocessor=None</span></em>, <em class="sig-param"><span class="pre">tokenizer=None</span></em>, <em class="sig-param"><span class="pre">stop_words=None</span></em>, <em class="sig-param"><span class="pre">token_pattern='(?u)\\b\\w\\w+\\b'</span></em>, <em class="sig-param"><span class="pre">ngram_range=(1</span></em>, <em class="sig-param"><span class="pre">1)</span></em>, <em class="sig-param"><span class="pre">analyzer='word'</span></em>, <em class="sig-param"><span class="pre">n_features=1048576</span></em>, <em class="sig-param"><span class="pre">binary=False</span></em>, <em class="sig-param"><span class="pre">norm='l2'</span></em>, <em class="sig-param"><span class="pre">alternate_sign=True</span></em>, <em class="sig-param"><span class="pre">dtype=&lt;class</span> <span class="pre">'numpy.float64'&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dask_ml.feature_extraction.text.</span></span><span class="sig-name descname"><span class="pre">HashingVectorizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input='content'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding='utf-8'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decode_error='strict'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strip_accents=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lowercase=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocessor=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tokenizer=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_words=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token_pattern='(?u)\\b\\w\\w+\\b'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ngram_range=(1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">1)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">analyzer='word'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_features=1048576</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binary=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm='l2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alternate_sign=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'numpy.float64'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a collection of text documents to a matrix of token occurrences.</p>
 <p>It turns a collection of text documents into a scipy.sparse matrix holding
 token occurrence counts (or binary occurrence information), possibly
@@ -958,7 +961,7 @@ small n_features. This approach is similar to sparse random projection.</p>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="dask_ml.feature_extraction.text.HashingVectorizer.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">*</span></em>, <em class="sig-param"><span class="pre">input='content'</span></em>, <em class="sig-param"><span class="pre">encoding='utf-8'</span></em>, <em class="sig-param"><span class="pre">decode_error='strict'</span></em>, <em class="sig-param"><span class="pre">strip_accents=None</span></em>, <em class="sig-param"><span class="pre">lowercase=True</span></em>, <em class="sig-param"><span class="pre">preprocessor=None</span></em>, <em class="sig-param"><span class="pre">tokenizer=None</span></em>, <em class="sig-param"><span class="pre">stop_words=None</span></em>, <em class="sig-param"><span class="pre">token_pattern='(?u)\\b\\w\\w+\\b'</span></em>, <em class="sig-param"><span class="pre">ngram_range=(1</span></em>, <em class="sig-param"><span class="pre">1)</span></em>, <em class="sig-param"><span class="pre">analyzer='word'</span></em>, <em class="sig-param"><span class="pre">n_features=1048576</span></em>, <em class="sig-param"><span class="pre">binary=False</span></em>, <em class="sig-param"><span class="pre">norm='l2'</span></em>, <em class="sig-param"><span class="pre">alternate_sign=True</span></em>, <em class="sig-param"><span class="pre">dtype=&lt;class</span> <span class="pre">'numpy.float64'&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input='content'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding='utf-8'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decode_error='strict'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strip_accents=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lowercase=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocessor=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tokenizer=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_words=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token_pattern='(?u)\\b\\w\\w+\\b'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ngram_range=(1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">1)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">analyzer='word'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_features=1048576</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binary=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm='l2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alternate_sign=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'numpy.float64'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.feature_extraction.text.HashingVectorizer.__init__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -969,31 +972,22 @@ small n_features. This approach is similar to sparse random projection.</p>
               </div>
               
         
-            
-
-
-
-<div class='prev-next-bottom'>
-    
-    <div id="prev">
-        <a class="left-prev" href="dask_ml.feature_extraction.text.CountVectorizer.html" title="previous page">
-            <i class="prevnext-label fas fa-angle-left"></i>
-            <div class="prevnext-info">
-                <p class="prevnext-label">previous</p>
-                <p class="prevnext-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>.CountVectorizer</p>
-            </div>
-        </a>
+            <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="dask_ml.feature_extraction.text.CountVectorizer.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>.CountVectorizer</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="dask_ml.feature_extraction.text.FeatureHasher.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>.FeatureHasher</p>
     </div>
-     <div id="next">
-        <a class="right-next" href="dask_ml.feature_extraction.text.FeatureHasher.html" title="next page">
-            <div class="prevnext-info">
-                <p class="prevnext-label">next</p>
-                <p class="prevnext-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>.FeatureHasher</p>
-            </div>
-            <i class="prevnext-label fas fa-angle-right"></i>
-        </a>
-     </div>
-
+    <i class="fas fa-angle-right"></i>
+    </a>
 </div>
         
         </div>
@@ -1014,8 +1008,7 @@ small n_features. This approach is similar to sparse random projection.</p>
       </div>
     </div>
   
-  <script src="../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+  <script src="../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
 
-  
   </body>
 </html>
