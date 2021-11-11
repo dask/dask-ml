@@ -1,7 +1,7 @@
 Dask-ML
 =======
 
-|Build Status| |Azure Pipelines| |Coverage| |Doc Status| |Gitter| |Version Status| |NumFOCUS|
+|Build Status| |Azure Pipelines| |Coverage| |Doc Status| |Discourse| |Version Status| |NumFOCUS|
 
 Dask-ML provides scalable machine learning in Python using `Dask <https://dask.org/>`__ alongside popular machine learning libraries like `Scikit-Learn <http://scikit-learn.org/>`__, `XGBoost <https://ml.dask.org/xgboost.html>`__, and others.
 
@@ -26,9 +26,9 @@ New BSD. See `License File <https://github.com/dask/dask-ml/blob/main/LICENSE.tx
 .. |Doc Status| image:: https://readthedocs.org/projects/ml/badge/?version=latest
    :target: https://ml.dask.org/
    :alt: Documentation Status
-.. |Gitter| image:: https://badges.gitter.im/Join%20Chat.svg
-   :alt: Join the chat at https://gitter.im/dask/dask
-   :target: https://gitter.im/dask/dask?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+.. |Discourse| image:: https://img.shields.io/discourse/users?logo=discourse&server=https%3A%2F%2Fdask.discourse.group
+   :alt: Discuss Dask-related things and ask for help
+   :target: https://dask.discourse.group
 .. |Version Status| image:: https://img.shields.io/pypi/v/dask-ml.svg
    :target: https://pypi.python.org/pypi/dask-ml/
 .. |NumFOCUS| image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
