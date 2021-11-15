@@ -2,8 +2,8 @@
 # Optionally, install development versions of dependenies
 if [[ ${UPSTREAM_DEV} ]]; then
     # FIXME https://github.com/mamba-org/mamba/issues/412
-    # mamba uninstall --force numpy pandas
-    conda uninstall --force numpy pandas
+    # mamba uninstall --force numpy pandas scikit-learn
+    conda uninstall --force numpy pandas scikit-learn
 
     python -m pip install --no-deps --pre \
         -i https://pypi.anaconda.org/scipy-wheels-nightly/simple \
