@@ -173,7 +173,6 @@ with Dask Arrays or DataFrames.
    preprocessing.RobustScaler
    preprocessing.MinMaxScaler
    preprocessing.QuantileTransformer
-   preprocessing.StandardScaler
    preprocessing.Categorizer
    preprocessing.DummyEncoder
    preprocessing.OrdinalEncoder
