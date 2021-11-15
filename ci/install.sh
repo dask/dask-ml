@@ -13,7 +13,6 @@ if [[ ${UPSTREAM_DEV} ]]; then
 
     python -m pip install \
         --upgrade \
-        locket \
         git+https://github.com/pydata/sparse \
         git+https://github.com/dask/dask \
         git+https://github.com/dask/distributed
