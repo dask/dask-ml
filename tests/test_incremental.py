@@ -159,7 +159,7 @@ def test_score(xy_classification):
 
     X, y = xy_classification
     inc = Incremental(
-        SGDClassifier(max_iter=1000, random_state=0, tol=1e-3), scoring="accuracy",
+        SGDClassifier(max_iter=1000, random_state=0, tol=1e-3), scoring="accuracy"
     )
 
     with client:
