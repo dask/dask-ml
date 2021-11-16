@@ -154,12 +154,23 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
     prefix : str, optional, default=""
         While logging, add ``prefix`` to each message.
 
-    meta: pd.Series, pd.DataFrame, np.array, iterable, tuple, optional, deafult: None
+    predict_meta: pd.Series, pd.DataFrame, np.array deafult: None(infer)
         An empty ``pd.Series``, ``pd.DataFrame``, ``np.array`` that matches the output
-        type of the ``predict``, ``transform``  calls.
-        This meta is necessary for some ``predict``, ``transform`` calls
-        for some estimators to work with ``dask.dataframe`` and ``dask.array`` .
+        type of the estimators ``predict`` call.
+        This meta is necessary for  for some estimators to work with
+        ``dask.dataframe`` and ``dask.array``
 
+    predict_proba_meta: pd.Series, pd.DataFrame, np.array deafult: None(infer)
+        An empty ``pd.Series``, ``pd.DataFrame``, ``np.array`` that matches the output
+        type of the estimators ``predict_proba`` call.
+        This meta is necessary for  for some estimators to work with
+        ``dask.dataframe`` and ``dask.array``
+
+    transform_meta: pd.Series, pd.DataFrame, np.array deafult: None(infer)
+        An empty ``pd.Series``, ``pd.DataFrame``, ``np.array`` that matches the output
+        type of the estimators ``transform`` call.
+        This meta is necessary for  for some estimators to work with
+        ``dask.dataframe`` and ``dask.array``
 
     Examples
     --------
@@ -347,7 +358,9 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         scoring=None,
         verbose=False,
         prefix="",
-        meta=None,
+        predict_meta=None,
+        predict_proba_meta=None,
+        transform_meta=None,
     ):
         self.aggressiveness = aggressiveness
 
@@ -362,7 +375,9 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
             scoring=scoring,
             verbose=verbose,
             prefix=prefix,
-            meta=meta,
+            predict_meta=predict_meta,
+            predict_proba_meta=predict_proba_meta,
+            transform_meta=transform_meta,
         )
 
     def _get_SHAs(self, brackets):

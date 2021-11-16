@@ -14,7 +14,7 @@ from dask_ml.wrappers import ParallelPostFit
 
 
 def test_it_works():
-    clf = ParallelPostFit(GradientBoostingClassifier(), meta=np.empty(1, np.int64))
+    clf = ParallelPostFit(GradientBoostingClassifier())
 
     X, y = make_classification(n_samples=1000, chunks=100)
     X_, y_ = dask.compute(X, y)
@@ -40,7 +40,7 @@ def test_no_method_raises():
 
 
 def test_laziness():
-    clf = ParallelPostFit(LinearRegression(), meta=np.empty(1, dtype=np.float64))
+    clf = ParallelPostFit(LinearRegression())
     X, y = make_classification(chunks=50)
     clf.fit(X, y)
 
@@ -49,34 +49,31 @@ def test_laziness():
     assert 0 < x.compute() < 1
 
 
-def test_predict_raise_warning():
+def test_predict_meta_override():
+    pass
+
+
+def test_score_meta_override():
+    pass
+
+
+def transform_meta_overide():
+    pass
+
+
+def test_predict_correct_output_dtype():
     X, y = make_classification(chunks=100)
     X_ddf = dd.from_dask_array(X)
 
     base = LinearRegression(n_jobs=1)
     base.fit(X, y)
+
     wrap = ParallelPostFit(base)
 
-    expect_warn = (
-        "No meta provided to `ParallelPostFit.predict`. Defaulting meta to np.empty"
-    )
-
-    with pytest.warns(FutureWarning, match=expect_warn):
-        wrap.predict(X_ddf)
-
-
-def test_predict_with_meta():
-    X, y = make_classification(chunks=100)
-    X_ddf = dd.from_dask_array(X)
-
-    base = LinearRegression(n_jobs=1)
-    base.fit(X, y)
-    meta_ar = np.empty(1, dtype=np.float64)
-    wrap = ParallelPostFit(base, meta=meta_ar)
-
+    base_output = base.predict(X_ddf.compute())
     wrap_output = wrap.predict(X_ddf)
 
-    assert wrap_output.dtype == np.float64
+    assert wrap_output.dtype == base_output.dtype
 
 
 @pytest.mark.parametrize("kind", ["numpy", "dask.dataframe", "dask.array"])
@@ -92,7 +89,6 @@ def test_predict(kind):
     base = LogisticRegression(random_state=0, n_jobs=1, solver="lbfgs")
     wrap = ParallelPostFit(
         LogisticRegression(random_state=0, n_jobs=1, solver="lbfgs"),
-        meta=np.empty(1, dtype=np.int64),
     )
 
     base.fit(*dask.compute(X, y))
@@ -142,10 +138,7 @@ def test_multiclass():
     y = da.from_array(y, chunks=50)
 
     clf = ParallelPostFit(
-        LogisticRegression(
-            random_state=0, n_jobs=1, solver="lbfgs", multi_class="auto"
-        ),
-        meta=np.empty(1, dtype=np.int64),
+        LogisticRegression(random_state=0, n_jobs=1, solver="lbfgs", multi_class="auto")
     )
 
     clf.fit(*dask.compute(X, y))
@@ -167,9 +160,7 @@ def test_multiclass():
 
 
 def test_auto_rechunk():
-    clf = ParallelPostFit(
-        GradientBoostingClassifier(), meta=np.empty(1, dtype=np.int32)
-    )
+    clf = ParallelPostFit(GradientBoostingClassifier())
     X, y = make_classification(n_samples=1000, n_features=20, chunks=100)
     X = X.rechunk({0: 100, 1: 10})
     clf.fit(X, y)

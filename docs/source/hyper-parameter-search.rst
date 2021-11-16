@@ -469,7 +469,7 @@ to use post-estimation features like scoring or prediction, we recommend using
    from dask_ml.wrappers import ParallelPostFit
    params = {'estimator__alpha': loguniform(1e-2, 1e0),
              'estimator__l1_ratio': uniform(0, 1)}
-   est = ParallelPostFit(SGDClassifier(tol=1e-3, random_state=0), meta=np.empty(1, dtype=np.int64))
+   est = ParallelPostFit(SGDClassifier(tol=1e-3, random_state=0)
    search = HyperbandSearchCV(est, params, max_iter=9, random_state=0)
    search.fit(X_train, y_train, classes=[0, 1]);
    search.score(X_test, y_test)

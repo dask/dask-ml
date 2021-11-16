@@ -350,13 +350,7 @@ async def test_search_plateau_patience(c, s, a, b):
     model = ConstantClassifier()
 
     search = IncrementalSearchCV(
-        model,
-        params,
-        n_initial_parameters=10,
-        patience=5,
-        tol=0,
-        max_iter=10,
-        meta=np.empty(1, dtype=np.int64),
+        model, params, n_initial_parameters=10, patience=5, tol=0, max_iter=10,
     )
     await search.fit(X, y, classes=[0, 1])
 
@@ -472,9 +466,7 @@ async def test_small(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = {"alpha": [0.1, 0.5, 0.75, 1.0]}
-    search = IncrementalSearchCV(
-        model, params, n_initial_parameters="grid", meta=np.empty(1, dtype=np.int64)
-    )
+    search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
     await search.fit(X, y, classes=[0, 1])
     X_ = await c.compute(X)
     search.predict(X_)
@@ -486,9 +478,7 @@ async def test_smaller(c, s, a, b):
     X, y = make_classification(n_samples=100, n_features=5, chunks=(10, 5))
     model = SGDClassifier(tol=1e-3, penalty="elasticnet")
     params = {"alpha": [0.1, 0.5]}
-    search = IncrementalSearchCV(
-        model, params, n_initial_parameters="grid", meta=np.empty(1, dtype=np.int64)
-    )
+    search = IncrementalSearchCV(model, params, n_initial_parameters="grid")
     await search.fit(X, y, classes=[0, 1])
     X_ = await c.compute(X)
     search.predict(X_)

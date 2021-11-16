@@ -49,7 +49,7 @@ copying over learned attributes, that's all that ``ParallelPostFit`` does.
 
 .. ipython:: python
 
-   clf = ParallelPostFit(estimator=GradientBoostingClassifier(),meta=np.empty(1,dtype=np.int32))
+   clf = ParallelPostFit(estimator=GradientBoostingClassifier())
    clf.fit(X, y)
 
 This class is useful for predicting for or transforming large datasets.

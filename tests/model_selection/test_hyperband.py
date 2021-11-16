@@ -60,7 +60,7 @@ async def test_basic(c, s, a, b, array_type, library, max_iter):
     }
     model = SGDClassifier(tol=-np.inf, penalty="elasticnet", random_state=42, eta0=0.1)
     if library == "dask-ml":
-        model = Incremental(model, meta=np.empty(1, dtype=np.int64))
+        model = Incremental(model)
         params = {"estimator__" + k: v for k, v in params.items()}
     elif library == "ConstantFunction":
         model = ConstantFunction()
@@ -259,9 +259,7 @@ async def test_correct_params(c, s, a, b):
     est = ConstantFunction()
     X, y = make_classification(n_samples=10, n_features=4, chunks=10)
     params = {"value": np.linspace(0, 1)}
-    search = HyperbandSearchCV(
-        est, params, max_iter=9, meta=np.empty(1, dtype=np.int64)
-    )
+    search = HyperbandSearchCV(est, params, max_iter=9)
 
     base = {
         "estimator",
@@ -280,7 +278,9 @@ async def test_correct_params(c, s, a, b):
 
     search_keys = set(search.get_params().keys())
     # we remove meta because thats dask specific attribute
-    search_keys.remove("meta")
+    search_keys.remove("predict_meta")
+    search_keys.remove("predict_proba_meta")
+    search_keys.remove("transform_meta")
 
     assert search_keys == base.union({"aggressiveness"})
     meta = search.metadata

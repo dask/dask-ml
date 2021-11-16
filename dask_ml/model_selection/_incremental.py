@@ -515,7 +515,9 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         tol=1e-3,
         verbose=False,
         prefix="",
-        meta=None,
+        predict_meta=None,
+        predict_proba_meta=None,
+        transform_meta=None,
     ):
         self.parameters = parameters
         self.test_size = test_size
@@ -526,7 +528,11 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         self.verbose = verbose
         self.prefix = prefix
         super(BaseIncrementalSearchCV, self).__init__(
-            estimator, scoring=scoring, meta=meta
+            estimator,
+            scoring=scoring,
+            predict_meta=predict_meta,
+            predict_proba_meta=predict_proba_meta,
+            transform_meta=transform_meta,
         )
 
     async def _validate_parameters(self, X, y):
@@ -849,11 +855,23 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
     prefix : str, optional, default=""
         While logging, add ``prefix`` to each message.
 
-    meta: pd.Series, pd.DataFrame, np.array, iterable, tuple, optional, deafult: None
+    predict_meta: pd.Series, pd.DataFrame, np.array deafult: None(infer)
         An empty ``pd.Series``, ``pd.DataFrame``, ``np.array`` that matches the output
-        type of the ``predict``, ``transform``  calls.
-        This meta is necessary for some ``predict``, ``transform`` calls
-        for some estimators to work with ``dask.dataframe`` and ``dask.array`` .
+        type of the estimators ``predict`` call.
+        This meta is necessary for  for some estimators to work with
+        ``dask.dataframe`` and ``dask.array``
+
+    predict_proba_meta: pd.Series, pd.DataFrame, np.array deafult: None(infer)
+        An empty ``pd.Series``, ``pd.DataFrame``, ``np.array`` that matches the output
+        type of the estimators ``predict_proba`` call.
+        This meta is necessary for  for some estimators to work with
+        ``dask.dataframe`` and ``dask.array``
+
+    transform_meta: pd.Series, pd.DataFrame, np.array deafult: None(infer)
+        An empty ``pd.Series``, ``pd.DataFrame``, ``np.array`` that matches the output
+        type of the estimators ``transform`` call.
+        This meta is necessary for  for some estimators to work with
+        ``dask.dataframe`` and ``dask.array``
 
     Attributes
     ----------
@@ -986,7 +1004,9 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         verbose=False,
         prefix="",
         scores_per_fit=None,
-        meta=None,
+        predict_meta=None,
+        predict_proba_meta=None,
+        transform_meta=None,
     ):
 
         self.n_initial_parameters = n_initial_parameters
@@ -1005,7 +1025,9 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
             tol=tol,
             verbose=verbose,
             prefix=prefix,
-            meta=meta,
+            predict_meta=predict_meta,
+            predict_proba_meta=predict_proba_meta,
+            transform_meta=transform_meta,
         )
 
     def _decay_deprecated(self):

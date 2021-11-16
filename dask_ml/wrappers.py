@@ -1,6 +1,5 @@
 """Meta-estimators for parallelizing estimators using the scikit-learn API."""
 import logging
-from warnings import warn
 
 import dask.array as da
 import dask.dataframe as dd
@@ -47,11 +46,23 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
            a single NumPy array, which may exhaust the memory of your worker.
            You probably want to always specify `scoring`.
 
-    meta: pd.Series, pd.DataFrame, np.array, iterable, tuple, optional, deafult: None
+    predict_meta: pd.Series, pd.DataFrame, np.array deafult: None(infer)
         An empty ``pd.Series``, ``pd.DataFrame``, ``np.array`` that matches the output
-        type of the ``predict``, ``transform``  calls.
-        This meta is necessary for some ``predict``, ``transform`` calls
-        for some estimators to work with ``dask.dataframe`` and ``dask.array`` .
+        type of the estimators ``predict`` call.
+        This meta is necessary for  for some estimators to work with
+        ``dask.dataframe`` and ``dask.array``
+
+    predict_proba_meta: pd.Series, pd.DataFrame, np.array deafult: None(infer)
+        An empty ``pd.Series``, ``pd.DataFrame``, ``np.array`` that matches the output
+        type of the estimators ``predict_proba`` call.
+        This meta is necessary for  for some estimators to work with
+        ``dask.dataframe`` and ``dask.array``
+
+    transform_meta: pd.Series, pd.DataFrame, np.array deafult: None(infer)
+        An empty ``pd.Series``, ``pd.DataFrame``, ``np.array`` that matches the output
+        type of the estimators ``transform`` call.
+        This meta is necessary for  for some estimators to work with
+        ``dask.dataframe`` and ``dask.array``
 
     Notes
     -----
@@ -122,10 +133,19 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
            [0.99407016, 0.00592984]])
     """
 
-    def __init__(self, estimator=None, scoring=None, meta=None):
+    def __init__(
+        self,
+        estimator=None,
+        scoring=None,
+        predict_meta=None,
+        predict_proba_meta=None,
+        transform_meta=None,
+    ):
         self.estimator = estimator
         self.scoring = scoring
-        self.meta = meta
+        self.predict_meta = predict_meta
+        self.predict_proba_meta = predict_proba_meta
+        self.transform_meta = transform_meta
 
     def _check_array(self, X):
         """Validate an array for post-fit tasks.
@@ -210,13 +230,13 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         """
         self._check_method("transform")
         X = self._check_array(X)
-        meta = self.meta
+        meta = self.transform_meta
 
         if isinstance(X, da.Array):
             if meta is None:
-                xx = np.zeros((1, X.shape[1]), dtype=X.dtype)
-                x_t = _transform(xx, self._postfit_estimator)
-                meta = type(x_t)((), dtype=x_t.dtype)
+                meta = _get_output_dask_ar_meta_for_estimator(
+                    _transform, self._postfit_estimator, X
+                )
             return X.map_blocks(
                 _transform, estimator=self._postfit_estimator, meta=meta
             )
@@ -290,24 +310,22 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
         """
         self._check_method("predict")
         X = self._check_array(X)
-        meta = self.meta
-
-        if meta is None:
-            warn(
-                "No meta provided to `ParallelPostFit.predict`. "
-                "Defaulting meta to np.empty(1, dtype=np.int64).\n"
-                "Will default to None(infer) in the future release",
-                FutureWarning,
-            )
-            meta = np.empty(1, dtype=np.int64)
+        meta = self.predict_meta
 
         if isinstance(X, da.Array):
+            if meta is None:
+                meta = _get_output_dask_ar_meta_for_estimator(
+                    _predict, self._postfit_estimator, X
+                )
+
             result = X.map_blocks(
                 _predict, estimator=self._postfit_estimator, drop_axis=1, meta=meta
             )
             return result
 
         elif isinstance(X, dd._Frame):
+            if meta is None:
+                meta = dd.core.no_default
             return X.map_partitions(
                 _predict, estimator=self._postfit_estimator, meta=meta
             )
@@ -336,16 +354,26 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
 
         self._check_method("predict_proba")
 
+        meta = self.predict_proba_meta
+
         if isinstance(X, da.Array):
+            if meta is None:
+                meta = _get_output_dask_ar_meta_for_estimator(
+                    _predict_proba, self._postfit_estimator, X
+                )
             # XXX: multiclass
             return X.map_blocks(
                 _predict_proba,
                 estimator=self._postfit_estimator,
-                dtype="float",
+                meta=meta,
                 chunks=(X.chunks[0], len(self._postfit_estimator.classes_)),
             )
         elif isinstance(X, dd._Frame):
-            return X.map_partitions(_predict_proba, estimator=self._postfit_estimator)
+            if meta is None:
+                meta = dd.core.no_default
+            return X.map_partitions(
+                _predict_proba, estimator=self._postfit_estimator, meta=meta
+            )
         else:
             return _predict_proba(X, estimator=self._postfit_estimator)
 
@@ -494,13 +522,19 @@ class Incremental(ParallelPostFit):
         shuffle_blocks=True,
         random_state=None,
         assume_equal_chunks=True,
-        meta=None,
+        predict_meta=None,
+        predict_proba_meta=None,
+        transform_meta=None,
     ):
         self.shuffle_blocks = shuffle_blocks
         self.random_state = random_state
         self.assume_equal_chunks = assume_equal_chunks
         super(Incremental, self).__init__(
-            estimator=estimator, scoring=scoring, meta=meta
+            estimator=estimator,
+            scoring=scoring,
+            predict_meta=predict_meta,
+            predict_proba_meta=predict_proba_meta,
+            transform_meta=transform_meta,
         )
 
     @property
@@ -589,3 +623,36 @@ def _predict_proba(part, estimator):
 
 def _transform(part, estimator):
     return estimator.transform(part)
+
+
+def _get_output_dask_ar_meta_for_estimator(model_fn, estimator, input_dask_ar):
+    """
+    Returns the output metadata array
+    for the model function (predict, transform etc)
+    by running the appropriate function on dummy data
+    of shape (1, n_features)
+
+    Parameters
+    ----------
+
+    model_fun: Model function
+        _predict, _transform etc
+
+    estimator : Estimator
+        The underlying estimator that is fit.
+
+    input_dask_ar: The input dask_array
+
+    Returns
+    -------
+    metadata: metadata of  output dask array
+
+    """
+    # sklearn fails if input array has size size
+    # It requires at least 1 sample to run successfully
+    ar = np.zeros(
+        shape=(1, input_dask_ar.shape[1]),
+        dtype=input_dask_ar.dtype,
+        like=input_dask_ar._meta,
+    )
+    return model_fn(ar, estimator)
