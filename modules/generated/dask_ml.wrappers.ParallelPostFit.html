@@ -759,7 +759,7 @@
 <h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.wrappers</span></code>.ParallelPostFit<a class="headerlink" href="#dask-ml-wrappers-parallelpostfit" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="dask_ml.wrappers.ParallelPostFit">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dask_ml.wrappers.</span></span><span class="sig-name descname"><span class="pre">ParallelPostFit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scoring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.ParallelPostFit" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dask_ml.wrappers.</span></span><span class="sig-name descname"><span class="pre">ParallelPostFit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scoring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predict_meta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predict_proba_meta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_meta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.ParallelPostFit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Meta-estimator for parallel predict and transform.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
@@ -781,6 +781,21 @@ Most scikit-learn estimators will convert large Dask arrays to
 a single NumPy array, which may exhaust the memory of your worker.
 You probably want to always specify <cite>scoring</cite>.</p>
 </div>
+</dd>
+<dt><strong>predict_meta: pd.Series, pd.DataFrame, np.array deafult: None(infer)</strong></dt><dd><p>An empty <code class="docutils literal notranslate"><span class="pre">pd.Series</span></code>, <code class="docutils literal notranslate"><span class="pre">pd.DataFrame</span></code>, <code class="docutils literal notranslate"><span class="pre">np.array</span></code> that matches the output
+type of the estimators <code class="docutils literal notranslate"><span class="pre">predict</span></code> call.
+This meta is necessary for  for some estimators to work with
+<code class="docutils literal notranslate"><span class="pre">dask.dataframe</span></code> and <code class="docutils literal notranslate"><span class="pre">dask.array</span></code></p>
+</dd>
+<dt><strong>predict_proba_meta: pd.Series, pd.DataFrame, np.array deafult: None(infer)</strong></dt><dd><p>An empty <code class="docutils literal notranslate"><span class="pre">pd.Series</span></code>, <code class="docutils literal notranslate"><span class="pre">pd.DataFrame</span></code>, <code class="docutils literal notranslate"><span class="pre">np.array</span></code> that matches the output
+type of the estimators <code class="docutils literal notranslate"><span class="pre">predict_proba</span></code> call.
+This meta is necessary for  for some estimators to work with
+<code class="docutils literal notranslate"><span class="pre">dask.dataframe</span></code> and <code class="docutils literal notranslate"><span class="pre">dask.array</span></code></p>
+</dd>
+<dt><strong>transform_meta: pd.Series, pd.DataFrame, np.array deafult: None(infer)</strong></dt><dd><p>An empty <code class="docutils literal notranslate"><span class="pre">pd.Series</span></code>, <code class="docutils literal notranslate"><span class="pre">pd.DataFrame</span></code>, <code class="docutils literal notranslate"><span class="pre">np.array</span></code> that matches the output
+type of the estimators <code class="docutils literal notranslate"><span class="pre">transform</span></code> call.
+This meta is necessary for  for some estimators to work with
+<code class="docutils literal notranslate"><span class="pre">dask.dataframe</span></code> and <code class="docutils literal notranslate"><span class="pre">dask.array</span></code></p>
 </dd>
 </dl>
 </dd>
@@ -898,7 +913,7 @@ data isn’t all read into memory at once.</p>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="dask_ml.wrappers.ParallelPostFit.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scoring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.ParallelPostFit.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scoring</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predict_meta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predict_proba_meta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_meta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.wrappers.ParallelPostFit.__init__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
