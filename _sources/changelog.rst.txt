@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Version 2021.11.16
+~~~~~~~~~~~~~~~~~~
+
+* Meta-estimators like :class:`wrappers.ParallelPostFit` now work with cuDF and CuPy objects. (:pr:`862`)
+* Fixed incompatibility with new Dask optimizations in :class:`wrappers.ParallelPostFit` (:pr:`878`) 
+
 Version 2021.10.17
 ~~~~~~~~~~~~~~~~~~
 
