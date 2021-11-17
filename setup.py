@@ -14,7 +14,7 @@ install_requires = [
     "dask[array,dataframe]>=2.4.0",
     "distributed>=2.4.0",
     "numba>=0.51.0",
-    "numpy>=1.17.3",
+    "numpy>=1.20.0",
     "pandas>=0.24.2",
     "scikit-learn>=1.0.0",
     "scipy",
