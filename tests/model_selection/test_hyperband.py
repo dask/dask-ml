@@ -275,7 +275,14 @@ async def test_correct_params(c, s, a, b):
         "verbose",
         "prefix",
     }
-    assert set(search.get_params().keys()) == base.union({"aggressiveness"})
+
+    search_keys = set(search.get_params().keys())
+    # we remove meta because thats dask specific attribute
+    search_keys.remove("predict_meta")
+    search_keys.remove("predict_proba_meta")
+    search_keys.remove("transform_meta")
+
+    assert search_keys == base.union({"aggressiveness"})
     meta = search.metadata
     SHAs_params = [
         bracket["SuccessiveHalvingSearchCV params"] for bracket in meta["brackets"]

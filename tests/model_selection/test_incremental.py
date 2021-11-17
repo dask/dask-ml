@@ -169,7 +169,7 @@ async def test_explicit(c, s, a, b):
     params = [{"alpha": 0.1}, {"alpha": 0.2}]
 
     def additional_calls(scores):
-        """ Progress through predefined updates, checking along the way """
+        """Progress through predefined updates, checking along the way"""
         ts = scores[0][-1]["partial_fit_calls"]
         ts -= 1  # partial_fit_calls = time step + 1
         if ts == 0:
