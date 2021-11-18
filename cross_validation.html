@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cross Validation &#8212; dask-ml 2021.10.18 documentation</title>
+    <title>Cross Validation &#8212; dask-ml 2021.11.17 documentation</title>
     
   <link href="_static/css/theme.css" rel="stylesheet">
   <link href="_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -780,9 +780,9 @@ This document only describes the extensions made to support Dask arrays.</p>
 
 <span class="gp">In [8]: </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="gh">Out[8]: </span><span class="go"></span>
-<span class="go">array([[ 0.46698325,  0.14795648,  0.00401895, -0.25118474],</span>
-<span class="go">       [ 0.83154369,  0.17831678, -0.11855249,  0.11225947],</span>
-<span class="go">       [ 1.32640188, -0.66775439,  0.61306745,  0.27349377]])</span>
+<span class="go">array([[-0.97705963,  1.08699586, -2.18309268,  0.77253372],</span>
+<span class="go">       [-0.24547985, -0.63067068, -0.11139771,  1.57407473],</span>
+<span class="go">       [ 1.07432565, -1.17306786,  0.37381119, -1.55511111]])</span>
 </pre></div>
 </div>
 <p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v1.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
