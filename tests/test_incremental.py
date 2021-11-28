@@ -7,6 +7,7 @@ import pytest
 import sklearn.datasets
 import sklearn.model_selection
 from dask.array.utils import assert_eq
+from scipy.sparse import csr_matrix
 from sklearn.base import clone
 from sklearn.linear_model import SGDClassifier, SGDRegressor
 from sklearn.pipeline import make_pipeline
@@ -210,3 +211,27 @@ def test_incremental_text_pipeline(container):
 
     X2.compute_chunk_sizes()
     assert X2.shape == (300, vect.n_features)
+
+    preds = pipe.predict(X).compute()
+    assert len(y) == len(preds)
+
+
+def test_incremental_sparse_inputs():
+    X = csr_matrix((3, 4))
+    y = np.asarray([0, 1, 1], dtype=np.int32)
+
+    X_da = da.from_array(X, chunks=(1, 4))
+    y_da = da.from_array(y, chunks=(1))
+
+    clf = SGDClassifier(tol=1e-3)
+    wrap_clf = dask_ml.wrappers.Incremental(
+        SGDClassifier(tol=1e-3), scoring="accuracy", assume_equal_chunks=True,
+    )
+
+    wrap_clf = wrap_clf.fit(X_da, y_da, classes=[0, 1])
+    wrap_output = wrap_clf.predict(X_da).compute()
+
+    clf = clf.fit(X, y)
+    clf_output = clf.predict(X).astype(np.int64)
+
+    assert_eq(clf_output, wrap_output, ignore_dtype=True)
