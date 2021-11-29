@@ -677,13 +677,17 @@ def _get_output_dask_ar_meta_for_estimator(model_fn, estimator, input_dask_ar):
         # Note below works for both cupy and scipy sparse matrices
         ar = type(input_meta)((1, input_dask_ar.shape[1]), dtype=input_dask_ar.dtype)
     else:
+        func_name = model_fn.__name__.strip("_")
         msg = (
-            "\nYou did not provide metadata, so Dask is running the"
-            "function on a small dataset to guess output types. "
-            "It is possible that Dask will guess incorrectly.\n"
-            "To provide an explicit output types or to silence this message, "
-            "please provide the `predict_meta`, `predict_proba_meta`,"
-            "`transform_meta` as appropiate"
+            f"Metadata for {func_name} is not provided, so Dask is "
+            f"running the {func_name} "
+            "function on a small dataset to guess output metadata. "
+            "As a result, It is possible that Dask will guess incorrectly.\n"
+            "To silence this warning, provide explicit "
+            f"`{func_name}_meta` to the dask_ml.wrapper."
+            "\nExample: \n"
+            "wrap_clf = dask_ml.wrappers.Incremental(GradientBoostingClassifier(), "
+            f"{func_name}_meta = np.array([1],dtype=np.int8))"
         )
         warnings.warn(msg)
         ar = np.zeros(shape=(1, input_dask_ar.shape[1]), dtype=input_dask_ar.dtype)
