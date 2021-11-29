@@ -673,7 +673,7 @@ def _get_output_dask_ar_meta_for_estimator(model_fn, estimator, input_dask_ar):
     elif "scipy.sparse" in type(input_meta).__module__:
         # sparse matrices dont support
         # `like` due to non implimented __array_function__
-        # Refer https:/q/github.com/scipy/scipy/issues/10362
+        # Refer https://github.com/scipy/scipy/issues/10362
         # Note below works for both cupy and scipy sparse matrices
         ar = type(input_meta)((1, input_dask_ar.shape[1]), dtype=input_dask_ar.dtype)
     else:
