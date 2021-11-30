@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Version 2021.11.30
+~~~~~~~~~~~~~~~~~~
+
+* Fixed regression in meta inference for wrappers when the base estimator returned a `scipy.sparse` matrix (:pr:`889`)
+
 Version 2021.11.16
 ~~~~~~~~~~~~~~~~~~
 
