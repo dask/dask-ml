@@ -5,9 +5,10 @@ import numpy as np
 import pandas as pd
 import pytest
 import sklearn.datasets
+from scipy.sparse import csr_matrix
 from sklearn.decomposition import PCA
 from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.linear_model import LinearRegression, LogisticRegression, SGDClassifier
 from sklearn.naive_bayes import CategoricalNB
 from sklearn.preprocessing import OneHotEncoder
 
@@ -231,3 +232,60 @@ def test_auto_rechunk():
     X = X.rechunk({0: 100, 1: 10})
     X._chunks = (tuple(np.nan for _ in X.chunks[0]), X.chunks[1])
     clf.predict(X)
+
+
+def test_sparse_inputs():
+    X = csr_matrix((3, 4))
+    y = np.asarray([0, 0, 1], dtype=np.int32)
+
+    base = SGDClassifier(tol=1e-3)
+    base = base.fit(X, y)
+
+    wrap = ParallelPostFit(base)
+    X_da = da.from_array(X, chunks=(1, 4))
+
+    result = wrap.predict(X_da).compute()
+    expected = base.predict(X)
+
+    assert_eq_ar(result, expected)
+
+
+def test_warning_on_dask_array_without_array_function():
+    X, y = make_classification(n_samples=10, n_features=2, chunks=10)
+    clf = ParallelPostFit(GradientBoostingClassifier())
+    clf = clf.fit(X, y)
+
+    class FakeArray:
+        def __init__(self, value):
+            self.value = value
+
+        @property
+        def ndim(self):
+            return self.value.ndim
+
+        @property
+        def len(self):
+            return self.value.len
+
+        @property
+        def dtype(self):
+            return self.value.dtype
+
+        @property
+        def shape(self):
+            return self.value.shape
+
+    ar = FakeArray(np.zeros(shape=(2, 2)))
+    fake_dask_ar = da.from_array(ar)
+    fake_dask_ar._meta = FakeArray(np.zeros(shape=(0, 0)))
+
+    with pytest.warns(
+        UserWarning, match="provide explicit `predict_meta` to the dask_ml.wrapper"
+    ):
+        clf.predict(fake_dask_ar)
+
+    with pytest.warns(
+        UserWarning,
+        match="provide explicit `predict_proba_meta` to the dask_ml.wrapper",
+    ):
+        clf.predict_proba(fake_dask_ar)

@@ -1,5 +1,6 @@
 """Meta-estimators for parallelizing estimators using the scikit-learn API."""
 import logging
+import warnings
 
 import dask.array as da
 import dask.dataframe as dd
@@ -662,9 +663,32 @@ def _get_output_dask_ar_meta_for_estimator(model_fn, estimator, input_dask_ar):
     """
     # sklearn fails if input array has size size
     # It requires at least 1 sample to run successfully
-    ar = np.zeros(
-        shape=(1, input_dask_ar.shape[1]),
-        dtype=input_dask_ar.dtype,
-        like=input_dask_ar._meta,
-    )
+    input_meta = input_dask_ar._meta
+    if hasattr(input_meta, "__array_function__"):
+        ar = np.zeros(
+            shape=(1, input_dask_ar.shape[1]),
+            dtype=input_dask_ar.dtype,
+            like=input_meta,
+        )
+    elif "scipy.sparse" in type(input_meta).__module__:
+        # sparse matrices dont support
+        # `like` due to non implimented __array_function__
+        # Refer https://github.com/scipy/scipy/issues/10362
+        # Note below works for both cupy and scipy sparse matrices
+        ar = type(input_meta)((1, input_dask_ar.shape[1]), dtype=input_dask_ar.dtype)
+    else:
+        func_name = model_fn.__name__.strip("_")
+        msg = (
+            f"Metadata for {func_name} is not provided, so Dask is "
+            f"running the {func_name} "
+            "function on a small dataset to guess output metadata. "
+            "As a result, It is possible that Dask will guess incorrectly.\n"
+            "To silence this warning, provide explicit "
+            f"`{func_name}_meta` to the dask_ml.wrapper."
+            "\nExample: \n"
+            "wrap_clf = dask_ml.wrappers.Incremental(GradientBoostingClassifier(), "
+            f"{func_name}_meta = np.array([1],dtype=np.int8))"
+        )
+        warnings.warn(msg)
+        ar = np.zeros(shape=(1, input_dask_ar.shape[1]), dtype=input_dask_ar.dtype)
     return model_fn(ar, estimator)
