@@ -10,6 +10,8 @@ from dask.delayed import Delayed
 from dask.highlevelgraph import HighLevelGraph
 from toolz import partial
 
+from ._compat import DASK_2022_01_0
+
 logger = logging.getLogger(__name__)
 
 
@@ -125,7 +127,11 @@ def fit(
     if y is not None:
         dependencies.append(y)
     new_dsk = HighLevelGraph.from_collections(name, dsk, dependencies=dependencies)
-    value = Delayed((name, nblocks - 1), new_dsk)
+
+    if DASK_2022_01_0:
+        value = Delayed((name, nblocks - 1), new_dsk, layer=name)
+    else:
+        value = Delayed((name, nblocks - 1), new_dsk)
 
     if compute:
         return value.compute()
