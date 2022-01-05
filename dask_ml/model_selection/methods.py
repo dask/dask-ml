@@ -2,11 +2,11 @@ from __future__ import absolute_import, division, print_function
 
 import warnings
 from collections import defaultdict
-from distutils.version import LooseVersion
 from threading import Lock
 from timeit import default_timer
 
 import numpy as np
+import packaging.version
 from dask.base import normalize_token
 from scipy import sparse
 from scipy.stats import rankdata
@@ -20,7 +20,7 @@ from .utils import _index_param_value, _num_samples, _safe_indexing, copy_estima
 
 # Copied from scikit-learn/sklearn/utils/fixes.py, can be removed once we drop
 # support for scikit-learn < 0.18.1 or numpy < 1.12.0.
-if LooseVersion(np.__version__) < "1.12.0":
+if packaging.version.parse(np.__version__) < packaging.version.parse("1.12.0"):
 
     class MaskedArray(np.ma.MaskedArray):
         # Before numpy 1.12, np.ma.MaskedArray object is not picklable

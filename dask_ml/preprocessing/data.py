@@ -4,12 +4,12 @@ import collections
 import multiprocessing
 import numbers
 from collections import OrderedDict
-from distutils.version import LooseVersion
 from typing import Any, List, Optional, Sequence, Union
 
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
+import packaging.version
 import pandas as pd
 import sklearn.preprocessing
 from dask import compute
@@ -26,8 +26,8 @@ from dask_ml.utils import check_array, handle_zeros_in_scale
 from .._typing import ArrayLike, DataFrameType, NDArrayOrScalar, SeriesType
 from ..base import DaskMLBaseMixin
 
-_PANDAS_VERSION = LooseVersion(pd.__version__)
-_HAS_CTD = _PANDAS_VERSION >= "0.21.0"
+_PANDAS_VERSION = packaging.version.parse(pd.__version__)
+_HAS_CTD = _PANDAS_VERSION >= packaging.version.parse("0.21.0")
 BOUNDS_THRESHOLD = 1e-7
 
 

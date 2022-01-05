@@ -22,6 +22,7 @@ DASK_2_20_0 = DASK_VERSION >= packaging.version.parse("2.20.0")
 DASK_2_26_0 = DASK_VERSION >= packaging.version.parse("2.26.0")
 DASK_2_28_0 = DASK_VERSION > packaging.version.parse("2.27.0")
 DASK_2021_02_0 = DASK_VERSION >= packaging.version.parse("2021.02.0")
+DASK_2022_01_0 = DASK_VERSION > packaging.version.parse("2021.12.0")
 DISTRIBUTED_2_5_0 = DISTRIBUTED_VERSION > packaging.version.parse("2.5.0")
 DISTRIBUTED_2_11_0 = DISTRIBUTED_VERSION > packaging.version.parse("2.10.0")  # dev
 DISTRIBUTED_2021_02_0 = DISTRIBUTED_VERSION >= packaging.version.parse("2021.02.0")
