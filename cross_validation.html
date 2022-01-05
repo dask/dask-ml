@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cross Validation &#8212; dask-ml 2021.11.17 documentation</title>
+    <title>Cross Validation &#8212; dask-ml 2021.11.31 documentation</title>
     
   <link href="_static/css/theme.css" rel="stylesheet">
   <link href="_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -31,7 +31,7 @@
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <script src="_static/sphinx-book-theme.d59cb220de22ca1c485ebbdc042f0030.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Hyper Parameter Search" href="hyper-parameter-search.html" />
@@ -727,7 +727,7 @@
                 data-placement="left">.rst</button></a>
         <!-- Download PDF via print -->
         <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
-            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+                onclick="printPdf(this)" data-toggle="tooltip" data-placement="left">.pdf</button>
     </div>
 </div>
 
@@ -745,14 +745,24 @@
         </div>
 
         <!-- Table of contents -->
-        <div class="d-none d-md-block col-md-2 bd-toc show">
+        <div class="d-none d-md-block col-md-2 bd-toc show noprint">
             
         </div>
     </div>
 </div>
     <div id="main-content" class="row">
         <div class="col-12 col-md-9 pl-md-3 pr-md-0">
-        
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Cross Validation</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            
               <div>
                 
   <div class="section" id="cross-validation">
@@ -780,9 +790,9 @@ This document only describes the extensions made to support Dask arrays.</p>
 
 <span class="gp">In [8]: </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="gh">Out[8]: </span><span class="go"></span>
-<span class="go">array([[-0.54613065, -0.90709521,  1.47050494, -0.48765508],</span>
-<span class="go">       [ 0.32370327,  1.25702878, -0.54681294,  0.01519597],</span>
-<span class="go">       [-0.70111012,  0.70035956, -0.04497177, -2.1252587 ]])</span>
+<span class="go">array([[-1.13718099, -0.5403331 ,  0.07110488, -0.3837625 ],</span>
+<span class="go">       [ 1.4136866 , -0.46491099, -0.21560393,  0.38860571],</span>
+<span class="go">       [ 0.49275168, -0.18932668, -1.17224   ,  0.26143709]])</span>
 </pre></div>
 </div>
 <p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v1.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
@@ -798,8 +808,8 @@ For very large datasets, creating and transmitting <code class="docutils literal
 
               </div>
               
-        
-            <!-- Previous / next buttons -->
+            
+                <!-- Previous / next buttons -->
 <div class='prev-next-area'> 
     <a class='left-prev' id="prev-link" href="preprocessing.html" title="previous page">
         <i class="fas fa-angle-left"></i>
@@ -816,19 +826,17 @@ For very large datasets, creating and transmitting <code class="docutils literal
     <i class="fas fa-angle-right"></i>
     </a>
 </div>
-        
+            
         </div>
     </div>
     <footer class="footer">
-    <div class="container">
-      <p>
-        
-          By Dask developers<br/>
-        
-            &copy; Copyright 2017, Dask developers.<br/>
-      </p>
-    </div>
-  </footer>
+  <p>
+    
+      By Dask developers<br/>
+    
+        &copy; Copyright 2017, Dask developers.<br/>
+  </p>
+</footer>
 </main>
 
 

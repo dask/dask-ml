@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Incremental Learning &#8212; dask-ml 2021.11.17 documentation</title>
+    <title>Incremental Learning &#8212; dask-ml 2021.11.31 documentation</title>
     
   <link href="_static/css/theme.css" rel="stylesheet">
   <link href="_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -31,7 +31,7 @@
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx-book-theme.12a9622fbb08dcb3a2a40b2c02b83a57.js"></script>
+    <script src="_static/sphinx-book-theme.d59cb220de22ca1c485ebbdc042f0030.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Clustering" href="clustering.html" />
@@ -727,7 +727,7 @@
                 data-placement="left">.rst</button></a>
         <!-- Download PDF via print -->
         <button type="button" id="download-print" class="btn btn-secondary topbarbtn" title="Print to PDF"
-            onClick="window.print()" data-toggle="tooltip" data-placement="left">.pdf</button>
+                onclick="printPdf(this)" data-toggle="tooltip" data-placement="left">.pdf</button>
     </div>
 </div>
 
@@ -745,7 +745,7 @@
         </div>
 
         <!-- Table of contents -->
-        <div class="d-none d-md-block col-md-2 bd-toc show">
+        <div class="d-none d-md-block col-md-2 bd-toc show noprint">
             
             <div class="tocsection onthispage pt-5 pb-3">
                 <i class="fas fa-list"></i> Contents
@@ -772,7 +772,37 @@
 </div>
     <div id="main-content" class="row">
         <div class="col-12 col-md-9 pl-md-3 pr-md-0">
-        
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Incremental Learning</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#incremental-meta-estimator">
+   Incremental Meta-estimator
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#incremental-learning-and-hyper-parameter-optimization">
+     Incremental Learning and Hyper-parameter Optimization
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            
               <div>
                 
   <div class="section" id="incremental-learning">
@@ -862,18 +892,18 @@ can also explicitly pass <code class="docutils literal notranslate"><span class=
 </div>
 <p>We can get the accuracy score on our dataset.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gh">Out[9]: </span><span class="go">0.56</span>
+<span class="gh">Out[9]: </span><span class="go">0.72</span>
 </pre></div>
 </div>
 <p>All of the attributes learned during training, like <code class="docutils literal notranslate"><span class="pre">coef_</span></code>, are available
 on the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> instance.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
 <span class="gh">Out[10]: </span><span class="go"></span>
-<span class="go">array([[ 14.11406211, -30.17864506,  23.06273352, -34.66832166,</span>
-<span class="go">         -7.33307885,  27.55698475,  13.70885267, -16.61366726,</span>
-<span class="go">          9.00390348,  15.64613477,  26.55073856, -41.52411598,</span>
-<span class="go">         14.42886245,  50.47733054, -29.70003843,  41.24929398,</span>
-<span class="go">         -7.96226513,  -5.81517642, -14.86124054, -33.05090368]])</span>
+<span class="go">array([[-26.0418881 , -16.48280273, -21.6336747 , -33.43591522,</span>
+<span class="go">          1.96699247, -21.66802944,  44.73638846, -25.50400247,</span>
+<span class="go">         -7.99572781,  -2.2436711 , -23.15229511, -21.99530952,</span>
+<span class="go">        -23.67867188,  -3.191055  ,  23.6332979 , -65.84376068,</span>
+<span class="go">         14.97954542, -12.02571907,  81.74197696, -30.90821143]])</span>
 </pre></div>
 </div>
 <p>If necessary, the actual estimator trained is available as <code class="docutils literal notranslate"><span class="pre">Incremental.estimator_</span></code></p>
@@ -892,8 +922,8 @@ larger than memory datasets.</p>
 
               </div>
               
-        
-            <!-- Previous / next buttons -->
+            
+                <!-- Previous / next buttons -->
 <div class='prev-next-area'> 
     <a class='left-prev' id="prev-link" href="meta-estimators.html" title="previous page">
         <i class="fas fa-angle-left"></i>
@@ -910,19 +940,17 @@ larger than memory datasets.</p>
     <i class="fas fa-angle-right"></i>
     </a>
 </div>
-        
+            
         </div>
     </div>
     <footer class="footer">
-    <div class="container">
-      <p>
-        
-          By Dask developers<br/>
-        
-            &copy; Copyright 2017, Dask developers.<br/>
-      </p>
-    </div>
-  </footer>
+  <p>
+    
+      By Dask developers<br/>
+    
+        &copy; Copyright 2017, Dask developers.<br/>
+  </p>
+</footer>
 </main>
 
 
