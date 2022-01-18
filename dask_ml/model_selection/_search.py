@@ -23,7 +23,7 @@ from sklearn.base import (
     is_classifier,
 )
 from sklearn.exceptions import NotFittedError
-from sklearn.model_selection._search import BaseSearchCV, _check_param_grid
+from sklearn.model_selection._search import BaseSearchCV
 from sklearn.model_selection._split import (
     BaseShuffleSplit,
     KFold,
@@ -70,6 +70,12 @@ except ImportError:  # pragma: no cover
 
 
 __all__ = ["GridSearchCV", "RandomizedSearchCV"]
+
+# scikit-learn > 1.0.2 removed _check_param_grid
+if SK_VERSION <= packaging.version.parse("1.0.2"):
+    from sklearn.model_selection._search import _check_param_grid
+else:
+    _check_param_grid = None
 
 if SK_VERSION <= packaging.version.parse("0.21.dev0"):
 
@@ -1600,8 +1606,8 @@ class GridSearchCV(StaticDaskSearchMixin, DaskBaseSearchCV):
             n_jobs=n_jobs,
             cache_cv=cache_cv,
         )
-
-        _check_param_grid(param_grid)
+        if _check_param_grid:
+            _check_param_grid(param_grid)
         self.param_grid = param_grid
 
     def _get_param_iterator(self):
