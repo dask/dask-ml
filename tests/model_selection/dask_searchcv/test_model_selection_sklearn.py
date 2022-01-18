@@ -375,24 +375,25 @@ def test_grid_search_bad_param_grid():
     clf = SVC()
 
     with pytest.raises(ValueError):
-        dcv.GridSearchCV(clf, param_dict)
+        dcv.GridSearchCV(clf, param_dict)._get_param_iterator()
 
     param_dict = {"C": []}
     clf = SVC()
 
     with pytest.raises(ValueError):
-        dcv.GridSearchCV(clf, param_dict)
+        dcv.GridSearchCV(clf, param_dict)._get_param_iterator()
 
     param_dict = {"C": "1,2,3"}
     clf = SVC()
 
     with pytest.raises(ValueError):
-        dcv.GridSearchCV(clf, param_dict)
+        dcv.GridSearchCV(clf, param_dict)._get_param_iterator()
 
     param_dict = {"C": np.ones(6).reshape(3, 2)}
     clf = SVC()
+
     with pytest.raises(ValueError):
-        dcv.GridSearchCV(clf, param_dict)
+        dcv.GridSearchCV(clf, param_dict)._get_param_iterator()
 
 
 def test_grid_search_sparse():
