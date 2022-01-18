@@ -241,8 +241,8 @@ def check_random_state(random_state):
         raise TypeError("Unexpected type '{}'".format(type(random_state)))
 
 
-def check_matching_blocks(*arrays, check_first_dim_only=False):
-    """Check that the partitioning structure for many arrays matches.
+def _check_matching_blocks(*arrays, check_first_dim_only=False):
+    """Helper function to check blocks match across *arrays.
 
     Parameters
     ----------
@@ -253,7 +253,8 @@ def check_matching_blocks(*arrays, check_first_dim_only=False):
         * Dask DataFrame
         * Dask Series
     check_first_dim_only: bool, default false
-        Whether to only checks the chunks along the first dimension
+        Whether to only checks the chunks along the first dimension. Only applies
+        if all the arrays are dask arrays.
     """
     if len(arrays) <= 1:
         return
@@ -266,16 +267,31 @@ def check_matching_blocks(*arrays, check_first_dim_only=False):
                 raise ValueError(
                     "Mismatched chunks. {} != {}".format(chunks, array.chunks)
                 )
-
+    # Divisions correspond to the index (first_dim) so no need to use slice_to_check
     elif all(isinstance(x, (dd.Series, dd.DataFrame)) for x in arrays):
-        divisions = arrays[0].divisions[slice_to_check]
+        divisions = arrays[0].divisions
         for array in arrays[1:]:
-            if array.divisions[slice_to_check] != divisions:
+            if array.divisions != divisions:
                 raise ValueError(
                     "Mismatched divisions. {} != {}".format(divisions, array.divisions)
                 )
     else:
         raise ValueError("Unexpected types {}.".format({type(x) for x in arrays}))
+
+
+def check_matching_blocks(*arrays):
+    """Check that the partitioning structure for many arrays matches.
+
+    Parameters
+    ----------
+    *arrays : Sequence of array-likes
+        This includes
+
+        * Dask Array
+        * Dask DataFrame
+        * Dask Series
+    """
+    _check_matching_blocks(*arrays, check_first_dim_only=False)
 
 
 def check_X_y(
@@ -437,7 +453,7 @@ def _check_y(y, multi_output=False, y_numeric=False):
 
 def check_consistent_length(*arrays):
     """Check that blocks match for arrays and divisions match for dataframes."""
-    check_matching_blocks(*arrays, check_first_dim_only=True)
+    _check_matching_blocks(*arrays, check_first_dim_only=True)
 
 
 def check_chunks(n_samples, n_features, chunks=None):

@@ -209,9 +209,8 @@ def test_check_array_1d():
         ),
     ],
 )
-@pytest.mark.parametrize("check_first_dim_only", [True, False])
-def test_matching_blocks_ok(arrays, check_first_dim_only):
-    check_matching_blocks(*arrays, check_first_dim_only=check_first_dim_only)
+def test_matching_blocks_ok(arrays):
+    check_matching_blocks(*arrays)
 
 
 @pytest.mark.parametrize(
@@ -273,3 +272,25 @@ def test_matching_blocks_raises(arrays):
 )
 def test_check_consistent_length_ok(arrays):
     check_consistent_length(*arrays)
+
+
+@pytest.mark.parametrize(
+    "arrays",
+    [
+        (
+            da.random.uniform(size=(10, 10), chunks=(10, 10)),
+            da.random.uniform(size=8, chunks=8),
+        ),
+        (
+            da.random.uniform(size=(100, 10), chunks=(100, 10)),
+            da.random.uniform(size=50, chunks=50),
+        ),
+        (
+            dd.from_pandas(pd.DataFrame({"a": [1, 2, 3, 4]}), 4),
+            dd.from_pandas(pd.Series([1, 2, 3]), 2),
+        ),
+    ],
+)
+def test_check_consistent_length_raises(arrays):
+    with pytest.raises(ValueError):
+        check_consistent_length(*arrays)
