@@ -15,6 +15,7 @@ from dask_ml.utils import (
     assert_estimator_equal,
     check_array,
     check_chunks,
+    check_consistent_length,
     check_matching_blocks,
     check_random_state,
     handle_zeros_in_scale,
@@ -208,8 +209,9 @@ def test_check_array_1d():
         ),
     ],
 )
-def test_matching_blocks_ok(arrays):
-    check_matching_blocks(*arrays)
+@pytest.mark.parametrize("check_first_dim_only", [True, False])
+def test_matching_blocks_ok(arrays, check_first_dim_only):
+    check_matching_blocks(*arrays, check_first_dim_only=check_first_dim_only)
 
 
 @pytest.mark.parametrize(
@@ -234,3 +236,40 @@ def test_matching_blocks_ok(arrays):
 def test_matching_blocks_raises(arrays):
     with pytest.raises(ValueError):
         check_matching_blocks(*arrays)
+
+
+@pytest.mark.parametrize(
+    "arrays",
+    [
+        (
+            da.random.uniform(size=(10, 10), chunks=(10, 10)),
+            da.random.uniform(size=10, chunks=10),
+        ),
+        (
+            da.random.uniform(size=(50, 10), chunks=(50, 10)),
+            da.random.uniform(size=50, chunks=50),
+        ),
+        (
+            dd.from_pandas(pd.DataFrame({"a": [1, 2, 3]}), 2)
+            .reset_index()
+            .to_dask_array(),
+            dd.from_pandas(pd.Series([1, 2, 3]), 2).reset_index().to_dask_array(),
+        ),
+        (
+            dd.from_pandas(pd.DataFrame({"a": [1, 2, 3]}), 2),
+            dd.from_pandas(pd.Series([1, 2, 3]), 2),
+        ),
+        # Allow known and unknown?
+        pytest.param(
+            (
+                dd.from_pandas(pd.DataFrame({"a": [1, 2, 3]}), 2)
+                .reset_index()
+                .to_dask_array(),
+                dd.from_pandas(pd.Series([1, 2, 3]), 2).reset_index(),
+            ),
+            marks=pytest.mark.xfail(reason="Known and unknown blocks."),
+        ),
+    ],
+)
+def test_check_consistent_length_ok(arrays):
+    check_consistent_length(*arrays)

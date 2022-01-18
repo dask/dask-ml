@@ -241,7 +241,7 @@ def check_random_state(random_state):
         raise TypeError("Unexpected type '{}'".format(type(random_state)))
 
 
-def check_matching_blocks(*arrays):
+def check_matching_blocks(*arrays, check_first_dim_only=False):
     """Check that the partitioning structure for many arrays matches.
 
     Parameters
@@ -252,22 +252,25 @@ def check_matching_blocks(*arrays):
         * Dask Array
         * Dask DataFrame
         * Dask Series
+    check_first_dim_only: bool, default false
+        Whether to only checks the chunks along the first dimension
     """
     if len(arrays) <= 1:
         return
+    slice_to_check = slice(0, 1, 1) if check_first_dim_only else slice(None, None)
     if all(isinstance(x, da.Array) for x in arrays):
         # TODO: unknown chunks, ensure blocks match, or just raise (configurable)
-        chunks = arrays[0].chunks
+        chunks = arrays[0].chunks[slice_to_check]
         for array in arrays[1:]:
-            if array.chunks != chunks:
+            if array.chunks[slice_to_check] != chunks:
                 raise ValueError(
                     "Mismatched chunks. {} != {}".format(chunks, array.chunks)
                 )
 
     elif all(isinstance(x, (dd.Series, dd.DataFrame)) for x in arrays):
-        divisions = arrays[0].divisions
+        divisions = arrays[0].divisions[slice_to_check]
         for array in arrays[1:]:
-            if array.divisions != divisions:
+            if array.divisions[slice_to_check] != divisions:
                 raise ValueError(
                     "Mismatched divisions. {} != {}".format(divisions, array.divisions)
                 )
@@ -433,8 +436,8 @@ def _check_y(y, multi_output=False, y_numeric=False):
 
 
 def check_consistent_length(*arrays):
-    # TODO: check divisions, chunks, etc.
-    pass
+    """Check that blocks match for arrays and divisions match for dataframes."""
+    check_matching_blocks(*arrays, check_first_dim_only=True)
 
 
 def check_chunks(n_samples, n_features, chunks=None):
