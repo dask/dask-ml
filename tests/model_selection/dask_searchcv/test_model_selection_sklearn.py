@@ -371,28 +371,34 @@ def test_grid_search_one_grid_point():
 
 
 def test_grid_search_bad_param_grid():
+    # passing a non-iterable param grid raises a TypeError in scikit-learn > 1.0.2
+    iterable_err = (
+        ValueError if SK_VERSION <= packaging.version.parse("1.0.2") else TypeError
+    )
+
     param_dict = {"C": 1.0}
     clf = SVC()
 
-    with pytest.raises(ValueError):
-        dcv.GridSearchCV(clf, param_dict)
+    with pytest.raises(iterable_err):
+        dcv.GridSearchCV(clf, param_dict)._get_param_iterator()
 
     param_dict = {"C": []}
     clf = SVC()
 
     with pytest.raises(ValueError):
-        dcv.GridSearchCV(clf, param_dict)
+        dcv.GridSearchCV(clf, param_dict)._get_param_iterator()
 
     param_dict = {"C": "1,2,3"}
     clf = SVC()
 
-    with pytest.raises(ValueError):
-        dcv.GridSearchCV(clf, param_dict)
+    with pytest.raises(iterable_err):
+        dcv.GridSearchCV(clf, param_dict)._get_param_iterator()
 
     param_dict = {"C": np.ones(6).reshape(3, 2)}
     clf = SVC()
+
     with pytest.raises(ValueError):
-        dcv.GridSearchCV(clf, param_dict)
+        dcv.GridSearchCV(clf, param_dict)._get_param_iterator()
 
 
 def test_grid_search_sparse():
