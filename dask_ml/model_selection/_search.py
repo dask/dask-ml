@@ -18,7 +18,6 @@ from sklearn import model_selection
 from sklearn.base import (
     BaseEstimator,
     MetaEstimatorMixin,
-    _is_pairwise,
     clone,
     is_classifier,
 )
@@ -37,6 +36,7 @@ from sklearn.model_selection._split import (
     _CVIterableWrapper,
 )
 from sklearn.pipeline import FeatureUnion, Pipeline
+from sklearn.utils.estimator_checks import _is_pairwise_metric
 from sklearn.utils.metaestimators import if_delegate_has_method
 from sklearn.utils.multiclass import type_of_target
 from sklearn.utils.validation import _num_samples, check_is_fitted
@@ -209,7 +209,7 @@ def build_cv_graph(
     X, y, groups = to_indexable(X, y, groups)
     cv = check_cv(cv, y, is_classifier(estimator))
     # "pairwise" estimators require a different graph for CV splitting
-    is_pairwise = _is_pairwise(estimator)
+    is_pairwise = _is_pairwise_metric(estimator)
 
     dsk = {}
     X_name, y_name, groups_name = to_keys(dsk, X, y, groups)
