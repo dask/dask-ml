@@ -9,13 +9,17 @@ from dask_ml.decomposition import IncrementalPCA
 from dask_ml.utils import flip_vector_signs
 
 try:
-    from sklearn.utils._testing import assert_almost_equal
-    from sklearn.utils._testing import assert_array_almost_equal
-    from sklearn.utils._testing import assert_allclose_dense_sparse
+    from sklearn.utils._testing import (
+        assert_allclose_dense_sparse,
+        assert_almost_equal,
+        assert_array_almost_equal,
+    )
 except ImportError:
-    from sklearn.utils.testing import assert_almost_equal
-    from sklearn.utils.testing import assert_array_almost_equal
-    from sklearn.utils.testing import assert_allclose_dense_sparse
+    from sklearn.utils.testing import (
+        assert_allclose_dense_sparse,
+        assert_almost_equal,
+        assert_array_almost_equal,
+    )
 
 
 iris = datasets.load_iris()
