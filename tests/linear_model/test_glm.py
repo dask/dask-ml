@@ -6,6 +6,11 @@ import pytest
 from dask.dataframe.utils import assert_eq
 from dask_glm.regularizers import Regularizer
 from sklearn.pipeline import make_pipeline
+from sklearn.linear_model import (
+    LinearRegression as sklLinearRegression,
+    LogisticRegression as sklLogisticRegression,
+    PoissonRegressor as sklPoissonRegressor
+)
 
 from dask_ml.datasets import make_classification, make_counts, make_regression
 from dask_ml.linear_model import LinearRegression, LogisticRegression, PoissonRegression
@@ -40,6 +45,10 @@ class DoNothingTransformer:
 
 
 X, y = make_classification(chunks=50)
+
+@pytest.fixture()
+def glm_regression_data():
+    X, y = make_regression(n_samples=1000)
 
 
 def test_lr_init(solver):
@@ -173,6 +182,14 @@ def test_add_intercept_raises_chunks():
 
     assert m.match("Chunking is only allowed")
 
+def test_add_intercept_ordering():
+    """Tests that add_intercept gives same result for dask / numpy objects"""
+    X_np = np.arange(100).reshape(20, 5)
+    X_da = da.from_array(X_np, chunks=(20,5))
+    np_result = add_intercept(X_np)
+    da_result = add_intercept(X_da)
+    da.utils.assert_eq(np_result, da_result)
+
 
 def test_lr_score():
     X = da.from_array(np.arange(1000).reshape(1000, 1))
@@ -203,3 +220,20 @@ def test_logistic_predict_proba_shape():
     lr.fit(X, y)
     prob = lr.predict_proba(X)
     assert prob.shape == (100, 2)
+
+@pytest.mark.parametrize(
+    "reg_type,data_generator", 
+    [(LinearRegression, "single_chunk_regression"), 
+    (LogisticRegression, "single_chunk_classification"),
+    (PoissonRegression, "single_chunk_count_classification")
+    ]
+)
+def test_model_coef_dask_numpy(reg_type, data_generator, request):
+    """Tests that models return same coefficients and intercepts with array types"""
+    X, y = request.getfixturevalue(data_generator)
+    np_mod, da_mod = reg_type(fit_intercept=True), reg_type(fit_intercept=True)
+    da_mod.fit(X, y)
+    np_mod.fit(X.compute(), y.compute())
+    np.testing.assert_allclose(da_mod.coef_, np_mod.coef_)
+    np.testing.assert_allclose(da_mod.intercept_, np_mod.intercept_)
+
