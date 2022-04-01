@@ -237,3 +237,62 @@ def test_model_coef_dask_numpy(reg_type, data_generator, request):
     np.testing.assert_allclose(da_mod.coef_, np_mod.coef_)
     np.testing.assert_allclose(da_mod.intercept_, np_mod.intercept_)
 
+@pytest.mark.parametrize(
+    "reg_type, skl_reg_type, skl_params, data_generator", 
+    [(LinearRegression, sklLinearRegression, {}, "single_chunk_regression"), 
+    (LogisticRegression, sklLogisticRegression, {'penalty' : 'none'}, "single_chunk_classification"),
+    (PoissonRegression, sklPoissonRegressor, {'alpha' : 0}, "single_chunk_count_classification")
+    ]
+)
+def test_model_against_sklearn(reg_type, skl_reg_type, skl_params, data_generator, request):
+    """
+    Tests accuracy of model predictions
+
+    Notes:
+        1. Dask ML 'newton' solver does not implement a penalty, only
+            set arbitarily high for clarity of non-regularization.
+        2. This method only works for `fit_intercept=False`
+    """
+    X, y = request.getfixturevalue(data_generator) 
+    dask_ml_model = reg_type(fit_intercept=True, solver='newton', penalty='l2', C=1e8)
+    skl_model = skl_reg_type(fit_intercept=True, **skl_params)
+    # skl_model has to be fit with numpy data
+    dask_ml_model.fit(X, y)
+    skl_model.fit(X.compute(), y.compute())
+    np.testing.assert_allclose(dask_ml_model.predict(X), skl_model.predict(X), rtol=1e-3, atol=1e-3)
+
+
+@pytest.mark.parametrize(
+    "reg_type, skl_reg_type, skl_params, dataset_function", 
+    [(LinearRegression, sklLinearRegression, {}, make_regression), 
+    (LogisticRegression, sklLogisticRegression, {'penalty' : 'none'}, make_classification),
+    ]
+)
+def test_model_coef_against_sklearn(reg_type, skl_reg_type, skl_params, dataset_function):
+    """
+    Tests accuracy of coefficient calculation.
+
+    sk-learn least squares method does not tie out to iterative sovlers with
+    e.g. Rdi
+    """
+    X, y = dataset_function(n_samples=100, n_features=20, n_informative=10, chunks=100, random_state=0)
+    X_np, y_np = X.compute(), y.compute()
+    
+    skl_model = skl_reg_type(fit_intercept=True, **skl_params)
+    skl_model.fit(X_np, y_np)
+
+    dask_ml_model = reg_type(fit_intercept=True, solver='newton', penalty='l2', C=1e8)
+    dask_ml_model.fit(X, y)
+
+    np.testing.assert_allclose(skl_model.coef_.flatten(), dask_ml_model.coef_, rtol=1e-3, atol=1e-3)
+
+def test_poisson_regressor_against_sklearn(single_chunk_count_classification):
+    X, y = single_chunk_count_classification
+    skl_model = sklPoissonRegressor(alpha=0, fit_intercept=True)
+    skl_model.fit(X, y)
+    dask_ml_model = PoissonRegression(fit_intercept=True, solver='newton', penalty='l2', C=1e8)
+    dask_ml_model.fit(X, y)
+    np.testing.assert_allclose(skl_model.coef_.flatten(), dask_ml_model.coef_, rtol=1e-3, atol=1e-3)
+    
+    
+    
