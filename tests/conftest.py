@@ -146,3 +146,37 @@ def scheduler(request):
         yield cluster
     else:
         yield not_cluster
+
+
+@pytest.fixture
+def medium_size_regression():
+    """X, y pair for regression with N >> p.
+
+    There are many more samples in this problem than there are
+    features. Useful for testing stability of solutions.
+    """
+    X, y = make_regression(
+        chunks=100, n_samples=500, n_features=100, n_informative=10, random_state=0
+    )
+    return X, y
+
+
+@pytest.fixture
+def medium_size_counts():
+    """X, y pair for classification with N >> p.
+
+    The samples outnumber the total features, leading to
+    greater stability of the solutions. Useful for testing
+    the accuracy of solvers.
+    """
+    sample_size = 2_000
+    n_features = 100
+    X, y = make_counts(
+        chunks=100,
+        n_samples=sample_size,
+        n_features=n_features,
+        n_informative=n_features // 10,
+        random_state=0,
+        scale=1 / n_features,
+    )
+    return X, y

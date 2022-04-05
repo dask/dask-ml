@@ -238,11 +238,12 @@ def test_model_coef_dask_numpy(reg_type, data_generator, request):
     np.testing.assert_allclose(da_mod.intercept_, np_mod.intercept_)
 
 
+@pytest.mark.parametrize("solver", ["newton", "gradient_descent"])
 @pytest.mark.parametrize("fit_intercept", [True, False])
 @pytest.mark.parametrize(
     "reg_type, skl_reg_type, skl_params, data_generator",
     [
-        (LinearRegression, slm.LinearRegression, {}, "single_chunk_regression"),
+        (LinearRegression, slm.LinearRegression, {}, "medium_size_regression"),
         (
             LogisticRegression,
             slm.LogisticRegression,
@@ -253,23 +254,22 @@ def test_model_coef_dask_numpy(reg_type, data_generator, request):
             PoissonRegression,
             slm.PoissonRegressor,
             {"alpha": 0},
-            "single_chunk_count_classification",
+            "medium_size_counts",
         ),
     ],
 )
 def test_model_against_sklearn(
-    reg_type, skl_reg_type, skl_params, data_generator, fit_intercept, request
+    reg_type, skl_reg_type, skl_params, data_generator, fit_intercept, solver, request
 ):
     """
     Tests accuracy of model predictions
-
-    Notes:
-        1. Dask ML 'newton' solver does not implement a penalty, only
-            set arbitrarily high for clarity of non-regularization.
     """
     X, y = request.getfixturevalue(data_generator)
     dask_ml_model = reg_type(
-        fit_intercept=fit_intercept, solver="newton", penalty="l2", C=1e8, tol=1e-8
+        fit_intercept=fit_intercept,
+        solver=solver,
+        penalty="l2",
+        C=1e8,
     )
     skl_model = skl_reg_type(fit_intercept=fit_intercept, **skl_params)
     # skl_model has to be fit with numpy data
@@ -278,6 +278,8 @@ def test_model_against_sklearn(
     np.testing.assert_allclose(
         dask_ml_model.predict(X), skl_model.predict(X), rtol=1e-3, atol=1e-3
     )
+    # est, truth = dask_ml_model.predict(X), skl_model.predict(X)
+    # rel_error =
 
 
 @pytest.mark.parametrize(
