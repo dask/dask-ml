@@ -1520,7 +1520,7 @@ n_splits_ : int
     The number of cross-validation splits (folds/iterations).
 
 Notes
-------
+-----
 The parameters selected are those that maximize the score of the left out
 data, unless an explicit score is passed in which case it is used instead.
 """
