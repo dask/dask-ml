@@ -95,7 +95,6 @@ if SK_VERSION <= packaging.version.parse("0.21.dev0"):
                     results.add_warning(key, message.format(key), FutureWarning)
         return results
 
-
 else:
     _RETURN_TRAIN_SCORE_DEFAULT = False
 
