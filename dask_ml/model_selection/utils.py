@@ -76,9 +76,9 @@ def to_keys(dsk, *args):
         if x is None:
             yield None
         elif isinstance(x, (da.Array, dd.DataFrame)):
-            x = delayed(x)
+            #x = delayed(x)
             dsk.update(x.dask)
-            yield x.key
+            yield x#.key
         elif isinstance(x, Delayed):
             dsk.update(x.dask)
             yield x.key
