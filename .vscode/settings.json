@@ -1,9 +1,0 @@
-{
-    "python.pythonPath": "/datasets/vjawa/miniconda3/envs/dask-ml-dev/bin/python",
-    "python.testing.pytestArgs": [
-        "tests"
-    ],
-    "python.testing.unittestEnabled": false,
-    "python.testing.nosetestsEnabled": false,
-    "python.testing.pytestEnabled": true
-}
