@@ -75,10 +75,13 @@ def to_keys(dsk, *args):
     for x in args:
         if x is None:
             yield None
-        elif isinstance(x, (da.Array, dd.DataFrame)):
-            #x = delayed(x)
+        elif isinstance(x, da.Array):
             dsk.update(x.dask)
-            yield x#.key
+            yield x
+        elif isinstance(x, dd.DataFrame):
+            x = delayed(x)
+            dsk.update(x.dask)
+            yield x.key
         elif isinstance(x, Delayed):
             dsk.update(x.dask)
             yield x.key
