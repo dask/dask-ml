@@ -39,7 +39,8 @@ class KMeans(TransformerMixin, BaseEstimator):
     init : {'k-means||', 'k-means++' or ndarray}
         Method for center initialization, defaults to 'k-means||'.
 
-        'k-means||' : selects the the gg
+        'k-means||' : selects the parallel initalization procedure 
+        for initializing the cluster centers.
 
         'k-means++' : selects the initial cluster centers in a smart way
         to speed up convergence. Uses scikit-learn's implementation.
