@@ -74,7 +74,6 @@ def make_counts(
     z0 = X[:, informative_idx].dot(beta[informative_idx]) + 0.5
     rate = da.exp(z0)
     y = rng.poisson(rate, size=1, chunks=(chunks,))
-    print(beta)
     return X, y
 
 

@@ -242,7 +242,7 @@ def test_model_coef_dask_numpy(reg_type, data_generator, request):
     assert rel_error < 1e-8
 
 
-@pytest.mark.parametrize("solver", ["newton", "gradient_descent"])
+@pytest.mark.parametrize("solver", ["newton", "gradient_descent", "lbfgs"])
 @pytest.mark.parametrize("fit_intercept", [True, False])
 @pytest.mark.parametrize(
     "reg_type, skl_reg_type, skl_params, data_generator",
@@ -282,7 +282,7 @@ def test_model_against_sklearn(
     assert rel_error < 1e-3
 
 
-@pytest.mark.parametrize("solver", ["newton", "gradient_descent"])
+@pytest.mark.parametrize("solver", ["newton", "gradient_descent", "lbfgs"])
 @pytest.mark.parametrize(
     "reg_type, skl_reg_type, skl_params, dataset_function",
     [
@@ -322,7 +322,7 @@ def test_model_coef_against_sklearn(
     assert rel_error < 1e-3
 
 
-@pytest.mark.parametrize("solver", ["newton", "gradient_descent"])
+@pytest.mark.parametrize("solver", ["newton", "gradient_descent", "lbfgs"])
 def test_poisson_regressor_against_sklearn(single_chunk_count_classification, solver):
     X, y = single_chunk_count_classification
     skl_model = slm.PoissonRegressor(alpha=0, fit_intercept=True)

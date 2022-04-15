@@ -169,7 +169,7 @@ def medium_size_counts():
     greater stability of the solutions. Useful for testing
     the accuracy of solvers.
     """
-    sample_size = 1000
+    sample_size = 500
     n_features = 100
     X, y = make_counts(
         chunks=100,
