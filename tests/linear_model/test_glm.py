@@ -1,6 +1,7 @@
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
+import numpy.linalg as LA
 import pandas as pd
 import pytest
 import sklearn.linear_model as slm
@@ -234,8 +235,11 @@ def test_model_coef_dask_numpy(reg_type, data_generator, request):
     np_mod, da_mod = reg_type(fit_intercept=True), reg_type(fit_intercept=True)
     da_mod.fit(X, y)
     np_mod.fit(X.compute(), y.compute())
-    np.testing.assert_allclose(da_mod.coef_, np_mod.coef_)
-    np.testing.assert_allclose(da_mod.intercept_, np_mod.intercept_)
+    da_coef = np.hstack((da_mod.coef_, da_mod.intercept_))
+    np_coef = np.hstack((np_mod.coef_, np_mod.intercept_))
+
+    rel_error = LA.norm(da_coef - np_coef) / LA.norm(np_coef)
+    assert rel_error < 1e-8
 
 
 @pytest.mark.parametrize("solver", ["newton", "gradient_descent"])
@@ -266,22 +270,19 @@ def test_model_against_sklearn(
     """
     X, y = request.getfixturevalue(data_generator)
     dask_ml_model = reg_type(
-        fit_intercept=fit_intercept,
-        solver=solver,
-        penalty="l2",
-        C=1e8,
+        fit_intercept=fit_intercept, solver=solver, penalty="l2", C=1e8, max_iter=500
     )
     skl_model = skl_reg_type(fit_intercept=fit_intercept, **skl_params)
     # skl_model has to be fit with numpy data
     dask_ml_model.fit(X, y)
     skl_model.fit(X.compute(), y.compute())
-    np.testing.assert_allclose(
-        dask_ml_model.predict(X), skl_model.predict(X), rtol=1e-3, atol=1e-3
-    )
-    # est, truth = dask_ml_model.predict(X), skl_model.predict(X)
-    # rel_error =
+
+    est, truth = dask_ml_model.predict(X), skl_model.predict(X)
+    rel_error = LA.norm(est - truth) / LA.norm(truth)
+    assert rel_error < 1e-3
 
 
+@pytest.mark.parametrize("solver", ["newton", "gradient_descent"])
 @pytest.mark.parametrize(
     "reg_type, skl_reg_type, skl_params, dataset_function",
     [
@@ -295,7 +296,7 @@ def test_model_against_sklearn(
     ],
 )
 def test_model_coef_against_sklearn(
-    reg_type, skl_reg_type, skl_params, dataset_function
+    reg_type, skl_reg_type, skl_params, dataset_function, solver
 ):
     """
     Tests accuracy of coefficient calculation.
@@ -311,22 +312,28 @@ def test_model_coef_against_sklearn(
     skl_model = skl_reg_type(fit_intercept=True, **skl_params)
     skl_model.fit(X_np, y_np)
 
-    dask_ml_model = reg_type(fit_intercept=True, solver="newton", penalty="l2", C=1e8)
+    dask_ml_model = reg_type(fit_intercept=True, solver=solver, penalty="l2", C=1e8)
     dask_ml_model.fit(X, y)
 
-    np.testing.assert_allclose(
-        skl_model.coef_.flatten(), dask_ml_model.coef_, rtol=1e-3, atol=1e-8
+    est, truth = np.hstack((dask_ml_model.intercept_, dask_ml_model.coef_)), np.hstack(
+        (skl_model.intercept_, skl_model.coef_.flatten())
     )
+    rel_error = LA.norm(est - truth) / LA.norm(truth)
+    assert rel_error < 1e-3
 
 
-def test_poisson_regressor_against_sklearn(single_chunk_count_classification):
+@pytest.mark.parametrize("solver", ["newton", "gradient_descent"])
+def test_poisson_regressor_against_sklearn(single_chunk_count_classification, solver):
     X, y = single_chunk_count_classification
     skl_model = slm.PoissonRegressor(alpha=0, fit_intercept=True)
     skl_model.fit(X, y)
     dask_ml_model = PoissonRegression(
-        fit_intercept=True, solver="newton", penalty="l2", C=1e8
+        fit_intercept=True, solver=solver, penalty="l2", C=1e8
     )
     dask_ml_model.fit(X, y)
-    np.testing.assert_allclose(
-        skl_model.coef_.flatten(), dask_ml_model.coef_, rtol=1e-3, atol=1e-3
+
+    est, truth = np.hstack((dask_ml_model.intercept_, dask_ml_model.coef_)), np.hstack(
+        (skl_model.intercept_, skl_model.coef_.flatten())
     )
+    rel_error = LA.norm(est - truth) / LA.norm(truth)
+    assert rel_error < 1e-3

@@ -156,7 +156,7 @@ def medium_size_regression():
     features. Useful for testing stability of solutions.
     """
     X, y = make_regression(
-        chunks=100, n_samples=500, n_features=100, n_informative=10, random_state=0
+        chunks=100, n_samples=500, n_features=100, n_informative=100, random_state=0
     )
     return X, y
 
@@ -169,14 +169,14 @@ def medium_size_counts():
     greater stability of the solutions. Useful for testing
     the accuracy of solvers.
     """
-    sample_size = 2_000
+    sample_size = 1000
     n_features = 100
     X, y = make_counts(
         chunks=100,
         n_samples=sample_size,
         n_features=n_features,
-        n_informative=n_features // 10,
+        n_informative=n_features,
         random_state=0,
-        scale=1 / n_features,
+        scale=1 / np.sqrt(n_features),
     )
     return X, y
