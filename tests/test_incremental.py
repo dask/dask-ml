@@ -236,13 +236,14 @@ def test_incremental_sparse_inputs():
 
     assert_eq(clf_output, wrap_output, ignore_dtype=True)
 
+
 def test_no_partial_fit():
     # Create data
     n, d = 100, 10
     X_np = np.random.uniform(size=(n, d))
     y_np = np.random.uniform(size=n)
-    X_da = da.from_array(X_np, chunks=(n//2, -1))
-    y_da = da.from_array(y_np, chunks=n//2)
+    X_da = da.from_array(X_np, chunks=(n // 2, -1))
+    y_da = da.from_array(y_np, chunks=n // 2)
 
     est = LinearRegression()
     dask_est = Incremental(est)
