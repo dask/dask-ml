@@ -4,11 +4,12 @@ import numpy as np
 import numpy.linalg as LA
 import pandas as pd
 import pytest
-import sklearn.linear_model as slm
+import sklearn.linear_model
 from dask.dataframe.utils import assert_eq
 from dask_glm.regularizers import Regularizer
 from sklearn.pipeline import make_pipeline
 
+import dask_ml.linear_model
 from dask_ml.datasets import make_classification, make_counts, make_regression
 from dask_ml.linear_model import LinearRegression, LogisticRegression, PoissonRegression
 from dask_ml.linear_model.utils import add_intercept
@@ -242,98 +243,56 @@ def test_model_coef_dask_numpy(reg_type, data_generator, request):
     assert rel_error < 1e-8
 
 
-@pytest.mark.parametrize("solver", ["newton", "gradient_descent", "lbfgs"])
+# fmt: off
+@pytest.mark.parametrize("solver", ["newton", "lbfgs"])
 @pytest.mark.parametrize("fit_intercept", [True, False])
 @pytest.mark.parametrize(
-    "reg_type, skl_reg_type, skl_params, data_generator",
+    "est, skl_params, data_generator, skl_reg_type",
     [
-        (LinearRegression, slm.LinearRegression, {}, "medium_size_regression"),
-        (
-            LogisticRegression,
-            slm.LogisticRegression,
-            {"penalty": "none"},
-            "single_chunk_classification",
-        ),
-        (
-            PoissonRegression,
-            slm.PoissonRegressor,
-            {"alpha": 0},
-            "medium_size_counts",
-        ),
+        ("LinearRegression", {}, "medium_size_regression", ""),
+        ("LogisticRegression", {"penalty": "none"}, "single_chunk_classification", ""),
+        ("PoissonRegression", {"alpha": 0}, "medium_size_counts", "PoissonRegressor"),
     ],
 )
 def test_model_against_sklearn(
-    reg_type, skl_reg_type, skl_params, data_generator, fit_intercept, solver, request
+    est, skl_params, data_generator, skl_reg_type, fit_intercept, solver, request
 ):
     """
-    Tests accuracy of model predictions
+    Test accuracy of model predictions and coefficients.
+
+    All tests of model coefficients are done via relative error, the
+    standard for optimization proofs, and by the numpy utility
+    ``np.testing.assert_allclose``. This ensures that the model coefficients
+    match up with SK Learn.
     """
     X, y = request.getfixturevalue(data_generator)
-    dask_ml_model = reg_type(
+    EstDask = getattr(dask_ml.linear_model, est)
+    # sklearn uses 'PoissonRegressor' while dask-ml uses 'PoissonRegression'
+    try:
+        EstSklearn = getattr(sklearn.linear_model, est)
+    except AttributeError:
+        EstSklearn = getattr(sklearn.linear_model, skl_reg_type)
+
+    dask_ml_model = EstDask(
         fit_intercept=fit_intercept, solver=solver, penalty="l2", C=1e8, max_iter=500
     )
-    skl_model = skl_reg_type(fit_intercept=fit_intercept, **skl_params)
-    # skl_model has to be fit with numpy data
     dask_ml_model.fit(X, y)
+
+    # skl_model has to be fit with numpy data
+    skl_model = EstSklearn(fit_intercept=fit_intercept, **skl_params)
     skl_model.fit(X.compute(), y.compute())
 
-    est, truth = dask_ml_model.predict(X), skl_model.predict(X)
-    rel_error = LA.norm(est - truth) / LA.norm(truth)
-    assert rel_error < 1e-3
-
-
-@pytest.mark.parametrize("solver", ["newton", "gradient_descent", "lbfgs"])
-@pytest.mark.parametrize(
-    "reg_type, skl_reg_type, skl_params, dataset_function",
-    [
-        (LinearRegression, slm.LinearRegression, {}, make_regression),
-        (
-            LogisticRegression,
-            slm.LogisticRegression,
-            {"penalty": "none"},
-            make_classification,
-        ),
-    ],
-)
-def test_model_coef_against_sklearn(
-    reg_type, skl_reg_type, skl_params, dataset_function, solver
-):
-    """
-    Tests accuracy of coefficient calculation.
-
-    sk-learn least squares method does not tie out to iterative solvers with
-    e.g. Rdi
-    """
-    X, y = dataset_function(
-        n_samples=100, n_features=20, n_informative=10, chunks=100, random_state=0
-    )
-    X_np, y_np = X.compute(), y.compute()
-
-    skl_model = skl_reg_type(fit_intercept=True, **skl_params)
-    skl_model.fit(X_np, y_np)
-
-    dask_ml_model = reg_type(fit_intercept=True, solver=solver, penalty="l2", C=1e8)
-    dask_ml_model.fit(X, y)
-
+    # test coefficients
     est, truth = np.hstack((dask_ml_model.intercept_, dask_ml_model.coef_)), np.hstack(
         (skl_model.intercept_, skl_model.coef_.flatten())
     )
     rel_error = LA.norm(est - truth) / LA.norm(truth)
     assert rel_error < 1e-3
 
+    np.testing.assert_allclose(truth, est, rtol=1e-3, atol=1e-4)
 
-@pytest.mark.parametrize("solver", ["newton", "gradient_descent", "lbfgs"])
-def test_poisson_regressor_against_sklearn(single_chunk_count_classification, solver):
-    X, y = single_chunk_count_classification
-    skl_model = slm.PoissonRegressor(alpha=0, fit_intercept=True)
-    skl_model.fit(X, y)
-    dask_ml_model = PoissonRegression(
-        fit_intercept=True, solver=solver, penalty="l2", C=1e8
-    )
-    dask_ml_model.fit(X, y)
+    # test predictions
+    skl_preds = skl_model.predict(X.compute())
+    dml_preds = dask_ml_model.predict(X)
 
-    est, truth = np.hstack((dask_ml_model.intercept_, dask_ml_model.coef_)), np.hstack(
-        (skl_model.intercept_, skl_model.coef_.flatten())
-    )
-    rel_error = LA.norm(est - truth) / LA.norm(truth)
-    assert rel_error < 1e-3
+    np.testing.assert_allclose(skl_preds, dml_preds, rtol=1e-3, atol=1e-4)
