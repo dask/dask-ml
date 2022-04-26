@@ -42,14 +42,6 @@ class DoNothingTransformer:
         return {}
 
 
-X, y = make_classification(chunks=50)
-
-
-@pytest.fixture()
-def glm_regression_data():
-    X, y = make_regression(n_samples=1000)
-
-
 def test_lr_init(solver):
     LogisticRegression(solver=solver)
 
@@ -223,17 +215,17 @@ def test_logistic_predict_proba_shape():
 
 
 @pytest.mark.parametrize(
-    "reg_type,data_generator",
+    "est,data",
     [
         (LinearRegression, "single_chunk_regression"),
         (LogisticRegression, "single_chunk_classification"),
         (PoissonRegression, "single_chunk_count_classification"),
     ],
 )
-def test_model_coef_dask_numpy(reg_type, data_generator, request):
+def test_model_coef_dask_numpy(est, data, request):
     """Tests that models return same coefficients and intercepts with array types"""
-    X, y = request.getfixturevalue(data_generator)
-    np_mod, da_mod = reg_type(fit_intercept=True), reg_type(fit_intercept=True)
+    X, y = request.getfixturevalue(data)
+    np_mod, da_mod = est(fit_intercept=True), est(fit_intercept=True)
     da_mod.fit(X, y)
     np_mod.fit(X.compute(), y.compute())
     da_coef = np.hstack((da_mod.coef_, da_mod.intercept_))
@@ -247,15 +239,15 @@ def test_model_coef_dask_numpy(reg_type, data_generator, request):
 @pytest.mark.parametrize("solver", ["newton", "lbfgs"])
 @pytest.mark.parametrize("fit_intercept", [True, False])
 @pytest.mark.parametrize(
-    "est, skl_params, data_generator, skl_reg_type",
+    "est, skl_params, data_generator",
     [
-        ("LinearRegression", {}, "medium_size_regression", ""),
-        ("LogisticRegression", {"penalty": "none"}, "single_chunk_classification", ""),
-        ("PoissonRegression", {"alpha": 0}, "medium_size_counts", "PoissonRegressor"),
+        ("LinearRegression", {}, "medium_size_regression"),
+        ("LogisticRegression", {"penalty": "none"}, "single_chunk_classification"),
+        ("PoissonRegression", {"alpha": 0}, "medium_size_counts"),
     ],
 )
 def test_model_against_sklearn(
-    est, skl_params, data_generator, skl_reg_type, fit_intercept, solver, request
+    est, skl_params, data_generator, fit_intercept, solver, request
 ):
     """
     Test accuracy of model predictions and coefficients.
@@ -266,13 +258,12 @@ def test_model_against_sklearn(
     match up with SK Learn.
     """
     X, y = request.getfixturevalue(data_generator)
-    EstDask = getattr(dask_ml.linear_model, est)
+    
     # sklearn uses 'PoissonRegressor' while dask-ml uses 'PoissonRegression'
-    try:
-        EstSklearn = getattr(sklearn.linear_model, est)
-    except AttributeError:
-        EstSklearn = getattr(sklearn.linear_model, skl_reg_type)
-
+    assert est in ["LinearRegression", "LogisticRegression", "PoissonRegression"]
+    EstDask = getattr(dask_ml.linear_model, est)
+    EstSklearn = getattr(sklearn.linear_model, est if "Poisson" not in est else "PoissonRegressor")
+    
     dask_ml_model = EstDask(
         fit_intercept=fit_intercept, solver=solver, penalty="l2", C=1e8, max_iter=500
     )
