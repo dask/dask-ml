@@ -356,7 +356,7 @@ class IncrementalPCA(pca.PCA):
                 U, V = svd_flip_fast(U, V)
             else:
                 U, V = svd_flip(U, V, u_based_decision=False)
-        explained_variance = S ** 2 / (n_total_samples - 1)
+        explained_variance = S**2 / (n_total_samples - 1)
         components, singular_values = V, S
 
         # The following part is also updated for randomized solver,

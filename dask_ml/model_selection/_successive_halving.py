@@ -238,8 +238,8 @@ class SuccessiveHalvingSearchCV(IncrementalSearchCV):
         n, eta = self.n_initial_parameters, self.aggressiveness
         r = self.n_initial_iter
 
-        n_i = int(math.floor(n * eta ** -self._steps))
-        r_i = np.round(r * eta ** self._steps).astype(int)
+        n_i = int(math.floor(n * eta**-self._steps))
+        r_i = np.round(r * eta**self._steps).astype(int)
         if r_i == 1:
             # if r_i == 1, a step has already been completed for us (because
             # IncrementalSearchCV completes 1 partial_fit call automatically)
@@ -297,8 +297,8 @@ def _simulate_sha(n, r, eta, max_iter=None):
     """
     calls = {k: 0 for k in range(n)}
     for k in itertools.count():
-        n_i = int(math.floor(n * eta ** -k))
-        r_i = np.round(r * eta ** k).astype(int)
+        n_i = int(math.floor(n * eta**-k))
+        r_i = np.round(r * eta**k).astype(int)
         for k in range(n_i):
             calls[k] = r_i
         if n_i <= 1 or (max_iter and r_i >= max_iter):

@@ -350,7 +350,12 @@ async def test_search_plateau_patience(c, s, a, b):
     model = ConstantClassifier()
 
     search = IncrementalSearchCV(
-        model, params, n_initial_parameters=10, patience=5, tol=0, max_iter=10,
+        model,
+        params,
+        n_initial_parameters=10,
+        patience=5,
+        tol=0,
+        max_iter=10,
     )
     await search.fit(X, y, classes=[0, 1])
 
@@ -772,7 +777,11 @@ async def test_search_patience_infeasible_tol(c, s, a, b):
     max_iter = 10
     score_increase = -10
     search = IncrementalSearchCV(
-        model, params, max_iter=max_iter, patience=3, tol=score_increase,
+        model,
+        params,
+        max_iter=max_iter,
+        patience=3,
+        tol=score_increase,
     )
     await search.fit(X, y, classes=[0, 1])
 
