@@ -86,6 +86,21 @@ class PCA(sklearn.decomposition.PCA):
         If None, the random number generator is the RandomState instance used
         by `da.random`. Used when ``svd_solver`` == 'randomized'.
 
+    center : bool, optional (default True)
+        When True (the default), the underlying data gets centered at zero
+        by subtracting the mean of the data from the data itself.
+
+        PCA is performed on centered data due to its being a regression model,
+        without an intercept. As such, its principal components originate at the
+        origin of the transformed space.
+
+        ``center=False`` may be employed when performing PCA on already
+        centered data.
+
+        Since centering is a required step as part of whitening, ``center`` set
+        to False and ``whiten`` set to True is a combination which may result in
+        unexpected behavior, if performed on not previously centered data.
+
     Attributes
     ----------
     components_ : array, shape (n_components, n_features)
@@ -152,18 +167,27 @@ class PCA(sklearn.decomposition.PCA):
     PCA(copy=True, iterated_power='auto', n_components=2, random_state=None,
       svd_solver='auto', tol=0.0, whiten=False)
     >>> print(pca.explained_variance_ratio_)  # doctest: +ELLIPSIS
-    [ 0.99244...  0.00755...]
+    [0.99244289 0.00755711]
     >>> print(pca.singular_values_)  # doctest: +ELLIPSIS
-    [ 6.30061...  0.54980...]
+    [6.30061232 0.54980396]
 
     >>> pca = PCA(n_components=2, svd_solver='full')
     >>> pca.fit(dX)                 # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
     PCA(copy=True, iterated_power='auto', n_components=2, random_state=None,
       svd_solver='full', tol=0.0, whiten=False)
     >>> print(pca.explained_variance_ratio_)  # doctest: +ELLIPSIS
-    [ 0.99244...  0.00755...]
+    [0.99244289 0.00755711]
     >>> print(pca.singular_values_)  # doctest: +ELLIPSIS
-    [ 6.30061...  0.54980...]
+    [6.30061232 0.54980396]
+
+    >>> dX_mean_0 = dX - dX.mean(axis=0)
+    >>> pca = PCA(n_components=2, svd_solver='full', center=False)
+    >>> pca.fit(dX_mean_0)
+    PCA(center=False, n_components=2, svd_solver='full')
+    >>> print(pca.explained_variance_ratio_)  # doctest: +ELLIPSIS
+    [0.99244289 0.00755711]
+    >>> print(pca.singular_values_)  # doctest: +ELLIPSIS
+    [6.30061232 0.54980396]
 
     Notes
     -----
@@ -175,6 +199,10 @@ class PCA(sklearn.decomposition.PCA):
       ``dask.linalg.svd_compressed``.
     * n_components : ``n_components='mle'`` is not allowed.
       Fractional ``n_components`` between 0 and 1 is not allowed.
+    * center : if ``True`` (the default), automatically center input data before
+      performing PCA.
+      Set this parameter to ``False``, if the input data have already been
+      centered before running ``fit()``.
     """
 
     def __init__(
@@ -186,10 +214,12 @@ class PCA(sklearn.decomposition.PCA):
         tol=0.0,
         iterated_power=0,
         random_state=None,
+        center=True,
     ):
         self.n_components = n_components
         self.copy = copy
         self.whiten = whiten
+        self.center = center
         self.svd_solver = svd_solver
         self.tol = tol
         self.iterated_power = iterated_power
@@ -198,6 +228,7 @@ class PCA(sklearn.decomposition.PCA):
     def fit(self, X, y=None):
         if not dask.is_dask_collection(X):
             raise TypeError(_TYPE_MSG.format(type(X)))
+
         self._fit(X)
         self.n_features_in_ = X.shape[1]
         return self
@@ -266,8 +297,10 @@ class PCA(sklearn.decomposition.PCA):
 
         solver = self._get_solver(X, n_components)
 
-        self.mean_ = X.mean(0)
-        X -= self.mean_
+        self.mean_ = X.mean(axis=0)
+
+        if self.center:
+            X -= self.mean_
 
         if solver in {"full", "tsqr"}:
             U, S, V = da.linalg.svd(X)
@@ -370,14 +403,20 @@ class PCA(sklearn.decomposition.PCA):
         X_new : array-like, shape (n_samples, n_components)
 
         """
-        check_is_fitted(self, ["mean_", "components_"])
+        check_is_fitted(self, "components_")
 
-        # X = check_array(X)
-        if self.mean_ is not None:
-            X = X - self.mean_
+        if self.whiten:
+            check_is_fitted(self, "explained_variance_")
+
+        if self.center:
+            check_is_fitted(self, "mean_")
+            if self.mean_ is not None:
+                X -= self.mean_
+
         X_transformed = da.dot(X, self.components_.T)
         if self.whiten:
             X_transformed /= np.sqrt(self.explained_variance_)
+
         return X_transformed
 
     def fit_transform(self, X, y=None):
@@ -396,7 +435,6 @@ class PCA(sklearn.decomposition.PCA):
         X_new : array-like, shape (n_samples, n_components)
 
         """
-        # X = check_array(X)
         if not dask.is_dask_collection(X):
             raise TypeError(_TYPE_MSG.format(type(X)))
         U, S, V = self._fit(X)
@@ -431,18 +469,25 @@ class PCA(sklearn.decomposition.PCA):
         If whitening is enabled, inverse_transform does not compute the
         exact inverse operation of transform.
         """
-        check_is_fitted(self, "mean_")
+        check_is_fitted(self, "components_")
+
+        if self.center:
+            check_is_fitted(self, "mean_")
+            offset = self.mean_
+        else:
+            offset = 0
 
         if self.whiten:
+            check_is_fitted(self, "explained_variance_")
             return (
                 da.dot(
                     X,
                     np.sqrt(self.explained_variance_[:, np.newaxis]) * self.components_,
                 )
-                + self.mean_
+                + offset
             )
-        else:
-            return da.dot(X, self.components_) + self.mean_
+
+        return da.dot(X, self.components_) + offset
 
     def score_samples(self, X):
         """Return the log-likelihood of each sample.
@@ -463,8 +508,11 @@ class PCA(sklearn.decomposition.PCA):
         """
         check_is_fitted(self, "mean_")
 
-        # X = check_array(X)
-        Xr = X - self.mean_
+        if self.center:
+            Xr = X - self.mean_
+        else:
+            Xr = X
+
         n_features = X.shape[1]
         precision = self.get_precision()  # [n_features, n_features]
         log_like = -0.5 * (Xr * (da.dot(Xr, precision))).sum(axis=1)

@@ -141,6 +141,7 @@ def test_whitening():
     # the component-wise variance is thus highly varying:
     assert X.std(axis=0).std() > 43.8
     dX = da.from_array(X, chunks=(50, n_features))
+    dX_mean_0 = dX - dX.mean(axis=0)
 
     for solver, copy in product(solver_list, (True, False)):
         # whiten the data while projecting to the lower dim subspace
@@ -179,7 +180,192 @@ def test_whitening():
 
         # in that case the output components still have varying variances
         assert_almost_equal(X_unwhitened.std(axis=0).std(), 74.1, 1)
-        # we always center, so no test for non-centering.
+
+        # Test no centering.
+        X_mean_0 = dX_mean_0.copy()
+        pca = dd.PCA(
+            n_components=n_components,
+            whiten=True,
+            center=False,
+            copy=copy,
+            svd_solver=solver,
+            random_state=0,
+            iterated_power=4,
+        )
+
+        X_whitened = pca.fit_transform(X_mean_0.copy())
+        assert X_whitened.shape == (n_samples, n_components)
+
+        assert_almost_equal(
+            X_whitened.std(ddof=1, axis=0), np.ones(n_components), decimal=6
+        )
+        assert_almost_equal(X_whitened.mean(axis=0), np.zeros(n_components))
+
+        X_mean_0 = dX_mean_0.copy()
+        pca = dd.PCA(
+            n_components=n_components,
+            whiten=False,
+            center=False,
+            copy=copy,
+            svd_solver=solver,
+            random_state=0,
+        ).fit(X_mean_0)
+        X_unwhitened = pca.transform(X_mean_0)
+        assert X_unwhitened.shape == (n_samples, n_components)
+
+        # in that case the output components still have varying variances
+        assert_almost_equal(X_unwhitened.std(axis=0).std(), 74.1, 1)
+
+
+def assert_fit_results_almost_equal(
+    pca_baseline, pca, ev_decimal=1, evr_decimal=3, nv_decimal=3,
+):
+    assert_array_almost_equal(
+        pca_baseline.explained_variance_, pca.explained_variance_, decimal=ev_decimal
+    )
+    assert_array_almost_equal(
+        pca_baseline.explained_variance_ratio_,
+        pca.explained_variance_ratio_,
+        decimal=evr_decimal,
+    )
+    assert_array_almost_equal(
+        pca_baseline.noise_variance_, pca.noise_variance_, decimal=nv_decimal
+    )
+
+
+def assert_explained_and_empirical_var_almost_eq(X, dX_mean_0, apca, rpca):
+    n_components = apca.n_components
+    assert n_components == rpca.n_components
+
+    # Obtain empirical variances, to use as ground truth.
+    empirical_variances = np.linalg.eig(np.cov(X, rowvar=False))[0]
+    empirical_variances = sorted(empirical_variances, reverse=True)[:n_components]
+
+    # Test transformation.
+    X_pca = apca.transform(dX_mean_0)
+    assert_array_almost_equal(apca.explained_variance_, np.var(X_pca, ddof=1, axis=0))
+    assert_array_almost_equal(apca.explained_variance_, empirical_variances)
+
+    X_rpca = rpca.transform(dX_mean_0)
+    assert_array_almost_equal(
+        rpca.explained_variance_, np.var(X_rpca, ddof=1, axis=0), decimal=1,
+    )
+    assert_array_almost_equal(rpca.explained_variance_, empirical_variances, decimal=1)
+
+
+def test_no_centering():
+    rng = np.random.RandomState(0)
+    n_samples = 100
+    n_features = 80
+    n_components = 2
+
+    # Pseudo-random data.
+    X = rng.randn(n_samples, n_features)
+    dX = da.from_array(X, chunks=(50, n_features))
+    dX_mean_0 = dX - dX.mean(axis=0)
+
+    # Correlated data.
+    X_corr = datasets.make_classification(
+        n_samples, n_features, n_informative=n_features - 2, random_state=rng,
+    )[0]
+    dX_corr = da.from_array(X_corr, chunks=(50, n_features))
+    dX_corr_mean_0 = dX_corr - dX_corr.mean(axis=0)
+
+    # Test fitting pseudo-random data.
+    pca = sd.PCA(n_components=n_components, svd_solver="full", random_state=0).fit(X)
+    apca = dd.PCA(
+        n_components=n_components, svd_solver="full", random_state=0, center=False,
+    ).fit(dX_mean_0)
+
+    assert_fit_results_almost_equal(pca, apca)
+
+    rpca = dd.PCA(
+        n_components=2,
+        svd_solver="randomized",
+        random_state=8,
+        iterated_power=1,
+        center=False,
+    ).fit(dX_mean_0)
+
+    assert_fit_results_almost_equal(pca, rpca, evr_decimal=1, nv_decimal=1)
+
+    # Test fitting correlated data.
+    pca_corr = sd.PCA(n_components=n_components, svd_solver="full", random_state=0).fit(
+        X_corr
+    )
+    apca_corr = dd.PCA(
+        n_components=n_components, svd_solver="full", random_state=0, center=False,
+    ).fit(dX_corr_mean_0)
+
+    assert_fit_results_almost_equal(pca_corr, apca_corr)
+
+    rpca_corr = dd.PCA(
+        n_components=2,
+        svd_solver="randomized",
+        random_state=8,
+        iterated_power=1,
+        center=False,
+    ).fit(dX_corr_mean_0)
+
+    assert_fit_results_almost_equal(pca_corr, rpca_corr, evr_decimal=1, nv_decimal=1)
+
+    # Test transformation of pseudo-random data.
+    assert_explained_and_empirical_var_almost_eq(X, dX_mean_0, apca, rpca)
+
+    # Test transformation of correlated data.
+    assert_explained_and_empirical_var_almost_eq(
+        X_corr, dX_corr_mean_0, apca_corr, rpca_corr
+    )
+
+
+def test_inverse_transform_no_centering():
+    rng = np.random.RandomState(0)
+    n, p = 50, 3
+    X = rng.randn(n, p)  # spherical data
+    X[:, 1] *= 0.00001  # make middle component relatively small
+    X += [5, 4, 3]  # make a large mean
+    dX = da.from_array(X, chunks=(n // 2, p))
+    dX_mean_0 = dX - dX.mean(axis=0)
+
+    pca = dd.PCA(n_components=2, svd_solver="full", random_state=0, center=False,).fit(
+        dX_mean_0
+    )
+
+    # Test inverse transformation of artificial data, with strongly expressed mean.
+    Y = pca.transform(dX_mean_0)
+    Y_inverse = pca.inverse_transform(Y)
+    assert_almost_equal(dX_mean_0.compute(), Y_inverse, decimal=3)
+
+    # As above, but with whitening.
+    pca = dd.PCA(
+        n_components=2, svd_solver="full", random_state=0, whiten=True, center=False,
+    ).fit(dX_mean_0)
+
+    Y = pca.transform(dX_mean_0)
+    Y_inverse = pca.inverse_transform(Y)
+    assert_almost_equal(dX_mean_0.compute(), Y_inverse, decimal=3)
+
+
+def test_sample_scoring_no_centering():
+    rng = np.random.RandomState(0)
+    n_samples = 100
+    n_features = 80
+
+    X = datasets.make_classification(
+        n_samples, n_features, n_informative=n_features - 2, random_state=rng,
+    )[0]
+    dX = da.from_array(X, chunks=(50, n_features))
+    dX_mean_0 = dX - dX.mean(axis=0)
+
+    pca = dd.PCA(n_components=2, svd_solver="full", random_state=0, center=True,).fit(
+        dX
+    )
+
+    pca_mean_0 = dd.PCA(
+        n_components=2, svd_solver="full", random_state=0, center=False,
+    ).fit(dX_mean_0)
+
+    assert_almost_equal(pca.score(dX), pca_mean_0.score(dX_mean_0), decimal=6)
 
 
 # Ignore warnings from switching to more power iterations in randomized_svd
@@ -214,11 +400,11 @@ def test_explained_variance():
     expected_result = np.linalg.eig(np.cov(X, rowvar=False))[0]
     expected_result = sorted(expected_result, reverse=True)[:2]
 
-    X_pca = apca.transform(X)
+    X_pca = apca.transform(dX)
     assert_array_almost_equal(apca.explained_variance_, np.var(X_pca, ddof=1, axis=0))
     assert_array_almost_equal(apca.explained_variance_, expected_result)
 
-    X_rpca = rpca.transform(X)
+    X_rpca = rpca.transform(dX)
     assert_array_almost_equal(
         rpca.explained_variance_, np.var(X_rpca, ddof=1, axis=0), decimal=1
     )
@@ -443,7 +629,7 @@ def test_randomized_pca_inverse():
     # same check that we can find the original data from the transformed signal
     # (since the data is almost of rank n_components)
     pca = dd.PCA(n_components=2, svd_solver="randomized", random_state=0).fit(dX)
-    Y = pca.transform(X)
+    Y = pca.transform(dX)
     Y_inverse = pca.inverse_transform(Y)
     assert_almost_equal(X, Y_inverse, decimal=2)
 
@@ -451,7 +637,7 @@ def test_randomized_pca_inverse():
     pca = dd.PCA(
         n_components=2, whiten=True, svd_solver="randomized", random_state=0
     ).fit(dX)
-    Y = pca.transform(X)
+    Y = pca.transform(dX)
     Y_inverse = pca.inverse_transform(Y)
     relative_max_delta = (np.abs(X - Y_inverse) / np.abs(X).mean()).max()
     assert relative_max_delta < 1e-5
@@ -548,12 +734,20 @@ def test_pca_score():
     rng = np.random.RandomState(0)
     X = rng.randn(n, p) * 0.1 + np.array([3, 4, 5])
     dX = da.from_array(X, chunks=(n // 2, p))
+    dX_mean_0 = dX - dX.mean(axis=0)
     for solver in solver_list:
         pca = dd.PCA(n_components=2, svd_solver=solver)
         pca.fit(dX)
+
+        apca = dd.PCA(n_components=2, svd_solver=solver, center=False)
+        apca.fit(dX_mean_0)
+
         ll1 = pca.score(dX)
+        all1 = apca.score(dX_mean_0)
+
         h = -0.5 * np.log(2 * np.pi * np.exp(1) * 0.1 ** 2) * p
-        np.testing.assert_almost_equal(ll1 / h, 1, 0)
+        assert_almost_equal(ll1 / h, 1, 0)
+        assert_almost_equal(all1 / h, 1, 0)
 
 
 def test_pca_score2():
@@ -562,18 +756,32 @@ def test_pca_score2():
     rng = np.random.RandomState(0)
     X = rng.randn(n, p) * 0.1 + np.array([3, 4, 5])
     dX = da.from_array(X, chunks=(n // 2, p))
+    dX_mean_0 = dX - dX.mean(axis=0)
     for solver in solver_list:
         pca = dd.PCA(n_components=2, svd_solver=solver)
         pca.fit(dX)
+
+        apca = dd.PCA(n_components=2, svd_solver=solver, center=False)
+        apca.fit(dX_mean_0)
+
         ll1 = pca.score(dX)
         ll2 = pca.score(rng.randn(n, p) * 0.2 + np.array([3, 4, 5]))
         assert ll1 > ll2
+
+        all1 = apca.score(dX_mean_0)
+        all2 = apca.score(rng.randn(n, p) * 0.2 + np.array([3, 4, 5]))
+        assert all1 > all2
 
         # Test that it gives different scores if whiten=True
         pca = dd.PCA(n_components=2, whiten=True, svd_solver=solver)
         pca.fit(dX)
         ll2 = pca.score(dX)
         assert ll1 > ll2
+
+        apca = dd.PCA(n_components=2, whiten=True, center=False, svd_solver=solver)
+        apca.fit(dX_mean_0)
+        all2 = apca.score(dX_mean_0)
+        assert all1 > all2
 
 
 def test_pca_score3():
@@ -585,12 +793,22 @@ def test_pca_score3():
     ll = np.zeros(p)
     dXl = da.from_array(Xl, chunks=(n // 2, p))
     dXt = da.from_array(Xt, chunks=(n // 2, p))
+
+    dXl_mean_0 = dXl - dXl.mean(axis=0)
+    dXt_mean_0 = dXt - dXt.mean(axis=0)
+    ll_mean_0 = np.zeros(p)
+
     for k in range(p):
         pca = dd.PCA(n_components=k, svd_solver="full")
         pca.fit(dXl)
         ll[k] = pca.score(dXt)
 
+        pca = dd.PCA(n_components=k, svd_solver="full", center=False)
+        pca.fit(dXl_mean_0)
+        ll_mean_0[k] = pca.score(dXt_mean_0)
+
     assert ll.argmax() == 1
+    assert ll_mean_0.argmax() == 1
 
 
 def test_pca_score_with_different_solvers():
@@ -598,10 +816,22 @@ def test_pca_score_with_different_solvers():
     X_digits = digits.data
 
     dX_digits = da.from_array(X_digits, chunks=X_digits.shape)
+    dX_digits_mean_0 = dX_digits - dX_digits.mean(axis=0)
 
     pca_dict = {
         svd_solver: dd.PCA(
             n_components=30, svd_solver=svd_solver, random_state=0, iterated_power=3
+        )
+        for svd_solver in solver_list
+    }
+
+    apca_dict = {
+        svd_solver: dd.PCA(
+            n_components=30,
+            svd_solver=svd_solver,
+            random_state=0,
+            iterated_power=3,
+            center=False,
         )
         for svd_solver in solver_list
     }
@@ -614,11 +844,23 @@ def test_pca_score_with_different_solvers():
         # https://github.com/scikit-learn/scikit-learn/issues/8544
         assert np.all((pca.explained_variance_ - pca.noise_variance_) >= 0)
 
+    for apca in apca_dict.values():
+        apca.fit(dX_digits_mean_0)
+        assert np.all((apca.explained_variance_ - apca.noise_variance_) >= 0)
+
     # Compare scores with different svd_solvers
     score_dict = {
         svd_solver: pca.score(dX_digits) for svd_solver, pca in pca_dict.items()
     }
     assert_almost_equal(score_dict["full"], score_dict["randomized"], decimal=3)
+
+    score_dict_mean_0 = {
+        svd_solver: apca.score(dX_digits_mean_0)
+        for svd_solver, apca in apca_dict.items()
+    }
+    assert_almost_equal(
+        score_dict_mean_0["full"], score_dict_mean_0["randomized"], decimal=3
+    )
 
 
 def test_pca_zero_noise_variance_edge_cases():
@@ -629,6 +871,7 @@ def test_pca_zero_noise_variance_edge_cases():
     rng = np.random.RandomState(0)
     X = rng.randn(n, p) * 0.1 + np.array([3, 4, 5])
     dX = da.from_array(X, chunks=(n, p))
+    dX_mean_0 = dX - dX.mean(axis=0)
     # arpack raises ValueError for n_components == min(n_samples,
     # n_features)
     svd_solvers = ["full", "randomized"]
@@ -636,6 +879,10 @@ def test_pca_zero_noise_variance_edge_cases():
     for svd_solver in svd_solvers:
         pca = dd.PCA(svd_solver=svd_solver, n_components=p)
         pca.fit(dX)
+        assert pca.noise_variance_ == 0
+
+        pca = dd.PCA(svd_solver=svd_solver, n_components=p, center=False)
+        pca.fit(dX_mean_0)
         assert pca.noise_variance_ == 0
 
         # Can't handle short and wide

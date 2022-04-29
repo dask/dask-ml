@@ -475,3 +475,20 @@ def test_incremental_pca_partial_fit_float_division():
     np.testing.assert_allclose(
         singular_vals_float_samples_seen, singular_vals_int_samples_seen
     )
+
+
+def test_incremental_pca_no_centering_not_supported():
+    rng = np.random.RandomState(0)
+    A = rng.randn(5, 3) + 2
+    A = da.from_array(A, chunks=[3, -1])
+
+    pca = IncrementalPCA(n_components=2, center=False)
+
+    with pytest.raises(ValueError, match="not supported"):
+        pca.partial_fit(A)
+
+    with pytest.raises(ValueError, match="not supported"):
+        pca.fit(A)
+
+    with pytest.raises(ValueError, match="not supported"):
+        pca.fit_transform(A)
