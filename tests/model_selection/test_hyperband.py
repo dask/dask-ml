@@ -274,6 +274,7 @@ async def test_correct_params(c, s, a, b):
         "scoring",
         "verbose",
         "prefix",
+        "explore",
     }
 
     search_keys = set(search.get_params().keys())
@@ -287,15 +288,27 @@ async def test_correct_params(c, s, a, b):
     SHAs_params = [
         bracket["SuccessiveHalvingSearchCV params"] for bracket in meta["brackets"]
     ]
-    SHA_params = base.union(
-        {
-            "n_initial_parameters",
-            "n_initial_iter",
-            "aggressiveness",
-            "max_iter",
-            "prefix",
-        }
-    ) - {"estimator__sleep", "estimator__value", "estimator", "parameters"}
+
+    # These parameters are specific to the model/param space, or Hyperband
+    hyperband_params = {
+        "estimator__sleep",
+        "estimator__value",
+        "estimator",
+        "parameters",
+        "explore",
+    }
+    SHA_params = (
+        base.union(
+            {
+                "n_initial_parameters",
+                "n_initial_iter",
+                "aggressiveness",
+                "max_iter",
+                "prefix",
+            }
+        )
+        - hyperband_params
+    )
 
     assert all(set(SHA) == SHA_params for SHA in SHAs_params)
 
@@ -442,6 +455,76 @@ async def test_history(c, s, a, b):
     for model_hist in alg.model_history_.values():
         calls = [h["partial_fit_calls"] for h in model_hist]
         assert (np.diff(calls) >= 1).all() or len(calls) == 1
+
+
+@pytest.mark.parametrize("explore", [2, 1, -1, -2])
+def test_explore(explore):
+    @gen_cluster(client=True)
+    def _test_explore(c, s, a, b):
+        X, y = make_classification(n_samples=10, n_features=4, chunks=10)
+        model = ConstantFunction()
+        params = {"value": scipy.stats.uniform(0, 1)}
+        kwargs = dict(max_iter=27, random_state=42)
+        search = HyperbandSearchCV(model, params, explore=explore, **kwargs)
+        yield search.fit(X, y)
+
+        model_ids = [h["model_id"] for h in search.history_]
+        assert all("bracket=" in m for m in model_ids)
+
+        # Which bracket is repeated? The bracket IDs are 'bracket=3.1' for
+        # "this is the 3rd most aggressive bracket on the 2nd repeat"
+        bracket_repeat = {m.split("=")[-1].split("-")[0] for m in model_ids}
+        which_bracket = {b_r.split(".")[0] for b_r in bracket_repeat}
+        which_repeat = {b_r.split(".")[1] for b_r in bracket_repeat}
+
+        if explore > 0:
+            assert len(which_bracket) == 1
+            assert len(which_repeat) == explore
+        elif explore < 0:
+            reg_search = HyperbandSearchCV(model, params, **kwargs)
+            total_brackets = len(reg_search.metadata["brackets"])
+            # 5 total bracket and explore == -2? Run 4 repeats.
+            assert 4 == 5 + (-2) + 1
+            assert len(bracket_repeat) == total_brackets + explore + 1
+
+        assert search.metadata == search.metadata_
+
+    _test_explore()
+
+
+@pytest.mark.parametrize("max_iter", [2, 3, 9, 27])
+def test_hyperband_bracket_ordered_correctly(max_iter):
+    """This test for the following:
+
+    1. That 0 is the least adaptive bracket and -1 is the most adaptive bracket
+    2. That the number of brackets is as-expected (useful for explore and
+       how many exploratory brackets to run).
+    """
+    # Some basic testing to make sure brackets ordered correctly
+    X, y = make_classification(n_samples=10, n_features=4, chunks=10)
+    model = ConstantFunction()
+    params = {"value": scipy.stats.uniform(0, 1)}
+    search = HyperbandSearchCV(model, params, max_iter=max_iter)
+    meta = search.metadata["brackets"]
+    assert meta[0]["bracket"] == 0
+    n_brackets = {27: 4, 9: 3, 3: 2, 2: 1}
+    assert meta[-1]["bracket"] == n_brackets[max_iter] - 1
+    assert len(meta) == n_brackets[max_iter]
+    if max_iter >= 3:
+        assert len(meta[0]["decisions"]) < len(meta[-1]["decisions"])
+        assert meta[0]["n_models"] < meta[-1]["n_models"]
+
+
+@gen_cluster(client=True)
+def test_explore_eq_0_valid(c, s, a, b):
+    X, y = make_classification(n_samples=10, n_features=4, chunks=10)
+    model = ConstantFunction()
+    params = {"value": scipy.stats.uniform(0, 1)}
+    search = HyperbandSearchCV(model, params, max_iter=27, random_state=42, explore=0)
+    yield search.fit(X, y)
+
+    model_ids = [h["model_id"] for h in search.history_]
+    assert all("bracket=" in m for m in model_ids)
 
 
 @gen_cluster(client=True)

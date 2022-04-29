@@ -3,10 +3,12 @@ from __future__ import division
 import asyncio
 import logging
 import math
+from copy import copy
 from typing import Any, Callable, Dict, Iterable, List, Tuple, Union
 from warnings import warn
 
 import numpy as np
+from sklearn.base import clone
 from sklearn.utils import check_random_state
 
 from ._incremental import BaseIncrementalSearchCV
@@ -28,8 +30,10 @@ def _get_hyperband_params(R, eta=3):
 
     Returns
     -------
-    brackets : Dict[int, Tuple[int, int]]
-        A dictionary of the form {bracket_id: (n_models, n_initial_iter)}
+    brackets : List[Tuple[int, int]]
+        Bracket information. Each item is (n_models, n_initial_iter) for each
+        bracket. ``brackets[0]`` is the least adaptive. ``brackets[-1]`` is the
+        has the most aggressive early stopping condition.
 
     Notes
     -----
@@ -49,10 +53,10 @@ def _get_hyperband_params(R, eta=3):
     s_max = math.floor(math.log(R, eta))
     B = (s_max + 1) * R
 
-    brackets = list(reversed(range(int(s_max + 1))))
+    brackets = list(range(int(s_max + 1)))
     N = [int(math.ceil(B / R * eta ** s / (s + 1))) for s in brackets]
     R = [int(R * eta ** -s) for s in brackets]
-    return {b: (n, r) for b, n, r in zip(brackets, N, R)}
+    return [(n, r) for n, r in zip(N, R)]
 
 
 class HyperbandSearchCV(BaseIncrementalSearchCV):
@@ -108,6 +112,36 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         than the data). Theory suggests ``aggressiveness=3`` is close to
         optimal. ``aggressiveness=4`` has higher confidence that is likely
         suitable for initial exploration.
+
+    explore : int, bool, default=False
+        Run a search geared towards an initial exploratory search if this
+        parameter is specified. ``explore`` is typically specified when
+        not much is known about the hyperparameters and/or model.
+
+        If ``explore`` is a True, run a search aimed at finding the same
+        validation accuracy as Hyperband with ``explore=False`` but with
+        less computation.
+        If ``explore`` is an integer, repeat the most exploratory bracket
+        ``explore`` times. If it's negative, run the most exploratory bracket
+        ``len(self.metadata["brackets"]) + explore + 1`` times (which mirrors
+        negative list indexing).
+
+        When ``explore == -1``, this class
+        will perform the same amount of computation as when
+        ``explore`` isn't specified and find higher cross-validation
+        scores [1]_.  When ``explore == 3`` and there are 5 brackets,
+        this class will mirror performance when ``explore``
+        isn't specified and perform about 60% of the computation.
+
+        .. note::
+
+           When ``explore`` is specified, ``patience=True`` only stops
+           high performing models if they've converged (Hyperband's most
+           exploratory bracket will stop low performing models).
+
+           It's recommended to set ``patience=True`` with an appropriate
+           ``tol`` only if you're unsure about the number of ``partial_fit``
+           calls required for convergence.
 
     patience : int, default False
         If specified, training stops when the score does not increase by
@@ -351,6 +385,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         parameters,
         max_iter=81,
         aggressiveness=3,
+        explore=False,
         patience=False,
         tol=1e-3,
         test_size=None,
@@ -363,6 +398,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         transform_meta=None,
     ):
         self.aggressiveness = aggressiveness
+        self.explore = explore
 
         super(HyperbandSearchCV, self).__init__(
             estimator,
@@ -391,9 +427,8 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         self._SHA_seed = seed_start
 
         # These brackets are ordered by adaptivity; bracket=0 is least adaptive
-        SHAs = {}
-        for b, (n, r) in brackets.items():
-            sha = SuccessiveHalvingSearchCV(
+        SHAs = [
+            SuccessiveHalvingSearchCV(
                 self.estimator,
                 self.parameters,
                 n_initial_parameters=n,
@@ -408,8 +443,31 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
                 verbose=self.verbose,
                 prefix=f"{self.prefix}, bracket={b}",
             )
-            SHAs[b] = sha
-        return SHAs
+            for b, (n, r) in enumerate(brackets)
+        ]
+
+        if self.explore:
+
+            if isinstance(self.explore, bool):
+                n_repeats = max(2, len(SHAs) // 2)
+            elif isinstance(self.explore, int) and self.explore > 0:
+                n_repeats = self.explore
+            elif isinstance(self.explore, int) and self.explore < 0:
+                n_repeats = len(SHAs) + self.explore + 1
+            else:
+                raise ValueError(f"explore={self.explore} is not an integer")
+
+            # b is the key/index of the most aggressive bracket
+            b = len(brackets) - 1
+            SHA = SHAs[-1]  # the most exploratory bracket
+
+            out = {
+                float(f"{b}.{k}"): clone(SHA).set_params(random_state=seed_start + k)
+                for k in range(n_repeats)
+            }
+        else:
+            out = {b: SHA for b, SHA in enumerate(SHAs)}
+        return out
 
     async def _fit(self, X, y, **fit_params):
         X, y, scorer = await self._validate_parameters(X, y)
@@ -427,10 +485,11 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         )
         SHAs = {b: SHA for b, SHA in zip(_brackets_ids, _SHAs)}
 
-        # This for-loop rename estimator IDs and pulls out wall times
+        # rename the model IDs for each model in history
         key = "bracket={}-{}".format
         for b, SHA in SHAs.items():
             new_ids = {old: key(b, old) for old in SHA.cv_results_["model_id"]}
+
             SHA.cv_results_["model_id"] = np.array(
                 [new_ids[old] for old in SHA.cv_results_["model_id"]]
             )
@@ -442,9 +501,11 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
                     h["model_id"] = new_ids[h["model_id"]]
                     h["bracket"] = b
 
+        # Then add bracket information to each SHA
         for b, SHA in SHAs.items():
             n = len(SHA.cv_results_["model_id"])
-            SHA.cv_results_["bracket"] = np.ones(n, dtype=int) * b
+            arr = np.ones(n, dtype=type(b)) * b
+            SHA.cv_results_["bracket"] = arr
 
         cv_keys = {k for SHA in SHAs.values() for k in SHA.cv_results_.keys()}
 
@@ -477,7 +538,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
         best_index = best_index.flat[0]
 
         meta, _ = _get_meta(
-            {b: SHA.history_ for b, SHA in SHAs.items()}, brackets.keys(), SHAs, key
+            {b: SHA.history_ for b, SHA in SHAs.items()}, SHAs.keys(), SHAs, key
         )
 
         self.metadata_ = {
@@ -511,11 +572,26 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
 
         brackets = _get_hyperband_params(self.max_iter, eta=self.aggressiveness)
         SHAs = self._get_SHAs(brackets)
-        for bracket in bracket_info:
-            b = bracket["bracket"]
-            bracket["SuccessiveHalvingSearchCV params"] = _get_SHA_params(SHAs[b])
+        if not self.explore:
+            for bracket in bracket_info:
+                b = bracket["bracket"]
+                bracket["SuccessiveHalvingSearchCV params"] = _get_SHA_params(SHAs[b])
+            bracket_info = sorted(bracket_info, key=lambda x: x["bracket"])
+        else:
+            b_info = {
+                b["bracket"]: copy(b)
+                for b in bracket_info
+                if any(abs(b["bracket"] - k) < 1 for k in SHAs)
+            }
+            sha_info = {k: copy(b_info[int(k)]) for k in SHAs}
 
-        bracket_info = sorted(bracket_info, key=lambda x: x["bracket"])
+            for sha_b, info in sha_info.items():
+                info["bracket"] = sha_b
+                info["SuccessiveHalvingSearchCV params"] = _get_SHA_params(SHAs[sha_b])
+
+            bracket_info = list(sorted(sha_info.values(), key=lambda b: b["bracket"]))
+            num_partial_fit = sum(b["partial_fit_calls"] for b in bracket_info)
+            num_models = sum(b["n_models"] for b in bracket_info)
         info = {
             "partial_fit_calls": num_partial_fit,
             "n_models": num_models,
@@ -544,7 +620,7 @@ def _get_meta(
 
         calls = {k: max(hi["partial_fit_calls"] for hi in h) for k, h in hist.items()}
         decisions = {hi["partial_fit_calls"] for h in hist.values() for hi in h}
-        if bracket != max(brackets):
+        if abs(bracket - max(brackets)) >= 1:
             decisions.discard(1)
         meta_.append(
             {
