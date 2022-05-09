@@ -258,11 +258,13 @@ def test_model_against_sklearn(
     match up with SK Learn.
     """
     X, y = request.getfixturevalue(data_generator)
-    
+
     # sklearn uses 'PoissonRegressor' while dask-ml uses 'PoissonRegression'
     assert est in ["LinearRegression", "LogisticRegression", "PoissonRegression"]
     EstDask = getattr(dask_ml.linear_model, est)
-    EstSklearn = getattr(sklearn.linear_model, est if "Poisson" not in est else "PoissonRegressor")
+    EstSklearn = getattr(
+        sklearn.linear_model, est if "Poisson" not in est else "PoissonRegressor"
+    )
     
     dask_ml_model = EstDask(
         fit_intercept=fit_intercept, solver=solver, penalty="l2", C=1e8, max_iter=500
@@ -280,10 +282,10 @@ def test_model_against_sklearn(
     rel_error = LA.norm(est - truth) / LA.norm(truth)
     assert rel_error < 1e-3
 
-    np.testing.assert_allclose(truth, est, rtol=1e-3, atol=1e-4)
+    np.testing.assert_allclose(truth, est, rtol=1e-3, atol=2e-4)
 
     # test predictions
     skl_preds = skl_model.predict(X.compute())
     dml_preds = dask_ml_model.predict(X)
 
-    np.testing.assert_allclose(skl_preds, dml_preds, rtol=1e-3, atol=1e-4)
+    np.testing.assert_allclose(skl_preds, dml_preds, rtol=1e-3, atol=2e-3)

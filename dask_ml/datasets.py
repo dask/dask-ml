@@ -64,9 +64,7 @@ def make_counts(
     rng = dask_ml.utils.check_random_state(random_state)
 
     X = rng.normal(0, 1, size=(n_samples, n_features), chunks=(chunks, n_features))
-    informative_idx = rng.choice(
-        n_features, n_informative, chunks=n_informative, replace=False
-    )
+    informative_idx = rng.choice(n_features, n_informative, chunks=n_informative)
     beta = (rng.random(n_features, chunks=n_features) - 1) * scale
 
     informative_idx, beta = dask.compute(informative_idx, beta)
