@@ -69,7 +69,7 @@ def make_counts(
 
     informative_idx, beta = dask.compute(informative_idx, beta)
 
-    z0 = X[:, informative_idx].dot(beta[informative_idx])  # + 0.5
+    z0 = X[:, informative_idx].dot(beta[informative_idx])
     rate = da.exp(z0)
     y = rng.poisson(rate, size=1, chunks=(chunks,))
     return X, y
