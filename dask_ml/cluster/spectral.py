@@ -279,7 +279,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
             _log_array(logger, V2, "V2.2")
 
         # normalize (Eq. 4)
-        U2 = (V2.T / da.sqrt((V2 ** 2).sum(1))).T  # (n, k)
+        U2 = (V2.T / da.sqrt((V2**2).sum(1))).T  # (n, k)
 
         _log_array(logger, U2, "U2.2")
 

@@ -66,11 +66,14 @@ class TestStandardScaler:
         b = spp.StandardScaler()
 
         assert_estimator_equal(
-            a.fit(dask_df.values), a.fit(dask_df),
+            a.fit(dask_df.values),
+            a.fit(dask_df),
         )
 
         assert_estimator_equal(
-            a.fit(dask_df), b.fit(pandas_df), exclude="n_samples_seen_",
+            a.fit(dask_df),
+            b.fit(pandas_df),
+            exclude="n_samples_seen_",
         )
 
         assert_estimator_equal(
@@ -86,7 +89,9 @@ class TestStandardScaler:
         )
 
         assert_estimator_equal(
-            a.fit(dask_df.values), b.fit(pandas_df.values), exclude="n_samples_seen_",
+            a.fit(dask_df.values),
+            b.fit(pandas_df.values),
+            exclude="n_samples_seen_",
         )
 
     def test_inverse_transform(self):
