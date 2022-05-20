@@ -315,7 +315,7 @@ class PCA(sklearn.decomposition.PCA):
                 raise ValueError(msg.format(X.shape)) from e
             raise e
 
-        self.explained_variance_ = self.singular_values_ ** 2 / (self.n_samples_ - 1)
+        self.explained_variance_ = self.singular_values_**2 / (self.n_samples_ - 1)
 
         if solver == "randomized":
             self.explained_variance_ratio_ = self.explained_variance_ / total_variance

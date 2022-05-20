@@ -15,12 +15,7 @@ from dask.delayed import delayed
 from dask.distributed import as_completed
 from dask.utils import derived_from
 from sklearn import model_selection
-from sklearn.base import (
-    BaseEstimator,
-    MetaEstimatorMixin,
-    clone,
-    is_classifier,
-)
+from sklearn.base import BaseEstimator, MetaEstimatorMixin, clone, is_classifier
 from sklearn.exceptions import NotFittedError
 from sklearn.model_selection._search import BaseSearchCV
 from sklearn.model_selection._split import (
@@ -94,7 +89,6 @@ if SK_VERSION <= packaging.version.parse("0.21.dev0"):
                 if key.endswith("_train_score"):
                     results.add_warning(key, message.format(key), FutureWarning)
         return results
-
 
 else:
     _RETURN_TRAIN_SCORE_DEFAULT = False

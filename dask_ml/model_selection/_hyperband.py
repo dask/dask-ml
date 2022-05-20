@@ -50,8 +50,8 @@ def _get_hyperband_params(R, eta=3):
     B = (s_max + 1) * R
 
     brackets = list(reversed(range(int(s_max + 1))))
-    N = [int(math.ceil(B / R * eta ** s / (s + 1))) for s in brackets]
-    R = [int(R * eta ** -s) for s in brackets]
+    N = [int(math.ceil(B / R * eta**s / (s + 1))) for s in brackets]
+    R = [int(R * eta**-s) for s in brackets]
     return {b: (n, r) for b, n, r in zip(brackets, N, R)}
 
 
@@ -387,7 +387,7 @@ class HyperbandSearchCV(BaseIncrementalSearchCV):
 
         # This is the first time self.random_state is used after
         # HyperbandSearchCV.fit is called.
-        seed_start = check_random_state(self.random_state).randint(2 ** 31)
+        seed_start = check_random_state(self.random_state).randint(2**31)
         self._SHA_seed = seed_start
 
         # These brackets are ordered by adaptivity; bracket=0 is least adaptive
@@ -612,8 +612,8 @@ def _hyperband_paper_alg(R, eta=3):
     brackets = reversed(range(int(s_max + 1)))
     hists = {}
     for s in brackets:
-        n = int(math.ceil(B / R * eta ** s / (s + 1)))
-        r = R * eta ** -s
+        n = int(math.ceil(B / R * eta**s / (s + 1)))
+        r = R * eta**-s
         r = int(r)
         T = set(range(n))
         hist = {
@@ -622,8 +622,8 @@ def _hyperband_paper_alg(R, eta=3):
             "decisions": [],
         }
         for i in range(s + 1):
-            n_i = math.floor(n * eta ** -i)
-            r_i = np.round(r * eta ** i).astype(int)
+            n_i = math.floor(n * eta**-i)
+            r_i = np.round(r * eta**i).astype(int)
             L = {model: r_i for model in T}
             hist["estimators"].update(L)
             hist["decisions"] += [r_i]

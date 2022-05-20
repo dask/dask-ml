@@ -225,7 +225,9 @@ def test_incremental_sparse_inputs():
 
     clf = SGDClassifier(tol=1e-3)
     wrap_clf = dask_ml.wrappers.Incremental(
-        SGDClassifier(tol=1e-3), scoring="accuracy", assume_equal_chunks=True,
+        SGDClassifier(tol=1e-3),
+        scoring="accuracy",
+        assume_equal_chunks=True,
     )
 
     wrap_clf = wrap_clf.fit(X_da, y_da, classes=[0, 1])
