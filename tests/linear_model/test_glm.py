@@ -265,7 +265,7 @@ def test_model_against_sklearn(
     EstSklearn = getattr(
         sklearn.linear_model, est if "Poisson" not in est else "PoissonRegressor"
     )
-    
+
     dask_ml_model = EstDask(
         fit_intercept=fit_intercept, solver=solver, penalty="l2", C=1e8, max_iter=500
     )
