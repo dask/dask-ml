@@ -56,7 +56,7 @@ This class is useful for predicting for or transforming large datasets.
 We'll make a larger dask array ``X_big`` with 10,000 samples per block.
 
 .. ipython:: python
-
+   :okwarning:
    X_big, _ = dask_ml.datasets.make_classification(n_samples=100000,
                                                    chunks=10000,
                                                    random_state=0)
@@ -68,7 +68,7 @@ cause the scheduler to compute tasks in parallel. If you've connected to a
 cluster of machines.
 
 .. ipython:: python
-
+   :okexcept:
    clf.predict_proba(X_big).compute()[:10]
 
 See `parallelizing prediction`_ for an example of how this
