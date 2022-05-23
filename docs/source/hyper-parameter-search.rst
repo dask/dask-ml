@@ -420,6 +420,7 @@ This section uses :class:`~dask_ml.model_selection.HyperbandSearchCV`, but it ca
 also be applied to to :class:`~dask_ml.model_selection.IncrementalSearchCV` too.
 
 .. ipython:: python
+   :okwarning:
 
     from dask.distributed import Client
     from dask_ml.datasets import make_classification

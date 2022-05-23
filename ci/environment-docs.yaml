@@ -29,7 +29,6 @@ dependencies:
   - sphinx-gallery
   - tornado
   - toolz
-  - xgboost
   - zict
   - pip
   - dask
