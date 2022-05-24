@@ -17,7 +17,7 @@ dependencies:
   - pytest-cov
   - pytest-mock
   - python=3.7.*
-  - scikit-learn=1.0.*
-  - scipy<=1.7.1
+  - scikit-learn>=1.0.0
+  - scipy
   - sparse
   - toolz

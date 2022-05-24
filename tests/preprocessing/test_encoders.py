@@ -43,6 +43,7 @@ def test_basic_array(sparse, method, categories):
             "active_features_",
             "dtypes_",
             "drop_idx_",
+            "infrequent_categories_",
         },
     )
 
@@ -88,6 +89,7 @@ def test_basic_dataframe(sparse, method, dask_data, dtype):
             "active_features_",
             "dtypes_",
             "drop_idx_",
+            "infrequent_categories_",
         },
     )
 

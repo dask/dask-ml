@@ -53,7 +53,7 @@ async def test_basic(c, s, a, b, array_type, library, max_iter):
         X, y = await c.gather(futures)
 
     params = {
-        "loss": ["hinge", "log", "modified_huber", "squared_hinge", "perceptron"],
+        "loss": ["hinge", "log_loss", "modified_huber", "squared_hinge", "perceptron"],
         "average": [True, False],
         "learning_rate": ["constant", "invscaling", "optimal"],
         "eta0": np.logspace(-2, 0, num=1000),

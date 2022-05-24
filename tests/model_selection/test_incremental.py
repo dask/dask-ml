@@ -249,7 +249,7 @@ async def _test_search_basic(decay_rate, input_type, memory, c, s, a, b):
             X, y = pd.DataFrame(X), pd.DataFrame(y)
             assert isinstance(X, pd.DataFrame)
 
-    model = SGDClassifier(tol=1e-3, loss="log", penalty="elasticnet")
+    model = SGDClassifier(tol=1e-3, loss="log_loss", penalty="elasticnet")
 
     params = {"alpha": np.logspace(-2, 2, 100), "l1_ratio": np.linspace(0.01, 1, 200)}
 
@@ -588,7 +588,7 @@ async def test_model_random_determinism(c, s, a, b):
         n_samples=n, n_features=d, chunks=n // 10, random_state=0
     )
     params = {
-        "loss": ["hinge", "log", "modified_huber", "squared_hinge", "perceptron"],
+        "loss": ["hinge", "log_loss", "modified_huber", "squared_hinge", "perceptron"],
         "average": [True, False],
         "learning_rate": ["constant", "invscaling", "optimal"],
         "eta0": np.logspace(-2, 0, num=1000),

@@ -160,6 +160,7 @@ class OneHotEncoder(DaskMLBaseMixin, sklearn.preprocessing.OneHotEncoder):
         X: Union[ArrayLike, DataFrameType],
         handle_unknown: str = "error",
         force_all_finite: bool = True,
+        return_counts=False,
     ):
         X = self._validate_data(
             X, accept_dask_dataframe=True, dtype=None, preserve_pandas_dataframe=True
@@ -169,7 +170,10 @@ class OneHotEncoder(DaskMLBaseMixin, sklearn.preprocessing.OneHotEncoder):
 
         if isinstance(X, np.ndarray):
             return super(OneHotEncoder, self)._fit(
-                X, handle_unknown=handle_unknown, force_all_finite=force_all_finite
+                X,
+                handle_unknown=handle_unknown,
+                force_all_finite=force_all_finite,
+                return_counts=return_counts,
             )
 
         is_array = isinstance(X, da.Array)
