@@ -175,7 +175,7 @@ class OneHotEncoder(DaskMLBaseMixin, sklearn.preprocessing.OneHotEncoder):
                 "force_all_finite": force_all_finite,
             }
 
-            # return_counts is expected as of scikit-learn 1.1
+            # `return_counts` expected as of scikit-learn 1.1
             if SKLEARN_1_1_X:
                 kwargs["return_counts"] = return_counts
 
