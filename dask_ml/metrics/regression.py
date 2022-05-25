@@ -3,6 +3,7 @@ from typing import Optional
 import dask.array as da
 import numpy as np
 import sklearn.metrics
+from dask import is_dask_collection
 from dask.utils import derived_from
 
 from .._typing import ArrayLike
@@ -16,7 +17,9 @@ def _check_sample_weight(sample_weight: Optional[ArrayLike]):
 def _check_reg_targets(
     y_true: ArrayLike, y_pred: ArrayLike, multioutput: Optional[str]
 ):
-    if multioutput is not None and multioutput != "uniform_average":
+    if multioutput is not None and (
+        is_dask_collection(multioutput) or multioutput != "uniform_average"
+    ):
         raise NotImplementedError("'multioutput' must be 'uniform_average'")
 
     if y_true.ndim == 1:

@@ -29,6 +29,12 @@ DISTRIBUTED_2021_02_0 = DISTRIBUTED_VERSION >= packaging.version.parse("2021.02.
 PANDAS_1_2_0 = PANDAS_VERSION > packaging.version.parse("1.2.0")
 WINDOWS = os.name == "nt"
 
+# 'log_loss' is preferred as of scikit-learn 1.1
+if SK_VERSION >= packaging.version.parse("1.1"):
+    SK_LOG_LOSS = "log_loss"
+else:
+    SK_LOG_LOSS = "log"
+
 
 @contextlib.contextmanager
 def dummy_context(*args: Any, **kwargs: Any):

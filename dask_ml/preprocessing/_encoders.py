@@ -3,9 +3,11 @@ from typing import Any, List, Optional, Union
 import dask
 import dask.array as da
 import numpy as np
+import packaging.version
 import pandas as pd
 import sklearn.preprocessing
 
+from .._compat import SK_VERSION
 from .._typing import ArrayLike, DataFrameType, DTypeLike, SeriesType
 from ..base import DaskMLBaseMixin
 from ..utils import check_array
@@ -169,11 +171,18 @@ class OneHotEncoder(DaskMLBaseMixin, sklearn.preprocessing.OneHotEncoder):
         self._check_feature_names(X, reset=True)
 
         if isinstance(X, np.ndarray):
+            kwargs = {
+                "handle_unknown": handle_unknown,
+                "force_all_finite": force_all_finite,
+            }
+
+            # return_counts is expected as of scikit-learn 1.1
+            if SK_VERSION >= packaging.version.parse("1.1"):
+                kwargs["return_counts"] = return_counts
+
             return super(OneHotEncoder, self)._fit(
                 X,
-                handle_unknown=handle_unknown,
-                force_all_finite=force_all_finite,
-                return_counts=return_counts,
+                **kwargs,
             )
 
         is_array = isinstance(X, da.Array)
