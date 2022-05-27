@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hyper Parameter Search &#8212; dask-ml 2021.11.31 documentation</title>
+    <title>Hyper Parameter Search &#8212; dask-ml 2021.1.23 documentation</title>
     
   <link href="_static/css/theme.css" rel="stylesheet">
   <link href="_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -1031,23 +1031,23 @@ tools to address all 4 combinations. Let’s look at each case.</p>
 <p>This case happens when there aren’t many hyperparameters to tune and the data
 fits in memory. This is common when the search doesn’t take too long to run.</p>
 <p>Scikit-learn can handle this case:</p>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>(...[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v1.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>(...[, ...])</p></td>
 <td><p>Exhaustive search over specified parameter values for an estimator.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v1.0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.RandomizedSearchCV</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v1.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.RandomizedSearchCV</span></code></a>(...)</p></td>
 <td><p>Randomized search on hyper parameters.</p></td>
 </tr>
 </tbody>
 </table>
 <p>Dask-ML also has some drop in replacements for the Scikit-learn versions that
 works well with <a class="reference external" href="https://docs.dask.org/en/latest/user-interfaces.html#high-level-collections">Dask collections</a> (like Dask Arrays and Dask DataFrames):</p>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1074,7 +1074,7 @@ detail is in “<a class="reference internal" href="#hyperparameter-cpu-nmem"><s
 hyperparameters to search over. The data doesn’t fit in memory, so it makes
 sense to call <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> on each chunk of a Dask Array/Dataframe. This
 estimator does that:</p>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1098,7 +1098,7 @@ wrapped with <a class="reference internal" href="modules/generated/dask_ml.wrapp
 there are a lot of hyperparameters to search, or the models require specialized
 hardware like GPUs. The best class for this case is
 <a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a>:</p>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1115,7 +1115,7 @@ performs remarkably well. For more detail, see
 “<a class="reference internal" href="#hyperparameter-hyperband-perf"><span class="std std-ref">Hyperband Performance</span></a>”.</p>
 <p>Two other adaptive hyperparameter optimization algorithms are implemented in these
 classes:</p>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1138,7 +1138,7 @@ parameters.</p>
 <p>Another way to limit computation is to avoid repeated work during during the
 searches. This is especially useful with expensive preprocessing, which is
 common in natural language processing (NLP).</p>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1153,7 +1153,7 @@ common in natural language processing (NLP).</p>
 </tbody>
 </table>
 <p>Avoiding repeated work with this class relies on the model being an instance of
-Scikit-learn’s <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></a>.  See
+Scikit-learn’s <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></a>.  See
 “<a class="reference internal" href="#avoid-repeated-work"><span class="std std-ref">Avoid Repeated Work</span></a>” for more detail.</p>
 </div>
 <div class="section" id="compute-and-memory-constrained">
@@ -1161,7 +1161,7 @@ Scikit-learn’s <a class="reference external" href="https://scikit-learn.org/st
 <p>This case happens when the dataset is larger than memory and there are many
 parameters to search. In this case, it’s useful to have strong support for Dask
 Arrays/DataFrames <cite>and</cite> to decide which models to continue training.</p>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1198,9 +1198,9 @@ subclasses (one of which is
 <div class="section" id="drop-in-replacements-for-scikit-learn">
 <span id="hyperparameter-drop-in"></span><h2>Drop-In Replacements for Scikit-Learn<a class="headerlink" href="#drop-in-replacements-for-scikit-learn" title="Permalink to this headline">¶</a></h2>
 <p>Dask-ML implements drop-in replacements for
-<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">GridSearchCV</span></code></a> and
-<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomizedSearchCV</span></code></a>.</p>
-<table class="longtable table autosummary">
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">GridSearchCV</span></code></a> and
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomizedSearchCV</span></code></a>.</p>
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1334,7 +1334,7 @@ expensive early steps, this can be a big win when performing a grid search.</p>
 </div>
 <div class="section" id="incremental-hyperparameter-optimization">
 <span id="hyperparameter-incremental"></span><h2>Incremental Hyperparameter Optimization<a class="headerlink" href="#incremental-hyperparameter-optimization" title="Permalink to this headline">¶</a></h2>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1408,13 +1408,13 @@ train-and-score them until we find the best one.</p>
 <span class="gp">In [13]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [14]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span>
-<span class="gh">Out[14]: </span><span class="go">{&#39;alpha&#39;: 0.5139790648649304, &#39;l1_ratio&#39;: 0.7032691784458193}</span>
+<span class="gh">Out[14]: </span><span class="go">{&#39;alpha&#39;: 0.16051911333587626, &#39;l1_ratio&#39;: 0.5448831829968969}</span>
 
 <span class="gp">In [15]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_score_</span>
-<span class="gh">Out[15]: </span><span class="go">0.6</span>
+<span class="gh">Out[15]: </span><span class="go">0.7</span>
 
 <span class="gp">In [16]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
-<span class="gh">Out[16]: </span><span class="go">0.3</span>
+<span class="gh">Out[16]: </span><span class="go">0.4</span>
 </pre></div>
 </div>
 <p>Note that when you do post-fit tasks like <code class="docutils literal notranslate"><span class="pre">search.score</span></code>, the underlying
@@ -1435,7 +1435,7 @@ to use post-estimation features like scoring or prediction, we recommend using
 <span class="gp">In [21]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [22]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
-<span class="gh">Out[22]: </span><span class="go">0.5</span>
+<span class="gh">Out[22]: </span><span class="go">0.3</span>
 </pre></div>
 </div>
 <p>Note that the parameter names include the <code class="docutils literal notranslate"><span class="pre">estimator__</span></code> prefix, as we’re
@@ -1448,7 +1448,7 @@ that’s underlying the <a class="reference internal" href="modules/generated/da
 <p>Dask-ML has these estimators that <cite>adapt</cite> to historical data to determine which
 models to continue training. This means high scoring models can be found with
 fewer cumulative calls to <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code>.</p>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1544,7 +1544,7 @@ chunks:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [34]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [35]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span>
-<span class="gh">Out[35]: </span><span class="go">{&#39;alpha&#39;: 0.4526985078747179, &#39;l1_ratio&#39;: 0.27186117128857357}</span>
+<span class="gh">Out[35]: </span><span class="go">{&#39;alpha&#39;: 0.04258480829724451, &#39;l1_ratio&#39;: 0.7219886563916539}</span>
 </pre></div>
 </div>
 <p>To be clear, this is a very small toy example: there are only 100 observations and
@@ -1558,7 +1558,7 @@ can be found in the Dask blog post “<a class="reference external" href="https:
 optimization with Dask</a>”.</p>
 <p>It will use these estimators with the following inputs:</p>
 <ul class="simple">
-<li><p>Model: Scikit-learn’s <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html#sklearn.neural_network.MLPClassifier" title="(in scikit-learn v1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLPClassifier</span></code></a> with 12
+<li><p>Model: Scikit-learn’s <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html#sklearn.neural_network.MLPClassifier" title="(in scikit-learn v1.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLPClassifier</span></code></a> with 12
 neurons</p></li>
 <li><p>Dataset: A simple synthetic dataset with 4 classes and 6 features (2
 meaningful features and 4 random features):</p></li>

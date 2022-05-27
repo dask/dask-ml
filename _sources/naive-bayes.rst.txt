@@ -19,6 +19,7 @@ Example
 -------
 
 .. ipython:: python
+   :okwarning:
 
    from dask_ml import datasets
    from dask_ml.naive_bayes import GaussianNB

@@ -48,6 +48,7 @@ between machines.
 
 
 .. ipython:: python
+   :okwarning:
 
    from dask_ml.datasets import make_classification
    from dask_ml.wrappers import Incremental

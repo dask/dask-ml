@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>dask_ml.metrics.r2_score &#8212; dask-ml 2021.11.31 documentation</title>
+    <title>dask_ml.metrics.r2_score &#8212; dask-ml 2021.1.23 documentation</title>
     
   <link href="../../_static/css/theme.css" rel="stylesheet">
   <link href="../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -775,15 +775,25 @@
 <h1>dask_ml.metrics.r2_score<a class="headerlink" href="#dask-ml-metrics-r2-score" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="dask_ml.metrics.r2_score">
-<span class="sig-prename descclassname"><span class="pre">dask_ml.metrics.</span></span><span class="sig-name descname"><span class="pre">r2_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dask_ml._typing.ArrayLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dask_ml._typing.ArrayLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.6/library/typing.html#typing.Optional" title="(in Python v3.6)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><span class="pre">dask_ml._typing.ArrayLike</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multioutput</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.6/library/typing.html#typing.Optional" title="(in Python v3.6)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.6/library/stdtypes.html#str" title="(in Python v3.6)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'uniform_average'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.6/library/functions.html#bool" title="(in Python v3.6)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dask_ml._typing.ArrayLike</span></span></span><a class="headerlink" href="#dask_ml.metrics.r2_score" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">dask_ml.metrics.</span></span><span class="sig-name descname"><span class="pre">r2_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dask_ml._typing.ArrayLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dask_ml._typing.ArrayLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><span class="pre">dask_ml._typing.ArrayLike</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multioutput</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.10)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'uniform_average'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dask_ml._typing.ArrayLike</span></span></span><a class="headerlink" href="#dask_ml.metrics.r2_score" title="Permalink to this definition">¶</a></dt>
 <dd><p><span class="math notranslate nohighlight">\(R^2\)</span> (coefficient of determination) regression score function.</p>
 <p>This docstring was copied from sklearn.metrics.r2_score.</p>
 <p>Some inconsistencies with the Dask version may exist.</p>
 <p>Best possible score is 1.0 and it can be negative (because the
-model can be arbitrarily worse). A constant model that always
-predicts the expected value of y, disregarding the input features,
-would get a <span class="math notranslate nohighlight">\(R^2\)</span> score of 0.0.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#r2-score" title="(in scikit-learn v1.0)"><span class="xref std std-ref">User Guide</span></a>.</p>
+model can be arbitrarily worse). In the general case when the true y is
+non-constant, a constant model that always predicts the average y
+disregarding the input features would get a <span class="math notranslate nohighlight">\(R^2\)</span> score of 0.0.</p>
+<p>In the particular case when <code class="docutils literal notranslate"><span class="pre">y_true</span></code> is constant, the <span class="math notranslate nohighlight">\(R^2\)</span> score
+is not finite: it is either <code class="docutils literal notranslate"><span class="pre">NaN</span></code> (perfect predictions) or <code class="docutils literal notranslate"><span class="pre">-Inf</span></code>
+(imperfect predictions). To prevent such non-finite numbers to pollute
+higher-level experiments such as a grid search cross-validation, by default
+these cases are replaced with 1.0 (perfect predictions) or 0.0 (imperfect
+predictions) respectively. You can set <code class="docutils literal notranslate"><span class="pre">force_finite</span></code> to <code class="docutils literal notranslate"><span class="pre">False</span></code> to
+prevent this fix from happening.</p>
+<p>Note: when the prediction residuals have zero mean, the <span class="math notranslate nohighlight">\(R^2\)</span> score
+is identical to the
+<code class="xref py py-func docutils literal notranslate"><span class="pre">Explained</span> <span class="pre">Variance</span> <span class="pre">score</span></code>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#r2-score" title="(in scikit-learn v1.1)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl>
@@ -807,6 +817,15 @@ of each individual output.</p>
 </dl>
 <div class="versionchanged">
 <p><span class="versionmodified changed">Changed in version 0.19: </span>Default value of multioutput is ‘uniform_average’.</p>
+</div>
+</dd>
+<dt><strong>force_finite</strong><span class="classifier">bool, default=True  (Not supported in Dask)</span></dt><dd><p>Flag indicating if <code class="docutils literal notranslate"><span class="pre">NaN</span></code> and <code class="docutils literal notranslate"><span class="pre">-Inf</span></code> scores resulting from constant
+data should be replaced with real numbers (<code class="docutils literal notranslate"><span class="pre">1.0</span></code> if prediction is
+perfect, <code class="docutils literal notranslate"><span class="pre">0.0</span></code> otherwise). Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>, a convenient setting
+for hyperparameters’ search procedures (e.g. grid search
+cross-validation).</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.1.</span></p>
 </div>
 </dd>
 </dl>
@@ -854,6 +873,18 @@ value if n_samples is less than two.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y_pred</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>  
 <span class="gp">&gt;&gt;&gt; </span><span class="n">r2_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>  
 <span class="go">-3.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y_true</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y_pred</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r2_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>  
+<span class="go">1.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r2_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">force_finite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  
+<span class="go">nan</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y_true</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y_pred</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">1e-8</span><span class="p">]</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r2_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>  
+<span class="go">0.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r2_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">force_finite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  
+<span class="go">-inf</span>
 </pre></div>
 </div>
 </dd></dl>

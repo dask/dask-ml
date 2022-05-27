@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>dask_ml.model_selection.HyperbandSearchCV &#8212; dask-ml 2021.11.31 documentation</title>
+    <title>dask_ml.model_selection.HyperbandSearchCV &#8212; dask-ml 2021.1.23 documentation</title>
     
   <link href="../../_static/css/theme.css" rel="stylesheet">
   <link href="../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -849,8 +849,8 @@ If RandomState instance, random_state is the random number generator;
 If None, the random number generator is the RandomState instance used
 by <cite>np.random</cite>.</p>
 </dd>
-<dt><strong>scoring</strong><span class="classifier">string, callable, list/tuple, dict or None, default: None</span></dt><dd><p>A single string (see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter" title="(in scikit-learn v1.0)"><span>The scoring parameter: defining model evaluation rules</span></a>) or a callable
-(see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring" title="(in scikit-learn v1.0)"><span>Defining your scoring strategy from metric functions</span></a>) to evaluate the predictions on the test set.</p>
+<dt><strong>scoring</strong><span class="classifier">string, callable, list/tuple, dict or None, default: None</span></dt><dd><p>A single string (see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter" title="(in scikit-learn v1.1)"><span>The scoring parameter: defining model evaluation rules</span></a>) or a callable
+(see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring" title="(in scikit-learn v1.1)"><span>Defining your scoring strategy from metric functions</span></a>) to evaluate the predictions on the test set.</p>
 <p>If None, the estimator’s default scorer (if available) is used.</p>
 </dd>
 <dt><strong>verbose</strong><span class="classifier">bool, float, int, optional, default: False</span></dt><dd><p>If False (default), don’t print logs (or pipe them to stdout). However,
@@ -968,7 +968,7 @@ the highest score.</p>
 </dd>
 <dt><strong>best_params_</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of best parameters found on the hold-out data.</p>
 </dd>
-<dt><strong>scorer_ :</strong></dt><dd><p>The function used to score models, which has a call signature of
+<dt><strong>scorer_</strong></dt><dd><p>The function used to score models, which has a call signature of
 <code class="docutils literal notranslate"><span class="pre">scorer_(estimator,</span> <span class="pre">X,</span> <span class="pre">y)</span></code>.</p>
 </dd>
 </dl>
@@ -1045,7 +1045,7 @@ S. Sievert, T. Augspurger, M. Rocklin.
 </pre></div>
 </div>
 <p class="rubric">Methods</p>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />

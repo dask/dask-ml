@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>API Reference &#8212; dask-ml 2021.11.31 documentation</title>
+    <title>API Reference &#8212; dask-ml 2021.1.23 documentation</title>
     
   <link href="../_static/css/theme.css" rel="stylesheet">
   <link href="../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -1114,7 +1114,7 @@ appropriate for parallel and distributed training.</p>
 <p>These estimators will operate in parallel. Their scalability depends
 on the underlying estimators being used.</p>
 <p>Dask-ML has a few cross validation utilities.</p>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1127,7 +1127,7 @@ on the underlying estimators being used.</p>
 </table>
 <p><a class="reference internal" href="generated/dask_ml.model_selection.train_test_split.html#dask_ml.model_selection.train_test_split" title="dask_ml.model_selection.train_test_split"><code class="xref py py-func docutils literal notranslate"><span class="pre">model_selection.train_test_split()</span></code></a> is a simple helper that
 uses <a class="reference internal" href="generated/dask_ml.model_selection.ShuffleSplit.html#dask_ml.model_selection.ShuffleSplit" title="dask_ml.model_selection.ShuffleSplit"><code class="xref py py-class docutils literal notranslate"><span class="pre">model_selection.ShuffleSplit</span></code></a> internally.</p>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1143,7 +1143,7 @@ uses <a class="reference internal" href="generated/dask_ml.model_selection.Shuff
 </table>
 <p>Dask-ML provides drop-in replacements for grid and randomized search.
 These are appropriate for datasets where the CV splits fit in memory.</p>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1159,7 +1159,7 @@ These are appropriate for datasets where the CV splits fit in memory.</p>
 </table>
 <p>For hyperparameter optimization on larger-than-memory datasets, Dask-ML
 provides the following:</p>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1182,7 +1182,7 @@ provides the following:</p>
 </div>
 <div class="section" id="module-dask_ml.ensemble">
 <span id="dask-ml-ensemble-ensemble-methods"></span><h2><a class="reference internal" href="#module-dask_ml.ensemble" title="dask_ml.ensemble"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.ensemble</span></code></a>: Ensemble Methods<a class="headerlink" href="#module-dask_ml.ensemble" title="Permalink to this headline">¶</a></h2>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1201,7 +1201,7 @@ provides the following:</p>
 <span id="dask-ml-linear-model-generalized-linear-models"></span><h2><a class="reference internal" href="#module-dask_ml.linear_model" title="dask_ml.linear_model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code></a>: Generalized Linear Models<a class="headerlink" href="#module-dask_ml.linear_model" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">dask_ml.linear_model</span></code> module implements linear models for
 classification and regression.</p>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1221,7 +1221,7 @@ classification and regression.</p>
 </div>
 <div class="section" id="module-dask_ml.naive_bayes">
 <span id="dask-ml-naive-bayes-naive-bayes"></span><h2><a class="reference internal" href="#module-dask_ml.naive_bayes" title="dask_ml.naive_bayes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.naive_bayes</span></code></a>: Naive Bayes<a class="headerlink" href="#module-dask_ml.naive_bayes" title="Permalink to this headline">¶</a></h2>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1239,7 +1239,7 @@ classification and regression.</p>
 estimators that follow the scikit-learn API.
 These meta-estimators make the underlying estimator work well
 with Dask Arrays or DataFrames.</p>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1257,7 +1257,7 @@ with Dask Arrays or DataFrames.</p>
 <div class="section" id="module-dask_ml.cluster">
 <span id="dask-ml-cluster-clustering"></span><h2><a class="reference internal" href="#module-dask_ml.cluster" title="dask_ml.cluster"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.cluster</span></code></a>: Clustering<a class="headerlink" href="#module-dask_ml.cluster" title="Permalink to this headline">¶</a></h2>
 <p>Unsupervised Clustering Algorithms</p>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1274,7 +1274,7 @@ with Dask Arrays or DataFrames.</p>
 </div>
 <div class="section" id="module-dask_ml.decomposition">
 <span id="dask-ml-decomposition-matrix-decomposition"></span><h2><a class="reference internal" href="#module-dask_ml.decomposition" title="dask_ml.decomposition"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.decomposition</span></code></a>: Matrix Decomposition<a class="headerlink" href="#module-dask_ml.decomposition" title="Permalink to this headline">¶</a></h2>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1296,7 +1296,7 @@ with Dask Arrays or DataFrames.</p>
 <div class="section" id="module-dask_ml.preprocessing">
 <span id="dask-ml-preprocessing-preprocessing-data"></span><h2><a class="reference internal" href="#module-dask_ml.preprocessing" title="dask_ml.preprocessing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code></a>: Preprocessing Data<a class="headerlink" href="#module-dask_ml.preprocessing" title="Permalink to this headline">¶</a></h2>
 <p>Utilties for Preprocessing data.</p>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1337,7 +1337,7 @@ with Dask Arrays or DataFrames.</p>
 </div>
 <div class="section" id="dask-ml-feature-extraction-text-feature-extraction">
 <h2><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.feature_extraction.text</span></code>: Feature extraction<a class="headerlink" href="#dask-ml-feature-extraction-text-feature-extraction" title="Permalink to this headline">¶</a></h2>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1360,7 +1360,7 @@ with Dask Arrays or DataFrames.</p>
 <p>Meta-estimators for building composite models with transformers.</p>
 <span class="target" id="module-dask_ml.compose"></span><p>Meta-estimators for composing models with multiple transformers.</p>
 <p>These estimators are useful for working with heterogenous tabular data.</p>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1371,7 +1371,7 @@ with Dask Arrays or DataFrames.</p>
 </tr>
 </tbody>
 </table>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1385,7 +1385,7 @@ with Dask Arrays or DataFrames.</p>
 </div>
 <div class="section" id="module-dask_ml.impute">
 <span id="dask-ml-impute-imputing-missing-data"></span><h2><a class="reference internal" href="#module-dask_ml.impute" title="dask_ml.impute"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.impute</span></code></a>: Imputing Missing Data<a class="headerlink" href="#module-dask_ml.impute" title="Permalink to this headline">¶</a></h2>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1403,7 +1403,7 @@ with Dask Arrays or DataFrames.</p>
 <p>Score functions, performance metrics, and pairwise distance computations.</p>
 <div class="section" id="regression-metrics">
 <h3>Regression Metrics<a class="headerlink" href="#regression-metrics" title="Permalink to this headline">¶</a></h3>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1429,7 +1429,7 @@ with Dask Arrays or DataFrames.</p>
 </div>
 <div class="section" id="classification-metrics">
 <h3>Classification Metrics<a class="headerlink" href="#classification-metrics" title="Permalink to this headline">¶</a></h3>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1451,20 +1451,20 @@ with Dask Arrays or DataFrames.</p>
 <p>This may be used for training an XGBoost model on a cluster. XGBoost
 will be setup in distributed mode alongside your existing
 <code class="docutils literal notranslate"><span class="pre">dask.distributed</span></code> cluster.</p>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/dask_ml.xgboost.XGBClassifier.html#dask_ml.xgboost.XGBClassifier" title="dask_ml.xgboost.XGBClassifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">XGBClassifier</span></code></a>(*[, objective, use_label_encoder])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/dask_ml.xgboost.XGBClassifier.html#dask_ml.xgboost.XGBClassifier" title="dask_ml.xgboost.XGBClassifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">XGBClassifier</span></code></a>([max_depth, learning_rate, ...])</p></td>
 <td><p><dl class="field-list simple">
 <dt class="field-odd">Attributes</dt>
 <dd class="field-odd"><p></p></dd>
 </dl>
 </p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/dask_ml.xgboost.XGBRegressor.html#dask_ml.xgboost.XGBRegressor" title="dask_ml.xgboost.XGBRegressor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">XGBRegressor</span></code></a>(*[, objective])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/dask_ml.xgboost.XGBRegressor.html#dask_ml.xgboost.XGBRegressor" title="dask_ml.xgboost.XGBRegressor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">XGBRegressor</span></code></a>([max_depth, learning_rate, ...])</p></td>
 <td><p><dl class="field-list simple">
 <dt class="field-odd">Attributes</dt>
 <dd class="field-odd"><p></p></dd>
@@ -1473,7 +1473,7 @@ will be setup in distributed mode alongside your existing
 </tr>
 </tbody>
 </table>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -1491,7 +1491,7 @@ will be setup in distributed mode alongside your existing
 <div class="section" id="dask-ml-datasets-datasets">
 <h2><a class="reference internal" href="#module-dask_ml.datasets" title="dask_ml.datasets"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.datasets</span></code></a>: Datasets<a class="headerlink" href="#dask-ml-datasets-datasets" title="Permalink to this headline">¶</a></h2>
 <p>dask-ml provides some utilities for generating toy datasets.</p>
-<span class="target" id="module-dask_ml.datasets"></span><table class="longtable table autosummary">
+<span class="target" id="module-dask_ml.datasets"></span><table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />

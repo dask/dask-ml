@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>dask_ml.feature_extraction.text.HashingVectorizer &#8212; dask-ml 2021.11.31 documentation</title>
+    <title>dask_ml.feature_extraction.text.HashingVectorizer &#8212; dask-ml 2021.1.23 documentation</title>
     
   <link href="../../_static/css/theme.css" rel="stylesheet">
   <link href="../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -803,7 +803,7 @@ is large enough (e.g. 2 ** 18 for text classification problems).</p></li>
 <li><p>no IDF weighting as this would render the transformer stateful.</p></li>
 </ul>
 <p>The hash function employed is the signed 32-bit version of Murmurhash3.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#text-feature-extraction" title="(in scikit-learn v1.0)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#text-feature-extraction" title="(in scikit-learn v1.1)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl>
@@ -832,7 +832,7 @@ a direct ASCII mapping.
 ‘unicode’ is a slightly slower method that works on any characters.
 None (default) does nothing.</p>
 <p>Both ‘ascii’ and ‘unicode’ use NFKD normalization from
-<a class="reference external" href="https://docs.python.org/3.6/library/unicodedata.html#unicodedata.normalize" title="(in Python v3.6)"><code class="xref py py-func docutils literal notranslate"><span class="pre">unicodedata.normalize()</span></code></a>.</p>
+<a class="reference external" href="https://docs.python.org/3/library/unicodedata.html#unicodedata.normalize" title="(in Python v3.10)"><code class="xref py py-func docutils literal notranslate"><span class="pre">unicodedata.normalize()</span></code></a>.</p>
 </dd>
 <dt><strong>lowercase</strong><span class="classifier">bool, default=True</span></dt><dd><p>Convert all characters to lowercase before tokenizing.</p>
 </dd>
@@ -846,7 +846,7 @@ Only applies if <code class="docutils literal notranslate"><span class="pre">ana
 </dd>
 <dt><strong>stop_words</strong><span class="classifier">{‘english’}, list, default=None</span></dt><dd><p>If ‘english’, a built-in stop word list for English is used.
 There are several known issues with ‘english’ and you should
-consider an alternative (see <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#stop-words" title="(in scikit-learn v1.0)"><span>Using stop words</span></a>).</p>
+consider an alternative (see <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#stop-words" title="(in scikit-learn v1.1)"><span>Using stop words</span></a>).</p>
 <p>If a list, that list is assumed to contain stop words, all of which
 will be removed from the resulting tokens.
 Only applies if <code class="docutils literal notranslate"><span class="pre">analyzer</span> <span class="pre">==</span> <span class="pre">'word'</span></code>.</p>
@@ -923,7 +923,7 @@ small n_features. This approach is similar to sparse random projection.</p>
 </pre></div>
 </div>
 <p class="rubric">Methods</p>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />

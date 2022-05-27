@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Preprocessing &#8212; dask-ml 2021.11.31 documentation</title>
+    <title>Preprocessing &#8212; dask-ml 2021.1.23 documentation</title>
     
   <link href="_static/css/theme.css" rel="stylesheet">
   <link href="_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -851,7 +851,7 @@ dataframes. They’ll fit and transform in parallel.</p>
 <h2>Scikit-Learn Clones<a class="headerlink" href="#scikit-learn-clones" title="Permalink to this headline">¶</a></h2>
 <p>Some of the transformers are (mostly) drop-in replacements for their
 scikit-learn counterparts.</p>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -886,7 +886,7 @@ scikit-learn counterparts.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">.transform</span></code> will return a <code class="docutils literal notranslate"><span class="pre">dask.array</span></code> or <code class="docutils literal notranslate"><span class="pre">dask.dataframe</span></code>
 when the input is a dask collection</p></li>
 </ol>
-<p>See <a class="reference external" href="https://scikit-learn.org/stable/modules/classes.html#module-sklearn.preprocessing" title="(in scikit-learn v1.0)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sklearn.preprocessing</span></code></a> for more information about any particular
+<p>See <a class="reference external" href="https://scikit-learn.org/stable/modules/classes.html#module-sklearn.preprocessing" title="(in scikit-learn v1.1)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sklearn.preprocessing</span></code></a> for more information about any particular
 transformer. Scikit-learn does have some transforms that are alternatives to
 the large-memory tasks that Dask serves. These include <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.FeatureHasher.html">FeatureHasher</a> (a
 good alternative to <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.DictVectorizer.html">DictVectorizer</a> and <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html">CountVectorizer</a>) and <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.HashingVectorizer.html">HashingVectorizer</a>
@@ -979,7 +979,7 @@ have any issues.</p>
 <div class="section" id="additional-tranformers">
 <h2>Additional Tranformers<a class="headerlink" href="#additional-tranformers" title="Permalink to this headline">¶</a></h2>
 <p>Other transformers are specific to dask-ml.</p>
-<table class="longtable table autosummary">
+<table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
