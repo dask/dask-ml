@@ -27,7 +27,7 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
 
-from dask_ml._compat import DISTRIBUTED_2_5_0
+from dask_ml._compat import DISTRIBUTED_2_5_0, SK_LOG_LOSS
 from dask_ml.datasets import make_classification
 from dask_ml.model_selection import (
     HyperbandSearchCV,
@@ -249,7 +249,7 @@ async def _test_search_basic(decay_rate, input_type, memory, c, s, a, b):
             X, y = pd.DataFrame(X), pd.DataFrame(y)
             assert isinstance(X, pd.DataFrame)
 
-    model = SGDClassifier(tol=1e-3, loss="log", penalty="elasticnet")
+    model = SGDClassifier(tol=1e-3, loss=SK_LOG_LOSS, penalty="elasticnet")
 
     params = {"alpha": np.logspace(-2, 2, 100), "l1_ratio": np.linspace(0.01, 1, 200)}
 
@@ -588,7 +588,7 @@ async def test_model_random_determinism(c, s, a, b):
         n_samples=n, n_features=d, chunks=n // 10, random_state=0
     )
     params = {
-        "loss": ["hinge", "log", "modified_huber", "squared_hinge", "perceptron"],
+        "loss": ["hinge", SK_LOG_LOSS, "modified_huber", "squared_hinge", "perceptron"],
         "average": [True, False],
         "learning_rate": ["constant", "invscaling", "optimal"],
         "eta0": np.logspace(-2, 0, num=1000),

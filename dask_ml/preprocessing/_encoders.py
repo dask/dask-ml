@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import sklearn.preprocessing
 
+from .._compat import SKLEARN_1_1_X
 from .._typing import ArrayLike, DataFrameType, DTypeLike, SeriesType
 from ..base import DaskMLBaseMixin
 from ..utils import check_array
@@ -160,6 +161,7 @@ class OneHotEncoder(DaskMLBaseMixin, sklearn.preprocessing.OneHotEncoder):
         X: Union[ArrayLike, DataFrameType],
         handle_unknown: str = "error",
         force_all_finite: bool = True,
+        return_counts=False,
     ):
         X = self._validate_data(
             X, accept_dask_dataframe=True, dtype=None, preserve_pandas_dataframe=True
@@ -168,8 +170,18 @@ class OneHotEncoder(DaskMLBaseMixin, sklearn.preprocessing.OneHotEncoder):
         self._check_feature_names(X, reset=True)
 
         if isinstance(X, np.ndarray):
+            kwargs = {
+                "handle_unknown": handle_unknown,
+                "force_all_finite": force_all_finite,
+            }
+
+            # `return_counts` expected as of scikit-learn 1.1
+            if SKLEARN_1_1_X:
+                kwargs["return_counts"] = return_counts
+
             return super(OneHotEncoder, self)._fit(
-                X, handle_unknown=handle_unknown, force_all_finite=force_all_finite
+                X,
+                **kwargs,
             )
 
         is_array = isinstance(X, da.Array)

@@ -32,7 +32,7 @@ from sklearn.model_selection._split import (
 )
 from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.utils._tags import _safe_tags
-from sklearn.utils.metaestimators import if_delegate_has_method
+from sklearn.utils.metaestimators import available_if
 from sklearn.utils.multiclass import type_of_target
 from sklearn.utils.validation import _num_samples, check_is_fitted
 
@@ -54,7 +54,14 @@ from .methods import (
     pipeline,
     score,
 )
-from .utils import DeprecationDict, is_dask_collection, to_indexable, to_keys, unzip
+from .utils import (
+    DeprecationDict,
+    estimator_has,
+    is_dask_collection,
+    to_indexable,
+    to_keys,
+    unzip,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -1126,37 +1133,37 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         self._check_is_fitted("classes_")
         return self.best_estimator_.classes_
 
-    @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
+    @available_if(estimator_has("predict"))
     @derived_from(BaseSearchCV)
     def predict(self, X):
         self._check_is_fitted("predict")
         return self.best_estimator_.predict(X)
 
-    @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
+    @available_if(estimator_has("predict_proba"))
     @derived_from(BaseSearchCV)
     def predict_proba(self, X):
         self._check_is_fitted("predict_proba")
         return self.best_estimator_.predict_proba(X)
 
-    @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
+    @available_if(estimator_has("predict_log_proba"))
     @derived_from(BaseSearchCV)
     def predict_log_proba(self, X):
         self._check_is_fitted("predict_log_proba")
         return self.best_estimator_.predict_log_proba(X)
 
-    @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
+    @available_if(estimator_has("decision_function"))
     @derived_from(BaseSearchCV)
     def decision_function(self, X):
         self._check_is_fitted("decision_function")
         return self.best_estimator_.decision_function(X)
 
-    @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
+    @available_if(estimator_has("transform"))
     @derived_from(BaseSearchCV)
     def transform(self, X):
         self._check_is_fitted("transform")
         return self.best_estimator_.transform(X)
 
-    @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
+    @available_if(estimator_has("inverse_transform"))
     @derived_from(BaseSearchCV)
     def inverse_transform(self, Xt):
         self._check_is_fitted("inverse_transform")

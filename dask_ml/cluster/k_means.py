@@ -541,7 +541,6 @@ def _kmeans_single_lloyd(
             labels, distances = pairwise_distances_argmin_min(
                 X, centers, metric="euclidean", metric_kwargs={"squared": True}
             )
-
             labels = labels.astype(np.int32)
             # distances is always float64, but we need it to match X.dtype
             # for centers_dense, but remain float64 for inertia
