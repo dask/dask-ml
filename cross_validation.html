@@ -1,11 +1,11 @@
-
+ 
 <!DOCTYPE html>
 
 <html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cross Validation &#8212; dask-ml 2021.1.23 documentation</title>
+    <title>Cross Validation &#8212; dask-ml 2022.5.28 documentation</title>
     
   <link href="_static/css/theme.css" rel="stylesheet">
   <link href="_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -32,6 +32,7 @@
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/sphinx-book-theme.9d8b4a8b9bb19db25eeaddc40d639ba2.js"></script>
+    <link rel="shortcut icon" href="_static/images/favicon.svg"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Hyper Parameter Search" href="hyper-parameter-search.html" />
@@ -795,9 +796,12 @@ This document only describes the extensions made to support Dask arrays.</p>
 
 <span class="gp">In [8]: </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="gh">Out[8]: </span><span class="go"></span>
-<span class="go">array([[ 1.07432565, -1.17306786,  0.37381119, -1.55511111],</span>
-<span class="go">       [ 0.46698325,  0.14795648,  0.00401895, -0.25118474],</span>
-<span class="go">       [-0.3122028 , -0.88191003, -0.00495866,  0.91761886]])</span>
+<span class="go">array([[ 3.47903054e-01, -8.36890905e-01,  8.44226084e-01,</span>
+<span class="go">        -1.66232980e+00],</span>
+<span class="go">       [ 5.89759371e-02,  2.35351777e-01,  2.26889836e-04,</span>
+<span class="go">         5.36375710e-01],</span>
+<span class="go">       [ 3.47506998e-01,  2.18225828e-01, -7.77751202e-01,</span>
+<span class="go">         1.28130955e+00]])</span>
 </pre></div>
 </div>
 <p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v1.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
