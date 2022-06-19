@@ -89,7 +89,10 @@ workflows to prepare and set up data, then it deploys XGBoost
 See :doc:`Dask-ML + XGBoost <xgboost>` for more information.
 
 
-.. toctree:: :maxdepth: 2 :hidden: :caption: Get Started
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Get Started
 
    install.rst
    examples.rst
