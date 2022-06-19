@@ -112,6 +112,23 @@
     <div class="bd-toc-item active">
         <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
+  Get Started
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="install.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="examples.html">
+   Examples
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
   Use
  </span>
 </p>
@@ -796,12 +813,9 @@ This document only describes the extensions made to support Dask arrays.</p>
 
 <span class="gp">In [8]: </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="gh">Out[8]: </span><span class="go"></span>
-<span class="go">array([[ 3.47903054e-01, -8.36890905e-01,  8.44226084e-01,</span>
-<span class="go">        -1.66232980e+00],</span>
-<span class="go">       [ 5.89759371e-02,  2.35351777e-01,  2.26889836e-04,</span>
-<span class="go">         5.36375710e-01],</span>
-<span class="go">       [ 3.47506998e-01,  2.18225828e-01, -7.77751202e-01,</span>
-<span class="go">         1.28130955e+00]])</span>
+<span class="go">array([[-1.34564068,  1.35118465,  0.48875575,  1.04930275],</span>
+<span class="go">       [ 0.00550963,  0.02080571, -0.4763186 , -1.56842247],</span>
+<span class="go">       [ 0.32370327,  1.25702878, -0.54681294,  0.01519597]])</span>
 </pre></div>
 </div>
 <p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v1.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
