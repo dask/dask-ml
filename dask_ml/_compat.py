@@ -29,6 +29,14 @@ DISTRIBUTED_2021_02_0 = DISTRIBUTED_VERSION >= packaging.version.parse("2021.02.
 PANDAS_1_2_0 = PANDAS_VERSION > packaging.version.parse("1.2.0")
 WINDOWS = os.name == "nt"
 
+SKLEARN_1_1_X = SK_VERSION >= packaging.version.parse("1.1")
+
+# 'log_loss' is preferred as of scikit-learn 1.1
+if SKLEARN_1_1_X:
+    SK_LOG_LOSS = "log_loss"
+else:
+    SK_LOG_LOSS = "log"
+
 
 @contextlib.contextmanager
 def dummy_context(*args: Any, **kwargs: Any):
@@ -45,8 +53,8 @@ blockwise = da.blockwise
 def _check_multimetric_scoring(estimator, scoring=None):
     # TODO: See if scikit-learn 0.24 solves the need for using
     # a private method
-    from sklearn.metrics._scorer import _check_multimetric_scoring
     from sklearn.metrics import check_scoring
+    from sklearn.metrics._scorer import _check_multimetric_scoring
 
     if callable(scoring) or isinstance(scoring, (type(None), str)):
         scorers = {"score": check_scoring(estimator, scoring=scoring)}

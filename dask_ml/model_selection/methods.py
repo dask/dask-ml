@@ -38,7 +38,6 @@ if packaging.version.parse(np.__version__) < packaging.version.parse("1.12.0"):
                 self._fill_value,
             )
 
-
 else:
     from numpy.ma import MaskedArray  # noqa
 

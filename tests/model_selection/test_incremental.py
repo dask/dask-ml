@@ -27,7 +27,7 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
 
-from dask_ml._compat import DISTRIBUTED_2_5_0
+from dask_ml._compat import DISTRIBUTED_2_5_0, SK_LOG_LOSS
 from dask_ml.datasets import make_classification
 from dask_ml.model_selection import (
     HyperbandSearchCV,
@@ -249,7 +249,7 @@ async def _test_search_basic(decay_rate, input_type, memory, c, s, a, b):
             X, y = pd.DataFrame(X), pd.DataFrame(y)
             assert isinstance(X, pd.DataFrame)
 
-    model = SGDClassifier(tol=1e-3, loss="log", penalty="elasticnet")
+    model = SGDClassifier(tol=1e-3, loss=SK_LOG_LOSS, penalty="elasticnet")
 
     params = {"alpha": np.logspace(-2, 2, 100), "l1_ratio": np.linspace(0.01, 1, 200)}
 
@@ -350,7 +350,12 @@ async def test_search_plateau_patience(c, s, a, b):
     model = ConstantClassifier()
 
     search = IncrementalSearchCV(
-        model, params, n_initial_parameters=10, patience=5, tol=0, max_iter=10,
+        model,
+        params,
+        n_initial_parameters=10,
+        patience=5,
+        tol=0,
+        max_iter=10,
     )
     await search.fit(X, y, classes=[0, 1])
 
@@ -583,7 +588,7 @@ async def test_model_random_determinism(c, s, a, b):
         n_samples=n, n_features=d, chunks=n // 10, random_state=0
     )
     params = {
-        "loss": ["hinge", "log", "modified_huber", "squared_hinge", "perceptron"],
+        "loss": ["hinge", SK_LOG_LOSS, "modified_huber", "squared_hinge", "perceptron"],
         "average": [True, False],
         "learning_rate": ["constant", "invscaling", "optimal"],
         "eta0": np.logspace(-2, 0, num=1000),
@@ -772,7 +777,11 @@ async def test_search_patience_infeasible_tol(c, s, a, b):
     max_iter = 10
     score_increase = -10
     search = IncrementalSearchCV(
-        model, params, max_iter=max_iter, patience=3, tol=score_increase,
+        model,
+        params,
+        max_iter=max_iter,
+        patience=3,
+        tol=score_increase,
     )
     await search.fit(X, y, classes=[0, 1])
 

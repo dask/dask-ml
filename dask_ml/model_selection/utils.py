@@ -100,6 +100,16 @@ def copy_estimator(est):
     return copy.deepcopy(est)
 
 
+def estimator_has(attr):
+    def _check(self):
+        if hasattr(self, "best_estimator_"):
+            return hasattr(self.best_estimator_, attr)
+        if hasattr(self, "estimator"):
+            return hasattr(self.estimator, attr)
+
+    return _check
+
+
 def unzip(itbl, n):
     return zip(*itbl) if itbl else [()] * n
 

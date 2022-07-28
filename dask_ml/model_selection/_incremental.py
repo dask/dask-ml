@@ -23,7 +23,7 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import check_scoring
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
-from sklearn.utils.metaestimators import if_delegate_has_method
+from sklearn.utils.metaestimators import available_if
 from sklearn.utils.validation import check_is_fitted
 
 from .._compat import DISTRIBUTED_2021_02_0, annotate, dummy_context
@@ -31,6 +31,7 @@ from .._typing import ArrayLike, Int
 from .._utils import LoggingContext
 from ..wrappers import ParallelPostFit
 from ._split import train_test_split
+from .utils import estimator_has
 
 logger = logging.getLogger("dask_ml.model_selection")
 
@@ -726,17 +727,17 @@ class BaseIncrementalSearchCV(ParallelPostFit):
             return client.sync(self._fit, X, y, **fit_params)
         return self._fit(X, y, **fit_params)
 
-    @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
+    @available_if(estimator_has("decision_function"))
     def decision_function(self, X):
         self._check_is_fitted("decision_function")
         return self.best_estimator_.decision_function(X)
 
-    @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
+    @available_if(estimator_has("transform"))
     def transform(self, X):
         self._check_is_fitted("transform")
         return self.best_estimator_.transform(X)
 
-    @if_delegate_has_method(delegate=("best_estimator_", "estimator"))
+    @available_if(estimator_has("inverse_transform"))
     def inverse_transform(self, Xt):
         self._check_is_fitted("inverse_transform")
         return self.best_estimator_.transform(Xt)

@@ -28,12 +28,12 @@ def log1p(A):
 
 @dispatch(np.ndarray)
 def add_intercept(X):
-    return np.concatenate([X, np.ones((X.shape[0], 1))], axis=1)
+    return _add_intercept(X)
 
 
 def _add_intercept(x):
     ones = np.ones((x.shape[0], 1), dtype=x.dtype)
-    return np.concatenate([ones, x], axis=1)
+    return np.concatenate([x, ones], axis=1)
 
 
 @dispatch(da.Array)  # noqa: F811

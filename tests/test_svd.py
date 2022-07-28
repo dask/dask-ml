@@ -124,18 +124,18 @@ def test_singular_values():
     X_apca = apca.transform(X)
     X_rpca = rpca.transform(X)
     assert_array_almost_equal(
-        np.sum(apca.singular_values_ ** 2.0), np.linalg.norm(X_apca, "fro") ** 2.0, 12
+        np.sum(apca.singular_values_**2.0), np.linalg.norm(X_apca, "fro") ** 2.0, 12
     )
     assert_array_almost_equal(
-        np.sum(rpca.singular_values_ ** 2.0), np.linalg.norm(X_rpca, "fro") ** 2.0, 12
+        np.sum(rpca.singular_values_**2.0), np.linalg.norm(X_rpca, "fro") ** 2.0, 12
     )
 
     # Compare to the 2-norms of the score vectors
     assert_array_almost_equal(
-        apca.singular_values_, np.sqrt(np.sum(X_apca ** 2.0, axis=0)), 12
+        apca.singular_values_, np.sqrt(np.sum(X_apca**2.0, axis=0)), 12
     )
     assert_array_almost_equal(
-        rpca.singular_values_, np.sqrt(np.sum(X_rpca ** 2.0, axis=0)), 12
+        rpca.singular_values_, np.sqrt(np.sum(X_rpca**2.0, axis=0)), 12
     )
 
     # Set the singular values and see what we get back
@@ -151,8 +151,8 @@ def test_singular_values():
     X_apca = apca.fit_transform(dX).compute()
     X_rpca = rpca.fit_transform(X)
 
-    X_apca /= np.sqrt(np.sum(X_apca ** 2.0, axis=0))
-    X_rpca /= np.sqrt(np.sum(X_rpca ** 2.0, axis=0))
+    X_apca /= np.sqrt(np.sum(X_apca**2.0, axis=0))
+    X_rpca /= np.sqrt(np.sum(X_rpca**2.0, axis=0))
     X_apca[:, 0] *= 3.142
     X_apca[:, 1] *= 2.718
     X_rpca[:, 0] *= 3.142

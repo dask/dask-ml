@@ -191,6 +191,7 @@ class _GLM(BaseEstimator):
             self.intercept_ = self._coef[-1]
         else:
             self.coef_ = self._coef
+            self.intercept_ = 0.0
         return self
 
     def _check_array(self, X):

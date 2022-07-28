@@ -29,12 +29,11 @@ dependencies:
   - sphinx-gallery
   - tornado
   - toolz
-  - xgboost
   - zict
   - pip
   - dask
   - dask-glm
   - dask-xgboost
   - pip:
-    - dask_sphinx_theme >=1.1.0
+    - dask-sphinx-theme >=3.0.0
     - graphviz

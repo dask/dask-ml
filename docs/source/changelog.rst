@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Version 2022.5.27
+~~~~~~~~~~~~~~~~~
+
+* Compatibility with scikit-learn 1.1 and newer (:pr:`910`)
+
 Version 2021.11.30
 ~~~~~~~~~~~~~~~~~~
 

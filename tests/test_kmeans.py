@@ -179,9 +179,7 @@ class TestKMeans:
 
 
 def test_dataframes():
-    df = dd.from_pandas(
-        pd.DataFrame({"A": [1, 2, 3, 4, 5], "B": [6, 7, 8, 9, 10]}), npartitions=2
-    )
+    df = dd.from_pandas(pd.DataFrame(np.random.uniform(size=(100, 4))), npartitions=2)
 
     kmeans = DKKMeans()
     kmeans.fit(df)

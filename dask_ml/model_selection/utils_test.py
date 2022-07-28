@@ -175,9 +175,12 @@ class CheckingClassifier(BaseEstimator, ClassifierMixin):
                 len(missing) == 0
             ), "Expected fit parameter(s) %s not " "seen." % list(missing)
             for key, value in fit_params.items():
-                assert len(value) == len(X), (
-                    "Fit parameter %s has length"
-                    "%d; expected %d." % (key, len(value), len(X),)
+                assert len(value) == len(
+                    X
+                ), "Fit parameter %s has length" "%d; expected %d." % (
+                    key,
+                    len(value),
+                    len(X),
                 )
         return self
 

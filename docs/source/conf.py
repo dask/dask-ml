@@ -46,11 +46,11 @@ extensions = [
 ]
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3.6", None),
-    "sklearn": ("http://scikit-learn.org/stable/", None),
+    "python": ("https://docs.python.org", None),
+    "sklearn": ("https://scikit-learn.org/stable/", None),
     "dask": ("https://docs.dask.org/en/latest/", None),
     "distributed": ("https://distributed.dask.org/en/latest/", None),
-    "dask_glm": ("http://dask-glm.readthedocs.io/en/latest/", None),
+    "dask_glm": ("https://dask-glm.readthedocs.io/en/latest/", None),
 }
 
 numpydoc_class_members_toctree = False
@@ -95,7 +95,9 @@ exclude_patterns = ["build", "**.ipynb_checkpoints"]
 exclude_trees = ["_build", "includes"]
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = "default"
+# Commenting this out for now, if we register dask pygments,
+# then eventually this line can be:
+# pygments_style = "dask"
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
