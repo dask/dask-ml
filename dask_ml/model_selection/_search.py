@@ -144,6 +144,7 @@ def build_graph(
     return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
     cache_cv=True,
     multimetric=False,
+    extract_fn=None # XXX need to update callers?
 ):
     # This is provided for compatibility with TPOT. Remove
     # once TPOT is updated and requires a dask-ml>=0.13.0
@@ -164,6 +165,7 @@ def build_graph(
         error_score=error_score,
         return_train_score=return_train_score,
         cache_cv=cache_cv,
+        extract_fn=extract_fn,
     )
     cv_name = "cv-split-" + main_token
     if iid:
@@ -206,6 +208,7 @@ def build_cv_graph(
     error_score="raise",
     return_train_score=_RETURN_TRAIN_SCORE_DEFAULT,
     cache_cv=True,
+    extract_fn=None,
 ):
     X, y, groups = to_indexable(X, y, groups)
     cv = check_cv(cv, y, is_classifier(estimator))
@@ -233,7 +236,8 @@ def build_cv_graph(
     )
 
     cv_name = "cv-split-" + main_token
-    dsk[cv_name] = (cv_split, cv, X_name, y_name, groups_name, is_pairwise, cache_cv)
+    dsk[cv_name] = (cv_split, cv, X_name, y_name, groups_name, is_pairwise,
+                    cache_cv, extract_fn)
 
     if iid:
         weights = "cv-n-samples-" + main_token
@@ -1079,6 +1083,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         scheduler=None,
         n_jobs=-1,
         cache_cv=True,
+        extract_fn=None,
     ):
         self.scoring = scoring
         self.estimator = estimator
@@ -1090,6 +1095,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
         self.scheduler = scheduler
         self.n_jobs = n_jobs
         self.cache_cv = cache_cv
+        self.extract_fn = extract_fn
 
     def _check_if_refit(self, attr):
         if not self.refit:
@@ -1253,6 +1259,7 @@ class DaskBaseSearchCV(BaseEstimator, MetaEstimatorMixin):
             error_score=error_score,
             return_train_score=self.return_train_score,
             cache_cv=self.cache_cv,
+            extract_fn=self.extract_fn
         )
 
         n_jobs = _normalize_n_jobs(self.n_jobs)
@@ -1594,6 +1601,7 @@ class GridSearchCV(StaticDaskSearchMixin, DaskBaseSearchCV):
         scheduler=None,
         n_jobs=-1,
         cache_cv=True,
+        extract_fn=None
     ):
         super(GridSearchCV, self).__init__(
             estimator=estimator,
@@ -1606,6 +1614,7 @@ class GridSearchCV(StaticDaskSearchMixin, DaskBaseSearchCV):
             scheduler=scheduler,
             n_jobs=n_jobs,
             cache_cv=cache_cv,
+            extract_fn=extract_fn
         )
         if _check_param_grid:
             _check_param_grid(param_grid)
