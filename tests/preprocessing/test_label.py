@@ -127,8 +127,9 @@ class TestLabelEncoder:
 
         inv_transformed = a.inverse_transform(result)
         if daskify:
-            # manually set the divisions for the test
-            inv_transformed.divisions = (0, 2)
+            # manually set the divisions and index for the test
+            inv_transformed.divisions = (0, 2, 2)
+            inv_transformed.index = cat.index.copy()
         dd.utils.assert_eq(inv_transformed, cat)
 
     def test_dataframe_raises(self):
