@@ -16,7 +16,7 @@ from dask.callbacks import Callback
 from dask.delayed import delayed
 from dask.utils import tmpdir
 from distributed import Client, Nanny, Variable
-from distributed.utils_test import cluster, loop  # noqa
+from distributed.utils_test import cleanup, cluster, loop, loop_in_thread  # noqa
 from sklearn.datasets import load_iris, make_classification
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier

@@ -10,7 +10,7 @@ jobs:
       matrix:
         # os: ["windows-latest", "ubuntu-latest", "macos-latest"]
         os: ["ubuntu-latest"]
-        python-version: ["3.7", "3.8", "3.9"]
+        python-version: ["3.8", "3.9", "3.10"]
 
     env:
       PYTHON_VERSION: ${{ matrix.python-version }}
