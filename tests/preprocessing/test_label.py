@@ -127,9 +127,11 @@ class TestLabelEncoder:
 
         inv_transformed = a.inverse_transform(result)
         if daskify:
-            # manually set the divisions and index for the test
-            inv_transformed.divisions = (0, 2, 2)
-            inv_transformed.index = cat.index.copy()
+            # manually set the divisions and reseting index for the test
+            inv_transformed = dd.from_pandas(
+                inv_transformed.compute().reset_index()[0], npartitions=2
+            )
+            inv_transformed.name = None
         dd.utils.assert_eq(inv_transformed, cat)
 
     def test_dataframe_raises(self):
