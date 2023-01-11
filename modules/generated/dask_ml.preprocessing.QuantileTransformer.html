@@ -792,7 +792,7 @@
 <h1><a class="reference internal" href="../api.html#module-dask_ml.preprocessing" title="dask_ml.preprocessing"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dask_ml.preprocessing</span></code></a>.QuantileTransformer<a class="headerlink" href="#dask-ml-preprocessing-quantiletransformer" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="dask_ml.preprocessing.QuantileTransformer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dask_ml.preprocessing.</span></span><span class="sig-name descname"><span class="pre">QuantileTransformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_quantiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_distribution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uniform'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_implicit_zeros</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subsample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dask_ml.preprocessing.</span></span><span class="sig-name descname"><span class="pre">QuantileTransformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_quantiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_distribution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uniform'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_implicit_zeros</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subsample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transforms features using quantile information.</p>
 <p>This implementation differs from the scikit-learn implementation
 by using approximate quantiles. The scikit-learn docstring follows.</p>
@@ -809,7 +809,7 @@ below or above the fitted range will be mapped to the bounds of the output
 distribution. Note that this transform is non-linear. It may distort linear
 correlations between variables measured at the same scale but renders
 variables measured at different scales more directly comparable.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-transformer" title="(in scikit-learn v1.1)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-transformer" title="(in scikit-learn v1.2)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 0.19.</span></p>
 </div>
@@ -830,7 +830,7 @@ estimator.</p>
 matrix are discarded to compute the quantile statistics. If False,
 these entries are treated as zeros.</p>
 </dd>
-<dt><strong>subsample</strong><span class="classifier">int, default=1e5</span></dt><dd><p>Maximum number of samples used to estimate the quantiles for
+<dt><strong>subsample</strong><span class="classifier">int, default=10_000</span></dt><dd><p>Maximum number of samples used to estimate the quantiles for
 computational efficiency. Note that the subsampling procedure may
 differ for value-identical sparse and dense matrices.</p>
 </dd>
@@ -838,7 +838,7 @@ differ for value-identical sparse and dense matrices.</p>
 noise.
 Please see <code class="docutils literal notranslate"><span class="pre">subsample</span></code> for more details.
 Pass an int for reproducible results across multiple function calls.
-See <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-random_state" title="(in scikit-learn v1.1)"><span class="xref std std-term">Glossary</span></a>.</p>
+See <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-random_state" title="(in scikit-learn v1.2)"><span class="xref std std-term">Glossary</span></a>.</p>
 </dd>
 <dt><strong>copy</strong><span class="classifier">bool, default=True</span></dt><dd><p>Set to False to perform inplace transformation and avoid a copy (if the
 input is already a numpy array).</p>
@@ -854,12 +854,12 @@ distribution function.</p>
 </dd>
 <dt><strong>references_</strong><span class="classifier">ndarray of shape (n_quantiles, )</span></dt><dd><p>Quantiles of references.</p>
 </dd>
-<dt><strong>n_features_in_</strong><span class="classifier">int</span></dt><dd><p>Number of features seen during <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v1.1)"><span class="xref std std-term">fit</span></a>.</p>
+<dt><strong>n_features_in_</strong><span class="classifier">int</span></dt><dd><p>Number of features seen during <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v1.2)"><span class="xref std std-term">fit</span></a>.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 0.24.</span></p>
 </div>
 </dd>
-<dt><strong>feature_names_in_</strong><span class="classifier">ndarray of shape (<cite>n_features_in_</cite>,)</span></dt><dd><p>Names of features seen during <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v1.1)"><span class="xref std std-term">fit</span></a>. Defined only when <cite>X</cite>
+<dt><strong>feature_names_in_</strong><span class="classifier">ndarray of shape (<cite>n_features_in_</cite>,)</span></dt><dd><p>Names of features seen during <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v1.2)"><span class="xref std std-term">fit</span></a>. Defined only when <cite>X</cite>
 has feature names that are all strings.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.0.</span></p>
@@ -885,7 +885,7 @@ has feature names that are all strings.</p>
 <p>NaNs are treated as missing values: disregarded in fit, and maintained in
 transform.</p>
 <p>For a comparison of the different scalers, transformers, and normalizers,
-see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v1.1)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
+see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v1.2)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">QuantileTransformer</span>
@@ -918,17 +918,20 @@ see <a class="reference external" href="https://scikit-learn.org/stable/auto_exa
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code>(X)</p></td>
 <td><p>Back-projection to the original space.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code>(**params)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_output</span></code>(*[, transform])</p></td>
+<td><p>Set output container.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code>(**params)</p></td>
 <td><p>Set the parameters of this estimator.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(X)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(X)</p></td>
 <td><p>Feature-wise transformation of the data.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="dask_ml.preprocessing.QuantileTransformer.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_quantiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_distribution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uniform'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_implicit_zeros</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subsample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer.__init__" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_quantiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_distribution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uniform'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_implicit_zeros</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subsample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.QuantileTransformer.__init__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

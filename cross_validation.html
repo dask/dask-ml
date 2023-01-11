@@ -812,13 +812,13 @@ This document only describes the extensions made to support Dask arrays.</p>
 <span class="gh">Out[7]: </span><span class="go">dask.array&lt;concatenate, shape=(112, 4), dtype=float64, chunksize=(45, 4), chunktype=numpy.ndarray&gt;</span>
 
 <span class="gp">In [8]: </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span>
-<span class="gh">Out[8]: </span><span class="go"></span>
-<span class="go">array([[-0.66480354, -0.91242817,  0.97555562, -0.86313815],</span>
-<span class="go">       [ 0.70530725, -1.30363125, -0.12527161, -0.16084649],</span>
-<span class="go">       [ 0.83154369,  0.17831678, -0.11855249,  0.11225947]])</span>
+<span class="gh">Out[8]: </span>
+<span class="go">array([[-0.3122028 , -0.88191003, -0.00495866,  0.91761886],</span>
+<span class="go">       [ 0.83154369,  0.17831678, -0.11855249,  0.11225947],</span>
+<span class="go">       [ 1.91329959,  1.8683167 , -1.0451914 ,  0.17189064]])</span>
 </pre></div>
 </div>
-<p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v1.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
+<p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v1.2)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
 using the Dask version for performance reasons: the Dask version is faster
 for two reasons:</p>
 <p>First, <strong>the Dask version shuffles blockwise</strong>.

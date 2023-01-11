@@ -810,7 +810,7 @@ the interquartile range often give better results.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 0.17.</span></p>
 </div>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v1.1)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler" title="(in scikit-learn v1.2)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl>
@@ -854,12 +854,12 @@ will be scaled up.</p>
 <p><span class="versionmodified added">New in version 0.17: </span><em>scale_</em> attribute.</p>
 </div>
 </dd>
-<dt><strong>n_features_in_</strong><span class="classifier">int</span></dt><dd><p>Number of features seen during <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v1.1)"><span class="xref std std-term">fit</span></a>.</p>
+<dt><strong>n_features_in_</strong><span class="classifier">int</span></dt><dd><p>Number of features seen during <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v1.2)"><span class="xref std std-term">fit</span></a>.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 0.24.</span></p>
 </div>
 </dd>
-<dt><strong>feature_names_in_</strong><span class="classifier">ndarray of shape (<cite>n_features_in_</cite>,)</span></dt><dd><p>Names of features seen during <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v1.1)"><span class="xref std std-term">fit</span></a>. Defined only when <cite>X</cite>
+<dt><strong>feature_names_in_</strong><span class="classifier">ndarray of shape (<cite>n_features_in_</cite>,)</span></dt><dd><p>Names of features seen during <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v1.2)"><span class="xref std std-term">fit</span></a>. Defined only when <cite>X</cite>
 has feature names that are all strings.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.0.</span></p>
@@ -873,13 +873,13 @@ has feature names that are all strings.</p>
 <dl class="simple">
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">robust_scale</span></code></dt><dd><p>Equivalent function without the estimator API.</p>
 </dd>
-<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html#sklearn.decomposition.PCA" title="(in scikit-learn v1.1)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.decomposition.PCA</span></code></a></dt><dd><p>Further removes the linear correlation across features with ‘whiten=True’.</p>
+<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html#sklearn.decomposition.PCA" title="(in scikit-learn v1.2)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.decomposition.PCA</span></code></a></dt><dd><p>Further removes the linear correlation across features with ‘whiten=True’.</p>
 </dd>
 </dl>
 </div>
 <p class="rubric">Notes</p>
 <p>For a comparison of the different scalers, transformers, and normalizers,
-see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v1.1)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
+see <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#sphx-glr-auto-examples-preprocessing-plot-all-scaling-py" title="(in scikit-learn v1.2)"><span class="xref std std-ref">examples/preprocessing/plot_all_scaling.py</span></a>.</p>
 <p><a class="reference external" href="https://en.wikipedia.org/wiki/Median">https://en.wikipedia.org/wiki/Median</a>
 <a class="reference external" href="https://en.wikipedia.org/wiki/Interquartile_range">https://en.wikipedia.org/wiki/Interquartile_range</a></p>
 <p class="rubric">Examples</p>
@@ -918,10 +918,13 @@ see <a class="reference external" href="https://scikit-learn.org/stable/auto_exa
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">inverse_transform</span></code>(X)</p></td>
 <td><p>Scale back the data to the original representation</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code>(**params)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_output</span></code>(*[, transform])</p></td>
+<td><p>Set output container.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code>(**params)</p></td>
 <td><p>Set the parameters of this estimator.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(X)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(X)</p></td>
 <td><p>Center and scale the data.</p></td>
 </tr>
 </tbody>

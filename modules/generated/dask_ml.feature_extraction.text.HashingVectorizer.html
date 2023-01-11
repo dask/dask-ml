@@ -821,7 +821,7 @@ is large enough (e.g. 2 ** 18 for text classification problems).</p></li>
 <li><p>no IDF weighting as this would render the transformer stateful.</p></li>
 </ul>
 <p>The hash function employed is the signed 32-bit version of Murmurhash3.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#text-feature-extraction" title="(in scikit-learn v1.1)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#text-feature-extraction" title="(in scikit-learn v1.2)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl>
@@ -843,14 +843,14 @@ contains characters not of the given <cite>encoding</cite>. By default, it is
 ‘strict’, meaning that a UnicodeDecodeError will be raised. Other
 values are ‘ignore’ and ‘replace’.</p>
 </dd>
-<dt><strong>strip_accents</strong><span class="classifier">{‘ascii’, ‘unicode’}, default=None</span></dt><dd><p>Remove accents and perform other character normalization
+<dt><strong>strip_accents</strong><span class="classifier">{‘ascii’, ‘unicode’} or callable, default=None</span></dt><dd><p>Remove accents and perform other character normalization
 during the preprocessing step.
 ‘ascii’ is a fast method that only works on characters that have
 a direct ASCII mapping.
-‘unicode’ is a slightly slower method that works on any characters.
+‘unicode’ is a slightly slower method that works on any character.
 None (default) does nothing.</p>
 <p>Both ‘ascii’ and ‘unicode’ use NFKD normalization from
-<a class="reference external" href="https://docs.python.org/3/library/unicodedata.html#unicodedata.normalize" title="(in Python v3.10)"><code class="xref py py-func docutils literal notranslate"><span class="pre">unicodedata.normalize()</span></code></a>.</p>
+<a class="reference external" href="https://docs.python.org/3/library/unicodedata.html#unicodedata.normalize" title="(in Python v3.11)"><code class="xref py py-func docutils literal notranslate"><span class="pre">unicodedata.normalize()</span></code></a>.</p>
 </dd>
 <dt><strong>lowercase</strong><span class="classifier">bool, default=True</span></dt><dd><p>Convert all characters to lowercase before tokenizing.</p>
 </dd>
@@ -864,12 +864,12 @@ Only applies if <code class="docutils literal notranslate"><span class="pre">ana
 </dd>
 <dt><strong>stop_words</strong><span class="classifier">{‘english’}, list, default=None</span></dt><dd><p>If ‘english’, a built-in stop word list for English is used.
 There are several known issues with ‘english’ and you should
-consider an alternative (see <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#stop-words" title="(in scikit-learn v1.1)"><span>Using stop words</span></a>).</p>
+consider an alternative (see <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#stop-words" title="(in scikit-learn v1.2)"><span>Using stop words</span></a>).</p>
 <p>If a list, that list is assumed to contain stop words, all of which
 will be removed from the resulting tokens.
 Only applies if <code class="docutils literal notranslate"><span class="pre">analyzer</span> <span class="pre">==</span> <span class="pre">'word'</span></code>.</p>
 </dd>
-<dt><strong>token_pattern</strong><span class="classifier">str, default=r”(?u)\b\w\w+\b”</span></dt><dd><p>Regular expression denoting what constitutes a “token”, only used
+<dt><strong>token_pattern</strong><span class="classifier">str or None, default=r”(?u)\b\w\w+\b”</span></dt><dd><p>Regular expression denoting what constitutes a “token”, only used
 if <code class="docutils literal notranslate"><span class="pre">analyzer</span> <span class="pre">==</span> <span class="pre">'word'</span></code>. The default regexp selects tokens of 2
 or more alphanumeric characters (punctuation is completely ignored
 and always treated as a token separator).</p>
@@ -974,10 +974,13 @@ small n_features. This approach is similar to sparse random projection.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_fit</span></code>(X[, y])</p></td>
 <td><p>No-op: this transformer is stateless.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code>(**params)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_output</span></code>(*[, transform])</p></td>
+<td><p>Set output container.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code>(**params)</p></td>
 <td><p>Set the parameters of this estimator.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(raw_X)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(raw_X)</p></td>
 <td><p>Transform a sequence of documents to a document-term matrix.</p></td>
 </tr>
 </tbody>

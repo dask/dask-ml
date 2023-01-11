@@ -805,7 +805,7 @@ a probability estimate <span class="math notranslate nohighlight">\(p = \operato
 loss is:</p>
 <div class="math notranslate nohighlight">
 \[L_{\log}(y, p) = -(y \log (p) + (1 - y) \log (1 - p))\]</div>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#log-loss" title="(in scikit-learn v1.1)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#log-loss" title="(in scikit-learn v1.2)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl>
@@ -818,8 +818,16 @@ positive class. The labels in <code class="docutils literal notranslate"><span c
 ordered alphabetically, as done by
 <code class="xref py py-class docutils literal notranslate"><span class="pre">preprocessing.LabelBinarizer</span></code>.</p>
 </dd>
-<dt><strong>eps</strong><span class="classifier">float, default=1e-15</span></dt><dd><p>Log loss is undefined for p=0 or p=1, so probabilities are
-clipped to max(eps, min(1 - eps, p)).</p>
+<dt><strong>eps</strong><span class="classifier">float or “auto”, default=”auto”</span></dt><dd><p>Log loss is undefined for p=0 or p=1, so probabilities are
+clipped to <cite>max(eps, min(1 - eps, p))</cite>. The default will depend on the
+data type of <cite>y_pred</cite> and is set to <cite>np.finfo(y_pred.dtype).eps</cite>.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.2.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 1.2: </span>The default value changed from <cite>1e-15</cite> to <cite>“auto”</cite> that is
+equivalent to <cite>np.finfo(y_pred.dtype).eps</cite>.</p>
+</div>
 </dd>
 <dt><strong>normalize</strong><span class="classifier">bool, default=True</span></dt><dd><p>If true, return the mean loss per sample.
 Otherwise, return the sum of the per-sample losses.</p>
