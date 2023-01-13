@@ -103,7 +103,7 @@ def test_transform_meta_override():
     X = pd.DataFrame({"cat_s": ["a", "b", "c", "d"]})
     dd_X = dd.from_pandas(X, npartitions=2)
 
-    base = OneHotEncoder(sparse=False)
+    base = OneHotEncoder(sparse_output=False)
     base.fit(pd.DataFrame(X))
 
     # Failure when not proving transform_meta
@@ -184,7 +184,7 @@ def test_transform(kind):
     base.fit(*dask.compute(X, y))
     wrap.fit(*dask.compute(X, y))
 
-    assert_estimator_equal(wrap.estimator, base)
+    assert_estimator_equal(wrap.estimator, base, exclude="n_features_")
 
     result = base.transform(*dask.compute(X))
     expected = wrap.transform(X)

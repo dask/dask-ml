@@ -140,7 +140,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         n_clusters=8,
         eigen_solver=None,
         random_state=None,
-        n_init=10,
+        n_init="auto",
         gamma=1.0,
         affinity="rbf",
         n_neighbors=10,
@@ -190,9 +190,12 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
                 km = KMeans(
                     n_clusters=n_clusters,
                     random_state=draw_seed(rng, np.iinfo("i4").max, dtype="uint"),
+                    n_init=self.n_init,
                 )
             elif self.assign_labels == "sklearn-kmeans":
-                km = sklearn.cluster.KMeans(n_clusters=n_clusters, random_state=rng)
+                km = sklearn.cluster.KMeans(
+                    n_clusters=n_clusters, random_state=rng, n_init=self.n_init
+                )
             else:
                 msg = "Unknown 'assign_labels' {!r}".format(self.assign_labels)
                 raise ValueError(msg)

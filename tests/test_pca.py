@@ -28,7 +28,7 @@ def test_basic():
     b = sd.PCA()
     a.fit(dX)
     b.fit(X)
-    assert_estimator_equal(a, b, exclude=["components_"])
+    assert_estimator_equal(a, b, exclude=["components_", "n_features_"])
     np.testing.assert_allclose(
         flip_vector_signs(a.components_, 1), flip_vector_signs(b.components_, 1)
     )
@@ -742,7 +742,7 @@ def test_unknown_shapes(fn, solver):
         X_hat = fit_fn(X)
         assert hasattr(pca, "components_")
         assert pca.n_components_ == 2
-        assert pca.n_features_ == 3
+        assert pca.n_features_in_ == 3
         assert pca.n_samples_ == 10
         if fn == "fit_transform":
             assert np.isnan(X_hat.shape[0])
@@ -768,7 +768,7 @@ def test_unknown_shapes_n_components_larger_than_num_rows(solver):
         assert pca.n_components_ == 2
         assert len(pca.singular_values_) == 2
         assert len(pca.components_) == 2
-        assert pca.n_features_ == 10
+        assert pca.n_features_in_ == 10
         assert pca.n_samples_ == 2
         if solver != "randomized":
             assert pca.explained_variance_ratio_.max() == 1.0

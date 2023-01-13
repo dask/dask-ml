@@ -384,7 +384,7 @@ class IncrementalPCA(pca.PCA):
                 self.n_samples_,
                 self.mean_,
                 self.var_,
-                self.n_features_,
+                self.n_features_in_,
                 self.components_,
                 self.explained_variance_,
                 self.explained_variance_ratio_,

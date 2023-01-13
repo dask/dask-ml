@@ -242,7 +242,7 @@ def test_model_coef_dask_numpy(est, data, request):
     "est, skl_params, data_generator",
     [
         ("LinearRegression", {}, "medium_size_regression"),
-        ("LogisticRegression", {"penalty": "none"}, "single_chunk_classification"),
+        ("LogisticRegression", {"penalty": None}, "single_chunk_classification"),
         ("PoissonRegression", {"alpha": 0}, "medium_size_counts"),
     ],
 )

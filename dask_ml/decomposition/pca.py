@@ -290,7 +290,7 @@ class PCA(sklearn.decomposition.PCA):
 
         try:
             (
-                (self.n_samples_, self.n_features_),
+                (self.n_samples_, self.n_features_in_),
                 self.n_components_,
                 self.components_,
                 self.singular_values_,
@@ -327,11 +327,11 @@ class PCA(sklearn.decomposition.PCA):
         # Compute noise covariance using Probabilistic PCA model
         # The sigma2 maximum likelihood (cf. eq. 12.46)
         self.noise_variance_ = 0.0
-        if n_components < min(self.n_features_, self.n_samples_):
+        if n_components < min(self.n_features_in_, self.n_samples_):
             if solver == "randomized":
                 self.noise_variance_ = (
                     total_variance - self.explained_variance_.sum()
-                ) / (min(self.n_features_, self.n_samples_) - n_components)
+                ) / (min(self.n_features_in_, self.n_samples_) - n_components)
             else:
                 if n_components < len(self.explained_variance_):
                     self.noise_variance_ = self.explained_variance_[
