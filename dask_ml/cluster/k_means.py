@@ -75,7 +75,7 @@ class KMeans(TransformerMixin, BaseEstimator):
         by `np.random`.
 
     n_init : 'auto' or int, default=10
-        Number of time the k-means algorithm will be run with different
+        Number of times the k-means algorithm will be run with different
         centroid seeds. The final results will be the best output of
         n_init consecutive runs in terms of inertia.
         When `n_init='auto'`, the number of runs will be 10 if using
