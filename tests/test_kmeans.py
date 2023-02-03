@@ -60,7 +60,7 @@ class TestKMeans:
 
         # make it super easy to cluster
         a = DKKMeans(n_clusters=3, random_state=0)
-        b = SKKMeans(n_clusters=3, random_state=0)
+        b = SKKMeans(n_clusters=3, random_state=0, n_init="auto")
         a.fit(X)
         b.fit(X)
         assert_estimator_equal(
@@ -105,7 +105,7 @@ class TestKMeans:
         X_ = X.compute()
         rs = np.random.RandomState(0)
         dkkm = DKKMeans(3, init="k-means++", random_state=rs)
-        skkm = SKKMeans(3, init="k-means++", random_state=rs)
+        skkm = SKKMeans(3, init="k-means++", random_state=rs, n_init="auto")
         dkkm.fit(X)
         skkm.fit(X_)
         assert abs(dkkm.inertia_ - skkm.inertia_) < 1e-4
@@ -169,7 +169,7 @@ class TestKMeans:
 
         for xx, yy in pairs:
             a = DKKMeans()
-            b = SKKMeans()
+            b = SKKMeans(n_init="auto")
             a.fit(xx)
             b.fit(xx)
             assert a.cluster_centers_.dtype == b.cluster_centers_.dtype

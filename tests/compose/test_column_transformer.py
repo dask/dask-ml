@@ -22,20 +22,20 @@ def test_column_transformer():
     # See https://github.com/scikit-learn/scikit-learn/pull/12626
     if SK_VERSION < packaging.version.parse("0.20.1"):
         a = sklearn.compose.make_column_transformer(
-            (["A"], sklearn.preprocessing.OneHotEncoder(sparse=False)),
+            (["A"], sklearn.preprocessing.OneHotEncoder(sparse_output=False)),
             (["B"], sklearn.preprocessing.StandardScaler()),
         )
         b = dask_ml.compose.make_column_transformer(
-            (["A"], dask_ml.preprocessing.OneHotEncoder(sparse=False)),
+            (["A"], dask_ml.preprocessing.OneHotEncoder(sparse_output=False)),
             (["B"], dask_ml.preprocessing.StandardScaler()),
         )
     else:
         a = sklearn.compose.make_column_transformer(
-            (sklearn.preprocessing.OneHotEncoder(sparse=False), ["A"]),
+            (sklearn.preprocessing.OneHotEncoder(sparse_output=False), ["A"]),
             (sklearn.preprocessing.StandardScaler(), ["B"]),
         )
         b = dask_ml.compose.make_column_transformer(
-            (dask_ml.preprocessing.OneHotEncoder(sparse=False), ["A"]),
+            (dask_ml.preprocessing.OneHotEncoder(sparse_output=False), ["A"]),
             (dask_ml.preprocessing.StandardScaler(), ["B"]),
         )
 

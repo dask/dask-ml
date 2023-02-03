@@ -21,7 +21,7 @@ dependencies:
   - psutil
   - python=3.10
   - sortedcontainers
-  - scikit-learn <=1.1.3
+  - scikit-learn >=1.2.0
   - scipy
   - sparse
   - sphinx

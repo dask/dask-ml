@@ -58,7 +58,7 @@ async def test_basic(c, s, a, b, array_type, library, max_iter):
         "learning_rate": ["constant", "invscaling", "optimal"],
         "eta0": np.logspace(-2, 0, num=1000),
     }
-    model = SGDClassifier(tol=-np.inf, penalty="elasticnet", random_state=42, eta0=0.1)
+    model = SGDClassifier(tol=10, penalty="elasticnet", random_state=42, eta0=0.1)
     if library == "dask-ml":
         model = Incremental(model)
         params = {"estimator__" + k: v for k, v in params.items()}

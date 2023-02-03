@@ -17,13 +17,17 @@ df = pd.DataFrame(X, columns=["A"]).apply(lambda x: x.astype("category"))
 ddf = dd.from_pandas(df, npartitions=2)
 
 
-@pytest.mark.parametrize("sparse", [True, False])
+@pytest.mark.parametrize("sparse_output", [True, False])
 @pytest.mark.parametrize("method", ["fit", "fit_transform"])
 @pytest.mark.parametrize("categories", ["auto", [["a", "b", "c"]]])
 @pytest.mark.skipif(not DASK_2_20_0, reason="Fixed in Dask 2.20.0")
-def test_basic_array(sparse, method, categories):
-    a = sklearn.preprocessing.OneHotEncoder(categories=categories, sparse=sparse)
-    b = dask_ml.preprocessing.OneHotEncoder(categories=categories, sparse=sparse)
+def test_basic_array(sparse_output, method, categories):
+    a = sklearn.preprocessing.OneHotEncoder(
+        categories=categories, sparse_output=sparse_output
+    )
+    b = dask_ml.preprocessing.OneHotEncoder(
+        categories=categories, sparse_output=sparse_output
+    )
 
     if method == "fit":
         a.fit(X)
@@ -54,7 +58,7 @@ def test_basic_array(sparse, method, categories):
     assert result.shape == expected.shape
     assert result.dtype == expected.dtype
 
-    if sparse:
+    if sparse_output:
         assert scipy.sparse.issparse(result.blocks[0].compute())
         result = result.compute()
         np.testing.assert_array_almost_equal(result.toarray(), expected.toarray())
@@ -63,13 +67,13 @@ def test_basic_array(sparse, method, categories):
         da.utils.assert_eq(result, expected)
 
 
-@pytest.mark.parametrize("sparse", [True, False])
+@pytest.mark.parametrize("sparse_output", [True, False])
 @pytest.mark.parametrize("method", ["fit", "fit_transform"])
 @pytest.mark.parametrize("dask_data", [df, ddf])  # we handle pandas and dask dataframes
 @pytest.mark.parametrize("dtype", [np.float64, np.uint8])
-def test_basic_dataframe(sparse, method, dask_data, dtype):
-    a = sklearn.preprocessing.OneHotEncoder(sparse=sparse, dtype=dtype)
-    b = dask_ml.preprocessing.OneHotEncoder(sparse=sparse, dtype=dtype)
+def test_basic_dataframe(sparse_output, method, dask_data, dtype):
+    a = sklearn.preprocessing.OneHotEncoder(sparse_output=sparse_output, dtype=dtype)
+    b = dask_ml.preprocessing.OneHotEncoder(sparse_output=sparse_output, dtype=dtype)
 
     if method == "fit":
         a.fit(df)
@@ -95,11 +99,11 @@ def test_basic_dataframe(sparse, method, dask_data, dtype):
 
     assert isinstance(result, type(dask_data))
     assert len(result.columns) == expected.shape[1]
-    if sparse and PANDAS_VERSION >= packaging.version.parse("0.24.0"):
+    if sparse_output and PANDAS_VERSION >= packaging.version.parse("0.24.0"):
         # pandas sparse ExtensionDtype interface
         dtype = pd.SparseDtype(dtype, dtype(0))
     assert (result.dtypes == dtype).all()
-    if sparse:
+    if sparse_output:
         expected = expected.toarray()
 
     da.utils.assert_eq(result.values, expected)
@@ -124,7 +128,7 @@ def test_onehotencoder_drop_raises():
 def test_onehotencoder_dataframe_with_categories():
     # https://github.com/dask/dask-ml/issues/726
     enc = dask_ml.preprocessing.OneHotEncoder(
-        categories=[["a", "b", "c"], ["a", "b"]], sparse=False
+        categories=[["a", "b", "c"], ["a", "b"]], sparse_output=False
     )
     ddf = dd.from_pandas(
         pd.DataFrame({"A": ["a", "b", "b", "a"], "B": ["a", "b", "b", "b"]}),

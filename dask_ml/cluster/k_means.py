@@ -74,6 +74,17 @@ class KMeans(TransformerMixin, BaseEstimator):
         If None, the random number generator is the RandomState instance used
         by `np.random`.
 
+    n_init : 'auto' or int, default=10
+        Number of times the k-means algorithm will be run with different
+        centroid seeds. The final results will be the best output of
+        n_init consecutive runs in terms of inertia.
+        When `n_init='auto'`, the number of runs will be 10 if using
+        `init='random'`, and 1 if using `init='kmeans++'`.
+        .. versionadded:: 1.2
+           Added 'auto' option for `n_init`.
+        .. versionchanged:: 1.4
+           Default value for `n_init` will change from 10 to `'auto'` in version 1.4.
+
     Attributes
     ----------
     cluster_centers_ : np.ndarray [n_clusters, n_features]
@@ -142,6 +153,7 @@ class KMeans(TransformerMixin, BaseEstimator):
         n_jobs=1,
         algorithm="full",
         init_max_iter=None,
+        n_init="auto",
     ):
         self.n_clusters = n_clusters
         self.init = init
@@ -154,6 +166,7 @@ class KMeans(TransformerMixin, BaseEstimator):
         self.precompute_distances = precompute_distances
         self.n_jobs = n_jobs
         self.copy_x = copy_x
+        self.n_init = n_init
 
     @_timed(_logger=logger)
     def _check_array(self, X):
@@ -200,6 +213,7 @@ class KMeans(TransformerMixin, BaseEstimator):
             max_iter=self.max_iter,
             init_max_iter=self.init_max_iter,
             tol=self.tol,
+            n_init=self.n_init,
         )
         self.cluster_centers_ = centroids
         self.labels_ = labels
@@ -242,7 +256,7 @@ def k_means(
     n_clusters,
     init="k-means||",
     precompute_distances="auto",
-    n_init=1,
+    n_init="auto",
     max_iter=300,
     verbose=False,
     tol=1e-4,
@@ -272,6 +286,7 @@ def k_means(
         random_state=random_state,
         oversampling_factor=oversampling_factor,
         init_max_iter=init_max_iter,
+        n_init=n_init,
     )
     if return_n_iter:
         return labels, centers, inertia, n_iter
@@ -299,6 +314,7 @@ def k_init(
     random_state=None,
     max_iter=None,
     oversampling_factor=2,
+    n_init="auto",
 ):
     """Choose the initial centers for K-Means.
 
@@ -315,6 +331,16 @@ def k_init(
     oversampling_factor : int, optional
         Only used for ``init='k-means||`''. Controls the additional number of
         candidate centers in each iteration.
+    n_init : 'auto' or int, default=10
+        Number of times the k-means algorithm will be run with different
+        centroid seeds. The final results will be the best output of
+        n_init consecutive runs in terms of inertia.
+        When `n_init='auto'`, the number of runs will be 10 if using
+        `init='random'`, and 1 if using `init='kmeans++'`.
+        .. versionadded:: 1.2
+           Added 'auto' option for `n_init`.
+        .. versionchanged:: 1.4
+           Default value for `n_init` will change from 10 to `'auto'` in version 1.4.
 
     Return
     ------
@@ -362,7 +388,9 @@ def k_init(
             random_state = np.random.RandomState(random_state)
 
     if init == "k-means||":
-        return init_scalable(X, n_clusters, random_state, max_iter, oversampling_factor)
+        return init_scalable(
+            X, n_clusters, random_state, max_iter, oversampling_factor, n_init
+        )
     elif init == "k-means++":
         return init_pp(X, n_clusters, random_state)
 
@@ -406,7 +434,12 @@ def init_random(X, n_clusters, random_state):
 
 @_timed(_logger=logger)
 def init_scalable(
-    X, n_clusters, random_state=None, max_iter=None, oversampling_factor=2
+    X,
+    n_clusters,
+    random_state=None,
+    max_iter=None,
+    oversampling_factor=2,
+    n_init="auto",
 ):
     """K-Means initialization using k-means||
 
@@ -474,7 +507,7 @@ def init_scalable(
             .compute(scheduler="single-threaded")
             .item()
         )
-        km = sklearn.cluster.KMeans(n_clusters, random_state=rng2)
+        km = sklearn.cluster.KMeans(n_clusters, random_state=rng2, n_init=n_init)
         km.fit(centers)
 
     return km.cluster_centers_
@@ -525,6 +558,7 @@ def _kmeans_single_lloyd(
     precompute_distances=True,
     oversampling_factor=2,
     init_max_iter=None,
+    n_init="auto",
 ):
     centers = k_init(
         X,
@@ -533,6 +567,7 @@ def _kmeans_single_lloyd(
         oversampling_factor=oversampling_factor,
         random_state=random_state,
         max_iter=init_max_iter,
+        n_init=n_init,
     )
     dt = X.dtype
     P = X.shape[1]
