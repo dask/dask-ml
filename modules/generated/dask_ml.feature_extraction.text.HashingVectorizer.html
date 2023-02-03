@@ -843,11 +843,11 @@ contains characters not of the given <cite>encoding</cite>. By default, it is
 ‘strict’, meaning that a UnicodeDecodeError will be raised. Other
 values are ‘ignore’ and ‘replace’.</p>
 </dd>
-<dt><strong>strip_accents</strong><span class="classifier">{‘ascii’, ‘unicode’}, default=None</span></dt><dd><p>Remove accents and perform other character normalization
+<dt><strong>strip_accents</strong><span class="classifier">{‘ascii’, ‘unicode’} or callable, default=None</span></dt><dd><p>Remove accents and perform other character normalization
 during the preprocessing step.
 ‘ascii’ is a fast method that only works on characters that have
 a direct ASCII mapping.
-‘unicode’ is a slightly slower method that works on any characters.
+‘unicode’ is a slightly slower method that works on any character.
 None (default) does nothing.</p>
 <p>Both ‘ascii’ and ‘unicode’ use NFKD normalization from
 <a class="reference external" href="https://docs.python.org/3/library/unicodedata.html#unicodedata.normalize" title="(in Python v3.11)"><code class="xref py py-func docutils literal notranslate"><span class="pre">unicodedata.normalize()</span></code></a>.</p>
@@ -869,7 +869,7 @@ consider an alternative (see <a class="reference external" href="https://scikit-
 will be removed from the resulting tokens.
 Only applies if <code class="docutils literal notranslate"><span class="pre">analyzer</span> <span class="pre">==</span> <span class="pre">'word'</span></code>.</p>
 </dd>
-<dt><strong>token_pattern</strong><span class="classifier">str, default=r”(?u)\b\w\w+\b”</span></dt><dd><p>Regular expression denoting what constitutes a “token”, only used
+<dt><strong>token_pattern</strong><span class="classifier">str or None, default=r”(?u)\b\w\w+\b”</span></dt><dd><p>Regular expression denoting what constitutes a “token”, only used
 if <code class="docutils literal notranslate"><span class="pre">analyzer</span> <span class="pre">==</span> <span class="pre">'word'</span></code>. The default regexp selects tokens of 2
 or more alphanumeric characters (punctuation is completely ignored
 and always treated as a token separator).</p>
@@ -926,6 +926,11 @@ small n_features. This approach is similar to sparse random projection.</p>
 </dd>
 </dl>
 </div>
+<p class="rubric">Notes</p>
+<p>This estimator is <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-stateless" title="(in scikit-learn v1.2)"><span class="xref std std-term">stateless</span></a> and does not need to be fitted.
+However, we recommend to call <code class="xref py py-meth docutils literal notranslate"><span class="pre">fit_transform()</span></code> instead of
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">transform()</span></code>, as parameter validation is only performed in
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code>.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">HashingVectorizer</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">corpus</span> <span class="o">=</span> <span class="p">[</span>
@@ -960,7 +965,7 @@ small n_features. This approach is similar to sparse random projection.</p>
 <td><p>Decode the input into a string of unicode symbols.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code>(X[, y])</p></td>
-<td><p>No-op: this transformer is stateless.</p></td>
+<td><p>Only validates estimator's parameters.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code>(X[, y])</p></td>
 <td><p>Transform a sequence of documents to a document-term matrix.</p></td>
@@ -972,12 +977,15 @@ small n_features. This approach is similar to sparse random projection.</p>
 <td><p>Build or fetch the effective stop words list.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">partial_fit</span></code>(X[, y])</p></td>
-<td><p>No-op: this transformer is stateless.</p></td>
+<td><p>Only validates estimator's parameters.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code>(**params)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_output</span></code>(*[, transform])</p></td>
+<td><p>Set output container.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code>(**params)</p></td>
 <td><p>Set the parameters of this estimator.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(raw_X)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(raw_X)</p></td>
 <td><p>Transform a sequence of documents to a document-term matrix.</p></td>
 </tr>
 </tbody>

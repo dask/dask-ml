@@ -850,6 +850,11 @@ parameter.</p>
 </dd>
 </dl>
 </div>
+<p class="rubric">Notes</p>
+<p>This estimator is <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-stateless" title="(in scikit-learn v1.2)"><span class="xref std std-term">stateless</span></a> and does not need to be fitted.
+However, we recommend to call <code class="xref py py-meth docutils literal notranslate"><span class="pre">fit_transform()</span></code> instead of
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">transform()</span></code>, as parameter validation is only performed in
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code>.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.feature_extraction</span> <span class="kn">import</span> <span class="n">FeatureHasher</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">h</span> <span class="o">=</span> <span class="n">FeatureHasher</span><span class="p">(</span><span class="n">n_features</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
@@ -860,6 +865,17 @@ parameter.</p>
 <span class="go">       [ 0.,  0.,  0., -2., -5.,  0.,  0.,  0.,  0.,  0.]])</span>
 </pre></div>
 </div>
+<p>With <cite>input_type=”string”</cite>, the input must be an iterable over iterables of
+strings:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">h</span> <span class="o">=</span> <span class="n">FeatureHasher</span><span class="p">(</span><span class="n">n_features</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">input_type</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">raw_X</span> <span class="o">=</span> <span class="p">[[</span><span class="s2">&quot;dog&quot;</span><span class="p">,</span> <span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;snake&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;snake&quot;</span><span class="p">,</span> <span class="s2">&quot;dog&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;bird&quot;</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">h</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">raw_X</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+<span class="go">array([[ 0.,  0.,  0., -1.,  0., -1.,  0.,  1.],</span>
+<span class="go">       [ 0.,  0.,  0., -1.,  0., -1.,  0.,  0.],</span>
+<span class="go">       [ 0., -1.,  0.,  0.,  0.,  0.,  0.,  1.]])</span>
+</pre></div>
+</div>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable table autosummary">
 <colgroup>
@@ -868,7 +884,7 @@ parameter.</p>
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code>([X, y])</p></td>
-<td><p>No-op.</p></td>
+<td><p>Only validates estimator's parameters.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code>(X[, y])</p></td>
 <td><p>Fit to data, then transform it.</p></td>
@@ -876,7 +892,10 @@ parameter.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code>([deep])</p></td>
 <td><p>Get parameters for this estimator.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code>(**params)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_output</span></code>(*[, transform])</p></td>
+<td><p>Set output container.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code>(**params)</p></td>
 <td><p>Set the parameters of this estimator.</p></td>
 </tr>
 </tbody>
