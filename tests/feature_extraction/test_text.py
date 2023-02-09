@@ -32,7 +32,9 @@ JUNK_FOOD_DOCS = (
 )
 def test_basic(vect, container):
     b = db.from_sequence(JUNK_FOOD_DOCS, npartitions=2)
-    if container == "series":
+    if type(vect) == dask_ml.feature_extraction.text.FeatureHasher:
+        b = b.str.split()
+    elif container == "series":
         b = b.to_dataframe(columns=["text"])["text"]
     elif container == "array":
         b = b.to_dataframe(columns=["text"])["text"].values
