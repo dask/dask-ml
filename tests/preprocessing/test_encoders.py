@@ -11,7 +11,7 @@ import dask_ml.preprocessing
 from dask_ml._compat import DASK_2_20_0, PANDAS_VERSION
 from dask_ml.utils import assert_estimator_equal
 
-X = np.array([["a"], ["a"], ["b"], ["c"]])
+X = np.array([["a"], ["a"], ["b"], ["c"]], dtype=object)
 dX = da.from_array(X, 2)
 df = pd.DataFrame(X, columns=["A"]).apply(lambda x: x.astype("category"))
 ddf = dd.from_pandas(df, npartitions=2)
