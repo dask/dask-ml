@@ -55,6 +55,7 @@ def test_make_regression():
         dask_ml.datasets.make_classification,
         dask_ml.datasets.make_counts,
         dask_ml.datasets.make_regression,
+        dask_ml.datasets.make_s_curve,
     ],
 )
 def test_deterministic(generator, scheduler):
@@ -80,3 +81,19 @@ def test_make_classification_df():
     assert len(X_df) == 100
     assert len(y_series) == 100
     assert isinstance(y_series, dask.dataframe.core.Series)
+
+
+def test_make_s_curve():
+    X, X_color = dask_ml.datasets.make_s_curve(
+        n_samples=200,
+        random_state=0,
+        chunks=100,
+    )
+
+    assert isinstance(X, da.Array)
+    assert X.shape == (200, 3)
+    assert X.compute().shape == X.shape
+
+    assert isinstance(X_color, da.Array)
+    assert X_color.shape == (200,)
+    assert X_color.compute().shape == X_color.shape
