@@ -381,10 +381,11 @@ def make_classification(
     return X, y
 
 
-def random_date(start, end):
+def random_date(start, end, random_state=None):
+    rng_random_date = sklearn.utils.check_random_state(random_state)
     delta = end - start
     int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
-    random_second = np.random.randint(int_delta)
+    random_second = rng_random_date.randint(int_delta)
     return start + timedelta(seconds=random_second)
 
 
@@ -430,6 +431,13 @@ def make_classification_df(
         The output values.
 
     """
+    if (
+        random_state is not None
+        or not isinstance(random_state, np.random.RandomState)
+        or not isinstance(random_state, int)
+    ):
+        random_state = 42
+
     X_array, y_array = make_classification(
         n_samples=n_samples,
         flip_y=(1 - predictability),
@@ -451,8 +459,13 @@ def make_classification_df(
             [
                 X_df,
                 dd.from_array(
-                    np.array([random_date(*dates)] * len(X_df)),
-                    chunksize=chunks,
+                    np.array(
+                        [
+                            random_date(*dates, random_state + i)
+                            for i in range(len(X_df))
+                        ]
+                    ),
+                    chunksize=n_samples,
                     columns=["date"],
                 ),
             ],
