@@ -33,7 +33,6 @@ dependencies:
   - pip
   - dask
   - dask-glm
-  - dask-xgboost
   - pip:
     - dask-sphinx-theme >=3.0.0
     - graphviz

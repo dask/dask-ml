@@ -79,13 +79,6 @@ re-implement these systems.  Instead, Dask-ML makes it easy to use normal Dask
 workflows to prepare and set up data, then it deploys XGBoost
 *alongside* Dask, and hands the data over.
 
-.. code-block:: python
-
-   from dask_ml.xgboost import XGBRegressor
-
-   est = XGBRegressor(...)
-   est.fit(train, train_labels)
-
 See :doc:`Dask-ML + XGBoost <xgboost>` for more information.
 
 

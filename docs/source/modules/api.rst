@@ -262,26 +262,6 @@ Classification Metrics
    metrics.log_loss
 
 
-:mod:`dask_ml.xgboost`: XGBoost
-===============================
-
-.. automodule:: dask_ml.xgboost
-
-.. currentmodule:: dask_ml.xgboost
-
-.. autosummary::
-   :toctree: generated/
-   :template: class.rst
-
-   XGBClassifier
-   XGBRegressor
-
-.. autosummary::
-   :toctree: generated/
-
-   train
-   predict
-
 :mod:`dask_ml.datasets`: Datasets
 ======================================================
 
