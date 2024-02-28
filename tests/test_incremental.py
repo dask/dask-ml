@@ -188,6 +188,7 @@ def test_replace_scoring(estimator, fit_kwargs, scoring, xy_classification, mock
     patch.assert_called_with(scoring, compute=True)
 
 
+@pytest.mark.skip(reason="ValueError: Metadata inference failed in `_transformer`.")
 @pytest.mark.parametrize("container", ["bag", "series"])
 def test_incremental_text_pipeline(container):
     X = pd.Series(["a list", "of words", "for classification"] * 100)

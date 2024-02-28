@@ -187,7 +187,6 @@ def mean_squared_log_error(
     multioutput: Optional[str] = "uniform_average",
     compute: bool = True,
 ) -> ArrayLike:
-
     result = mean_squared_error(
         np.log1p(y_true),
         np.log1p(y_pred),

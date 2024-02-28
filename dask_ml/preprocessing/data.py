@@ -50,7 +50,6 @@ def _handle_zeros_in_scale(scale: NDArrayOrScalar, copy=True):
 
 
 class StandardScaler(DaskMLBaseMixin, sklearn.preprocessing.StandardScaler):
-
     __doc__ = sklearn.preprocessing.StandardScaler.__doc__
 
     def fit(
@@ -120,7 +119,6 @@ class StandardScaler(DaskMLBaseMixin, sklearn.preprocessing.StandardScaler):
 
 
 class MinMaxScaler(sklearn.preprocessing.MinMaxScaler):
-
     __doc__ = sklearn.preprocessing.MinMaxScaler.__doc__
 
     def fit(
@@ -202,7 +200,6 @@ class MinMaxScaler(sklearn.preprocessing.MinMaxScaler):
 
 
 class RobustScaler(sklearn.preprocessing.RobustScaler):
-
     __doc__ = sklearn.preprocessing.RobustScaler.__doc__
 
     def _check_array(
@@ -407,7 +404,6 @@ class QuantileTransformer(sklearn.preprocessing.QuantileTransformer):
         X_col[lower_bounds_idx] = lower_bound_y
 
         if not inverse:
-
             if output_distribution == "normal":
                 X_col = X_col.map_blocks(stats.norm.ppf)
                 # find the value to clip the data to avoid mapping to
