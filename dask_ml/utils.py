@@ -24,6 +24,14 @@ from ._utils import ConstantFunction
 logger = logging.getLogger()
 
 
+def is_frame_base(inst):
+    if getattr(dd, "_dask_expr_enabled", lambda: False)():
+        from dask_expr import FrameBase
+
+        return isinstance(inst, FrameBase)
+    return isinstance(inst, dd._Frame)
+
+
 def _svd_flip_copy(x, y, u_based_decision=True):
     # If the array is locked, copy the array and transpose it
     # This happens with a very large array > 1TB
@@ -212,7 +220,12 @@ def check_array(
 
 def _assert_eq(l, r, name=None, **kwargs):
     array_types = (np.ndarray, da.Array)
-    frame_types = (pd.core.generic.NDFrame, dd._Frame)
+    if getattr(dd, "_dask_expr_enabled", lambda: False)():
+        from dask_expr import FrameBase
+
+        frame_types = (pd.core.generic.NDFrame, FrameBase)
+    else:
+        frame_types = (pd.core.generic.NDFrame, dd._Frame)
     if isinstance(l, array_types):
         assert_eq_ar(l, r, **kwargs)
     elif isinstance(l, frame_types):

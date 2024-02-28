@@ -21,3 +21,6 @@ dependencies:
   - scipy
   - sparse
   - toolz
+  - pip
+  - pip:
+      - dask-expr

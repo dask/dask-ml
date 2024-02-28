@@ -14,7 +14,6 @@ import pandas as pd
 import sklearn.preprocessing
 from dask import compute
 from dask.array import nanmean, nanvar
-from pandas.api.types import is_categorical_dtype
 from scipy import stats
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_is_fitted, check_random_state
@@ -531,7 +530,7 @@ class Categorizer(BaseEstimator, TransformerMixin):
         categories = {}
         for name in columns:
             col = X[name]
-            if not is_categorical_dtype(col):
+            if not isinstance(col.dtype, pd.CategoricalDtype):
                 # This shouldn't ever be hit on a dask.array, since
                 # the object columns would have been converted to known cats
                 # already
@@ -688,7 +687,9 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
             columns = X.select_dtypes(include=["category"]).columns
         else:
             for column in columns:
-                assert is_categorical_dtype(X[column]), "Must be categorical"
+                assert isinstance(
+                    X[column].dtype, pd.CategoricalDtype
+                ), "Must be categorical"
 
         self.categorical_columns_ = columns
         self.non_categorical_columns_ = X.columns.drop(self.categorical_columns_)
@@ -818,7 +819,6 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
                 # Bug in pandas <= 0.20.3 lost name
                 if series.name is None:
                     series.name = col
-                series.divisions = X.divisions
             else:
                 # pandas
                 series = pd.Series(
@@ -926,7 +926,9 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
             columns = X.select_dtypes(include=["category"]).columns
         else:
             for column in columns:
-                assert is_categorical_dtype(X[column]), "Must be categorical"
+                assert isinstance(
+                    X[column].dtype, pd.CategoricalDtype
+                ), "Must be categorical"
 
         self.categorical_columns_ = columns
         self.non_categorical_columns_ = X.columns.drop(self.categorical_columns_)
@@ -1031,7 +1033,6 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
                 # Bug in pandas <= 0.20.3 lost name
                 if series.name is None:
                     series.name = col
-                series.divisions = X.divisions
             else:
                 # pandas
                 series = pd.Series(

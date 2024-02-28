@@ -1,4 +1,4 @@
-name: dask-ml-3.8
+name: dask-ml-3.11
 channels:
   - conda-forge
   - defaults
@@ -16,8 +16,11 @@ dependencies:
   - pytest
   - pytest-cov
   - pytest-mock
-  - python=3.8.*
+  - python=3.11.*
   - scikit-learn >=1.2.0
   - scipy
   - sparse
   - toolz
+  - pip
+  - pip:
+      - dask-expr

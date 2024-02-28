@@ -7,6 +7,7 @@ import sklearn.linear_model
 
 import dask_ml.datasets
 import dask_ml.ensemble
+from tests.conftest import DASK_EXPR_ENABLED
 
 
 class TestBlockwiseVotingClassifier:
@@ -127,6 +128,10 @@ class TestBlockwiseVotingClassifier:
         score = clf.score(X, y)
         assert isinstance(score, float)
 
+    @pytest.mark.xfail(
+        DASK_EXPR_ENABLED,
+        reason="AssertionError da.utils.assert_eq(result, result2)",
+    )
     def test_soft_voting_frame(self):
         X, y = dask_ml.datasets.make_classification(chunks=25)
         X = dd.from_dask_array(X)

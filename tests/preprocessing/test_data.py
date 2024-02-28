@@ -11,12 +11,13 @@ import sklearn.preprocessing as spp
 from dask import compute
 from dask.array.utils import assert_eq as assert_eq_ar
 from dask.dataframe.utils import assert_eq as assert_eq_df
-from pandas.api.types import is_categorical_dtype, is_object_dtype
+from pandas.api.types import is_object_dtype
 from sklearn.exceptions import NotFittedError
 
 import dask_ml.preprocessing as dpp
 from dask_ml.datasets import make_classification
 from dask_ml.utils import assert_estimator_equal
+from tests.conftest import DASK_EXPR_ENABLED
 
 X, y = make_classification(chunks=50)
 df = X.to_dask_dataframe().rename(columns=str)
@@ -285,16 +286,13 @@ class TestQuantileTransformer:
 
 
 class TestCategorizer:
-    @pytest.mark.skip(
-        reason="DeprecationWarning: is_categorical_dtype is deprecated and will be removed"
-    )
     def test_ce(self):
         ce = dpp.Categorizer()
         original = raw.copy()
         trn = ce.fit_transform(raw)
-        assert is_categorical_dtype(trn["A"])
-        assert is_categorical_dtype(trn["B"])
-        assert is_categorical_dtype(trn["C"])
+        assert isinstance(trn["A"].dtype, pd.CategoricalDtype)
+        assert isinstance(trn["B"].dtype, pd.CategoricalDtype)
+        assert isinstance(trn["C"].dtype, pd.CategoricalDtype)
         assert trn["D"].dtype == np.dtype("int64")
         tm.assert_index_equal(ce.columns_, pd.Index(["A", "B", "C"]))
         tm.assert_frame_equal(raw, original)
@@ -308,26 +306,20 @@ class TestCategorizer:
         assert all(trn["A"].cat.categories == cats)
         assert trn["A"].cat.ordered
 
-    @pytest.mark.skip(
-        reason="DeprecationWarning: is_categorical_dtype is deprecated and will be removed"
-    )
     def test_dask(self):
         a = dd.from_pandas(raw, npartitions=2)
         ce = dpp.Categorizer()
         trn = ce.fit_transform(a)
-        assert is_categorical_dtype(trn["A"])
-        assert is_categorical_dtype(trn["B"])
-        assert is_categorical_dtype(trn["C"])
+        assert isinstance(trn["A"].dtype, pd.CategoricalDtype)
+        assert isinstance(trn["B"].dtype, pd.CategoricalDtype)
+        assert isinstance(trn["C"].dtype, pd.CategoricalDtype)
         assert trn["D"].dtype == np.dtype("int64")
         tm.assert_index_equal(ce.columns_, pd.Index(["A", "B", "C"]))
 
-    @pytest.mark.skip(
-        reason="DeprecationWarning: is_categorical_dtype is deprecated and will be removed"
-    )
     def test_columns(self):
         ce = dpp.Categorizer(columns=["A"])
         trn = ce.fit_transform(raw)
-        assert is_categorical_dtype(trn["A"])
+        assert isinstance(trn["A"].dtype, pd.CategoricalDtype)
         assert is_object_dtype(trn["B"])
 
     @pytest.mark.skipif(dpp.data._HAS_CTD, reason="No CategoricalDtypes")
@@ -338,9 +330,6 @@ class TestCategorizer:
         tm.assert_index_equal(idx, pd.Index(["a", "b", "c"]))
         assert ordered is False
 
-    @pytest.mark.skip(
-        reason="DeprecationWarning: is_categorical_dtype is deprecated and will be removed"
-    )
     @pytest.mark.skipif(not dpp.data._HAS_CTD, reason="Has CategoricalDtypes")
     def test_categorical_dtype(self):
         ce = dpp.Categorizer()
@@ -400,9 +389,7 @@ class TestDummyEncoder:
 
         tm.assert_frame_equal(result, df)
 
-    @pytest.mark.skip(
-        reason=" DeprecationWarning: is_categorical_dtype is deprecated and will be removed"
-    )
+    @pytest.mark.xfail(reason="Attributes dtype are different bool vs uint8")
     @pytest.mark.parametrize("daskify", [False, True])
     def test_encode_subset_of_columns(self, daskify):
         de = dpp.DummyEncoder(columns=["B"])
@@ -453,9 +440,6 @@ class TestDummyEncoder:
         result = de.fit_transform(a)
         assert isinstance(result, dd.DataFrame)
 
-    @pytest.mark.skip(
-        reason=" DeprecationWarning: is_categorical_dtype is deprecated and will be removed"
-    )
     def test_transform_explicit_columns(self):
         de = dpp.DummyEncoder(columns=["A", "B", "C"])
         de.fit(dummy)
@@ -470,8 +454,8 @@ class TestDummyEncoder:
             de.transform(dummy.drop("B", axis="columns"))
         assert rec.match("Columns of 'X' do not match the training")
 
-    @pytest.mark.skip(
-        reason='AssertionError: Attributes of DataFrame.iloc[:, 0] (column name="A") are different'
+    @pytest.mark.xfail(
+        reason="Attribute 'dtype' are different; int64 vs pyarrow[string]"
     )
     def test_inverse_transform(self):
         de = dpp.DummyEncoder()
@@ -483,6 +467,8 @@ class TestDummyEncoder:
         )
         de.fit(df)
         assert_eq_df(df, de.inverse_transform(de.transform(df)))
+
+        # This fails w/ dtype of col A differ int64 vs pyarrow[string]
         assert_eq_df(df, de.inverse_transform(de.transform(df).values))
 
 
@@ -646,7 +632,12 @@ class TestPolynomialFeatures:
         assert pf._transformer.interaction_only is pf.interaction_only
         assert pf._transformer.include_bias is pf.include_bias
 
-    @pytest.mark.parametrize("daskify", [True, False])
+    mark = pytest.mark.xfail(
+        DASK_EXPR_ENABLED,
+        reason="dask-expr: NotImplementedError in assert_eq_df(res_df.iloc[:, 1:], frame, check_dtype=False)",
+    )
+
+    @pytest.mark.parametrize("daskify", [pytest.param(True, marks=mark), False])
     def test_df_transform_index(self, daskify):
         frame = copy(df)
         if not daskify:

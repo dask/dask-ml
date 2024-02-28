@@ -102,7 +102,7 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
                 y = np.asarray(y)
 
         if isinstance(y, dd.Series):
-            if pd.api.types.is_categorical_dtype(y):
+            if isinstance(y.dtype, pd.CategoricalDtype):
                 # TODO(dask-3784): just call y.cat.as_known()
                 # https://github.com/dask/dask/issues/3784
                 if not y.cat.known:
@@ -325,6 +325,6 @@ def _encode(values, uniques=None, encode=False):
 
 
 def _is_categorical(y: Union[ArrayLike, SeriesType]) -> bool:
-    return isinstance(y, (dd.Series, pd.Series)) and pd.api.types.is_categorical_dtype(
-        y
+    return isinstance(y, (dd.Series, pd.Series)) and isinstance(
+        y.dtype, pd.CategoricalDtype
     )

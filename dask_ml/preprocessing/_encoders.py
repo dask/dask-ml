@@ -227,7 +227,7 @@ class OneHotEncoder(DaskMLBaseMixin, sklearn.preprocessing.OneHotEncoder):
                     categories = self.categories[i]
                     Xi = Xi.astype(pd.CategoricalDtype(categories))
                 else:
-                    if not pd.api.types.is_categorical_dtype(Xi.dtype):
+                    if not isinstance(Xi.dtype, pd.CategoricalDtype):
                         raise ValueError(
                             "All columns must be Categorical dtype when "
                             "'categories=\"auto\"'."
@@ -292,7 +292,7 @@ class OneHotEncoder(DaskMLBaseMixin, sklearn.preprocessing.OneHotEncoder):
 
             for i, (col, dtype) in enumerate(zip(X.columns, self.dtypes_)):
                 Xi = X.iloc[:, i]
-                if not pd.api.types.is_categorical_dtype(Xi.dtype):
+                if not isinstance(Xi.dtype, pd.CategoricalDtype):
                     Xi = Xi.astype(dtype)
                     X[col] = Xi
 
