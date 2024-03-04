@@ -1,3 +1,4 @@
+import warnings
 from itertools import product
 
 import dask.array as da
@@ -103,7 +104,6 @@ def test_pca_randomized_solver():
     )
 
 
-@pytest.mark.skip(reason="Passing None has been deprecated")
 def test_no_empty_slice_warning():
     if not DASK_2_26_0:
         # See https://github.com/dask/dask/pull/6591
@@ -114,7 +114,8 @@ def test_no_empty_slice_warning():
     X = np.random.uniform(-1, 1, size=(n_components, n_features))
     dX = da.from_array(X, chunks=(n_components, n_features))
     pca = dd.PCA(n_components=n_components)
-    with pytest.warns(None) as w:
+
+    with warnings.catch_warnings(record=True) as w:
         pca.fit(dX)
 
     assert len(w) == 0
