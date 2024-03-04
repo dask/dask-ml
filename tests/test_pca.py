@@ -672,7 +672,6 @@ def test_pca_bad_solver():
 #         yield check_pca_int_dtype_upcast_to_double, svd_solver
 
 
-@pytest.mark.skip(reason="SVD dtype not preserved in dask 2.26.0")
 @pytest.mark.parametrize(
     "svd_solver",
     [
