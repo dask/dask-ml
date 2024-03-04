@@ -1,21 +1,12 @@
 """
 """
-import dask
 import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 from multipledispatch import dispatch
 
-try:
+if getattr(dd, "_dask_expr_enabled", lambda: False)():
     import dask_expr
-
-    _dask_expr_avail = True
-except ImportError:
-    dask_expr = None
-    _dask_expr_avail = False
-
-
-if dask.config.get("dataframe.query-planning") and _dask_expr_avail:
 
     @dispatch(dask_expr.FrameBase)
     def exp(A):
