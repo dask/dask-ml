@@ -3,7 +3,6 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - dask
   - dask-glm
   - multipledispatch >=0.4.9
   - mypy
@@ -21,3 +20,7 @@ dependencies:
   - scipy
   - sparse
   - toolz
+  - pip
+  - pip:
+      - git+https://github.com/dask-contrib/dask-expr
+      - git+https://github.com/dask/dask

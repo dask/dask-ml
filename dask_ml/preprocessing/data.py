@@ -14,7 +14,6 @@ import pandas as pd
 import sklearn.preprocessing
 from dask import compute
 from dask.array import nanmean, nanvar
-from pandas.api.types import is_categorical_dtype
 from scipy import stats
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_is_fitted, check_random_state
@@ -50,7 +49,6 @@ def _handle_zeros_in_scale(scale: NDArrayOrScalar, copy=True):
 
 
 class StandardScaler(DaskMLBaseMixin, sklearn.preprocessing.StandardScaler):
-
     __doc__ = sklearn.preprocessing.StandardScaler.__doc__
 
     def fit(
@@ -120,7 +118,6 @@ class StandardScaler(DaskMLBaseMixin, sklearn.preprocessing.StandardScaler):
 
 
 class MinMaxScaler(sklearn.preprocessing.MinMaxScaler):
-
     __doc__ = sklearn.preprocessing.MinMaxScaler.__doc__
 
     def fit(
@@ -202,7 +199,6 @@ class MinMaxScaler(sklearn.preprocessing.MinMaxScaler):
 
 
 class RobustScaler(sklearn.preprocessing.RobustScaler):
-
     __doc__ = sklearn.preprocessing.RobustScaler.__doc__
 
     def _check_array(
@@ -407,7 +403,6 @@ class QuantileTransformer(sklearn.preprocessing.QuantileTransformer):
         X_col[lower_bounds_idx] = lower_bound_y
 
         if not inverse:
-
             if output_distribution == "normal":
                 X_col = X_col.map_blocks(stats.norm.ppf)
                 # find the value to clip the data to avoid mapping to
@@ -535,7 +530,7 @@ class Categorizer(BaseEstimator, TransformerMixin):
         categories = {}
         for name in columns:
             col = X[name]
-            if not is_categorical_dtype(col):
+            if not isinstance(col.dtype, pd.CategoricalDtype):
                 # This shouldn't ever be hit on a dask.array, since
                 # the object columns would have been converted to known cats
                 # already
@@ -692,7 +687,9 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
             columns = X.select_dtypes(include=["category"]).columns
         else:
             for column in columns:
-                assert is_categorical_dtype(X[column]), "Must be categorical"
+                assert isinstance(
+                    X[column].dtype, pd.CategoricalDtype
+                ), "Must be categorical"
 
         self.categorical_columns_ = columns
         self.non_categorical_columns_ = X.columns.drop(self.categorical_columns_)
@@ -822,7 +819,6 @@ class DummyEncoder(BaseEstimator, TransformerMixin):
                 # Bug in pandas <= 0.20.3 lost name
                 if series.name is None:
                     series.name = col
-                series.divisions = X.divisions
             else:
                 # pandas
                 series = pd.Series(
@@ -930,7 +926,9 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
             columns = X.select_dtypes(include=["category"]).columns
         else:
             for column in columns:
-                assert is_categorical_dtype(X[column]), "Must be categorical"
+                assert isinstance(
+                    X[column].dtype, pd.CategoricalDtype
+                ), "Must be categorical"
 
         self.categorical_columns_ = columns
         self.non_categorical_columns_ = X.columns.drop(self.categorical_columns_)
@@ -1035,7 +1033,6 @@ class OrdinalEncoder(BaseEstimator, TransformerMixin):
                 # Bug in pandas <= 0.20.3 lost name
                 if series.name is None:
                     series.name = col
-                series.divisions = X.divisions
             else:
                 # pandas
                 series = pd.Series(

@@ -85,7 +85,7 @@ async def test_basic(c, s, a, b, array_type, library, max_iter):
         # validation/test set.
         assert abs(score - search.best_score_) < 0.1
 
-    assert type(search.best_estimator_) == type(model)
+    assert type(search.best_estimator_) is type(model)
     assert isinstance(search.best_params_, dict)
 
     num_fit_models = len(set(search.cv_results_["model_id"]))

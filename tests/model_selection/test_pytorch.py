@@ -27,7 +27,6 @@ else:
 
 @gen_cluster(client=True)
 async def test_pytorch(c, s, a, b):
-
     n_features = 10
     defaults = {
         "callbacks": False,

@@ -80,7 +80,6 @@ else:
     _check_param_grid = None
 
 if SK_VERSION <= packaging.version.parse("0.21.dev0"):
-
     _RETURN_TRAIN_SCORE_DEFAULT = "warn"
 
     def handle_deprecated_train_score(results, return_train_score):
@@ -414,7 +413,7 @@ def do_fit_and_score(
             xtest = X_test + (n,)
             ytest = y_test + (n,)
 
-            for (name, m) in fit_ests:
+            for name, m in fit_ests:
                 dsk[(score_name, m, n)] = (
                     score,
                     (name, m, n),
@@ -879,7 +878,7 @@ def _do_featureunion(
 
     fit_steps = []
     tr_Xs = []
-    for (step_name, step) in est.transformer_list:
+    for step_name, step in est.transformer_list:
         fits, out_Xs = _do_fit_step(
             dsk,
             next_token,

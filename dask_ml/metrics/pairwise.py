@@ -51,7 +51,7 @@ def pairwise_distances(
     Y: ArrayLike,
     metric: Union[str, Callable[[ArrayLike, ArrayLike], float]] = "euclidean",
     n_jobs: Optional[int] = None,
-    **kwargs: Any
+    **kwargs: Any,
 ):
     if isinstance(Y, da.Array):
         raise TypeError("`Y` must be a numpy array")
@@ -62,7 +62,7 @@ def pairwise_distances(
         dtype=float,
         chunks=chunks,
         metric=metric,
-        **kwargs
+        **kwargs,
     )
 
 
@@ -203,7 +203,7 @@ def pairwise_kernels(
     metric: Union[str, Callable[[ArrayLike, ArrayLike], float]] = "linear",
     filter_params: bool = False,
     n_jobs: Optional[int] = 1,
-    **kwds
+    **kwds,
 ):
     from sklearn.gaussian_process.kernels import Kernel as GPKernel
 

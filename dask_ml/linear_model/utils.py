@@ -5,29 +5,60 @@ import dask.dataframe as dd
 import numpy as np
 from multipledispatch import dispatch
 
+if getattr(dd, "_dask_expr_enabled", lambda: False)():
+    import dask_expr
 
-@dispatch(dd._Frame)
-def exp(A):
-    return da.exp(A)
+    @dispatch(dask_expr.FrameBase)
+    def exp(A):
+        return da.exp(A)
+
+    @dispatch(dask_expr.FrameBase)
+    def absolute(A):
+        return da.absolute(A)
+
+    @dispatch(dask_expr.FrameBase)
+    def sign(A):
+        return da.sign(A)
+
+    @dispatch(dask_expr.FrameBase)
+    def log1p(A):
+        return da.log1p(A)
+
+    @dispatch(dask_expr.FrameBase)  # noqa: F811
+    def add_intercept(X):  # noqa: F811
+        columns = X.columns
+        if "intercept" in columns:
+            raise ValueError("'intercept' column already in 'X'")
+        return X.assign(intercept=1)[["intercept"] + list(columns)]
+
+else:
+
+    @dispatch(dd._Frame)
+    def exp(A):
+        return da.exp(A)
+
+    @dispatch(dd._Frame)
+    def absolute(A):
+        return da.absolute(A)
+
+    @dispatch(dd._Frame)
+    def sign(A):
+        return da.sign(A)
+
+    @dispatch(dd._Frame)
+    def log1p(A):
+        return da.log1p(A)
+
+    @dispatch(dd._Frame)  # noqa: F811
+    def add_intercept(X):  # noqa: F811
+        columns = X.columns
+        if "intercept" in columns:
+            raise ValueError("'intercept' column already in 'X'")
+        return X.assign(intercept=1)[["intercept"] + list(columns)]
 
 
-@dispatch(dd._Frame)
-def absolute(A):
-    return da.absolute(A)
-
-
-@dispatch(dd._Frame)
-def sign(A):
-    return da.sign(A)
-
-
-@dispatch(dd._Frame)
-def log1p(A):
-    return da.log1p(A)
-
-
-@dispatch(np.ndarray)
-def add_intercept(X):
+@dispatch(np.ndarray)  # noqa: F811
+def add_intercept(X):  # noqa: F811
     return _add_intercept(X)
 
 
@@ -51,14 +82,6 @@ def add_intercept(X):  # noqa: F811
 
     chunks = (X.chunks[0], ((X.chunks[1][0] + 1),))
     return X.map_blocks(_add_intercept, dtype=X.dtype, chunks=chunks)
-
-
-@dispatch(dd.DataFrame)  # noqa: F811
-def add_intercept(X):  # noqa: F811
-    columns = X.columns
-    if "intercept" in columns:
-        raise ValueError("'intercept' column already in 'X'")
-    return X.assign(intercept=1)[["intercept"] + list(columns)]
 
 
 @dispatch(np.ndarray)  # noqa: F811

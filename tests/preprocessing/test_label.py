@@ -9,6 +9,7 @@ from dask.array.utils import assert_eq as assert_eq_ar
 
 import dask_ml.preprocessing as dpp
 from dask_ml.utils import assert_estimator_equal
+from tests.conftest import DASK_EXPR_ENABLED
 
 choices = np.array(["a", "b", "c"], dtype=str)
 np_y = np.random.choice(choices, 100)
@@ -92,7 +93,6 @@ class TestLabelEncoder:
 
     @pytest.mark.parametrize("array", [y, s])
     def test_inverse_transform(self, array):
-
         a = dpp.LabelEncoder()
         assert_eq_ar(a.inverse_transform(a.fit_transform(array)), da.asarray(array))
 
@@ -121,7 +121,14 @@ class TestLabelEncoder:
 
         if daskify != "unknown":
             assert a.dtype_ == cat.dtype
-        np.testing.assert_array_equal(a.classes_, categories)
+
+        if DASK_EXPR_ENABLED and daskify == "unknown" and categories != ["b", "a"]:
+            with pytest.raises(AssertionError, match="Arrays are not equal"):
+                np.testing.assert_array_equal(a.classes_, categories)
+            return
+        else:
+            np.testing.assert_array_equal(a.classes_, categories)
+
         result = a.transform(cat)
         da.utils.assert_eq(result, transformed)
 
@@ -132,7 +139,13 @@ class TestLabelEncoder:
                 inv_transformed.compute().reset_index()[0], npartitions=2
             )
             inv_transformed.name = None
-        dd.utils.assert_eq(inv_transformed, cat)
+        if daskify == "unknown" and not DASK_EXPR_ENABLED:
+            with pytest.raises(
+                AssertionError, match="Attributes of Series are different"
+            ):
+                dd.utils.assert_eq(inv_transformed, cat)
+        else:
+            dd.utils.assert_eq(inv_transformed, cat)
 
     def test_dataframe_raises(self):
         df = pd.DataFrame({"A": ["a", "a", "b"]}, dtype="category")

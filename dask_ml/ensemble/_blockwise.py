@@ -1,12 +1,11 @@
 import dask
 import dask.array as da
-import dask.dataframe as dd
 import numpy as np
 import sklearn.base
 from sklearn.utils.validation import check_is_fitted
 
 from ..base import ClassifierMixin, RegressorMixin
-from ..utils import check_array
+from ..utils import check_array, is_frame_base
 
 
 class BlockwiseBase(sklearn.base.BaseEstimator):
@@ -62,7 +61,7 @@ class BlockwiseBase(sklearn.base.BaseEstimator):
                 dtype=np.dtype(dtype),
                 chunks=chunks,
             )
-        elif isinstance(X, dd._Frame):
+        elif is_frame_base(X):
             meta = np.empty((0, len(self.classes_)), dtype=dtype)
             combined = X.map_partitions(
                 _predict_stack, estimators=self.estimators_, meta=meta
@@ -184,7 +183,7 @@ class BlockwiseVotingClassifier(ClassifierMixin, BlockwiseBase):
                 chunks=chunks,
                 meta=meta,
             )
-        elif isinstance(X, dd._Frame):
+        elif is_frame_base(X):
             # TODO: replace with a _predict_proba_stack version.
             # This current raises; dask.dataframe doesn't like map_partitions that
             # return new axes.

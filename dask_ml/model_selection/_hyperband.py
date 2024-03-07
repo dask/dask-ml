@@ -530,7 +530,6 @@ def _get_meta(
     SHAs: Dict[int, SuccessiveHalvingSearchCV],
     key: Callable[[int, int], str],
 ) -> Tuple[List[Dict[str, Any]], Dict[str, List[Dict[str, Any]]]]:
-
     meta_ = []
     history_ = {}
     for bracket in brackets:

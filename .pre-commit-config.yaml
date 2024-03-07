@@ -1,16 +1,19 @@
 repos:
--   repo: https://github.com/python/black
-    rev: 22.3.0
+-   repo: https://github.com/psf/black
+    rev: 23.12.1
     hooks:
     - id: black
       language_version: python3
+      args:
+          - --target-version=py39
 -   repo: https://github.com/pycqa/flake8
-    rev: 3.7.9
+    rev: 7.0.0
     hooks:
     - id: flake8
       language_version: python3
--   repo: https://github.com/timothycrosley/isort
-    rev: 4.3.21
+      args: ["--ignore=E501,W503,E203,E741,E731"]
+-   repo: https://github.com/pycqa/isort
+    rev: 5.13.2
     hooks:
     - id: isort
       language_version: python3

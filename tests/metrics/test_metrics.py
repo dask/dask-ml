@@ -83,6 +83,9 @@ def test_pairwise_kernels(kernel):
     assert_eq(r1, r2)
 
 
+@pytest.mark.skip(
+    reason="FutureWarning: Setting the eps parameter is deprecated and will be removed"
+)
 @pytest.mark.parametrize("sample_weight", [True, False])
 @pytest.mark.parametrize("normalize", [True, False])
 @pytest.mark.parametrize("labels", [[0, 1], [0, 1, 3], [1, 0]])
@@ -124,6 +127,9 @@ def test_log_loss(labels, normalize, sample_weight, daskify):
     assert_eq(a, b)
 
 
+@pytest.mark.skip(
+    reason="FutureWarning: Setting the eps parameter is deprecated and will be removed"
+)
 @pytest.mark.parametrize(
     "yhat",
     [
@@ -142,6 +148,9 @@ def test_log_loss_shape(yhat):
     assert_eq(a, b)
 
 
+@pytest.mark.skip(
+    reason="FutureWarning: The `needs_threshold` and `needs_proba` parameter are deprecated"
+)
 @pytest.mark.parametrize("y", [[0, 1, 1, 0], [0, 1, 2, 0]])
 def test_log_loss_scoring(y):
     # a_scorer = sklearn.metrics.get_scorer('neg_log_loss')

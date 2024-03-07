@@ -1009,7 +1009,6 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
         predict_proba_meta=None,
         transform_meta=None,
     ):
-
         self.n_initial_parameters = n_initial_parameters
         self.decay_rate = decay_rate
         self.fits_per_score = fits_per_score

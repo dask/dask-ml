@@ -2,6 +2,7 @@ from datetime import date
 
 import dask
 import dask.array as da
+import dask.dataframe as dd
 import numpy as np
 import pytest
 from dask.array.utils import assert_eq
@@ -79,4 +80,4 @@ def test_make_classification_df():
     assert len(X_df.columns) == 6
     assert len(X_df) == 100
     assert len(y_series) == 100
-    assert isinstance(y_series, dask.dataframe.core.Series)
+    assert isinstance(y_series, dd.Series)

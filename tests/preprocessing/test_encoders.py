@@ -90,6 +90,7 @@ def test_basic_dataframe(sparse_output, method, dask_data, dtype):
         exclude={
             "n_values_",
             "feature_indices_",
+            "feature_names_in_",
             "active_features_",
             "dtypes_",
             "drop_idx_",

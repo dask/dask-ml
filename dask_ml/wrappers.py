@@ -10,7 +10,7 @@ import sklearn.base
 import sklearn.metrics
 from sklearn.utils.validation import check_is_fitted
 
-from dask_ml.utils import _timer
+from dask_ml.utils import _timer, is_frame_base
 
 from ._partial import fit
 from ._utils import copy_learned_attributes
@@ -241,7 +241,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
             return X.map_blocks(
                 _transform, estimator=self._postfit_estimator, meta=meta
             )
-        elif isinstance(X, dd._Frame):
+        elif is_frame_base(X):
             if meta is None:
                 # dask-dataframe relies on dd.core.no_default
                 # for infering meta
@@ -324,7 +324,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
             )
             return result
 
-        elif isinstance(X, dd._Frame):
+        elif is_frame_base(X):
             if meta is None:
                 meta = dd.core.no_default
             return X.map_partitions(
@@ -369,7 +369,7 @@ class ParallelPostFit(sklearn.base.BaseEstimator, sklearn.base.MetaEstimatorMixi
                 meta=meta,
                 chunks=(X.chunks[0], len(self._postfit_estimator.classes_)),
             )
-        elif isinstance(X, dd._Frame):
+        elif is_frame_base(X):
             if meta is None:
                 meta = dd.core.no_default
             return X.map_partitions(
@@ -619,7 +619,7 @@ def _first_block(dask_object):
             dask_object.to_delayed().flatten()[0], shape, dask_object.dtype
         )
 
-    if isinstance(dask_object, dd._Frame):
+    if is_frame_base(dask_object):
         return dask_object.get_partition(0)
 
     else:

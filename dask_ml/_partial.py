@@ -29,7 +29,7 @@ def fit(
     shuffle_blocks=True,
     random_state=None,
     assume_equal_chunks=False,
-    **kwargs
+    **kwargs,
 ):
     """Fit scikit learn model against dask arrays
 
