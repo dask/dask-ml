@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Preprocessing &#8212; dask-ml 2022.5.28 documentation</title>
+    <title>Preprocessing &#8212; dask-ml 2023.3.25 documentation</title>
     
   <link href="_static/css/theme.css" rel="stylesheet">
   <link href="_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -45,7 +45,16 @@
     
   </head>
   <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
-
+<!-- Google Tag Manager (noscript) -->
+<noscript
+  ><iframe
+    src="https://www.googletagmanager.com/ns.html?id=GTM-P4GQM59"
+    height="0"
+    width="0"
+    style="display: none; visibility: hidden"
+  ></iframe
+></noscript>
+<!-- End Google Tag Manager (noscript) -->
 <nav class="dask-nav container-fluid">
   <ul>
     <li class="logo">
@@ -904,7 +913,7 @@ scikit-learn counterparts.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">.transform</span></code> will return a <code class="docutils literal notranslate"><span class="pre">dask.array</span></code> or <code class="docutils literal notranslate"><span class="pre">dask.dataframe</span></code>
 when the input is a dask collection</p></li>
 </ol>
-<p>See <a class="reference external" href="https://scikit-learn.org/stable/modules/classes.html#module-sklearn.preprocessing" title="(in scikit-learn v1.2)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sklearn.preprocessing</span></code></a> for more information about any particular
+<p>See <a class="reference external" href="https://scikit-learn.org/stable/modules/classes.html#module-sklearn.preprocessing" title="(in scikit-learn v1.4)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sklearn.preprocessing</span></code></a> for more information about any particular
 transformer. Scikit-learn does have some transforms that are alternatives to
 the large-memory tasks that Dask serves. These include <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.FeatureHasher.html">FeatureHasher</a> (a
 good alternative to <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.DictVectorizer.html">DictVectorizer</a> and <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html">CountVectorizer</a>) and <a class="reference external" href="http://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.HashingVectorizer.html">HashingVectorizer</a>
@@ -1073,11 +1082,11 @@ depending on whether the value in the original.</p>
 
 <span class="gp">In [18]: </span><span class="n">pd</span><span class="o">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;B&#39;</span><span class="p">])</span>
 <span class="gh">Out[18]: </span>
-<span class="go">   a  b  c</span>
-<span class="go">0  1  0  0</span>
-<span class="go">1  0  1  0</span>
-<span class="go">2  0  0  1</span>
-<span class="go">3  0  0  1</span>
+<span class="go">       a      b      c</span>
+<span class="go">0   True  False  False</span>
+<span class="go">1  False   True  False</span>
+<span class="go">2  False  False   True</span>
+<span class="go">3  False  False   True</span>
 </pre></div>
 </div>
 <p>Wherever the original was <code class="docutils literal notranslate"><span class="pre">'a'</span></code>, the transformed now has a <code class="docutils literal notranslate"><span class="pre">1</span></code> in the <code class="docutils literal notranslate"><span class="pre">a</span></code>
@@ -1090,17 +1099,17 @@ two rows in the training, and the last two rows in the tests datasets. Then,
 when training, our transformed columns would be:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [19]: </span><span class="n">pd</span><span class="o">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;B&#39;</span><span class="p">])</span>
 <span class="gh">Out[19]: </span>
-<span class="go">   a  b</span>
-<span class="go">0  1  0</span>
-<span class="go">1  0  1</span>
+<span class="go">       a      b</span>
+<span class="go">0   True  False</span>
+<span class="go">1  False   True</span>
 </pre></div>
 </div>
 <p>while on the test dataset, they would be:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [20]: </span><span class="n">pd</span><span class="o">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s1">&#39;B&#39;</span><span class="p">])</span>
 <span class="gh">Out[20]: </span>
-<span class="go">   c</span>
-<span class="go">2  1</span>
-<span class="go">3  1</span>
+<span class="go">      c</span>
+<span class="go">2  True</span>
+<span class="go">3  True</span>
 </pre></div>
 </div>
 <p>Which is incorrect! The columns don’t match.</p>
@@ -1150,6 +1159,30 @@ whatever subset of the data we currently see. Instead, it depends on the
     </div>
   
   <script src="_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+
+<!-- Google Tag Manager -->
+<script>
+  (function (w, d, s, l, i) {
+    w[l] = w[l] || [];
+    w[l].push({
+      "gtm.start": new Date().getTime(),
+      event: "gtm.js",
+    });
+    var f = d.getElementsByTagName(s)[0],
+      j = d.createElement(s),
+      dl = l != "dataLayer" ? "&l=" + l : "";
+    j.async = true;
+    j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+    f.parentNode.insertBefore(j, f);
+  })(
+    window,
+    document,
+    "script",
+    "dataLayer",
+    "GTM-P4GQM59"
+  );
+</script>
+<!-- End Google Tag Manager -->
 
   </body>
 </html>

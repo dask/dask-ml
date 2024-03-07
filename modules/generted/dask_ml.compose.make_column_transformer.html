@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>dask_ml.compose.make_column_transformer &#8212; dask-ml 2022.5.28 documentation</title>
+    <title>dask_ml.compose.make_column_transformer &#8212; dask-ml 2023.3.25 documentation</title>
     
   <link href="../../_static/css/theme.css" rel="stylesheet">
   <link href="../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -43,7 +43,16 @@
     
   </head>
   <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
-
+<!-- Google Tag Manager (noscript) -->
+<noscript
+  ><iframe
+    src="https://www.googletagmanager.com/ns.html?id=GTM-P4GQM59"
+    height="0"
+    width="0"
+    style="display: none; visibility: hidden"
+  ></iframe
+></noscript>
+<!-- End Google Tag Manager (noscript) -->
 <nav class="dask-nav container-fluid">
   <ul>
     <li class="logo">
@@ -796,14 +805,14 @@
 require, and does not permit, naming the transformers. Instead, they will
 be given names automatically based on their types. It also does not allow
 weighting with <code class="docutils literal notranslate"><span class="pre">transformer_weights</span></code>.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/compose.html#make-column-transformer" title="(in scikit-learn v1.2)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/compose.html#make-column-transformer" title="(in scikit-learn v1.4)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl>
 <dt><strong>*transformers</strong><span class="classifier">tuples</span></dt><dd><p>Tuples of the form (transformer, columns) specifying the
 transformer objects to be applied to subsets of the data.</p>
 <dl class="simple">
-<dt>transformer<span class="classifier">{‘drop’, ‘passthrough’} or estimator</span></dt><dd><p>Estimator must support <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v1.2)"><span class="xref std std-term">fit</span></a> and <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-transform" title="(in scikit-learn v1.2)"><span class="xref std std-term">transform</span></a>.
+<dt>transformer<span class="classifier">{‘drop’, ‘passthrough’} or estimator</span></dt><dd><p>Estimator must support <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v1.4)"><span class="xref std std-term">fit</span></a> and <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-transform" title="(in scikit-learn v1.4)"><span class="xref std std-term">transform</span></a>.
 Special-cased strings ‘drop’ and ‘passthrough’ are accepted as
 well, to indicate to drop the columns or to pass them through
 untransformed, respectively.</p>
@@ -828,7 +837,7 @@ through. This subset of columns is concatenated with the output of
 the transformers.
 By setting <code class="docutils literal notranslate"><span class="pre">remainder</span></code> to be an estimator, the remaining
 non-specified columns will use the <code class="docutils literal notranslate"><span class="pre">remainder</span></code> estimator. The
-estimator must support <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v1.2)"><span class="xref std std-term">fit</span></a> and <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-transform" title="(in scikit-learn v1.2)"><span class="xref std std-term">transform</span></a>.</p>
+estimator must support <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v1.4)"><span class="xref std std-term">fit</span></a> and <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-transform" title="(in scikit-learn v1.4)"><span class="xref std std-term">transform</span></a>.</p>
 </dd>
 <dt><strong>sparse_threshold</strong><span class="classifier">float, default=0.3</span></dt><dd><p>If the transformed output consists of a mix of sparse and dense data,
 it will be stacked as a sparse matrix if the density is lower than this
@@ -839,16 +848,18 @@ keyword will be ignored.</p>
 </dd>
 <dt><strong>n_jobs</strong><span class="classifier">int, default=None</span></dt><dd><p>Number of jobs to run in parallel.
 <code class="docutils literal notranslate"><span class="pre">None</span></code> means 1 unless in a <code class="xref py py-obj docutils literal notranslate"><span class="pre">joblib.parallel_backend</span></code> context.
-<code class="docutils literal notranslate"><span class="pre">-1</span></code> means using all processors. See <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-n_jobs" title="(in scikit-learn v1.2)"><span class="xref std std-term">Glossary</span></a>
+<code class="docutils literal notranslate"><span class="pre">-1</span></code> means using all processors. See <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-n_jobs" title="(in scikit-learn v1.4)"><span class="xref std std-term">Glossary</span></a>
 for more details.</p>
 </dd>
 <dt><strong>verbose</strong><span class="classifier">bool, default=False</span></dt><dd><p>If True, the time elapsed while fitting each transformer will be
 printed as it is completed.</p>
 </dd>
-<dt><strong>verbose_feature_names_out</strong><span class="classifier">bool, default=True</span></dt><dd><p>If True, <code class="xref py py-meth docutils literal notranslate"><span class="pre">get_feature_names_out()</span></code> will prefix all feature names
-with the name of the transformer that generated that feature.
-If False, <code class="xref py py-meth docutils literal notranslate"><span class="pre">get_feature_names_out()</span></code> will not prefix any feature
-names and will error if feature names are not unique.</p>
+<dt><strong>verbose_feature_names_out</strong><span class="classifier">bool, default=True</span></dt><dd><p>If True, <code class="xref py py-meth docutils literal notranslate"><span class="pre">ColumnTransformer.get_feature_names_out()</span></code> will prefix
+all feature names with the name of the transformer that generated that
+feature.
+If False, <code class="xref py py-meth docutils literal notranslate"><span class="pre">ColumnTransformer.get_feature_names_out()</span></code> will not
+prefix any feature names and will error if feature names are not
+unique.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.0.</span></p>
 </div>
@@ -910,6 +921,30 @@ names and will error if feature names are not unique.</p>
     </div>
   
   <script src="../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+
+<!-- Google Tag Manager -->
+<script>
+  (function (w, d, s, l, i) {
+    w[l] = w[l] || [];
+    w[l].push({
+      "gtm.start": new Date().getTime(),
+      event: "gtm.js",
+    });
+    var f = d.getElementsByTagName(s)[0],
+      j = d.createElement(s),
+      dl = l != "dataLayer" ? "&l=" + l : "";
+    j.async = true;
+    j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+    f.parentNode.insertBefore(j, f);
+  })(
+    window,
+    document,
+    "script",
+    "dataLayer",
+    "GTM-P4GQM59"
+  );
+</script>
+<!-- End Google Tag Manager -->
 
   </body>
 </html>

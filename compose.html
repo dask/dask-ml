@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pipelines and Composite Estimators &#8212; dask-ml 2022.5.28 documentation</title>
+    <title>Pipelines and Composite Estimators &#8212; dask-ml 2023.3.25 documentation</title>
     
   <link href="_static/css/theme.css" rel="stylesheet">
   <link href="_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -45,7 +45,16 @@
     
   </head>
   <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
-
+<!-- Google Tag Manager (noscript) -->
+<noscript
+  ><iframe
+    src="https://www.googletagmanager.com/ns.html?id=GTM-P4GQM59"
+    height="0"
+    width="0"
+    style="display: none; visibility: hidden"
+  ></iframe
+></noscript>
+<!-- End Google Tag Manager (noscript) -->
 <nav class="dask-nav container-fluid">
   <ul>
     <li class="logo">
@@ -817,7 +826,7 @@
   <div class="section" id="pipelines-and-composite-estimators">
 <span id="compose"></span><h1>Pipelines and Composite Estimators<a class="headerlink" href="#pipelines-and-composite-estimators" title="Permalink to this headline">¶</a></h1>
 <p>Dask-ML estimators follow the scikit-learn API. This means Dask-ML estimators like
-<a class="reference internal" href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA" title="dask_ml.decomposition.PCA"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.decomposition.PCA</span></code></a> can be placed inside a regular <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a>.</p>
+<a class="reference internal" href="modules/generated/dask_ml.decomposition.PCA.html#dask_ml.decomposition.PCA" title="dask_ml.decomposition.PCA"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.decomposition.PCA</span></code></a> can be placed inside a regular <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.pipeline.Pipeline</span></code></a>.</p>
 <p>See <a class="reference external" href="http://scikit-learn.org/dev/modules/compose.html">http://scikit-learn.org/dev/modules/compose.html</a> for more on using pipelines in general.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>  <span class="c1"># regular scikit-learn pipeline</span>
 
@@ -882,6 +891,30 @@ introduction to <code class="docutils literal notranslate"><span class="pre">Col
     </div>
   
   <script src="_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+
+<!-- Google Tag Manager -->
+<script>
+  (function (w, d, s, l, i) {
+    w[l] = w[l] || [];
+    w[l].push({
+      "gtm.start": new Date().getTime(),
+      event: "gtm.js",
+    });
+    var f = d.getElementsByTagName(s)[0],
+      j = d.createElement(s),
+      dl = l != "dataLayer" ? "&l=" + l : "";
+    j.async = true;
+    j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+    f.parentNode.insertBefore(j, f);
+  })(
+    window,
+    document,
+    "script",
+    "dataLayer",
+    "GTM-P4GQM59"
+  );
+</script>
+<!-- End Google Tag Manager -->
 
   </body>
 </html>

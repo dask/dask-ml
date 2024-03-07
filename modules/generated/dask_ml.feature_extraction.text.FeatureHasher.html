@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>dask_ml.feature_extraction.text.FeatureHasher &#8212; dask-ml 2022.5.28 documentation</title>
+    <title>dask_ml.feature_extraction.text.FeatureHasher &#8212; dask-ml 2023.3.25 documentation</title>
     
   <link href="../../_static/css/theme.css" rel="stylesheet">
   <link href="../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -45,7 +45,16 @@
     
   </head>
   <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
-
+<!-- Google Tag Manager (noscript) -->
+<noscript
+  ><iframe
+    src="https://www.googletagmanager.com/ns.html?id=GTM-P4GQM59"
+    height="0"
+    width="0"
+    style="display: none; visibility: hidden"
+  ></iframe
+></noscript>
+<!-- End Google Tag Manager (noscript) -->
 <nav class="dask-nav container-fluid">
   <ul>
     <li class="logo">
@@ -805,7 +814,9 @@ Feature values must be (finite) numbers.</p>
 CountVectorizer, intended for large-scale (online) learning and situations
 where memory is tight, e.g. when running prediction code on embedded
 devices.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#feature-hashing" title="(in scikit-learn v1.2)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>For an efficiency comparison of the different feature extractors, see
+<a class="reference external" href="https://scikit-learn.org/stable/auto_examples/text/plot_hashing_vs_dict_vectorizer.html#sphx-glr-auto-examples-text-plot-hashing-vs-dict-vectorizer-py" title="(in scikit-learn v1.4)"><span>FeatureHasher and DictVectorizer Comparison</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#feature-hashing" title="(in scikit-learn v1.4)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 0.13.</span></p>
 </div>
@@ -846,12 +857,12 @@ parameter.</p>
 <dl class="simple">
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">DictVectorizer</span></code></dt><dd><p>Vectorizes string-valued features using a hash table.</p>
 </dd>
-<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html#sklearn.preprocessing.OneHotEncoder" title="(in scikit-learn v1.2)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.preprocessing.OneHotEncoder</span></code></a></dt><dd><p>Handles nominal/categorical features.</p>
+<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html#sklearn.preprocessing.OneHotEncoder" title="(in scikit-learn v1.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.preprocessing.OneHotEncoder</span></code></a></dt><dd><p>Handles nominal/categorical features.</p>
 </dd>
 </dl>
 </div>
 <p class="rubric">Notes</p>
-<p>This estimator is <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-stateless" title="(in scikit-learn v1.2)"><span class="xref std std-term">stateless</span></a> and does not need to be fitted.
+<p>This estimator is <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-stateless" title="(in scikit-learn v1.4)"><span class="xref std std-term">stateless</span></a> and does not need to be fitted.
 However, we recommend to call <code class="xref py py-meth docutils literal notranslate"><span class="pre">fit_transform()</span></code> instead of
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">transform()</span></code>, as parameter validation is only performed in
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code>.</p>
@@ -889,14 +900,20 @@ strings:</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code>(X[, y])</p></td>
 <td><p>Fit to data, then transform it.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code>([deep])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_metadata_routing</span></code>()</p></td>
+<td><p>Get metadata routing of this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code>([deep])</p></td>
 <td><p>Get parameters for this estimator.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_output</span></code>(*[, transform])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_output</span></code>(*[, transform])</p></td>
 <td><p>Set output container.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code>(**params)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code>(**params)</p></td>
 <td><p>Set the parameters of this estimator.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_transform_request</span></code>(*[, raw_X])</p></td>
+<td><p>Request metadata passed to the <code class="docutils literal notranslate"><span class="pre">transform</span></code> method.</p></td>
 </tr>
 </tbody>
 </table>
@@ -959,6 +976,30 @@ strings:</p>
     </div>
   
   <script src="../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+
+<!-- Google Tag Manager -->
+<script>
+  (function (w, d, s, l, i) {
+    w[l] = w[l] || [];
+    w[l].push({
+      "gtm.start": new Date().getTime(),
+      event: "gtm.js",
+    });
+    var f = d.getElementsByTagName(s)[0],
+      j = d.createElement(s),
+      dl = l != "dataLayer" ? "&l=" + l : "";
+    j.async = true;
+    j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+    f.parentNode.insertBefore(j, f);
+  })(
+    window,
+    document,
+    "script",
+    "dataLayer",
+    "GTM-P4GQM59"
+  );
+</script>
+<!-- End Google Tag Manager -->
 
   </body>
 </html>

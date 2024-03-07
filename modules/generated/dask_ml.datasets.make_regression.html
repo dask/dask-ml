@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>dask_ml.datasets.make_regression &#8212; dask-ml 2022.5.28 documentation</title>
+    <title>dask_ml.datasets.make_regression &#8212; dask-ml 2023.3.25 documentation</title>
     
   <link href="../../_static/css/theme.css" rel="stylesheet">
   <link href="../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -45,7 +45,16 @@
     
   </head>
   <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
-
+<!-- Google Tag Manager (noscript) -->
+<noscript
+  ><iframe
+    src="https://www.googletagmanager.com/ns.html?id=GTM-P4GQM59"
+    height="0"
+    width="0"
+    style="display: none; visibility: hidden"
+  ></iframe
+></noscript>
+<!-- End Google Tag Manager (noscript) -->
 <nav class="dask-nav container-fluid">
   <ul>
     <li class="logo">
@@ -796,7 +805,7 @@
 <dd><p>Generate a random regression problem.</p>
 <p>The input set can either be well conditioned (by default) or have a low
 rank-fat tail singular profile. See
-<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.datasets.make_low_rank_matrix.html#sklearn.datasets.make_low_rank_matrix" title="(in scikit-learn v1.2)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.datasets.make_low_rank_matrix()</span></code></a> for more details.</p>
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.datasets.make_low_rank_matrix.html#sklearn.datasets.make_low_rank_matrix" title="(in scikit-learn v1.4)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.datasets.make_low_rank_matrix()</span></code></a> for more details.</p>
 <p>This can be used to generate very large Dask arrays on a cluster of
 machines. When using Dask in distributed mode, the client machine
 only needs to allocate a single block’s worth of data.</p>
@@ -837,7 +846,7 @@ profile if <cite>effective_rank</cite> is not None.</p>
 </dd>
 <dt><strong>random_state</strong><span class="classifier">int, RandomState instance or None (default)</span></dt><dd><p>Determines random number generation for dataset creation. Pass an int
 for reproducible output across multiple function calls.
-See <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-random_state" title="(in scikit-learn v1.2)"><span class="xref std std-term">Glossary</span></a>.</p>
+See <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-random_state" title="(in scikit-learn v1.4)"><span class="xref std std-term">Glossary</span></a>.</p>
 </dd>
 <dt><strong>chunks</strong><span class="classifier">int, tuple</span></dt><dd><p>How to chunk the array. Must be one of the following forms:
 -   A blocksize like 1000.
@@ -904,6 +913,30 @@ coef is True.</p>
     </div>
   
   <script src="../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+
+<!-- Google Tag Manager -->
+<script>
+  (function (w, d, s, l, i) {
+    w[l] = w[l] || [];
+    w[l].push({
+      "gtm.start": new Date().getTime(),
+      event: "gtm.js",
+    });
+    var f = d.getElementsByTagName(s)[0],
+      j = d.createElement(s),
+      dl = l != "dataLayer" ? "&l=" + l : "";
+    j.async = true;
+    j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+    f.parentNode.insertBefore(j, f);
+  })(
+    window,
+    document,
+    "script",
+    "dataLayer",
+    "GTM-P4GQM59"
+  );
+</script>
+<!-- End Google Tag Manager -->
 
   </body>
 </html>
