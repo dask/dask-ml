@@ -15,7 +15,7 @@ dependencies:
   - numba
   - numpy
   - psutil
-  - python=3.10
+  - python=3.11
   - sortedcontainers
   - scikit-learn >=1.2.0
   - scipy
