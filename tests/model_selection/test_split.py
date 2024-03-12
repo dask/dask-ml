@@ -14,7 +14,8 @@ dy = da.from_array(y, 50)
 
 
 @pytest.mark.skip(
-    reason="InvalidParameterError: The 'shuffle' parameter of train_test_split must be an instance of 'bool' or an instance of 'numpy.bool_'"
+    reason="InvalidParameterError: The 'shuffle' parameter of train_test_split "
+    + "must be an instance of 'bool' or an instance of 'numpy.bool_'"
 )
 def test_20_newsgroups():
     data = fetch_20newsgroups()
@@ -246,7 +247,8 @@ def test_split_mixed():
 
 
 @pytest.mark.skip(
-    reason="InvalidParameterError: The 'shuffle' parameter of train_test_split must be an instance of 'bool' or an instance of 'numpy.bool_'"
+    reason="InvalidParameterError: The 'shuffle' parameter of train_test_split must "
+    + "be an instance of 'bool' or an instance of 'numpy.bool_'"
 )
 def test_split_3d_data():
     X_3d = np.arange(1.0, 5001.0).reshape((100, 10, 5))

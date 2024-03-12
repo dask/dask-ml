@@ -1,6 +1,7 @@
 """
 Daskified versions of sklearn.metrics.pairwise
 """
+
 import warnings
 from typing import Any, Callable, Dict, Optional, Tuple, Union
 
@@ -188,7 +189,7 @@ PAIRWISE_KERNEL_FUNCTIONS = {
     "rbf": rbf_kernel,
     "linear": linear_kernel,
     "polynomial": polynomial_kernel,
-    "sigmoid": sigmoid_kernel
+    "sigmoid": sigmoid_kernel,
     # TODO:
     # - cosine_similarity
     # - laplacian

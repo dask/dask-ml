@@ -120,7 +120,8 @@ def test_hyperparameter_searcher_with_fit_params(cls, kwargs):
 
 
 @pytest.mark.skip(
-    reason="FutureWarning: The default value of `dual` will change from `True` to `'auto'`"
+    reason="FutureWarning: The default value of `dual` will change from "
+    + "`True` to `'auto'`"
 )
 @pytest.mark.filterwarnings("ignore::sklearn.exceptions.ConvergenceWarning")
 def test_grid_search_no_score():
@@ -156,7 +157,8 @@ def test_grid_search_no_score():
 
 
 @pytest.mark.skip(
-    reason="FutureWarning: The default value of `dual` will change from `True` to `'auto'`"
+    reason="FutureWarning: The default value of `dual` will change from "
+    + "`True` to `'auto'`"
 )
 def test_grid_search_score_method():
     X, y = make_classification(n_samples=100, n_classes=2, flip_y=0.2, random_state=0)
@@ -187,7 +189,8 @@ def test_grid_search_score_method():
 
 
 @pytest.mark.skip(
-    reason="FutureWarning: The default value of `dual` will change from `True` to `'auto'`"
+    reason="FutureWarning: The default value of `dual` will change from "
+    + "`True` to `'auto'`"
 )
 def test_grid_search_groups():
     # Check if ValueError (when groups is None) propagates to dcv.GridSearchCV
@@ -272,7 +275,8 @@ def test_return_train_score_warn():
 
 
 @pytest.mark.skip(
-    reason="FutureWarning: The default value of `dual` will change from `True` to `'auto'`"
+    reason="FutureWarning: The default value of `dual` will change from "
+    + "`True` to `'auto'`"
 )
 @pytest.mark.filterwarnings("ignore::sklearn.exceptions.ConvergenceWarning")
 def test_classes__property():
@@ -415,7 +419,8 @@ def test_grid_search_bad_param_grid():
 
 
 @pytest.mark.skip(
-    reason="FutureWarning: The default value of `dual` will change from `True` to `'auto'`"
+    reason="FutureWarning: The default value of `dual` will change from "
+    + "`True` to `'auto'`"
 )
 def test_grid_search_sparse():
     # Test that grid search works with both dense and sparse matrices
@@ -439,7 +444,8 @@ def test_grid_search_sparse():
 
 
 @pytest.mark.skip(
-    reason="FutureWarning: The default value of `dual` will change from `True` to `'auto'`"
+    reason="FutureWarning: The default value of `dual` will change from "
+    + "`True` to `'auto'`"
 )
 def test_grid_search_sparse_scoring():
     X_, y_ = make_classification(n_samples=200, n_features=100, random_state=0)
@@ -1010,7 +1016,8 @@ def test_search_cv_results_none_param():
 
 
 @pytest.mark.skip(
-    reason="FutureWarning: The default value of `dual` will change from `True` to `'auto'`"
+    reason="FutureWarning: The default value of `dual` will change from "
+    + "`True` to `'auto'`"
 )
 @pytest.mark.filterwarnings("ignore::sklearn.exceptions.ConvergenceWarning")
 def test_grid_search_correct_score_results():
@@ -1221,7 +1228,8 @@ def test_grid_search_failing_classifier_raise():
 
 
 @pytest.mark.skip(
-    reason="FutureWarning: The default value of `dual` will change from `True` to `'auto'`"
+    reason="FutureWarning: The default value of `dual` will change from "
+    + "`True` to `'auto'`"
 )
 def test_search_train_scores_set_to_false():
     X = np.arange(6).reshape(6, -1)

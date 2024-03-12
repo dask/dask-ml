@@ -1,4 +1,5 @@
 """Tests for Incremental PCA."""
+
 import numpy as np
 import pytest
 from dask import array as da
@@ -143,7 +144,8 @@ def test_incremental_pca_inverse():
 
 @pytest.mark.skip(reason="AssertionError: Regex pattern did not match.")
 @pytest.mark.skip(
-    reason="InvalidParameterError: The 'min_batch_size' parameter of gen_batches must be an int in the range [0, inf). Got -1 instead."
+    reason="InvalidParameterError: The 'min_batch_size' parameter of "
+    + "gen_batches must be an int in the range [0, inf). Got -1 instead."
 )
 def test_incremental_pca_validation():
     # Test that n_components is >=1 and <= n_features.

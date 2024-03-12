@@ -17,7 +17,8 @@ ddf = dd.from_pandas(df, npartitions=2).reset_index(drop=True)  # unknown divisi
 
 
 @pytest.mark.skip(
-    reason="ValueError: Specifying the columns using strings is only supported for dataframes."
+    reason="ValueError: Specifying the columns using strings is only "
+    + "supported for dataframes."
 )
 def test_column_transformer():
     # Ordering of make_column_transformer was changed from
@@ -61,7 +62,8 @@ def test_column_transformer():
 
 
 @pytest.mark.skip(
-    reason="ValueError: Specifying the columns using strings is only supported for dataframes."
+    reason="ValueError: Specifying the columns using strings is only "
+    + "supported for dataframes."
 )
 def test_column_transformer_unk_chunksize():
     names = ["a", "b", "c"]
@@ -93,7 +95,8 @@ def test_column_transformer_unk_chunksize():
 
 
 @pytest.mark.skip(
-    reason="ValueError: Specifying the columns using strings is only supported for dataframes."
+    reason="ValueError: Specifying the columns using strings is only "
+    + "supported for dataframes."
 )
 def test_sklearn_col_trans_disallows_hstack_then_block():
     # Test that sklearn ColumnTransformer (to which dask-ml ColumnTransformer

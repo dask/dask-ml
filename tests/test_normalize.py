@@ -19,7 +19,8 @@ def test_normalize_estimator():
 
 
 @pytest.mark.skip(
-    reason="AssertionError: assert 'a2cbc95dc37b...02448a0397857' == '711147ceec8c...bc712ab6dfbce'"
+    reason="AssertionError: assert "
+    + "'a2cbc95dc37b...02448a0397857' == '711147ceec8c...bc712ab6dfbce'"
 )
 def test_normalize_estimator_cv():
     param_grid = {"C": [0.01]}
