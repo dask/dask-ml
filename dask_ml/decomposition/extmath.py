@@ -1,6 +1,7 @@
 """
 Extended math utilities.
 """
+
 # Authors: Gael Varoquaux
 #          Alexandre Gramfort
 #          Alexandre T. Passos

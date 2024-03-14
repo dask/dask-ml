@@ -149,7 +149,8 @@ def test_log_loss_shape(yhat):
 
 
 @pytest.mark.skip(
-    reason="FutureWarning: The `needs_threshold` and `needs_proba` parameter are deprecated"
+    reason="FutureWarning: The `needs_threshold` and `needs_proba` "
+    + "parameter are deprecated"
 )
 @pytest.mark.parametrize("y", [[0, 1, 1, 0], [0, 1, 2, 0]])
 def test_log_loss_scoring(y):

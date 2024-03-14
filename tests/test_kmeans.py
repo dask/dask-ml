@@ -2,6 +2,7 @@
 Mostly just smoke tests, and verifying that the parallel implementation is
 the same as the serial.
 """
+
 import warnings
 
 import dask.array as da
@@ -88,7 +89,8 @@ class TestKMeans:
         assert_eq(yhat_a.compute(), yhat_b)
 
     @pytest.mark.skip(
-        reason="TypeError: _kmeans_plusplus() missing 1 required positional argument: 'random_state'"
+        reason="TypeError: _kmeans_plusplus() missing 1 required positional "
+        + "argument: 'random_state'"
     )
     def test_fit_given_init(self):
         X, y = sklearn.datasets.make_blobs(n_samples=1000, n_features=4, random_state=1)
@@ -104,7 +106,8 @@ class TestKMeans:
         assert abs(skkm.inertia_ - dkkm.inertia_) < 0.001
 
     @pytest.mark.skip(
-        reason="TypeError: _kmeans_plusplus() missing 1 required positional argument: 'sample_weight'"
+        reason="TypeError: _kmeans_plusplus() missing 1 required positional "
+        + "argument: 'sample_weight'"
     )
     def test_kmeanspp_init(self, Xl_blobs_easy):
         X, y = Xl_blobs_easy
@@ -118,7 +121,8 @@ class TestKMeans:
         assert dkkm.init == "k-means++"
 
     @pytest.mark.skip(
-        reason="TypeError: _kmeans_plusplus() missing 1 required positional argument: 'sample_weight'"
+        reason="TypeError: _kmeans_plusplus() missing 1 required positional "
+        + "argument: 'sample_weight'"
     )
     def test_kmeanspp_init_random_state(self, Xl_blobs_easy):
         X, y = Xl_blobs_easy

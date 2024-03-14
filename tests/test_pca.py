@@ -421,7 +421,8 @@ def test_randomized_pca_check_projection():
 
 
 @pytest.mark.skip(
-    reason="TypeError: Got an unsupported type (<class 'list'>). Dask-ML's PCA only support Dask Arrays or DataFrames."
+    reason="TypeError: Got an unsupported type (<class 'list'>). Dask-ML's PCA "
+    + "only support Dask Arrays or DataFrames."
 )
 @pytest.mark.xfail(reason="chunks")
 def test_randomized_pca_check_list():
@@ -464,7 +465,8 @@ def test_randomized_pca_inverse():
 
 
 @pytest.mark.skip(
-    reason="TypeError: Got an unsupported type (<class 'numpy.ndarray'>). Dask-ML's PCA only support Dask Arrays or DataFrames."
+    reason="TypeError: Got an unsupported type (<class 'numpy.ndarray'>). Dask-ML's "
+    + "PCA only support Dask Arrays or DataFrames."
 )
 @pytest.mark.xfail(reason="MLE")
 def test_pca_dim():

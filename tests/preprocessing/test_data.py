@@ -128,7 +128,8 @@ class TestMinMaxScaler:
         assert_eq_ar(result, X)
 
     @pytest.mark.skip(
-        reason=" TypeError: MinMaxScaler.__init__() got an unexpected keyword argument 'columns'"
+        reason=" TypeError: MinMaxScaler.__init__() got an unexpected keyword "
+        + "argument 'columns'"
     )
     @pytest.mark.xfail(reason="removed columns")
     def test_df_inverse_transform(self):
@@ -139,7 +140,8 @@ class TestMinMaxScaler:
         assert_eq_df(result, df2)
 
     @pytest.mark.skip(
-        reason="AssertionError: found values in 'a' and 'b' which differ by more than the allowed amount"
+        reason="AssertionError: found values in 'a' and 'b' which differ by more "
+        + "than the allowed amount"
     )
     def test_df_values(self):
         est1 = dpp.MinMaxScaler()
@@ -158,7 +160,8 @@ class TestMinMaxScaler:
         assert_eq_ar(result_ar, result_df)
 
     @pytest.mark.skip(
-        reason=" TypeError: MinMaxScaler.__init__() got an unexpected keyword argument 'columns'"
+        reason=" TypeError: MinMaxScaler.__init__() got an unexpected keyword "
+        + "argument 'columns'"
     )
     @pytest.mark.xfail(reason="removed columns")
     def test_df_column_slice(self):
@@ -211,7 +214,8 @@ class TestRobustScaler:
         assert_eq_ar(result, X)
 
     @pytest.mark.skip(
-        reason="DeprecationWarning: np.find_common_type is deprecated.  Please use `np.result_type` or `np.promote_types`"
+        reason="DeprecationWarning: np.find_common_type is deprecated.  Please use "
+        + "`np.result_type` or `np.promote_types`"
     )
     def test_df_values(self):
         est1 = dpp.RobustScaler()
@@ -354,7 +358,8 @@ class TestCategorizer:
 
 class TestDummyEncoder:
     @pytest.mark.skip(
-        reason='AssertionError: Attributes of DataFrame.iloc[:, 1] (column name="A_a") are different'
+        reason="AssertionError: Attributes of "
+        + 'DataFrame.iloc[:, 1] (column name="A_a") are different'
     )
     @pytest.mark.parametrize("daskify", [False, True])
     @pytest.mark.parametrize("values", [True, False])
@@ -634,7 +639,8 @@ class TestPolynomialFeatures:
 
     mark = pytest.mark.xfail(
         DASK_EXPR_ENABLED,
-        reason="dask-expr: NotImplementedError in assert_eq_df(res_df.iloc[:, 1:], frame, check_dtype=False)",
+        reason="dask-expr: NotImplementedError in "
+        + "assert_eq_df(res_df.iloc[:, 1:], frame, check_dtype=False)",
     )
 
     @pytest.mark.parametrize("daskify", [pytest.param(True, marks=mark), False])

@@ -65,7 +65,8 @@ def test_mse_squared(squared):
 
 
 @pytest.mark.skip(
-    reason="InvalidParameterError: The 'multioutput' parameter of mean_squared_error must be a string among..."
+    reason="InvalidParameterError: The 'multioutput' parameter of mean_squared_error "
+    + "must be a string among..."
 )
 @pytest.mark.parametrize("multioutput", ["uniform_average", None])
 def test_regression_metrics_unweighted_average_multioutput(metric_pairs, multioutput):

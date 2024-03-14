@@ -1,4 +1,5 @@
 """Test truncated SVD transformer."""
+
 import dask.array as da
 import numpy as np
 import pytest

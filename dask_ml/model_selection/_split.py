@@ -1,5 +1,6 @@
 """Utilities for splitting datasets.
 """
+
 import itertools
 import logging
 import numbers
@@ -436,9 +437,11 @@ def train_test_split(
     if da.Array in types and types & {dd.Series, dd.DataFrame}:
         if convert_mixed_types:
             arrays = tuple(
-                x.to_dask_array(lengths=True)
-                if isinstance(x, (dd.Series, dd.DataFrame))
-                else x
+                (
+                    x.to_dask_array(lengths=True)
+                    if isinstance(x, (dd.Series, dd.DataFrame))
+                    else x
+                )
                 for x in arrays
             )
         else:
