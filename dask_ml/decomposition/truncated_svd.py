@@ -100,7 +100,7 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
 
         Examples
         --------
-        >>> from dask_ml.decomposition import TruncatedSVD
+        >>> from dask.ml.decomposition import TruncatedSVD
         >>> import dask.array as da
         >>> X = da.random.normal(size=(1000, 20), chunks=(100, 20))
         >>> svd = TruncatedSVD(n_components=5, n_iter=3, random_state=42)
