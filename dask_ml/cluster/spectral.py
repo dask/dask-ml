@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Algorithms for spectral clustering
-"""
+"""Algorithms for spectral clustering"""
+
 import logging
 
 import dask.array as da
@@ -272,9 +272,7 @@ class SpectralClustering(BaseEstimator, ClusterMixin):
         # Eq 16. This is OK when V2 is orthogonal
         V2 = da.sqrt(float(n_components) / n) * da.vstack([A2, B2.T]).dot(
             U_A[:, :n_clusters]
-        ).dot(
-            da.diag(1.0 / da.sqrt(S_A[:n_clusters]))
-        )  # (n, k)
+        ).dot(da.diag(1.0 / da.sqrt(S_A[:n_clusters])))  # (n, k)
         _log_array(logger, V2, "V2.1")
 
         if isinstance(B2, da.Array):
@@ -366,9 +364,9 @@ def _slice_mostly_sorted(array, keep, rest, ind=None):
     slices.append([keep[0]])
     windows = zip(keep[:-1], keep[1:])
 
-    for l, r in windows:
-        if r > l + 1:  # avoid creating empty slices
-            slices.append(slice(l + 1, r))
+    for left, r in windows:
+        if r > left + 1:  # avoid creating empty slices
+            slices.append(slice(left + 1, r))
         slices.append([r])
 
     if keep[-1] < len(array) - 1:  # avoid creating empty slices

@@ -54,8 +54,10 @@ def Xl_blobs():
     Tuple of (X, labels) for a classification task. `X`
     and `l` are both dask arrays
     """
-    X, l = make_classification(n_samples=1000, n_features=4, chunks=500, random_state=1)
-    return X, l
+    X, label = make_classification(
+        n_samples=1000, n_features=4, chunks=500, random_state=1
+    )
+    return X, label
 
 
 @pytest.fixture

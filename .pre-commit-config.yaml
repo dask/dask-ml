@@ -1,19 +1,10 @@
 repos:
--   repo: https://github.com/psf/black
-    rev: 23.12.1
-    hooks:
-    - id: black
-      language_version: python3
-      args:
-          - --target-version=py39
--   repo: https://github.com/pycqa/flake8
-    rev: 7.0.0
-    hooks:
-    - id: flake8
-      language_version: python3
-      args: ["--ignore=E501,W503,E203,E741,E731"]
--   repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-    - id: isort
-      language_version: python3
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  # Ruff version.
+  rev: v0.3.4
+  hooks:
+    # Run the linter.
+    - id: ruff
+      args: [ --fix ]
+    # Run the formatter.
+    - id: ruff-format

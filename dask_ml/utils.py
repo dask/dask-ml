@@ -119,9 +119,9 @@ def assert_estimator_equal(left, right, exclude=None, **kwargs):
     assert left_attrs2 == right_attrs2, left_attrs2 ^ right_attrs2
 
     for attr in left_attrs2:
-        l = getattr(left, attr)
-        r = getattr(right, attr)
-        _assert_eq(l, r, name=attr, **kwargs)
+        lattr = getattr(left, attr)
+        rattr = getattr(right, attr)
+        _assert_eq(lattr, rattr, name=attr, **kwargs)
 
 
 def check_array(
@@ -218,7 +218,7 @@ def check_array(
         return sk_validation.check_array(array, *args, **kwargs)
 
 
-def _assert_eq(l, r, name=None, **kwargs):
+def _assert_eq(lattr, rattr, name=None, **kwargs):
     array_types = (np.ndarray, da.Array)
     if getattr(dd, "_dask_expr_enabled", lambda: False)():
         from dask_expr import FrameBase
@@ -226,19 +226,19 @@ def _assert_eq(l, r, name=None, **kwargs):
         frame_types = (pd.core.generic.NDFrame, FrameBase)
     else:
         frame_types = (pd.core.generic.NDFrame, dd._Frame)
-    if isinstance(l, array_types):
-        assert_eq_ar(l, r, **kwargs)
-    elif isinstance(l, frame_types):
-        assert_eq_df(l, r, **kwargs)
-    elif isinstance(l, Sequence) and any(
-        isinstance(x, array_types + frame_types) for x in l
+    if isinstance(lattr, array_types):
+        assert_eq_ar(lattr, rattr, **kwargs)
+    elif isinstance(lattr, frame_types):
+        assert_eq_df(lattr, rattr, **kwargs)
+    elif isinstance(lattr, Sequence) and any(
+        isinstance(x, array_types + frame_types) for x in lattr
     ):
-        for a, b in zip(l, r):
+        for a, b in zip(lattr, rattr):
             _assert_eq(a, b, **kwargs)
-    elif np.isscalar(r) and np.isnan(r):
-        assert np.isnan(l), (name, l, r)
+    elif np.isscalar(rattr) and np.isnan(rattr):
+        assert np.isnan(lattr), (name, lattr, rattr)
     else:
-        assert l == r, (name, l, r)
+        assert lattr == rattr, (name, lattr, rattr)
 
 
 def check_random_state(random_state):

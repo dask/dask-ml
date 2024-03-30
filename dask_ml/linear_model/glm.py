@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Generalized Linear Models for large datasets."""
+
 import textwrap
 
 from dask_glm import algorithms, families

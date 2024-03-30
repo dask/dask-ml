@@ -1,0 +1,105 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dask-ml"
+dynamic = ["version"]
+description = "A library for distributed and parallel machine learning"
+readme = "README.rst"
+license = {file = 'LICENSE.txt'}
+requires-python = ">=3.8"
+authors = [{ name = "Tom Augspurger", email = "taugspurger@anaconda.com" }]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Database",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "dask-glm>=0.2.0",
+    "dask[array,dataframe]>=2.4.0",
+    "distributed>=2.4.0",
+    "multipledispatch>=0.4.9",
+    "numba>=0.51.0",
+    "numpy>=1.20.0",
+    "packaging",
+    "pandas>=0.24.2",
+    "scikit-learn>=1.2.0",
+    "scipy",
+]
+
+[project.optional-dependencies]
+complete = ["dask-xgboost", "xgboost"]
+dev = [
+    "black",
+    "coverage",
+    "flake8",
+    "isort",
+    "nbsphinx",
+    "numpydoc",
+    "pytest",
+    "pytest-cov",
+    "pytest-mock",
+    "sphinx",
+    "sphinx-gallery",
+    "sphinx-rtd-theme",
+]
+docs = ["nbsphinx", "numpydoc", "sphinx", "sphinx-gallery", "sphinx-rtd-theme"]
+test = [
+    "black",
+    "coverage",
+    "flake8",
+    "isort",
+    "pytest",
+    "pytest-cov",
+    "pytest-mock",
+]
+xgboost = ["dask-xgboost", "xgboost"]
+
+[project.urls]
+Homepage = "https://github.com/dask/dask-ml"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "dask_ml/_version.py"
+
+[tool.hatch.build.targets.sdist]
+include = ["/dask_ml"]
+
+[tool.mypy]
+ignore_missing_imports = true
+no_implicit_optional = true
+check_untyped_defs = true
+strict_equality = true
+
+[[tool.mypy-dask_ml.metrics]]
+check_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = "dask_ml.model_selection"
+follow_imports = "skip"
+
+[tool.coverage]
+source = "dask_ml"
+
+[tool.pytest]
+addopts = "-rsx -v --durations=10 --color=yes"
+minversion = "3.2"
+xfail_strict = true
+junit_family = "xunit2"
+filterwarnings = [
+     "error:::dask_ml[.*]",
+     "error:::sklearn[.*]",
+]
+
+
+[tool.ruff.lint]
+ignore = ["E721", "E731", "E741"]
