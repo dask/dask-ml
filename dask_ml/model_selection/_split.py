@@ -1,5 +1,4 @@
-"""Utilities for splitting datasets.
-"""
+"""Utilities for splitting datasets."""
 
 import itertools
 import logging

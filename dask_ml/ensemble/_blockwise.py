@@ -41,7 +41,7 @@ class BlockwiseBase(sklearn.base.BaseEstimator):
         ]
         results = [
             estimator_.fit(X_, y_, **kwargs)
-            for estimator_, X_, y_, in zip(estimators, Xs, ys)
+            for estimator_, X_, y_ in zip(estimators, Xs, ys)
         ]
         results = list(dask.compute(*results))
         self.estimators_ = results

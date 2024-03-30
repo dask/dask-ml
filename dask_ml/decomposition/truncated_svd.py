@@ -148,8 +148,9 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
     def _check_array(self, X):
         if self.n_components >= X.shape[1]:
             raise ValueError(
-                "n_components must be < n_features; "
-                "got {} >= {}".format(self.n_components, X.shape[1])
+                "n_components must be < n_features; " "got {} >= {}".format(
+                    self.n_components, X.shape[1]
+                )
             )
         return X
 

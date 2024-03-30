@@ -219,8 +219,9 @@ def _check_and_search_block(arr, uniques, onehot_dtype=None, block_info=None):
 
     if diff:
         msg = (
-            "Block contains previously unseen values {}.\nBlock info:\n\n"
-            "{}".format(diff, block_info)
+            "Block contains previously unseen values {}.\nBlock info:\n\n" "{}".format(
+                diff, block_info
+            )
         )
         raise ValueError(msg)
 

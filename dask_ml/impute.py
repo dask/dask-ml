@@ -35,8 +35,9 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
         allowed_strategies = ["mean", "median", "most_frequent", "constant"]
         if self.strategy not in allowed_strategies:
             raise ValueError(
-                "Can only use these strategies: {0} "
-                " got strategy={1}".format(allowed_strategies, self.strategy)
+                "Can only use these strategies: {0} " " got strategy={1}".format(
+                    allowed_strategies, self.strategy
+                )
             )
 
         if not (pd.isna(self.missing_values) or self.strategy == "constant"):

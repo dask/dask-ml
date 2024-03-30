@@ -171,16 +171,18 @@ class CheckingClassifier(BaseEstimator, ClassifierMixin):
         self.classes_ = np.unique(check_array(y, ensure_2d=False, allow_nd=True))
         if self.expected_fit_params:
             missing = set(self.expected_fit_params) - set(fit_params)
-            assert (
-                len(missing) == 0
-            ), "Expected fit parameter(s) %s not " "seen." % list(missing)
+            assert len(missing) == 0, (
+                "Expected fit parameter(s) %s not " "seen." % list(missing)
+            )
             for key, value in fit_params.items():
-                assert len(value) == len(
-                    X
-                ), "Fit parameter %s has length" "%d; expected %d." % (
-                    key,
-                    len(value),
-                    len(X),
+                assert len(value) == len(X), (
+                    "Fit parameter %s has length"
+                    "%d; expected %d."
+                    % (
+                        key,
+                        len(value),
+                        len(X),
+                    )
                 )
         return self
 

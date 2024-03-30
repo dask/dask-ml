@@ -39,8 +39,9 @@ def get_scorer(scoring: Union[str, Callable], compute: bool = True) -> Callable:
             scorer, kwargs = SCORERS[scoring]
         except KeyError:
             raise ValueError(
-                "{} is not a valid scoring value. "
-                "Valid options are {}".format(scoring, sorted(SCORERS))
+                "{} is not a valid scoring value. " "Valid options are {}".format(
+                    scoring, sorted(SCORERS)
+                )
             )
     else:
         scorer = scoring
