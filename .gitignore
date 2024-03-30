@@ -126,3 +126,4 @@ docs/source/examples/mydask.png
 
 dask-worker-space
 .direnv
+dask_ml/_version.py
