@@ -27,7 +27,7 @@ jobs:
     environment: release-pypi
     if: github.event.action == 'published'
     runs-on: ubuntu-latest
-    needs: build-package
+    needs: check-package
 
     steps:
       - name: Download packages built by build-and-inspect-python-package
