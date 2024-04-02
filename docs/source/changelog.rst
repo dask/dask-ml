@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Version 2024.4.1
+~~~~~~~~~~~~~~~~
+
+* Fixed packaging :pr:`986`
+
 Version 2023.3.24
 ~~~~~~~~~~~~~~~~~
 
