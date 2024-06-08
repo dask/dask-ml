@@ -4,7 +4,28 @@ Cross Validation
 See the `scikit-learn cross validation documentation`_ for a fuller discussion of cross validation.
 This document only describes the extensions made to support Dask arrays.
 
-The simpler way to split a dataset into k-fold is with :func:`https://ml.dask.org/modules/generated/dask_ml.model_selection.KFold.html`
+The simplest way to split one or more Dask arrays is with :func:`dask_ml.model_selection.train_test_split`:
+
+.. ipython:: python
+
+   import dask.array as da
+   from dask_ml.datasets import make_regression
+   from dask_ml.model_selection import train_test_split
+
+   X, y = make_regression(n_samples=125, n_features=4, random_state=0, chunks=50)
+   X
+
+The interface for splitting Dask arrays is the same as scikit-learn's version.
+
+.. ipython:: python
+
+   X_train, X_test, y_train, y_test = train_test_split(X, y)
+   X_train  # A dask Array
+
+   X_train.compute()[:3]
+
+Here is another illustration of performing k-fold cross validation purely in Dask. Here a link to gather more information on k-fold cross validation :func:`https://ml.dask.org/modules/generated/dask_ml.model_selection.KFold.html`:
+
 .. ipython:: python
 
    import dask.array as da
@@ -17,14 +38,16 @@ The simpler way to split a dataset into k-fold is with :func:`https://ml.dask.or
 				 n_features=5, # number of features
 				 random_state=0, # random seed
 				 chunks=20) # partitions to be made 
-   
-The Dask kFold method splits the data into k consecutive sets of data. Here we specify k to be 5, hence, 5-fold cross validation
-.. ipython:: python
-
-   kf = KFold(n_splits=5)
 
    train_scores: list[int] = []
    test_scores: list[int] = []
+
+   model = LinearRegression()
+
+The Dask kFold method splits the data into k consecutive subsets of data. Here we specify k to be 5, hence, 5-fold cross validation
+
+.. ipython:: python
+   kf = KFold(n_splits=5)
 
    for i, j in kf.split(X):
       X_train, X_test = X[i], X[j]
@@ -37,10 +60,6 @@ The Dask kFold method splits the data into k consecutive sets of data. Here we s
       
       train_scores.append(train_score)
       test_scores.append(test_score)
-
-The interface for splitting Dask arrays is the same as scikit-learn's version.
-
-.. ipython:: python
 
    print("mean training score:", mean(train_scores))
    print("mean testing score:", mean(train_scores))
