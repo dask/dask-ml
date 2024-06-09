@@ -24,7 +24,7 @@ The interface for splitting Dask arrays is the same as scikit-learn's version.
 
    X_train.compute()[:3]
 
-Here is another illustration of performing k-fold cross validation purely in Dask. Here a link to gather more information on k-fold cross validation :func:`https://ml.dask.org/modules/generated/dask_ml.model_selection.KFold.html`:
+Here is another illustration of performing k-fold cross validation purely in Dask. Here a link to gather more information on k-fold cross validation :class:`dask_ml.model_selection.KFold`:
 
 .. ipython:: python
 
