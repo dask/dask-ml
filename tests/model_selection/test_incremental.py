@@ -22,7 +22,7 @@ from distributed.utils_test import (  # noqa: F401
 )
 from scipy.stats import uniform
 from sklearn.base import clone
-from sklearn.cluster import MiniBatchKMeans
+from sklearn.cluster import KMeans, MiniBatchKMeans
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
@@ -33,6 +33,7 @@ from dask_ml.model_selection import (
     HyperbandSearchCV,
     IncrementalSearchCV,
     InverseDecaySearchCV,
+    RandomizedSearchCV,
 )
 from dask_ml.model_selection._incremental import _partial_fit, _score, fit
 from dask_ml.model_selection.utils_test import LinearFunction, _MaybeLinearFunction
@@ -868,6 +869,26 @@ async def test_warns_scores_per_fit(c, s, a, b):
     search = IncrementalSearchCV(model, params, scores_per_fit=2)
     with pytest.warns(UserWarning, match="deprecated since Dask-ML v1.4.0"):
         await search.fit(X, y)
+
+
+@gen_cluster(client=True)
+async def test_raises_if_no_partial_fit(c, s, a, b):
+    X, y = make_classification(n_samples=20, n_features=3, chunks=(10, -1))
+    X, y = await c.gather(c.compute([X, y]))
+    assert isinstance(X, np.ndarray)
+    assert isinstance(y, np.ndarray)
+
+    params = {"n_init": list(range(1, 10))}
+    model = KMeans(max_iter=5, verbose=1, algorithm="elkan")
+
+    search = IncrementalSearchCV(model, params)
+    with pytest.raises(ValueError, match="does not implement `partial_fit`"):
+        await search.fit(X, y)
+
+    # no partial_fit, but works with a passive search
+    search2 = RandomizedSearchCV(model, params, n_iter=2)
+    await search2.fit(X, y)
+    assert search2.best_score_
 
 
 @gen_cluster(client=True)
