@@ -59,6 +59,7 @@ The Dask kFold method splits the data into k consecutive subsets of data. Here w
 
 
 .. ipython:: python
+   
    kf = KFold(n_splits=5)
 
    for i, j in kf.split(X):
