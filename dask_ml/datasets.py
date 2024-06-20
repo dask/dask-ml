@@ -381,11 +381,15 @@ def make_classification(
     return X, y
 
 
-def random_date(start, end):
-    delta = end - start
-    int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
-    random_second = np.random.randint(int_delta)
-    return start + timedelta(seconds=random_second)
+def _random_date(start, end, samples, chunks):
+    # This is a little gross, but grabs the number of seconds for both
+    # `datetime.date` and `pandas.Timestamp` objects
+    start_u = int(start.strftime("%s"))
+    end_u = int(end.strftime("%s"))
+
+    # Generate a random array of integers within the range of seconds specified
+    # by the boundary dates then multiply by 1e9 for nanoseconds
+    return 10 ** 9 * da.random.randint(start_u, end_u, size=samples, chunks=chunks)
 
 
 def make_classification_df(
@@ -450,11 +454,11 @@ def make_classification_df(
         X_df = dd.concat(
             [
                 X_df,
-                dd.from_array(
-                    np.array([random_date(*dates)] * len(X_df)),
-                    chunksize=chunks,
+                dd.from_dask_array(
+                    _random_date(dates[0], dates[1], n_samples, chunks),
                     columns=["date"],
-                ),
+                    index=X_df.index,
+                ).date.astype("datetime64[ns]"),
             ],
             axis=1,
         )
