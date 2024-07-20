@@ -19,7 +19,7 @@ rng = check_random_state(42)
 X = rng.randint(-100, 20, np.product(shape)).reshape(shape)
 X = sp.csr_matrix(np.maximum(X, 0), dtype=np.float64)
 X.data[:] = 1 + np.log(X.data)
-Xdense = X.A
+Xdense = X.toarray()
 
 dXdense = da.from_array(Xdense, chunks=(30, 55))
 
