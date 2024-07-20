@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cross Validation &#8212; dask-ml 2024.4.4 documentation</title>
+    <title>Cross Validation &#8212; dask-ml 2024.4.5 documentation</title>
     
   <link href="_static/css/theme.css" rel="stylesheet">
   <link href="_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -822,12 +822,12 @@ This document only describes the extensions made to support Dask arrays.</p>
 
 <span class="gp">In [8]: </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="gh">Out[8]: </span>
-<span class="go">array([[ 0.0245364 , -0.43393144,  1.62149195, -0.5357923 ],</span>
-<span class="go">       [ 1.32182416, -1.42513178, -0.36385896, -0.35096927],</span>
-<span class="go">       [ 0.06104403,  0.99703317,  0.99714619,  0.73869252]])</span>
+<span class="go">array([[-0.3122028 , -0.88191003, -0.00495866,  0.91761886],</span>
+<span class="go">       [ 0.62376076,  0.77007729,  0.79163027,  1.46754648],</span>
+<span class="go">       [-0.45656184, -0.13857792, -1.52033112,  0.27454601]])</span>
 </pre></div>
 </div>
-<p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v1.4)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
+<p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v1.5)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
 using the Dask version for performance reasons: the Dask version is faster
 for two reasons:</p>
 <p>First, <strong>the Dask version shuffles blockwise</strong>.

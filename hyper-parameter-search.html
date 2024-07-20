@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hyper Parameter Search &#8212; dask-ml 2024.4.4 documentation</title>
+    <title>Hyper Parameter Search &#8212; dask-ml 2024.4.5 documentation</title>
     
   <link href="_static/css/theme.css" rel="stylesheet">
   <link href="_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -1064,10 +1064,10 @@ fits in memory. This is common when the search doesn’t take too long to run.</
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v1.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>(...[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v1.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>(...[, ...])</p></td>
 <td><p>Exhaustive search over specified parameter values for an estimator.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v1.4)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.RandomizedSearchCV</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v1.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.RandomizedSearchCV</span></code></a>(...)</p></td>
 <td><p>Randomized search on hyper parameters.</p></td>
 </tr>
 </tbody>
@@ -1180,7 +1180,7 @@ common in natural language processing (NLP).</p>
 </tbody>
 </table>
 <p>Avoiding repeated work with this class relies on the model being an instance of
-Scikit-learn’s <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></a>.  See
+Scikit-learn’s <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v1.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></a>.  See
 “<a class="reference internal" href="#avoid-repeated-work"><span class="std std-ref">Avoid Repeated Work</span></a>” for more detail.</p>
 </div>
 <div class="section" id="compute-and-memory-constrained">
@@ -1225,8 +1225,8 @@ subclasses (one of which is
 <div class="section" id="drop-in-replacements-for-scikit-learn">
 <span id="hyperparameter-drop-in"></span><h2>Drop-In Replacements for Scikit-Learn<a class="headerlink" href="#drop-in-replacements-for-scikit-learn" title="Permalink to this headline">¶</a></h2>
 <p>Dask-ML implements drop-in replacements for
-<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">GridSearchCV</span></code></a> and
-<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomizedSearchCV</span></code></a>.</p>
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v1.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">GridSearchCV</span></code></a> and
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v1.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomizedSearchCV</span></code></a>.</p>
 <table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
@@ -1435,13 +1435,15 @@ train-and-score them until we find the best one.</p>
 <span class="gp">In [13]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [14]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span>
-<span class="gh">Out[14]: </span><span class="go">{&#39;alpha&#39;: 0.08887680304436768, &#39;l1_ratio&#39;: 0.05813789374393907}</span>
+<span class="gh">Out[14]: </span>
+<span class="go">{&#39;alpha&#39;: np.float64(0.12520653814999466),</span>
+<span class="go"> &#39;l1_ratio&#39;: np.float64(0.7151893663724195)}</span>
 
 <span class="gp">In [15]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_score_</span>
-<span class="gh">Out[15]: </span><span class="go">0.65</span>
+<span class="gh">Out[15]: </span><span class="go">np.float64(0.65)</span>
 
 <span class="gp">In [16]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
-<span class="gh">Out[16]: </span><span class="go">0.4</span>
+<span class="gh">Out[16]: </span><span class="go">0.5</span>
 </pre></div>
 </div>
 <p>Note that when you do post-fit tasks like <code class="docutils literal notranslate"><span class="pre">search.score</span></code>, the underlying
@@ -1462,7 +1464,7 @@ to use post-estimation features like scoring or prediction, we recommend using
 <span class="gp">In [21]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [22]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
-<span class="gh">Out[22]: </span><span class="go">0.6</span>
+<span class="gh">Out[22]: </span><span class="go">np.float64(0.7)</span>
 </pre></div>
 </div>
 <p>Note that the parameter names include the <code class="docutils literal notranslate"><span class="pre">estimator__</span></code> prefix, as we’re
@@ -1557,7 +1559,7 @@ rule-of-thumb in the “Notes” section of
 <p>However, this does not explicitly mention the amount of computation performed
 – it’s only an approximation. The amount of computation can be viewed like so:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [32]: </span><span class="n">search</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;partial_fit_calls&quot;</span><span class="p">]</span>  <span class="c1"># best model will see `max_iter` chunks</span>
-<span class="gh">Out[32]: </span><span class="go">1151</span>
+<span class="gh">Out[32]: </span><span class="go">np.int64(1151)</span>
 
 <span class="gp">In [33]: </span><span class="n">search</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;n_models&quot;</span><span class="p">]</span>  <span class="c1"># actual number of parameters to sample</span>
 <span class="gh">Out[33]: </span><span class="go">98</span>
@@ -1571,7 +1573,9 @@ chunks:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [34]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [35]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span>
-<span class="gh">Out[35]: </span><span class="go">{&#39;alpha&#39;: 0.36518440093040994, &#39;l1_ratio&#39;: 0.5062738685222655}</span>
+<span class="gh">Out[35]: </span>
+<span class="go">{&#39;alpha&#39;: np.float64(0.12520653814999466),</span>
+<span class="go"> &#39;l1_ratio&#39;: np.float64(0.7151893663724195)}</span>
 </pre></div>
 </div>
 <p>To be clear, this is a very small toy example: there are only 100 observations and
@@ -1585,7 +1589,7 @@ can be found in the Dask blog post “<a class="reference external" href="https:
 optimization with Dask</a>”.</p>
 <p>It will use these estimators with the following inputs:</p>
 <ul class="simple">
-<li><p>Model: Scikit-learn’s <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html#sklearn.neural_network.MLPClassifier" title="(in scikit-learn v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLPClassifier</span></code></a> with 12
+<li><p>Model: Scikit-learn’s <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html#sklearn.neural_network.MLPClassifier" title="(in scikit-learn v1.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLPClassifier</span></code></a> with 12
 neurons</p></li>
 <li><p>Dataset: A simple synthetic dataset with 4 classes and 6 features (2
 meaningful features and 4 random features):</p></li>

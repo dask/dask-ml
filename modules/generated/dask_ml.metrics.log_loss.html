@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>dask_ml.metrics.log_loss &#8212; dask-ml 2024.4.4 documentation</title>
+    <title>dask_ml.metrics.log_loss &#8212; dask-ml 2024.4.5 documentation</title>
     
   <link href="../../_static/css/theme.css" rel="stylesheet">
   <link href="../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -814,7 +814,7 @@ a probability estimate <span class="math notranslate nohighlight">\(p = \operato
 loss is:</p>
 <div class="math notranslate nohighlight">
 \[L_{\log}(y, p) = -(y \log (p) + (1 - y) \log (1 - p))\]</div>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#log-loss" title="(in scikit-learn v1.4)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#log-loss" title="(in scikit-learn v1.5)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl>
@@ -825,21 +825,9 @@ predict_proba method. If <code class="docutils literal notranslate"><span class=
 the probabilities provided are assumed to be that of the
 positive class. The labels in <code class="docutils literal notranslate"><span class="pre">y_pred</span></code> are assumed to be
 ordered alphabetically, as done by
-<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.LabelBinarizer.html#sklearn.preprocessing.LabelBinarizer" title="(in scikit-learn v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelBinarizer</span></code></a>.</p>
-</dd>
-<dt><strong>eps</strong><span class="classifier">float or “auto”, default=”auto”</span></dt><dd><p>Log loss is undefined for p=0 or p=1, so probabilities are
-clipped to <cite>max(eps, min(1 - eps, p))</cite>. The default will depend on the
-data type of <cite>y_pred</cite> and is set to <cite>np.finfo(y_pred.dtype).eps</cite>.</p>
-<div class="versionadded">
-<p><span class="versionmodified added">New in version 1.2.</span></p>
-</div>
-<div class="versionchanged">
-<p><span class="versionmodified changed">Changed in version 1.2: </span>The default value changed from <cite>1e-15</cite> to <cite>“auto”</cite> that is
-equivalent to <cite>np.finfo(y_pred.dtype).eps</cite>.</p>
-</div>
-<div class="deprecated">
-<p><span class="versionmodified deprecated">Deprecated since version 1.3: </span><cite>eps</cite> is deprecated in 1.3 and will be removed in 1.5.</p>
-</div>
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.LabelBinarizer.html#sklearn.preprocessing.LabelBinarizer" title="(in scikit-learn v1.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelBinarizer</span></code></a>.</p>
+<p><cite>y_pred</cite> values are clipped to <cite>[eps, 1-eps]</cite> where <cite>eps</cite> is the machine
+precision for <cite>y_pred</cite>’s dtype.</p>
 </dd>
 <dt><strong>normalize</strong><span class="classifier">bool, default=True</span></dt><dd><p>If true, return the mean loss per sample.
 Otherwise, return the sum of the per-sample losses.</p>

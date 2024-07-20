@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Incremental Learning &#8212; dask-ml 2024.4.4 documentation</title>
+    <title>Incremental Learning &#8212; dask-ml 2024.4.5 documentation</title>
     
   <link href="_static/css/theme.css" rel="stylesheet">
   <link href="_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -853,7 +853,7 @@ block of a Dask Array to the underlying estimator’s <code class="docutils lite
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p><a class="reference internal" href="modules/generated/dask_ml.wrappers.Incremental.html#dask_ml.wrappers.Incremental" title="dask_ml.wrappers.Incremental"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.wrappers.Incremental</span></code></a> currently does not work well with
-hyper-parameter optimization like <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>.
+hyper-parameter optimization like <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v1.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>.
 If you need to do hyper-parameter optimization on larger-than-memory datasets,
 we recommend <a class="reference internal" href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV" title="dask_ml.model_selection.IncrementalSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.model_selection.IncrementalSearchCV</span></code></a>. See
 “<a class="reference internal" href="hyper-parameter-search.html#hyperparameter-incremental"><span class="std std-ref">Incremental Hyperparameter Optimization</span></a>” for an introduction.</p>
@@ -908,7 +908,7 @@ scikit-learn compatible estimator, and will be trained normally via its
 <p>Notice that we call the regular <code class="docutils literal notranslate"><span class="pre">.fit</span></code> method, not <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> for
 training. Dask-ML takes care of passing each block to the underlying estimator
 for you.</p>
-<p>Just like <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html#sklearn.linear_model.SGDClassifier.partial_fit" title="(in scikit-learn v1.4)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sklearn.linear_model.SGDClassifier.partial_fit()</span></code></a>, we need to
+<p>Just like <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html#sklearn.linear_model.SGDClassifier.partial_fit" title="(in scikit-learn v1.5)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sklearn.linear_model.SGDClassifier.partial_fit()</span></code></a>, we need to
 pass the <code class="docutils literal notranslate"><span class="pre">classes</span></code> argument to <code class="docutils literal notranslate"><span class="pre">fit</span></code>. In general, any argument that is
 required for the underlying estimators <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> becomes required for
 the wrapped <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</p>
@@ -924,18 +924,18 @@ can also explicitly pass <code class="docutils literal notranslate"><span class=
 </div>
 <p>We can get the accuracy score on our dataset.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="n">clf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-<span class="gh">Out[9]: </span><span class="go">0.71</span>
+<span class="gh">Out[9]: </span><span class="go">np.float64(0.62)</span>
 </pre></div>
 </div>
 <p>All of the attributes learned during training, like <code class="docutils literal notranslate"><span class="pre">coef_</span></code>, are available
 on the <code class="docutils literal notranslate"><span class="pre">Incremental</span></code> instance.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">coef_</span>
 <span class="gh">Out[10]: </span>
-<span class="go">array([[  14.7629775 , -100.70665948,   14.44387859,   36.11439552,</span>
-<span class="go">         -37.09242144,   -1.43761896,   30.34188917,   47.59627814,</span>
-<span class="go">         -17.35886921,   22.26633022,   -6.40900391,   -7.70422963,</span>
-<span class="go">           0.99917605,   37.43855113,  -27.60936129,   24.04887052,</span>
-<span class="go">          16.3250489 ,   -4.1451294 ,  -13.56508143,   31.65288647]])</span>
+<span class="go">array([[-35.9445656 ,  49.73992669,  -2.87680832,  13.73346329,</span>
+<span class="go">        -14.26998178,  -1.31088012,  26.54761929, -13.63342126,</span>
+<span class="go">         12.48523186, -14.24566313, -64.32235796, -29.13811848,</span>
+<span class="go">        -31.70766329, -35.77446991,  -1.04224674, -11.70995257,</span>
+<span class="go">        -20.41152723,   1.89513282, -26.68256021,  -6.31896171]])</span>
 </pre></div>
 </div>
 <p>If necessary, the actual estimator trained is available as <code class="docutils literal notranslate"><span class="pre">Incremental.estimator_</span></code></p>

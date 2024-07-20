@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>dask_ml.model_selection.InverseDecaySearchCV &#8212; dask-ml 2024.4.4 documentation</title>
+    <title>dask_ml.model_selection.InverseDecaySearchCV &#8212; dask-ml 2024.4.5 documentation</title>
     
   <link href="../../_static/css/theme.css" rel="stylesheet">
   <link href="../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -857,14 +857,14 @@ If RandomState instance, random_state is the random number generator;
 If None, the random number generator is the RandomState instance used
 by <cite>np.random</cite>.</p>
 </dd>
-<dt><strong>scoring</strong><span class="classifier">string, callable, list/tuple, dict or None, default: None</span></dt><dd><p>A single string (see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter" title="(in scikit-learn v1.4)"><span>The scoring parameter: defining model evaluation rules</span></a>) or a callable
-(see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring" title="(in scikit-learn v1.4)"><span>Defining your scoring strategy from metric functions</span></a>) to evaluate the predictions on the test set.</p>
+<dt><strong>scoring</strong><span class="classifier">string, callable, list/tuple, dict or None, default: None</span></dt><dd><p>A single string (see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter" title="(in scikit-learn v1.5)"><span>The scoring parameter: defining model evaluation rules</span></a>) or a callable
+(see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring" title="(in scikit-learn v1.5)"><span>Defining your scoring strategy from metric functions</span></a>) to evaluate the predictions on the test set.</p>
 <p>For evaluating multiple metrics, either give a list of (unique) strings
 or a dict with names as keys and callables as values.</p>
 <p>NOTE that when using custom scorers, each scorer should return a single
 value. Metric functions returning a list/array of values can be wrapped
 into multiple scorers that return one value each.</p>
-<p>See <a class="reference external" href="https://scikit-learn.org/stable/modules/grid_search.html#multimetric-grid-search" title="(in scikit-learn v1.4)"><span>Specifying multiple metrics for evaluation</span></a> for an example.</p>
+<p>See <a class="reference external" href="https://scikit-learn.org/stable/modules/grid_search.html#multimetric-grid-search" title="(in scikit-learn v1.5)"><span>Specifying multiple metrics for evaluation</span></a> for an example.</p>
 <p>If None, the estimator’s default scorer (if available) is used.</p>
 </dd>
 <dt><strong>verbose</strong><span class="classifier">bool, float, int, optional, default: False</span></dt><dd><p>If False (default), don’t print logs (or pipe them to stdout). However,
