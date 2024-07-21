@@ -438,7 +438,7 @@ def test_singular_values(svd_solver):
 def test_whitening(svd_solver):
     # Test that PCA and IncrementalPCA transforms match to sign flip.
     X = datasets.make_low_rank_matrix(
-        1000, 10, tail_strength=0.0, effective_rank=2, random_state=1999
+        1000, 10, tail_strength=0.0, effective_rank=2, random_state=1998
     )
     X = da.from_array(X, chunks=[200, -1])
     prec = 3
