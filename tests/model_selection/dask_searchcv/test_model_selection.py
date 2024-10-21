@@ -22,7 +22,7 @@ from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.exceptions import FitFailedWarning, NotFittedError
 from sklearn.feature_selection import SelectKBest
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.model_selection import (
     GridSearchCV,
     GroupKFold,
@@ -696,6 +696,29 @@ def test_estimator_predict_failure(in_pipeline):
         clf, param_grid=grid, refit=False, error_score=float("nan"), cv=2
     )
     gs.fit(X, y)
+
+
+def test_estimator_score_failure():
+    X = np.array([[1, 2], [2, 1], [0, 0]])
+
+    y = 3 * X[:, 0] + 4 * X[:, 1]
+    cv = LeaveOneOut()
+
+    ols = LinearRegression(fit_intercept=False)
+
+    # mean poisson deviance is undefined when y_hat is 0, so this can be used to test
+    # when estimator fit succeeds but score fails
+    regr = dcv.GridSearchCV(
+        ols,
+        {"normalize": [False, True]},
+        scoring=["neg_mean_squared_error", "neg_mean_poisson_deviance"],
+        refit=False,
+        cv=cv,
+        error_score=-1,
+        n_jobs=1,
+    )
+    regr.fit(X, y)
+    assert (regr.cv_results_["split2_test_neg_mean_poisson_deviance"] == [-1, -1]).all()
 
 
 def test_pipeline_raises():
