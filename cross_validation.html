@@ -822,9 +822,9 @@ This document only describes the extensions made to support Dask arrays.</p>
 
 <span class="gp">In [8]: </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="gh">Out[8]: </span>
-<span class="go">array([[-0.3122028 , -0.88191003, -0.00495866,  0.91761886],</span>
-<span class="go">       [ 0.62376076,  0.77007729,  0.79163027,  1.46754648],</span>
-<span class="go">       [-0.45656184, -0.13857792, -1.52033112,  0.27454601]])</span>
+<span class="go">array([[ 0.12590048, -0.69540901, -1.18976616, -1.07897621],</span>
+<span class="go">       [-0.67007472,  0.11768581, -0.42047692,  0.76148918],</span>
+<span class="go">       [-0.35558747,  1.33408773,  2.86662792,  0.91737522]])</span>
 </pre></div>
 </div>
 <p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v1.5)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
