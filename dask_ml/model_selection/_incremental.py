@@ -248,7 +248,19 @@ async def _fit(
         _specs[ident] = spec
 
     if DISTRIBUTED_2021_02_0:
-        _models, _scores, _specs = dask.persist(_models, _scores, _specs)
+        # https://github.com/dask/dask-ml/issues/1003
+        # We only want to persist dask collections, not Futures.
+        # So we build a collection without futures and bring them back later.
+        to_persist = {
+            "models": {k: v for k, v in _models.items() if not isinstance(v, Future)},
+            "scores": {k: v for k, v in _scores.items() if not isinstance(v, Future)},
+            "specs": {k: v for k, v in _specs.items() if not isinstance(v, Future)},
+        }
+        models_p, scores_p, specs_p = dask.persist(*list(to_persist.values()))
+        # Update with keys not present, which should just be futures
+        _models = {**_models, **models_p}
+        _scores = {**_scores, **scores_p}
+        _specs = {**_specs, **specs_p}
     else:
         _models, _scores, _specs = dask.persist(
             _models, _scores, _specs, priority={tuple(_specs.values()): -1}
@@ -315,7 +327,24 @@ async def _fit(
                 _specs[ident] = spec
 
         if DISTRIBUTED_2021_02_0:
-            _models2, _scores2, _specs2 = dask.persist(_models, _scores, _specs)
+            # https://github.com/dask/dask-ml/issues/1003
+            # We only want to persist dask collections, not Futures.
+            # So we build a collection without futures and bring them back later.
+            to_persist = {
+                "models": {
+                    k: v for k, v in _models.items() if not isinstance(v, Future)
+                },
+                "scores": {
+                    k: v for k, v in _scores.items() if not isinstance(v, Future)
+                },
+                "specs": {k: v for k, v in _specs.items() if not isinstance(v, Future)},
+            }
+            models2_p, scores2_p, specs2_p = dask.persist(*list(to_persist.values()))
+            # Update with keys not present, which should just be futures
+            _models2 = {**_models, **models2_p}
+            _scores2 = {**_scores, **scores2_p}
+            _specs2 = {**_specs, **specs2_p}
+
         else:
             _models2, _scores2, _specs2 = dask.persist(
                 _models, _scores, _specs, priority={tuple(_specs.values()): -1}
