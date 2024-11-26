@@ -138,6 +138,7 @@ with Dask Arrays or DataFrames.
 
    cluster.KMeans
    cluster.SpectralClustering
+   cluster.Coreset
 
 
 :mod:`dask_ml.decomposition`: Matrix Decomposition
