@@ -46,7 +46,7 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
     --------
     `LabelEncoder` can be used to normalize labels.
 
-    >>> from dask_ml import preprocessing
+    >>> from dask.ml import preprocessing
     >>> le = preprocessing.LabelEncoder()
     >>> le.fit([1, 2, 2, 6])
     LabelEncoder()

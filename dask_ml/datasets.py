@@ -142,7 +142,7 @@ def make_blobs(
 
     Examples
     --------
-    >>> from dask_ml.datasets import make_blobs
+    >>> from dask.ml.datasets import make_blobs
     >>> X, y = make_blobs(n_samples=100000, chunks=10000)
     >>> X
     dask.array<..., shape=(100000, 2), dtype=float64, chunksize=(10000, 2)>

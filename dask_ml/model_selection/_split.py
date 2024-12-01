@@ -407,7 +407,7 @@ def train_test_split(
     Examples
     --------
     >>> import dask.array as da
-    >>> from dask_ml.datasets import make_regression
+    >>> from dask.ml.datasets import make_regression
 
     >>> X, y = make_regression(n_samples=125, n_features=4, chunks=50,
     ...                        random_state=0)
