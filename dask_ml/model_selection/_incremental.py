@@ -167,6 +167,14 @@ async def _fit(
     models: Dict[int, Tuple[Model, Meta]] = {}
     scores: Dict[int, Meta] = {}
 
+    if not hasattr(model, "partial_fit"):
+        raise ValueError(
+            f"model={model} does not implement `partial_fit`, a "
+            "requirement for doing incremental hyperparameter "
+            "optimization. For more detail, see\n\n"
+            "    https://ml.dask.org/hyper-parameter-search.html#hyperparameter-scaling"
+        )
+
     logger.info("[CV%s] creating %d models", prefix, len(params))
     for ident, param in enumerate(params):
         model = client.submit(_create_model, original_model, ident, **param)
