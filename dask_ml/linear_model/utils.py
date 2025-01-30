@@ -5,56 +5,33 @@ import dask.dataframe as dd
 import numpy as np
 from multipledispatch import dispatch
 
-if getattr(dd, "_dask_expr_enabled", lambda: False)():
-    import dask_expr
 
-    @dispatch(dask_expr.FrameBase)
-    def exp(A):
-        return da.exp(A)
+@dispatch(dd.DataFrame)
+def exp(A):
+    return da.exp(A)
 
-    @dispatch(dask_expr.FrameBase)
-    def absolute(A):
-        return da.absolute(A)
 
-    @dispatch(dask_expr.FrameBase)
-    def sign(A):
-        return da.sign(A)
+@dispatch(dd.DataFrame)
+def absolute(A):
+    return da.absolute(A)
 
-    @dispatch(dask_expr.FrameBase)
-    def log1p(A):
-        return da.log1p(A)
 
-    @dispatch(dask_expr.FrameBase)  # noqa: F811
-    def add_intercept(X):  # noqa: F811
-        columns = X.columns
-        if "intercept" in columns:
-            raise ValueError("'intercept' column already in 'X'")
-        return X.assign(intercept=1)[["intercept"] + list(columns)]
+@dispatch(dd.DataFrame)
+def sign(A):
+    return da.sign(A)
 
-else:
 
-    @dispatch(dd._Frame)
-    def exp(A):
-        return da.exp(A)
+@dispatch(dd.DataFrame)
+def log1p(A):
+    return da.log1p(A)
 
-    @dispatch(dd._Frame)
-    def absolute(A):
-        return da.absolute(A)
 
-    @dispatch(dd._Frame)
-    def sign(A):
-        return da.sign(A)
-
-    @dispatch(dd._Frame)
-    def log1p(A):
-        return da.log1p(A)
-
-    @dispatch(dd._Frame)  # noqa: F811
-    def add_intercept(X):  # noqa: F811
-        columns = X.columns
-        if "intercept" in columns:
-            raise ValueError("'intercept' column already in 'X'")
-        return X.assign(intercept=1)[["intercept"] + list(columns)]
+@dispatch(dd.DataFrame)  # noqa: F811
+def add_intercept(X):  # noqa: F811
+    columns = X.columns
+    if "intercept" in columns:
+        raise ValueError("'intercept' column already in 'X'")
+    return X.assign(intercept=1)[["intercept"] + list(columns)]
 
 
 @dispatch(np.ndarray)  # noqa: F811
