@@ -15,7 +15,6 @@ from sklearn.preprocessing import OneHotEncoder
 from dask_ml.datasets import make_classification
 from dask_ml.utils import assert_eq_ar, assert_estimator_equal
 from dask_ml.wrappers import ParallelPostFit
-from tests.conftest import DASK_EXPR_ENABLED
 
 
 def test_it_works():
@@ -62,17 +61,6 @@ def test_predict_meta_override():
     base.fit(pd.DataFrame(X), y)
 
     dd_X = dd.from_pandas(X, npartitions=2)
-
-    if not DASK_EXPR_ENABLED:
-        # dask-expr cannot set _meta
-        dd_X._meta = pd.DataFrame({"c_0": [5]})
-
-        # Failure when not proving predict_meta
-        # because of value dependent model
-        wrap = ParallelPostFit(base)
-        with pytest.raises(ValueError):
-            wrap.predict(dd_X)
-
     # Success when providing meta over-ride
     wrap = ParallelPostFit(base, predict_meta=np.array([1]))
     result = wrap.predict(dd_X)
@@ -88,16 +76,6 @@ def test_predict_proba_meta_override():
     base.fit(pd.DataFrame(X), y)
 
     dd_X = dd.from_pandas(X, npartitions=2)
-
-    if not DASK_EXPR_ENABLED:
-        # dask-expr cannot set _meta
-        dd_X._meta = pd.DataFrame({"c_0": [5]})
-
-        # Failure when not proving predict_proba_meta
-        # because of value dependent model
-        wrap = ParallelPostFit(base)
-        with pytest.raises(ValueError):
-            wrap.predict_proba(dd_X)
 
     # Success when providing meta over-ride
     wrap = ParallelPostFit(base, predict_proba_meta=np.array([[0.0, 0.1, 0.8, 0.1]]))

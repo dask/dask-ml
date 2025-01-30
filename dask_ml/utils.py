@@ -25,11 +25,7 @@ logger = logging.getLogger()
 
 
 def is_frame_base(inst):
-    if getattr(dd, "_dask_expr_enabled", lambda: False)():
-        from dask_expr import FrameBase
-
-        return isinstance(inst, FrameBase)
-    return isinstance(inst, dd._Frame)
+    return isinstance(inst, dd.DataFrame)
 
 
 def _svd_flip_copy(x, y, u_based_decision=True):
@@ -220,12 +216,7 @@ def check_array(
 
 def _assert_eq(lattr, rattr, name=None, **kwargs):
     array_types = (np.ndarray, da.Array)
-    if getattr(dd, "_dask_expr_enabled", lambda: False)():
-        from dask_expr import FrameBase
-
-        frame_types = (pd.core.generic.NDFrame, FrameBase)
-    else:
-        frame_types = (pd.core.generic.NDFrame, dd._Frame)
+    frame_types = (pd.core.generic.NDFrame, dd.DataFrame)
     if isinstance(lattr, array_types):
         assert_eq_ar(lattr, rattr, **kwargs)
     elif isinstance(lattr, frame_types):

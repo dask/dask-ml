@@ -15,8 +15,6 @@ from dask_ml.datasets import (
 
 # pytest.register_assert_rewrite('dask_ml.utils')
 
-DASK_EXPR_ENABLED = getattr(dd, "_dask_expr_enabled", lambda: False)()
-
 
 @pytest.fixture
 def xy_classification():

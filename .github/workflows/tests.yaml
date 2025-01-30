@@ -10,14 +10,12 @@ jobs:
       matrix:
         # os: ["windows-latest", "ubuntu-latest", "macos-latest"]
         os: ["ubuntu-latest"]
-        python-version: ["3.9", "3.10", "3.11"]
-        query-planning: [true, false]
+        python-version: ["3.10", "3.11"]
 
     env:
       PYTHON_VERSION: ${{ matrix.python-version }}
       PARALLEL: "true"
       COVERAGE: "true"
-      DASK_DATAFRAME__QUERY_PLANNING: ${{ matrix.query-planning }}
 
     steps:
       - name: Checkout source

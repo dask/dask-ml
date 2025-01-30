@@ -17,7 +17,6 @@ from sklearn.exceptions import NotFittedError
 import dask_ml.preprocessing as dpp
 from dask_ml.datasets import make_classification
 from dask_ml.utils import assert_estimator_equal
-from tests.conftest import DASK_EXPR_ENABLED
 
 X, y = make_classification(chunks=50)
 df = X.to_dask_dataframe().rename(columns=str)
@@ -638,7 +637,7 @@ class TestPolynomialFeatures:
         assert pf._transformer.include_bias is pf.include_bias
 
     mark = pytest.mark.xfail(
-        DASK_EXPR_ENABLED,
+        True,
         reason="dask-expr: NotImplementedError in "
         + "assert_eq_df(res_df.iloc[:, 1:], frame, check_dtype=False)",
     )
