@@ -1,0 +1,25 @@
+name: dask-ml-3.12
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - dask-glm
+  - multipledispatch >=0.4.9
+  - mypy
+  - numba
+  - numpy
+  - numpydoc
+  - packaging
+  - pandas
+  - psutil
+  - pytest
+  - pytest-cov
+  - pytest-mock
+  - python=3.12.*
+  - scikit-learn >=1.2.0
+  - scipy
+  - sparse
+  - toolz
+  - pip
+  - pip:
+      - git+https://github.com/dask/dask
