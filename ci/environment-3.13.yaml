@@ -6,7 +6,7 @@ dependencies:
   - dask-glm
   - multipledispatch >=0.4.9
   - mypy
-  - numba
+  # - numba  # Version with Python 3.13 not on conda-forge yet
   - numpy
   - numpydoc
   - packaging
@@ -23,3 +23,5 @@ dependencies:
   - pip
   - pip:
       - git+https://github.com/dask/dask
+      # Switch to conda for `numba` once a version with Python 3.13 support is on conda-forge
+      - numba >= 0.61.0
