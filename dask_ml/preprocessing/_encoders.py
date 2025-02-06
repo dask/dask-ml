@@ -167,7 +167,7 @@ class OneHotEncoder(DaskMLBaseMixin, sklearn.preprocessing.OneHotEncoder):
         self,
         X: Union[ArrayLike, DataFrameType],
         handle_unknown: str = "error",
-        force_all_finite: bool = True,
+        ensure_all_finite: bool = True,
         return_counts=False,
     ):
         X = self._validate_data(
@@ -179,7 +179,7 @@ class OneHotEncoder(DaskMLBaseMixin, sklearn.preprocessing.OneHotEncoder):
         if isinstance(X, np.ndarray):
             kwargs = {
                 "handle_unknown": handle_unknown,
-                "force_all_finite": force_all_finite,
+                "ensure_all_finite": ensure_all_finite,
             }
 
             # `return_counts` expected as of scikit-learn 1.1

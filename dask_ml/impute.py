@@ -17,7 +17,7 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
             accept_dask_dataframe=True,
             accept_unknown_chunks=True,
             preserve_pandas_dataframe=True,
-            force_all_finite=False,
+            ensure_all_finite=False,
         )
 
     def fit(self, X, y=None):
