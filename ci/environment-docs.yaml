@@ -17,7 +17,7 @@ dependencies:
   - psutil
   - python=3.11
   - sortedcontainers
-  - scikit-learn >=1.2.0
+  - scikit-learn >=1.6.1
   - scipy
   - sparse
   - tornado
