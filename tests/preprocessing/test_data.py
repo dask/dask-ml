@@ -536,8 +536,11 @@ class TestOrdinalEncoder:
 
         assert_eq_df(df, enc.inverse_transform(enc.transform(df)))
         assert_eq_df(df, enc.inverse_transform(enc.transform(df)))
-        assert_eq_df(df, enc.inverse_transform(enc.transform(df).values))
-        assert_eq_df(df, enc.inverse_transform(enc.transform(df).values))
+        # TODO: use key_max_length
+        # https://github.com/dask/dask/pull/11719
+        # assert_eq_df(df, enc.inverse_transform(enc.transform(df).values))
+        result = (enc.inverse_transform(enc.transform(df).values)).compute()
+        assert_eq_df(result, df)
 
 
 class TestPolynomialFeatures:
