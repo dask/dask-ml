@@ -25,7 +25,9 @@ from dask_ml.utils import assert_estimator_equal, row_norms
 def test_check_estimator():
     with warnings.catch_warnings(record=True):
         warnings.simplefilter("ignore", RuntimeWarning)
-        check_estimator(DKKMeans())
+        check_estimator(DKKMeans(), expected_failed_checks={
+            "check_n_features_in_after_fitting": "https://github.com/dask/dask-ml/pull/1008"
+        })
 
 
 def test_row_norms(X_blobs):
