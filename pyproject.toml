@@ -31,7 +31,7 @@ dependencies = [
     "numpy>=1.24.0",
     "packaging",
     "pandas>=2.0",
-    "scikit-learn>=1.2.0",
+    "scikit-learn>=1.6.1",
     "scipy",
 ]
 
