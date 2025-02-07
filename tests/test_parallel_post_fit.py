@@ -181,9 +181,7 @@ def test_multiclass():
     X = da.from_array(X, chunks=50)
     y = da.from_array(y, chunks=50)
 
-    clf = ParallelPostFit(
-        LogisticRegression(random_state=0, n_jobs=1, solver="lbfgs", multi_class="auto")
-    )
+    clf = ParallelPostFit(LogisticRegression(random_state=0, n_jobs=1, solver="lbfgs"))
 
     clf.fit(*dask.compute(X, y))
     result = clf.predict(X)
