@@ -1,4 +1,5 @@
 import sklearn.base
+import sklearn.utils.validation
 
 from .utils import _check_y, check_array, check_X_y
 
@@ -61,7 +62,7 @@ class DaskMLBaseMixin:
             The validated input. A tuple is returned if both `X` and `y` are
             validated.
         """
-        self._check_feature_names(X, reset=reset)
+        sklearn.utils.validation._check_feature_names(self, X, reset=reset)
 
         if y is None and self._get_tags()["requires_y"]:
             raise ValueError(
@@ -94,7 +95,7 @@ class DaskMLBaseMixin:
             out = X, y
 
         if not no_val_X and check_params.get("ensure_2d", True):
-            self._check_n_features(X, reset=reset)
+            sklearn.utils.validation._check_n_features(self, X, reset=reset)
 
         return out
 

@@ -5,6 +5,7 @@ import dask.array as da
 import numpy as np
 import pandas as pd
 import sklearn.preprocessing
+import sklearn.utils.validation
 
 from .._compat import SKLEARN_1_1_X
 from .._typing import ArrayLike, DataFrameType, DTypeLike, SeriesType
@@ -173,8 +174,8 @@ class OneHotEncoder(DaskMLBaseMixin, sklearn.preprocessing.OneHotEncoder):
         X = self._validate_data(
             X, accept_dask_dataframe=True, dtype=None, preserve_pandas_dataframe=True
         )
-        self._check_n_features(X, reset=True)
-        self._check_feature_names(X, reset=True)
+        sklearn.utils.validation._check_n_features(self, X, reset=True)
+        sklearn.utils.validation._check_feature_names(self, X, reset=True)
 
         if isinstance(X, np.ndarray):
             kwargs = {
