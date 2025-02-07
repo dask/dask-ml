@@ -6,7 +6,7 @@ if [[ ${UPSTREAM_DEV} ]]; then
     conda uninstall --force dask distributed scikit-learn
 
     python -m pip install --no-deps --pre \
-        -i https://pypi.anaconda.org/scipy-wheels-nightly/simple \
+        -i https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
         scikit-learn
 
     python -m pip install \
