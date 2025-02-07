@@ -815,8 +815,8 @@ CountVectorizer, intended for large-scale (online) learning and situations
 where memory is tight, e.g. when running prediction code on embedded
 devices.</p>
 <p>For an efficiency comparison of the different feature extractors, see
-<a class="reference external" href="https://scikit-learn.org/stable/auto_examples/text/plot_hashing_vs_dict_vectorizer.html#sphx-glr-auto-examples-text-plot-hashing-vs-dict-vectorizer-py" title="(in scikit-learn v1.5)"><span>FeatureHasher and DictVectorizer Comparison</span></a>.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#feature-hashing" title="(in scikit-learn v1.5)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<a class="reference external" href="https://scikit-learn.org/stable/auto_examples/text/plot_hashing_vs_dict_vectorizer.html#sphx-glr-auto-examples-text-plot-hashing-vs-dict-vectorizer-py" title="(in scikit-learn v1.6)"><span>FeatureHasher and DictVectorizer Comparison</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/feature_extraction.html#feature-hashing" title="(in scikit-learn v1.6)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 0.13.</span></p>
 </div>
@@ -857,17 +857,17 @@ parameter.</p>
 <dl class="simple">
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">DictVectorizer</span></code></dt><dd><p>Vectorizes string-valued features using a hash table.</p>
 </dd>
-<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html#sklearn.preprocessing.OneHotEncoder" title="(in scikit-learn v1.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.preprocessing.OneHotEncoder</span></code></a></dt><dd><p>Handles nominal/categorical features.</p>
+<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html#sklearn.preprocessing.OneHotEncoder" title="(in scikit-learn v1.6)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.preprocessing.OneHotEncoder</span></code></a></dt><dd><p>Handles nominal/categorical features.</p>
 </dd>
 </dl>
 </div>
 <p class="rubric">Notes</p>
-<p>This estimator is <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-stateless" title="(in scikit-learn v1.5)"><span class="xref std std-term">stateless</span></a> and does not need to be fitted.
+<p>This estimator is <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-stateless" title="(in scikit-learn v1.6)"><span class="xref std std-term">stateless</span></a> and does not need to be fitted.
 However, we recommend to call <code class="xref py py-meth docutils literal notranslate"><span class="pre">fit_transform()</span></code> instead of
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">transform()</span></code>, as parameter validation is only performed in
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code>.</p>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.feature_extraction</span> <span class="kn">import</span> <span class="n">FeatureHasher</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.feature_extraction</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureHasher</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">h</span> <span class="o">=</span> <span class="n">FeatureHasher</span><span class="p">(</span><span class="n">n_features</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">D</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;dog&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;cat&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;elephant&#39;</span><span class="p">:</span><span class="mi">4</span><span class="p">},{</span><span class="s1">&#39;dog&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;run&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">}]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">h</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>

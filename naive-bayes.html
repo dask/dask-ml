@@ -844,9 +844,9 @@ arrays and DataFrames rather than just in-memory NumPy and Pandas arrays
 and DataFrames.</p>
 <div class="section" id="example">
 <h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">from</span> <span class="nn">dask_ml</span> <span class="kn">import</span> <span class="n">datasets</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">from</span><span class="w"> </span><span class="nn">dask_ml</span><span class="w"> </span><span class="kn">import</span> <span class="n">datasets</span>
 
-<span class="gp">In [2]: </span><span class="kn">from</span> <span class="nn">dask_ml.naive_bayes</span> <span class="kn">import</span> <span class="n">GaussianNB</span>
+<span class="gp">In [2]: </span><span class="kn">from</span><span class="w"> </span><span class="nn">dask_ml.naive_bayes</span><span class="w"> </span><span class="kn">import</span> <span class="n">GaussianNB</span>
 
 <span class="gp">In [3]: </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">datasets</span><span class="o">.</span><span class="n">make_classification</span><span class="p">(</span><span class="n">chunks</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
 

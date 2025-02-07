@@ -856,13 +856,13 @@ wrapped, <a class="reference internal" href="modules/generated/dask_ml.wrappers.
 your training dataset is relatively small (fits in a single machine’s memory),
 and prediction or transformation must be done on a much larger dataset (perhaps
 larger than a single machine’s memory).</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">GradientBoostingClassifier</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">GradientBoostingClassifier</span>
 
-<span class="gp">In [2]: </span><span class="kn">import</span> <span class="nn">sklearn.datasets</span>
+<span class="gp">In [2]: </span><span class="kn">import</span><span class="w"> </span><span class="nn">sklearn.datasets</span>
 
-<span class="gp">In [3]: </span><span class="kn">import</span> <span class="nn">dask_ml.datasets</span>
+<span class="gp">In [3]: </span><span class="kn">import</span><span class="w"> </span><span class="nn">dask_ml.datasets</span>
 
-<span class="gp">In [4]: </span><span class="kn">from</span> <span class="nn">dask_ml.wrappers</span> <span class="kn">import</span> <span class="n">ParallelPostFit</span>
+<span class="gp">In [4]: </span><span class="kn">from</span><span class="w"> </span><span class="nn">dask_ml.wrappers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParallelPostFit</span>
 </pre></div>
 </div>
 <p>In this example, we’ll make a small 1,000 sample training dataset</p>
@@ -896,16 +896,16 @@ cause the scheduler to compute tasks in parallel. If you’ve connected to a
 cluster of machines.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [10]: </span><span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_big</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">10</span><span class="p">]</span>
 <span class="gh">Out[10]: </span>
-<span class="go">array([[0.1893683 , 0.8106317 ],</span>
+<span class="go">array([[0.29480178, 0.70519822],</span>
 <span class="go">       [0.00464304, 0.99535696],</span>
 <span class="go">       [0.00902734, 0.99097266],</span>
 <span class="go">       [0.01299259, 0.98700741],</span>
-<span class="go">       [0.92958233, 0.07041767],</span>
-<span class="go">       [0.8115279 , 0.1884721 ],</span>
-<span class="go">       [0.8941099 , 0.1058901 ],</span>
+<span class="go">       [0.9287794 , 0.0712206 ],</span>
+<span class="go">       [0.70641268, 0.29358732],</span>
+<span class="go">       [0.91552476, 0.08447524],</span>
 <span class="go">       [0.0203811 , 0.9796189 ],</span>
-<span class="go">       [0.021179  , 0.978821  ],</span>
-<span class="go">       [0.97098636, 0.02901364]])</span>
+<span class="go">       [0.02708978, 0.97291022],</span>
+<span class="go">       [0.97064062, 0.02935938]])</span>
 </pre></div>
 </div>
 <p>See <a class="reference external" href="http://dask-ml-benchmarks.readthedocs.io/en/latest/auto_examples/plot_parallel_post_fit_scaling.html">parallelizing prediction</a> for an example of how this

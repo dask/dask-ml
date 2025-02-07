@@ -808,14 +808,14 @@
 <dd class="field-odd"><dl>
 <dt><strong>estimator</strong><span class="classifier">Estimator</span></dt><dd><p>The underlying estimator that is fit.</p>
 </dd>
-<dt><strong>scoring</strong><span class="classifier">string or callable, optional</span></dt><dd><p>A single string (see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter" title="(in scikit-learn v1.5)"><span>The scoring parameter: defining model evaluation rules</span></a>) or a callable
-(see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring" title="(in scikit-learn v1.5)"><span>Defining your scoring strategy from metric functions</span></a>) to evaluate the predictions on the test set.</p>
+<dt><strong>scoring</strong><span class="classifier">string or callable, optional</span></dt><dd><p>A single string (see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter" title="(in scikit-learn v1.6)"><span>The scoring parameter: defining model evaluation rules</span></a>) or a callable
+(see <span class="xref std std-ref">scoring</span>) to evaluate the predictions on the test set.</p>
 <p>For evaluating multiple metrics, either give a list of (unique)
 strings or a dict with names as keys and callables as values.</p>
 <p>NOTE that when using custom scorers, each scorer should return a
 single value. Metric functions returning a list/array of values
 can be wrapped into multiple scorers that return one value each.</p>
-<p>See <a class="reference external" href="https://scikit-learn.org/stable/modules/grid_search.html#multimetric-grid-search" title="(in scikit-learn v1.5)"><span>Specifying multiple metrics for evaluation</span></a> for an example.</p>
+<p>See <a class="reference external" href="https://scikit-learn.org/stable/modules/grid_search.html#multimetric-grid-search" title="(in scikit-learn v1.6)"><span>Specifying multiple metrics for evaluation</span></a> for an example.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>If None, the estimator’s default scorer (if available) is used.
@@ -871,9 +871,9 @@ parallel. This meta-estimator may still be useful in those cases when your
 dataset is larger than memory, as the distributed scheduler will ensure the
 data isn’t all read into memory at once.</p>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">GradientBoostingClassifier</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">sklearn.datasets</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dask_ml.datasets</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">GradientBoostingClassifier</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">sklearn.datasets</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">dask_ml.datasets</span>
 </pre></div>
 </div>
 <p>Make a small 1,000 sample 2 training dataset and fit normally.</p>

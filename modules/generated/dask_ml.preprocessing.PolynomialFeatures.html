@@ -803,13 +803,11 @@
 <dt class="sig sig-object py" id="dask_ml.preprocessing.PolynomialFeatures">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dask_ml.preprocessing.</span></span><span class="sig-name descname"><span class="pre">PolynomialFeatures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">degree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preserve_dataframe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dask_ml.preprocessing.PolynomialFeatures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate polynomial and interaction features.</p>
-<blockquote>
-<div><p>Generate a new feature matrix consisting of all polynomial combinations
+<p>Generate a new feature matrix consisting of all polynomial combinations
 of the features with degree less than or equal to the specified degree.
 For example, if an input sample is two dimensional and of the form
 [a, b], the degree-2 polynomial features are [1, a, b, a^2, ab, b^2].</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#polynomial-features" title="(in scikit-learn v1.5)"><span class="xref std std-ref">User Guide</span></a>.</p>
-</div></blockquote>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/preprocessing.html#polynomial-features" title="(in scikit-learn v1.6)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl>
@@ -823,12 +821,10 @@ determined by <cite>include_bias</cite>.</p>
 <dt><strong>interaction_only</strong><span class="classifier">bool, default=False</span></dt><dd><p>If <cite>True</cite>, only interaction features are produced: features that are
 products of at most <cite>degree</cite> <em>distinct</em> input features, i.e. terms with
 power of 2 or higher of the same input feature are excluded:</p>
-<blockquote>
-<div><ul class="simple">
+<ul class="simple">
 <li><p>included: <cite>x[0]</cite>, <cite>x[1]</cite>, <cite>x[0] * x[1]</cite>, etc.</p></li>
 <li><p>excluded: <cite>x[0] ** 2</cite>, <cite>x[0] ** 2 * x[1]</cite>, etc.</p></li>
 </ul>
-</div></blockquote>
 </dd>
 <dt><strong>include_bias</strong><span class="classifier">bool, default=True</span></dt><dd><p>If <cite>True</cite> (default), then include a bias column, the feature in which
 all polynomial powers are zero (i.e. a column of ones - acts as an
@@ -840,18 +836,22 @@ compute, but may slow down subsequent estimators.</p>
 <p><span class="versionmodified added">New in version 0.21.</span></p>
 </div>
 </dd>
+<dt><strong>preserve_dataframe</strong><span class="classifier">boolean</span></dt><dd><p>If True, preserve pandas and dask dataframes after transforming.
+Using False (default) returns numpy or dask arrays and mimics
+sklearn’s default behaviour</p>
+</dd>
 </dl>
 </dd>
 <dt class="field-even">Attributes</dt>
 <dd class="field-even"><dl>
 <dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">powers_</span></code><span class="classifier">ndarray of shape (<cite>n_output_features_</cite>, <cite>n_features_in_</cite>)</span></dt><dd><p>Exponent for each of the inputs in the output.</p>
 </dd>
-<dt><strong>n_features_in_</strong><span class="classifier">int</span></dt><dd><p>Number of features seen during <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v1.5)"><span class="xref std std-term">fit</span></a>.</p>
+<dt><strong>n_features_in_</strong><span class="classifier">int</span></dt><dd><p>Number of features seen during <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v1.6)"><span class="xref std std-term">fit</span></a>.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 0.24.</span></p>
 </div>
 </dd>
-<dt><strong>feature_names_in_</strong><span class="classifier">ndarray of shape (<cite>n_features_in_</cite>,)</span></dt><dd><p>Names of features seen during <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v1.5)"><span class="xref std std-term">fit</span></a>. Defined only when <cite>X</cite>
+<dt><strong>feature_names_in_</strong><span class="classifier">ndarray of shape (<cite>n_features_in_</cite>,)</span></dt><dd><p>Names of features seen during <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v1.6)"><span class="xref std std-term">fit</span></a>. Defined only when <cite>X</cite>
 has feature names that are all strings.</p>
 <div class="versionadded">
 <p><span class="versionmodified added">New in version 1.0.</span></p>
@@ -871,15 +871,14 @@ of input features.</p>
 </dd>
 </dl>
 </div>
-<dl class="simple">
-<dt>preserve_dataframe<span class="classifier">boolean</span></dt><dd><p>If True, preserve pandas and dask dataframes after transforming.
-Using False (default) returns numpy or dask arrays and mimics
-sklearn’s default behaviour</p>
-</dd>
-</dl>
+<p class="rubric">Notes</p>
+<p>Be aware that the number of features in the output array scales
+polynomially in the number of features of the input array, and
+exponentially in the degree. High degrees can cause overfitting.</p>
+<p>See <a class="reference external" href="https://scikit-learn.org/stable/auto_examples/linear_model/plot_polynomial_interpolation.html#sphx-glr-auto-examples-linear-model-plot-polynomial-interpolation-py" title="(in scikit-learn v1.6)"><span class="xref std std-ref">examples/linear_model/plot_polynomial_interpolation.py</span></a></p>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">PolynomialFeatures</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolynomialFeatures</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">X</span>
 <span class="go">array([[0, 1],</span>

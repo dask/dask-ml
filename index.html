@@ -936,7 +936,7 @@ distributed solutions that work quite well.  Dask-ML makes no attempt to
 re-implement these systems.  Instead, Dask-ML makes it easy to use normal Dask
 workflows to prepare and set up data, then it deploys XGBoost
 <em>alongside</em> Dask, and hands the data over.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dask_ml.xgboost</span> <span class="kn">import</span> <span class="n">XGBRegressor</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dask_ml.xgboost</span><span class="w"> </span><span class="kn">import</span> <span class="n">XGBRegressor</span>
 
 <span class="n">est</span> <span class="o">=</span> <span class="n">XGBRegressor</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 <span class="n">est</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">)</span>

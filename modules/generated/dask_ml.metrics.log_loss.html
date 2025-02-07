@@ -814,7 +814,7 @@ a probability estimate <span class="math notranslate nohighlight">\(p = \operato
 loss is:</p>
 <div class="math notranslate nohighlight">
 \[L_{\log}(y, p) = -(y \log (p) + (1 - y) \log (1 - p))\]</div>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#log-loss" title="(in scikit-learn v1.5)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#log-loss" title="(in scikit-learn v1.6)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl>
@@ -825,7 +825,7 @@ predict_proba method. If <code class="docutils literal notranslate"><span class=
 the probabilities provided are assumed to be that of the
 positive class. The labels in <code class="docutils literal notranslate"><span class="pre">y_pred</span></code> are assumed to be
 ordered alphabetically, as done by
-<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.LabelBinarizer.html#sklearn.preprocessing.LabelBinarizer" title="(in scikit-learn v1.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelBinarizer</span></code></a>.</p>
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.LabelBinarizer.html#sklearn.preprocessing.LabelBinarizer" title="(in scikit-learn v1.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelBinarizer</span></code></a>.</p>
 <p><cite>y_pred</cite> values are clipped to <cite>[eps, 1-eps]</cite> where <cite>eps</cite> is the machine
 precision for <cite>y_pred</cite>’s dtype.</p>
 </dd>
@@ -856,7 +856,7 @@ assumed to be binary and are inferred from <code class="docutils literal notrans
 <p>C.M. Bishop (2006). Pattern Recognition and Machine Learning. Springer,
 p. 209.</p>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">log_loss</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_loss</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">log_loss</span><span class="p">([</span><span class="s2">&quot;spam&quot;</span><span class="p">,</span> <span class="s2">&quot;ham&quot;</span><span class="p">,</span> <span class="s2">&quot;ham&quot;</span><span class="p">,</span> <span class="s2">&quot;spam&quot;</span><span class="p">],</span>
 <span class="gp">... </span>         <span class="p">[[</span><span class="mf">.1</span><span class="p">,</span> <span class="mf">.9</span><span class="p">],</span> <span class="p">[</span><span class="mf">.9</span><span class="p">,</span> <span class="mf">.1</span><span class="p">],</span> <span class="p">[</span><span class="mf">.8</span><span class="p">,</span> <span class="mf">.2</span><span class="p">],</span> <span class="p">[</span><span class="mf">.35</span><span class="p">,</span> <span class="mf">.65</span><span class="p">]])</span>
 <span class="go">0.21616...</span>

@@ -805,7 +805,7 @@
 <dd><p>Mean squared logarithmic error regression loss.</p>
 <p>This docstring was copied from sklearn.metrics.mean_squared_log_error.</p>
 <p>Some inconsistencies with the Dask version may exist.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#mean-squared-log-error" title="(in scikit-learn v1.5)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#mean-squared-log-error" title="(in scikit-learn v1.6)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl>
@@ -825,14 +825,6 @@ format.</p>
 </dd>
 </dl>
 </dd>
-<dt><strong>squared</strong><span class="classifier">bool, default=True  (Not supported in Dask)</span></dt><dd><p>If True returns MSLE (mean squared log error) value.
-If False returns RMSLE (root mean squared log error) value.</p>
-<div class="deprecated">
-<p><span class="versionmodified deprecated">Deprecated since version 1.4: </span><cite>squared</cite> is deprecated in 1.4 and will be removed in 1.6.
-Use <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.root_mean_squared_log_error.html#sklearn.metrics.root_mean_squared_log_error" title="(in scikit-learn v1.5)"><code class="xref py py-func docutils literal notranslate"><span class="pre">root_mean_squared_log_error()</span></code></a>
-instead to calculate the root mean squared logarithmic error.</p>
-</div>
-</dd>
 </dl>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -844,19 +836,19 @@ array of floating point values, one for each individual target.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_squared_log_error</span>  
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">mean_squared_log_error</span>  
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y_true</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span>  
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y_pred</span> <span class="o">=</span> <span class="p">[</span><span class="mf">2.5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>  
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mean_squared_log_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>  
-<span class="go">np.float64(0.039...)</span>
+<span class="go">0.039...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y_true</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">6</span><span class="p">]]</span>  
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y_pred</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">],</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">]]</span>  
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mean_squared_log_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>  
-<span class="go">np.float64(0.044...)</span>
+<span class="go">0.044...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mean_squared_log_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">multioutput</span><span class="o">=</span><span class="s1">&#39;raw_values&#39;</span><span class="p">)</span>  
 <span class="go">array([0.00462428, 0.08377444])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mean_squared_log_error</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">multioutput</span><span class="o">=</span><span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">])</span>  
-<span class="go">np.float64(0.060...)</span>
+<span class="go">0.060...</span>
 </pre></div>
 </div>
 </dd></dl>

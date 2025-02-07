@@ -802,11 +802,11 @@
 <p>See the <a class="reference external" href="http:/scikit-learn.org/stable/modules/cross_validation.html">scikit-learn cross validation documentation</a> for a fuller discussion of cross validation.
 This document only describes the extensions made to support Dask arrays.</p>
 <p>The simplest way to split one or more Dask arrays is with <a class="reference internal" href="modules/generated/dask_ml.model_selection.train_test_split.html#dask_ml.model_selection.train_test_split" title="dask_ml.model_selection.train_test_split"><code class="xref py py-func docutils literal notranslate"><span class="pre">dask_ml.model_selection.train_test_split()</span></code></a>:</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">import</span> <span class="nn">dask.array</span> <span class="k">as</span> <span class="nn">da</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">import</span><span class="w"> </span><span class="nn">dask.array</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">da</span>
 
-<span class="gp">In [2]: </span><span class="kn">from</span> <span class="nn">dask_ml.datasets</span> <span class="kn">import</span> <span class="n">make_regression</span>
+<span class="gp">In [2]: </span><span class="kn">from</span><span class="w"> </span><span class="nn">dask_ml.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_regression</span>
 
-<span class="gp">In [3]: </span><span class="kn">from</span> <span class="nn">dask_ml.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="gp">In [3]: </span><span class="kn">from</span><span class="w"> </span><span class="nn">dask_ml.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
 
 <span class="gp">In [4]: </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_regression</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">125</span><span class="p">,</span> <span class="n">n_features</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">chunks</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
 
@@ -822,12 +822,12 @@ This document only describes the extensions made to support Dask arrays.</p>
 
 <span class="gp">In [8]: </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="gh">Out[8]: </span>
-<span class="go">array([[ 0.12590048, -0.69540901, -1.18976616, -1.07897621],</span>
-<span class="go">       [-0.67007472,  0.11768581, -0.42047692,  0.76148918],</span>
-<span class="go">       [-0.35558747,  1.33408773,  2.86662792,  0.91737522]])</span>
+<span class="go">array([[-0.21306557, -0.4939718 ,  0.39642479,  0.74959307],</span>
+<span class="go">       [-0.10656729, -0.19912227, -1.29342938,  0.67371525],</span>
+<span class="go">       [ 0.00550963,  0.02080571, -0.4763186 , -1.56842247]])</span>
 </pre></div>
 </div>
-<p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v1.5)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
+<p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v1.6)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
 using the Dask version for performance reasons: the Dask version is faster
 for two reasons:</p>
 <p>First, <strong>the Dask version shuffles blockwise</strong>.

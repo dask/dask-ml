@@ -1012,8 +1012,8 @@ hardware (e.g., GPUs).</p></li>
 </ol>
 <p>“Memory constrained” searches happen when the data doesn’t fit in the memory of
 a single machine:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">dask.dataframe</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dd</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1">## not memory constrained</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;data/0.parquet&quot;</span><span class="p">)</span>
@@ -1028,9 +1028,9 @@ a single machine:</p>
 <p>“Compute constrained” is when the hyperparameter search takes too long even if
 the data fits in memory. There might a lot of hyperparameters to search, or the
 model may require specialized hardware like GPUs:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span><span class="p">,</span> <span class="n">loguniform</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">SGDClasifier</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">uniform</span><span class="p">,</span> <span class="n">loguniform</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">SGDClasifier</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s2">&quot;data/0.parquet&quot;</span><span class="p">)</span>  <span class="c1"># data to train on; 23MB as above</span>
 <span class="gp">&gt;&gt;&gt;</span>
@@ -1064,10 +1064,10 @@ fits in memory. This is common when the search doesn’t take too long to run.</
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v1.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>(...[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v1.6)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.GridSearchCV</span></code></a>(...[, ...])</p></td>
 <td><p>Exhaustive search over specified parameter values for an estimator.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v1.5)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.RandomizedSearchCV</span></code></a>(...)</p></td>
+<tr class="row-even"><td><p><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v1.6)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.model_selection.RandomizedSearchCV</span></code></a>(...)</p></td>
 <td><p>Randomized search on hyper parameters.</p></td>
 </tr>
 </tbody>
@@ -1180,7 +1180,7 @@ common in natural language processing (NLP).</p>
 </tbody>
 </table>
 <p>Avoiding repeated work with this class relies on the model being an instance of
-Scikit-learn’s <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v1.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></a>.  See
+Scikit-learn’s <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v1.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></a>.  See
 “<a class="reference internal" href="#avoid-repeated-work"><span class="std std-ref">Avoid Repeated Work</span></a>” for more detail.</p>
 </div>
 <div class="section" id="compute-and-memory-constrained">
@@ -1225,8 +1225,8 @@ subclasses (one of which is
 <div class="section" id="drop-in-replacements-for-scikit-learn">
 <span id="hyperparameter-drop-in"></span><h2>Drop-In Replacements for Scikit-Learn<a class="headerlink" href="#drop-in-replacements-for-scikit-learn" title="Permalink to this headline">¶</a></h2>
 <p>Dask-ML implements drop-in replacements for
-<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v1.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">GridSearchCV</span></code></a> and
-<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v1.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomizedSearchCV</span></code></a>.</p>
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html#sklearn.model_selection.GridSearchCV" title="(in scikit-learn v1.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">GridSearchCV</span></code></a> and
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.RandomizedSearchCV.html#sklearn.model_selection.RandomizedSearchCV" title="(in scikit-learn v1.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomizedSearchCV</span></code></a>.</p>
 <table class="autosummary longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
@@ -1263,7 +1263,7 @@ with Dask’s <a class="reference internal" href="joblib.html#joblib"><span clas
 scheduler is used, but this can easily be swapped out for the multiprocessing
 or distributed scheduler:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Distribute grid-search across a cluster</span>
-<span class="kn">from</span> <span class="nn">dask.distributed</span> <span class="kn">import</span> <span class="n">Client</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dask.distributed</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
 <span class="n">scheduler_address</span> <span class="o">=</span> <span class="s1">&#39;127.0.0.1:8786&#39;</span>
 <span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">scheduler_address</span><span class="p">)</span>
 
@@ -1278,7 +1278,7 @@ or distributed scheduler:</p>
 your data loading and preprocessing as well, allowing for a clean workflow.
 This also allows you to work with remote data on a cluster without ever having
 to pull it locally to your computer:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dask.dataframe</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dd</span>
 
 <span class="c1"># Load data from s3</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;s3://bucket-name/my-data-*.csv&#39;</span><span class="p">)</span>
@@ -1302,9 +1302,9 @@ model + parameter + data combination more than once. For pipelines with
 expensive early steps this can be faster, as repeated work is avoided.</p>
 <p>For example, given the following 3-stage pipeline and grid (modified from <a class="reference external" href="http://scikit-learn.org/stable/auto_examples/model_selection/grid_search_text_feature_extraction.html">this
 Scikit-learn example</a>).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">CountVectorizer</span><span class="p">,</span> <span class="n">TfidfTransformer</span>
-<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">SGDClassifier</span>
-<span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.feature_extraction.text</span><span class="w"> </span><span class="kn">import</span> <span class="n">CountVectorizer</span><span class="p">,</span> <span class="n">TfidfTransformer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">SGDClassifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span>
 
 <span class="n">pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([(</span><span class="s1">&#39;vect&#39;</span><span class="p">,</span> <span class="n">CountVectorizer</span><span class="p">()),</span>
                      <span class="p">(</span><span class="s1">&#39;tfidf&#39;</span><span class="p">,</span> <span class="n">TfidfTransformer</span><span class="p">()),</span>
@@ -1398,11 +1398,11 @@ estimators that reduce the amount of computation required.</p>
 <h3>Basic use<a class="headerlink" href="#basic-use" title="Permalink to this headline">¶</a></h3>
 <p>This section uses <a class="reference internal" href="modules/generated/dask_ml.model_selection.HyperbandSearchCV.html#dask_ml.model_selection.HyperbandSearchCV" title="dask_ml.model_selection.HyperbandSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">HyperbandSearchCV</span></code></a>, but it can
 also be applied to to <a class="reference internal" href="modules/generated/dask_ml.model_selection.IncrementalSearchCV.html#dask_ml.model_selection.IncrementalSearchCV" title="dask_ml.model_selection.IncrementalSearchCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">IncrementalSearchCV</span></code></a> too.</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">from</span> <span class="nn">dask.distributed</span> <span class="kn">import</span> <span class="n">Client</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">from</span><span class="w"> </span><span class="nn">dask.distributed</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
 
-<span class="gp">In [2]: </span><span class="kn">from</span> <span class="nn">dask_ml.datasets</span> <span class="kn">import</span> <span class="n">make_classification</span>
+<span class="gp">In [2]: </span><span class="kn">from</span><span class="w"> </span><span class="nn">dask_ml.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_classification</span>
 
-<span class="gp">In [3]: </span><span class="kn">from</span> <span class="nn">dask_ml.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="gp">In [3]: </span><span class="kn">from</span><span class="w"> </span><span class="nn">dask_ml.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
 
 <span class="gp">In [4]: </span><span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">()</span>
 
@@ -1413,13 +1413,13 @@ also be applied to to <a class="reference internal" href="modules/generated/dask
 </div>
 <p>Our underlying model is an <code class="xref py py-class docutils literal notranslate"><span class="pre">sklearn.linear_model.SGDClasifier</span></code>. We
 specify a few parameters common to each clone of the model:</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [7]: </span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">SGDClassifier</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [7]: </span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">SGDClassifier</span>
 
 <span class="gp">In [8]: </span><span class="n">clf</span> <span class="o">=</span> <span class="n">SGDClassifier</span><span class="p">(</span><span class="n">tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">penalty</span><span class="o">=</span><span class="s1">&#39;elasticnet&#39;</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>We also define the distribution of parameters from which we will sample:</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">uniform</span><span class="p">,</span> <span class="n">loguniform</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">uniform</span><span class="p">,</span> <span class="n">loguniform</span>
 
 <span class="gp">In [10]: </span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="n">loguniform</span><span class="p">(</span><span class="mf">1e-2</span><span class="p">,</span> <span class="mf">1e0</span><span class="p">),</span>  <span class="c1"># or np.logspace</span>
 <span class="gp">   ....: </span>          <span class="s1">&#39;l1_ratio&#39;</span><span class="p">:</span> <span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)}</span>  <span class="c1"># or np.linspace</span>
@@ -1428,7 +1428,7 @@ specify a few parameters common to each clone of the model:</p>
 </div>
 <p>Finally we create many random models in this parameter space and
 train-and-score them until we find the best one.</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [11]: </span><span class="kn">from</span> <span class="nn">dask_ml.model_selection</span> <span class="kn">import</span> <span class="n">HyperbandSearchCV</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [11]: </span><span class="kn">from</span><span class="w"> </span><span class="nn">dask_ml.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">HyperbandSearchCV</span>
 
 <span class="gp">In [12]: </span><span class="n">search</span> <span class="o">=</span> <span class="n">HyperbandSearchCV</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">81</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
@@ -1436,14 +1436,14 @@ train-and-score them until we find the best one.</p>
 
 <span class="gp">In [14]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span>
 <span class="gh">Out[14]: </span>
-<span class="go">{&#39;alpha&#39;: np.float64(0.12520653814999466),</span>
-<span class="go"> &#39;l1_ratio&#39;: np.float64(0.7151893663724195)}</span>
+<span class="go">{&#39;alpha&#39;: np.float64(0.057240478677855075),</span>
+<span class="go"> &#39;l1_ratio&#39;: np.float64(0.40506608504946273)}</span>
 
 <span class="gp">In [15]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_score_</span>
-<span class="gh">Out[15]: </span><span class="go">np.float64(0.65)</span>
+<span class="gh">Out[15]: </span><span class="go">np.float64(0.7)</span>
 
 <span class="gp">In [16]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
-<span class="gh">Out[16]: </span><span class="go">0.2</span>
+<span class="gh">Out[16]: </span><span class="go">0.6</span>
 </pre></div>
 </div>
 <p>Note that when you do post-fit tasks like <code class="docutils literal notranslate"><span class="pre">search.score</span></code>, the underlying
@@ -1451,7 +1451,7 @@ model’s score method is used. If that is unable to handle a
 larger-than-memory Dask Array, you’ll exhaust your machine’s memory. If you plan
 to use post-estimation features like scoring or prediction, we recommend using
 <a class="reference internal" href="modules/generated/dask_ml.wrappers.ParallelPostFit.html#dask_ml.wrappers.ParallelPostFit" title="dask_ml.wrappers.ParallelPostFit"><code class="xref py py-class docutils literal notranslate"><span class="pre">dask_ml.wrappers.ParallelPostFit</span></code></a>.</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [17]: </span><span class="kn">from</span> <span class="nn">dask_ml.wrappers</span> <span class="kn">import</span> <span class="n">ParallelPostFit</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [17]: </span><span class="kn">from</span><span class="w"> </span><span class="nn">dask_ml.wrappers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParallelPostFit</span>
 
 <span class="gp">In [18]: </span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;estimator__alpha&#39;</span><span class="p">:</span> <span class="n">loguniform</span><span class="p">(</span><span class="mf">1e-2</span><span class="p">,</span> <span class="mf">1e0</span><span class="p">),</span>
 <span class="gp">   ....: </span>          <span class="s1">&#39;estimator__l1_ratio&#39;</span><span class="p">:</span> <span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)}</span>
@@ -1464,7 +1464,7 @@ to use post-estimation features like scoring or prediction, we recommend using
 <span class="gp">In [21]: </span><span class="n">search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 
 <span class="gp">In [22]: </span><span class="n">search</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
-<span class="gh">Out[22]: </span><span class="go">np.float64(0.4)</span>
+<span class="gh">Out[22]: </span><span class="go">np.float64(0.5)</span>
 </pre></div>
 </div>
 <p>Note that the parameter names include the <code class="docutils literal notranslate"><span class="pre">estimator__</span></code> prefix, as we’re
@@ -1574,8 +1574,8 @@ chunks:</p>
 
 <span class="gp">In [35]: </span><span class="n">search</span><span class="o">.</span><span class="n">best_params_</span>
 <span class="gh">Out[35]: </span>
-<span class="go">{&#39;alpha&#39;: np.float64(0.057636417483266866),</span>
-<span class="go"> &#39;l1_ratio&#39;: np.float64(0.37530442363325456)}</span>
+<span class="go">{&#39;alpha&#39;: np.float64(0.07501954443620121),</span>
+<span class="go"> &#39;l1_ratio&#39;: np.float64(0.8917730007820798)}</span>
 </pre></div>
 </div>
 <p>To be clear, this is a very small toy example: there are only 100 observations and
@@ -1589,7 +1589,7 @@ can be found in the Dask blog post “<a class="reference external" href="https:
 optimization with Dask</a>”.</p>
 <p>It will use these estimators with the following inputs:</p>
 <ul class="simple">
-<li><p>Model: Scikit-learn’s <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html#sklearn.neural_network.MLPClassifier" title="(in scikit-learn v1.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLPClassifier</span></code></a> with 12
+<li><p>Model: Scikit-learn’s <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html#sklearn.neural_network.MLPClassifier" title="(in scikit-learn v1.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MLPClassifier</span></code></a> with 12
 neurons</p></li>
 <li><p>Dataset: A simple synthetic dataset with 4 classes and 6 features (2
 meaningful features and 4 random features):</p></li>
