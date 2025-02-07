@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Version 2025.1.0
+~~~~~~~~~~~~~~~~
+
+* Compatibility with ``dask>=2025.1.0`` (:pr:`1008`)
+* Compatibility with ``scikit-learn>=1.6.1`` (:pr:`1008`)
+
 Version 2024.4.1
 ~~~~~~~~~~~~~~~~
 

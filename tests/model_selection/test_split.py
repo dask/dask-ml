@@ -45,7 +45,7 @@ def test_blockwise_shufflesplit():
     assert train_idx.chunks == ((45, 45, 9),)
     assert test_idx.chunks == ((5, 5, 1),)
 
-    counts = pd.value_counts(train_idx.compute())
+    counts = pd.Series(train_idx.compute()).value_counts()
     assert counts.max() == 1
 
     N = len(X)
@@ -98,7 +98,7 @@ def test_kfold(shuffle):
     assert train_idx.chunks == ((28, 50, 10),)
     assert test_idx.chunks == ((22,),)
 
-    counts = pd.value_counts(train_idx.compute())
+    counts = pd.Series(train_idx.compute()).value_counts()
     assert counts.max() == 1
 
     N = len(X)

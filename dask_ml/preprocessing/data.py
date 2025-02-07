@@ -1051,11 +1051,11 @@ class PolynomialFeatures(DaskMLBaseMixin, sklearn.preprocessing.PolynomialFeatur
         Using False (default) returns numpy or dask arrays and mimics
         sklearn's default behaviour
 
-    Examples
+    Attributes
     """
 
     splitted_orig_doc = sklearn.preprocessing.PolynomialFeatures.__doc__.split(
-        "    Examples\n"
+        "Attributes\n"
     )
     __doc__ = "".join([splitted_orig_doc[0], __doc__, splitted_orig_doc[1]])
 

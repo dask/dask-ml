@@ -46,8 +46,8 @@ jobs:
           miniforge-version: latest
           use-mamba: true
           channel-priority: strict
-          python-version: "3.9"
-          environment-file: ci/environment-3.9.yaml
+          python-version: "3.12"
+          environment-file: ci/environment-3.12.yaml
           activate-environment: test-environment
           auto-activate-base: false
 

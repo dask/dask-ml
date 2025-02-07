@@ -435,6 +435,7 @@ def test_singular_values(svd_solver):
 
 @pytest.mark.parametrize("svd_solver", ["full", "auto", "randomized"])
 @pytest.mark.filterwarnings("ignore:invalid value:RuntimeWarning")
+@pytest.mark.xfail(reason="https://github.com/dask/dask-ml/issues/1009")
 def test_whitening(svd_solver):
     # Test that PCA and IncrementalPCA transforms match to sign flip.
     X = datasets.make_low_rank_matrix(

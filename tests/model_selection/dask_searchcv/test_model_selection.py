@@ -336,7 +336,7 @@ def test_grid_search_dask_dataframe():
     dy = pd.Series(y)
     ddy = dd.from_pandas(dy, 2)
 
-    clf = LogisticRegression(multi_class="auto", solver="lbfgs", max_iter=200)
+    clf = LogisticRegression(solver="lbfgs", max_iter=200)
 
     param_grid = {"C": [0.1, 1, 10]}
     gs = GridSearchCV(clf, param_grid, cv=5)

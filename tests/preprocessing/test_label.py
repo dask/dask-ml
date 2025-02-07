@@ -9,7 +9,6 @@ from dask.array.utils import assert_eq as assert_eq_ar
 
 import dask_ml.preprocessing as dpp
 from dask_ml.utils import assert_estimator_equal
-from tests.conftest import DASK_EXPR_ENABLED
 
 choices = np.array(["a", "b", "c"], dtype=str)
 np_y = np.random.choice(choices, 100)
@@ -122,7 +121,7 @@ class TestLabelEncoder:
         if daskify != "unknown":
             assert a.dtype_ == cat.dtype
 
-        if DASK_EXPR_ENABLED and daskify == "unknown" and categories != ["b", "a"]:
+        if True and daskify == "unknown" and categories != ["b", "a"]:
             with pytest.raises(AssertionError, match="Arrays are not equal"):
                 np.testing.assert_array_equal(a.classes_, categories)
             return
@@ -139,13 +138,7 @@ class TestLabelEncoder:
                 inv_transformed.compute().reset_index()[0], npartitions=2
             )
             inv_transformed.name = None
-        if daskify == "unknown" and not DASK_EXPR_ENABLED:
-            with pytest.raises(
-                AssertionError, match="Attributes of Series are different"
-            ):
-                dd.utils.assert_eq(inv_transformed, cat)
-        else:
-            dd.utils.assert_eq(inv_transformed, cat)
+        dd.utils.assert_eq(inv_transformed, cat)
 
     def test_dataframe_raises(self):
         df = pd.DataFrame({"A": ["a", "a", "b"]}, dtype="category")

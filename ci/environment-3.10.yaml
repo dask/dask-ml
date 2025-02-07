@@ -16,11 +16,10 @@ dependencies:
   - pytest-cov
   - pytest-mock
   - python=3.10.*
-  - scikit-learn >=1.2.0
+  - scikit-learn >=1.6.1
   - scipy
   - sparse
   - toolz
   - pip
   - pip:
-      - git+https://github.com/dask-contrib/dask-expr
       - git+https://github.com/dask/dask
