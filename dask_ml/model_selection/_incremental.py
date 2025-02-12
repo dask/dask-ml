@@ -441,7 +441,7 @@ async def fit(
     Examples
     --------
     >>> import numpy as np
-    >>> from dask_ml.datasets import make_classification
+    >>> from dask.ml.datasets import make_classification
     >>> X, y = make_classification(n_samples=5000000, n_features=20,
     ...                            chunks=100000, random_state=0)
 
@@ -473,7 +473,7 @@ async def fit(
     >>> from dask.distributed import Client
     >>> client = Client(processes=False)
 
-    >>> from dask_ml.model_selection._incremental import fit
+    >>> from dask.ml.model_selection._incremental import fit
     >>> info, models, history, best = fit(model, params,
     ...                                   X_train, y_train,
     ...                                   X_test, y_test,
@@ -977,7 +977,7 @@ class IncrementalSearchCV(BaseIncrementalSearchCV):
     >>> from dask.distributed import Client
     >>> client = Client()
     >>> import numpy as np
-    >>> from dask_ml.datasets import make_classification
+    >>> from dask.ml.datasets import make_classification
     >>> X, y = make_classification(n_samples=5000000, n_features=20,
     ...                            chunks=100000, random_state=0)
 

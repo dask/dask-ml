@@ -144,7 +144,7 @@ class PCA(sklearn.decomposition.PCA):
     --------
     >>> import numpy as np
     >>> import dask.array as da
-    >>> from dask_ml.decomposition import PCA
+    >>> from dask.ml.decomposition import PCA
     >>> X = np.array([[-1, -1], [-2, -1], [-3, -2], [1, 1], [2, 1], [3, 2]])
     >>> dX = da.from_array(X, chunks=X.shape)
     >>> pca = PCA(n_components=2)

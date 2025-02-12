@@ -60,7 +60,7 @@ def accuracy_score(
     --------
     >>> import dask.array as da
     >>> import numpy as np
-    >>> from dask_ml.metrics import accuracy_score
+    >>> from dask.ml.metrics import accuracy_score
     >>> y_pred = da.from_array(np.array([0, 2, 1, 3]), chunks=2)
     >>> y_true = da.from_array(np.array([0, 1, 2, 3]), chunks=2)
     >>> accuracy_score(y_true, y_pred)
