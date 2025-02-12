@@ -46,7 +46,9 @@ def _keras_build_fn(lr=0.01):
 @gen_cluster(client=True, Worker=Nanny, timeout=20)
 async def test_keras(c, s, a, b):
     # Mirror the mnist dataset
-    X, y = make_classification(n_classes=10, n_features=784, n_informative=100)
+    X, y = make_classification(
+        n_classes=10, n_features=784, n_informative=100, random_state=0
+    )
     X = X.astype("float32")
     assert y.dtype == np.dtype("int64")
 
@@ -56,10 +58,15 @@ async def test_keras(c, s, a, b):
         verbose=False,
         loss="categorical_crossentropy",
     )
-    params = {"lr": loguniform(1e-3, 1e-1)}
+    params = {"lr": loguniform(1e-3, 1e-1), "random_state": [1]}
 
     search = IncrementalSearchCV(
-        model, params, max_iter=3, n_initial_parameters=5, decay_rate=None
+        model,
+        params,
+        max_iter=3,
+        n_initial_parameters=5,
+        decay_rate=None,
+        random_state=0,
     )
     await search.fit(X, y)
     #  search.fit(X, y)
