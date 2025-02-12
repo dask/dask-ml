@@ -114,5 +114,5 @@ def test_bag():
 
 def test_no_partial_fit_raises():
     X, y = make_classification(chunks=50)
-    with pytest.raises(ValueError, match="RandomForestClassifier"):
+    with pytest.raises(AttributeError, match="does not implement 'partial_fit'"):
         fit(RandomForestClassifier(), X, y)

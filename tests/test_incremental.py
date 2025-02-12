@@ -9,7 +9,7 @@ import sklearn.model_selection
 from dask.array.utils import assert_eq
 from scipy.sparse import csr_matrix
 from sklearn.base import clone
-from sklearn.linear_model import SGDClassifier, SGDRegressor
+from sklearn.linear_model import SGDClassifier, SGDRegressor, LinearRegression
 from sklearn.pipeline import make_pipeline
 
 import dask_ml.feature_extraction.text
@@ -238,3 +238,25 @@ def test_incremental_sparse_inputs():
     clf_output = clf.predict(X).astype(np.int64)
 
     assert_eq(clf_output, wrap_output, ignore_dtype=True)
+
+
+def test_no_partial_fit():
+    # Create data
+    n, d = 100, 10
+    X_np = np.random.uniform(size=(n, d))
+    y_np = np.random.uniform(size=n)
+    X_da = da.from_array(X_np, chunks=(n // 2, -1))
+    y_da = da.from_array(y_np, chunks=n // 2)
+
+    est = LinearRegression()
+    dask_est = Incremental(est)
+
+    with pytest.raises(AttributeError, match="partial_fit"):
+        dask_est.fit(X_np, y_np)
+    with pytest.raises(AttributeError, match="partial_fit"):
+        dask_est.partial_fit(X_np, y_np)
+
+    with pytest.raises(AttributeError, match="partial_fit"):
+        dask_est.fit(X_da, y_da)
+    with pytest.raises(AttributeError, match="partial_fit"):
+        dask_est.partial_fit(X_da, y_da)
