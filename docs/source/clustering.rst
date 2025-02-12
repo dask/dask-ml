@@ -8,6 +8,7 @@ Clustering
 .. autosummary::
    KMeans
    SpectralClustering
+   Coreset
 
 The :mod:`dask_ml.cluster` module implements several algorithms for clustering unlabeled data.
 
