@@ -205,12 +205,13 @@ async def _fit(
     y_train = sorted(futures_of(y_train), key=lambda f: f.key)
     assert len(X_train) == len(y_train)
 
-    train_eg = await client.gather(client.map(len, y_train))
-    msg = "[CV%s] For training there are between %d and %d examples in each chunk"
-    logger.info(msg, prefix, min(train_eg), max(train_eg))
+    train_eg = await client.gather(client.map(len, X_train))
 
-    # Order by which we process training data futures
-    order = []
+    min_samples = min(train_eg) if len(train_eg) else len(X_train)
+    max_samples = max(train_eg) if len(train_eg) else len(X_train)
+
+    msg = "[CV%s] For training there are between %d and %d examples in each chunk"
+    logger.info(msg, prefix, min_samples, max_samples)
 
     def get_futures(partial_fit_calls):
         """Policy to get training data futures
@@ -220,6 +221,9 @@ async def _fit(
         This function handles that policy internally, and also controls random
         access to training data.
         """
+        if dask.is_dask_collection(X_train):
+            return X_train, y_train
+
         # Shuffle blocks going forward to get uniform-but-random access
         while partial_fit_calls >= len(order):
             L = list(range(len(X_train)))
@@ -227,6 +231,9 @@ async def _fit(
             order.extend(L)
         j = order[partial_fit_calls]
         return X_train[j], y_train[j]
+
+    # Order by which we process training data futures
+    order = []
 
     # Submit initial partial_fit and score computations on first batch of data
     X_future, y_future = get_futures(0)
@@ -616,7 +623,8 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         X, y : dask.array.Array
         """
         if self.test_size is None:
-            test_size = min(0.2, 1 / X.npartitions)
+            npartitions = getattr(X, 'npartitions', 1)
+            test_size = min(0.2, 1 / npartitions)
         else:
             test_size = self.test_size
         X_train, X_test, y_train, y_test = train_test_split(
