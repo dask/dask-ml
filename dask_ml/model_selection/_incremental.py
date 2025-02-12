@@ -1,9 +1,9 @@
-from __future__ import division
-
+import asyncio
 import itertools
 import logging
 import operator
 import sys
+from asyncio import CancelledError, TimeoutError, get_running_loop
 from collections import defaultdict, namedtuple
 from copy import deepcopy
 from time import time
@@ -17,6 +17,7 @@ import numpy as np
 import scipy.stats
 import toolz
 from dask.distributed import Future, default_client, futures_of, wait
+from distributed.scheduler import KilledWorker
 from distributed.utils import log_errors
 from sklearn.base import BaseEstimator, clone
 from sklearn.linear_model import SGDClassifier
@@ -146,6 +147,7 @@ async def _fit(
     fit_params: Dict[str, Any] = None,
     scorer: Callable[[Model, ArrayLike, ArrayLike], float] = None,
     random_state=None,
+    interrupt=None,
     verbose: Union[bool, Int, float] = False,
     prefix: str = "",
 ) -> Results:
@@ -276,9 +278,35 @@ async def _fit(
     history = []
     start_time = time()
 
+    async def _get_meta(new_scores, interrupt):
+        while True:
+            try:
+                metas = await asyncio.wait_for(asyncio.gather(*new_scores), timeout=1)
+                break
+            #  except:  # this still doesn't catch the IndexError?
+            except (
+                TimeoutError,
+                CancelledError,
+                IndexError,
+                KilledWorker,
+                AssertionError,
+            ):
+                if interrupt and interrupt.is_set():
+                    logger.info("[CV%s] Timeout recieved; breaking now", prefix)
+                    raise KeyboardInterrupt
+        return metas
+
     # async for future, result in seq:
     for _i in itertools.count():
-        metas = await client.gather(new_scores)
+        try:
+            metas = await _get_meta(new_scores, interrupt)
+        except KeyboardInterrupt:
+            # Cancel any futures in score/models
+            for futures in [models.values(), scores.values()]:
+                for future in futures:
+                    if not future.done():
+                        del future
+            break
 
         if log_delay and _i % int(log_delay) == 0:
             idx = np.argmax([m["score"] for m in metas])
@@ -365,6 +393,11 @@ async def _fit(
 
     models = {k: client.submit(operator.getitem, v, 0) for k, v in models.items()}
     await wait(models)
+
+    # Protect against case when keyboard interrupt raised
+    scores = {k: v for k, v in scores.items() if client.who_has(futures=v) and v.done()}
+    models = {k: v for k, v in models.items() if client.who_has(futures=v) and v.done()}
+
     scores = await client.gather(scores)
     best = max(scores.items(), key=lambda x: x[1]["score"])
 
@@ -390,6 +423,7 @@ async def fit(
     random_state=None,
     verbose: Union[bool, int] = False,
     prefix="",
+    interrupt=None,
 ):
     """Find a good model and search among a space of hyper-parameters
 
@@ -517,6 +551,7 @@ async def fit(
         random_state=random_state,
         verbose=verbose,
         prefix=prefix,
+        interrupt=interrupt,
     )
 
 
@@ -687,7 +722,7 @@ class BaseIncrementalSearchCV(ParallelPostFit):
     def _check_is_fitted(self, method_name):
         return check_is_fitted(self, "best_estimator_")
 
-    async def _fit(self, X, y, **fit_params):
+    async def _fit(self, X, y, interrupt, **fit_params):
         if self.verbose:
             h = logging.StreamHandler(sys.stdout)
             context = LoggingContext(logger, level=logging.INFO, handler=h)
@@ -698,21 +733,35 @@ class BaseIncrementalSearchCV(ParallelPostFit):
 
         X_train, X_test, y_train, y_test = self._get_train_test_split(X, y)
 
-        with context:
-            results = await fit(
-                self.estimator,
-                self._get_params(),
-                X_train,
-                y_train,
-                X_test,
-                y_test,
-                additional_calls=self._additional_calls,
-                fit_params=fit_params,
-                scorer=scorer,
-                random_state=self.random_state,
-                verbose=self.verbose,
-                prefix=self.prefix,
+        r = fit(
+            self.estimator,
+            self._get_params(),
+            X_train,
+            y_train,
+            X_test,
+            y_test,
+            additional_calls=self._additional_calls,
+            fit_params=fit_params,
+            scorer=scorer,
+            random_state=self.random_state,
+            verbose=self.verbose,
+            prefix=self.prefix,
+            interrupt=interrupt,
+        )
+        try:
+            with context:
+                results = await r
+        except KeyboardInterrupt:
+            # TODO: why not the workers to quit here?
+            # Multiple instances might be run in parallel (as with
+            # HyperbandSearchCV)... but it also overrides _fit
+            logger.info(
+                "[CV%s] Interrupt received on client; sending message"
+                "to workers to stop working..."
             )
+            results = await r
+            logger.info("[CV%s] workers have stopped working.")
+
         results = self._process_results(results)
         model_history, models, history, bst = results
 
@@ -751,10 +800,22 @@ class BaseIncrementalSearchCV(ParallelPostFit):
         **fit_params
             Additional partial fit keyword arguments for the estimator.
         """
+
+        interrupt = asyncio.Event()
+
+        def shutdown(signal, loop):
+            logger.warning(
+                "\nRequest to cancel model selection search received! "
+                "Beginning shutdown proces..."
+            )
+            interrupt.set()
+
+        loop = get_running_loop()
+        loop.set_exception_handler(shutdown)
         client = default_client()
         if not client.asynchronous:
-            return client.sync(self._fit, X, y, **fit_params)
-        return self._fit(X, y, **fit_params)
+            return client.sync(self._fit, X, y, interrupt=interrupt, **fit_params)
+        return self._fit(X, y, interrupt=interrupt, **fit_params)
 
     @available_if(estimator_has("decision_function"))
     def decision_function(self, X):
