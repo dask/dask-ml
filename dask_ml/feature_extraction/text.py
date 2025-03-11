@@ -3,6 +3,8 @@ Utilities to build feature vectors from text documents.
 """
 
 import itertools
+import math
+from typing import Literal, Optional
 
 import dask
 import dask.array as da
@@ -13,9 +15,13 @@ import numpy as np
 import scipy.sparse
 import sklearn.base
 import sklearn.feature_extraction.text
+import sparse
 from dask.delayed import Delayed
 from distributed import get_client, wait
+from sklearn.base import BaseEstimator, OneToOneFeatureMixin, TransformerMixin
 from sklearn.utils.validation import check_is_fitted
+
+from ..utils import check_array
 
 
 class _BaseHasher(sklearn.base.BaseEstimator):
@@ -280,3 +286,93 @@ def _merge_vocabulary(*vocabularies):
         )
     }
     return vocabulary
+
+
+def _handle_zeros_in_scale(scale: da.Array) -> da.Array:
+
+    constant_mask = scale < 10 * np.finfo(scale.dtype).eps
+
+    scale[constant_mask] = 1.0
+
+    return scale
+
+
+def _normalize(X: da.Array, norm: Literal["l2", "l1", "max"] = "l2") -> da.Array:
+    if norm not in ("l1", "l2", "max"):
+        raise ValueError("'%s' is not a supported norm" % norm)
+
+    if norm == "l1":
+        norms = da.abs(X).sum(axis=1)
+    elif norm == "l2":
+        norms = da.sqrt(da.square(X).sum(axis=1))
+    elif norm == "max":
+        norms = da.max(da.abs(X), axis=1)
+
+    norms = _handle_zeros_in_scale(norms)
+    X = X / norms[:, np.newaxis]
+
+    return X
+
+
+class TfidfTransformer(
+    OneToOneFeatureMixin, TransformerMixin, BaseEstimator, auto_wrap_output_keys=None
+):
+
+    def __init__(
+        self,
+        *,
+        norm: Optional[Literal["l2", "l1"]] = "l2",
+        use_idf: bool = True,
+        smooth_idf: bool = True,
+        sublinear_tf: bool = False,
+    ):
+        self.norm = norm
+        self.use_idf = use_idf
+        self.smooth_idf = smooth_idf
+        self.sublinear_tf = sublinear_tf
+
+    def fit(self, X, y=None):
+        X = check_array(X)
+
+        if self.use_idf:
+
+            X = X.map_blocks(lambda a: sparse.as_coo(a).astype(np.float64))
+
+            if math.isnan(
+                X.shape[0]
+            ):  # if number is rows is not currently know, get it
+                X.compute_chunk_sizes()
+
+            n_samples = X.shape[0]
+
+            df = da.count_nonzero(X, axis=0)
+
+            if self.smooth_idf:
+                n_samples = n_samples + 1
+                df = df + 1
+
+            idf_ = da.log(n_samples / df) + 1
+
+            self.idf_ = idf_.compute()
+
+        return self
+
+    def transform(self, X):
+
+        if self.use_idf:
+            check_is_fitted(self, "idf_")
+
+        X = X.map_blocks(lambda a: sparse.as_coo(a).astype(np.float64))
+
+        if self.sublinear_tf:
+            X = da.where(X != 0, da.log(X) + 1, X)
+
+        if self.use_idf:
+            tf_idf = X * self.idf_
+        else:
+            tf_idf = X
+
+        if self.norm:
+            tf_idf = _normalize(tf_idf, norm=self.norm)
+
+        return tf_idf

@@ -188,3 +188,19 @@ def test_count_vectorizer_remote_vocabulary():
         )
         m.fit_transform(b)
         assert m.vocabulary_ is remote_vocabulary
+
+@pytest.mark.parametrize("norm", [None, "l2","l1"])
+@pytest.mark.parametrize("smooth_idf", [True, False])
+@pytest.mark.parametrize("sublinear_tf", [True, False])
+@pytest.mark.parametrize("use_idf", [True, False])
+def test_tf_idf(data,norm,smooth_idf,sublinear_tf,use_idf):
+    x = sklearn.feature_extraction.text.CountVectorizer().fit(JUNK_FOOD_DOCS)
+
+    d_tf_idf =  dask_ml.feature_extraction.text.TfidfTransformer(norm=norm,smooth_idf=smooth_idf,sublinear_tf=sublinear_tf,use_idf=use_idf)
+    d_tf_idf_result =  d_tf_idf.fit_transform(x).compute()
+
+
+    sk_tf_idf = sklearn.feature_extraction.text.TfidfTransformer(norm=norm,smooth_idf=smooth_idf,sublinear_tf=sublinear_tf,use_idf=use_idf)
+    sk_tf_idf_result =  sk_tf_idf.fit_transform(x)
+
+    np.testing.assert_array_almost_equal(d_tf_idf_result.todense().astype(np.float64),sk_tf_idf_result.todense().astype(np.float64))
