@@ -292,7 +292,7 @@ def _handle_zeros_in_scale(scale: da.Array) -> da.Array:
 
     constant_mask = scale < 10 * np.finfo(scale.dtype).eps
 
-    scale[constant_mask] = 1.0
+    scale = da.where(constant_mask,1.0, scale)
 
     return scale
 
@@ -332,8 +332,6 @@ class TfidfTransformer(
         self.sublinear_tf = sublinear_tf
 
     def fit(self, X, y=None):
-        X = check_array(X)
-
         if self.use_idf:
 
             X = X.map_blocks(lambda a: sparse.as_coo(a).astype(np.float64))
@@ -358,7 +356,6 @@ class TfidfTransformer(
         return self
 
     def transform(self, X):
-
         if self.use_idf:
             check_is_fitted(self, "idf_")
 
