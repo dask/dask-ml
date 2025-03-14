@@ -347,7 +347,7 @@ class TfidfTransformer(
 
             if self.smooth_idf:
                 n_samples += 1
-                df = df + 1
+                df += 1
 
             idf_ = da.log(n_samples / df) + 1
 
