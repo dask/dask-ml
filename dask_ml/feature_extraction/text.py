@@ -346,7 +346,7 @@ class TfidfTransformer(
             df = da.count_nonzero(X, axis=0)
 
             if self.smooth_idf:
-                n_samples = n_samples + 1
+                n_samples += 1
                 df = df + 1
 
             idf_ = da.log(n_samples / df) + 1
