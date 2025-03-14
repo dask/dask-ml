@@ -21,8 +21,6 @@ from distributed import get_client, wait
 from sklearn.base import BaseEstimator, OneToOneFeatureMixin, TransformerMixin
 from sklearn.utils.validation import check_is_fitted
 
-from ..utils import check_array
-
 
 class _BaseHasher(sklearn.base.BaseEstimator):
     @property
@@ -292,7 +290,7 @@ def _handle_zeros_in_scale(scale: da.Array) -> da.Array:
 
     constant_mask = scale < 10 * np.finfo(scale.dtype).eps
 
-    scale = da.where(constant_mask,1.0, scale)
+    scale = da.where(constant_mask, 1.0, scale)
 
     return scale
 
@@ -364,10 +362,7 @@ class TfidfTransformer(
         if self.sublinear_tf:
             X = da.where(X != 0, da.log(X) + 1, X)
 
-        if self.use_idf:
-            tf_idf = X * self.idf_
-        else:
-            tf_idf = X
+        tf_idf = X * self.idf_ if self.use_idf else X
 
         if self.norm:
             tf_idf = _normalize(tf_idf, norm=self.norm)
