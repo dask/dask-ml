@@ -312,6 +312,22 @@ def _normalize(X: da.Array, norm: Literal["l2", "l1", "max"] = "l2") -> da.Array
     return X
 
 
+def _get_chunk_len(a):
+    s = np.asarray(a.shape[0], dtype=int)
+    return s.reshape(1, 1, 1)
+
+
+def _get_lazy_row_count_as_dask_array(a: da.Array) -> da.Array:
+    chunk_len = a.map_blocks(
+        _get_chunk_len,
+        dtype=int,
+        chunks=tuple(len(c) * (1,) for c in a.chunks) + ((a.ndim,),),
+        new_axis=1,
+    )
+
+    return chunk_len.sum()
+
+
 class TfidfTransformer(
     OneToOneFeatureMixin, TransformerMixin, BaseEstimator, auto_wrap_output_keys=None
 ):
@@ -336,10 +352,10 @@ class TfidfTransformer(
 
             if math.isnan(
                 X.shape[0]
-            ):  # if number is rows is not currently know, get it
-                X.compute_chunk_sizes()
-
-            n_samples = X.shape[0]
+            ):  # if number is rows is not currently know, get a lazy reference to row counts
+                n_samples = _get_lazy_row_count_as_dask_array(X)
+            else:
+                n_samples = X.shape[0]
 
             df = da.count_nonzero(X, axis=0)
 
