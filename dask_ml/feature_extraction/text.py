@@ -312,19 +312,12 @@ def _normalize(X: da.Array, norm: Literal["l2", "l1", "max"] = "l2") -> da.Array
     return X
 
 
-def _get_chunk_len(a):
-    s = np.asarray(a.shape[0], dtype=int)
-    return s.reshape(1, 1, 1)
-
-
 def _get_lazy_row_count_as_dask_array(a: da.Array) -> da.Array:
     chunk_len = a.map_blocks(
-        _get_chunk_len,
+        lambda a: np.asarray(a.shape[0], dtype=int).reshape(1, 1),
         dtype=int,
-        chunks=tuple(len(c) * (1,) for c in a.chunks) + ((a.ndim,),),
-        new_axis=1,
+        chunks=tuple(len(c) * (1,) for c in a.chunks),
     )
-
     return chunk_len.sum()
 
 
@@ -346,26 +339,22 @@ class TfidfTransformer(
         self.sublinear_tf = sublinear_tf
 
     def fit(self, X, y=None):
-        if self.use_idf:
+        if not self.use_idf:
+            return self
+            
+        X = X.map_blocks(lambda a: sparse.as_coo(a).astype(np.float64))
 
-            X = X.map_blocks(lambda a: sparse.as_coo(a).astype(np.float64))
+        n_samples = X.shape[0] if not math.isnan(X.shape[0]) else _get_lazy_row_count_as_dask_array(X)
 
-            if math.isnan(
-                X.shape[0]
-            ):  # if number is rows is not currently know, get a lazy reference to row counts
-                n_samples = _get_lazy_row_count_as_dask_array(X)
-            else:
-                n_samples = X.shape[0]
+        df = da.count_nonzero(X, axis=0)
 
-            df = da.count_nonzero(X, axis=0)
+        if self.smooth_idf:
+            n_samples += 1
+            df += 1
 
-            if self.smooth_idf:
-                n_samples += 1
-                df += 1
+        idf_ = da.log(n_samples / df) + 1
 
-            idf_ = da.log(n_samples / df) + 1
-
-            self.idf_ = idf_.compute()
+        self.idf_ = idf_.compute()
 
         return self
 
