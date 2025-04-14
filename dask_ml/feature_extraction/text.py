@@ -318,7 +318,8 @@ def _get_lazy_row_count_as_dask_array(a: da.Array) -> da.Array:
         dtype=int,
         chunks=tuple(len(c) * (1,) for c in a.chunks),
     )
-    return chunk_len.sum()
+
+    return chunk_len[:, 0].sum()
 
 
 class TfidfTransformer(
@@ -341,10 +342,14 @@ class TfidfTransformer(
     def fit(self, X, y=None):
         if not self.use_idf:
             return self
-            
+
         X = X.map_blocks(lambda a: sparse.as_coo(a).astype(np.float64))
 
-        n_samples = X.shape[0] if not math.isnan(X.shape[0]) else _get_lazy_row_count_as_dask_array(X)
+        n_samples = (
+            X.shape[0]
+            if not math.isnan(X.shape[0])
+            else _get_lazy_row_count_as_dask_array(X)
+        )
 
         df = da.count_nonzero(X, axis=0)
 

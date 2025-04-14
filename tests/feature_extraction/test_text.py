@@ -194,9 +194,15 @@ def test_count_vectorizer_remote_vocabulary():
 @pytest.mark.parametrize("smooth_idf", [True, False])
 @pytest.mark.parametrize("sublinear_tf", [True, False])
 @pytest.mark.parametrize("use_idf", [True, False])
-def test_tf_idf(norm, smooth_idf, sublinear_tf, use_idf):
+@pytest.mark.parametrize("rechunk", [True, False])
+def test_tf_idf(norm, smooth_idf, sublinear_tf, use_idf, rechunk):
     corpus = db.from_sequence(JUNK_FOOD_DOCS)
     x_d = dask_ml.feature_extraction.text.CountVectorizer().fit_transform(corpus)
+    if rechunk:
+        x_d.compute_chunk_sizes()
+        x_d = x_d.rechunk(1, 6)
+        # forget chunk_sizes/shape, to trigger _get_lazy_row_count_as_dask_array
+        x_d._chunks = ((np.nan, np.nan, np.nan, np.nan, np.nan, np.nan), (6,))
 
     d_tf_idf = dask_ml.feature_extraction.text.TfidfTransformer(
         norm=norm, smooth_idf=smooth_idf, sublinear_tf=sublinear_tf, use_idf=use_idf
