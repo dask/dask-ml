@@ -116,3 +116,19 @@ def test_regression_metrics_do_not_support_weighted_multioutput(metric_pairs):
 
     with pytest.raises((NotImplementedError, ValueError), match=error_msg):
         _ = m1(a, b, multioutput=weights)
+
+
+def test_r2_score_with_different_chunk_patterns():
+    """Test r2_score with different chunking configurations."""
+    # Create arrays with compatible but different chunk patterns
+    a = da.random.uniform(size=(100,), chunks=25)  # 4 chunks
+    b = da.random.uniform(size=(100,), chunks=20)  # 5 chunks
+    result = dask_ml.metrics.r2_score(a, b)
+    assert isinstance(result, float)
+    # Create arrays with different chunk patterns
+    a_multi = da.random.uniform(size=(100, 3), chunks=(25, 3))  # 4 chunks
+    b_multi = da.random.uniform(size=(100, 3), chunks=(20, 3))  # 5 chunks
+    result_multi = dask_ml.metrics.r2_score(
+        a_multi, b_multi, multioutput="uniform_average"
+    )
+    assert isinstance(result_multi, float)

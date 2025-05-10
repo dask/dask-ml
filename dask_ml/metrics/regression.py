@@ -162,18 +162,13 @@ def r2_score(
     numerator = (weight * (y_true - y_pred) ** 2).sum(axis=0, dtype="f8")
     denominator = (weight * (y_true - y_true.mean(axis=0)) ** 2).sum(axis=0, dtype="f8")
 
-    nonzero_denominator = denominator != 0
-    nonzero_numerator = numerator != 0
-    valid_score = nonzero_denominator & nonzero_numerator
-    output_chunks = getattr(y_true, "chunks", [None, None])[1]
-    output_scores = da.ones([y_true.shape[1]], chunks=output_chunks)
-    with np.errstate(all="ignore"):
-        output_scores[valid_score] = 1 - (
-            numerator[valid_score] / denominator[valid_score]
-        )
-        output_scores[nonzero_numerator & ~nonzero_denominator] = 0.0
+    score = da.where(
+        numerator == 0,
+        1.0,
+        da.where(denominator != 0, 1 - numerator / denominator, 0.0),
+    )
 
-    result = output_scores.mean(axis=0)
+    result = score.mean(axis=0)
     if compute:
         result = result.compute()
     return result
