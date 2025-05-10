@@ -27,7 +27,7 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import ParameterGrid, ParameterSampler
 from sklearn.utils import check_random_state
 
-from dask_ml._compat import DISTRIBUTED_2_5_0, SK_LOG_LOSS
+from dask_ml._compat import DASK_2025_3_0, SK_LOG_LOSS
 from dask_ml.datasets import make_classification
 from dask_ml.model_selection import (
     HyperbandSearchCV,
@@ -39,7 +39,10 @@ from dask_ml.model_selection.utils_test import LinearFunction, _MaybeLinearFunct
 from dask_ml.utils import ConstantFunction
 
 pytestmark = [
-    pytest.mark.skipif(not DISTRIBUTED_2_5_0, reason="hangs"),
+    pytest.mark.skipif(
+        DASK_2025_3_0,
+        reason="https://github.com/dask/dask-ml/issues/1016",
+    ),
     pytest.mark.filterwarnings("ignore:decay_rate"),
 ]  # decay_rate warnings are tested in test_incremental_warns.py
 

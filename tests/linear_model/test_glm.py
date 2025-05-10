@@ -10,10 +10,17 @@ from dask_glm.regularizers import Regularizer
 from sklearn.pipeline import make_pipeline
 
 import dask_ml.linear_model
+import dask_ml._compat
 from dask_ml.datasets import make_classification, make_counts, make_regression
 from dask_ml.linear_model import LinearRegression, LogisticRegression, PoissonRegression
 from dask_ml.linear_model.utils import add_intercept
 from dask_ml.model_selection import GridSearchCV
+
+
+pytestmark = pytest.mark.skipif(
+    dask_ml._compat.DASK_2025_3_0,
+    reason="https://github.com/dask/dask-ml/issues/1016",
+)
 
 
 @pytest.fixture(params=[r() for r in Regularizer.__subclasses__()])

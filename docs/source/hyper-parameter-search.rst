@@ -419,8 +419,7 @@ Basic use
 This section uses :class:`~dask_ml.model_selection.HyperbandSearchCV`, but it can
 also be applied to to :class:`~dask_ml.model_selection.IncrementalSearchCV` too.
 
-.. ipython:: python
-   :okwarning:
+.. code-block:: python
 
     from dask.distributed import Client
     from dask_ml.datasets import make_classification
@@ -432,14 +431,14 @@ also be applied to to :class:`~dask_ml.model_selection.IncrementalSearchCV` too.
 Our underlying model is an :class:`sklearn.linear_model.SGDClasifier`. We
 specify a few parameters common to each clone of the model:
 
-.. ipython:: python
+.. code-block:: python
 
     from sklearn.linear_model import SGDClassifier
     clf = SGDClassifier(tol=1e-3, penalty='elasticnet', random_state=0)
 
 We also define the distribution of parameters from which we will sample:
 
-.. ipython:: python
+.. code-block:: python
 
     from scipy.stats import uniform, loguniform
     params = {'alpha': loguniform(1e-2, 1e0),  # or np.logspace
@@ -449,7 +448,7 @@ We also define the distribution of parameters from which we will sample:
 Finally we create many random models in this parameter space and
 train-and-score them until we find the best one.
 
-.. ipython:: python
+.. code-block:: python
 
     from dask_ml.model_selection import HyperbandSearchCV
 
@@ -465,7 +464,7 @@ larger-than-memory Dask Array, you'll exhaust your machine's memory. If you plan
 to use post-estimation features like scoring or prediction, we recommend using
 :class:`dask_ml.wrappers.ParallelPostFit`.
 
-.. ipython:: python
+.. code-block:: python
 
    from dask_ml.wrappers import ParallelPostFit
    params = {'estimator__alpha': loguniform(1e-2, 1e0),
@@ -523,14 +522,14 @@ Hyperband parameters: rule-of-thumb
 These fall out pretty naturally once it's known how long to train the best
 model and very approximately how many parameters to sample:
 
-.. ipython:: python
+.. code-block:: python
 
    n_examples = 20 * len(X_train)  # 20 passes through dataset for best model
    n_params = 94  # sample approximately 100 parameters; more than 94 will be sampled
 
 With this, it's easy use a rule-of-thumb to compute the inputs to Hyperband:
 
-.. ipython:: python
+.. code-block:: python
 
    max_iter = n_params
    chunk_size = n_examples // n_params  # implicit
@@ -538,7 +537,7 @@ With this, it's easy use a rule-of-thumb to compute the inputs to Hyperband:
 Now that we've determined the inputs, let's create our search object and
 rechunk the Dask array:
 
-.. ipython:: python
+.. code-block:: python
 
    clf = SGDClassifier(tol=1e-3, penalty='elasticnet', random_state=0)
    params = {'alpha': loguniform(1e-2, 1e0),  # or np.logspace
@@ -567,7 +566,7 @@ rule-of-thumb in the "Notes" section of
 However, this does not explicitly mention the amount of computation performed
 -- it's only an approximation. The amount of computation can be viewed like so:
 
-.. ipython:: python
+.. code-block:: python
 
    search.metadata["partial_fit_calls"]  # best model will see `max_iter` chunks
    search.metadata["n_models"]  # actual number of parameters to sample
@@ -578,7 +577,7 @@ amount of computation.  Let's fit
 :class:`~dask_ml.model_selection.HyperbandSearchCV` with these different
 chunks:
 
-.. ipython:: python
+.. code-block:: python
 
    search.fit(X_train, y_train, classes=[0, 1]);
    search.best_params_

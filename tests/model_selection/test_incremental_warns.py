@@ -2,9 +2,16 @@ import numpy as np
 import pytest
 from distributed.utils_test import gen_cluster
 
+import dask_ml._compat
 from dask_ml.datasets import make_classification
 from dask_ml.model_selection import IncrementalSearchCV, InverseDecaySearchCV
 from dask_ml.utils import ConstantFunction
+
+
+pytestmark = pytest.mark.skipif(
+    dask_ml._compat.DASK_2025_3_0,
+    reason="https://github.com/dask/dask-ml/issues/1016",
+)
 
 
 @gen_cluster(client=True)
