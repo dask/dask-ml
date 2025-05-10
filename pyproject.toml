@@ -51,7 +51,7 @@ dev = [
     "sphinx-gallery",
     "sphinx-rtd-theme",
 ]
-docs = ["nbsphinx", "numpydoc", "sphinx", "sphinx-gallery", "sphinx-rtd-theme"]
+docs = ["nbsphinx", "numpydoc", "sphinx", "sphinx-gallery", "sphinx-rtd-theme", "dask-sphinx-theme"]
 test = [
     "black",
     "coverage",
