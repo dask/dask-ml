@@ -17,6 +17,7 @@ from sklearn.exceptions import NotFittedError
 import dask_ml.preprocessing as dpp
 from dask_ml.datasets import make_classification
 from dask_ml.utils import assert_estimator_equal
+from dask_ml._compat import DASK_2025_5_0
 
 X, y = make_classification(chunks=50)
 df = X.to_dask_dataframe().rename(columns=str)
@@ -276,6 +277,10 @@ class TestQuantileTransformer:
         dqt = dpp.QuantileTransformer()
         dqt.fit(dX)
 
+    @pytest.mark.skipif(
+        not DASK_2025_5_0,
+        reason="https://github.com/dask/dask/pull/11943",
+    )
     def test_fit_transform_frame(self):
         df = pd.DataFrame(np.random.randn(1000, 3))
         ddf = dd.from_pandas(df, 2)
