@@ -15,7 +15,7 @@ from distributed.utils_test import (  # noqa: F401
 )
 from sklearn.linear_model import SGDClassifier
 
-from dask_ml._compat import DISTRIBUTED_2_5_0, SK_LOG_LOSS
+from dask_ml._compat import SK_LOG_LOSS, DASK_2025_3_0
 from dask_ml.datasets import make_classification
 from dask_ml.model_selection import (
     HyperbandSearchCV,
@@ -26,7 +26,10 @@ from dask_ml.model_selection._hyperband import _get_hyperband_params
 from dask_ml.utils import ConstantFunction
 from dask_ml.wrappers import Incremental
 
-pytestmark = pytest.mark.skipif(not DISTRIBUTED_2_5_0, reason="hangs")
+pytestmark = pytest.mark.skipif(
+    DASK_2025_3_0,
+    reason="https://github.com/dask/dask-ml/issues/1016",
+)
 
 
 @pytest.mark.parametrize(

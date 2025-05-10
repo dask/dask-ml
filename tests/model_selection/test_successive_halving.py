@@ -4,11 +4,14 @@ from distributed.utils_test import gen_cluster  # noqa: F401
 from sklearn.datasets import make_classification
 from sklearn.linear_model import SGDClassifier
 
-from dask_ml._compat import DISTRIBUTED_2_5_0
+import dask_ml._compat
 from dask_ml.model_selection import SuccessiveHalvingSearchCV
 from dask_ml.utils import ConstantFunction
 
-pytestmark = pytest.mark.skipif(not DISTRIBUTED_2_5_0, reason="hangs")
+pytestmark = pytest.mark.skipif(
+    dask_ml._compat.DASK_2025_3_0,
+    reason="https://github.com/dask/dask-ml/issues/1016",
+)
 
 
 @gen_cluster(client=True)
