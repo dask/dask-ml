@@ -477,8 +477,8 @@ def do_fit(
         out_append = out.append
 
         for X, y, t, p in zip(Xs, ys, tokens, params):
-            if (X, y, t) in seen:
-                out_append(seen[X, y, t])
+            if (id(X), id(y), t) in seen:
+                out_append(seen[id(X), id(y), t])
             else:
                 for n, fit_params in n_and_fit_params:
                     dsk[(fit_name, m, n)] = (
@@ -491,7 +491,7 @@ def do_fit(
                         p,
                         fit_params,
                     )
-                seen[(X, y, t)] = (fit_name, m)
+                seen[(id(X), id(y), t)] = (fit_name, m)
                 out_append((fit_name, m))
                 m += 1
 
@@ -564,8 +564,8 @@ def do_fit_transform(
         out_append = out.append
 
         for X, y, t, p in zip(Xs, ys, tokens, params):
-            if (X, y, t) in seen:
-                out_append(seen[X, y, t])
+            if (id(X), id(y), t) in seen:
+                out_append(seen[id(X), id(y), t])
             else:
                 for n, fit_params in n_and_fit_params:
                     dsk[(fit_Xt_name, m, n)] = (
@@ -580,7 +580,7 @@ def do_fit_transform(
                     )
                     dsk[(fit_name, m, n)] = (getitem, (fit_Xt_name, m, n), 0)
                     dsk[(Xt_name, m, n)] = (getitem, (fit_Xt_name, m, n), 1)
-                seen[X, y, t] = m
+                seen[id(X), id(y), t] = m
                 out_append(m)
                 m += 1
 
@@ -664,6 +664,7 @@ def _do_fit_step(
                 # Extract the proper subset of Xs, ys
                 sub_Xs = get(ids, Xs)
                 sub_ys = get(ids, ys)
+
                 # Only subset the parameters/tokens if necessary
                 if sub_fields:
                     sub_tokens = list(pluck(sub_inds, get(ids, tokens)))
