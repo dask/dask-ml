@@ -36,18 +36,23 @@ class KMeans(TransformerMixin, BaseEstimator):
     ----------
     n_clusters : int, default 8
         Number of clusters to end up with
-    init : {'k-means||', 'k-means++' or ndarray}
+    init : {'k-means||', 'k-means++', 'random' or ndarray}
         Method for center initialization, defaults to 'k-means||'.
 
-        'k-means||' : selects the the gg
+        'k-means||' : Selects initial cluster centers using a scalable
+        variant of k-means++. See the notes for more details.
 
-        'k-means++' : selects the initial cluster centers in a smart way
+        'k-means++' : Selects the initial cluster centers in a smart way
         to speed up convergence. Uses scikit-learn's implementation.
 
         .. warning::
 
            If using ``'k-means++'``, the entire dataset will be read into
            memory at once.
+
+        'random' : Selects `n_clusters` random rows from the input data for
+        the initial centroids. Use `n_init` to run multiple random
+        initializations for more robust results.
 
         An array of shape (n_clusters, n_features) can be used to give
         an explicit starting point
