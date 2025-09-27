@@ -819,7 +819,7 @@ The computational overhead of each SVD is
 remain in memory at a time. There will be <code class="docutils literal notranslate"><span class="pre">n_samples</span> <span class="pre">/</span> <span class="pre">batch_size</span></code> SVD
 computations to get the principal components, versus 1 large SVD of
 complexity <code class="docutils literal notranslate"><span class="pre">O(n_samples</span> <span class="pre">*</span> <span class="pre">n_features</span> <span class="pre">**</span> <span class="pre">2)</span></code> for PCA.
-Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/decomposition.html#incrementalpca" title="(in scikit-learn v1.6)"><span class="xref std std-ref">User Guide</span></a>.
+Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/decomposition.html#incrementalpca" title="(in scikit-learn v1.7)"><span class="xref std std-ref">User Guide</span></a>.
 .. versionadded:: 0.16</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -942,7 +942,7 @@ new calls to fit, but increments across <code class="docutils literal notranslat
 <td><p>Set the parameters of this estimator.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_partial_fit_request</span></code>(*[, check_input])</p></td>
-<td><p>Request metadata passed to the <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> method.</p></td>
+<td><p>Configure whether metadata should be requested to be passed to the <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> method.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(X)</p></td>
 <td><p>Apply dimensionality reduction on X.</p></td>

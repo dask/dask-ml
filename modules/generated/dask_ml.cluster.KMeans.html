@@ -808,15 +808,19 @@
 <dd class="field-odd"><dl>
 <dt><strong>n_clusters</strong><span class="classifier">int, default 8</span></dt><dd><p>Number of clusters to end up with</p>
 </dd>
-<dt><strong>init</strong><span class="classifier">{‘k-means||’, ‘k-means++’ or ndarray}</span></dt><dd><p>Method for center initialization, defaults to ‘k-means||’.</p>
-<p>‘k-means||’ : selects the the gg</p>
-<p>‘k-means++’ : selects the initial cluster centers in a smart way
+<dt><strong>init</strong><span class="classifier">{‘k-means||’, ‘k-means++’, ‘random’ or ndarray}</span></dt><dd><p>Method for center initialization, defaults to ‘k-means||’.</p>
+<p>‘k-means||’ : Selects initial cluster centers using a scalable
+variant of k-means++. See the notes for more details.</p>
+<p>‘k-means++’ : Selects the initial cluster centers in a smart way
 to speed up convergence. Uses scikit-learn’s implementation.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>If using <code class="docutils literal notranslate"><span class="pre">'k-means++'</span></code>, the entire dataset will be read into
 memory at once.</p>
 </div>
+<p>‘random’ : Selects <cite>n_clusters</cite> random rows from the input data for
+the initial centroids. Use <cite>n_init</cite> to run multiple random
+initializations for more robust results.</p>
 <p>An array of shape (n_clusters, n_features) can be used to give
 an explicit starting point</p>
 </dd>
@@ -868,8 +872,8 @@ sample belongs to.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.cluster.MiniBatchKMeans.html#sklearn.cluster.MiniBatchKMeans" title="(in scikit-learn v1.6)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.cluster.MiniBatchKMeans</span></code></a></dt><dd></dd>
-<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html#sklearn.cluster.KMeans" title="(in scikit-learn v1.6)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.cluster.KMeans</span></code></a></dt><dd></dd>
+<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.cluster.MiniBatchKMeans.html#sklearn.cluster.MiniBatchKMeans" title="(in scikit-learn v1.7)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.cluster.MiniBatchKMeans</span></code></a></dt><dd></dd>
+<dt><a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html#sklearn.cluster.KMeans" title="(in scikit-learn v1.7)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sklearn.cluster.KMeans</span></code></a></dt><dd></dd>
 </dl>
 </div>
 <p class="rubric">Notes</p>

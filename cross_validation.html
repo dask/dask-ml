@@ -822,12 +822,12 @@ This document only describes the extensions made to support Dask arrays.</p>
 
 <span class="gp">In [8]: </span><span class="n">X_train</span><span class="o">.</span><span class="n">compute</span><span class="p">()[:</span><span class="mi">3</span><span class="p">]</span>
 <span class="gh">Out[8]: </span>
-<span class="go">array([[ 0.72278447,  1.44812909, -0.48500419, -0.13090068],</span>
-<span class="go">       [-0.10656729, -0.19912227, -1.29342938,  0.67371525],</span>
-<span class="go">       [-1.05879148, -0.89722898,  0.96089406, -0.97585992]])</span>
+<span class="go">array([[ 0.46698325,  0.14795648,  0.00401895, -0.25118474],</span>
+<span class="go">       [ 0.83154369,  0.17831678, -0.11855249,  0.11225947],</span>
+<span class="go">       [ 1.4136866 , -0.46491099, -0.21560393,  0.38860571]])</span>
 </pre></div>
 </div>
-<p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v1.6)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
+<p>While it’s possible to pass dask arrays to <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html#sklearn.model_selection.train_test_split" title="(in scikit-learn v1.7)"><code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.model_selection.train_test_split()</span></code></a>, we recommend
 using the Dask version for performance reasons: the Dask version is faster
 for two reasons:</p>
 <p>First, <strong>the Dask version shuffles blockwise</strong>.

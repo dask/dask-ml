@@ -831,14 +831,14 @@ are available on <code class="docutils literal notranslate"><span class="pre">In
 <dd class="field-odd"><dl>
 <dt><strong>estimator</strong><span class="classifier">Estimator</span></dt><dd><p>Any object supporting the scikit-learn <code class="docutils literal notranslate"><span class="pre">partial_fit</span></code> API.</p>
 </dd>
-<dt><strong>scoring</strong><span class="classifier">string or callable, optional</span></dt><dd><p>A single string (see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter" title="(in scikit-learn v1.6)"><span>The scoring parameter: defining model evaluation rules</span></a>) or a callable
+<dt><strong>scoring</strong><span class="classifier">string or callable, optional</span></dt><dd><p>A single string (see <a class="reference external" href="https://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter" title="(in scikit-learn v1.7)"><span>The scoring parameter: defining model evaluation rules</span></a>) or a callable
 (see <span class="xref std std-ref">scoring</span>) to evaluate the predictions on the test set.</p>
 <p>For evaluating multiple metrics, either give a list of (unique)
 strings or a dict with names as keys and callables as values.</p>
 <p>NOTE that when using custom scorers, each scorer should return a
 single value. Metric functions returning a list/array of values
 can be wrapped into multiple scorers that return one value each.</p>
-<p>See <a class="reference external" href="https://scikit-learn.org/stable/modules/grid_search.html#multimetric-grid-search" title="(in scikit-learn v1.6)"><span>Specifying multiple metrics for evaluation</span></a> for an example.</p>
+<p>See <a class="reference external" href="https://scikit-learn.org/stable/modules/grid_search.html#multimetric-grid-search" title="(in scikit-learn v1.7)"><span>Specifying multiple metrics for evaluation</span></a> for an example.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>If None, the estimator’s default scorer (if available) is used.
@@ -937,7 +937,7 @@ parameter names with <code class="docutils literal notranslate"><span class="pre
 <td><p>Set the parameters of this estimator.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_score_request</span></code>(*[, compute])</p></td>
-<td><p>Request metadata passed to the <code class="docutils literal notranslate"><span class="pre">score</span></code> method.</p></td>
+<td><p>Configure whether metadata should be requested to be passed to the <code class="docutils literal notranslate"><span class="pre">score</span></code> method.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(X)</p></td>
 <td><p>Transform block or partition-wise for dask inputs.</p></td>
