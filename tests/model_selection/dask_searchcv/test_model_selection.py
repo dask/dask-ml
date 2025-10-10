@@ -23,6 +23,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.exceptions import FitFailedWarning, NotFittedError
 from sklearn.feature_selection import SelectKBest
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, brier_score_loss, log_loss, make_scorer
 from sklearn.model_selection import (
     GridSearchCV,
     GroupKFold,
@@ -976,3 +977,129 @@ def test_mock_with_fit_param_raises():
 
     with pytest.raises(ValueError):
         clf.fit(X, y)
+
+
+IMP_WT_LOG_REG_PARAMS = {
+    "solver":         ["lbfgs"],
+    "penalty":        ["l2"],
+    "tol":            [1e-6],
+    "max_iter":       [10000],
+    "fit_intercept":  [False],
+    "random_state":   [15432]
+}
+LOG_REG_PIPELINE = Pipeline([("clf", LogisticRegression())])
+IMP_WT_PIPE_LOG_REG_PARAMS = {"clf__"+k: v for k, v in IMP_WT_LOG_REG_PARAMS.items()}
+
+@pytest.mark.parametrize("metric,greater_is_better,needs_proba,estimator,estimator_params,sample_wt", [
+    (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [1, 999999, 1, 999999]),
+    (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [100000, 200000, 100000, 200000]),
+    (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [100000, 100000, 100000, 100000]),
+    (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [200000, 100000, 200000, 100000]),
+    (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [999999, 1, 999999, 1]),
+    (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [2000000, 1000000, 1, 999999]),
+    (accuracy_score, True, False, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [4000000, 2000000, 2, 2*999999]),
+    # ZEFR Use-Case. Delete this note if making this into more general release.
+    (accuracy_score, True, False, LOG_REG_PIPELINE, IMP_WT_PIPE_LOG_REG_PARAMS, [2000000, 1000000, 1, 999999]),
+    (log_loss, False, True, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [2500000, 500000, 200000, 100000]),
+    (brier_score_loss, False, True, LogisticRegression(), IMP_WT_LOG_REG_PARAMS, [2500000, 500000, 200000, 100000]),
+])
+def test_sample_weight_cross_validation(
+        metric, greater_is_better, needs_proba, estimator, estimator_params, sample_wt):
+    # Test that cross validation properly uses sample_weight from fit_params
+    # when calculating the desired metrics.
+    LOG_REG_DEC_TOL = 5 # Tolerance for decimal points in logisitic regression
+
+    # this is train and predict at once
+    def train(y, norm1_wt, needs_proba):
+        m = [np.dot(y, norm1_wt)] * len(y)
+        return m if needs_proba else np.round(m)
+
+    X = np.ones([4, 1])         # Constant features to learn intercept.
+    y = np.array([1, 0, 1, 0])  # Some +/- for both test and train.
+    f1 = np.array([0, 1])       # Fold 1.
+    f2 = np.array([2, 3])       # Fold 2.
+    sample_weight = np.array(sample_wt)
+
+    sum_sample_weight = np.sum(sample_weight)
+
+    y1 = y[f1]
+    norm1_wt_f1 = sample_weight[f1] / np.sum(sample_weight[f1])
+    model1 = train(y1, norm1_wt_f1, needs_proba)
+
+    y2 = y[f2]
+    norm1_wt_f2 = sample_weight[f2] / np.sum(sample_weight[f2])
+    model2 = train(y2, norm1_wt_f2, needs_proba)
+
+    # Notice normalized sample_weight.
+    met1 = metric(y1, model2, sample_weight=norm1_wt_f1)
+    met2 = metric(y2, model1, sample_weight=norm1_wt_f2)
+
+    ratio_wt_f1 = np.sum(sample_weight[f1]) / sum_sample_weight
+    ratio_wt_f2 = np.sum(sample_weight[f2]) / sum_sample_weight
+
+    sign = 1 if greater_is_better else -1
+    exp_cv_score = sign * (met1 * ratio_wt_f1 + met2 * ratio_wt_f2)
+
+    # There's nothing special about GridSearchCV. Could be RandomizedSearchCV.
+    gscv = dcv.GridSearchCV(
+        estimator,
+        estimator_params,  # parameters
+        scoring=make_scorer(score_func=metric, greater_is_better=greater_is_better, needs_proba=needs_proba),
+        cv=2,
+        return_train_score=True
+    )
+
+    if isinstance(estimator, Pipeline):
+        gscv.fit(X, y, clf__sample_weight=sample_weight)
+    else:
+        gscv.fit(X, y, sample_weight=sample_weight)
+
+    best_score = gscv.best_score_
+
+    np.testing.assert_almost_equal(exp_cv_score, best_score, decimal=LOG_REG_DEC_TOL)
+
+    # Assert that sample_weight for each fold is normalized by the L1 norm.
+    np.testing.assert_almost_equal(np.sum(norm1_wt_f1), 1)
+    assert np.all(norm1_wt_f1 >= 0)
+    np.testing.assert_almost_equal(np.sum(norm1_wt_f2), 1)
+    assert np.all(norm1_wt_f2 >= 0)
+
+
+@pytest.mark.parametrize("replications,sample_wt,pass_none", [
+    (10000, 1, True),
+    (10000, None, True),
+    (10000, None, False),
+    (1, 10000, True)
+])
+def test_sample_weight_cross_validation_const_wt(
+        replications, sample_wt, pass_none):
+
+    # Test that cross validation properly uses sample_weight from fit_params
+    # and the weight is constant.
+
+    # The expected cross validation accuracy is 0.5.  To see why, look at
+    # the test parameterization: (10000, None, False).
+    exp_cv_acc = 0.5
+
+    X = np.ones([4 * replications, 1])
+    y = np.array([1, 0, 1, 0] * replications)
+
+    gscv = dcv.GridSearchCV(
+        LogisticRegression(),
+        {"random_state": [15432], "solver": ["lbfgs"]},  # parameters
+        scoring='accuracy',
+        cv=2,
+        return_train_score=True
+    )
+
+    if sample_wt is None:
+        if pass_none:
+            gscv.fit(X, y, sample_weight=None)
+        else:
+            gscv.fit(X, y)
+    else:
+        sample_weight = np.ones([4 * replications]) * sample_wt
+        gscv.fit(X, y, sample_weight=sample_weight)
+
+    best_score = gscv.best_score_
+    np.testing.assert_almost_equal(best_score, exp_cv_acc)

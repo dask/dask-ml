@@ -103,39 +103,46 @@ class CVCache:
             [i.sum() if i.dtype == bool else len(i) for i in pluck(1, self.splits)]
         )
 
-    def extract(self, X, y, n, is_x=True, is_train=True):
+    def extract(self, X, y, n, is_x=True, is_train_folds=True):
         if is_x:
             if self.pairwise:
-                return self._extract_pairwise(X, y, n, is_train=is_train)
-            return self._extract(X, y, n, is_x=True, is_train=is_train)
+                return self._extract_pairwise(X, y, n, is_train_folds=is_train_folds)
+            return self._extract(X, y, n, is_x=True, is_train_folds=is_train_folds)
         if y is None:
             return None
-        return self._extract(X, y, n, is_x=False, is_train=is_train)
+        return self._extract(X, y, n, is_x=False, is_train_folds=is_train_folds)
 
-    def extract_param(self, key, x, n):
-        if self.cache is not None and (n, key) in self.cache:
-            return self.cache[n, key]
+    def extract_param(self, key, x, n, is_train_folds=True):
+        '''
+            extract_param extracts the fit_params associated with a set of folds either train folds or test fold.
+            Also supports caching similar to other extraction methods
 
-        out = _index_param_value(self.num_train_samples, x, self.splits[n][0])
+            returns: corresponding slice of fit_params for input key,value corresponding to nth train folds or test folds based on is_train_folds
+        '''
+        if self.cache is not None and (n, key, is_train_folds) in self.cache:
+            return self.cache[n, key, is_train_folds]
+
+        inds = self.splits[n][0] if is_train_folds else self.splits[n][1]
+        out = _index_param_value( self.num_train_samples, x, inds)
 
         if self.cache is not None:
-            self.cache[n, key] = out
+            self.cache[n, key, is_train_folds] = out
         return out
 
-    def _extract(self, X, y, n, is_x=True, is_train=True):
-        if self.cache is not None and (n, is_x, is_train) in self.cache:
-            return self.cache[n, is_x, is_train]
+    def _extract(self, X, y, n, is_x=True, is_train_folds=True):
+        if self.cache is not None and (n, is_x, is_train_folds) in self.cache:
+            return self.cache[n, is_x, is_train_folds]
 
-        inds = self.splits[n][0] if is_train else self.splits[n][1]
+        inds = self.splits[n][0] if is_train_folds else self.splits[n][1]
         result = _safe_indexing(X if is_x else y, inds)
 
         if self.cache is not None:
-            self.cache[n, is_x, is_train] = result
+            self.cache[n, is_x, is_train_folds] = result
         return result
 
-    def _extract_pairwise(self, X, y, n, is_train=True):
-        if self.cache is not None and (n, True, is_train) in self.cache:
-            return self.cache[n, True, is_train]
+    def _extract_pairwise(self, X, y, n, is_train_folds=True):
+        if self.cache is not None and (n, True, is_train_folds) in self.cache:
+            return self.cache[n, True, is_train_folds]
 
         if not hasattr(X, "shape"):
             raise ValueError(
@@ -145,10 +152,10 @@ class CVCache:
         if X.shape[0] != X.shape[1]:
             raise ValueError("X should be a square kernel matrix")
         train, test = self.splits[n]
-        result = X[np.ix_(train if is_train else test, train)]
+        result = X[np.ix_(train if is_train_folds else test, train)]
 
         if self.cache is not None:
-            self.cache[n, True, is_train] = result
+            self.cache[n, True, is_train_folds] = result
         return result
 
 
@@ -161,13 +168,23 @@ def cv_n_samples(cvs):
     return cvs.num_test_samples()
 
 
-def cv_extract(cvs, X, y, is_X, is_train, n):
-    return cvs.extract(X, y, n, is_X, is_train)
+def cv_extract(cvs, X, y, is_X, is_train_folds, n):
+    return cvs.extract(X, y, n, is_X, is_train_folds)
 
 
-def cv_extract_params(cvs, keys, vals, n):
-    return {k: cvs.extract_param(tok, v, n) for (k, tok), v in zip(keys, vals)}
+def cv_extract_params(cvs, keys, vals, n, is_train_folds):
+    '''
+        cv_extract_params the fit parameters of the fold sets (train folds or test fold)
 
+        cvs: (CVCache): CV cache for CV information of folds
+        keys: ((str,str)) fit params (name,full_name) key tuple
+        vals: (Any) the values for the given fit_params key
+        n: (int) fold number
+        is_train_folds : (bool) True if retrieving for train folds and False for test fold
+
+        returns: Dict[(str,str),Any)dictionary of fit_params for just the train folds or just the test folds
+    '''
+    return {k: cvs.extract_param(tok, v, n, is_train_folds) for (k, tok), v in zip(keys, vals)}
 
 def _maybe_timed(x):
     """Unpack (est, fit_time) tuples if provided"""
@@ -269,20 +286,98 @@ def fit_transform(
 
     return (est, fit_time), Xt
 
+def _apply_scorer(estimator, X, y, scorer, sample_weight):
+    """Applies the scorer to the estimator, given the data and sample_weight.
 
-def _score(est, X, y, scorer):
+    If ``sample_weight`` is None ``sample_weight`` WILL
+    NOT be passed to ``scorer``; otherwise, it will be passed.
+
+    In the event that ``sample_weight`` is provided and used but ``scorer``
+    doesn't accept a ``sample_weight`` parameter, then a ``TypeError`` should
+    likely be raised.
+
+    Parameters
+    ----------
+    estimator : estimator object implementing 'fit'
+        The object that was used to fit the data.
+
+    X : array-like of shape at least 2D
+        The data to fit.
+
+    y : array-like
+        The target variable to try to predict in the case of
+        supervised learning.  (May be None)
+
+    scorer : A single callable.
+        Should return a single float.
+
+        The callable object / fn should have signature
+        ``scorer(estimator, X, y, sample_weight=None)`` if ``sample_weight``.
+
+    sample_weight : array-like, shape (y)
+        sample weights to use during metric calculation.  May be None.
+
+    Returns
+    -------
+    score : float
+        Score returned by ``scorer`` applied to ``X`` and ``y`` given
+        ``sample_weight``.
+    """
+    if sample_weight is None:
+        if y is None:
+            score = scorer(estimator, X)
+        else:
+            score = scorer(estimator, X, y)
+    else:
+        try:
+            # Explicitly force the sample_weight parameter so that an error
+            # will be raised in the event that the scorer doesn't take a
+            # sample_weight argument.  This is preferable to passing it as
+            # a keyword args dict in the case that it just ignores parameters
+            # that are not accepted by the scorer.
+            if y is None:
+                score = scorer(estimator, X, sample_weight=sample_weight)
+            else:
+                score = scorer(estimator, X, y, sample_weight=sample_weight)
+        except TypeError as e:
+            if "sample_weight" in str(e):
+                raise TypeError(
+                    (
+                        "Attempted to use 'sample_weight' for training "
+                        "but supplied a scorer that doesn't accept a "
+                        "'sample_weight' parameter."
+                    ),
+                    e,
+                )
+            else:
+                raise e
+    return score
+
+def _score(est, X, y, scorer, sample_weight):
     if est is FIT_FAILURE:
         return FIT_FAILURE
     if isinstance(scorer, Mapping):
-        return {k: v(est, X) if y is None else v(est, X, y) for k, v in scorer.items()}
-    return scorer(est, X) if y is None else scorer(est, X, y)
+        return {
+            k: _apply_scorer(est, X, y, v, sample_weight) for k, v in scorer.items()
+        }
+    return _apply_scorer(est, X, y, scorer, sample_weight)
 
 
-def score(est_and_time, X_test, y_test, X_train, y_train, scorer, error_score):
+def score(
+    est_and_time,
+    X_test,
+    y_test,
+    X_train,
+    y_train,
+    scorer,
+    error_score,
+    sample_weight=None,
+    eval_sample_weight=None,
+):
     est, fit_time = est_and_time
     start_time = default_timer()
     try:
-        test_score = _score(est, X_test, y_test, scorer)
+        test_score = _score(est, X_test, y_test, scorer, eval_sample_weight)
     except Exception:
         if error_score == "raise":
             raise
@@ -292,7 +387,7 @@ def score(est_and_time, X_test, y_test, X_train, y_train, scorer, error_score):
     score_time = default_timer() - start_time
     if X_train is None:
         return fit_time, test_score, score_time
-    train_score = _score(est, X_train, y_train, scorer)
+    train_score = _score(est, X_train, y_train, scorer, sample_weight)
     return fit_time, test_score, score_time, train_score
 
 
@@ -307,17 +402,42 @@ def fit_and_score(
     fields=None,
     params=None,
     fit_params=None,
+    test_fit_params=None,
     return_train_score=True,
 ):
     X_train = cv.extract(X, y, n, True, True)
     y_train = cv.extract(X, y, n, False, True)
     X_test = cv.extract(X, y, n, True, False)
     y_test = cv.extract(X, y, n, False, False)
+
+    '''
+        Support for lightGBM evaluation data sets within folds.         
+        https: // lightgbm.readthedocs.io / en / latest / pythonapi / lightgbm.LGBMClassifier.html
+        
+        Set the test set to the corresponding part of the eval set with the test folds index.
+        Without this you can only use a set of corresponding size to train folds as eval_data_set requiring more data in the fit function. 
+    '''
+    if fit_params is not None and 'eval_set' in fit_params:
+        fit_params['eval_set'] = test_fit_params['eval_set']
+        fit_params['eval_names'] = test_fit_params['eval_names']
+        fit_params['eval_sample_weight'] = test_fit_params['eval_sample_weight']
+
     est_and_time = fit(est, X_train, y_train, error_score, fields, params, fit_params)
     if not return_train_score:
         X_train = y_train = None
 
-    return score(est_and_time, X_test, y_test, X_train, y_train, scorer, error_score)
+    eval_sample_weight_train, eval_sample_weight_test = None, None
+    if fit_params is not None:
+        '''
+            NOTE: To be back-compatible with dask-ml defaults you could add a boolean (legacy_mode) that can skip the following block if (legacy_mode==True)
+        '''
+        eval_weight_source = "eval_sample_weight" if "eval_sample_weight" in fit_params else "sample_weight"
+        if eval_weight_source in fit_params and fit_params[eval_weight_source] is not None:
+            eval_sample_weight_train = fit_params[eval_weight_source]
+        if eval_weight_source in test_fit_params and test_fit_params[eval_weight_source] is not None:
+            eval_sample_weight_test = test_fit_params[eval_weight_source]
+
+    return score(est_and_time, X_test, y_test, X_train, y_train, scorer, error_score, sample_weight=eval_sample_weight_train, eval_sample_weight=eval_sample_weight_test)
 
 
 def _store(
