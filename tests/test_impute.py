@@ -32,6 +32,20 @@ def test_fit(data):
     assert_estimator_equal(a, b, exclude=["statistics_"])
     np.testing.assert_array_almost_equal(a.statistics_, np.asarray(b.statistics_))
 
+@pytest.mark.parametrize("data", [X, dX, df, ddf])
+def test_fit_convert(data):
+    a = sklearn.impute.SimpleImputer()
+    b = dask_ml.impute.SimpleImputer()
+
+    expected = a.fit_transform(X.astype(str).astype(object))
+    result = b.fit_transform(data.astype(str).astype(object))
+
+    assert_estimator_equal(a, b)
+    assert isinstance(result, type(data))
+    if isinstance(data, (pd.DataFrame, dd.DataFrame)):
+        result = result.values
+
+    da.utils.assert_eq(result, expected)
 
 @pytest.mark.parametrize("data", [X, dX, df, ddf])
 def test_fit_constant(data):

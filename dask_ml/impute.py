@@ -61,17 +61,17 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
             raise ValueError(msg)
 
         if self.strategy == "mean":
-            statistics = da.nanmean(X, axis=0).compute()
+            statistics = da.nanmean(X.astype(np.number), axis=0).compute()
         else:
-            statistics = np.full(X.shape[1], self.fill_value, dtype=X.dtype)
+            statistics = np.full(X.shape[1], self.fill_value, dtype=(X.dtype if np.issubdtype(X.dtype, np.number) else np.number))
 
         (self.statistics_,) = da.compute(statistics)
 
     def _fit_frame(self, X):
         if self.strategy == "mean":
-            avg = X.mean(axis=0).values
+            avg = X.astype(np.number).mean(axis=0).values
         elif self.strategy == "median":
-            avg = X.quantile().values
+            avg = X.astype(np.number).quantile().values
         elif self.strategy == "constant":
             avg = np.full(len(X.columns), self.fill_value)
         else:
@@ -82,9 +82,11 @@ class SimpleImputer(sklearn.impute.SimpleImputer):
 
     def transform(self, X):
         if isinstance(X, (pd.Series, pd.DataFrame, dd.Series, dd.DataFrame)):
+            if self.strategy == "mean" or self.strategy == "median":
+                X = X.astype(np.number)
             return X.fillna(self.statistics_)
 
         elif isinstance(X, da.Array):
-            return da.where(da.isnull(X), self.statistics_, X)
+            return da.where(da.isnull(X.astype(np.number)), self.statistics_, X.astype(np.number))
         else:
             return super(SimpleImputer, self).transform(X)
