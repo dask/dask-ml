@@ -135,7 +135,7 @@ boolean mask array or callable
 
     Examples
     --------
-    >>> from dask_ml.compose import ColumnTransformer
+    >>> from dask.ml.compose import ColumnTransformer
     >>> from sklearn.preprocessing import Normalizer
     >>> ct = ColumnTransformer(
     ...     [("norm1", Normalizer(norm='l1'), [0, 1]),

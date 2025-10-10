@@ -512,8 +512,8 @@ class Incremental(ParallelPostFit):
 
     Examples
     --------
-    >>> from dask_ml.wrappers import Incremental
-    >>> from dask_ml.datasets import make_classification
+    >>> from dask.ml.wrappers import Incremental
+    >>> from dask.ml.datasets import make_classification
     >>> import sklearn.linear_model
     >>> X, y = make_classification(chunks=25)
     >>> est = sklearn.linear_model.SGDClassifier()

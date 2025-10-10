@@ -37,7 +37,7 @@ class BlockTransformer(BaseEstimator, TransformerMixin):
 
     >>> import dask.datasets
     >>> import pandas as pd
-    >>> from dask_ml.preprocessing import BlockTransformer
+    >>> from dask.ml.preprocessing import BlockTransformer
     >>> df = dask.datasets.timeseries()
     >>> df
     ... # doctest: +SKIP
