@@ -95,7 +95,7 @@ def fit(
 
     if not hasattr(model, "partial_fit"):
         msg = "The class '{}' does not implement 'partial_fit'."
-        raise ValueError(msg.format(type(model)))
+        raise AttributeError(msg.format(type(model)))
 
     order = list(range(nblocks))
     if shuffle_blocks:
