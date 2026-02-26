@@ -219,3 +219,5 @@ def test_tf_idf(norm, smooth_idf, sublinear_tf, use_idf, rechunk):
         d_tf_idf_result.todense().astype(np.float64),
         sk_tf_idf_result.todense().astype(np.float64),
     )
+
+    assert_estimator_equal(d_tf_idf, sk_tf_idf,exclude=['n_features_in_','idf_'])
