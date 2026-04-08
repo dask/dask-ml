@@ -1,3 +1,4 @@
+import os
 import numbers
 from datetime import timedelta
 
@@ -23,12 +24,23 @@ def _check_axis_partitioning(chunks, n_features):
         raise ValueError(msg)
 
 
+def _normalize_chunks(chunks, shape, dtype=None):
+    if chunks is None or chunks == "auto":
+        chunks = ("auto", shape[1])
+    elif chunks == "cores":
+        n_cores = os.cpu_count() or 1
+        target_blocks = max(1, min(shape[0], n_cores * 4))
+        row_chunk = max(1, shape[0] // target_blocks)
+        chunks = (row_chunk, shape[1])
+    return da.core.normalize_chunks(chunks, shape, dtype=dtype)
+
+
 def make_counts(
     n_samples=1000,
     n_features=100,
     n_informative=2,
     scale=1.0,
-    chunks=100,
+    chunks=None,
     random_state=None,
 ):
     """
@@ -44,8 +56,14 @@ def make_counts(
         number of features that are correlated with the outcome
     scale : float
         Scale the true coefficient array by this
-    chunks : int
-        Number of rows per dask array block.
+    chunks : int, tuple, or {'auto', 'cores'}
+        How to chunk the array. Must be one of the following forms:
+        -   A blocksize like 1000.
+        -   A blockshape like (1000, 1000).
+        -   Explicit sizes of all blocks along all dimensions like
+            ((1000, 1000, 500), (400, 400)).
+        -   ``"auto"`` or ``None`` to use Dask automatic chunking.
+        -   ``"cores"`` to choose row chunks based on the available CPU count.
     random_state : int, RandomState instance or None (default)
         Determines random number generation for dataset creation. Pass an int
         for reproducible output across multiple function calls.
@@ -61,9 +79,12 @@ def make_counts(
     --------
     >>> X, y = make_counts()
     """
+    chunks = _normalize_chunks(chunks, (n_samples, n_features), dtype=np.int64)
+    _check_axis_partitioning(chunks, n_features)
+
     rng = dask_ml.utils.check_random_state(random_state)
 
-    X = rng.normal(0, 1, size=(n_samples, n_features), chunks=(chunks, n_features))
+    X = rng.normal(0, 1, size=(n_samples, n_features), chunks=chunks)
     informative_idx = rng.choice(n_features, n_informative, chunks=n_informative)
     beta = (rng.random(n_features, chunks=n_features) - 1) * scale
 
@@ -71,7 +92,7 @@ def make_counts(
 
     z0 = X[:, informative_idx].dot(beta[informative_idx])
     rate = da.exp(z0)
-    y = rng.poisson(rate, size=1, chunks=(chunks,))
+    y = rng.poisson(rate, size=1, chunks=chunks[0])
     return X, y
 
 
@@ -125,12 +146,14 @@ def make_blobs(
         for reproducible output across multiple function calls.
         See :term:`Glossary <random_state>`.
 
-    chunks : int, tuple
+    chunks : int, tuple, or {'auto', 'cores'}
         How to chunk the array. Must be one of the following forms:
         -   A blocksize like 1000.
         -   A blockshape like (1000, 1000).
         -   Explicit sizes of all blocks along all dimensions like
             ((1000, 1000, 500), (400, 400)).
+        -   ``"auto"`` or ``None`` to use Dask automatic chunking.
+        -   ``"cores"`` to choose row chunks based on the available CPU count.
 
     Returns
     -------
@@ -153,7 +176,7 @@ def make_blobs(
     --------
     make_classification: a more intricate variant
     """
-    chunks = da.core.normalize_chunks(chunks, (n_samples, n_features))
+    chunks = _normalize_chunks(chunks, (n_samples, n_features), dtype=np.int64)
     _check_axis_partitioning(chunks, n_features)
 
     if centers is None:
@@ -277,12 +300,14 @@ def make_regression(
         for reproducible output across multiple function calls.
         See :term:`Glossary <random_state>`.
 
-    chunks : int, tuple
+    chunks : int, tuple, or {'auto', 'cores'}
         How to chunk the array. Must be one of the following forms:
         -   A blocksize like 1000.
         -   A blockshape like (1000, 1000).
         -   Explicit sizes of all blocks along all dimensions like
             ((1000, 1000, 500), (400, 400)).
+        -   ``"auto"`` or ``None`` to use Dask automatic chunking.
+        -   ``"cores"`` to choose row chunks based on the available CPU count.
 
     Returns
     -------
@@ -296,7 +321,7 @@ def make_regression(
         The coefficient of the underlying linear model. It is returned only if
         coef is True.
     """
-    chunks = da.core.normalize_chunks(chunks, (n_samples, n_features))
+    chunks = _normalize_chunks(chunks, (n_samples, n_features), dtype=np.int64)
     _check_axis_partitioning(chunks, n_features)
 
     rng = sklearn.utils.check_random_state(random_state)
@@ -358,7 +383,7 @@ def make_classification(
     random_state=None,
     chunks=None,
 ):
-    chunks = da.core.normalize_chunks(chunks, (n_samples, n_features))
+    chunks = _normalize_chunks(chunks, (n_samples, n_features), dtype=np.int64)
     _check_axis_partitioning(chunks, n_features)
 
     if n_classes != 2:
@@ -411,9 +436,11 @@ def make_classification_df(
         how hard is the response to predict (1.0 being easiest)
     random_state : int, default is None
         seed for reproducibility purposes
-    chunks : int
+    chunks : int, tuple, or {'auto', 'cores'}
         How to chunk the array. Must be one of the following forms:
         -   A blocksize like 1000.
+        -   ``"auto"`` or ``None`` to use Dask automatic chunking.
+        -   ``"cores"`` to choose row chunks based on the available CPU count.
     dates : tuple, optional, default is None
         tuple of start and end date objects to use for generating
         random dates in the date column
@@ -445,16 +472,16 @@ def make_classification_df(
     y_series = dd.from_dask_array(y_array, columns="target", index=X_df.index)
 
     if dates:
-        # create a date variable
+        # create a date variable with the same row partitioning as X_array
         np.random.seed(random_state)
+        date_arr = da.from_array(
+            np.array([random_date(*dates)] * n_samples),
+            chunks=(X_array.chunks[0],),
+        )
         X_df = dd.concat(
             [
                 X_df,
-                dd.from_array(
-                    np.array([random_date(*dates)] * len(X_df)),
-                    chunksize=chunks,
-                    columns=["date"],
-                ),
+                dd.from_dask_array(date_arr, columns=["date"]),
             ],
             axis=1,
         )

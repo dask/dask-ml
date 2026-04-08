@@ -81,3 +81,31 @@ def test_make_classification_df():
     assert len(X_df) == 100
     assert len(y_series) == 100
     assert isinstance(y_series, dd.Series)
+
+
+@pytest.mark.parametrize("chunks_opt", [None, "auto", "cores"])
+def test_make_counts_chunk_options(chunks_opt):
+    X, y = dask_ml.datasets.make_counts(
+        n_samples=100, n_features=10, chunks=chunks_opt, random_state=0
+    )
+    assert isinstance(X, da.Array)
+    assert X.shape == (100, 10)
+    assert isinstance(y, da.Array)
+    assert y.shape == (100,)
+    assert X.chunks is not None
+    assert y.chunks is not None
+
+
+def test_make_classification_df_chunk_options():
+    for chunks_opt in ["auto", "cores"]:
+        X_df, y_series = dask_ml.datasets.make_classification_df(
+            n_samples=100,
+            n_features=5,
+            random_state=123,
+            chunks=chunks_opt,
+            dates=(date(2014, 1, 1), date(2015, 1, 1)),
+        )
+        assert len(X_df) == 100
+        assert len(y_series) == 100
+        assert "date" in X_df.columns
+        assert isinstance(y_series, dd.Series)
