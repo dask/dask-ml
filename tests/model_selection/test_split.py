@@ -7,6 +7,7 @@ from sklearn.datasets import fetch_20newsgroups, make_regression
 
 import dask_ml.model_selection
 from dask_ml._compat import DASK_2130
+from dask_ml.model_selection import train_test_split
 
 X, y = make_regression(n_samples=110, n_features=5)
 dX = da.from_array(X, 50)
@@ -259,3 +260,149 @@ def test_split_3d_data():
 
     assert X_train.ndim == X_3d.ndim
     assert X_train.shape[1:] == X_3d.shape[1:]
+
+
+def _counts(y):
+    arr = y.compute() if isinstance(y, (da.Array, dd.Series, dd.DataFrame)) else y
+    return dict(zip(*np.unique(np.asarray(arr).ravel(), return_counts=True)))
+
+
+def test_stratify_dask_array_correctness():
+    """Ratios + X shape + sum-of-splits + disjoint rows on dask.Array."""
+    y_np = np.repeat([0, 1, 2], [600, 300, 100])
+    X_np = np.arange(1000 * 4).reshape(1000, 4)
+    X = da.from_array(X_np, chunks=200)
+    y = da.from_array(y_np, chunks=200)
+
+    Xtr, Xte, ytr, yte = train_test_split(
+        X, y, stratify=y, random_state=0, test_size=0.2
+    )
+    assert _counts(ytr) == {0: 480, 1: 240, 2: 80}
+    assert _counts(yte) == {0: 120, 1: 60, 2: 20}
+    Xtr_c, Xte_c = Xtr.compute(), Xte.compute()
+    assert Xtr_c.shape == (800, 4) and Xte_c.shape == (200, 4)
+    assert set(map(tuple, Xtr_c)).isdisjoint(set(map(tuple, Xte_c)))
+
+
+def test_stratify_dask_dataframe_correctness():
+    df = pd.DataFrame(
+        {
+            "a": np.arange(1000),
+            "b": np.arange(1000, 2000),
+            "label": np.repeat([0, 1, 2], [500, 300, 200]),
+        }
+    )
+    ddf = dd.from_pandas(df, npartitions=5)
+    Xtr, Xte, ytr, yte = train_test_split(
+        ddf[["a", "b"]],
+        ddf["label"],
+        stratify=ddf["label"],
+        random_state=0,
+        test_size=0.2,
+        shuffle=True,
+    )
+    assert _counts(ytr) == {0: 400, 1: 240, 2: 160}
+    assert _counts(yte) == {0: 100, 1: 60, 2: 40}
+
+
+def test_stratify_reproducibility_and_output_order():
+    """Same seed gives identical outputs. Output order interleaved, not class-grouped."""
+    y_np = np.tile([0, 1, 2], 333)[:999]
+    X_np = np.arange(999 * 2).reshape(999, 2)
+    X = da.from_array(X_np, chunks=200)
+    y = da.from_array(y_np, chunks=200)
+
+    a = train_test_split(X, y, stratify=y, random_state=42, test_size=0.2)
+    b = train_test_split(X, y, stratify=y, random_state=42, test_size=0.2)
+    for x, y_ in zip(a, b):
+        np.testing.assert_array_equal(x.compute(), y_.compute())
+
+    ytr = a[2].compute()
+    # naive per-class concat would yield [0,0,...,1,1,...,2,2,...]: 2 transitions
+    transitions = int(np.sum(ytr[1:] != ytr[:-1]))
+    assert transitions > len(ytr) // 4
+
+
+@pytest.mark.parametrize("as_dask", [False, True], ids=["numpy", "dask"])
+def test_stratify_2d_compound(as_dask):
+    """2D stratify = compound (multilabel) class labels, sklearn semantics."""
+    n = 80
+    col_a = np.repeat([0, 1], n // 2)
+    col_b = np.tile([0, 1], n // 2)
+    strat_np = np.column_stack([col_a, col_b])  # 4 compound classes, 20 each
+    strat = da.from_array(strat_np, chunks=(20, 2)) if as_dask else strat_np
+    X = da.from_array(np.arange(n).reshape(-1, 1), chunks=20)
+
+    Xtr, Xte = train_test_split(X, stratify=strat, random_state=0, test_size=0.25)
+    tr_idx = set(Xtr.compute().ravel())
+    te_idx = set(Xte.compute().ravel())
+    assert len(tr_idx) == 60 and len(te_idx) == 20
+    for a in (0, 1):
+        for b in (0, 1):
+            cls_rows = set(np.where((strat_np[:, 0] == a) & (strat_np[:, 1] == b))[0])
+            assert len(cls_rows & tr_idx) == 15
+            assert len(cls_rows & te_idx) == 5
+
+
+@pytest.mark.parametrize(
+    "stratify,extra,err,match",
+    [
+        (True, {}, TypeError, "must be an array of class labels"),
+        (1, {}, TypeError, "must be an array of class labels"),
+        ("y", {"shuffle": False}, NotImplementedError, "shuffle=False"),
+    ],
+    ids=["bool", "scalar", "shuffle_false"],
+)
+def test_stratify_invalid_args(stratify, extra, err, match):
+    X = da.from_array(np.random.RandomState(0).random((100, 2)), chunks=50)
+    y = da.from_array(np.repeat([0, 1], 50), chunks=50)
+    kwargs = {"stratify": y if stratify == "y" else stratify}
+    with pytest.raises(err, match=match):
+        train_test_split(X, y, **kwargs, **extra)
+
+
+def test_stratify_length_mismatch_raises():
+    X = da.from_array(np.random.RandomState(0).random((100, 2)), chunks=50)
+    bad = da.from_array(np.repeat([0, 1], 40), chunks=40)
+    with pytest.raises(ValueError, match="[Ll]ength"):
+        train_test_split(X, stratify=bad, random_state=0)
+
+
+@pytest.mark.parametrize(
+    "bad_labels,kind",
+    [
+        (np.array([0.0, np.nan, 1.0, 1.0, 0.0]), "float-nan"),
+        (np.array([0, None, 1, 1, 0], dtype=object), "object-none"),
+        (pd.array([0, pd.NA, 1, 1, 0], dtype="Int64"), "pandas-NA"),
+    ],
+)
+def test_stratify_nan_labels_rejected(bad_labels, kind):
+    """In-memory stratify with missing values is rejected eagerly."""
+    X = np.arange(5 * 2).reshape(5, 2)
+    Xd = da.from_array(X, chunks=3)
+    with pytest.raises(ValueError, match="NaN|NA|missing"):
+        train_test_split(Xd, stratify=bad_labels, random_state=0, test_size=0.4)
+
+
+def test_stratify_nan_labels_rejected_dask_lazy():
+    """Dask stratify with NaN: validation is lazy (per-block, on .compute()).
+
+    Eager validation would require loading the label array on the driver,
+    which we explicitly avoid for dask inputs. Graph build succeeds; the
+    error surfaces when the user calls .compute().
+    """
+    X = da.from_array(np.arange(10 * 2).reshape(10, 2), chunks=5)
+    y = da.from_array(np.array([0.0, np.nan, 1.0, 1.0, 0.0] * 2), chunks=5)
+    Xtr, Xte = train_test_split(X, stratify=y, random_state=0, test_size=0.4)
+    assert isinstance(Xtr, da.Array)  # graph built lazily, no error yet
+    with pytest.raises(ValueError, match="NaN|NA|missing"):
+        Xtr.compute()
+
+
+def test_stratify_misaligned_partitions_raise():
+    """Dask stratify with different partition count than input arrays."""
+    rng = np.random.RandomState(0)
+    X = da.from_array(rng.random((1000, 2)), chunks=200)  # 5 blocks
+    y = da.from_array(np.repeat([0, 1], 500), chunks=334)  # 3 blocks
+    with pytest.raises(ValueError, match="[Aa]xis-0 partitioning"):
+        train_test_split(X, stratify=y, random_state=0, test_size=0.2)
