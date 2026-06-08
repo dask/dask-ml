@@ -193,6 +193,9 @@ class PCA(sklearn.decomposition.PCA):
         self.svd_solver = svd_solver
         self.tol = tol
         self.iterated_power = iterated_power
+        # scikit-learn's PCA.__sklearn_tags__ reads this attribute for
+        # randomized solvers when check_is_fitted calls get_tags.
+        self.power_iteration_normalizer = "auto"
         self.random_state = random_state
 
     def fit(self, X, y=None):
