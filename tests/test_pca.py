@@ -104,6 +104,17 @@ def test_pca_randomized_solver():
     )
 
 
+def test_pca_randomized_transform_after_fit():
+    pca = dd.PCA(n_components=2, svd_solver="randomized", random_state=0)
+
+    pca.fit(dX)
+    assert pca.power_iteration_normalizer == sd.PCA().power_iteration_normalizer
+
+    X_r = pca.transform(dX)
+    assert X_r.shape == (n_samples, 2)
+    X_r.compute()
+
+
 def test_no_empty_slice_warning():
     if not DASK_2_26_0:
         # See https://github.com/dask/dask/pull/6591
