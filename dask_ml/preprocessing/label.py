@@ -136,8 +136,8 @@ class LabelEncoder(sklearn.preprocessing.LabelEncoder):
             self.classes_, y = _encode_dask_array(y, encode=True)
             self.dtype_ = None
         elif _is_categorical(y):
-            self.classes_, y = _encode_categorical(y, encode=True)
             self.dtype_ = y.dtype
+            self.classes_, y = _encode_categorical(y, encode=True)
         else:
             return super(LabelEncoder, self).fit_transform(y)
 

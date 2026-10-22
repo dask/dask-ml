@@ -90,6 +90,44 @@ class TestLabelEncoder:
         assert result.dtype == "int8"
         assert result.dtype == result.compute().dtype
 
+    @pytest.mark.parametrize("daskify", [False, True])
+    @pytest.mark.parametrize("ordered", [False, True])
+    @pytest.mark.parametrize("method", ["fit", "fit_transform"])
+    @pytest.mark.parametrize("operation", ["transform", "inverse_transform"])
+    def test_categorical_fit_transform_reuse(self, daskify, ordered, method, operation):
+        expected = pd.Series(
+            ["b", "a", None, "b"],
+            dtype=pd.CategoricalDtype(["c", "a", "b"], ordered=ordered),
+        )
+        data = dd.from_pandas(expected, npartitions=2) if daskify else expected
+        encoder = dpp.LabelEncoder()
+        if method == "fit_transform":
+            encoded = encoder.fit_transform(data)
+        else:
+            encoded = encoder.fit(data).transform(data)
+
+        expected_codes = np.array([2, 1, -1, 2], dtype=np.int8)
+        actual_codes = encoded.compute() if daskify else encoded
+        np.testing.assert_array_equal(actual_codes, expected_codes)
+
+        if operation == "transform":
+            actual = encoder.transform(data)
+            if daskify:
+                assert isinstance(actual, da.Array)
+                actual = actual.compute()
+            np.testing.assert_array_equal(actual, expected_codes)
+        else:
+            actual = encoder.inverse_transform(encoded)
+            if daskify:
+                assert isinstance(actual, dd.Series)
+                actual = actual.compute()
+            pd.testing.assert_series_equal(
+                actual.reset_index(drop=True), expected, check_names=False
+            )
+
+        assert encoder.dtype_ == expected.dtype
+        np.testing.assert_array_equal(encoder.classes_, expected.cat.categories)
+
     @pytest.mark.parametrize("array", [y, s])
     def test_inverse_transform(self, array):
         a = dpp.LabelEncoder()
