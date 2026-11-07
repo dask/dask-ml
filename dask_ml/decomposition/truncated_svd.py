@@ -35,7 +35,7 @@ class TruncatedSVD(BaseEstimator, TransformerMixin):
             algorithm internally. 'randomized' uses an approximate algorithm
             that is faster, but not exact. See the References for more.
 
-        n_iter : int, optional (default 0)
+        n_iter : int, optional (default 5)
             Number of power iterations, useful when the singular values
             decay slowly. Error decreases exponentially as n_power_iter
             increases. In practice, set n_power_iter <= 4.
