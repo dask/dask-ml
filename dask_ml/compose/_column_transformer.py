@@ -169,12 +169,15 @@ boolean mask array or callable
             transformer_weights=transformer_weights,
         )
 
-    def _hstack(self, Xs):
+    def _hstack(self, Xs, *, n_samples):
         """
         Stacks X horizontally.
 
         Supports input types (X): list of
             numpy arrays, sparse arrays and DataFrames
+
+        The input row count is used to validate the concatenated pandas
+        DataFrame. Dask outputs stay lazy without counting their rows.
         """
         types = set(type(X) for X in Xs)
 
@@ -195,7 +198,14 @@ boolean mask array or callable
             # changed this to da.hstack(Xs, allow_unknown_chunksizes=True)
             return da.concatenate(Xs, axis=1, allow_unknown_chunksizes=True)
         elif self.preserve_dataframe and (pd.Series in types or pd.DataFrame in types):
-            return pd.concat(Xs, axis="columns")
+            result = pd.concat(Xs, axis="columns")
+            if len(result) != n_samples:
+                raise ValueError(
+                    "Concatenating DataFrames from the transformers produced an "
+                    "inconsistent number of samples. Check that the transformers "
+                    "preserve the input row count and use matching pandas indexes."
+                )
+            return result
         else:
             return np.hstack(Xs)
 

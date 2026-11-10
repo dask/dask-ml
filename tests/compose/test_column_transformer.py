@@ -1,19 +1,68 @@
+import dask.array as da
 import dask.dataframe as dd
 import numpy as np
 import packaging.version
 import pandas as pd
 import pytest
 import sklearn.compose
+import sklearn.feature_extraction.text
 import sklearn.pipeline
 import sklearn.preprocessing
+from scipy import sparse
 from sklearn.base import BaseEstimator, clone
 
 import dask_ml.compose
 import dask_ml.preprocessing
 from dask_ml._compat import SK_VERSION
+from dask_ml.feature_extraction.text import HashingVectorizer
 
 df = pd.DataFrame({"A": pd.Categorical(["a", "a", "b", "a"]), "B": [1.0, 2, 4, 5]})
 ddf = dd.from_pandas(df, npartitions=2).reset_index(drop=True)  # unknown divisions
+
+
+def test_column_transformer_preserves_pandas_output():
+    X = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]}, index=[9, 12, 21])
+    ct = dask_ml.compose.ColumnTransformer(
+        [("second", "passthrough", ["b"]), ("first", "passthrough", ["a"])]
+    )
+
+    pd.testing.assert_frame_equal(ct.fit_transform(X), X[["b", "a"]])
+    pd.testing.assert_frame_equal(ct.transform(X), X[["b", "a"]])
+
+
+def test_column_transformer_rejects_mismatched_pandas_indexes():
+    X = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]}, index=[9, 12, 21])
+    reset_index = sklearn.preprocessing.FunctionTransformer(
+        lambda frame: frame.reset_index(drop=True)
+    )
+    ct = dask_ml.compose.ColumnTransformer(
+        [("first", "passthrough", ["a"]), ("second", reset_index, ["b"])]
+    )
+
+    with pytest.raises(ValueError, match="inconsistent number of samples"):
+        ct.fit_transform(X)
+
+
+def test_column_transformer_hashing_vectorizers():
+    X = np.array([["example", "lorem"], ["text", "ipsum"], ["another", "sit"]])
+    lazy_X = da.from_array(X, chunks=(2, 2))
+    ct = dask_ml.compose.ColumnTransformer(
+        [
+            ("title", HashingVectorizer(n_features=8), 0),
+            ("body", HashingVectorizer(n_features=8), 1),
+        ]
+    )
+    reference = sklearn.feature_extraction.text.HashingVectorizer(n_features=8)
+    expected = sparse.hstack([reference.transform(X[:, col]) for col in range(2)])
+
+    fitted = ct.fit_transform(lazy_X)
+    transformed = ct.transform(lazy_X)
+
+    for result in [fitted, transformed]:
+        assert isinstance(result, da.Array)
+        actual = result.compute()
+        assert sparse.issparse(actual)
+        np.testing.assert_array_equal(actual.toarray(), expected.toarray())
 
 
 @pytest.mark.skip(
