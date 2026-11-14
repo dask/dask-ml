@@ -16,7 +16,6 @@ LICENSE
 New BSD. See `License File <https://github.com/dask/dask-ml/blob/main/LICENSE.txt>`__.
 
 .. _documentation: https://dask.org
-.. |Build Status| image:: https://github.com/dask/dask-ml/workflows/CI/badge.svg?branch=main
    :target: https://github.com/dask/dask-ml/actions?query=workflow%3A%22CI%22
 .. |Azure Pipelines| image:: https://dev.azure.com/dask-dev/dask/_apis/build/status/dask.dask-ml?branchName=main
    :target: https://dev.azure.com/dask-dev/dask/_build/latest?definitionId=1&branchName=main
